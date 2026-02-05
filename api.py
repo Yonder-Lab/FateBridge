@@ -37,7 +37,10 @@ app = FastAPI(
 # ============================================================================
 
 # Get allowed origins from environment variable, default to localhost for development
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+ALLOWED_ORIGINS = [
+    origin.strip() for origin in
+    os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -110,13 +113,13 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
         return result
 
     except ValueError as e:
-        logger.warning(f"Invalid input: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Invalid input: {str(e)}")
+        logger.warning(f"Invalid input received: {type(e).__name__}")
+        raise HTTPException(status_code=400, detail="无效的输入参数，请检查日期有效性")
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Unexpected error during calculation: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
 @app.get("/health")

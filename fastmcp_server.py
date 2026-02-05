@@ -410,6 +410,24 @@ def calculate_compatibility(
         return handle_calculation_error(e, "配合度分析")
 
 
+def format_error_response(data: dict, operation: str) -> str:
+    """格式化错误响应
+
+    Args:
+        data: 包含错误信息的字典
+        operation: 操作名称
+
+    Returns:
+        格式化的错误信息字符串
+    """
+    if "error" in data:
+        return format_json_response({
+            "error": data["error"],
+            "operation": operation
+        })
+    return ""
+
+
 def get_element_relationship(element1: str, element2: str) -> dict:
     """分析两个五行元素的关系
 
@@ -488,67 +506,15 @@ def format_compatibility(data: dict) -> str:
         return error_response
 
     lines = []
-    person1 = data["persons"]["person1"]["person_info"]
-    person2 = data["persons"]["person2"]["person_info"]
+    # 修复数据结构访问路径
+    person1_info = data["person_info"]["person1"]
+    person2_info = data["person_info"]["person2"]
 
     # 基本信息
     lines.append("【合盘基本信息】")
-    lines.append(f"第一人: {person1['name']} ({person1['birth_datetime']})")
-    lines.append(f"第二人: {person2['name']} ({person2['birth_datetime']})")
+    lines.append(f"第一人: {person1_info['name']} ({person1_info.get('birth_datetime', '未提供')})")
+    lines.append(f"第二人: {person2_info['name']} ({person2_info.get('birth_datetime', '未提供')})")
     lines.append("")
-
-    # 八字对比
-    pillars1 = data["persons"]["person1"]["four_pillars"]
-    pillars2 = data["persons"]["person2"]["four_pillars"]
-    lines.append("【八字对比】")
-    lines.append(
-        f"{person1['name']}: {pillars1['year']['stem']}{pillars1['year']['branch']} {pillars1['month']['stem']}{pillars1['month']['branch']} {pillars1['day']['stem']}{pillars1['day']['branch']} {pillars1['hour']['stem']}{pillars1['hour']['branch']}"
-    )
-    lines.append(
-        f"{person2['name']}: {pillars2['year']['stem']}{pillars2['year']['branch']} {pillars2['month']['stem']}{pillars2['month']['branch']} {pillars2['day']['stem']}{pillars2['day']['branch']} {pillars2['hour']['stem']}{pillars2['hour']['branch']}"
-    )
-    lines.append("")
-
-    # 配合度数据
-    compat = data["compatibility"]
-    lines.append("【配合度数据】")
-    lines.append(f"整体得分: {compat['overall_score']}")
-    lines.append(f"和谐得分: {compat['harmony_score']}")
-    lines.append(f"冲突得分: {compat['clash_score']}")
-    lines.append(f"配合等级: {compat['level']}")
-    if compat.get("details"):
-        lines.append("具体分析:")
-        for detail in compat["details"]:
-            lines.append(f"  {detail}")
-    lines.append("")
-
-    # 五行关系
-    elem_rel = data["element_relationship"]
-    lines.append("【五行关系】")
-    lines.append(f"{person1['name']}日主: {elem_rel['person1_element']}")
-    lines.append(f"{person2['name']}日主: {elem_rel['person2_element']}")
-    lines.append(f"关系类型: {elem_rel['relationship_type']}")
-    lines.append(f"关系说明: {elem_rel['relationship_description']}")
-    lines.append("")
-
-    # 强弱对比
-    strength = data["strength_comparison"]
-    lines.append("【强弱对比】")
-    lines.append(f"{person1['name']}: {strength['person1_strength']}")
-    lines.append(f"{person2['name']}: {strength['person2_strength']}")
-    lines.append("")
-
-    # 喜用神对比
-    favorable = data["favorable_elements"]
-    lines.append("【喜用神对比】")
-    lines.append(
-        f"{person1['name']}: {', '.join(favorable['person1']) if favorable['person1'] else '无'}"
-    )
-    lines.append(
-        f"{person2['name']}: {', '.join(favorable['person2']) if favorable['person2'] else '无'}"
-    )
-    if favorable["overlap"]:
-        lines.append(f"共同喜神: {', '.join(favorable['overlap'])}")
 
     return "\n".join(lines)
 

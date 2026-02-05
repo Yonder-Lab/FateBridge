@@ -5,10 +5,11 @@ This module centralizes common functions used across api.py and fastmcp_server.p
 
 import json
 import logging
+from calendar import monthrange
 from datetime import datetime
 from typing import Optional, Dict, Any, Tuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +23,28 @@ class PersonInfo(BaseModel):
     """个人信息模型"""
 
     name: Optional[str] = Field(default="未提供", description="姓名（可选）")
-    birth_year: int = Field(description="出生年份，如2000")
+    birth_year: int = Field(ge=1900, le=2100, description="出生年份，如2000")
     birth_month: int = Field(ge=1, le=12, description="出生月份 1-12")
     birth_day: int = Field(ge=1, le=31, description="出生日期 1-31")
     birth_hour: int = Field(ge=0, le=23, description="出生时辰 0-23")
     gender: Optional[str] = Field(default="未知", description="性别（可选）")
     birth_place: Optional[str] = Field(default="未提供", description="出生地（可选）")
+
+    @field_validator('birth_day')
+    @classmethod
+    def validate_birth_day(cls, v: int, info) -> int:
+        """验证日期是否有效"""
+        month = info.data.get('birth_month')
+        year = info.data.get('birth_year')
+
+        if month and year:
+            max_day = monthrange(year, month)[1]
+            if v > max_day:
+                raise ValueError(
+                    f"无效的日期: {year}年{month}月{v}日 "
+                    f"(该月只有{max_day}天)"
+                )
+        return v
 
 
 # ============================================================================
