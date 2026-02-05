@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from logic import calculate_fatebridge
+from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.utils.helpers import create_person_info
 
 # ============================================================================
@@ -102,7 +102,7 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
         )
 
         # Perform calculation
-        result = calculate_fatebridge(person)
+        result = calculate_destiny_analysis(person)
 
         # Check for errors in result
         if "error" in result:

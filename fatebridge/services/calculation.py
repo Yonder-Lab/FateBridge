@@ -1,7 +1,6 @@
 """
-Business logic module for FateBridge - imports shared utilities.
+FateBridge Calculation Services
 """
-
 from typing import Dict
 
 # Import core modules
@@ -10,19 +9,15 @@ from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.rules import BaZiRules
 from fatebridge.utils.helpers import (
     PersonInfo,
-    create_person_info,
     create_birth_datetime,
     handle_calculation_error,
     create_pillar_dict,
 )
 
-
-# ============================================================================
-# Core Logic
-# ============================================================================
-
-
-def calculate_fatebridge(person: PersonInfo) -> Dict:
+def calculate_destiny_analysis(person: PersonInfo) -> Dict:
+    """
+    Calculate individual destiny analysis based on birth information.
+    """
     try:
         # 转换为datetime
         birth_datetime = create_birth_datetime(

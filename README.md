@@ -374,7 +374,7 @@ mypy fatebridge/
 
 - GitHub Issues：报告 Bug 和功能请求
 - GitHub Discussions：提问和讨论
-- Email：[提交建议](mailto:your-email@example.com)
+- Email：[提交建议](mailto:yx20001210@163.com)
 
 ---
 
