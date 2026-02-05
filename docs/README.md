@@ -247,7 +247,7 @@
 
 ## 📄 许可证
 
-所有文档均采用 MIT 许可证。详见 [LICENSE](../LICENSE)。
+所有文档均采用 Apache License 2.0。详见 [LICENSE](../LICENSE)。
 
 ---
 
