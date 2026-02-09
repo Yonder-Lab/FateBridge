@@ -94,6 +94,15 @@ class BaZiRules:
         ("子", "辰"), # 癸-戊 (Special case mentioned by user)
     ]
 
+    # 四驿马 (Four Horses / Four Travels) - 生
+    FOUR_HORSES = ["寅", "申", "巳", "亥"]
+
+    # 四正 (Four Cardinals / Four Peaches) - 旺
+    FOUR_CARDINALS = ["子", "午", "卯", "酉"]
+
+    # 四库 (Four Treasuries / Four Graves) - 墓
+    FOUR_TREASURIES = ["辰", "戌", "丑", "未"]
+
     @staticmethod
     def check_harmony_patterns(
         pillars: Dict[str, Tuple[str, str]],
@@ -513,6 +522,75 @@ class BaZiRules:
         if len(set(branches)) == 1:
             patterns["branch_unity"] = branches[0]
 
+        # Check for Four Horses, Cardinals, Treasuries
+        # 1. Analyze individual branch attributes (per pillar)
+        branch_attributes = {}
+        for pillar_name, (_, branch) in pillars.items():
+            attr_data = {"branch": branch}
+            
+            if branch in BaZiRules.FOUR_HORSES:
+                attr_data["type"] = "驿马" # 生地
+            elif branch in BaZiRules.FOUR_CARDINALS:
+                attr_data["type"] = "四正" # 旺地
+            elif branch in BaZiRules.FOUR_TREASURIES:
+                attr_data["type"] = "四库" # 墓库
+            else:
+                attr_data["type"] = "未知"
+            
+            branch_attributes[pillar_name] = attr_data
+
+        patterns["branch_attributes"] = branch_attributes
+
+        # 2. Count occurrences and check for patterns
+        horses_count = sum(1 for b in branches if b in BaZiRules.FOUR_HORSES)
+        cardinals_count = sum(1 for b in branches if b in BaZiRules.FOUR_CARDINALS)
+        treasuries_count = sum(1 for b in branches if b in BaZiRules.FOUR_TREASURIES)
+
+        # Store counts
+        patterns["counts"] = {
+            "horses": horses_count,
+            "cardinals": cardinals_count,
+            "treasuries": treasuries_count
+        }
+
+        # Initialize defaults
+        patterns["four_horses_complete"] = False
+        patterns["many_horses"] = False
+        patterns["all_horses"] = False
+        
+        patterns["four_cardinals_complete"] = False
+        patterns["many_cardinals"] = False
+        patterns["all_cardinals"] = False
+        
+        patterns["four_treasuries_complete"] = False
+        patterns["many_treasuries"] = False
+        patterns["all_treasuries"] = False
+
+        # Check for complete sets (all 4 unique branches present)
+        unique_branches = set(branches)
+        if all(b in unique_branches for b in BaZiRules.FOUR_HORSES):
+            patterns["four_horses_complete"] = True # 四位纯全 (四驿马)
+        elif horses_count >= 3:
+            patterns["many_horses"] = True
+ 
+        if all(b in unique_branches for b in BaZiRules.FOUR_CARDINALS):
+            patterns["four_cardinals_complete"] = True # 四位纯全 (四正)
+        elif cardinals_count >= 3:
+            patterns["many_cardinals"] = True
+ 
+        if all(b in unique_branches for b in BaZiRules.FOUR_TREASURIES):
+            patterns["four_treasuries_complete"] = True # 四位纯全 (四库)
+        elif treasuries_count >= 3:
+            patterns["many_treasuries"] = True
+             
+        # Check if all branches belong to one group (Pure)
+        if horses_count == 4:
+            patterns["all_horses"] = True # 遍野桃花/四马之地
+        if cardinals_count == 4:
+            patterns["all_cardinals"] = True # 四败/四正
+        if treasuries_count == 4:
+            patterns["all_treasuries"] = True # 四库
+ 
         return patterns
 
     @staticmethod
