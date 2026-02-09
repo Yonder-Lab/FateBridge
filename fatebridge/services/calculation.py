@@ -33,6 +33,10 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
         # 格局分析
         harmony_patterns = BaZiRules.check_harmony_patterns(pillars)
         clash_patterns = BaZiRules.check_clash_patterns(pillars)
+        stem_patterns = BaZiRules.check_stem_patterns(pillars)
+        hidden_patterns = BaZiRules.check_hidden_patterns(pillars)
+        pillar_patterns = BaZiRules.check_pillar_patterns(pillars)
+        fu_yin_fan_yin = BaZiRules.check_fu_yin_fan_yin(pillars)
         special_patterns = BaZiRules.analyze_special_patterns(
             pillars, person.birth_hour
         )
@@ -59,6 +63,10 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
             "patterns": {
                 "harmony": harmony_patterns,
                 "clash": clash_patterns,
+                "stems": stem_patterns,
+                "hidden": hidden_patterns,
+                "pillar_relationships": pillar_patterns,
+                "fu_yin_fan_yin": fu_yin_fan_yin,
                 "special": special_patterns,
             },
         }

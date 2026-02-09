@@ -120,14 +120,48 @@ class AdvancedCompatibility:
         result["overall_score"] += weighted_pattern_score
 
         # 5. 传统刑冲克害分析 (权重: 5%)
-        traditional_analysis = BaZiRules.calculate_compatibility_score(
-            pillars1, pillars2
-        )
-        # 将传统分析的分数标准化到0-100
-        normalized_traditional_score = min(
-            100, max(0, traditional_analysis["overall_score"] * 10)
-        )
-        traditional_analysis["normalized_score"] = normalized_traditional_score
+        # 使用新的规则计算传统分析分数
+        # 由于calculate_compatibility_score可能还没有更新，我们手动计算
+        traditional_score = 50.0  # 基础分
+        details = []
+        
+        # 提取地支
+        branches1 = [branch for _, branch in pillars1.values()]
+        branches2 = [branch for _, branch in pillars2.values()]
+        
+        # 检查六冲
+        for b1 in branches1:
+            for b2 in branches2:
+                for clash_pair in BaZiRules.SIX_CLASH:
+                    if (b1, b2) in [clash_pair, clash_pair[::-1]]:
+                        traditional_score -= 2
+                        details.append(f"{b1}与{b2}六冲")
+        
+        # 检查六害
+        for b1 in branches1:
+            for b2 in branches2:
+                for harm_pair in BaZiRules.SIX_HARM:
+                    if (b1, b2) in [harm_pair, harm_pair[::-1]]:
+                        traditional_score -= 2
+                        details.append(f"{b1}与{b2}六害")
+                        
+        # 检查三刑
+        # 这是一个简化检查，实际三刑需要三个地支，这里只检查两个人的地支组合
+        all_combined_branches = branches1 + branches2
+        for punishment_set in BaZiRules.TRIPLE_PUNISHMENT:
+             found = [b for b in punishment_set if b in all_combined_branches]
+             if len(punishment_set) == 3 and len(found) == 3:
+                 traditional_score -= 5
+                 details.append(f"合盘构成{''.join(punishment_set)}三刑")
+        
+        normalized_traditional_score = min(100, max(0, traditional_score))
+        
+        traditional_analysis = {
+            "overall_score": (traditional_score - 50) / 10, # 转换回大致的原始分数范围
+            "normalized_score": normalized_traditional_score,
+            "details": details
+        }
+        
         result["detailed_analysis"]["traditional_analysis"] = traditional_analysis
         weighted_traditional_score = (
             normalized_traditional_score * weights["traditional_analysis"]
@@ -1264,15 +1298,37 @@ class AdvancedCompatibility:
         harmony1 = patterns1.get("harmony", {})
         harmony2 = patterns2.get("harmony", {})
 
-        if harmony1.get("triple_harmony") and harmony2.get("triple_harmony"):
+        # 三合局检查 (包括全三合和半三合)
+        has_three1 = bool(harmony1.get("three_harmony"))
+        has_half1 = bool(harmony1.get("half_harmony"))
+        has_three2 = bool(harmony2.get("three_harmony"))
+        has_half2 = bool(harmony2.get("half_harmony"))
+
+        if has_three1 and has_three2:
             analysis["details"].append("两人都有三合局，格局高度相配")
             analysis["score"] += 25
             analysis["pattern_combination"] = "双三合"
             analysis["synergy_effects"].append("三合局互相呼应，能量倍增")
-        elif harmony1.get("triple_harmony") or harmony2.get("triple_harmony"):
+        elif (has_three1 and has_half2) or (has_half1 and has_three2):
+            analysis["details"].append("三合配合半合，能量互补")
+            analysis["score"] += 20
+            analysis["pattern_combination"] = "三合配半合"
+            analysis["synergy_effects"].append("强弱搭配，互为助力")
+        elif has_half1 and has_half2:
+            analysis["details"].append("两人都有半合局，气场相投")
+            analysis["score"] += 15
+            analysis["pattern_combination"] = "双半合"
+            analysis["synergy_effects"].append("半合共鸣，潜移默化")
+        elif has_three1 or has_three2:
             analysis["details"].append("一方有三合局，带动整体格局")
             analysis["score"] += 15
-            analysis["pattern_combination"] = "单三合"
+            if not analysis["pattern_combination"]:
+                analysis["pattern_combination"] = "单三合"
+        elif has_half1 or has_half2:
+            analysis["details"].append("一方有半合局，增加格局灵活性")
+            analysis["score"] += 10
+            if not analysis["pattern_combination"]:
+                analysis["pattern_combination"] = "单半合"
 
         if harmony1.get("six_harmony") and harmony2.get("six_harmony"):
             analysis["details"].append("两人都有六合，关系和谐稳定")

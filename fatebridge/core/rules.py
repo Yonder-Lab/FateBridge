@@ -37,6 +37,16 @@ class BaZiRules:
         ("巳", "亥"),
     ]
 
+    # 地支六害 (Six Harm)
+    SIX_HARM = [
+        ("子", "未"),
+        ("丑", "午"),
+        ("寅", "巳"),
+        ("卯", "辰"),
+        ("申", "亥"),
+        ("酉", "戌"),
+    ]
+
     # 地支三刑 (Triple Punishment)
     TRIPLE_PUNISHMENT = [
         ("寅", "巳", "申"),  # 无恩之刑
@@ -48,6 +58,42 @@ class BaZiRules:
         ("亥",),  # 自刑
     ]
 
+    # 天干五合 (Heavenly Stems Combinations)
+    STEM_COMBINATIONS = [
+        ("甲", "己", "土"),  # 中正之合
+        ("乙", "庚", "金"),  # 仁义之合
+        ("丙", "辛", "水"),  # 威制之合
+        ("丁", "壬", "木"),  # 淫匿之合
+        ("戊", "癸", "火"),  # 无情之合
+    ]
+
+    # 天干四冲 (Heavenly Stems Clashes)
+    STEM_CLASHES = [
+        ("甲", "庚"),
+        ("乙", "辛"),
+        ("丙", "壬"),
+        ("丁", "癸"),
+    ]
+
+    # 地支拱局 (Arch Combinations)
+    # (Branch1, Branch2, Arched_Branch, Element, Related_Stem)
+    ARCH_COMBINATIONS = [
+        ("寅", "辰", "卯", "木", "乙"),  # 拱东方木
+        ("巳", "未", "午", "火", "丁"),  # 拱南方火
+        ("申", "戌", "酉", "金", "辛"),  # 拱西方金
+        ("亥", "丑", "子", "水", "癸"),  # 拱北方水
+    ]
+
+    # 地支暗合 (Dark Combinations)
+    # 一般指地支藏干相合
+    DARK_COMBINATIONS = [
+        ("子", "巳"), # 癸-戊
+        ("寅", "丑"), # 甲-己, 丙-辛
+        ("午", "亥"), # 丁-壬, 己-甲
+        ("卯", "申"), # 乙-庚
+        ("子", "辰"), # 癸-戊 (Special case mentioned by user)
+    ]
+
     @staticmethod
     def check_harmony_patterns(
         pillars: Dict[str, Tuple[str, str]],
@@ -55,27 +101,39 @@ class BaZiRules:
         """Check for harmony patterns in the chart."""
         all_branches = [pillar_branch for _, pillar_branch in pillars.values()]
         harmony_patterns = {
-            "triple_harmony": [],
+            "three_harmony": [],
+            "half_harmony": [],
             "six_harmony": [],
         }
 
-        # Check triple harmony
+        # Check triple harmony and half harmony
         for triple_harmony_set in BaZiRules.TRIPLE_HARMONY:
             found_branches_in_set = [
                 branch for branch in triple_harmony_set if branch in all_branches
             ]
-            if len(found_branches_in_set) >= 2:
-                element_mapping = {
-                    ("申", "子", "辰"): "水局",
-                    ("亥", "卯", "未"): "木局",
-                    ("寅", "午", "戌"): "火局",
-                    ("巳", "酉", "丑"): "金局",
-                }
-                harmony_patterns["triple_harmony"].append(
+            
+            element_mapping = {
+                ("申", "子", "辰"): "水局",
+                ("亥", "卯", "未"): "木局",
+                ("寅", "午", "戌"): "火局",
+                ("巳", "酉", "丑"): "金局",
+            }
+            base_type = element_mapping[triple_harmony_set]
+
+            if len(found_branches_in_set) == 3:
+                harmony_patterns["three_harmony"].append(
                     {
-                        "type": element_mapping[triple_harmony_set],
+                        "type": f"三合{base_type}",
                         "branches": found_branches_in_set,
-                        "complete": len(found_branches_in_set) == 3,
+                        "complete": True,
+                    }
+                )
+            elif len(found_branches_in_set) == 2:
+                harmony_patterns["half_harmony"].append(
+                    {
+                        "type": f"半合{base_type}",
+                        "branches": found_branches_in_set,
+                        "complete": False,
                     }
                 )
 
@@ -89,12 +147,13 @@ class BaZiRules:
     @staticmethod
     def check_clash_patterns(
         pillars: Dict[str, Tuple[str, str]],
-    ) -> Dict[str, List[str]]:
+    ) -> Dict[str, Any]:
         """Check for clash patterns in the chart."""
         all_branches = [pillar_branch for _, pillar_branch in pillars.values()]
         clash_patterns = {
             "six_clash": [],
-            "triple_punishment": [],
+            "six_harm": [],
+            "punishments": [],  # Unified list for all punishments
         }
 
         # Check six clash
@@ -102,29 +161,300 @@ class BaZiRules:
             if all(branch in all_branches for branch in six_clash_pair):
                 clash_patterns["six_clash"].append(list(six_clash_pair))
 
-        # Check triple punishment
+        # Check six harm
+        for six_harm_pair in BaZiRules.SIX_HARM:
+            if all(branch in all_branches for branch in six_harm_pair):
+                clash_patterns["six_harm"].append(list(six_harm_pair))
+
+        # Check punishments
+        # 1. Triple Punishments (寅巳申, 丑戌未)
         for punishment_set in BaZiRules.TRIPLE_PUNISHMENT:
-            if len(punishment_set) == 3:  # Triple punishment (寅巳申、丑戌未)
-                # 传统理论：任意两个地支出现就构成相刑
-                found_branches_in_punishment = [
-                    branch for branch in punishment_set if branch in all_branches
-                ]
-                if len(found_branches_in_punishment) >= 2:
-                    clash_patterns["triple_punishment"].append(
-                        found_branches_in_punishment
-                    )
-            elif len(punishment_set) == 2:  # Pair punishment (子卯)
+            if len(punishment_set) == 3:
+                found_branches = [b for b in punishment_set if b in all_branches]
+                
+                # Full Triple Punishment
+                if len(found_branches) == 3:
+                    name_map = {
+                        ("寅", "巳", "申"): "无恩之刑",
+                        ("丑", "戌", "未"): "恃势之刑"
+                    }
+                    name = name_map.get(punishment_set, "三刑")
+                    clash_patterns["punishments"].append({
+                        "name": name,
+                        "type": "three_punishment",
+                        "branches": found_branches
+                    })
+                
+                # Partial Punishment (Pairs within the set)
+                elif len(found_branches) == 2:
+                    # Specific pairs logic
+                    # 寅巳: Harm + Punishment
+                    # 巳申: Harmony + Punishment
+                    # 寅申: Clash + Punishment
+                    # 丑戌: Punishment
+                    # 戌未: Punishment
+                    # 丑未: Clash
+                    
+                    b1, b2 = found_branches[0], found_branches[1]
+                    pair_name = f"{b1}{b2}相刑"
+                    
+                    # Filter out if it's purely a Clash (usually Clash overrides Punishment in nomenclature)
+                    # But for completeness we can list it, or filter.
+                    # Let's keep it but mark as 'pair_punishment'
+                    clash_patterns["punishments"].append({
+                        "name": pair_name,
+                        "type": "pair_punishment",
+                        "branches": found_branches
+                    })
+
+            # 2. Rude Punishment (子卯)
+            elif len(punishment_set) == 2:
                 if all(branch in all_branches for branch in punishment_set):
-                    clash_patterns["triple_punishment"].append(list(punishment_set))
-            elif len(punishment_set) == 1:  # Self punishment (辰、午、酉、亥)
+                    clash_patterns["punishments"].append({
+                        "name": "无礼之刑",
+                        "type": "pair_punishment",
+                        "branches": list(punishment_set)
+                    })
+
+            # 3. Self Punishment (辰, 午, 酉, 亥)
+            elif len(punishment_set) == 1:
                 punishment_branch = punishment_set[0]
                 branch_count = all_branches.count(punishment_branch)
                 if branch_count >= 2:
-                    clash_patterns["triple_punishment"].append(
-                        [punishment_branch] * branch_count
-                    )
+                    clash_patterns["punishments"].append({
+                        "name": f"{punishment_branch}{punishment_branch}自刑",
+                        "type": "self_punishment",
+                        "branches": [punishment_branch] * branch_count
+                    })
 
         return clash_patterns
+
+    @staticmethod
+    def check_stem_patterns(
+        pillars: Dict[str, Tuple[str, str]],
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """Check for Heavenly Stem patterns (Combinations, Clashes, Control)."""
+        stems = {k: v[0] for k, v in pillars.items()} # position -> stem
+        patterns = {
+            "combinations": [],
+            "clashes": [],
+            "controls": []
+        }
+        
+        pillar_names = ["year", "month", "day", "hour"]
+        
+        # Check adjacent pairs only (Year-Month, Month-Day, Day-Hour)
+        # This reflects the rule that stems must be adjacent to interact significantly.
+        for i in range(len(pillar_names) - 1):
+            p1, p2 = pillar_names[i], pillar_names[i+1]
+            s1, s2 = stems[p1], stems[p2]
+            
+            # Combinations
+            for c1, c2, transform in BaZiRules.STEM_COMBINATIONS:
+                if (s1 == c1 and s2 == c2) or (s1 == c2 and s2 == c1):
+                    patterns["combinations"].append({
+                        "stems": [s1, s2],
+                        "pillars": [p1, p2],
+                        "transform": transform,
+                        "name": f"{s1}{s2}合化{transform}"
+                    })
+            
+            # Clashes (Chong)
+            for c1, c2 in BaZiRules.STEM_CLASHES:
+                if (s1 == c1 and s2 == c2) or (s1 == c2 and s2 == c1):
+                    patterns["clashes"].append({
+                        "stems": [s1, s2],
+                        "pillars": [p1, p2],
+                        "name": f"{s1}{s2}相冲"
+                    })
+            
+            # Control (Ke) - General Elemental Control
+            from ..utils.data import STEM_ELEMENTS, DESTRUCTION_CYCLE
+            e1 = STEM_ELEMENTS[s1][0]
+            e2 = STEM_ELEMENTS[s2][0]
+            
+            is_clash = any((s1==x and s2==y) or (s1==y and s2==x) for x, y in BaZiRules.STEM_CLASHES)
+            if not is_clash:
+                if DESTRUCTION_CYCLE.get(e1) == e2:
+                    patterns["controls"].append({
+                            "stems": [s1, s2],
+                            "pillars": [p1, p2],
+                            "name": f"{s1}克{s2}"
+                    })
+                elif DESTRUCTION_CYCLE.get(e2) == e1:
+                        patterns["controls"].append({
+                            "stems": [s2, s1],
+                            "pillars": [p2, p1],
+                            "name": f"{s2}克{s1}"
+                        })
+
+        return patterns
+
+    @staticmethod
+    def check_hidden_patterns(
+        pillars: Dict[str, Tuple[str, str]],
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """Check for Hidden/Dark/Arch patterns."""
+        branches = {k: v[1] for k, v in pillars.items()}
+        stems = [v[0] for v in pillars.values()] # All stems for Arch check
+        patterns = {
+            "arch_combinations": [], # 拱局
+            "dark_combinations": [], # 暗合
+        }
+        
+        pillar_names = ["year", "month", "day", "hour"]
+        
+        # Arch Combinations (Gong)
+        for i in range(len(pillar_names)):
+            for j in range(i + 1, len(pillar_names)):
+                p1, p2 = pillar_names[i], pillar_names[j]
+                b1, b2 = branches[p1], branches[p2]
+                
+                for start, end, arched, element, related_stem in BaZiRules.ARCH_COMBINATIONS:
+                    if (b1 == start and b2 == end) or (b1 == end and b2 == start):
+                        # Found an arch pair
+                        entry = {
+                            "branches": [b1, b2],
+                            "pillars": [p1, p2],
+                            "arched": arched,
+                            "type": f"拱{element}",
+                            "is_enhanced": False
+                        }
+                        # Check if related stem is present (Dark Three Meeting)
+                        if related_stem in stems:
+                            entry["is_enhanced"] = True
+                            entry["name"] = f"{b1}{b2}见{related_stem}暗拱三会{element}局"
+                        else:
+                            entry["name"] = f"{b1}{b2}拱{arched}"
+                        
+                        patterns["arch_combinations"].append(entry)
+
+        # Dark Combinations (An He)
+        for i in range(len(pillar_names)):
+            for j in range(i + 1, len(pillar_names)):
+                p1, p2 = pillar_names[i], pillar_names[j]
+                b1, b2 = branches[p1], branches[p2]
+                
+                for db1, db2 in BaZiRules.DARK_COMBINATIONS:
+                    if (b1 == db1 and b2 == db2) or (b1 == db2 and b2 == db1):
+                        patterns["dark_combinations"].append({
+                            "branches": [b1, b2],
+                            "pillars": [p1, p2],
+                            "name": f"{b1}{b2}暗合"
+                        })
+        
+        return patterns
+
+    @staticmethod
+    def check_pillar_patterns(
+        pillars: Dict[str, Tuple[str, str]],
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """Check for single pillar patterns (Gaito, Jiejiao, Fu, Zai)."""
+        patterns = {
+            "gai_tou": [],   # Stem controls Branch (盖头)
+            "jie_jiao": [],  # Branch controls Stem (截脚)
+            "fu": [],        # Stem generates Branch (覆 - 天生均)
+            "zai": [],       # Branch generates Stem (载 - 地生天)
+            "tong": [],      # Same Element (比和 - 天地同气)
+        }
+        
+        from ..utils.data import STEM_ELEMENTS, BRANCH_ELEMENTS, DESTRUCTION_CYCLE, GENERATION_CYCLE
+        
+        for name, (stem, branch) in pillars.items():
+            stem_elem = STEM_ELEMENTS[stem][0]
+            branch_elem = BRANCH_ELEMENTS[branch][0]
+            
+            # Gaito: Stem controls Branch (盖头)
+            if DESTRUCTION_CYCLE.get(stem_elem) == branch_elem:
+                patterns["gai_tou"].append({
+                    "pillar": name,
+                    "stem": stem,
+                    "branch": branch,
+                    "name": f"{stem}{branch}盖头"
+                })
+            
+            # Jie Jiao: Branch controls Stem (截脚)
+            elif DESTRUCTION_CYCLE.get(branch_elem) == stem_elem:
+                patterns["jie_jiao"].append({
+                    "pillar": name,
+                    "stem": stem,
+                    "branch": branch,
+                    "name": f"{stem}{branch}截脚"
+                })
+                
+            # Fu: Stem generates Branch (覆 - 天覆地载之覆)
+            elif GENERATION_CYCLE.get(stem_elem) == branch_elem:
+                patterns["fu"].append({
+                    "pillar": name,
+                    "stem": stem,
+                    "branch": branch,
+                    "name": f"{stem}{branch}相生(覆)"
+                })
+
+            # Zai: Branch generates Stem (载 - 天覆地载之载)
+            elif GENERATION_CYCLE.get(branch_elem) == stem_elem:
+                patterns["zai"].append({
+                    "pillar": name,
+                    "stem": stem,
+                    "branch": branch,
+                    "name": f"{stem}{branch}相生(载)"
+                })
+                
+            # Tong: Same Element (比和)
+            elif stem_elem == branch_elem:
+                patterns["tong"].append({
+                    "pillar": name,
+                    "stem": stem,
+                    "branch": branch,
+                    "name": f"{stem}{branch}比和"
+                })
+                
+        return patterns
+
+    @staticmethod
+    def check_fu_yin_fan_yin(
+        pillars: Dict[str, Tuple[str, str]],
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """Check for Fu Yin (Identical) and Fan Yin (Clashing) Pillars."""
+        patterns = {
+            "fu_yin": [],  # 伏吟 (Same Pillar)
+            "fan_yin": [], # 反吟 (Clashing Pillar: Stem Clash + Branch Clash)
+        }
+        
+        pillar_names = ["year", "month", "day", "hour"]
+        stems = {k: v[0] for k, v in pillars.items()}
+        branches = {k: v[1] for k, v in pillars.items()}
+        
+        # Check all pairs
+        for i in range(len(pillar_names)):
+            for j in range(i + 1, len(pillar_names)):
+                p1, p2 = pillar_names[i], pillar_names[j]
+                
+                # Fu Yin (伏吟): Both Stem and Branch are identical
+                if stems[p1] == stems[p2] and branches[p1] == branches[p2]:
+                    patterns["fu_yin"].append({
+                        "pillars": [p1, p2],
+                        "pillar_content": f"{stems[p1]}{branches[p1]}",
+                        "name": f"{p1}{p2}伏吟"
+                    })
+                    
+                # Fan Yin (反吟): Stem Clashes AND Branch Clashes
+                # Stem Clash check
+                s1, s2 = stems[p1], stems[p2]
+                is_stem_clash = any((s1==x and s2==y) or (s1==y and s2==x) for x, y in BaZiRules.STEM_CLASHES)
+                
+                # Branch Clash check
+                b1, b2 = branches[p1], branches[p2]
+                is_branch_clash = any((b1==x and b2==y) or (b1==y and b2==x) for x, y in BaZiRules.SIX_CLASH)
+                
+                if is_stem_clash and is_branch_clash:
+                    patterns["fan_yin"].append({
+                        "pillars": [p1, p2],
+                        "pillar_content": [f"{stems[p1]}{branches[p1]}", f"{stems[p2]}{branches[p2]}"],
+                        "name": f"{p1}{p2}反吟"
+                    })
+                    
+        return patterns
 
     @staticmethod
     def analyze_special_patterns(
