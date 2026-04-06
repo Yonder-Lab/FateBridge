@@ -11,6 +11,7 @@ from fatebridge.utils.helpers import (
     create_pillar_dict,
     get_current_analysis_date,
     format_json_response,
+    normalize_birth_time,
 )
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
@@ -27,10 +28,9 @@ def calculate_comprehensive_timing(
     计算时运分析，包括大运、流年、流月的影响分析
     """
     try:
-        # 创建出生日期
-        birth_date = datetime(
-            person.birth_year, person.birth_month, person.birth_day, person.birth_hour
-        )
+        normalized_birth_time = normalize_birth_time(person)
+        input_birth_datetime = normalized_birth_time.input_datetime
+        birth_date = normalized_birth_time.corrected_datetime
 
         # 计算四柱（使用原始格式）
         birth_pillars = BaZiCalendar.get_four_pillars(birth_date)
@@ -63,10 +63,12 @@ def calculate_comprehensive_timing(
             "analysis_type": "综合时运分析",
             "personal_info": {
                 "name": person.name,
-                "birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
+                "birth_datetime": input_birth_datetime.strftime("%Y-%m-%d %H:%M"),
+                "normalized_birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
                 "gender": person.gender,
                 "analysis_date": analysis_date.strftime("%Y-%m-%d"),
                 "current_age": current_age,
+                "time_adjustment": normalized_birth_time.as_dict(),
             },
             "birth_pillars": create_pillar_dict(birth_pillars),
         }
@@ -144,9 +146,8 @@ def calculate_dayun_analysis(
     大运分析工具 - 专门分析指定年龄的大运情况
     """
     try:
-        birth_date = datetime(
-            person.birth_year, person.birth_month, person.birth_day, person.birth_hour
-        )
+        normalized_birth_time = normalize_birth_time(person)
+        birth_date = normalized_birth_time.corrected_datetime
         birth_pillars = BaZiCalendar.get_four_pillars(birth_date)
 
         dayun_result = TimingEffectsAnalysis.analyze_dayun_effects(
@@ -159,6 +160,11 @@ def calculate_dayun_analysis(
                 "name": person.name,
                 "gender": person.gender,
                 "analysis_age": analysis_age,
+                "birth_datetime": normalized_birth_time.input_datetime.strftime(
+                    "%Y-%m-%d %H:%M"
+                ),
+                "normalized_birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
+                "time_adjustment": normalized_birth_time.as_dict(),
             },
         }
 
@@ -209,9 +215,8 @@ def calculate_liunian_analysis(
     流年分析工具 - 专门分析指定年份的流年影响
     """
     try:
-        birth_date = datetime(
-            person.birth_year, person.birth_month, person.birth_day, person.birth_hour
-        )
+        normalized_birth_time = normalize_birth_time(person)
+        birth_date = normalized_birth_time.corrected_datetime
         birth_pillars = BaZiCalendar.get_four_pillars(birth_date)
 
         liunian_result = TimingEffectsAnalysis.analyze_liunian_effects(
@@ -223,7 +228,15 @@ def calculate_liunian_analysis(
 
         result = {
             "analysis_type": "流年专项分析",
-            "personal_info": {"name": person.name, "target_year": target_year},
+            "personal_info": {
+                "name": person.name,
+                "target_year": target_year,
+                "birth_datetime": normalized_birth_time.input_datetime.strftime(
+                    "%Y-%m-%d %H:%M"
+                ),
+                "normalized_birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
+                "time_adjustment": normalized_birth_time.as_dict(),
+            },
             "liunian_info": {
                 "pillar": liunian_info["pillar"],
                 "stem": liunian_info["stem"],

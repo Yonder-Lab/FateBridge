@@ -57,6 +57,11 @@ def analyze_destiny(
     name: Optional[str] = "未提供",
     gender: Optional[str] = "未知",
     birth_place: Optional[str] = "未提供",
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    use_true_solar_time: bool = False,
 ) -> str:
     """
     个人命理分析工具
@@ -77,13 +82,27 @@ def analyze_destiny(
         name: 姓名（可选），默认为"未提供"
         gender: 性别（可选），默认为"未知"
         birth_place: 出生地（可选），默认为"未提供"
+        birth_minute: 出生分钟，默认0
+        birth_timezone: 出生时区（可选）
+        birth_longitude: 出生地经度（可选）
+        use_true_solar_time: 是否启用真太阳时修正
 
     Returns:
         JSON格式的字符串，包含完整的命理分析结果
     """
 
     person = create_person_info(
-        birth_year, birth_month, birth_day, birth_hour, name, gender, birth_place
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
     )
 
     data = calculate_destiny_analysis(person)
@@ -107,6 +126,15 @@ def two_person_compatibility(
     person2_gender: str = "未知",
     person2_birth_place: str = "未提供",
     relationship_type: str = "general",
+    *,
+    person1_birth_minute: int = 0,
+    person2_birth_minute: int = 0,
+    person1_birth_timezone: Optional[str] = None,
+    person2_birth_timezone: Optional[str] = None,
+    person1_birth_longitude: Optional[float] = None,
+    person2_birth_longitude: Optional[float] = None,
+    person1_use_true_solar_time: bool = False,
+    person2_use_true_solar_time: bool = False,
 ) -> str:
     """
     双人配合度分析工具
@@ -133,6 +161,14 @@ def two_person_compatibility(
         person1_birth_place: 第一人出生地，默认为"未提供"
         person2_gender: 第二人性别，默认为"未知"
         person2_birth_place: 第二人出生地，默认为"未提供"
+        person1_birth_minute: 第一人出生分钟，默认0
+        person2_birth_minute: 第二人出生分钟，默认0
+        person1_birth_timezone: 第一人出生时区（可选）
+        person2_birth_timezone: 第二人出生时区（可选）
+        person1_birth_longitude: 第一人出生地经度（可选）
+        person2_birth_longitude: 第二人出生地经度（可选）
+        person1_use_true_solar_time: 第一人是否启用真太阳时修正
+        person2_use_true_solar_time: 第二人是否启用真太阳时修正
         relationship_type: 关系类型，可选值：
             - "marriage": 婚姻关系
             - "friendship": 友谊关系
@@ -152,6 +188,10 @@ def two_person_compatibility(
         person1_name,
         person1_gender,
         person1_birth_place,
+        birth_minute=person1_birth_minute,
+        birth_timezone=person1_birth_timezone,
+        birth_longitude=person1_birth_longitude,
+        use_true_solar_time=person1_use_true_solar_time,
     )
 
     person2 = create_person_info(
@@ -162,6 +202,10 @@ def two_person_compatibility(
         person2_name,
         person2_gender,
         person2_birth_place,
+        birth_minute=person2_birth_minute,
+        birth_timezone=person2_birth_timezone,
+        birth_longitude=person2_birth_longitude,
+        use_true_solar_time=person2_use_true_solar_time,
     )
 
     data = calculate_compatibility_analysis(person1, person2, relationship_type)
@@ -180,6 +224,11 @@ def timing_analysis(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_age: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    use_true_solar_time: bool = False,
 ) -> str:
     """
     时运分析工具 - 分析大运、流年、流月对命局的影响
@@ -195,6 +244,10 @@ def timing_analysis(
         analysis_year: 分析年份（可选，默认当前年份）
         analysis_month: 分析月份（可选，默认当前月份）
         analysis_age: 分析年龄（可选，用于大运分析）
+        birth_minute: 出生分钟，默认0
+        birth_timezone: 出生时区（可选）
+        birth_longitude: 出生地经度（可选）
+        use_true_solar_time: 是否启用真太阳时修正
 
     Returns:
         格式化的时运分析结果
@@ -202,7 +255,17 @@ def timing_analysis(
 
     # 创建PersonInfo对象
     person = create_person_info(
-        birth_year, birth_month, birth_day, birth_hour, name, gender, birth_place
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
     )
 
     # 计算时运分析
@@ -226,6 +289,11 @@ def dayun_analysis(
     analysis_age: int,
     name: Optional[str] = "未提供",
     birth_place: Optional[str] = "未提供",
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    use_true_solar_time: bool = False,
 ) -> str:
     """
     大运分析工具 - 专门分析指定年龄的大运情况
@@ -239,12 +307,26 @@ def dayun_analysis(
         analysis_age: 分析年龄
         name: 姓名（可选）
         birth_place: 出生地（可选）
+        birth_minute: 出生分钟，默认0
+        birth_timezone: 出生时区（可选）
+        birth_longitude: 出生地经度（可选）
+        use_true_solar_time: 是否启用真太阳时修正
 
     Returns:
         格式化的大运分析结果
     """
     person = create_person_info(
-        birth_year, birth_month, birth_day, birth_hour, name, gender, birth_place
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
     )
 
     result = calculate_dayun_analysis(person, analysis_age)
@@ -266,6 +348,11 @@ def liunian_analysis(
     name: Optional[str] = "未提供",
     gender: Optional[str] = "未知",
     birth_place: Optional[str] = "未提供",
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    use_true_solar_time: bool = False,
 ) -> str:
     """
     流年分析工具 - 专门分析指定年份的流年影响
@@ -279,12 +366,26 @@ def liunian_analysis(
         name: 姓名（可选）
         gender: 性别（可选）
         birth_place: 出生地（可选）
+        birth_minute: 出生分钟，默认0
+        birth_timezone: 出生时区（可选）
+        birth_longitude: 出生地经度（可选）
+        use_true_solar_time: 是否启用真太阳时修正
 
     Returns:
         格式化的流年分析结果
     """
     person = create_person_info(
-        birth_year, birth_month, birth_day, birth_hour, name, gender, birth_place
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
     )
 
     result = calculate_liunian_analysis(person, target_year)

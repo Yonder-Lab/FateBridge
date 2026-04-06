@@ -65,7 +65,17 @@ class FateBridgeRequest(BaseModel):
     birth_month: int = Field(ge=1, le=12, description="Birth month (1-12)")
     birth_day: int = Field(ge=1, le=31, description="Birth day (1-31)")
     birth_hour: int = Field(ge=0, le=23, description="Birth hour (0-23)")
+    birth_minute: int = Field(default=0, ge=0, le=59, description="Birth minute (0-59)")
     birth_place: Optional[str] = Field(default="未提供", description="Birth place (optional)")
+    birth_timezone: Optional[str] = Field(
+        default=None, description="Birth timezone (IANA name or UTC offset)"
+    )
+    birth_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Birth longitude (optional)"
+    )
+    use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time correction"
+    )
 
 
 # ============================================================================
@@ -99,6 +109,10 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
             name=request.name,
             gender=request.gender,
             birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
         )
 
         # Perform calculation

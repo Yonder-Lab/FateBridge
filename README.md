@@ -11,6 +11,7 @@
 ### 🎯 核心功能
 
 - **四柱命理计算**：精确计算年、月、日、时柱
+- **出生时间精修**：支持出生分钟、时区、经度与真太阳时修正
 - **五行分析**：全面的五行分布与强弱分析
 - **十神关系**：详细的十神配置分析
 - **格局识别**：识别三合、六合、六冲等特殊格局
@@ -116,6 +117,7 @@ payload = {
     "birth_month": 5,
     "birth_day": 15,
     "birth_hour": 10,
+    "birth_minute": 30,
     "birth_place": "北京"
 }
 
@@ -137,6 +139,10 @@ const response = await fetch('http://localhost:8000/api/calculate', {
     birth_month: 5,
     birth_day: 15,
     birth_hour: 10,
+    birth_minute: 30,
+    birth_timezone: 'Asia/Shanghai',
+    use_true_solar_time: true,
+    birth_place: '北京',
   }),
 });
 
@@ -154,9 +160,24 @@ curl -X POST http://localhost:8000/api/calculate \
     "birth_year": 1990,
     "birth_month": 5,
     "birth_day": 15,
-    "birth_hour": 10
+    "birth_hour": 10,
+    "birth_minute": 30,
+    "birth_timezone": "Asia/Shanghai",
+    "use_true_solar_time": true,
+    "birth_place": "北京"
   }' | jq .
 ```
+
+### 出生时间精度说明
+
+- 默认仍兼容旧版调用：只传 `birth_hour` 时，系统按整点小时制计算。
+- 需要更细粒度时，可额外传 `birth_minute`。
+- 启用真太阳时修正时，推荐同时传 `birth_timezone` 与 `birth_longitude`；若 `birth_place` 命中内置地点库，系统会自动补全经度和默认时区。
+- 现在支持更广泛的地址文本输入，既可传中文完整地址，也可传英文或拼音形式，例如 `浙江省宁波市海曙区...`、`Haishu District, Ningbo, Zhejiang`、`zhejiang sheng ningbo shi ...`。
+- 当地址同时命中城市和省份时，会优先解析到更具体的城市；若城市未收录但省份可识别，则会回退到省级近似经度。
+- 响应里的 `time_adjustment` 会额外返回 `resolved_place` 与 `resolution_level`，方便确认系统最终采用了哪个地点层级。
+- 离线地址解析仍是近似值，不是联网地图地理编码；需要最高精度时，优先显式传 `birth_longitude`。
+- 当前已支持真太阳时修正，但**月柱与起运仍采用简化节气口径**，不是完整天文历表版精排。
 
 ### 核心模块直接使用
 

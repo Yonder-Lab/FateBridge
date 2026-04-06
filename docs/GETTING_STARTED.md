@@ -124,7 +124,11 @@ curl -X POST http://localhost:8000/api/calculate \
     "birth_year": 1990,
     "birth_month": 5,
     "birth_day": 15,
-    "birth_hour": 10
+    "birth_hour": 10,
+    "birth_minute": 30,
+    "birth_timezone": "Asia/Shanghai",
+    "use_true_solar_time": true,
+    "birth_place": "北京"
   }' | jq .
 ```
 
@@ -144,6 +148,9 @@ payload = {
     "birth_month": 5,
     "birth_day": 15,
     "birth_hour": 10,
+    "birth_minute": 30,
+    "birth_timezone": "Asia/Shanghai",
+    "use_true_solar_time": True,
     "birth_place": "北京"
 }
 
@@ -176,7 +183,11 @@ const payload = {
   birth_year: 1990,
   birth_month: 5,
   birth_day: 15,
-  birth_hour: 10
+  birth_hour: 10,
+  birth_minute: 30,
+  birth_timezone: "Asia/Shanghai",
+  use_true_solar_time: true,
+  birth_place: "北京"
 };
 
 fetch('http://localhost:8000/api/calculate', {
@@ -205,9 +216,15 @@ node test_analysis.js
 {
   "person_info": {
     "name": "张三",
-    "birth_datetime": "1990年05月15日 10时",
+    "birth_datetime": "1990年05月15日 10时30分",
+    "normalized_birth_datetime": "1990年05月15日 10时19分",
     "gender": "男",
-    "birth_place": "北京"
+    "birth_place": "北京",
+    "birth_timezone": "Asia/Shanghai",
+    "time_adjustment": {
+      "applied": true,
+      "total_correction_minutes": -10.62
+    }
   },
   "four_pillars": {
     "year": {"stem": "庚", "branch": "午"},
@@ -233,6 +250,15 @@ node test_analysis.js
   "patterns": {...}
 }
 ```
+
+其中 `time_adjustment` 会包含实际采用的经度来源，以及在使用 `birth_place` 时解析出的 `resolved_place` 和 `resolution_level`，便于确认系统到底命中了城市还是省级近似值。
+
+提示：
+
+- 旧调用方式依然有效，只传 `birth_hour` 就能继续使用。
+- 需要更高精度时，再补 `birth_minute`。
+- 启用 `use_true_solar_time` 时，推荐同时传 `birth_timezone`，并显式传 `birth_longitude` 或使用内置支持的 `birth_place`。
+- `birth_place` 支持中文、英文和拼音形式；系统会优先命中更具体的城市，命不中时再回退到省级近似值。
 
 ---
 

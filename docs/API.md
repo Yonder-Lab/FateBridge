@@ -40,6 +40,9 @@ curl -X POST http://localhost:8000/api/calculate \
     "birth_month": 5,
     "birth_day": 15,
     "birth_hour": 10,
+    "birth_minute": 30,
+    "birth_timezone": "Asia/Shanghai",
+    "use_true_solar_time": true,
     "birth_place": "北京"
   }'
 ```
@@ -54,7 +57,11 @@ curl -X POST http://localhost:8000/api/calculate \
 | `birth_month` | integer | **是** | 出生月份 | 1-12 |
 | `birth_day` | integer | **是** | 出生日期 | 1-31（需要符合月份）|
 | `birth_hour` | integer | **是** | 出生时辰 | 0-23（24小时制）|
-| `birth_place` | string | 否 | 出生地点 | 默认："未提供" |
+| `birth_minute` | integer | 否 | 出生分钟 | 0-59，默认：0 |
+| `birth_place` | string | 否 | 出生地点 | 支持中文、英文和拼音地址文本，默认："未提供" |
+| `birth_timezone` | string | 否 | 出生时区 | IANA 名称或 `UTC+08:00` |
+| `birth_longitude` | number | 否 | 出生地经度 | -180 到 180 |
+| `use_true_solar_time` | boolean | 否 | 是否启用真太阳时修正 | 默认：false |
 
 **响应 (200 OK)**:
 
@@ -62,9 +69,23 @@ curl -X POST http://localhost:8000/api/calculate \
 {
   "person_info": {
     "name": "张三",
-    "birth_datetime": "1990年05月15日 10时",
+    "birth_datetime": "1990年05月15日 10时30分",
+    "normalized_birth_datetime": "1990年05月15日 10时19分",
     "gender": "男",
-    "birth_place": "北京"
+    "birth_place": "北京",
+    "birth_timezone": "Asia/Shanghai",
+    "birth_longitude": 116.4074,
+    "time_adjustment": {
+      "applied": true,
+      "timezone": "Asia/Shanghai",
+      "longitude": 116.4074,
+      "longitude_source": "birth_place",
+      "resolved_place": "北京",
+      "resolution_level": "municipality",
+      "longitude_correction_minutes": -14.37,
+      "equation_of_time_minutes": 3.75,
+      "total_correction_minutes": -10.62
+    }
   },
   "four_pillars": {
     "year": {
@@ -115,6 +136,10 @@ curl -X POST http://localhost:8000/api/calculate \
 **响应字段说明**:
 
 - **person_info**: 个人基本信息
+- **normalized_birth_datetime**: 真太阳时修正后的出生时间（未启用时与原时间一致）
+- **time_adjustment**: 时间修正元数据，包括时区、经度来源、离线解析出的地点与修正分钟数
+  - `resolved_place`: 当系统根据 `birth_place` 命中内置地点库时，返回实际采用的地点名
+  - `resolution_level`: 地点命中层级，例如 `city`、`province`、`municipality`
 - **four_pillars**: 四柱（年、月、日、时）
   - `stem`: 天干（10个）
   - `branch`: 地支（12个）
@@ -182,6 +207,10 @@ FastMCP API 通过 Model Context Protocol 提供相同功能，可用于 AI 助�
 | `name` | str | 否 | 姓名，默认："未提供" |
 | `gender` | str | 否 | 性别，默认："未知" |
 | `birth_place` | str | 否 | 出生地，默认："未提供" |
+| `birth_minute` | int | 否 | 出生分钟，默认：0 |
+| `birth_timezone` | str | 否 | 出生时区（IANA 名称或 UTC 偏移） |
+| `birth_longitude` | float | 否 | 出生地经度 |
+| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
 **返回**: JSON 格式字符串
 
@@ -190,7 +219,18 @@ FastMCP API 通过 Model Context Protocol 提供相同功能，可用于 AI 助�
 ```python
 from fastmcp_server import analyze_destiny
 
-result = analyze_destiny(1990, 5, 15, 10, "张三", "男", "北京")
+result = analyze_destiny(
+    1990,
+    5,
+    15,
+    10,
+    "张三",
+    "男",
+    "北京",
+    birth_minute=30,
+    birth_timezone="Asia/Shanghai",
+    use_true_solar_time=True,
+)
 print(result)  # JSON 字符串
 ```
 
@@ -219,6 +259,14 @@ print(result)  # JSON 字符串
 | `person2_gender` | str | 否 | 第二人性别 |
 | `person2_birth_place` | str | 否 | 第二人出生地 |
 | `relationship_type` | str | 否 | 关系类型 |
+| `person1_birth_minute` | int | 否 | 第一人出生分钟 |
+| `person2_birth_minute` | int | 否 | 第二人出生分钟 |
+| `person1_birth_timezone` | str | 否 | 第一人出生时区 |
+| `person2_birth_timezone` | str | 否 | 第二人出生时区 |
+| `person1_birth_longitude` | float | 否 | 第一人出生地经度 |
+| `person2_birth_longitude` | float | 否 | 第二人出生地经度 |
+| `person1_use_true_solar_time` | bool | 否 | 第一人是否启用真太阳时修正 |
+| `person2_use_true_solar_time` | bool | 否 | 第二人是否启用真太阳时修正 |
 
 **关系类型**:
 
@@ -250,6 +298,10 @@ print(result)  # JSON 字符串
 | `analysis_year` | int | 否 | 分析年份（默认当前年） |
 | `analysis_month` | int | 否 | 分析月份（默认当前月） |
 | `analysis_age` | int | 否 | 分析年龄（用于大运分析） |
+| `birth_minute` | int | 否 | 出生分钟 |
+| `birth_timezone` | str | 否 | 出生时区 |
+| `birth_longitude` | float | 否 | 出生地经度 |
+| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
 **返回**: JSON 格式字符串，包含大运、流年、流月分析
 
@@ -271,6 +323,10 @@ print(result)  # JSON 字符串
 | `analysis_age` | int | **是** | 分析年龄 |
 | `name` | str | 否 | 姓名 |
 | `birth_place` | str | 否 | 出生地 |
+| `birth_minute` | int | 否 | 出生分钟 |
+| `birth_timezone` | str | 否 | 出生时区 |
+| `birth_longitude` | float | 否 | 出生地经度 |
+| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
 ---
 
@@ -290,6 +346,10 @@ print(result)  # JSON 字符串
 | `name` | str | 否 | 姓名 |
 | `gender` | str | 否 | 性别 |
 | `birth_place` | str | 否 | 出生地 |
+| `birth_minute` | int | 否 | 出生分钟 |
+| `birth_timezone` | str | 否 | 出生时区 |
+| `birth_longitude` | float | 否 | 出生地经度 |
+| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
 ---
 
@@ -355,6 +415,8 @@ print(result)  # JSON 字符串
 - `birth_month`: 1-12
 - `birth_day`: 1-31（需符合月份天数）
 - `birth_hour`: 0-23
+- `birth_minute`: 0-59
+- `birth_longitude`: -180 到 180
 
 ---
 
@@ -375,6 +437,9 @@ payload = {
     "birth_month": 5,
     "birth_day": 15,
     "birth_hour": 10,
+    "birth_minute": 30,
+    "birth_timezone": "Asia/Shanghai",
+    "use_true_solar_time": True,
     "birth_place": "北京"
 }
 
@@ -397,7 +462,18 @@ from fastmcp_server import analyze_destiny
 import json
 
 # 调用工具
-result_json = analyze_destiny(1990, 5, 15, 10, "张三", "男", "北京")
+result_json = analyze_destiny(
+    1990,
+    5,
+    15,
+    10,
+    "张三",
+    "男",
+    "北京",
+    birth_minute=30,
+    birth_timezone="Asia/Shanghai",
+    use_true_solar_time=True,
+)
 result = json.loads(result_json)
 
 # 处理结果
@@ -416,7 +492,11 @@ async function analyzeDestiny(birthInfo: {
   birth_month: number;
   birth_day: number;
   birth_hour: number;
+  birth_minute?: number;
   birth_place?: string;
+  birth_timezone?: string;
+  birth_longitude?: number;
+  use_true_solar_time?: boolean;
 }) {
   const response = await fetch('http://localhost:8000/api/calculate', {
     method: 'POST',
@@ -440,6 +520,9 @@ const analysis = await analyzeDestiny({
   birth_month: 5,
   birth_day: 15,
   birth_hour: 10,
+  birth_minute: 30,
+  birth_timezone: "Asia/Shanghai",
+  use_true_solar_time: true,
 });
 
 console.log(analysis);
@@ -458,6 +541,9 @@ curl -X POST http://localhost:8000/api/calculate \
     "birth_month": 5,
     "birth_day": 15,
     "birth_hour": 10,
+    "birth_minute": 30,
+    "birth_timezone": "Asia/Shanghai",
+    "use_true_solar_time": true,
     "birth_place": "北京"
   }' | jq .
 
@@ -477,6 +563,10 @@ curl http://localhost:8000/health | jq .
 
 - 本 API 仅提供计算数据，不包含建议或预测
 - 时辰计算基于 24 小时制，需要准确的出生时间
+- 真太阳时修正依赖 `birth_timezone` + `birth_longitude`，或命中内置 `birth_place` 地点库
+- `birth_place` 现在支持更广泛的离线地址匹配：可输入中文、英文或拼音，优先解析到更具体的城市，命不中城市时回退到可识别的省级近似值
+- 离线解析不是联网街道级地理编码，最高精度仍建议直接传 `birth_longitude`
+- 即使启用真太阳时修正，月柱与起运仍采用简化节气口径，不是完整天文历表精排
 - 结果仅供参考，基于传统八字理论
 - CORS 配置通过环境变量控制（生产环境务必配置）
 

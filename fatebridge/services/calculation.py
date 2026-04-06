@@ -9,9 +9,10 @@ from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.rules import BaZiRules
 from fatebridge.utils.helpers import (
     PersonInfo,
-    create_birth_datetime,
     handle_calculation_error,
     create_pillar_dict,
+    format_birth_datetime_display,
+    normalize_birth_time,
 )
 
 def calculate_destiny_analysis(person: PersonInfo) -> Dict:
@@ -19,13 +20,17 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
     Calculate individual destiny analysis based on birth information.
     """
     try:
-        # 转换为datetime
-        birth_datetime = create_birth_datetime(
-            person.birth_year, person.birth_month, person.birth_day, person.birth_hour
+        normalized_birth_time = normalize_birth_time(person)
+        birth_datetime = normalized_birth_time.input_datetime
+        corrected_birth_datetime = normalized_birth_time.corrected_datetime
+        include_minutes = (
+            person.birth_minute != 0
+            or normalized_birth_time.applied
+            or corrected_birth_datetime.minute != 0
         )
 
         # 计算四柱
-        pillars = BaZiCalendar.get_four_pillars(birth_datetime)
+        pillars = BaZiCalendar.get_four_pillars(corrected_birth_datetime)
 
         # 五行分析
         element_analysis = ElementAnalysis.comprehensive_analysis(pillars)
@@ -38,15 +43,23 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
         pillar_patterns = BaZiRules.check_pillar_patterns(pillars)
         fu_yin_fan_yin = BaZiRules.check_fu_yin_fan_yin(pillars)
         special_patterns = BaZiRules.analyze_special_patterns(
-            pillars, person.birth_hour
+            pillars, corrected_birth_datetime.hour
         )
 
         return {
             "person_info": {
                 "name": person.name or "未提供",
-                "birth_datetime": birth_datetime.strftime("%Y年%m月%d日 %H时"),
+                "birth_datetime": format_birth_datetime_display(
+                    birth_datetime, include_minutes=include_minutes
+                ),
+                "normalized_birth_datetime": format_birth_datetime_display(
+                    corrected_birth_datetime, include_minutes=True
+                ),
                 "gender": person.gender or "未知",
                 "birth_place": person.birth_place or "未提供",
+                "birth_timezone": normalized_birth_time.timezone,
+                "birth_longitude": normalized_birth_time.longitude,
+                "time_adjustment": normalized_birth_time.as_dict(),
             },
             "four_pillars": create_pillar_dict(pillars),
             "day_master": {
