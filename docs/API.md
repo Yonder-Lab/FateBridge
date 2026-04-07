@@ -250,11 +250,94 @@ curl http://localhost:8000/health
 - `meihua.changed_hexagram`: 变卦
 - `meihua.mutual_hexagram`: 互卦
 - `meihua.opposite_hexagram`: 综卦
+- `meihua.*.judgement / image / favorable / caution`: 各卦的离线断辞、卦象、宜为与所忌
 - `meihua.body_use_relation`: 体用五行关系
+- `interpretation.question_domain`: 自动识别的问事领域
+- `interpretation.moving_line_phase`: 动爻所对应的事情阶段
+- `interpretation.line_oracles`: 本卦 1-6 爻的逐条推演表，含各自变卦、体用与摘要
+- `interpretation.moving_line_oracle`: 动爻所在爻位的细断、时机、宜忌与问事修正
+- `interpretation.base_oracle / changed_oracle / mutual_oracle / opposite_oracle`: 提炼后的四层卦义断辞
+- `interpretation.action_hint / risk_hint`: 面向问事的可为提示与风险提示
+- `interpretation.judgement_outline`: 按本卦、变卦、体用、互卦、综卦组织的占断骨架
+- `interpretation.comprehensive_judgement`: 可直接使用的综合摘要
 
 ---
 
-#### 4. 流日专项分析
+#### 4. 卦义检索
+
+**端点**: `POST /api/divination/gua`
+
+离线检索八卦或六十四卦义理说明，支持按卦名或二进制卦码查询。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `query` | string | **是** | 卦名、八卦码或六十四卦码 |
+| `lookup_mode` | string | 否 | `auto`、`hexagram`、`trigram`，默认 `auto` |
+
+**示例**:
+
+- `111111` -> `乾为天`
+- `111` -> `乾`
+- `火天大有` -> 六十四卦名称查询
+
+**返回重点**:
+
+- `result.lookup_type`: `hexagram` 或 `trigram`
+- `result.name`: 命中的卦名
+- `result.theme`: 卦义主旨
+- `result.guidance`: 问事/判断摘要
+- `result.judgement`: 断辞主句
+- `result.image`: 卦象提示
+- `result.favorable`: 当前较宜采取的方向
+- `result.caution`: 当前需防的偏差
+- `result.summary`: 汇总描述
+
+---
+
+#### 4.1 西占时运分析
+
+**端点**: `POST /api/astro/timing`
+
+基于精确星历返回西占时运组合输出，聚合太阳返照、月返、次限推运、太阳弧、小限、法达与十年星限。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | integer | **是** | 出生年份 |
+| `birth_month` | integer | **是** | 出生月份 |
+| `birth_day` | integer | **是** | 出生日期 |
+| `birth_hour` | integer | **是** | 出生时辰 |
+| `birth_minute` | integer | 否 | 出生分钟，默认：0 |
+| `birth_timezone` | string | **是** | 出生时区（IANA 名称或 UTC 偏移） |
+| `birth_longitude` | number | **是** | 出生地经度 |
+| `birth_latitude` | number | **是** | 出生地纬度 |
+| `birth_place` | string | 否 | 出生地标签 |
+| `analysis_year` | integer | 否 | 分析年份 |
+| `analysis_month` | integer | 否 | 分析月份 |
+| `analysis_day` | integer | 否 | 分析日期 |
+| `return_longitude` | number | 否 | 返照盘地点经度，默认沿用出生地 |
+| `return_latitude` | number | 否 | 返照盘地点纬度，默认沿用出生地 |
+| `return_timezone` | string | 否 | 返照盘地点时区，默认沿用出生时区 |
+| `house_system` | string | 否 | 宫制，默认 `P`（Placidus） |
+| `zodiac_type` | string | 否 | 黄道类型，默认 `Tropic` |
+
+**返回重点**:
+
+- `natal_reference`: 本命日月、上升、天顶与盘型（昼夜盘）参考点
+- `returns.solar_return`: 太阳返照时刻与关键点位
+- `returns.lunar_return`: 月返时刻与关键点位
+- `directions.secondary_progression`: 次限推运日期、关键点位与命盘相位命中
+- `directions.solar_arc`: 太阳弧度数、定向点位与命盘相位命中
+- `time_lords.annual_profection`: 年小限主宫、激活星座与年主星
+- `time_lords.firdaria`: 当前法达主限 / 子限与时间范围
+- `time_lords.decennials`: 当前十年星限的 L1 / L2 / L3 层级与时间轴片段
+
+---
+
+#### 5. 流日专项分析
 
 **端点**: `POST /api/timing/liuri`
 
@@ -269,7 +352,25 @@ curl http://localhost:8000/health
 
 ---
 
-#### 5. 节气节点时间轴
+#### 6. 流月专项分析
+
+**端点**: `POST /api/timing/liuyue`
+
+在出生盘基础上分析指定日期所在节令月的影响，不按公历月份近似。
+
+**返回重点**:
+
+- `calendar_context`: 出生时刻节气/农历上下文
+- `analysis_calendar.analysis_date_context`: 分析日期节气上下文
+- `target_year_jieqi`: 目标年份 24 节气表
+- `liuyue_info`: 流月干支、纳音与节气窗口
+- `liunian_info`: 同年流年信息
+- `combination_effects`: 流月与流年组合关系
+- `summary`: 流月综合摘要
+
+---
+
+#### 7. 节气节点时间轴
 
 **端点**: `POST /api/timing/jieqi`
 
@@ -373,6 +474,36 @@ print(result)  # JSON 字符串
 - `general` - 一般关系（默认）
 
 **返回**: JSON 格式字符串，包含配合度分析结果
+
+---
+
+#### 西占时运 `western_timing_analysis`
+
+西占推运 / 返照 / 时运系统工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | int | **是** | 出生年份 |
+| `birth_month` | int | **是** | 出生月份 |
+| `birth_day` | int | **是** | 出生日期 |
+| `birth_hour` | int | **是** | 出生时辰 |
+| `birth_minute` | int | 否 | 出生分钟，默认：0 |
+| `birth_timezone` | str | **是** | 出生时区 |
+| `birth_longitude` | float | **是** | 出生地经度 |
+| `birth_latitude` | float | **是** | 出生地纬度 |
+| `birth_place` | str | 否 | 出生地标签 |
+| `analysis_year` | int | 否 | 分析年份 |
+| `analysis_month` | int | 否 | 分析月份 |
+| `analysis_day` | int | 否 | 分析日期 |
+| `return_longitude` | float | 否 | 返照盘地点经度 |
+| `return_latitude` | float | 否 | 返照盘地点纬度 |
+| `return_timezone` | str | 否 | 返照盘地点时区 |
+| `house_system` | str | 否 | 宫制，默认 `P` |
+| `zodiac_type` | str | 否 | 黄道类型，默认 `Tropic` |
+
+**返回**: JSON 格式字符串，包含 `returns`、`directions` 与 `time_lords` 三组西占时运数据
 
 ---
 
@@ -484,7 +615,31 @@ print(result)  # JSON 字符串
 
 ---
 
-#### 7. `jieqi_timeline_analysis`
+#### 7. `liuyue_analysis`
+
+流月（节令月）分析工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | int | **是** | 出生年份 |
+| `birth_month` | int | **是** | 出生月份 |
+| `birth_day` | int | **是** | 出生日期 |
+| `birth_hour` | int | **是** | 出生时辰 |
+| `analysis_year` | int | 否 | 分析年份 |
+| `analysis_month` | int | 否 | 分析月份 |
+| `analysis_day` | int | 否 | 分析日期 |
+| `birth_minute` | int | 否 | 出生分钟 |
+| `birth_timezone` | str | 否 | 出生时区 |
+| `birth_longitude` | float | 否 | 出生地经度 |
+| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+
+**返回**: JSON 格式字符串，包含流月分析、`liunian_info`、`calendar_context` 与 `analysis_calendar`
+
+---
+
+#### 8. `jieqi_timeline_analysis`
 
 节气节点时间轴分析工具。
 
@@ -506,7 +661,7 @@ print(result)  # JSON 字符串
 
 ---
 
-#### 8. `meihua_analysis`
+#### 9. `meihua_analysis`
 
 梅花时卦分析工具。
 
@@ -522,7 +677,22 @@ print(result)  # JSON 字符串
 | `analysis_timezone` | str | 否 | 起卦时区 |
 | `question` | str | 否 | 占问主题 |
 
-**返回**: JSON 格式字符串，包含本卦、变卦、互卦、综卦、体用关系与历法上下文
+**返回**: JSON 格式字符串，包含本卦、变卦、互卦、综卦、体用关系、四层卦义断辞、行动/风险提示与历法上下文
+
+---
+
+#### 10. `gua_lookup`
+
+卦义检索工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `query` | str | **是** | 卦名或二进制卦码 |
+| `lookup_mode` | str | 否 | 查询模式：`auto`、`hexagram`、`trigram` |
+
+**返回**: JSON 格式字符串，包含命中卦象的义理主旨、断辞、卦象、宜忌提示与结构信息
 
 ---
 

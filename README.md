@@ -17,8 +17,14 @@
 - **十神关系**：详细的十神配置分析
 - **格局识别**：识别三合、六合、六冲等特殊格局
 - **喜用神推算**：科学推断命局所需的平衡元素
+- **核心星盘与派生星盘**：新增标准星盘、13 扇区扩展盘、希腊星盘、果老风格盘、印度盘、量化中点盘与关系盘
 - **农历与卦象辅助**：输出农历、节气上下文与梅花易数时卦辅助信息
 - **梅花时卦分析**：独立输出本卦、变卦、互卦、综卦与体用关系
+- **梅花问事骨架**：自动串联本卦、变卦、体用与动爻阶段，生成可直接阅读的占断摘要
+- **动爻细断层**：补充爻位断语、时机提示、问事适配与体用修正建议
+- **六爻全表**：按本卦 1-6 爻逐条生成变卦走向、体用关系与爻位摘要
+- **卦义断辞层**：本卦、变卦、互卦、综卦与卦义检索统一返回 `judgement`、`image`、`favorable`、`caution`
+- **卦义检索**：支持按卦名或二进制卦码查询八卦/六十四卦义理摘要
 
 ### 🤝 高级功能
 
@@ -27,7 +33,10 @@
 - **十神关系对比**：分析两人十神的互动
 - **关系类型适配**：针对婚姻、友谊、商业、家庭等特定关系的专化分析
 - **时运分析**：大运、流年、流月的综合影响评估
+- **流月专项分析**：按真实节令月输出月柱、流年配套关系与节气窗口
 - **年内节点观察**：支持流日与 24 节气节点时间轴，便于查看一年内关键转换点
+- **离线西占扩展**：内置近似星历算法，可在无外部星历依赖时返回结构化星盘结果
+- **西占推运与返照**：支持太阳返照、月返、次限推运、太阳弧、小限、法达与十年星限时间轴
 
 ### 💻 技术特点
 
@@ -236,11 +245,17 @@ FateBridge/
 ├── fatebridge/                   # Python 核心包
 │   ├── core/
 │   │   ├── calendar.py          # 干支历法计算
+│   │   ├── astrology.py         # 离线近似星盘与关系盘
+│   │   ├── astrology_predictive.py # 西占返照、推运与时间主星系统
 │   │   ├── almanac.py           # 节气、农历与本地历法辅助
 │   │   ├── divination.py        # 卦象与梅花易数辅助
+│   │   ├── gua_meanings.py      # 八卦/六十四卦离线义理与断辞
 │   │   ├── elements.py          # 五行分析
 │   │   ├── rules.py             # 格局识别
 │   │   └── timing.py            # 时运分析
+│   ├── services/
+│   │   ├── astrology.py         # 西占本命 / 关系盘服务
+│   │   └── western_timing.py    # 西占返照 / 推运 / 时运服务
 │   ├── analysis/
 │   │   ├── compatibility.py     # 双人配合
 │   │   └── timing_effects.py    # 时运影响
@@ -270,7 +285,17 @@ FateBridge/
 | 方法 | 端点 | 说明 |
 |------|------|------|
 | `POST` | `/api/calculate` | 个人命理分析 |
+| `POST` | `/api/astro/chart` | 标准星盘 |
+| `POST` | `/api/astro/chart13` | 13 扇区扩展盘 |
+| `POST` | `/api/astro/hellen` | 希腊星盘 |
+| `POST` | `/api/astro/guolao` | 果老 / 七政四余风格盘 |
+| `POST` | `/api/astro/india` | 印度盘（sidereal） |
+| `POST` | `/api/astro/germany` | 量化盘 / 中点盘 |
+| `POST` | `/api/astro/relative` | 合盘 / 关系盘 |
+| `POST` | `/api/astro/timing` | 西占推运 / 返照 / 时运系统 |
+| `POST` | `/api/divination/gua` | 卦义检索 |
 | `POST` | `/api/divination/meihua` | 梅花时卦分析 |
+| `POST` | `/api/timing/liuyue` | 流月专项分析 |
 | `POST` | `/api/timing/liuri` | 流日专项分析 |
 | `POST` | `/api/timing/jieqi` | 全年 24 节气节点时间轴 |
 | `GET` | `/health` | 健康检查 |
@@ -282,10 +307,20 @@ FateBridge/
 | `analyze_destiny` | 个人命理分析 |
 | `two_person_compatibility` | 双人配合分析 |
 | `timing_analysis` | 综合时运分析 |
+| `astro_chart` | 标准星盘 |
+| `astro_chart13` | 13 扇区扩展盘 |
+| `astro_hellen_chart` | 希腊星盘 |
+| `astro_guolao_chart` | 果老 / 七政四余风格盘 |
+| `astro_india_chart` | 印度盘（sidereal） |
+| `astro_germany_chart` | 量化盘 / 中点盘 |
+| `astro_relative_chart` | 合盘 / 关系盘 |
+| `western_timing_analysis` | 西占推运 / 返照 / 时运系统 |
 | `dayun_analysis` | 大运专项分析 |
 | `liunian_analysis` | 流年专项分析 |
+| `liuyue_analysis` | 流月专项分析 |
 | `liuri_analysis` | 流日专项分析 |
 | `jieqi_timeline_analysis` | 节气节点时间轴分析 |
+| `gua_lookup` | 卦义检索 |
 | `meihua_analysis` | 梅花时卦分析 |
 
 ---

@@ -375,6 +375,125 @@ def calculate_liunian_analysis(
         return handle_calculation_error(e, "流年分析计算")
 
 
+def calculate_liuyue_analysis(
+    person: PersonInfo,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+) -> Dict:
+    """
+    流月分析工具 - 专门分析指定日期所在节令月的影响
+    """
+    try:
+        normalized_birth_time = normalize_birth_time(person)
+        birth_date = normalized_birth_time.corrected_datetime
+        birth_pillars = BaZiCalendar.get_four_pillars(
+            birth_date,
+            timezone_name=normalized_birth_time.timezone,
+        )
+        birth_calendar_context = build_calendar_context(
+            birth_date,
+            timezone_name=normalized_birth_time.timezone,
+            pillars=birth_pillars,
+        )
+
+        now = datetime.now()
+        if analysis_year is None:
+            analysis_year = now.year
+        if analysis_month is None:
+            analysis_month = now.month
+        if analysis_day is None:
+            analysis_day = 1
+
+        analysis_date = datetime(analysis_year, analysis_month, analysis_day)
+        analysis_calendar_context = build_calendar_context(
+            analysis_date,
+            timezone_name=normalized_birth_time.timezone,
+        )
+
+        liuyue_result = TimingEffectsAnalysis.analyze_liuyue_comprehensive(
+            birth_pillars,
+            analysis_year,
+            analysis_month,
+            include_dayun=False,
+            include_liunian=True,
+            target_day=analysis_day,
+            timezone_name=normalized_birth_time.timezone,
+            target_date=analysis_date,
+        )
+
+        liuyue_analysis = liuyue_result["liuyue_analysis"]
+        liuyue_info = liuyue_analysis["liuyue_info"]
+        detailed_analysis = liuyue_analysis["detailed_analysis"]
+        element_effects = liuyue_analysis["element_effects"]
+
+        result = {
+            "analysis_type": "流月专项分析",
+            "personal_info": {
+                "name": person.name,
+                "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+                "birth_datetime": normalized_birth_time.input_datetime.strftime(
+                    "%Y-%m-%d %H:%M"
+                ),
+                "normalized_birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
+                "time_adjustment": normalized_birth_time.as_dict(),
+            },
+            "calendar_context": birth_calendar_context,
+            "analysis_calendar": {
+                "analysis_date_context": analysis_calendar_context,
+            },
+            "target_year_jieqi": get_jieqi_year_grid(
+                analysis_year, normalized_birth_time.timezone
+            ),
+            "liuyue_info": {
+                "pillar": liuyue_info["pillar"],
+                "stem": liuyue_info["stem"],
+                "branch": liuyue_info["branch"],
+                "element": liuyue_info["element"],
+                "nayin": liuyue_info["nayin"],
+                "solar_term_window": liuyue_info["solar_term_window"],
+            },
+            "detailed_analysis": {
+                "stem_relation": detailed_analysis["shishen_analysis"][
+                    "stem_relation"
+                ],
+                "branch_relations": detailed_analysis["branch_relations"],
+                "fortune_analysis": detailed_analysis["fortune_analysis"],
+                "suggestions": detailed_analysis["suggestions"],
+            },
+            "element_effects": {
+                "overall_effect": element_effects["overall_effect"],
+                "element_changes": {},
+            },
+            "combination_effects": liuyue_result.get("combination_effects", {}),
+        }
+
+        liunian_analysis = liuyue_result.get("liunian_analysis")
+        if liunian_analysis:
+            liunian_info = liunian_analysis["liunian_info"]
+            result["liunian_info"] = {
+                "pillar": liunian_info["pillar"],
+                "stem": liunian_info["stem"],
+                "branch": liunian_info["branch"],
+                "element": liunian_info["element"],
+            }
+
+        for element, change_info in element_effects["element_changes"].items():
+            if change_info["change"] != 0:
+                result["element_effects"]["element_changes"][element] = {
+                    "original": change_info["original"],
+                    "new": change_info["new"],
+                    "change": change_info["change"],
+                    "change_type": change_info["change_type"],
+                }
+
+        result["summary"] = liuyue_result["comprehensive_summary"]
+        return result
+
+    except Exception as e:
+        return handle_calculation_error(e, "流月分析计算")
+
+
 def calculate_liuri_analysis(
     person: PersonInfo,
     analysis_year: Optional[int] = None,

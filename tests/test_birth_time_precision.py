@@ -6,11 +6,17 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import FateBridgeRequest, JieqiTimelineRequest, LiuriAnalysisRequest
+from api import (
+    FateBridgeRequest,
+    JieqiTimelineRequest,
+    LiuriAnalysisRequest,
+    LiuyueAnalysisRequest,
+)
 from fastmcp_server import (
     analyze_destiny,
     jieqi_timeline_analysis,
     liuri_analysis,
+    liuyue_analysis,
     timing_analysis,
     two_person_compatibility,
 )
@@ -19,6 +25,7 @@ from fatebridge.services.timing import (
     calculate_comprehensive_timing,
     calculate_jieqi_timeline_analysis,
     calculate_liuri_analysis,
+    calculate_liuyue_analysis,
 )
 from fatebridge.utils.helpers import create_person_info, normalize_birth_time
 
@@ -47,6 +54,15 @@ def test_request_model_accepts_birth_time_precision_fields():
 
 
 def test_timing_request_models_accept_analysis_fields():
+    liuyue_request = LiuyueAnalysisRequest(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+    )
     liuri_request = LiuriAnalysisRequest(
         birth_year=1990,
         birth_month=5,
@@ -64,9 +80,13 @@ def test_timing_request_models_accept_analysis_fields():
         target_year=2028,
     )
 
+    liuyue_payload = liuyue_request.model_dump()
     liuri_payload = liuri_request.model_dump()
     jieqi_payload = jieqi_request.model_dump()
 
+    assert liuyue_payload["analysis_year"] == 2028
+    assert liuyue_payload["analysis_month"] == 4
+    assert liuyue_payload["analysis_day"] == 1
     assert liuri_payload["analysis_year"] == 2028
     assert liuri_payload["analysis_month"] == 4
     assert liuri_payload["analysis_day"] == 1
@@ -296,6 +316,29 @@ def test_calculate_liuri_analysis_returns_expected_pillar():
     assert result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
 
 
+def test_calculate_liuyue_analysis_returns_expected_pillar():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_liuyue_analysis(
+        person, analysis_year=2028, analysis_month=4, analysis_day=1
+    )
+
+    assert result["liuyue_info"]["pillar"] == "乙卯"
+    assert result["liuyue_info"]["solar_term_window"]["start_term"]["name"] == "惊蛰"
+    assert result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
+    assert result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"] == "清明"
+    assert result["liunian_info"]["pillar"] == "戊申"
+
+
 def test_calculate_jieqi_timeline_analysis_returns_qingming_node():
     person = create_person_info(
         birth_year=2028,
@@ -322,6 +365,7 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     analyze_properties = analyze_destiny.parameters["properties"]
     compatibility_properties = two_person_compatibility.parameters["properties"]
     timing_properties = timing_analysis.parameters["properties"]
+    liuyue_properties = liuyue_analysis.parameters["properties"]
     liuri_properties = liuri_analysis.parameters["properties"]
     jieqi_properties = jieqi_timeline_analysis.parameters["properties"]
 
@@ -337,6 +381,9 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     assert "person1_birth_longitude" in compatibility_properties
     assert "person2_birth_longitude" in compatibility_properties
     assert "use_true_solar_time" in timing_properties
+    assert "analysis_year" in liuyue_properties
+    assert "analysis_month" in liuyue_properties
+    assert "analysis_day" in liuyue_properties
     assert "analysis_year" in liuri_properties
     assert "analysis_month" in liuri_properties
     assert "analysis_day" in liuri_properties
