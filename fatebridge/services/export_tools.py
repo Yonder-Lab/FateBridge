@@ -16,7 +16,7 @@ def calculate_export_registry(
     technique: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Return the local AI-export registry aligned with horosa-skill's registry shape.
+    Return the local AI-export registry in FateBridge's normalized registry shape.
     """
     try:
         return build_export_registry(technique=technique)

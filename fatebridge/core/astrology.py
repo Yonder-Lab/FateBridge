@@ -185,6 +185,52 @@ ASPECTS = [
 
 HARMONIOUS_ASPECTS = {"conjunction", "sextile", "trine"}
 
+RELATIVE_MODE_LABELS_ZH = {
+    "compare": "比较盘",
+    "composite": "组合盘",
+    "influence": "影响盘",
+    "timespace": "时空中点盘",
+    "marks": "马克斯盘",
+}
+
+RELATIVE_ZODIACAL_LABELS_ZH = {
+    0: "回归黄道",
+    1: "恒星黄道，岁差:Lahiri",
+}
+
+RELATIVE_MODE_NUMERIC_MAP = {
+    0: "compare",
+    1: "composite",
+    2: "influence",
+    3: "timespace",
+    4: "marks",
+}
+
+RELATIVE_MODE_EXACT_ALIASES = {
+    "Comp": "compare",
+    "Composite": "composite",
+    "Synastry": "influence",
+    "TimeSpace": "timespace",
+    "Marks": "marks",
+}
+
+RELATIVE_MODE_FALLBACK_ALIASES = {
+    "compare": "compare",
+    "comparison": "compare",
+    "comp": "compare",
+    "synastry": "compare",
+    "比较盘": "compare",
+    "组合盘": "composite",
+    "composite": "composite",
+    "influence": "influence",
+    "影响盘": "influence",
+    "timespace": "timespace",
+    "time space": "timespace",
+    "时空中点盘": "timespace",
+    "marks": "marks",
+    "马克斯盘": "marks",
+}
+
 PLANET_ORBITAL_ELEMENTS = {
     "Mercury": lambda d: (48.3313 + 3.24587e-5 * d, 7.0047 + 5e-8 * d, 29.1241 + 1.01444e-5 * d, 0.387098, 0.205635 + 5.59e-10 * d, 168.6562 + 4.0923344368 * d),
     "Venus": lambda d: (76.6799 + 2.4659e-5 * d, 3.3946 + 2.75e-8 * d, 54.8910 + 1.38374e-5 * d, 0.72333, 0.006773 - 1.302e-9 * d, 48.0052 + 1.6021302244 * d),
@@ -754,6 +800,7 @@ def build_core_chart_payload(birth_info: AstroBirthInfo, chart_variant: str) -> 
         "chart_profile": {
             "chart_type": chart_variant,
             "zodiac": "sidereal" if sidereal else "tropical",
+            "ayanamsha": round(ayanamsha, 4),
             "house_system": house_system,
             "tradition": chart_variant in {"hellen_chart", "guolao_chart"},
             "engine_precision": "approximate_orbital_model",
@@ -869,13 +916,23 @@ def build_midpoint_payload(birth_info: AstroBirthInfo) -> Dict[str, Any]:
     }
 
 
-def _composite_chart(inner_chart: Dict[str, Any], outer_chart: Dict[str, Any]) -> Dict[str, Any]:
+def _composite_chart(
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    *,
+    house_system: str = "equal",
+    zodiacal_info: Dict[str, Any],
+) -> Dict[str, Any]:
     inner_planets = {item["id"]: item for item in inner_chart["planets"]}
     outer_planets = {item["id"]: item for item in outer_chart["planets"]}
     composite_planets: List[Dict[str, Any]] = []
     ascendant = _midpoint(
         inner_chart["angles"]["ascendant"]["longitude"],
         outer_chart["angles"]["ascendant"]["longitude"],
+    )
+    midheaven = _midpoint(
+        inner_chart["angles"]["midheaven"]["longitude"],
+        outer_chart["angles"]["midheaven"]["longitude"],
     )
     for planet in PLANET_SEQUENCE:
         if planet not in inner_planets or planet not in outer_planets:
@@ -890,72 +947,1243 @@ def _composite_chart(inner_chart: Dict[str, Any], outer_chart: Dict[str, Any]) -
                 longitude,
                 (inner_planets[planet]["latitude"] + outer_planets[planet]["latitude"]) / 2.0,
                 ascendant,
-                "equal",
+                house_system,
             )
         )
+    aspects = _build_aspects(composite_planets)
     return {
+        "person_info": {
+            "name": f"{inner_chart['person_info']['name']} / {outer_chart['person_info']['name']} 组合盘",
+            "birth_place": f"{inner_chart['person_info']['birth_place']} / {outer_chart['person_info']['birth_place']}",
+            "birth_timezone": inner_chart["person_info"]["birth_timezone"],
+            "birth_longitude": round(
+                (
+                    inner_chart["person_info"]["birth_longitude"]
+                    + outer_chart["person_info"]["birth_longitude"]
+                )
+                / 2.0,
+                4,
+            ),
+            "birth_latitude": round(
+                (
+                    inner_chart["person_info"]["birth_latitude"]
+                    + outer_chart["person_info"]["birth_latitude"]
+                )
+                / 2.0,
+                4,
+            ),
+        },
+        "chart_profile": {
+            "chart_type": "composite",
+            "house_system": house_system,
+            "tradition": inner_chart.get("chart_profile", {}).get("tradition", False),
+            "engine_precision": "approximate_orbital_model",
+            **_relative_zodiac_profile_overrides(zodiacal_info),
+        },
         "angles": {
             "ascendant": {
                 "longitude": round(ascendant, 4),
                 "sign": _sign_name(ascendant),
                 "sign_zh": SIGN_LABELS_ZH[_sign_name(ascendant)],
+            },
+            "midheaven": {
+                "longitude": round(midheaven, 4),
+                "sign": _sign_name(midheaven),
+                "sign_zh": SIGN_LABELS_ZH[_sign_name(midheaven)],
             }
         },
-        "houses": _build_houses(ascendant, "equal"),
+        "houses": _build_houses(ascendant, house_system),
         "planets": composite_planets,
-        "aspects": _build_aspects(composite_planets),
+        "aspects": aspects,
+        "element_balance": _balance(composite_planets, "element"),
+        "modality_balance": _balance(composite_planets, "modality"),
+        "summary": [
+            "已生成 FateBridge 组合盘近似层。",
+            f"行星数量：{len(composite_planets)}。",
+            f"相位数量：{len(aspects)}。",
+        ],
     }
 
 
-def build_relative_payload(
-    inner_birth: AstroBirthInfo,
-    outer_birth: AstroBirthInfo,
-    relationship_mode: str = "synastry",
-) -> Dict[str, Any]:
-    inner_chart = build_core_chart_payload(inner_birth, "chart")
-    outer_chart = build_core_chart_payload(outer_birth, "chart")
-    synastry_aspects: List[Dict[str, Any]] = []
-    for inner_planet in inner_chart["planets"]:
-        for outer_planet in outer_chart["planets"]:
-            if inner_planet["id"] not in TRADITIONAL_PLANETS or outer_planet["id"] not in TRADITIONAL_PLANETS:
+def _normalize_relative_mode(value: Any) -> Dict[str, Any]:
+    raw_value = value if value not in (None, "") else 0
+    normalized: Optional[str] = None
+
+    if isinstance(raw_value, int) and raw_value in RELATIVE_MODE_NUMERIC_MAP:
+        normalized = RELATIVE_MODE_NUMERIC_MAP[raw_value]
+    elif isinstance(raw_value, str):
+        stripped = raw_value.strip()
+        if stripped.isdigit():
+            numeric_value = int(stripped)
+            normalized = RELATIVE_MODE_NUMERIC_MAP.get(numeric_value)
+        if normalized is None:
+            normalized = RELATIVE_MODE_EXACT_ALIASES.get(stripped)
+        if normalized is None:
+            normalized = RELATIVE_MODE_FALLBACK_ALIASES.get(stripped)
+        if normalized is None:
+            normalized = RELATIVE_MODE_FALLBACK_ALIASES.get(stripped.lower())
+
+    if normalized is None:
+        normalized = "compare"
+
+    return {
+        "input": raw_value,
+        "normalized": normalized,
+        "label_zh": RELATIVE_MODE_LABELS_ZH[normalized],
+    }
+
+
+def _match_cross_aspect(longitude_a: float, longitude_b: float, orb: float = 4.0) -> Optional[Dict[str, Any]]:
+    difference = abs(longitude_a - longitude_b)
+    if difference > 180:
+        difference = 360 - difference
+
+    matched: Optional[Tuple[str, float]] = None
+    for aspect_name, exact_angle in ASPECTS:
+        current_orb = abs(difference - exact_angle)
+        if current_orb <= orb and (matched is None or current_orb < matched[1]):
+            matched = (aspect_name, current_orb)
+
+    if matched is None:
+        return None
+
+    return {
+        "aspect": matched[0],
+        "delta": round(matched[1], 4),
+    }
+
+
+def _build_directional_relative_aspects(
+    source_planets: List[Dict[str, Any]],
+    target_planets: List[Dict[str, Any]],
+    orb: float = 4.0,
+) -> List[Dict[str, Any]]:
+    grouped: List[Dict[str, Any]] = []
+
+    for source_planet in source_planets:
+        if source_planet["id"] not in TRADITIONAL_PLANETS:
+            continue
+
+        matches: List[Dict[str, Any]] = []
+        for target_planet in target_planets:
+            if target_planet["id"] not in TRADITIONAL_PLANETS:
                 continue
-            difference = abs(inner_planet["longitude"] - outer_planet["longitude"])
+            matched = _match_cross_aspect(
+                source_planet["longitude"], target_planet["longitude"], orb=orb
+            )
+            if matched is None:
+                continue
+            matches.append(
+                {
+                    "id": target_planet["id"],
+                    "aspect": matched["aspect"],
+                    "delta": matched["delta"],
+                }
+            )
+
+        if not matches:
+            continue
+
+        grouped.append(
+            {
+                "id": source_planet["id"],
+                "objects": sorted(matches, key=lambda item: (item["delta"], item["id"])),
+            }
+        )
+
+    return grouped
+
+
+def _flatten_directional_relative_aspects(
+    grouped_aspects: List[Dict[str, Any]],
+    *,
+    source_key: str,
+    target_key: str,
+) -> List[Dict[str, Any]]:
+    flattened: List[Dict[str, Any]] = []
+    for item in grouped_aspects:
+        source_id = item.get("id")
+        if not source_id:
+            continue
+        for target in item.get("objects", []):
+            target_id = target.get("id")
+            if not target_id:
+                continue
+            flattened.append(
+                {
+                    source_key: source_id,
+                    target_key: target_id,
+                    "aspect": target["aspect"],
+                    "orb": target["delta"],
+                }
+            )
+    return flattened
+
+
+def _build_relative_midpoint_catalog(target_planets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    midpoint_bodies = [
+        item for item in target_planets if item["id"] in TRADITIONAL_PLANETS
+    ]
+    catalog: List[Dict[str, Any]] = []
+    for index, first in enumerate(midpoint_bodies):
+        for second in midpoint_bodies[index + 1:]:
+            midpoint_longitude = _midpoint(first["longitude"], second["longitude"])
+            catalog.append(
+                {
+                    "idA": first["id"],
+                    "idB": second["id"],
+                    "longitude": round(midpoint_longitude, 4),
+                }
+            )
+    return catalog
+
+
+def _build_directional_relative_midpoints(
+    source_planets: List[Dict[str, Any]],
+    target_planets: List[Dict[str, Any]],
+    orb: float = 3.0,
+) -> Dict[str, List[Dict[str, Any]]]:
+    target_midpoints = _build_relative_midpoint_catalog(target_planets)
+    midpoint_hits: Dict[str, List[Dict[str, Any]]] = {}
+
+    for source_planet in source_planets:
+        if source_planet["id"] not in TRADITIONAL_PLANETS:
+            continue
+
+        hits: List[Dict[str, Any]] = []
+        for midpoint in target_midpoints:
+            matched = _match_cross_aspect(
+                source_planet["longitude"], midpoint["longitude"], orb=orb
+            )
+            if matched is None:
+                continue
+            hits.append(
+                {
+                    "midpoint": midpoint,
+                    "aspect": matched["aspect"],
+                    "delta": matched["delta"],
+                }
+            )
+
+        if hits:
+            midpoint_hits[source_planet["id"]] = sorted(
+                hits,
+                key=lambda item: (
+                    item["delta"],
+                    item["midpoint"]["idA"],
+                    item["midpoint"]["idB"],
+                ),
+            )
+
+    return midpoint_hits
+
+
+def _antiscia_longitude(longitude: float) -> float:
+    return normalize_angle(180.0 - longitude)
+
+
+def _contra_antiscia_longitude(longitude: float) -> float:
+    return normalize_angle(_antiscia_longitude(longitude) + 180.0)
+
+
+def _build_directional_relative_antiscia(
+    source_planets: List[Dict[str, Any]],
+    target_planets: List[Dict[str, Any]],
+    *,
+    contra: bool = False,
+    orb: float = 3.0,
+) -> List[Dict[str, Any]]:
+    matched_items: List[Dict[str, Any]] = []
+
+    for source_planet in source_planets:
+        if source_planet["id"] not in TRADITIONAL_PLANETS:
+            continue
+
+        for target_planet in target_planets:
+            if target_planet["id"] not in TRADITIONAL_PLANETS:
+                continue
+            reference_longitude = (
+                _contra_antiscia_longitude(target_planet["longitude"])
+                if contra
+                else _antiscia_longitude(target_planet["longitude"])
+            )
+            difference = abs(source_planet["longitude"] - reference_longitude)
             if difference > 180:
                 difference = 360 - difference
-            for aspect_name, exact_angle in ASPECTS:
-                orb = abs(difference - exact_angle)
-                if orb <= 4.0:
-                    synastry_aspects.append(
-                        {
-                            "inner": inner_planet["id"],
-                            "outer": outer_planet["id"],
-                            "aspect": aspect_name,
-                            "orb": round(orb, 4),
-                        }
-                    )
-                    break
-    synastry_aspects = sorted(
-        synastry_aspects,
-        key=lambda item: (item["orb"], item["inner"], item["outer"]),
+            if difference > orb:
+                continue
+            matched_items.append(
+                {
+                    "idA": source_planet["id"],
+                    "idB": target_planet["id"],
+                    "delta": round(difference, 4),
+                }
+            )
+
+    return sorted(
+        matched_items,
+        key=lambda item: (item["delta"], item["idA"], item["idB"]),
     )
-    composite_chart = _composite_chart(inner_chart, outer_chart)
-    compatibility = _compatibility_score(
-        inner_chart["planets"], outer_chart["planets"], synastry_aspects
+
+
+def _count_directional_relative_midpoint_hits(
+    midpoint_hits: Dict[str, List[Dict[str, Any]]],
+) -> int:
+    return sum(len(items) for items in midpoint_hits.values())
+
+
+def _resolve_relative_house_system(hsys: int) -> str:
+    try:
+        resolved = int(hsys)
+    except (TypeError, ValueError):
+        raise ValueError("relative 关系盘暂仅支持 hsys=0 或 hsys=8。")
+    if resolved == 0:
+        return "whole_sign"
+    if resolved == 8:
+        return "equal"
+    raise ValueError("relative 关系盘离线模式暂仅支持 hsys=0(整宫制) 或 hsys=8(等宫制)。")
+
+
+def _resolve_relative_zodiacal_mode(zodiacal: Any) -> Dict[str, Any]:
+    try:
+        resolved = int(zodiacal)
+    except (TypeError, ValueError):
+        raise ValueError(
+            "relative 关系盘离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。"
+        )
+    if resolved not in RELATIVE_ZODIACAL_LABELS_ZH:
+        raise ValueError(
+            "relative 关系盘离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。"
+        )
+    return {
+        "value": resolved,
+        "zodiac": "sidereal" if resolved == 1 else "tropical",
+        "label_zh": RELATIVE_ZODIACAL_LABELS_ZH[resolved],
+        "sidereal": resolved == 1,
+    }
+
+
+def _relative_zodiac_profile_overrides(
+    zodiacal_info: Dict[str, Any],
+    *,
+    ayanamsha: Optional[float] = None,
+) -> Dict[str, Any]:
+    overrides: Dict[str, Any] = {
+        "zodiac": zodiacal_info["zodiac"],
+        "zodiacal": zodiacal_info["value"],
+        "zodiac_label_zh": zodiacal_info["label_zh"],
+    }
+    if ayanamsha is not None:
+        overrides["ayanamsha"] = round(ayanamsha, 4)
+    return overrides
+
+
+def _person_info_from_birth_info(
+    birth_info: AstroBirthInfo,
+    *,
+    name: Optional[str] = None,
+    birth_place: Optional[str] = None,
+) -> Dict[str, Any]:
+    return {
+        "name": name or birth_info.name,
+        "birth_place": birth_place or birth_info.birth_place,
+        "birth_timezone": birth_info.timezone,
+        "birth_longitude": birth_info.longitude,
+        "birth_latitude": birth_info.latitude,
+        "birth_datetime": birth_info.local_datetime.isoformat(),
+        "utc_datetime": birth_info.utc_datetime.isoformat(),
+    }
+
+
+def _rehouse_chart_payload(
+    chart_payload: Dict[str, Any],
+    *,
+    house_system: str,
+) -> Dict[str, Any]:
+    ascendant = chart_payload["angles"]["ascendant"]["longitude"]
+    midheaven = chart_payload["angles"]["midheaven"]["longitude"]
+    planets = [
+        _build_planet_record(
+            item["id"],
+            item["longitude"],
+            item.get("latitude", 0.0),
+            ascendant,
+            house_system,
+        )
+        for item in sorted(chart_payload["planets"], key=_planet_sort_key)
+    ]
+    chart_profile = dict(chart_payload.get("chart_profile", {}))
+    chart_profile["house_system"] = house_system
+    return {
+        **chart_payload,
+        "chart_profile": chart_profile,
+        "houses": _build_houses(ascendant, house_system),
+        "planets": planets,
+        "aspects": _build_aspects(planets),
+        "element_balance": _balance(planets, "element"),
+        "modality_balance": _balance(planets, "modality"),
+    }
+
+
+def _chart_source_planets(chart_payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    return [
+        {
+            "id": item["id"],
+            "longitude": item["longitude"],
+            "latitude": item.get("latitude", 0.0),
+        }
+        for item in chart_payload["planets"]
+    ]
+
+
+def _relative_chart_positions(
+    chart_payload: Dict[str, Any],
+    *,
+    zodiacal_info: Dict[str, Any],
+    utc_datetime: datetime,
+) -> Tuple[List[Dict[str, Any]], float, float, Optional[float]]:
+    source_planets = _chart_source_planets(chart_payload)
+    ascendant = chart_payload["angles"]["ascendant"]["longitude"]
+    midheaven = chart_payload["angles"]["midheaven"]["longitude"]
+    ayanamsha: Optional[float] = None
+
+    if zodiacal_info["sidereal"]:
+        ayanamsha = _ayanamsha(_julian_day(utc_datetime))
+        source_planets = [
+            {
+                **item,
+                "longitude": normalize_angle(item["longitude"] - ayanamsha),
+            }
+            for item in source_planets
+        ]
+        ascendant = normalize_angle(ascendant - ayanamsha)
+        midheaven = normalize_angle(midheaven - ayanamsha)
+
+    return source_planets, ascendant, midheaven, ayanamsha
+
+
+def _build_relative_base_chart(
+    birth_info: AstroBirthInfo,
+    *,
+    house_system: str,
+    zodiacal_info: Dict[str, Any],
+) -> Dict[str, Any]:
+    base_chart = build_core_chart_payload(birth_info, "chart")
+    source_planets, ascendant, midheaven, ayanamsha = _relative_chart_positions(
+        base_chart,
+        zodiacal_info=zodiacal_info,
+        utc_datetime=birth_info.utc_datetime,
+    )
+    return _build_chart_from_positions(
+        chart_type=base_chart["chart_profile"]["chart_type"],
+        person_info=base_chart["person_info"],
+        source_planets=source_planets,
+        ascendant=ascendant,
+        midheaven=midheaven,
+        house_system=house_system,
+        summary_prefix="已生成 FateBridge 关系盘基础命盘。",
+        profile_overrides={
+            "tradition": base_chart["chart_profile"].get("tradition", False),
+            **_relative_zodiac_profile_overrides(
+                zodiacal_info, ayanamsha=ayanamsha
+            ),
+        },
+    )
+
+
+def _planet_sort_key(item: Dict[str, Any]) -> Tuple[int, Any]:
+    planet_id = item.get("id")
+    if planet_id in PLANET_SEQUENCE:
+        return (0, PLANET_SEQUENCE.index(planet_id))
+    return (1, planet_id or "")
+
+
+def _build_chart_from_positions(
+    *,
+    chart_type: str,
+    person_info: Dict[str, Any],
+    source_planets: List[Dict[str, Any]],
+    ascendant: float,
+    midheaven: float,
+    house_system: str,
+    summary_prefix: str,
+    profile_overrides: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    planets = [
+        _build_planet_record(
+            item["id"],
+            item["longitude"],
+            item.get("latitude", 0.0),
+            ascendant,
+            house_system,
+        )
+        for item in sorted(source_planets, key=_planet_sort_key)
+    ]
+    aspects = _build_aspects(planets)
+    chart_profile = {
+        "chart_type": chart_type,
+        "zodiac": "tropical",
+        "house_system": house_system,
+        "tradition": False,
+        "engine_precision": "approximate_orbital_model",
+    }
+    if profile_overrides:
+        chart_profile.update(profile_overrides)
+    return {
+        "person_info": person_info,
+        "chart_profile": chart_profile,
+        "angles": {
+            "ascendant": {
+                "longitude": round(ascendant, 4),
+                "sign": _sign_name(ascendant),
+                "sign_zh": SIGN_LABELS_ZH[_sign_name(ascendant)],
+            },
+            "midheaven": {
+                "longitude": round(midheaven, 4),
+                "sign": _sign_name(midheaven),
+                "sign_zh": SIGN_LABELS_ZH[_sign_name(midheaven)],
+            },
+        },
+        "houses": _build_houses(ascendant, house_system),
+        "planets": planets,
+        "aspects": aspects,
+        "element_balance": _balance(planets, "element"),
+        "modality_balance": _balance(planets, "modality"),
+        "summary": [
+            summary_prefix,
+            f"行星数量：{len(planets)}。",
+            f"相位数量：{len(aspects)}。",
+        ],
+    }
+
+
+def _build_midpoint_birth_info(
+    inner_birth: AstroBirthInfo,
+    outer_birth: AstroBirthInfo,
+) -> AstroBirthInfo:
+    midpoint_utc = inner_birth.utc_datetime + (
+        outer_birth.utc_datetime - inner_birth.utc_datetime
+    ) / 2
+    timezone_name = (
+        inner_birth.timezone
+        if inner_birth.timezone == outer_birth.timezone
+        else "UTC"
+    )
+    midpoint_local = midpoint_utc.astimezone(parse_timezone_name(timezone_name))
+    return AstroBirthInfo(
+        name=f"{inner_birth.name}/{outer_birth.name} 时空中点",
+        birth_place=f"{inner_birth.birth_place} / {outer_birth.birth_place} 中点",
+        timezone=timezone_name,
+        longitude=round((inner_birth.longitude + outer_birth.longitude) / 2.0, 4),
+        latitude=round((inner_birth.latitude + outer_birth.latitude) / 2.0, 4),
+        local_datetime=midpoint_local,
+        utc_datetime=midpoint_utc,
+    )
+
+
+def _build_timespace_chart(
+    inner_birth: AstroBirthInfo,
+    outer_birth: AstroBirthInfo,
+    *,
+    house_system: str,
+    zodiacal_info: Dict[str, Any],
+) -> Dict[str, Any]:
+    midpoint_birth = _build_midpoint_birth_info(inner_birth, outer_birth)
+    midpoint_chart = build_core_chart_payload(midpoint_birth, "chart")
+    source_planets, ascendant, midheaven, ayanamsha = _relative_chart_positions(
+        midpoint_chart,
+        zodiacal_info=zodiacal_info,
+        utc_datetime=midpoint_birth.utc_datetime,
+    )
+    return _build_chart_from_positions(
+        chart_type="timespace",
+        person_info=_person_info_from_birth_info(midpoint_birth),
+        source_planets=source_planets,
+        ascendant=ascendant,
+        midheaven=midheaven,
+        house_system=house_system,
+        summary_prefix="已生成 FateBridge 时空中点盘。",
+        profile_overrides={
+            "derivation": "midpoint_birth",
+            "tradition": midpoint_chart["chart_profile"].get("tradition", False),
+            **_relative_zodiac_profile_overrides(
+                zodiacal_info, ayanamsha=ayanamsha
+            ),
+        },
+    )
+
+
+def _build_influence_chart_wrapper(
+    *,
+    role: str,
+    house_chart: Dict[str, Any],
+    source_chart: Dict[str, Any],
+    house_system: str,
+    zodiacal_info: Dict[str, Any],
+) -> Dict[str, Any]:
+    target_name = house_chart["person_info"]["name"]
+    source_name = source_chart["person_info"]["name"]
+    influence_chart = _build_chart_from_positions(
+        chart_type=f"influence_{role}",
+        person_info={
+            **house_chart["person_info"],
+            "name": f"{target_name}受{source_name}影响",
+        },
+        source_planets=source_chart["planets"],
+        ascendant=house_chart["angles"]["ascendant"]["longitude"],
+        midheaven=house_chart["angles"]["midheaven"]["longitude"],
+        house_system=house_system,
+        summary_prefix=f"已生成 {target_name} 视角的影响图盘。",
+        profile_overrides={
+            "reference_frame": f"{source_name}_planets_in_{target_name}_houses",
+            "tradition": house_chart.get("chart_profile", {}).get("tradition", False),
+            **_relative_zodiac_profile_overrides(zodiacal_info),
+        },
     )
     return {
-        "relationship_profile": {
-            "chart_type": "relative",
-            "relationship_mode": relationship_mode,
+        "chart_profile": {
+            "chart_type": f"influence_{role}",
             "engine_precision": "approximate_orbital_model",
+            "house_system": house_system,
+            "zodiac": influence_chart["chart_profile"].get("zodiac", "tropical"),
+            "zodiacal": zodiacal_info["value"],
+            "zodiac_label_zh": zodiacal_info["label_zh"],
+            "reference_frame": influence_chart["chart_profile"]["reference_frame"],
+        },
+        "chart": influence_chart,
+        "summary": [
+            f"以 {target_name} 的宫位框架投影 {source_name} 的星体。",
+            f"星体数量：{len(influence_chart['planets'])}。",
+            f"相位数量：{len(influence_chart['aspects'])}。",
+        ],
+    }
+
+
+def _build_relative_influence_pair(
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    *,
+    house_system: str,
+    zodiacal_info: Dict[str, Any],
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    return (
+        _build_influence_chart_wrapper(
+            role="inner",
+            house_chart=inner_chart,
+            source_chart=outer_chart,
+            house_system=house_system,
+            zodiacal_info=zodiacal_info,
+        ),
+        _build_influence_chart_wrapper(
+            role="outer",
+            house_chart=outer_chart,
+            source_chart=inner_chart,
+            house_system=house_system,
+            zodiacal_info=zodiacal_info,
+        ),
+    )
+
+
+def _build_marks_chart(
+    composite_chart: Dict[str, Any],
+    timespace_chart: Dict[str, Any],
+    *,
+    house_system: str,
+    zodiacal_info: Dict[str, Any],
+) -> Dict[str, Any]:
+    composite_planets = {item["id"]: item for item in composite_chart["planets"]}
+    timespace_planets = {item["id"]: item for item in timespace_chart["planets"]}
+    blended_planets: List[Dict[str, Any]] = []
+    for planet in PLANET_SEQUENCE:
+        if planet not in composite_planets or planet not in timespace_planets:
+            continue
+        blended_planets.append(
+            {
+                "id": planet,
+                "longitude": _midpoint(
+                    composite_planets[planet]["longitude"],
+                    timespace_planets[planet]["longitude"],
+                ),
+                "latitude": round(
+                    (
+                        composite_planets[planet]["latitude"]
+                        + timespace_planets[planet]["latitude"]
+                    )
+                    / 2.0,
+                    4,
+                ),
+            }
+        )
+    ascendant = _midpoint(
+        composite_chart["angles"]["ascendant"]["longitude"],
+        timespace_chart["angles"]["ascendant"]["longitude"],
+    )
+    midheaven = _midpoint(
+        composite_chart["angles"]["midheaven"]["longitude"],
+        timespace_chart["angles"]["midheaven"]["longitude"],
+    )
+    return _build_chart_from_positions(
+        chart_type="marks",
+        person_info={
+            **timespace_chart["person_info"],
+            "name": "关系马克斯盘",
+        },
+        source_planets=blended_planets,
+        ascendant=ascendant,
+        midheaven=midheaven,
+        house_system=house_system,
+        summary_prefix="已生成 FateBridge 马克斯盘近似层。",
+        profile_overrides={
+            "derivation": "composite_timespace_blend",
+            "tradition": composite_chart.get("chart_profile", {}).get("tradition", False),
+            **_relative_zodiac_profile_overrides(zodiacal_info),
+        },
+    )
+
+
+def _base_relative_relationship_profile(
+    relative_mode_info: Dict[str, Any],
+    *,
+    hsys: int,
+    zodiacal: int,
+    zodiacal_info: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "chart_type": "relative",
+        "relationship_mode": relative_mode_info["input"],
+        "relative_mode_input": relative_mode_info["input"],
+        "relative_mode_normalized": relative_mode_info["normalized"],
+        "relative_mode_label_zh": relative_mode_info["label_zh"],
+        "hsys": hsys,
+        "zodiacal": zodiacal,
+        "zodiac_mode": zodiacal_info["zodiac"],
+        "zodiac_label_zh": zodiacal_info["label_zh"],
+        "engine_precision": "approximate_orbital_model",
+    }
+
+
+def _build_compare_relative_payload(
+    *,
+    relative_mode_info: Dict[str, Any],
+    hsys: int,
+    zodiacal: int,
+    zodiacal_info: Dict[str, Any],
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    synastry_aspects: List[Dict[str, Any]],
+    compatibility: Dict[str, int],
+    composite_chart: Dict[str, Any],
+    in_to_out_aspects: List[Dict[str, Any]],
+    out_to_in_aspects: List[Dict[str, Any]],
+    in_to_out_midpoint: Dict[str, Any],
+    out_to_in_midpoint: Dict[str, Any],
+    in_to_out_antiscia: List[Dict[str, Any]],
+    out_to_in_antiscia: List[Dict[str, Any]],
+    in_to_out_contra_antiscia: List[Dict[str, Any]],
+    out_to_in_contra_antiscia: List[Dict[str, Any]],
+    inner_influence: Dict[str, Any],
+    outer_influence: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "relationship_profile": {
+            **_base_relative_relationship_profile(
+                relative_mode_info,
+                hsys=hsys,
+                zodiacal=zodiacal,
+                zodiacal_info=zodiacal_info,
+            ),
+            "primary_layer": "directional_synastry",
+            "mode_status": "implemented",
         },
         "inner_chart": inner_chart,
         "outer_chart": outer_chart,
         "synastry_aspects": synastry_aspects,
         "composite_chart": composite_chart,
         "compatibility": compatibility,
+        "in_to_out_aspects": in_to_out_aspects,
+        "out_to_in_aspects": out_to_in_aspects,
+        "in_to_out_midpoint": in_to_out_midpoint,
+        "out_to_in_midpoint": out_to_in_midpoint,
+        "in_to_out_antiscia": in_to_out_antiscia,
+        "out_to_in_antiscia": out_to_in_antiscia,
+        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
+        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
+        "chart": {},
+        "inner": inner_influence,
+        "outer": outer_influence,
+        "inToOutAsp": in_to_out_aspects,
+        "outToInAsp": out_to_in_aspects,
+        "inToOutMidpoint": in_to_out_midpoint,
+        "outToInMidpoint": out_to_in_midpoint,
+        "inToOutAnti": in_to_out_antiscia,
+        "outToInAnti": out_to_in_antiscia,
+        "inToOutCAnti": in_to_out_contra_antiscia,
+        "outToInCAnti": out_to_in_contra_antiscia,
         "summary": [
-            "已生成 FateBridge 关系盘 / 合盘分析。",
-            f"跨盘相位数量：{len(synastry_aspects)}。",
+            "已生成 FateBridge 比较盘分析。",
+            f"A对B相位主体数：{len(in_to_out_aspects)}。",
+            f"B对A相位主体数：{len(out_to_in_aspects)}。",
+            f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
+            f"A对B映点命中：{len(in_to_out_antiscia)}。",
             f"综合分：{compatibility['overall_score']}。",
+            "合成图盘保留在 composite_chart 兼容字段；主 chart 层在比较盘模式下当前留空。",
+            "影响图盘、中点相位与映点/反映点均已提供离线近似结果。",
         ],
     }
+
+
+def _build_composite_relative_payload(
+    *,
+    relative_mode_info: Dict[str, Any],
+    hsys: int,
+    zodiacal: int,
+    zodiacal_info: Dict[str, Any],
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    synastry_aspects: List[Dict[str, Any]],
+    compatibility: Dict[str, int],
+    composite_chart: Dict[str, Any],
+    in_to_out_aspects: List[Dict[str, Any]],
+    out_to_in_aspects: List[Dict[str, Any]],
+    in_to_out_midpoint: Dict[str, Any],
+    out_to_in_midpoint: Dict[str, Any],
+    in_to_out_antiscia: List[Dict[str, Any]],
+    out_to_in_antiscia: List[Dict[str, Any]],
+    in_to_out_contra_antiscia: List[Dict[str, Any]],
+    out_to_in_contra_antiscia: List[Dict[str, Any]],
+    inner_influence: Dict[str, Any],
+    outer_influence: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "relationship_profile": {
+            **_base_relative_relationship_profile(
+                relative_mode_info,
+                hsys=hsys,
+                zodiacal=zodiacal,
+                zodiacal_info=zodiacal_info,
+            ),
+            "primary_layer": "composite_chart",
+            "mode_status": "implemented",
+        },
+        "inner_chart": inner_chart,
+        "outer_chart": outer_chart,
+        "synastry_aspects": synastry_aspects,
+        "composite_chart": composite_chart,
+        "compatibility": compatibility,
+        "in_to_out_aspects": in_to_out_aspects,
+        "out_to_in_aspects": out_to_in_aspects,
+        "in_to_out_midpoint": in_to_out_midpoint,
+        "out_to_in_midpoint": out_to_in_midpoint,
+        "in_to_out_antiscia": in_to_out_antiscia,
+        "out_to_in_antiscia": out_to_in_antiscia,
+        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
+        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
+        "chart": composite_chart,
+        "inner": inner_influence,
+        "outer": outer_influence,
+        "inToOutAsp": in_to_out_aspects,
+        "outToInAsp": out_to_in_aspects,
+        "inToOutMidpoint": in_to_out_midpoint,
+        "outToInMidpoint": out_to_in_midpoint,
+        "inToOutAnti": in_to_out_antiscia,
+        "outToInAnti": out_to_in_antiscia,
+        "inToOutCAnti": in_to_out_contra_antiscia,
+        "outToInCAnti": out_to_in_contra_antiscia,
+        "summary": [
+            "已生成 FateBridge 组合盘分析。",
+            f"合成盘行星数量：{len(composite_chart.get('planets', []))}。",
+            f"A对B相位主体数：{len(in_to_out_aspects)}。",
+            f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
+            f"A对B映点命中：{len(in_to_out_antiscia)}。",
+            f"综合分：{compatibility['overall_score']}。",
+            "影响图盘、中点相位与映点/反映点均已提供离线近似结果。",
+        ],
+    }
+
+
+def _build_influence_relative_payload(
+    *,
+    relative_mode_info: Dict[str, Any],
+    hsys: int,
+    zodiacal: int,
+    zodiacal_info: Dict[str, Any],
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    synastry_aspects: List[Dict[str, Any]],
+    compatibility: Dict[str, int],
+    composite_chart: Dict[str, Any],
+    in_to_out_aspects: List[Dict[str, Any]],
+    out_to_in_aspects: List[Dict[str, Any]],
+    in_to_out_midpoint: Dict[str, Any],
+    out_to_in_midpoint: Dict[str, Any],
+    in_to_out_antiscia: List[Dict[str, Any]],
+    out_to_in_antiscia: List[Dict[str, Any]],
+    in_to_out_contra_antiscia: List[Dict[str, Any]],
+    out_to_in_contra_antiscia: List[Dict[str, Any]],
+    inner_influence: Dict[str, Any],
+    outer_influence: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "relationship_profile": {
+            **_base_relative_relationship_profile(
+                relative_mode_info,
+                hsys=hsys,
+                zodiacal=zodiacal,
+                zodiacal_info=zodiacal_info,
+            ),
+            "primary_layer": "influence_chart_pair",
+            "mode_status": "implemented",
+        },
+        "inner_chart": inner_chart,
+        "outer_chart": outer_chart,
+        "synastry_aspects": synastry_aspects,
+        "composite_chart": composite_chart,
+        "compatibility": compatibility,
+        "in_to_out_aspects": in_to_out_aspects,
+        "out_to_in_aspects": out_to_in_aspects,
+        "in_to_out_midpoint": in_to_out_midpoint,
+        "out_to_in_midpoint": out_to_in_midpoint,
+        "in_to_out_antiscia": in_to_out_antiscia,
+        "out_to_in_antiscia": out_to_in_antiscia,
+        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
+        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
+        "chart": composite_chart,
+        "inner": inner_influence,
+        "outer": outer_influence,
+        "inToOutAsp": in_to_out_aspects,
+        "outToInAsp": out_to_in_aspects,
+        "inToOutMidpoint": in_to_out_midpoint,
+        "outToInMidpoint": out_to_in_midpoint,
+        "inToOutAnti": in_to_out_antiscia,
+        "outToInAnti": out_to_in_antiscia,
+        "inToOutCAnti": in_to_out_contra_antiscia,
+        "outToInCAnti": out_to_in_contra_antiscia,
+        "summary": [
+            "已生成 FateBridge 影响盘分析。",
+            f"A视角影响图盘星体数：{len(inner_influence.get('chart', {}).get('planets', []))}。",
+            f"B视角影响图盘星体数：{len(outer_influence.get('chart', {}).get('planets', []))}。",
+            f"A对B相位主体数：{len(in_to_out_aspects)}。",
+            f"综合分：{compatibility['overall_score']}。",
+            "合成图盘保留在 chart / composite_chart 中，作为影响盘的辅助层。",
+        ],
+    }
+
+
+def _build_timespace_relative_payload(
+    *,
+    relative_mode_info: Dict[str, Any],
+    hsys: int,
+    zodiacal: int,
+    zodiacal_info: Dict[str, Any],
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    synastry_aspects: List[Dict[str, Any]],
+    compatibility: Dict[str, int],
+    composite_chart: Dict[str, Any],
+    timespace_chart: Dict[str, Any],
+    in_to_out_aspects: List[Dict[str, Any]],
+    out_to_in_aspects: List[Dict[str, Any]],
+    in_to_out_midpoint: Dict[str, Any],
+    out_to_in_midpoint: Dict[str, Any],
+    in_to_out_antiscia: List[Dict[str, Any]],
+    out_to_in_antiscia: List[Dict[str, Any]],
+    in_to_out_contra_antiscia: List[Dict[str, Any]],
+    out_to_in_contra_antiscia: List[Dict[str, Any]],
+    inner_influence: Dict[str, Any],
+    outer_influence: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "relationship_profile": {
+            **_base_relative_relationship_profile(
+                relative_mode_info,
+                hsys=hsys,
+                zodiacal=zodiacal,
+                zodiacal_info=zodiacal_info,
+            ),
+            "primary_layer": "timespace_chart",
+            "mode_status": "implemented",
+        },
+        "inner_chart": inner_chart,
+        "outer_chart": outer_chart,
+        "synastry_aspects": synastry_aspects,
+        "composite_chart": composite_chart,
+        "compatibility": compatibility,
+        "in_to_out_aspects": in_to_out_aspects,
+        "out_to_in_aspects": out_to_in_aspects,
+        "in_to_out_midpoint": in_to_out_midpoint,
+        "out_to_in_midpoint": out_to_in_midpoint,
+        "in_to_out_antiscia": in_to_out_antiscia,
+        "out_to_in_antiscia": out_to_in_antiscia,
+        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
+        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
+        "chart": timespace_chart,
+        "inner": inner_influence,
+        "outer": outer_influence,
+        "inToOutAsp": in_to_out_aspects,
+        "outToInAsp": out_to_in_aspects,
+        "inToOutMidpoint": in_to_out_midpoint,
+        "outToInMidpoint": out_to_in_midpoint,
+        "inToOutAnti": in_to_out_antiscia,
+        "outToInAnti": out_to_in_antiscia,
+        "inToOutCAnti": in_to_out_contra_antiscia,
+        "outToInCAnti": out_to_in_contra_antiscia,
+        "summary": [
+            "已生成 FateBridge 时空中点盘分析。",
+            f"时空中点盘行星数量：{len(timespace_chart.get('planets', []))}。",
+            f"A对B相位主体数：{len(in_to_out_aspects)}。",
+            f"综合分：{compatibility['overall_score']}。",
+            "主 chart 层采用双方出生时间与地理位置中点生成的离线近似盘。",
+        ],
+    }
+
+
+def _build_marks_relative_payload(
+    *,
+    relative_mode_info: Dict[str, Any],
+    hsys: int,
+    zodiacal: int,
+    zodiacal_info: Dict[str, Any],
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    synastry_aspects: List[Dict[str, Any]],
+    compatibility: Dict[str, int],
+    composite_chart: Dict[str, Any],
+    marks_chart: Dict[str, Any],
+    in_to_out_aspects: List[Dict[str, Any]],
+    out_to_in_aspects: List[Dict[str, Any]],
+    in_to_out_midpoint: Dict[str, Any],
+    out_to_in_midpoint: Dict[str, Any],
+    in_to_out_antiscia: List[Dict[str, Any]],
+    out_to_in_antiscia: List[Dict[str, Any]],
+    in_to_out_contra_antiscia: List[Dict[str, Any]],
+    out_to_in_contra_antiscia: List[Dict[str, Any]],
+    inner_influence: Dict[str, Any],
+    outer_influence: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "relationship_profile": {
+            **_base_relative_relationship_profile(
+                relative_mode_info,
+                hsys=hsys,
+                zodiacal=zodiacal,
+                zodiacal_info=zodiacal_info,
+            ),
+            "primary_layer": "marks_chart",
+            "mode_status": "implemented",
+        },
+        "inner_chart": inner_chart,
+        "outer_chart": outer_chart,
+        "synastry_aspects": synastry_aspects,
+        "composite_chart": composite_chart,
+        "compatibility": compatibility,
+        "in_to_out_aspects": in_to_out_aspects,
+        "out_to_in_aspects": out_to_in_aspects,
+        "in_to_out_midpoint": in_to_out_midpoint,
+        "out_to_in_midpoint": out_to_in_midpoint,
+        "in_to_out_antiscia": in_to_out_antiscia,
+        "out_to_in_antiscia": out_to_in_antiscia,
+        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
+        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
+        "chart": marks_chart,
+        "inner": inner_influence,
+        "outer": outer_influence,
+        "inToOutAsp": in_to_out_aspects,
+        "outToInAsp": out_to_in_aspects,
+        "inToOutMidpoint": in_to_out_midpoint,
+        "outToInMidpoint": out_to_in_midpoint,
+        "inToOutAnti": in_to_out_antiscia,
+        "outToInAnti": out_to_in_antiscia,
+        "inToOutCAnti": in_to_out_contra_antiscia,
+        "outToInCAnti": out_to_in_contra_antiscia,
+        "summary": [
+            "已生成 FateBridge 马克斯盘分析。",
+            f"马克斯盘行星数量：{len(marks_chart.get('planets', []))}。",
+            f"A对B相位主体数：{len(in_to_out_aspects)}。",
+            f"综合分：{compatibility['overall_score']}。",
+            "主 chart 层采用组合盘与时空中点盘之间的离线混合近似结果。",
+        ],
+    }
+
+
+def _build_unimplemented_relative_payload(
+    *,
+    relative_mode_info: Dict[str, Any],
+    hsys: int,
+    zodiacal: int,
+    zodiacal_info: Dict[str, Any],
+    inner_chart: Dict[str, Any],
+    outer_chart: Dict[str, Any],
+    synastry_aspects: List[Dict[str, Any]],
+    compatibility: Dict[str, int],
+    composite_chart: Dict[str, Any],
+    in_to_out_aspects: List[Dict[str, Any]],
+    out_to_in_aspects: List[Dict[str, Any]],
+    in_to_out_midpoint: Dict[str, Any],
+    out_to_in_midpoint: Dict[str, Any],
+    in_to_out_antiscia: List[Dict[str, Any]],
+    out_to_in_antiscia: List[Dict[str, Any]],
+    in_to_out_contra_antiscia: List[Dict[str, Any]],
+    out_to_in_contra_antiscia: List[Dict[str, Any]],
+    inner_influence: Dict[str, Any],
+    outer_influence: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "relationship_profile": {
+            **_base_relative_relationship_profile(
+                relative_mode_info,
+                hsys=hsys,
+                zodiacal=zodiacal,
+                zodiacal_info=zodiacal_info,
+            ),
+            "primary_layer": "placeholder",
+            "mode_status": "placeholder",
+        },
+        "inner_chart": inner_chart,
+        "outer_chart": outer_chart,
+        "synastry_aspects": synastry_aspects,
+        "composite_chart": composite_chart,
+        "compatibility": compatibility,
+        "in_to_out_aspects": in_to_out_aspects,
+        "out_to_in_aspects": out_to_in_aspects,
+        "in_to_out_midpoint": in_to_out_midpoint,
+        "out_to_in_midpoint": out_to_in_midpoint,
+        "in_to_out_antiscia": in_to_out_antiscia,
+        "out_to_in_antiscia": out_to_in_antiscia,
+        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
+        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
+        "chart": {},
+        "inner": inner_influence,
+        "outer": outer_influence,
+        "inToOutAsp": in_to_out_aspects,
+        "outToInAsp": out_to_in_aspects,
+        "inToOutMidpoint": in_to_out_midpoint,
+        "outToInMidpoint": out_to_in_midpoint,
+        "inToOutAnti": in_to_out_antiscia,
+        "outToInAnti": out_to_in_antiscia,
+        "inToOutCAnti": in_to_out_contra_antiscia,
+        "outToInCAnti": out_to_in_contra_antiscia,
+        "summary": [
+            f"已生成 FateBridge {relative_mode_info['label_zh']} 占位输出。",
+            f"A对B相位主体数：{len(in_to_out_aspects)}。",
+            f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
+            f"A对B映点命中：{len(in_to_out_antiscia)}。",
+            f"综合分：{compatibility['overall_score']}。",
+            "该模式的深层图盘算法尚未实现，当前已提供兼容 contract、方向相位层、影响图盘，以及中点/映点离线近似结果。",
+        ],
+    }
+
+
+def build_relative_payload(
+    inner_birth: AstroBirthInfo,
+    outer_birth: AstroBirthInfo,
+    relative_mode: Any = None,
+    hsys: int = 0,
+    zodiacal: int = 0,
+) -> Dict[str, Any]:
+    relative_mode_info = _normalize_relative_mode(relative_mode)
+    relative_house_system = _resolve_relative_house_system(hsys)
+    zodiacal_info = _resolve_relative_zodiacal_mode(zodiacal)
+    inner_chart = _build_relative_base_chart(
+        inner_birth,
+        house_system=relative_house_system,
+        zodiacal_info=zodiacal_info,
+    )
+    outer_chart = _build_relative_base_chart(
+        outer_birth,
+        house_system=relative_house_system,
+        zodiacal_info=zodiacal_info,
+    )
+    in_to_out_aspects = _build_directional_relative_aspects(
+        inner_chart["planets"], outer_chart["planets"]
+    )
+    out_to_in_aspects = _build_directional_relative_aspects(
+        outer_chart["planets"], inner_chart["planets"]
+    )
+    synastry_aspects = _flatten_directional_relative_aspects(
+        in_to_out_aspects, source_key="inner", target_key="outer"
+    )
+    synastry_aspects = sorted(
+        synastry_aspects,
+        key=lambda item: (item["orb"], item["inner"], item["outer"]),
+    )
+    composite_chart = _composite_chart(
+        inner_chart,
+        outer_chart,
+        house_system=relative_house_system,
+        zodiacal_info=zodiacal_info,
+    )
+    timespace_chart = _build_timespace_chart(
+        inner_birth,
+        outer_birth,
+        house_system=relative_house_system,
+        zodiacal_info=zodiacal_info,
+    )
+    marks_chart = _build_marks_chart(
+        composite_chart,
+        timespace_chart,
+        house_system=relative_house_system,
+        zodiacal_info=zodiacal_info,
+    )
+    inner_influence, outer_influence = _build_relative_influence_pair(
+        inner_chart,
+        outer_chart,
+        house_system=relative_house_system,
+        zodiacal_info=zodiacal_info,
+    )
+    compatibility = _compatibility_score(
+        inner_chart["planets"], outer_chart["planets"], synastry_aspects
+    )
+    in_to_out_midpoint = _build_directional_relative_midpoints(
+        inner_chart["planets"], outer_chart["planets"]
+    )
+    out_to_in_midpoint = _build_directional_relative_midpoints(
+        outer_chart["planets"], inner_chart["planets"]
+    )
+    in_to_out_antiscia = _build_directional_relative_antiscia(
+        inner_chart["planets"], outer_chart["planets"]
+    )
+    out_to_in_antiscia = _build_directional_relative_antiscia(
+        outer_chart["planets"], inner_chart["planets"]
+    )
+    in_to_out_contra_antiscia = _build_directional_relative_antiscia(
+        inner_chart["planets"], outer_chart["planets"], contra=True
+    )
+    out_to_in_contra_antiscia = _build_directional_relative_antiscia(
+        outer_chart["planets"], inner_chart["planets"], contra=True
+    )
+    shared_kwargs = {
+        "relative_mode_info": relative_mode_info,
+        "hsys": hsys,
+        "zodiacal": zodiacal,
+        "zodiacal_info": zodiacal_info,
+        "inner_chart": inner_chart,
+        "outer_chart": outer_chart,
+        "synastry_aspects": synastry_aspects,
+        "compatibility": compatibility,
+        "composite_chart": composite_chart,
+        "in_to_out_aspects": in_to_out_aspects,
+        "out_to_in_aspects": out_to_in_aspects,
+        "in_to_out_midpoint": in_to_out_midpoint,
+        "out_to_in_midpoint": out_to_in_midpoint,
+        "in_to_out_antiscia": in_to_out_antiscia,
+        "out_to_in_antiscia": out_to_in_antiscia,
+        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
+        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
+        "inner_influence": inner_influence,
+        "outer_influence": outer_influence,
+    }
+
+    normalized_mode = relative_mode_info["normalized"]
+    if normalized_mode == "compare":
+        return _build_compare_relative_payload(**shared_kwargs)
+    if normalized_mode == "composite":
+        return _build_composite_relative_payload(**shared_kwargs)
+    if normalized_mode == "influence":
+        return _build_influence_relative_payload(**shared_kwargs)
+    if normalized_mode == "timespace":
+        return _build_timespace_relative_payload(
+            **shared_kwargs, timespace_chart=timespace_chart
+        )
+    if normalized_mode == "marks":
+        return _build_marks_relative_payload(**shared_kwargs, marks_chart=marks_chart)
+    return _build_unimplemented_relative_payload(**shared_kwargs)

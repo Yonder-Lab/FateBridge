@@ -122,7 +122,10 @@ def calculate_relative_chart_analysis(
     *,
     inner_payload: Dict[str, Any],
     outer_payload: Dict[str, Any],
-    relationship_mode: str = "synastry",
+    relative_mode: Any = None,
+    relationship_mode: Any = None,
+    hsys: int = 0,
+    zodiacal: int = 0,
 ) -> Dict[str, Any]:
     """
     Build synastry/composite payloads for two parties.
@@ -133,7 +136,9 @@ def calculate_relative_chart_analysis(
         return build_relative_payload(
             inner_birth=inner_birth,
             outer_birth=outer_birth,
-            relationship_mode=relationship_mode,
+            relative_mode=relative_mode if relative_mode is not None else relationship_mode,
+            hsys=hsys,
+            zodiacal=zodiacal,
         )
     except Exception as exc:
         return handle_calculation_error(exc, "关系星盘分析")

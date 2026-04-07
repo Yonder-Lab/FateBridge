@@ -3,11 +3,11 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-AI_EXPORT_SETTINGS_KEY = "horosa.ai.export.settings.v1"
+AI_EXPORT_SETTINGS_KEY = "fatebridge.ai.export.settings.v1"
 AI_EXPORT_SETTINGS_VERSION = 6
 AI_EXPORT_SECTION_MIGRATION_VERSION = 6
 AI_EXPORT_SECTION_MIGRATION_KEYS = ["liureng", "qimen", "sanshiunited"]
-MODULE_SNAPSHOT_PREFIX = "horosa.ai.snapshot.module.v1."
+MODULE_SNAPSHOT_PREFIX = "fatebridge.ai.snapshot.module.v1."
 AI_EXPORT_PLANET_INFO_DEFAULT = {"showHouse": 1, "showRuler": 1}
 AI_EXPORT_ASTRO_MEANING_DEFAULT = {"enabled": 0}
 
@@ -257,7 +257,7 @@ def build_export_registry(*, technique: str | None = None) -> dict[str, Any]:
     techniques = [item for item in techniques if item is not None]
     selected = get_technique_info(technique) if technique else None
     return {
-        "source_of_truth": "Horosa-Web/astrostudyui/src/utils/aiExport.js",
+        "source_of_truth": "FateBridge local export registry",
         "settings_key": AI_EXPORT_SETTINGS_KEY,
         "settings_version": AI_EXPORT_SETTINGS_VERSION,
         "section_migration_version": AI_EXPORT_SECTION_MIGRATION_VERSION,

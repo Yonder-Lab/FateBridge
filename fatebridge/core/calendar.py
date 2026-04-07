@@ -3,11 +3,13 @@ Calendar conversion utilities for BaZi calculations.
 Converts Gregorian dates to Chinese sexagenary cycle (干支).
 """
 
-from datetime import datetime, date
+from datetime import datetime
 from typing import Tuple, Dict
 
 from .almanac import (
+    DAY_GANZHI_STRATEGY_STANDARD,
     DEFAULT_TIMEZONE,
+    get_day_ganzhi,
     get_bazi_month_context,
     get_bazi_year,
     localize_datetime,
@@ -114,35 +116,39 @@ class BaZiCalendar:
         return month_stem, month_branch
 
     @classmethod
-    def calculate_day_pillar(cls, year: int, month: int, day: int) -> Tuple[str, str]:
+    def calculate_day_pillar(
+        cls,
+        year: int,
+        month: int,
+        day: int,
+        *,
+        strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
+    ) -> Tuple[str, str]:
         """Calculate the day pillar (日柱) for a given date."""
-        # 使用已知准确的基准：1984年3月31日是甲子日
-        base_date = date(1984, 3, 31)  # 甲子日
-        target_date = date(year, month, day)
-
-        days_diff = (target_date - base_date).days
-
-        # 从甲子日开始计算
-        # 甲在天干中索引为0，子在地支中索引为0
-        base_stem_index = 0  # 甲
-        base_branch_index = 0  # 子
-
-        # 计算目标日期的干支索引
-        stem_index = (base_stem_index + days_diff) % 10
-        branch_index = (base_branch_index + days_diff) % 12
-
-        return HEAVENLY_STEMS[stem_index], EARTHLY_BRANCHES[branch_index]
+        day_ganzhi = get_day_ganzhi(year, month, day, strategy=strategy)
+        return day_ganzhi[0], day_ganzhi[1]
 
     @classmethod
     def calculate_hour_pillar(
-        cls, year: int, month: int, day: int, hour: int
+        cls,
+        year: int,
+        month: int,
+        day: int,
+        hour: int,
+        *,
+        day_pillar_strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
     ) -> Tuple[str, str]:
         """Calculate the hour pillar (时柱) for a given datetime."""
         # Get the earthly branch for the hour
         hour_branch = get_hour_branch(hour)
 
         # Calculate heavenly stem based on day stem
-        day_stem, _ = cls.calculate_day_pillar(year, month, day)
+        day_stem, _ = cls.calculate_day_pillar(
+            year,
+            month,
+            day,
+            strategy=day_pillar_strategy,
+        )
         day_stem_index = HEAVENLY_STEMS.index(day_stem)
 
         # Hour stem calculation based on day stem
@@ -176,6 +182,8 @@ class BaZiCalendar:
         cls,
         birth_datetime: datetime,
         timezone_name: str = DEFAULT_TIMEZONE,
+        *,
+        day_pillar_strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
     ) -> Dict[str, Tuple[str, str]]:
         """
         Calculate all four pillars (四柱) for a given birth datetime.
@@ -197,8 +205,19 @@ class BaZiCalendar:
         return {
             "year": cls.calculate_year_pillar(bazi_year),
             "month": cls.calculate_month_pillar_by_branch(bazi_year, month_branch),
-            "day": cls.calculate_day_pillar(year, month, day),
-            "hour": cls.calculate_hour_pillar(year, month, day, hour),
+            "day": cls.calculate_day_pillar(
+                year,
+                month,
+                day,
+                strategy=day_pillar_strategy,
+            ),
+            "hour": cls.calculate_hour_pillar(
+                year,
+                month,
+                day,
+                hour,
+                day_pillar_strategy=day_pillar_strategy,
+            ),
         }
 
     @classmethod

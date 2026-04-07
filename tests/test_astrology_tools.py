@@ -29,7 +29,21 @@ def _build_birth_payload():
 
 def test_astro_request_models_accept_geo_fields():
     request = AstroChartRequest(**_build_birth_payload())
-    relative_request = AstroRelativeRequest(
+    default_relative_request = AstroRelativeRequest(
+        inner=AstroRelativePartyRequest(**_build_birth_payload()),
+        outer=AstroRelativePartyRequest(
+            **{
+                **_build_birth_payload(),
+                "name": "对盘者",
+                "birth_year": 1992,
+                "birth_month": 3,
+                "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+            }
+        ),
+    )
+    legacy_relative_request = AstroRelativeRequest(
         inner=AstroRelativePartyRequest(**_build_birth_payload()),
         outer=AstroRelativePartyRequest(
             **{
@@ -44,14 +58,41 @@ def test_astro_request_models_accept_geo_fields():
         ),
         relationship_mode="synastry",
     )
+    modern_relative_request = AstroRelativeRequest(
+        inner=AstroRelativePartyRequest(**_build_birth_payload()),
+        outer=AstroRelativePartyRequest(
+            **{
+                **_build_birth_payload(),
+                "name": "对盘者",
+                "birth_year": 1992,
+                "birth_month": 3,
+                "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+            }
+        ),
+        relative_mode="Composite",
+        hsys=1,
+        zodiacal=1,
+    )
 
     chart_payload = request.model_dump()
-    relation_payload = relative_request.model_dump()
+    default_relation_payload = default_relative_request.model_dump()
+    legacy_relation_payload = legacy_relative_request.model_dump()
+    modern_relation_payload = modern_relative_request.model_dump()
 
     assert chart_payload["birth_longitude"] == 121.4667
     assert chart_payload["birth_latitude"] == 31.2167
-    assert relation_payload["inner"]["birth_latitude"] == 31.2167
-    assert relation_payload["outer"]["name"] == "对盘者"
+    assert default_relation_payload["relative_mode"] == 0
+    assert default_relation_payload["relationship_mode"] == 0
+    assert legacy_relation_payload["inner"]["birth_latitude"] == 31.2167
+    assert legacy_relation_payload["outer"]["name"] == "对盘者"
+    assert legacy_relation_payload["relative_mode"] == "synastry"
+    assert legacy_relation_payload["relationship_mode"] == "synastry"
+    assert modern_relation_payload["relative_mode"] == "Composite"
+    assert modern_relation_payload["relationship_mode"] == "Composite"
+    assert modern_relation_payload["hsys"] == 1
+    assert modern_relation_payload["zodiacal"] == 1
 
 
 def test_core_chart_variants_expose_variant_specific_fields():
@@ -108,7 +149,62 @@ def test_germany_chart_returns_midpoint_payload():
     assert result["base_chart"]["planets"]
 
 
-def test_relative_chart_returns_synastry_and_composite_layers():
+def test_relative_chart_returns_legacy_style_layers_and_metadata():
+    result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+        },
+        relative_mode="Composite",
+        hsys=0,
+        zodiacal=1,
+    )
+
+    assert result["relationship_profile"]["chart_type"] == "relative"
+    assert result["relationship_profile"]["relative_mode_input"] == "Composite"
+    assert result["relationship_profile"]["relative_mode_normalized"] == "composite"
+    assert result["relationship_profile"]["relative_mode_label_zh"] == "组合盘"
+    assert result["relationship_profile"]["primary_layer"] == "composite_chart"
+    assert result["relationship_profile"]["mode_status"] == "implemented"
+    assert result["relationship_profile"]["hsys"] == 0
+    assert result["relationship_profile"]["zodiacal"] == 1
+    assert result["synastry_aspects"]
+    assert result["in_to_out_aspects"]
+    assert result["out_to_in_aspects"]
+    assert result["inToOutAsp"] == result["in_to_out_aspects"]
+    assert result["outToInAsp"] == result["out_to_in_aspects"]
+    assert result["in_to_out_midpoint"]
+    assert result["out_to_in_midpoint"]
+    assert isinstance(result["in_to_out_antiscia"], list)
+    assert isinstance(result["out_to_in_antiscia"], list)
+    assert result["inToOutMidpoint"] == result["in_to_out_midpoint"]
+    assert result["outToInMidpoint"] == result["out_to_in_midpoint"]
+    assert result["inToOutAnti"] == result["in_to_out_antiscia"]
+    assert result["outToInAnti"] == result["out_to_in_antiscia"]
+    assert result["inToOutCAnti"] == result["in_to_out_contra_antiscia"]
+    assert result["outToInCAnti"] == result["out_to_in_contra_antiscia"]
+    assert result["in_to_out_contra_antiscia"]
+    assert result["out_to_in_contra_antiscia"]
+    assert result["chart"]["planets"] == result["composite_chart"]["planets"]
+    assert result["composite_chart"]["planets"]
+    assert result["inner"]["chart"]["planets"]
+    assert result["outer"]["chart"]["planets"]
+    assert result["inner"]["chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert result["outer"]["chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert result["inner_chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert result["outer_chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert result["chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert result["compatibility"]["element_harmony_score"] >= 0
+    assert result["compatibility"]["element_harmony_score"] <= 100
+
+
+def test_relative_chart_legacy_synastry_alias_maps_to_compare_mode():
     result = calculate_relative_chart_analysis(
         inner_payload=_build_birth_payload(),
         outer_payload={
@@ -123,11 +219,268 @@ def test_relative_chart_returns_synastry_and_composite_layers():
         relationship_mode="synastry",
     )
 
-    assert result["relationship_profile"]["chart_type"] == "relative"
-    assert result["synastry_aspects"]
+    assert result["relationship_profile"]["relationship_mode"] == "synastry"
+    assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
+    assert result["relationship_profile"]["relative_mode_label_zh"] == "比较盘"
+    assert result["relationship_profile"]["primary_layer"] == "directional_synastry"
+    assert result["relationship_profile"]["mode_status"] == "implemented"
+    assert result["in_to_out_aspects"]
+    assert result["in_to_out_midpoint"]
+    assert result["inToOutMidpoint"] == result["in_to_out_midpoint"]
+    assert result["inToOutAnti"] == result["in_to_out_antiscia"]
+    assert result["chart"] == {}
     assert result["composite_chart"]["planets"]
-    assert result["compatibility"]["element_harmony_score"] >= 0
-    assert result["compatibility"]["element_harmony_score"] <= 100
+    assert result["inner"]["chart"]["planets"]
+    assert result["outer"]["chart"]["planets"]
+
+
+def test_relative_chart_defaults_to_compare_mode_when_mode_omitted():
+    result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+    )
+
+    assert result["relationship_profile"]["relationship_mode"] == 0
+    assert result["relationship_profile"]["relative_mode_input"] == 0
+    assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
+    assert result["relationship_profile"]["primary_layer"] == "directional_synastry"
+
+
+def test_relative_compare_and_composite_modes_expose_different_primary_layers():
+    compare_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode=0,
+    )
+    composite_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode=1,
+    )
+
+    assert compare_result["relationship_profile"]["relative_mode_normalized"] == "compare"
+    assert composite_result["relationship_profile"]["relative_mode_normalized"] == "composite"
+    assert compare_result["relationship_profile"]["primary_layer"] == "directional_synastry"
+    assert composite_result["relationship_profile"]["primary_layer"] == "composite_chart"
+    assert compare_result["chart"] == {}
+    assert composite_result["chart"]["planets"]
+    assert compare_result["inner"]["chart"]["planets"]
+    assert composite_result["inner"]["chart"]["planets"]
+
+
+def test_relative_influence_timespace_and_marks_modes_expose_distinct_primary_layers():
+    influence_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="Synastry",
+        hsys=0,
+    )
+    timespace_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="TimeSpace",
+        hsys=0,
+    )
+    marks_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="Marks",
+        hsys=0,
+    )
+
+    assert influence_result["relationship_profile"]["relative_mode_normalized"] == "influence"
+    assert influence_result["relationship_profile"]["primary_layer"] == "influence_chart_pair"
+    assert influence_result["inner"]["chart"]["chart_profile"]["chart_type"] == "influence_inner"
+    assert influence_result["outer"]["chart"]["chart_profile"]["chart_type"] == "influence_outer"
+    assert influence_result["chart"]["planets"]
+
+    assert timespace_result["relationship_profile"]["relative_mode_normalized"] == "timespace"
+    assert timespace_result["relationship_profile"]["primary_layer"] == "timespace_chart"
+    assert timespace_result["chart"]["chart_profile"]["chart_type"] == "timespace"
+    assert timespace_result["chart"]["chart_profile"]["house_system"] == "whole_sign"
+
+    assert marks_result["relationship_profile"]["relative_mode_normalized"] == "marks"
+    assert marks_result["relationship_profile"]["primary_layer"] == "marks_chart"
+    assert marks_result["chart"]["chart_profile"]["chart_type"] == "marks"
+    assert marks_result["chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert (
+        timespace_result["chart"]["angles"]["ascendant"]["longitude"]
+        != marks_result["chart"]["angles"]["ascendant"]["longitude"]
+    )
+
+
+def test_relative_hsys_zero_and_eight_drive_supported_offline_house_systems():
+    whole_sign_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="TimeSpace",
+        hsys=0,
+    )
+    equal_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="TimeSpace",
+        hsys=8,
+    )
+
+    assert whole_sign_result["inner_chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert whole_sign_result["chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert equal_result["inner_chart"]["chart_profile"]["house_system"] == "equal"
+    assert equal_result["chart"]["chart_profile"]["house_system"] == "equal"
+
+
+def test_relative_unsupported_hsys_returns_error_payload():
+    result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="TimeSpace",
+        hsys=1,
+    )
+
+    assert result == {"error": "关系星盘分析失败，请重试"}
+
+
+def test_relative_zodiacal_one_switches_relative_layers_to_sidereal():
+    tropical_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="TimeSpace",
+        hsys=0,
+        zodiacal=0,
+    )
+    sidereal_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="TimeSpace",
+        hsys=0,
+        zodiacal=1,
+    )
+
+    assert tropical_result["inner_chart"]["chart_profile"]["zodiac"] == "tropical"
+    assert tropical_result["chart"]["chart_profile"]["zodiac"] == "tropical"
+    assert tropical_result["relationship_profile"]["zodiac_mode"] == "tropical"
+    assert sidereal_result["inner_chart"]["chart_profile"]["zodiac"] == "sidereal"
+    assert sidereal_result["chart"]["chart_profile"]["zodiac"] == "sidereal"
+    assert sidereal_result["relationship_profile"]["zodiac_mode"] == "sidereal"
+    assert sidereal_result["relationship_profile"]["zodiac_label_zh"] == "恒星黄道，岁差:Lahiri"
+    assert sidereal_result["inner_chart"]["chart_profile"]["ayanamsha"] > 0
+    assert sidereal_result["chart"]["chart_profile"]["ayanamsha"] > 0
+    assert (
+        tropical_result["inner_chart"]["angles"]["ascendant"]["longitude"]
+        != sidereal_result["inner_chart"]["angles"]["ascendant"]["longitude"]
+    )
+    assert (
+        tropical_result["chart"]["planets"][0]["longitude"]
+        != sidereal_result["chart"]["planets"][0]["longitude"]
+    )
+
+
+def test_relative_unsupported_zodiacal_returns_error_payload():
+    result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="TimeSpace",
+        hsys=0,
+        zodiacal=2,
+    )
+
+    assert result == {"error": "关系星盘分析失败，请重试"}
 
 
 def test_fastmcp_astro_tools_expose_geo_parameters():
@@ -138,3 +491,6 @@ def test_fastmcp_astro_tools_expose_geo_parameters():
     assert "birth_latitude" in chart_properties
     assert "inner_birth_latitude" in relative_properties
     assert "outer_birth_longitude" in relative_properties
+    assert "relative_mode" in relative_properties
+    assert "hsys" in relative_properties
+    assert "zodiacal" in relative_properties

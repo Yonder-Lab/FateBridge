@@ -18,7 +18,7 @@
 - **格局识别**：识别三合、六合、六冲等特殊格局
 - **喜用神推算**：科学推断命局所需的平衡元素
 - **核心星盘与派生星盘**：新增标准星盘、13 扇区扩展盘、希腊星盘、果老风格盘、印度盘、量化中点盘与关系盘
-- **Horosa 导出协议 helper**：新增 `export_registry` 与 `export_parse`，支持按 Horosa AI 导出 contract 解析快照文本
+- **FateBridge 导出协议 helper**：新增 `export_registry` 与 `export_parse`，支持按 FateBridge AI 导出 contract 解析快照文本
 - **悬浮知识 helper**：新增 `knowledge_registry` 与 `knowledge_read`，支持 astrology / 六壬 / 奇门离线知识读取
 - **农历与卦象辅助**：输出农历、节气上下文与梅花易数时卦辅助信息
 - **节气 / 农历 helper**：新增全年节气盘与独立农历换算接口，便于派生技法直接复用
@@ -29,6 +29,8 @@
 - **六爻全表**：按本卦 1-6 爻逐条生成变卦走向、体用关系与爻位摘要
 - **卦义断辞层**：本卦、变卦、互卦、综卦与卦义检索统一返回 `judgement`、`image`、`favorable`、`caution`
 - **卦义检索**：支持按卦名或二进制卦码查询八卦/六十四卦义理摘要
+- **Phase 2 本地技法**：统摄法、六爻、宿占、占星骰子、三式合一均由 FateBridge 离线内核直接计算，无需外部 runtime
+- **奇门变体盘语义稳定化**：默认盘与 `qimen_options` 变体盘统一返回 `content_palace / content_trigram`，`zhifu / zhishi` 也会直接带内容来源，`八宫详解` 会标出内容来源
 
 ### 🤝 高级功能
 
@@ -296,9 +298,9 @@ FateBridge/
 | `POST` | `/api/astro/india` | 印度盘（sidereal） |
 | `POST` | `/api/astro/germany` | 量化盘 / 中点盘 |
 | `POST` | `/api/astro/relative` | 合盘 / 关系盘 |
-| `POST` | `/api/astro/timing` | 西占推运 / 返照 / 时运系统（含指定年盘、主限、黄道释放） |
-| `POST` | `/api/export/registry` | Horosa 风格导出协议注册表 |
-| `POST` | `/api/export/parse` | Horosa 风格快照导出解析 |
+| `POST` | `/api/astro/timing` | 西占推运 / 返照 / 时运系统（含指定年盘、顺逆主限、离线 SemiArc 主限、界限 overlay、黄道释放） |
+| `POST` | `/api/export/registry` | FateBridge 导出协议注册表 |
+| `POST` | `/api/export/parse` | FateBridge 快照导出解析 |
 | `POST` | `/api/knowledge/registry` | astrology / 六壬 / 奇门知识目录 |
 | `POST` | `/api/knowledge/read` | astrology / 六壬 / 奇门知识读取 |
 | `POST` | `/api/cn/jieqi/year` | 全年节气盘 helper |
@@ -306,6 +308,11 @@ FateBridge/
 | `POST` | `/api/cn/gua/meiyi` | 梅易卦义 helper |
 | `POST` | `/api/divination/gua` | 卦义检索 |
 | `POST` | `/api/divination/meihua` | 梅花时卦分析 |
+| `POST` | `/api/divination/tongshefa` | 统摄法分析 |
+| `POST` | `/api/divination/sixyao` | 六爻 / 易卦分析 |
+| `POST` | `/api/divination/suzhan` | 宿占 / 宿盘分析 |
+| `POST` | `/api/divination/otherbu` | 西洋游戏 / 占星骰子分析 |
+| `POST` | `/api/divination/sanshiunited` | 三式合一聚合分析 |
 | `POST` | `/api/timing/liuyue` | 流月专项分析 |
 | `POST` | `/api/timing/liuri` | 流日专项分析 |
 | `POST` | `/api/timing/jieqi` | 全年 24 节气节点时间轴 |
@@ -325,13 +332,13 @@ FateBridge/
 | `astro_india_chart` | 印度盘（sidereal） |
 | `astro_germany_chart` | 量化盘 / 中点盘 |
 | `astro_relative_chart` | 合盘 / 关系盘 |
-| `western_timing_analysis` | 西占推运 / 返照 / 时运系统（含指定年盘、主限、黄道释放） |
+| `western_timing_analysis` | 西占推运 / 返照 / 时运系统（含指定年盘、顺逆主限、界限 overlay、黄道释放） |
 | `dayun_analysis` | 大运专项分析 |
 | `liunian_analysis` | 流年专项分析 |
 | `liuyue_analysis` | 流月专项分析 |
 | `liuri_analysis` | 流日专项分析 |
-| `export_registry` | Horosa 风格导出协议注册表 |
-| `export_parse` | Horosa 风格快照导出解析 |
+| `export_registry` | FateBridge 导出协议注册表 |
+| `export_parse` | FateBridge 快照导出解析 |
 | `knowledge_registry` | astrology / 六壬 / 奇门知识目录 |
 | `knowledge_read` | astrology / 六壬 / 奇门知识读取 |
 | `jieqi_year` | 全年节气盘 helper |
@@ -340,6 +347,13 @@ FateBridge/
 | `gua_meiyi` | 梅易卦义 helper |
 | `gua_lookup` | 卦义检索 |
 | `meihua_analysis` | 梅花时卦分析 |
+| `tongshefa` | 统摄法分析 |
+| `sixyao` | 六爻 / 易卦分析 |
+| `suzhan` | 宿占 / 宿盘分析 |
+| `otherbu` | 西洋游戏 / 占星骰子分析 |
+| `sanshiunited` | 三式合一聚合分析 |
+
+> `relative` 关系盘现已支持旧版兼容的 `relative_mode`、`hsys`、`zodiacal` 输入；旧 `relationship_mode` 仍兼容。当前缺省 mode 会按旧版兼容语义的 `0=比较盘` 处理。`compare` 以方向相位层为主，`composite` 以合成盘层为主，`influence / timespace / marks` 也已提供 FateBridge 离线近似主层；中点相位、映点/反映点与 `inner / outer` 影响图盘均已可用。当前离线 house system 仅可靠支持 `hsys=0`（整宫制）与 `hsys=8`（等宫制），其余旧版兼容宫制编号会显式返回错误，避免静默误算。`zodiacal` 当前离线仅支持 `0=回归黄道` 与 `1=恒星黄道(Lahiri-like)`，且 `1` 会真实切换到 sidereal 近似计算，不再只是 metadata。
 
 ---
 

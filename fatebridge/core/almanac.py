@@ -24,6 +24,9 @@ from .divination import derive_meihua_hexagram
 
 
 DEFAULT_TIMEZONE = "Asia/Shanghai"
+DAY_GANZHI_STRATEGY_STANDARD = "standard"
+DAY_GANZHI_STRATEGY_REFERENCE_OFFSET = "reference_offset"
+
 SOLAR_TERM_NAMES = [
     "小寒",
     "大寒",
@@ -152,6 +155,11 @@ LUNAR_DAY_NAMES = {
 
 OFFSET_RE = re.compile(r"^([+-]?)(\d{1,2})(?::?(\d{2}))?$")
 
+DAY_GANZHI_JDN_OFFSETS = {
+    DAY_GANZHI_STRATEGY_STANDARD: 49,
+    DAY_GANZHI_STRATEGY_REFERENCE_OFFSET: 38,
+}
+
 
 @dataclass(frozen=True)
 class SolarTerm:
@@ -200,8 +208,17 @@ def _julian_day_number(year: int, month: int, day: int) -> int:
     return day + ((153 * m + 2) // 5) + 365 * y + y // 4 - y // 100 + y // 400 - 32045
 
 
-def get_day_ganzhi(year: int, month: int, day: int) -> str:
-    index = (_julian_day_number(year, month, day) + 49) % 60
+def get_day_ganzhi(
+    year: int,
+    month: int,
+    day: int,
+    *,
+    strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
+) -> str:
+    if strategy not in DAY_GANZHI_JDN_OFFSETS:
+        raise ValueError(f"Unsupported day ganzhi strategy: {strategy}")
+
+    index = (_julian_day_number(year, month, day) + DAY_GANZHI_JDN_OFFSETS[strategy]) % 60
     return f"{GAN[index % 10]}{ZHI[index % 12]}"
 
 

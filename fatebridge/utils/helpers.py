@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_BIRTH_TIMEZONE = "Asia/Shanghai"
 SOLAR_TIME_STRATEGY_APPARENT = "apparent"
-SOLAR_TIME_STRATEGY_HOROSA_COMPAT = "horosa_compat"
+SOLAR_TIME_STRATEGY_LONGITUDE_ONLY = "longitude_only"
 PLACE_TEXT_SANITIZER = re.compile(r"[^0-9a-z\u4e00-\u9fff]+")
 
 PLACE_SPECIFICITY = {
@@ -521,9 +521,9 @@ def calculate_solar_time_adjustment(
         total_correction_minutes = (
             longitude_correction_minutes + equation_of_time_minutes
         )
-    elif strategy == SOLAR_TIME_STRATEGY_HOROSA_COMPAT:
-        # Horosa's exported Chinese-metaphysics snapshots align with a
-        # longitude-only civil-time correction, without an equation-of-time term.
+    elif strategy == SOLAR_TIME_STRATEGY_LONGITUDE_ONLY:
+        # Some local metaphysics techniques use a longitude-only civil-time
+        # correction without the equation-of-time term.
         equation_of_time_minutes = 0.0
         total_correction_minutes = -longitude_correction_minutes
     else:

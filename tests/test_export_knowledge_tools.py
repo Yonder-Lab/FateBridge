@@ -26,7 +26,7 @@ from fatebridge.services.knowledge import (
 )
 
 
-def test_export_request_models_accept_horosa_style_fields():
+def test_export_request_models_accept_legacy_style_fields():
     registry_request = ExportRegistryRequest(technique="qimen")
     parse_request = ExportParseRequest(
         technique="qimen",
@@ -57,10 +57,10 @@ def test_export_request_models_accept_horosa_style_fields():
     assert knowledge_payload["object_b"] == "Jupiter"
 
 
-def test_calculate_export_registry_matches_horosa_shape():
+def test_calculate_export_registry_matches_fatebridge_shape():
     result = calculate_export_registry(technique="qimen")
 
-    assert result["settings_key"] == "horosa.ai.export.settings.v1"
+    assert result["settings_key"] == "fatebridge.ai.export.settings.v1"
     assert result["settings_version"] == 6
     assert result["selected_technique"]["key"] == "qimen"
     assert "奇门演卦" in result["selected_technique"]["preset_sections"]
@@ -98,7 +98,7 @@ def test_calculate_export_parse_normalizes_legacy_titles_and_filters_forbidden_s
     assert result["settings_used"]["sections"]["qimen"] == ["起盘信息", "八宫详解", "奇门演卦"]
 
 
-def test_calculate_knowledge_registry_and_read_match_horosa_samples():
+def test_calculate_knowledge_registry_and_read_match_reference_samples():
     registry = calculate_knowledge_registry(domain="astro")
     liureng = calculate_knowledge_read(domain="liureng", category="shen", key="子")
     qimen = calculate_knowledge_read(domain="qimen", category="door", key="休门")
@@ -120,7 +120,7 @@ def test_calculate_knowledge_registry_and_read_match_horosa_samples():
     assert "相位角：90°" in astro["tips"]
 
 
-def test_knowledge_registry_full_domain_order_matches_horosa():
+def test_knowledge_registry_full_domain_order_matches_reference_order():
     registry = calculate_knowledge_registry()
 
     assert [item["domain"] for item in registry["domains"]] == ["astro", "liureng", "qimen"]

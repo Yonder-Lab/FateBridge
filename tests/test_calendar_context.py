@@ -6,7 +6,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from fatebridge.core.almanac import get_bazi_month_context, get_solar_terms_for_year
+from fatebridge.core.almanac import (
+    DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    get_bazi_month_context,
+    get_solar_terms_for_year,
+)
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.calculation import calculate_destiny_analysis
@@ -56,6 +60,19 @@ def test_dayun_start_details_use_jieqi_boundary():
     assert details["reference_term"]["name"] == "立夏"
     assert details["start_age_precise"] == pytest.approx(9.76, abs=0.05)
     assert details["start_age_rounded"] == 10
+
+
+def test_reference_offset_day_pillars_match_reference_snapshot():
+    pillars = BaZiCalendar.get_four_pillars(
+        datetime(2026, 4, 4, 21, 12, 6),
+        timezone_name="Asia/Shanghai",
+        day_pillar_strategy=DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    )
+
+    assert pillars["year"] == ("丙", "午")
+    assert pillars["month"] == ("辛", "卯")
+    assert pillars["day"] == ("丁", "酉")
+    assert pillars["hour"] == ("辛", "亥")
 
 
 def test_destiny_analysis_exposes_lunar_and_meihua_context():

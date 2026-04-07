@@ -10,7 +10,7 @@ from fatebridge.services.divination import calculate_gua_meiyi
 from fatebridge.services.timing import calculate_jieqi_year, calculate_nongli_time
 
 
-def test_helper_request_models_accept_horosa_style_fields():
+def test_helper_request_models_accept_legacy_style_fields():
     jieqi_request = JieqiYearRequest(
         year=2028,
         zone="+08:00",

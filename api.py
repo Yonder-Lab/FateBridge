@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
@@ -469,10 +469,38 @@ class AstroRelativeRequest(BaseModel):
 
     inner: AstroRelativePartyRequest
     outer: AstroRelativePartyRequest
-    relationship_mode: str = Field(
-        default="synastry",
-        description="Relationship mode, e.g. synastry or composite",
+    relative_mode: Optional[str | int] = Field(
+        default=None,
+        description="Legacy-compatible relative mode, e.g. 0/1/2/3/4, Comp, Composite, Synastry, TimeSpace, or Marks",
     )
+    relationship_mode: Optional[str | int] = Field(
+        default=None,
+        description="Legacy alias for relative_mode",
+    )
+    hsys: int = Field(
+        default=0,
+        description="Legacy-compatible house system identifier",
+    )
+    zodiacal: int = Field(
+        default=0,
+        description="Legacy-compatible zodiac selector; offline mode currently supports 0=tropical and 1=sidereal(Lahiri-like) only",
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _sync_relative_mode_aliases(cls, payload: Any):
+        if not isinstance(payload, dict):
+            return payload
+        relative_mode = payload.get("relative_mode")
+        relationship_mode = payload.get("relationship_mode")
+        if relative_mode in (None, "") and relationship_mode not in (None, ""):
+            payload["relative_mode"] = relationship_mode
+        elif relationship_mode in (None, "") and relative_mode not in (None, ""):
+            payload["relationship_mode"] = relative_mode
+        elif relative_mode in (None, "") and relationship_mode in (None, ""):
+            payload["relative_mode"] = 0
+            payload["relationship_mode"] = 0
+        return payload
 
 
 class WesternTimingRequest(AstroChartRequest):
@@ -502,7 +530,10 @@ class WesternTimingRequest(AstroChartRequest):
     )
     pd_method: str = Field(
         default="astroapp_alchabitius",
-        description="Primary direction method identifier",
+        description=(
+            "Primary direction method identifier, e.g. astroapp_alchabitius, "
+            "legacy_reference / legacy_equatorial, or fatebridge_mundane_semiarc"
+        ),
     )
     pd_time_key: str = Field(
         default="Ptolemy",
@@ -711,7 +742,7 @@ async def calculate_gua_meiyi_helper(request: GuaMeiyiRequest) -> dict:
 @app.post("/api/export/registry")
 async def export_registry_helper(request: ExportRegistryRequest) -> dict:
     """
-    Return the local AI export registry compatible with horosa-style settings.
+    Return the local AI export registry in FateBridge format.
     """
     try:
         logger.info("Processing export registry request for %s", request.technique)
@@ -740,7 +771,7 @@ async def export_registry_helper(request: ExportRegistryRequest) -> dict:
 @app.post("/api/export/parse")
 async def export_parse_helper(request: ExportParseRequest) -> dict:
     """
-    Parse snapshot text into horosa-style export sections.
+    Parse snapshot text into FateBridge export sections.
     """
     try:
         logger.info("Processing export parse request for %s", request.technique)
@@ -1012,7 +1043,7 @@ async def calculate_otherbu(request: OtherBuRequest) -> dict:
 
 @app.post("/api/divination/sanshiunited")
 async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
-    """Calculate local sanshiunited analysis."""
+    """Calculate local sanshiunited analysis with stable qimen content metadata for palaces and zhifu/zhishi."""
     try:
         logger.info("Processing sanshiunited request for %s %s", request.date, request.time)
         result = calculate_sanshiunited_analysis(
@@ -1389,7 +1420,10 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
         result = calculate_relative_chart_analysis(
             inner_payload=request.inner.model_dump(),
             outer_payload=request.outer.model_dump(),
+            relative_mode=request.relative_mode,
             relationship_mode=request.relationship_mode,
+            hsys=request.hsys,
+            zodiacal=request.zodiacal,
         )
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])

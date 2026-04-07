@@ -7,7 +7,7 @@ Provides Chinese metaphysics and approximate astrology functionality via FastMCP
 2. two_person_compatibility - Compatibility analysis between two people
 3. timing_analysis - Comprehensive timing (luck period) analysis
 4. astro_chart family - Core chart, relative chart, and derived chart overlays
-5. export_registry / export_parse - Horosa-style export helpers
+5. export_registry / export_parse - FateBridge export helpers
 6. knowledge_registry / knowledge_read - Bundled hover-knowledge helpers
 7. jieqi_year / nongli_time - Calendar helper tools
 8. gua_lookup / gua_meiyi - Offline trigram/hexagram lookup helpers
@@ -92,7 +92,7 @@ logger = logging.getLogger(__name__)
 
 app = FastMCP(
     name="fatebridge",
-    instructions="中国传统八字、时运、节气/农历 helper、Horosa 风格导出协议/悬浮知识 helper 与离线近似星盘测算工具，提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。",
+    instructions="中国传统八字、时运、节气/农历 helper、FateBridge 导出协议/悬浮知识 helper 与离线近似星盘测算工具，提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。",
     version="2.4.0",
 )
 
@@ -686,7 +686,7 @@ def export_registry(
     technique: Optional[str] = None,
 ) -> str:
     """
-    AI 导出协议注册表工具 - 返回 horosa 风格的导出设置目录。
+    AI 导出协议注册表工具 - 返回 FateBridge 的导出设置目录。
     """
     result = calculate_export_registry(technique=technique)
 
@@ -1074,7 +1074,7 @@ def sanshiunited(
     liureng_is_diurnal: Optional[bool] = None,
 ) -> str:
     """
-    三式合一工具 - 本地聚合奇门、太乙与六壬摘要
+    三式合一工具 - 本地聚合奇门、太乙与六壬摘要；奇门宫位与值符/值使统一返回 content_palace / content_trigram
     """
     result = calculate_sanshiunited_analysis(
         date=date,
@@ -1510,17 +1510,20 @@ def astro_relative_chart(
     outer_name: Optional[str] = "外盘",
     inner_birth_place: Optional[str] = "未提供",
     outer_birth_place: Optional[str] = "未提供",
-    relationship_mode: str = "synastry",
+    relationship_mode: Optional[str | int] = None,
+    relative_mode: Optional[str | int] = None,
     *,
     inner_birth_minute: int = 0,
     outer_birth_minute: int = 0,
     inner_birth_timezone: Optional[str] = "UTC",
     outer_birth_timezone: Optional[str] = "UTC",
+    hsys: int = 0,
+    zodiacal: int = 0,
 ) -> str:
     """
     离线近似关系盘工具
 
-    返回双人本命盘、跨盘相位、合成盘与基础兼容度评分。
+    返回双人本命盘、方向相位层、合成盘与基础兼容度评分。
     """
     result = calculate_relative_chart_analysis(
         inner_payload={
@@ -1547,7 +1550,10 @@ def astro_relative_chart(
             "birth_latitude": outer_birth_latitude,
             "birth_place": outer_birth_place,
         },
+        relative_mode=relative_mode,
         relationship_mode=relationship_mode,
+        hsys=hsys,
+        zodiacal=zodiacal,
     )
 
     if "error" in result:
@@ -1587,6 +1593,7 @@ def western_timing_analysis(
     西占时运分析工具
 
     输出太阳返照、月返、指定年盘、次限推运、太阳弧、主限、小限、法达与十年星限结构。
+    主限支持 Arc / 赤经 / FateBridge 离线 SemiArc 坐标近似。
     """
     result = calculate_western_timing_analysis(
         birth_year=birth_year,

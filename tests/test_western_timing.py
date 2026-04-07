@@ -122,6 +122,8 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     primary_directions = result["directions"]["primary_directions"]
     assert primary_directions["method"] == "astroapp_alchabitius"
     assert primary_directions["time_key"] == "Naibod"
+    assert primary_directions["coordinate_system"] == "ecliptic_longitude"
+    assert primary_directions["coordinate_label"] == "Arc"
     assert primary_directions["aspects"] == [0, 90, 180]
     assert primary_directions["current_arc_degrees"] == pytest.approx(
         34.5072, abs=0.01
@@ -133,8 +135,23 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
         "2025-05-20T15:30:00+08:00"
     )
     assert primary_direction_chart["show_pd_bounds"] is True
+    assert primary_direction_chart["coordinate_system"] == "ecliptic_longitude"
+    assert primary_direction_chart["coordinate_label"] == "Arc"
     assert primary_direction_chart["current_arc_degrees"] == pytest.approx(
         34.5072, abs=0.01
+    )
+    assert primary_direction_chart["bounds_overlay"]["system"] == "egyptian_bounds"
+    assert primary_direction_chart["bounds_overlay"]["enabled"] is True
+    assert primary_direction_chart["bounds_overlay"]["points"]["Sun"]["sign"] == "Cancer"
+    assert (
+        primary_direction_chart["bounds_overlay"]["points"]["Sun"]["bound_lord"]
+        == "Mars"
+    )
+    assert (
+        primary_direction_chart["bounds_overlay"]["points"]["Sun"][
+            "bound_lord_label"
+        ]
+        == "火星"
     )
     assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Cancer"
     assert primary_direction_chart["directed_points"]["Moon"]["sign"] == "Pisces"
@@ -252,9 +269,20 @@ def test_primary_directions_support_converse_mode():
     assert primary_directions["current_arc_absolute_degrees"] == pytest.approx(
         34.5072, abs=0.01
     )
+    assert primary_directions["current_window"][0]["promissor"] == "Ascendant"
+    assert primary_directions["current_window"][0]["significator"] == "Sun"
+    assert primary_directions["current_window"][0]["aspect"] == "square"
+    assert primary_directions["current_window"][0]["arc_degrees"] == pytest.approx(
+        37.0687, abs=0.01
+    )
 
     primary_direction_chart = result["directions"]["primary_direction_chart"]
     assert primary_direction_chart["direction_mode"] == "converse"
+    assert primary_direction_chart["bounds_overlay"]["enabled"] is True
+    assert (
+        primary_direction_chart["bounds_overlay"]["points"]["Sun"]["bound_lord"]
+        == "Mars"
+    )
     assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Aries"
     sun_sign_change = next(
         item
@@ -279,6 +307,202 @@ def test_fastmcp_western_timing_tool_exposes_parameters():
     assert "pd_type" in properties
     assert "pd_aspects" in properties
     assert "show_pd_bounds" in properties
+
+
+def test_primary_direction_chart_omits_bounds_overlay_when_disabled():
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="astroapp_alchabitius",
+        pd_time_key="Naibod",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=False,
+    )
+
+    bounds_overlay = result["directions"]["primary_direction_chart"]["bounds_overlay"]
+
+    assert bounds_overlay["system"] == "egyptian_bounds"
+    assert bounds_overlay["enabled"] is False
+    assert bounds_overlay["points"] == {}
+
+
+def test_legacy_reference_primary_directions_use_right_ascension_arc():
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="legacy_reference",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+
+    primary_directions = result["directions"]["primary_directions"]
+    assert primary_directions["coordinate_system"] == "right_ascension"
+    assert primary_directions["coordinate_label"] == "赤经"
+    assert primary_directions["current_window"][0]["promissor"] == "Ascendant"
+    assert primary_directions["current_window"][0]["significator"] == "Mercury"
+    assert primary_directions["current_window"][0]["aspect"] == "opposition"
+    assert primary_directions["current_window"][0]["arc_degrees"] == pytest.approx(
+        33.5787, abs=0.01
+    )
+
+    primary_direction_chart = result["directions"]["primary_direction_chart"]
+    assert primary_direction_chart["coordinate_system"] == "right_ascension"
+    assert primary_direction_chart["coordinate_label"] == "赤经"
+
+
+def test_legacy_equatorial_alias_matches_legacy_reference_coordinate_branch():
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="legacy_equatorial",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 90, 180],
+    )
+
+    primary_directions = result["directions"]["primary_directions"]
+
+    assert primary_directions["coordinate_system"] == "right_ascension"
+    assert primary_directions["coordinate_label"] == "赤经"
+
+
+def test_fatebridge_mundane_semiarc_method_exposes_mundane_projection():
+    baseline_result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="astroapp_alchabitius",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="fatebridge_mundane_semiarc",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+
+    primary_directions = result["directions"]["primary_directions"]
+    assert primary_directions["coordinate_system"] == "mundane_semiarc"
+    assert primary_directions["coordinate_label"] == "SemiArc"
+    assert primary_directions["approximation"] == "mundane_semiarc_static_key"
+    assert primary_directions["current_window"][0]["coordinate_system"] == "mundane_semiarc"
+    assert (
+        primary_directions["current_window"][0]["arc_degrees"]
+        != baseline_result["directions"]["primary_directions"]["current_window"][0][
+            "arc_degrees"
+        ]
+    )
+
+    primary_direction_chart = result["directions"]["primary_direction_chart"]
+    assert primary_direction_chart["coordinate_system"] == "mundane_semiarc"
+    assert primary_direction_chart["coordinate_label"] == "SemiArc"
+    assert primary_direction_chart["approximation"] == "mundane_semiarc_static_key"
+    assert (
+        primary_direction_chart["natal_coordinate_points"]["Ascendant"][
+            "coordinate_degrees"
+        ]
+        == pytest.approx(0.0, abs=0.01)
+    )
+    assert (
+        primary_direction_chart["directed_coordinate_points"]["Ascendant"][
+            "coordinate_degrees"
+        ]
+        == pytest.approx(primary_direction_chart["current_arc_degrees"], abs=0.01)
+    )
+    assert (
+        primary_direction_chart["directed_coordinate_points"]["Medium_Coeli"][
+            "coordinate_degrees"
+        ]
+        == pytest.approx(
+            (90.0 + primary_direction_chart["current_arc_degrees"]) % 360.0,
+            abs=0.01,
+        )
+    )
+    assert (
+        primary_direction_chart["directed_coordinate_points"]["Ascendant"][
+            "quadrant"
+        ]
+        == "above_east"
+    )
+    assert (
+        primary_direction_chart["coordinate_diagnostics"]["Ascendant"][
+            "mundane_position_degrees"
+        ]
+        == pytest.approx(0.0, abs=0.01)
+    )
+    assert (
+        primary_direction_chart["coordinate_diagnostics"]["Medium_Coeli"][
+            "mundane_position_degrees"
+        ]
+        == pytest.approx(90.0, abs=0.01)
+    )
+    assert (
+        primary_direction_chart["coordinate_diagnostics"]["Sun"]["semiarc_degrees"] > 0
+    )
+    assert primary_direction_chart["coordinate_diagnostics"]["Sun"]["quadrant"] in {
+        "above_east",
+        "above_west",
+        "below_west",
+        "below_east",
+    }
 
 
 def test_zodiacal_releasing_loosing_of_bond_jumps_after_full_cycle():

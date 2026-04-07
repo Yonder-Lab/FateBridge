@@ -55,6 +55,22 @@ KONGWANG_BY_XUN_HEAD = {
     "甲寅": "子丑空",
 }
 
+QIMEN_SAN_YUAN_FU_TOU = (
+    "甲子",
+    "甲午",
+    "甲寅",
+    "甲申",
+    "甲辰",
+    "甲戌",
+    "己卯",
+    "己酉",
+    "己巳",
+    "己亥",
+    "己丑",
+    "己未",
+)
+QIMEN_SAN_YUAN_FU_TOU_SET = set(QIMEN_SAN_YUAN_FU_TOU)
+
 SIX_HARMONY_BRANCHES = {
     "子": "丑",
     "丑": "子",
@@ -70,6 +86,36 @@ SIX_HARMONY_BRANCHES = {
     "未": "午",
 }
 
+SIX_CLASH_BRANCHES = {
+    "子": "午",
+    "午": "子",
+    "丑": "未",
+    "未": "丑",
+    "寅": "申",
+    "申": "寅",
+    "卯": "酉",
+    "酉": "卯",
+    "辰": "戌",
+    "戌": "辰",
+    "巳": "亥",
+    "亥": "巳",
+}
+
+SIX_HARM_BRANCHES = {
+    "子": "未",
+    "未": "子",
+    "丑": "午",
+    "午": "丑",
+    "寅": "巳",
+    "巳": "寅",
+    "卯": "辰",
+    "辰": "卯",
+    "申": "亥",
+    "亥": "申",
+    "酉": "戌",
+    "戌": "酉",
+}
+
 YUE_JIANG_NAMES = {
     "子": "神后",
     "丑": "大吉",
@@ -83,6 +129,34 @@ YUE_JIANG_NAMES = {
     "酉": "从魁",
     "戌": "河魁",
     "亥": "登明",
+}
+
+# 六壬月将按中气为纲，节气期间沿用上一中气的月将。
+LIURENG_MONTH_GENERAL_BY_TERM = {
+    "大寒": "子",
+    "立春": "子",
+    "雨水": "亥",
+    "惊蛰": "亥",
+    "春分": "戌",
+    "清明": "戌",
+    "谷雨": "酉",
+    "立夏": "酉",
+    "小满": "申",
+    "芒种": "申",
+    "夏至": "未",
+    "小暑": "未",
+    "大暑": "午",
+    "立秋": "午",
+    "处暑": "巳",
+    "白露": "巳",
+    "秋分": "辰",
+    "寒露": "辰",
+    "霜降": "卯",
+    "立冬": "卯",
+    "小雪": "寅",
+    "大雪": "寅",
+    "冬至": "丑",
+    "小寒": "丑",
 }
 
 LIURENG_GUIREN_DAY = {
@@ -221,11 +295,84 @@ QIMEN_PALACES = [
     {"index": 9, "label": "离九宫", "trigram": "离"},
 ]
 
-QIMEN_STARS = ["天蓬", "天任", "天冲", "天辅", "天英", "天芮", "天柱", "天心", "天禽"]
-QIMEN_DOORS = ["休门", "生门", "伤门", "杜门", "景门", "死门", "惊门", "开门", "中门"]
-QIMEN_GODS = ["值符", "螣蛇", "太阴", "六合", "白虎", "玄武", "九地", "九天", "值符"]
 QIMEN_HEAVEN_STEMS = ["壬", "癸", "丁", "丙", "戊", "己", "庚", "辛", "乙"]
 QIMEN_EARTH_STEMS = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"]
+QIMEN_CN_NUMBERS = tuple("一二三四五六七八九")
+QIMEN_GUA_SEQUENCE = ("坎", "坤", "震", "巽", "中", "乾", "兑", "艮", "离")
+QIMEN_CLOCKWISE_GUA_SEQUENCE = ("坎", "艮", "震", "巽", "离", "坤", "兑", "乾")
+QIMEN_DOOR_RING = ("休", "生", "伤", "杜", "景", "死", "惊", "开")
+QIMEN_STAR_RING = ("蓬", "任", "冲", "辅", "英", "禽", "柱", "心")
+QIMEN_JIU_XING_RING = ("蓬", "芮", "冲", "辅", "禽", "心", "柱", "任", "英")
+QIMEN_DOOR_ROUTE = ("休", "死", "伤", "杜", "中", "开", "惊", "生", "景")
+QIMEN_STAR_DISPLAY = {
+    "蓬": "天蓬",
+    "任": "天任",
+    "冲": "天冲",
+    "辅": "天辅",
+    "英": "天英",
+    "芮": "天芮",
+    "禽": "天禽",
+    "柱": "天柱",
+    "心": "天心",
+}
+QIMEN_DOOR_DISPLAY = {
+    "休": "休门",
+    "生": "生门",
+    "伤": "伤门",
+    "杜": "杜门",
+    "景": "景门",
+    "死": "死门",
+    "惊": "惊门",
+    "开": "开门",
+}
+QIMEN_STAR_CODE_BY_DISPLAY = {value: key for key, value in QIMEN_STAR_DISPLAY.items()}
+QIMEN_DOOR_CODE_BY_DISPLAY = {value: key for key, value in QIMEN_DOOR_DISPLAY.items()}
+QIMEN_GOD_DISPLAY = {
+    "符": "值符",
+    "蛇": "螣蛇",
+    "阴": "太阴",
+    "合": "六合",
+    "虎": "白虎",
+    "玄": "玄武",
+    "地": "九地",
+    "天": "九天",
+}
+QIMEN_STARS = tuple(
+    QIMEN_STAR_DISPLAY[key]
+    for key in ("蓬", "任", "冲", "辅", "英", "芮", "柱", "心", "禽")
+)
+QIMEN_DOORS = tuple(QIMEN_DOOR_DISPLAY.get(key, "中门") for key in QIMEN_DOOR_ROUTE)
+QIMEN_GODS = tuple(QIMEN_GOD_DISPLAY[key] for key in ("符", "蛇", "阴", "合", "虎", "玄", "地", "天", "符"))
+QIMEN_FUHEAD_HEAVEN_STEM = {
+    "甲子": "戊",
+    "甲戌": "己",
+    "甲申": "庚",
+    "甲午": "辛",
+    "甲辰": "壬",
+    "甲寅": "癸",
+}
+QIMEN_ZHIFU_TABLE_YANG = {
+    "一": "九八七一二三四五六",
+    "二": "一九八二三四五六七",
+    "三": "二一九三四五六七八",
+    "四": "三二一四五六七八九",
+    "五": "四三二五六七八九一",
+    "六": "五四三六七八九一二",
+    "七": "六五四七八九一二三",
+    "八": "七六五八九一二三四",
+    "九": "八七六九一二三四五",
+}
+QIMEN_ZHIFU_TABLE_YIN = {
+    "九": "一二三九八七六五四",
+    "八": "九一二八七六五四三",
+    "七": "八九一七六五四三二",
+    "六": "七八九六五四三二一",
+    "五": "六七八五四三二一九",
+    "四": "五六七四三二一九八",
+    "三": "四五六三二一九八七",
+    "二": "三四五二一九八七六",
+    "一": "二三四一九八七六五",
+}
 QIMEN_DOOR_TO_TRIGRAM = {
     "休门": "坎",
     "生门": "艮",
@@ -252,6 +399,42 @@ QIMEN_YANG_TERMS = {
     "芒种",
 }
 
+# 按传统时家奇门常用节气定局表，局数随上中下元变化。
+QIMEN_JU_BY_TERM = {
+    "冬至": (1, 7, 4),
+    "小寒": (2, 8, 5),
+    "大寒": (3, 9, 6),
+    "立春": (8, 5, 2),
+    "雨水": (9, 6, 3),
+    "惊蛰": (1, 7, 4),
+    "春分": (3, 9, 6),
+    "清明": (4, 1, 7),
+    "谷雨": (5, 2, 8),
+    "立夏": (4, 1, 7),
+    "小满": (5, 2, 8),
+    "芒种": (6, 3, 9),
+    "夏至": (9, 3, 6),
+    "小暑": (8, 2, 5),
+    "大暑": (7, 1, 4),
+    "立秋": (2, 5, 8),
+    "处暑": (1, 4, 7),
+    "白露": (9, 3, 6),
+    "秋分": (7, 1, 4),
+    "寒露": (6, 9, 3),
+    "霜降": (5, 8, 2),
+    "立冬": (6, 9, 3),
+    "小雪": (5, 8, 2),
+    "大雪": (4, 7, 1),
+}
+QIMEN_PALACE_BY_TRIGRAM = {item["trigram"]: item for item in QIMEN_PALACES}
+QIMEN_GUA_BY_NUMERAL = dict(zip(QIMEN_CN_NUMBERS, QIMEN_GUA_SEQUENCE))
+QIMEN_JIU_XING_BY_NUMERAL = dict(zip(QIMEN_CN_NUMBERS, QIMEN_JIU_XING_RING))
+QIMEN_DOOR_ROUTE_BY_NUMERAL = dict(zip(QIMEN_CN_NUMBERS, QIMEN_DOOR_ROUTE))
+QIMEN_EARTH_PLATE_YANG = tuple("戊己庚辛壬癸丁丙乙")
+QIMEN_EARTH_PLATE_YIN = tuple("戊乙丙丁癸壬辛庚己")
+QIMEN_GOD_RING_YANG = tuple("符蛇阴合勾雀地天")
+QIMEN_GOD_RING_YIN = tuple("符蛇阴合虎玄地天")
+
 TAIYI_PALACE16_ORDER = ["巽", "巳", "午", "未", "坤", "申", "酉", "戌", "乾", "亥", "子", "丑", "艮", "寅", "卯", "辰"]
 TAIYI_MARKER_OFFSETS = {
     "君基": 0,
@@ -264,6 +447,14 @@ TAIYI_MARKER_OFFSETS = {
 }
 
 POWER_RANK = {"旺": 5, "相": 4, "休": 3, "囚": 2, "死": 1}
+LIURENG_STYLE_PRIORITY = {
+    "伏吟": 60,
+    "返吟": 50,
+    "涉害": 40,
+    "官鬼": 30,
+    "六合": 20,
+    "比用": 10,
+}
 SIHUA_DISPLAY_ORDER = {
     "化忌": 0,
     "化权": 1,
@@ -348,6 +539,440 @@ def xun_head_for_ganzhi(text: str) -> str:
 
 def kongwang_for_ganzhi(text: str) -> str:
     return KONGWANG_BY_XUN_HEAD[xun_head_for_ganzhi(text)]
+
+
+def qimen_futou_for_ganzhi(text: str) -> str:
+    cycle_index = sexagenary_index_for(text)
+    for offset in range(60):
+        candidate = sexagenary_text(cycle_index - offset)
+        if candidate in QIMEN_SAN_YUAN_FU_TOU_SET:
+            return candidate
+    return xun_head_for_ganzhi(text)
+
+
+def _liureng_month_general_for_term(current_term: str, fallback_branch: str) -> str:
+    return LIURENG_MONTH_GENERAL_BY_TERM.get(current_term, fallback_branch)
+
+
+def _liureng_month_general_on_hour(
+    *,
+    hour_branch: str,
+    month_general_branch: str,
+) -> Dict[str, str]:
+    earth_order = rotate_sequence(EARTHLY_BRANCHES, hour_branch)
+    sky_order = rotate_sequence(EARTHLY_BRANCHES, month_general_branch)
+    return {
+        earth_branch: sky_order[index]
+        for index, earth_branch in enumerate(earth_order)
+    }
+
+
+def _branch_relation(
+    left_branch: str,
+    right_branch: str,
+    *,
+    same_label: str = "同支",
+) -> str:
+    if left_branch == right_branch:
+        return same_label
+    if SIX_HARMONY_BRANCHES.get(left_branch) == right_branch:
+        return "六合"
+    if SIX_CLASH_BRANCHES.get(left_branch) == right_branch:
+        return "六冲"
+    if SIX_HARM_BRANCHES.get(left_branch) == right_branch:
+        return "六害"
+    return "平"
+
+
+def _liureng_judge_lesson(
+    *,
+    upper_branch: str,
+    lower_branch: str,
+    day_branch: str,
+    relation: str,
+) -> Tuple[str, str, str, str]:
+    with_day = _branch_relation(upper_branch, day_branch, same_label="比和")
+    with_lower = _branch_relation(upper_branch, lower_branch, same_label="伏吟")
+
+    if with_lower == "伏吟":
+        return "伏吟", "上神与下神同位，伏吟取象。", with_day, with_lower
+    if with_day == "六冲" or with_lower == "六冲":
+        return "返吟", "上神遇冲，先看返吟与往复之象。", with_day, with_lower
+    if with_day == "六害" or with_lower == "六害":
+        return "涉害", "上神见害，课传重看牵连阻滞。", with_day, with_lower
+    if relation == "官鬼":
+        return "官鬼", "上神为官鬼，先取克身之应。", with_day, with_lower
+    if with_day == "六合" or with_lower == "六合":
+        return "六合", "上神见合，以和合成局为先。", with_day, with_lower
+    return "比用", "同类比用，以首课取发用。", with_day, with_lower
+
+
+def _qimen_new_list(values: Iterable[str], start_value: str) -> List[str]:
+    ordered = list(values)
+    if start_value not in ordered:
+        return ordered
+    start_index = ordered.index(start_value)
+    return ordered[start_index:] + ordered[:start_index]
+
+
+def _qimen_new_list_r(values: Iterable[str], start_value: str) -> List[str]:
+    ordered = list(values)
+    if start_value not in ordered:
+        return ordered
+    start_index = ordered.index(start_value)
+    result: List[str] = []
+    for offset in range(len(ordered)):
+        result.append(ordered[(start_index - offset) % len(ordered)])
+    return result
+
+
+def _qimen_zip_map(keys: Iterable[str], values: Iterable[str]) -> Dict[str, str]:
+    return {key: value for key, value in zip(keys, values)}
+
+
+def _qimen_rotate_gua_sequence(yinyang: str) -> Tuple[str, ...]:
+    if yinyang == "阴":
+        return tuple(reversed(QIMEN_CLOCKWISE_GUA_SEQUENCE))
+    return QIMEN_CLOCKWISE_GUA_SEQUENCE
+
+
+def _qimen_find_yuan(day_ganzhi: str) -> str:
+    cycle_index = sexagenary_index_for(day_ganzhi) % 15
+    if cycle_index < 5:
+        return "上元"
+    if cycle_index < 10:
+        return "中元"
+    return "下元"
+
+
+def _qimen_find_yuan_from_delta(days_since_current: float) -> str:
+    if days_since_current < 5:
+        return "上元"
+    if days_since_current < 10:
+        return "中元"
+    return "下元"
+
+
+def _qimen_ju_number_for_term(
+    *,
+    current_term: str,
+    yuan: str,
+    fallback_ju: int,
+) -> int:
+    table = QIMEN_JU_BY_TERM.get(current_term)
+    if not table:
+        return fallback_ju
+    yuan_index = {"上元": 0, "中元": 1, "下元": 2}[yuan]
+    return table[yuan_index]
+
+
+def _qimen_build_ju_text(dun_type: str, ju_number: int, yuan: str) -> str:
+    index = max(1, min(9, int(ju_number))) - 1
+    return f"{dun_type}{QIMEN_CN_NUMBERS[index]}局{yuan}"
+
+
+def _qimen_parse_meta(ju_text: str) -> Dict[str, str]:
+    text = ju_text or "阳遁一局上元"
+    return {
+        "text": text,
+        "yy": "阴" if "阴遁" in text else "阳",
+        "kook": next((char for char in text if char in QIMEN_CN_NUMBERS), "一"),
+        "yuan": "上元" if "上元" in text else ("中元" if "中元" in text else "下元"),
+    }
+
+
+def _qimen_zhifu_pai(ju_text: str) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    table = QIMEN_ZHIFU_TABLE_YIN if meta["yy"] == "阴" else QIMEN_ZHIFU_TABLE_YANG
+    pai = table[meta["kook"]]
+    if meta["yy"] == "阴":
+        numerals = _qimen_new_list_r(QIMEN_CN_NUMBERS, meta["kook"])[:6]
+    else:
+        numerals = _qimen_new_list(QIMEN_CN_NUMBERS, meta["kook"])[:6]
+    values = [f"{numeral}{pai}" for numeral in numerals]
+    return _qimen_zip_map(XUN_HEADS, values)
+
+
+def _qimen_zhishi_pai(ju_text: str) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    new_kook = _qimen_new_list(QIMEN_CN_NUMBERS, meta["kook"])
+    new_kook_r = _qimen_new_list_r(QIMEN_CN_NUMBERS, meta["kook"])
+    yang_text = "".join(new_kook) * 3
+    yin_text = "".join(new_kook_r) * 3
+    yang_values = [
+        f"{numeral}{yang_text[yang_text.index(numeral) + 1 : yang_text.index(numeral) + 12]}"
+        for numeral in new_kook[:6]
+    ]
+    yin_values = [
+        f"{numeral}{yin_text[yin_text.index(numeral) + 1 : yin_text.index(numeral) + 12]}"
+        for numeral in new_kook_r[:6]
+    ]
+    values = yin_values if meta["yy"] == "阴" else yang_values
+    return _qimen_zip_map(XUN_HEADS, values)
+
+
+def _qimen_resolve_special_zhishi(
+    *,
+    dun_type: str,
+    current_term: Optional[str] = None,
+) -> str:
+    _ = (dun_type, current_term)
+    return "死"
+
+
+def _qimen_zhifu_zhishi(
+    time_ganzhi: str,
+    ju_text: str,
+    *,
+    dun_type: str,
+    current_term: Optional[str] = None,
+) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    heavenly_stem = time_ganzhi[:1]
+    hgan_index = HEAVENLY_STEMS.index(heavenly_stem) if heavenly_stem in HEAVENLY_STEMS else 0
+    time_xun_head = xun_head_for_ganzhi(time_ganzhi)
+
+    zhishi_pai = _qimen_zhishi_pai(ju_text)
+    zhifu_pai = _qimen_zhifu_pai(ju_text)
+    zhishi_keys = list(zhishi_pai.keys())
+    zhishi_values = list(zhishi_pai.values())
+    zhifu_keys = list(zhifu_pai.keys())
+    zhifu_values = list(zhifu_pai.values())
+
+    door_codes = [
+        QIMEN_DOOR_ROUTE_BY_NUMERAL.get(value[0], "死")
+        for value in zhishi_values
+    ]
+    star_codes = [
+        QIMEN_JIU_XING_BY_NUMERAL.get(value[0], "芮")
+        for value in zhifu_values
+    ]
+    star_gongs = [
+        QIMEN_GUA_BY_NUMERAL.get(value[hgan_index], "中")
+        for value in zhifu_values
+        if hgan_index < len(value)
+    ]
+    door_gongs = [
+        QIMEN_GUA_BY_NUMERAL.get(value[hgan_index], "中")
+        for value in zhishi_values
+        if hgan_index < len(value)
+    ]
+
+    star = _qimen_zip_map(zhifu_keys, star_codes).get(time_xun_head, "芮")
+    star_gong = _qimen_zip_map(zhifu_keys, star_gongs).get(time_xun_head, "中")
+    door = _qimen_zip_map(zhishi_keys, door_codes).get(time_xun_head, "死")
+    if star == "禽":
+        door = _qimen_resolve_special_zhishi(dun_type=dun_type, current_term=current_term)
+    elif door == "中":
+        door = "死"
+    door_gong = _qimen_zip_map(zhishi_keys, door_gongs).get(time_xun_head, "中")
+
+    return {
+        "xun_head": time_xun_head,
+        "zhifu_heaven_stem": QIMEN_FUHEAD_HEAVEN_STEM.get(time_xun_head, "戊"),
+        "star": star,
+        "star_gong": star_gong,
+        "door": door,
+        "door_gong": door_gong,
+        "dun_type": meta["yy"],
+    }
+
+
+def _qimen_pan_earth(ju_text: str) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    palace_order = [
+        QIMEN_GUA_BY_NUMERAL[numeral]
+        for numeral in _qimen_new_list(QIMEN_CN_NUMBERS, meta["kook"])
+    ]
+    values = QIMEN_EARTH_PLATE_YIN if meta["yy"] == "阴" else QIMEN_EARTH_PLATE_YANG
+    return _qimen_zip_map(palace_order, values)
+
+
+def _qimen_pan_god(
+    time_ganzhi: str,
+    ju_text: str,
+    *,
+    dun_type: str,
+    current_term: Optional[str] = None,
+) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    zfzs = _qimen_zhifu_zhishi(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+    rotate = _qimen_rotate_gua_sequence(meta["yy"])
+    starting_gong = zfzs["star_gong"]
+    gong_reorder = _qimen_new_list(rotate, "坤" if starting_gong == "中" else starting_gong)
+    god_values = QIMEN_GOD_RING_YIN if meta["yy"] == "阴" else QIMEN_GOD_RING_YANG
+    board = _qimen_zip_map(gong_reorder, god_values)
+    return {key: value.replace("勾", "虎").replace("雀", "玄") for key, value in board.items()}
+
+
+def _qimen_pan_door(
+    time_ganzhi: str,
+    ju_text: str,
+    *,
+    dun_type: str,
+    current_term: Optional[str] = None,
+) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    zfzs = _qimen_zhifu_zhishi(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+    rotate = _qimen_rotate_gua_sequence(meta["yy"])
+    starting_gong = zfzs["door_gong"]
+    starting_door = zfzs["door"]
+    gong_reorder = _qimen_new_list(rotate, "坤" if starting_gong == "中" else starting_gong)
+    if meta["yy"] == "阴":
+        door_order = _qimen_new_list(tuple(reversed(QIMEN_DOOR_RING)), starting_door)
+    else:
+        door_order = _qimen_new_list(QIMEN_DOOR_RING, starting_door)
+    return _qimen_zip_map(gong_reorder, door_order)
+
+
+def _qimen_pan_star(
+    time_ganzhi: str,
+    ju_text: str,
+    *,
+    dun_type: str,
+    current_term: Optional[str] = None,
+) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    zfzs = _qimen_zhifu_zhishi(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+    rotate = _qimen_rotate_gua_sequence(meta["yy"])
+    starting_gong = zfzs["star_gong"]
+    starting_star = zfzs["star"].replace("芮", "禽")
+    gong_reorder = _qimen_new_list(rotate, "坤" if starting_gong == "中" else starting_gong)
+    if meta["yy"] == "阴":
+        star_order = _qimen_new_list(tuple(reversed(QIMEN_STAR_RING)), starting_star)
+    else:
+        star_order = _qimen_new_list(QIMEN_STAR_RING, starting_star)
+    board = _qimen_zip_map(gong_reorder, star_order)
+    return {key: value.replace("禽", "芮") for key, value in board.items()}
+
+
+def _qimen_pan_sky(
+    time_ganzhi: str,
+    ju_text: str,
+    *,
+    dun_type: str,
+    current_term: Optional[str] = None,
+) -> Dict[str, str]:
+    meta = _qimen_parse_meta(ju_text)
+    rotate = _qimen_rotate_gua_sequence(meta["yy"])
+    earth_plate = _qimen_pan_earth(ju_text)
+    earth_reverse = {value: key for key, value in earth_plate.items()}
+    zfzs = _qimen_zhifu_zhishi(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+
+    time_stem = time_ganzhi[:1]
+    fu_head = QIMEN_FUHEAD_HEAVEN_STEM.get(xun_head_for_ganzhi(time_ganzhi), "戊")
+    time_stem_gong = earth_reverse.get(time_stem)
+    zhifu_gong = zfzs["star_gong"]
+    fu_head_gong = earth_reverse.get(fu_head)
+    start_gong = "坤" if time_stem_gong == "中" else (time_stem_gong or "坤")
+    if start_gong != "坤" and start_gong not in rotate:
+        start_gong = "坤"
+
+    earth_ring = [earth_plate[gua] for gua in rotate]
+    start_stem = fu_head
+    if start_stem not in earth_ring:
+        zhifu_stem = zfzs["zhifu_heaven_stem"]
+        start_stem = zhifu_stem if zhifu_stem in earth_ring else earth_plate.get(start_gong, start_stem)
+    if zhifu_gong != "中" and zfzs["star"].replace("芮", "禽") != "禽" and fu_head_gong == "中":
+        start_stem = earth_plate.get(start_gong, start_stem)
+    if time_stem_gong is None:
+        start_stem = earth_plate.get(start_gong, start_stem)
+
+    stem_reorder = _qimen_new_list(earth_ring, start_stem)
+    gong_reorder = _qimen_new_list(rotate, start_gong)
+    board = _qimen_zip_map(gong_reorder, stem_reorder)
+    board["中"] = earth_plate["中"]
+    return board
+
+
+def _qimen_build_palaces(
+    *,
+    time_ganzhi: str,
+    ju_text: str,
+    dun_type: str,
+    current_term: str,
+) -> List[Dict[str, Any]]:
+    earth_plate = _qimen_pan_earth(ju_text)
+    sky_plate = _qimen_pan_sky(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+    star_plate = _qimen_pan_star(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+    door_plate = _qimen_pan_door(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+    god_plate = _qimen_pan_god(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+
+    palaces: List[Dict[str, Any]] = []
+    for palace in QIMEN_PALACES:
+        trigram = palace["trigram"]
+        board_key = trigram
+        if trigram == "中":
+            door = "中门"
+            star = "天禽"
+            god = "值符"
+        else:
+            door = QIMEN_DOOR_DISPLAY.get(door_plate.get(board_key, "死"), "中门")
+            star = QIMEN_STAR_DISPLAY.get(star_plate.get(board_key, "芮"), "天芮")
+            god = QIMEN_GOD_DISPLAY.get(god_plate.get(board_key, "符"), "值符")
+        palace_trigram = trigram if trigram != "中" else "坤"
+        door_hexagram = build_hexagram(
+            upper_name=palace_trigram,
+            lower_name=QIMEN_DOOR_TO_TRIGRAM[door],
+        )
+        palaces.append(
+            {
+                "name": palace["label"],
+                "trigram": trigram,
+                "content_palace": palace["label"],
+                "content_trigram": trigram,
+                "heaven_stem": sky_plate.get(board_key, earth_plate.get(board_key, "")),
+                "earth_stem": earth_plate.get(board_key, ""),
+                "god": god,
+                "door": door,
+                "star": star,
+                "door_hexagram": {
+                    "name": door_hexagram["name"],
+                    "binary_code": door_hexagram["binary_code"],
+                },
+            }
+        )
+    return palaces
 
 
 def element_relation(anchor: str, other: str) -> str:
@@ -554,15 +1179,16 @@ def build_liureng_board(
     guiren_reverse = guiren_start in GUI_REN_REVERSED_STARTS
     if month_general_override is not None and month_general_override not in YUE_JIANG_NAMES:
         raise ValueError("month_general_override 必须是十二地支之一")
-    yuejiang_branch = month_general_override or month_branch
+    yuejiang_branch = month_general_override or _liureng_month_general_for_term(
+        current_term_name,
+        month_branch,
+    )
     yuejiang_name = YUE_JIANG_NAMES[yuejiang_branch]
 
-    earth_plate = EARTHLY_BRANCHES[:]
-    sky_plate = rotate_sequence(earth_plate, yuejiang_branch)
-    sky_to_earth = {
-        branch: sky_plate[index]
-        for index, branch in enumerate(earth_plate)
-    }
+    sky_to_earth = _liureng_month_general_on_hour(
+        hour_branch=hour_branch,
+        month_general_branch=yuejiang_branch,
+    )
 
     guiren_branches = rotate_sequence(EARTHLY_BRANCHES, guiren_start, reverse=guiren_reverse)
     guiren_map = {
@@ -575,6 +1201,12 @@ def build_liureng_board(
     for lesson_index, lower_branch in enumerate(lesson_bases, start=1):
         upper_branch = sky_to_earth[lower_branch]
         relation = liuqin_against_day(day_element, branch_element_text(upper_branch))
+        style_hint, style_basis, with_day, with_lower = _liureng_judge_lesson(
+            upper_branch=upper_branch,
+            lower_branch=lower_branch,
+            day_branch=day_branch,
+            relation=relation,
+        )
         four_lessons.append(
             {
                 "index": lesson_index,
@@ -582,22 +1214,32 @@ def build_liureng_board(
                 "lower_branch": lower_branch,
                 "text": f"{upper_branch}加{lower_branch}",
                 "relation": relation,
-                "use_candidate": lesson_index == 1,
+                "relations": {
+                    "with_day_branch": with_day,
+                    "with_lower_branch": with_lower,
+                },
+                "style_hint": style_hint,
+                "style_basis": style_basis,
+                "use_candidate": False,
             }
         )
 
     style = "比用"
+    style_basis = "同类比用，以首课取发用。"
     initial_lesson = four_lessons[0]
-    for lesson in four_lessons:
-        upper_branch = lesson["upper_branch"]
-        if SIX_HARMONY_BRANCHES.get(upper_branch) == day_branch:
-            style = "涉害"
-            initial_lesson = lesson
-            break
-        if liuqin_against_day(day_element, branch_element_text(upper_branch)) == "官鬼":
-            style = "官鬼"
-            initial_lesson = lesson
-            break
+    judged_lessons = sorted(
+        four_lessons,
+        key=lambda lesson: (
+            LIURENG_STYLE_PRIORITY.get(lesson["style_hint"], 0),
+            -lesson["index"],
+        ),
+        reverse=True,
+    )
+    if judged_lessons:
+        initial_lesson = judged_lessons[0]
+        style = initial_lesson["style_hint"]
+        style_basis = initial_lesson["style_basis"]
+    initial_lesson["use_candidate"] = True
 
     step = 1 if not guiren_reverse else -1
     initial_branch = initial_lesson["upper_branch"]
@@ -619,16 +1261,21 @@ def build_liureng_board(
         }
 
     overview = [
-        f"月将{yuejiang_branch}({yuejiang_name})主盘，当前以{current_term_name}节气入局。",
+        f"月将{yuejiang_branch}({yuejiang_name})加{hour_branch}时，当前以{current_term_name}节气入局。",
         f"贵人起于{guiren_start}，{'逆' if guiren_reverse else '顺'}行布十二神将。",
-        f"{style}课主导，首传落{initial_branch}，重看{transmission_payload['initial']['relation']}之象。",
+        f"{style}课主导，首传落{initial_branch}，{style_basis}",
+        f"首传见{transmission_payload['initial']['relation']}，末传归{transmission_payload['final']['branch']}。",
     ]
 
     patterns = [
         {
             "name": f"贵人{'逆' if guiren_reverse else '顺'}行格",
             "basis": f"贵人起{guiren_start}，{'逆' if guiren_reverse else '顺'}布神将。",
-        }
+        },
+        {
+            "name": f"{style}课",
+            "basis": style_basis,
+        },
     ]
 
     return {
@@ -680,66 +1327,95 @@ def build_liureng_runyear(seed: MetaphysicsSeed, gender: str, birth_year: int) -
 
 
 def build_qimen_board(seed: MetaphysicsSeed) -> Dict[str, Any]:
-    current_term = seed.calendar_context["current_solar_term"]["name"]
+    current_term_info = seed.calendar_context["current_solar_term"]
+    current_term = current_term_info["name"]
     day_ganzhi = ganzhi_text(seed.pillars["day"])
-    xun_head = xun_head_for_ganzhi(day_ganzhi)
-    kongwang = kongwang_for_ganzhi(day_ganzhi)
+    time_ganzhi = ganzhi_text(seed.pillars["hour"])
+    fu_tou = current_term_info.get("day_ganzhi") or qimen_futou_for_ganzhi(day_ganzhi)
     dun_type = "阳遁" if current_term in QIMEN_YANG_TERMS else "阴遁"
     month_index = EARTHLY_BRANCHES.index(seed.pillars["month"][1])
     day_index = EARTHLY_BRANCHES.index(seed.pillars["day"][1])
     hour_index = EARTHLY_BRANCHES.index(seed.pillars["hour"][1])
-    day_stem_index = HEAVENLY_STEMS.index(seed.pillars["day"][0])
-    ju_number = ((month_index + day_index + hour_index) % 9) + 1
-    palace_start = (hour_index + ju_number - 1) % 9
-    god_start = (day_stem_index + hour_index) % 9
+    fallback_ju = ((month_index + day_index + hour_index) % 9) + 1
+    solar_term_delta = seed.calendar_context.get("solar_term_delta") or {}
+    days_since_current = float(solar_term_delta.get("days_since_current") or 0.0)
+    yuan = _qimen_find_yuan_from_delta(days_since_current)
+    ju_number = _qimen_ju_number_for_term(
+        current_term=current_term,
+        yuan=yuan,
+        fallback_ju=fallback_ju,
+    )
+    ju_text = _qimen_build_ju_text(dun_type, ju_number, yuan)
+    zfzs = _qimen_zhifu_zhishi(
+        time_ganzhi,
+        ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
+    xun_head = zfzs["xun_head"]
+    kongwang = kongwang_for_ganzhi(time_ganzhi)
+    palaces = _qimen_build_palaces(
+        time_ganzhi=time_ganzhi,
+        ju_text=ju_text,
+        dun_type=dun_type,
+        current_term=current_term,
+    )
 
-    palaces: List[Dict[str, Any]] = []
-    for offset, palace in enumerate(QIMEN_PALACES):
-        door = QIMEN_DOORS[(palace_start + offset) % len(QIMEN_DOORS)]
-        star = QIMEN_STARS[(ju_number - 1 + offset) % len(QIMEN_STARS)]
-        god = QIMEN_GODS[(god_start + offset) % len(QIMEN_GODS)]
-        heaven_stem = QIMEN_HEAVEN_STEMS[(day_stem_index + offset) % len(QIMEN_HEAVEN_STEMS)]
-        earth_stem = QIMEN_EARTH_STEMS[(ju_number - 1 + offset) % len(QIMEN_EARTH_STEMS)]
-        palace_trigram = palace["trigram"] if palace["trigram"] != "中" else "坤"
-        door_hexagram = build_hexagram(
-            upper_name=palace_trigram,
-            lower_name=QIMEN_DOOR_TO_TRIGRAM[door],
+    zhifu_palace = next(
+        (palace for palace in palaces if palace["trigram"] == zfzs["star_gong"]),
+        None,
+    )
+    if zhifu_palace is None:
+        zhifu_star = QIMEN_STAR_DISPLAY.get(zfzs["star"], "天芮")
+        zhifu_palace = next(
+            (palace for palace in palaces if palace["star"] == zhifu_star),
+            palaces[0],
         )
-        palaces.append(
-            {
-                "name": palace["label"],
-                "trigram": palace["trigram"],
-                "heaven_stem": heaven_stem,
-                "earth_stem": earth_stem,
-                "god": god,
-                "door": door,
-                "star": star,
-                "door_hexagram": {
-                    "name": door_hexagram["name"],
-                    "binary_code": door_hexagram["binary_code"],
-                },
-            }
-        )
+    zhifu_star = zhifu_palace["star"]
+    zhifu_star_code = QIMEN_STAR_CODE_BY_DISPLAY.get(zhifu_star, zfzs["star"])
 
-    zhifu_palace = next(palace for palace in palaces if palace["god"] == "值符")
-    zhishi_palace = next(palace for palace in palaces if palace["door"] == QIMEN_DOORS[palace_start])
+    zhishi_palace = next(
+        (palace for palace in palaces if palace["trigram"] == zfzs["door_gong"]),
+        None,
+    )
+    if zhishi_palace is None:
+        zhishi_door = QIMEN_DOOR_DISPLAY.get(zfzs["door"], "死门")
+        zhishi_palace = next(
+            (palace for palace in palaces if palace["door"] == zhishi_door),
+            palaces[0],
+        )
+    zhishi_door = zhishi_palace["door"]
+    zhishi_door_code = QIMEN_DOOR_CODE_BY_DISPLAY.get(zhishi_door, zfzs["door"])
+
     fushi_hexagram = build_hexagram(
         upper_name=zhifu_palace["trigram"] if zhifu_palace["trigram"] != "中" else "坤",
-        lower_name=QIMEN_DOOR_TO_TRIGRAM[zhishi_palace["door"]],
+        lower_name=QIMEN_DOOR_TO_TRIGRAM.get(zhishi_door, "坤"),
     )
 
     return {
         "dun_type": dun_type,
         "ju_number": ju_number,
+        "ju_text": ju_text,
+        "yuan": yuan,
+        "yuan_order": yuan,
+        "fu_tou": fu_tou,
         "xun_head": xun_head,
         "kongwang": kongwang,
         "zhifu": {
-            "star": zhifu_palace["star"],
+            "star": zhifu_star,
             "palace": zhifu_palace["name"],
+            "trigram": zhifu_palace["trigram"],
+            "content_palace": zhifu_palace.get("content_palace", zhifu_palace["name"]),
+            "content_trigram": zhifu_palace.get("content_trigram", zhifu_palace["trigram"]),
+            "code": zhifu_star_code,
         },
         "zhishi": {
-            "door": zhishi_palace["door"],
+            "door": zhishi_door,
             "palace": zhishi_palace["name"],
+            "trigram": zhishi_palace["trigram"],
+            "content_palace": zhishi_palace.get("content_palace", zhishi_palace["name"]),
+            "content_trigram": zhishi_palace.get("content_trigram", zhishi_palace["trigram"]),
+            "code": zhishi_door_code,
         },
         "fushi_hexagram": {
             "name": fushi_hexagram["name"],
@@ -750,6 +1426,9 @@ def build_qimen_board(seed: MetaphysicsSeed) -> Dict[str, Any]:
 
 
 def build_taiyi_board(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
+    lunar = seed.calendar_context.get("lunar_calendar") or {}
+    lunar_month = int(lunar.get("month") or 1)
+    lunar_day = int(lunar.get("day") or 1)
     year_branch = seed.pillars["year"][1]
     month_branch = seed.pillars["month"][1]
     day_branch = seed.pillars["day"][1]
@@ -759,10 +1438,25 @@ def build_taiyi_board(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
         + EARTHLY_BRANCHES.index(month_branch)
         + EARTHLY_BRANCHES.index(day_branch)
         + EARTHLY_BRANCHES.index(hour_branch)
+        + lunar_day
     ) % len(TAIYI_PALACE16_ORDER)
     taiyi_palace = TAIYI_PALACE16_ORDER[palace_index]
-    wanchang_palace = TAIYI_PALACE16_ORDER[(palace_index + 5) % len(TAIYI_PALACE16_ORDER)]
-    main_calculation = f"{'阳' if seed.pillars['year'][0] in '甲丙戊庚壬' else '阴'}遁{chinese_numeral((palace_index % 72) + 1)}局"
+    wanchang_palace = TAIYI_PALACE16_ORDER[
+        (palace_index + TAIYI_MARKER_OFFSETS["文昌"]) % len(TAIYI_PALACE16_ORDER)
+    ]
+    main_calculation_number = (
+        (
+            EARTHLY_BRANCHES.index(year_branch)
+            + lunar_month
+            + lunar_day
+            - 1
+        )
+        % 72
+    ) + 1
+    main_calculation = (
+        f"{'阳' if seed.pillars['year'][0] in '甲丙戊庚壬' else '阴'}遁"
+        f"{chinese_numeral(main_calculation_number)}局"
+    )
 
     marks = {palace: [] for palace in TAIYI_PALACE16_ORDER}
     for marker, offset in TAIYI_MARKER_OFFSETS.items():
@@ -800,9 +1494,7 @@ def _build_guishen_mapping(day_stem: str, hour_branch: str) -> Tuple[str, Dict[s
     reverse = start_branch in GUI_REN_REVERSED_STARTS
     branches = rotate_sequence(EARTHLY_BRANCHES, start_branch, reverse=reverse)
     return start_branch, {
-        EARTHLY_BRANCHES[index]: GUI_REN_SEQUENCE[branches.index(EARTHLY_BRANCHES[index])]
-        if EARTHLY_BRANCHES[index] in branches
-        else GUI_REN_SEQUENCE[index]
+        branches[index]: GUI_REN_SEQUENCE[index]
         for index in range(len(EARTHLY_BRANCHES))
     }
 
@@ -823,19 +1515,28 @@ def build_jinkou_board(
 ) -> Dict[str, Any]:
     day_stem = seed.pillars["day"][0]
     hour_branch = seed.pillars["hour"][1]
-    month_branch = seed.pillars["month"][1]
     di_fen_branch = di_fen or hour_branch
-    yuejiang_branch = liureng_board["month_general"]["branch"]
-    yuejiang_name = YUE_JIANG_NAMES[yuejiang_branch]
     guiren_start, guishen_map = _build_guishen_mapping(day_stem, hour_branch)
-    guishen_name = guishen_map[di_fen_branch]
     renyuan_stem = _wuzidun_stem(day_stem, di_fen_branch)
-    month_element = branch_element_text(month_branch)
+    twelve_board = {
+        row["earth_branch"]: row
+        for row in liureng_board.get("twelve_board", [])
+        if isinstance(row, dict) and row.get("earth_branch")
+    }
+    jiangshen_branch = twelve_board.get(di_fen_branch, {}).get("sky_branch", di_fen_branch)
+    jiangshen_name = YUE_JIANG_NAMES.get(jiangshen_branch, "未知")
+    guishen_branch = hour_branch
+    guishen_name = (
+        twelve_board.get(hour_branch, {}).get("god")
+        or guishen_map.get(hour_branch)
+        or "贵人"
+    )
+    anchor_element = branch_element_text(di_fen_branch)
 
     row_defs = [
         ("人元", renyuan_stem, stem_element_text(renyuan_stem), "—"),
-        ("贵神", guiren_start, branch_element_text(guiren_start), guishen_name),
-        ("将神", yuejiang_branch, branch_element_text(yuejiang_branch), yuejiang_name),
+        ("贵神", guishen_branch, branch_element_text(guishen_branch), guishen_name),
+        ("将神", jiangshen_branch, branch_element_text(jiangshen_branch), jiangshen_name),
         ("地分", di_fen_branch, branch_element_text(di_fen_branch), "—"),
     ]
 
@@ -843,7 +1544,7 @@ def build_jinkou_board(
     strongest_label = "人元"
     strongest_rank = -1
     for label, content, element, shenjiang in row_defs:
-        power = status_against_anchor(month_element, element)
+        power = status_against_anchor(anchor_element, element)
         rank = POWER_RANK[power]
         if rank > strongest_rank:
             strongest_rank = rank
@@ -860,8 +1561,8 @@ def build_jinkou_board(
 
     shensha = [
         {"label": "人元", "value": "纳音引气"},
-        {"label": "贵神", "value": f"{guishen_name}入课"},
-        {"label": "将神", "value": f"{yuejiang_name}临门"},
+        {"label": "贵神", "value": f"{guishen_name}守时"},
+        {"label": "将神", "value": f"{jiangshen_name}临地分"},
         {"label": "地分", "value": f"{di_fen_branch}守位"},
     ]
 
@@ -869,15 +1570,18 @@ def build_jinkou_board(
         "di_fen": di_fen_branch,
         "kongwang": liureng_board["kongwang"],
         "si_da_kong": f"{branch_element_text(di_fen_branch)}空",
+        "board_style": liureng_board.get("board_style", ""),
         "use_position": strongest_label,
         "yuejiang": {
-            "branch": yuejiang_branch,
-            "name": yuejiang_name,
+            "branch": jiangshen_branch,
+            "name": jiangshen_name,
         },
         "guishen": {
             "start_branch": guiren_start,
+            "branch": guishen_branch,
             "name": guishen_name,
         },
+        "month_general": liureng_board.get("month_general"),
         "gender": gender,
     }
     if runyear:
