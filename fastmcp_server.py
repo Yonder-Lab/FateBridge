@@ -7,14 +7,16 @@ Provides Chinese metaphysics and approximate astrology functionality via FastMCP
 2. two_person_compatibility - Compatibility analysis between two people
 3. timing_analysis - Comprehensive timing (luck period) analysis
 4. astro_chart family - Core chart, relative chart, and derived chart overlays
-5. liuyue_analysis - Standalone jieqi-month analysis
-6. gua_lookup - Offline trigram/hexagram lookup
-7. meihua_analysis - Mei Hua Yi Shu time-seeded divination
-8. tongshefa - Local tongshefa analysis
-9. sixyao - Local six-yao analysis
-10. suzhan - Local lunar-mansion chart output
-11. otherbu - Local astrology-dice output
-12. sanshiunited - Local Sanshi aggregation output
+5. export_registry / export_parse - Horosa-style export helpers
+6. knowledge_registry / knowledge_read - Bundled hover-knowledge helpers
+7. jieqi_year / nongli_time - Calendar helper tools
+8. gua_lookup / gua_meiyi - Offline trigram/hexagram lookup helpers
+9. meihua_analysis - Mei Hua Yi Shu time-seeded divination
+10. tongshefa - Local tongshefa analysis
+11. sixyao - Local six-yao analysis
+12. suzhan - Local lunar-mansion chart output
+13. otherbu - Local astrology-dice output
+14. sanshiunited - Local Sanshi aggregation output
 """
 
 import logging
@@ -36,12 +38,21 @@ from fatebridge.utils.helpers import (
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.divination import (
     calculate_gua_lookup,
+    calculate_gua_meiyi,
     calculate_meihua_analysis,
     calculate_otherbu_analysis,
     calculate_sanshiunited_analysis,
     calculate_sixyao_analysis,
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
+)
+from fatebridge.services.export_tools import (
+    calculate_export_parse,
+    calculate_export_registry,
+)
+from fatebridge.services.knowledge import (
+    calculate_knowledge_read,
+    calculate_knowledge_registry,
 )
 from fatebridge.services.metaphysics import (
     calculate_jinkou_analysis as calculate_jinkou_analysis_service,
@@ -56,10 +67,12 @@ from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,
     calculate_dayun_analysis,
+    calculate_jieqi_year,
     calculate_jieqi_timeline_analysis,
     calculate_liuyue_analysis,
     calculate_liunian_analysis,
     calculate_liuri_analysis,
+    calculate_nongli_time,
 )
 
 # ============================================================================
@@ -79,8 +92,8 @@ logger = logging.getLogger(__name__)
 
 app = FastMCP(
     name="fatebridge",
-    instructions="中国传统八字、时运与离线近似星盘测算工具，提供单人分析、双人配合度、时运分析、梅花时卦辅助与核心/关系星盘。只输出计算数据，不包含建议。",
-    version="2.3.0",
+    instructions="中国传统八字、时运、节气/农历 helper、Horosa 风格导出协议/悬浮知识 helper 与离线近似星盘测算工具，提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。",
+    version="2.4.0",
 )
 
 
@@ -665,6 +678,179 @@ def astro_germany_chart(
     )
     if "error" in result:
         return format_error_response(result, "germany 中点盘")
+    return format_json_response(result)
+
+
+@app.tool
+def export_registry(
+    technique: Optional[str] = None,
+) -> str:
+    """
+    AI 导出协议注册表工具 - 返回 horosa 风格的导出设置目录。
+    """
+    result = calculate_export_registry(technique=technique)
+
+    if "error" in result:
+        return format_error_response(result, "导出注册表")
+
+    return format_json_response(result)
+
+
+@app.tool
+def export_parse(
+    technique: str,
+    content: str,
+    *,
+    selected_sections: Optional[list[str]] = None,
+    planet_info: Optional[dict] = None,
+    astro_meaning: Optional[dict] = None,
+) -> str:
+    """
+    AI 导出正文解析工具 - 将快照文本拆分为可筛选的结构化分段。
+    """
+    result = calculate_export_parse(
+        technique=technique,
+        content=content,
+        selected_sections=selected_sections,
+        planet_info=planet_info,
+        astro_meaning=astro_meaning,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "导出解析")
+
+    return format_json_response(result)
+
+
+@app.tool
+def knowledge_registry(
+    domain: Optional[str] = None,
+) -> str:
+    """
+    悬浮知识目录工具 - 列出 astrology / 六壬 / 奇门的本地知识分类。
+    """
+    result = calculate_knowledge_registry(domain=domain)
+
+    if "error" in result:
+        return format_error_response(result, "知识目录")
+
+    return format_json_response(result)
+
+
+@app.tool
+def knowledge_read(
+    domain: str,
+    category: str,
+    key: Optional[str] = None,
+    *,
+    aspect_degree: Optional[int] = None,
+    object_a: Optional[str] = None,
+    object_b: Optional[str] = None,
+    jiang_name: Optional[str] = None,
+    tian_branch: Optional[str] = None,
+    di_branch: Optional[str] = None,
+) -> str:
+    """
+    悬浮知识读取工具 - 按 domain/category/key 读取单条本地知识。
+    """
+    result = calculate_knowledge_read(
+        domain=domain,
+        category=category,
+        key=key,
+        aspect_degree=aspect_degree,
+        object_a=object_a,
+        object_b=object_b,
+        jiang_name=jiang_name,
+        tian_branch=tian_branch,
+        di_branch=di_branch,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "知识读取")
+
+    return format_json_response(result)
+
+
+@app.tool
+def jieqi_year(
+    year: int,
+    zone: Optional[str] = "Asia/Shanghai",
+    lat: Optional[str] = None,
+    lon: Optional[str] = None,
+    *,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+    jieqis: Optional[list[str]] = None,
+) -> str:
+    """
+    全年节气盘辅助工具 - 输出全年 24 节气节点，可按名称筛选重点节气。
+    """
+    result = calculate_jieqi_year(
+        year=year,
+        zone=zone,
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
+        jieqis=jieqis,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "全年节气盘")
+
+    return format_json_response(result)
+
+
+@app.tool
+def nongli_time(
+    date: str,
+    time: str,
+    zone: Optional[str] = "Asia/Shanghai",
+    lon: Optional[str] = None,
+    *,
+    lat: Optional[str] = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+    gender: Optional[bool] = None,
+    after23_new_day: bool = False,
+    time_alg: int = 0,
+    ad: int = 1,
+) -> str:
+    """
+    农历换算辅助工具 - 输出农历日期、节气与四柱上下文。
+    """
+    result = calculate_nongli_time(
+        date=date,
+        time=time,
+        zone=zone,
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
+        gender=gender,
+        after23_new_day=after23_new_day,
+        time_alg=time_alg,
+        ad=ad,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "农历换算")
+
+    return format_json_response(result)
+
+
+@app.tool
+def gua_meiyi(
+    name: list[str],
+) -> str:
+    """
+    梅易卦义辅助工具 - 批量返回偏梅花易数语境的卦义摘要。
+    """
+    result = calculate_gua_meiyi(name=name)
+
+    if "error" in result:
+        return format_error_response(result, "梅易卦义")
+
     return format_json_response(result)
 
 
@@ -1391,11 +1577,16 @@ def western_timing_analysis(
     return_timezone: Optional[str] = None,
     house_system: str = "P",
     zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
 ) -> str:
     """
     西占时运分析工具
 
-    输出太阳返照、月返、次限推运、太阳弧、小限、法达与十年星限结构。
+    输出太阳返照、月返、指定年盘、次限推运、太阳弧、主限、小限、法达与十年星限结构。
     """
     result = calculate_western_timing_analysis(
         birth_year=birth_year,
@@ -1416,6 +1607,11 @@ def western_timing_analysis(
         return_timezone=return_timezone,
         house_system=house_system,
         zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
     )
 
     if "error" in result:

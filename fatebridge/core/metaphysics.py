@@ -528,7 +528,12 @@ def build_ziwei_rules(year_stem: Optional[str] = None) -> Dict[str, Any]:
     }
 
 
-def build_liureng_board(seed: MetaphysicsSeed, gender: str = "未知") -> Dict[str, Any]:
+def build_liureng_board(
+    seed: MetaphysicsSeed,
+    gender: str = "未知",
+    month_general_override: Optional[str] = None,
+    is_diurnal_override: Optional[bool] = None,
+) -> Dict[str, Any]:
     lunar = seed.calendar_context.get("lunar_calendar") or {}
     current_term_name = seed.calendar_context["current_solar_term"]["name"]
     month_branch = seed.pillars["month"][1]
@@ -540,10 +545,16 @@ def build_liureng_board(seed: MetaphysicsSeed, gender: str = "未知") -> Dict[s
     xun_head = xun_head_for_ganzhi(day_ganzhi)
     kongwang = kongwang_for_ganzhi(day_ganzhi)
 
-    is_day = hour_branch in {"卯", "辰", "巳", "午", "未", "申"}
+    is_day = (
+        is_diurnal_override
+        if is_diurnal_override is not None
+        else hour_branch in {"卯", "辰", "巳", "午", "未", "申"}
+    )
     guiren_start = LIURENG_GUIREN_DAY[day_stem] if is_day else LIURENG_GUIREN_NIGHT[day_stem]
     guiren_reverse = guiren_start in GUI_REN_REVERSED_STARTS
-    yuejiang_branch = month_branch
+    if month_general_override is not None and month_general_override not in YUE_JIANG_NAMES:
+        raise ValueError("month_general_override 必须是十二地支之一")
+    yuejiang_branch = month_general_override or month_branch
     yuejiang_name = YUE_JIANG_NAMES[yuejiang_branch]
 
     earth_plate = EARTHLY_BRANCHES[:]
@@ -647,6 +658,7 @@ def build_liureng_board(seed: MetaphysicsSeed, gender: str = "未知") -> Dict[s
             "current_term": current_term_name,
             "lunar_display": lunar.get("display"),
             "questioner_gender": gender,
+            "is_diurnal": is_day,
         },
     }
 

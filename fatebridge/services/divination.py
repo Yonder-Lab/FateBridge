@@ -109,6 +109,50 @@ def calculate_gua_lookup(
         return handle_calculation_error(exc, "卦义检索")
 
 
+def calculate_gua_meiyi(
+    *,
+    name: List[str],
+) -> Dict[str, Any]:
+    """
+    梅易卦义辅助工具 - 批量返回偏梅花易数语境的卦义说明。
+    """
+    try:
+        queries = [item.strip() for item in (name or []) if item and item.strip()]
+        if not queries:
+            raise ValueError("name 至少需要提供一个卦名或卦码。")
+
+        results: Dict[str, Dict[str, Any]] = {}
+        ordered_names: List[str] = []
+        for query in queries:
+            item = lookup_gua(query, lookup_mode="auto")
+            desc = (
+                f"{item['name']}：{item.get('theme', '当前之势')}。"
+                f"{item.get('judgement') or item.get('guidance', '')}"
+                f"宜{item.get('favorable', '顺势推进')}，"
+                f"忌{item.get('caution', '失衡冒进')}。"
+            )
+            results[query] = {
+                "name": item["name"],
+                "lookup_type": item["lookup_type"],
+                "theme": item.get("theme"),
+                "judgement": item.get("judgement"),
+                "guidance": item.get("guidance"),
+                "desc": desc,
+                "text": desc,
+            }
+            ordered_names.append(item["name"])
+
+        return {
+            "analysis_type": "梅易卦义",
+            "queries": queries,
+            "results": results,
+            **results,
+            "summary": f"共查询{len(queries)}项梅易卦义：{'、'.join(ordered_names)}。",
+        }
+    except Exception as exc:
+        return handle_calculation_error(exc, "梅易卦义")
+
+
 def calculate_tongshefa_analysis(
     *,
     taiyin: Optional[str] = None,

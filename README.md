@@ -18,8 +18,12 @@
 - **格局识别**：识别三合、六合、六冲等特殊格局
 - **喜用神推算**：科学推断命局所需的平衡元素
 - **核心星盘与派生星盘**：新增标准星盘、13 扇区扩展盘、希腊星盘、果老风格盘、印度盘、量化中点盘与关系盘
+- **Horosa 导出协议 helper**：新增 `export_registry` 与 `export_parse`，支持按 Horosa AI 导出 contract 解析快照文本
+- **悬浮知识 helper**：新增 `knowledge_registry` 与 `knowledge_read`，支持 astrology / 六壬 / 奇门离线知识读取
 - **农历与卦象辅助**：输出农历、节气上下文与梅花易数时卦辅助信息
+- **节气 / 农历 helper**：新增全年节气盘与独立农历换算接口，便于派生技法直接复用
 - **梅花时卦分析**：独立输出本卦、变卦、互卦、综卦与体用关系
+- **梅易卦义批量查询**：支持按卦码 / 卦名批量读取偏梅花易数语境的卦义摘要
 - **梅花问事骨架**：自动串联本卦、变卦、体用与动爻阶段，生成可直接阅读的占断摘要
 - **动爻细断层**：补充爻位断语、时机提示、问事适配与体用修正建议
 - **六爻全表**：按本卦 1-6 爻逐条生成变卦走向、体用关系与爻位摘要
@@ -292,7 +296,14 @@ FateBridge/
 | `POST` | `/api/astro/india` | 印度盘（sidereal） |
 | `POST` | `/api/astro/germany` | 量化盘 / 中点盘 |
 | `POST` | `/api/astro/relative` | 合盘 / 关系盘 |
-| `POST` | `/api/astro/timing` | 西占推运 / 返照 / 时运系统 |
+| `POST` | `/api/astro/timing` | 西占推运 / 返照 / 时运系统（含指定年盘、主限、黄道释放） |
+| `POST` | `/api/export/registry` | Horosa 风格导出协议注册表 |
+| `POST` | `/api/export/parse` | Horosa 风格快照导出解析 |
+| `POST` | `/api/knowledge/registry` | astrology / 六壬 / 奇门知识目录 |
+| `POST` | `/api/knowledge/read` | astrology / 六壬 / 奇门知识读取 |
+| `POST` | `/api/cn/jieqi/year` | 全年节气盘 helper |
+| `POST` | `/api/cn/nongli/time` | 农历换算 helper |
+| `POST` | `/api/cn/gua/meiyi` | 梅易卦义 helper |
 | `POST` | `/api/divination/gua` | 卦义检索 |
 | `POST` | `/api/divination/meihua` | 梅花时卦分析 |
 | `POST` | `/api/timing/liuyue` | 流月专项分析 |
@@ -314,12 +325,19 @@ FateBridge/
 | `astro_india_chart` | 印度盘（sidereal） |
 | `astro_germany_chart` | 量化盘 / 中点盘 |
 | `astro_relative_chart` | 合盘 / 关系盘 |
-| `western_timing_analysis` | 西占推运 / 返照 / 时运系统 |
+| `western_timing_analysis` | 西占推运 / 返照 / 时运系统（含指定年盘、主限、黄道释放） |
 | `dayun_analysis` | 大运专项分析 |
 | `liunian_analysis` | 流年专项分析 |
 | `liuyue_analysis` | 流月专项分析 |
 | `liuri_analysis` | 流日专项分析 |
+| `export_registry` | Horosa 风格导出协议注册表 |
+| `export_parse` | Horosa 风格快照导出解析 |
+| `knowledge_registry` | astrology / 六壬 / 奇门知识目录 |
+| `knowledge_read` | astrology / 六壬 / 奇门知识读取 |
+| `jieqi_year` | 全年节气盘 helper |
+| `nongli_time` | 农历换算 helper |
 | `jieqi_timeline_analysis` | 节气节点时间轴分析 |
+| `gua_meiyi` | 梅易卦义 helper |
 | `gua_lookup` | 卦义检索 |
 | `meihua_analysis` | 梅花时卦分析 |
 

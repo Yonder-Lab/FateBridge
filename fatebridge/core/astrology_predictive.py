@@ -8,8 +8,11 @@ of the existing offline natal chart surface.
 
 from __future__ import annotations
 
+from calendar import monthrange
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
+
+import pytz
 
 from fatebridge.core.astrology import (
     AstroBirthInfo,
@@ -91,6 +94,8 @@ PLANET_LABELS = {
     "Medium_Coeli": "天顶",
     "North Node": "北交点",
     "South Node": "南交点",
+    "Fortune": "幸运点",
+    "Spirit": "精神点",
 }
 
 HOUSE_NAME_TO_NUMBER = {
@@ -115,6 +120,18 @@ ASPECT_DEGREES = [
     ("trine", "拱", 120.0),
     ("opposition", "冲", 180.0),
 ]
+PRIMARY_DIRECTION_METHOD_LABELS = {
+    "astroapp_alchabitius": "AstroAPP-Alchabitius",
+    "horosa_legacy": "Horosa原方法",
+}
+PRIMARY_DIRECTION_TIME_KEY_RATES = {
+    "Ptolemy": 1.0,
+    "Naibod": 0.98564733,
+    "Cardan": 0.98666667,
+}
+PRIMARY_DIRECTION_DEFAULT_ASPECTS = [0, 60, 90, 120, 180]
+PRIMARY_DIRECTION_PROMISSORS = ["Ascendant", "Medium_Coeli"]
+PRIMARY_DIRECTION_MAX_AGE_YEARS = 100.0
 
 FIRDARIA_DAY_SEQUENCE = [
     ("Sun", 10),
@@ -239,6 +256,52 @@ DECENNIAL_MINUTES_PER_YEAR = 12 * DECENNIAL_MINUTES_PER_MONTH
 DECENNIAL_ACTUAL_YEAR_SCALE_NUMERATOR = 1461
 DECENNIAL_ACTUAL_YEAR_SCALE_DENOMINATOR = 1440
 
+LOT_LABELS = {
+    "lot_of_fortune": "幸运点",
+    "lot_of_spirit": "精神点",
+}
+LOT_POINT_NAMES = {
+    "lot_of_fortune": "Fortune",
+    "lot_of_spirit": "Spirit",
+}
+ZR_SIGN_PERIODS = {
+    "Aries": 15,
+    "Taurus": 8,
+    "Gemini": 20,
+    "Cancer": 25,
+    "Leo": 19,
+    "Virgo": 20,
+    "Libra": 8,
+    "Scorpio": 15,
+    "Sagittarius": 12,
+    "Capricorn": 27,
+    "Aquarius": 30,
+    "Pisces": 12,
+}
+ZR_LEVEL_UNIT_DAYS = {
+    1: 360.0,
+    2: 30.0,
+    3: 2.5,
+    4: 5.0 / 24.0,
+}
+ZR_LEVEL_UNIT_LABELS = {
+    1: "years",
+    2: "months",
+    3: "weeks",
+    4: "days",
+}
+ZR_LEVEL_UNIT_LABELS_ZH = {
+    1: "年",
+    2: "月",
+    3: "周",
+    4: "日",
+}
+ZR_PHASE_LABELS = {
+    "angular": "角宫",
+    "succedent": "续宫",
+    "cadent": "衰宫",
+}
+
 
 def ensure_predictive_backend_available() -> None:
     if AstrologicalSubjectFactory is None or PlanetaryReturnFactory is None:
@@ -297,6 +360,52 @@ def build_analysis_datetime(
         birth_info.local_datetime.hour,
         birth_info.local_datetime.minute,
         tzinfo=tzinfo,
+    )
+
+
+def rebuild_local_datetime(moment: datetime, timezone_name: str) -> datetime:
+    # Predictive charts use the target local wall clock at the directed place.
+    tzinfo = parse_timezone_name(timezone_name)
+    return datetime(
+        moment.year,
+        moment.month,
+        moment.day,
+        moment.hour,
+        moment.minute,
+        moment.second,
+        moment.microsecond,
+        tzinfo=tzinfo,
+    )
+
+
+def replace_local_datetime_year(moment: datetime, year: int) -> datetime:
+    target_day = min(moment.day, monthrange(year, moment.month)[1])
+    return datetime(
+        year,
+        moment.month,
+        target_day,
+        moment.hour,
+        moment.minute,
+        moment.second,
+        moment.microsecond,
+        tzinfo=moment.tzinfo,
+    )
+
+
+def add_months(moment: datetime, months: int) -> datetime:
+    month_index = (moment.month - 1) + months
+    target_year = moment.year + (month_index // 12)
+    target_month = (month_index % 12) + 1
+    target_day = min(moment.day, monthrange(target_year, target_month)[1])
+    return datetime(
+        target_year,
+        target_month,
+        target_day,
+        moment.hour,
+        moment.minute,
+        moment.second,
+        moment.microsecond,
+        tzinfo=moment.tzinfo,
     )
 
 
@@ -365,6 +474,327 @@ def longitude_to_point_dict(point_name: str, absolute_degree: float) -> Dict[str
     }
 
 
+def next_sign(sign_name: str) -> str:
+    return SIGNS[(SIGNS.index(sign_name) + 1) % 12]
+
+
+def opposite_sign(sign_name: str) -> str:
+    return SIGNS[(SIGNS.index(sign_name) + 6) % 12]
+
+
+def classify_releasing_phase(sign_name: str, root_sign: str) -> Dict[str, Any]:
+    relative_index = ((SIGNS.index(sign_name) - SIGNS.index(root_sign)) % 12) + 1
+    if relative_index in {1, 4, 7, 10}:
+        phase = "angular"
+    elif relative_index in {2, 5, 8, 11}:
+        phase = "succedent"
+    else:
+        phase = "cadent"
+    return {
+        "relative_sign_index": relative_index,
+        "phase": phase,
+        "phase_label": ZR_PHASE_LABELS[phase],
+        "is_peak_period": phase == "angular",
+    }
+
+
+def whole_sign_house_from_asc(asc_sign: str, target_sign: str) -> int:
+    return ((SIGNS.index(target_sign) - SIGNS.index(asc_sign)) % 12) + 1
+
+
+def build_lot_point_dict(
+    lot_key: str,
+    absolute_degree: float,
+    *,
+    asc_sign: str,
+) -> Dict[str, Any]:
+    point_name = LOT_POINT_NAMES[lot_key]
+    payload = longitude_to_point_dict(point_name, absolute_degree)
+    sign_name = payload["sign"]
+    house = whole_sign_house_from_asc(asc_sign, sign_name)
+    payload.update(
+        {
+            "lot": lot_key,
+            "lot_label": LOT_LABELS[lot_key],
+            "house": house,
+            "house_label": f"第{house}宫",
+        }
+    )
+    return payload
+
+
+def build_lot_payloads(natal_subject: Any) -> Dict[str, Dict[str, Any]]:
+    asc_sign = normalize_sign_name(natal_subject.ascendant.sign)
+    sect = determine_sect(natal_subject)
+    sun_longitude = point_absolute_position(natal_subject, "Sun")
+    moon_longitude = point_absolute_position(natal_subject, "Moon")
+    asc_longitude = point_absolute_position(natal_subject, "Ascendant")
+    if sect == "day":
+        fortune_longitude = (asc_longitude + moon_longitude - sun_longitude) % 360.0
+        spirit_longitude = (asc_longitude + sun_longitude - moon_longitude) % 360.0
+    else:
+        fortune_longitude = (asc_longitude + sun_longitude - moon_longitude) % 360.0
+        spirit_longitude = (asc_longitude + moon_longitude - sun_longitude) % 360.0
+    return {
+        "lot_of_fortune": build_lot_point_dict(
+            "lot_of_fortune",
+            fortune_longitude,
+            asc_sign=asc_sign,
+        ),
+        "lot_of_spirit": build_lot_point_dict(
+            "lot_of_spirit",
+            spirit_longitude,
+            asc_sign=asc_sign,
+        ),
+    }
+
+
+def build_zodiacal_releasing_period(
+    *,
+    sign_name: str,
+    period_start: datetime,
+    period_end: datetime,
+    root_sign: str,
+    parent_sign: str,
+    level: int,
+    analysis_datetime: datetime,
+    loosing_of_bond: bool = False,
+) -> Dict[str, Any]:
+    ruler = RULER_BY_SIGN[sign_name]
+    phase = classify_releasing_phase(sign_name, root_sign)
+    return {
+        "sign": sign_name,
+        "sign_label": sign_label(sign_name),
+        "ruler": ruler,
+        "ruler_label": planet_label(ruler),
+        "level": level,
+        "duration_value": ZR_SIGN_PERIODS[sign_name],
+        "duration_unit": ZR_LEVEL_UNIT_LABELS[level],
+        "duration_unit_label": ZR_LEVEL_UNIT_LABELS_ZH[level],
+        "start": period_start.isoformat(),
+        "end": period_end.isoformat(),
+        "loosing_of_bond": loosing_of_bond,
+        "parent_sign": parent_sign,
+        "parent_sign_label": sign_label(parent_sign),
+        "active": period_start <= analysis_datetime < period_end,
+        "_start": period_start,
+        "_end": period_end,
+        **phase,
+    }
+
+
+def build_releasing_level_preview(
+    *,
+    start_sign: str,
+    period_start: datetime,
+    root_sign: str,
+    parent_sign: str,
+    level: int,
+    analysis_datetime: datetime,
+    preview_after_active: int = 4,
+    max_periods: int = 24,
+) -> List[Dict[str, Any]]:
+    periods: List[Dict[str, Any]] = []
+    current_sign = start_sign
+    cursor = period_start
+    active_found = False
+    future_slots_remaining = preview_after_active
+
+    for _ in range(max_periods):
+        duration_days = ZR_SIGN_PERIODS[current_sign] * ZR_LEVEL_UNIT_DAYS[level]
+        next_cursor = cursor + timedelta(days=duration_days)
+        period = build_zodiacal_releasing_period(
+            sign_name=current_sign,
+            period_start=cursor,
+            period_end=next_cursor,
+            root_sign=root_sign,
+            parent_sign=parent_sign,
+            level=level,
+            analysis_datetime=analysis_datetime,
+        )
+        periods.append(period)
+        if period["active"]:
+            active_found = True
+        elif active_found:
+            future_slots_remaining -= 1
+            if future_slots_remaining <= 0:
+                break
+        cursor = next_cursor
+        current_sign = next_sign(current_sign)
+
+    return periods
+
+
+def build_releasing_level_within_interval(
+    *,
+    start_sign: str,
+    period_start: datetime,
+    period_end: datetime,
+    root_sign: str,
+    parent_sign: str,
+    level: int,
+    analysis_datetime: datetime,
+    max_periods: int = 24,
+) -> List[Dict[str, Any]]:
+    periods: List[Dict[str, Any]] = []
+    current_sign = start_sign
+    cursor = period_start
+    cycle_start_sign = start_sign
+    loosing_used = False
+    pending_loosing_of_bond = False
+
+    for _ in range(max_periods):
+        if cursor >= period_end:
+            break
+        duration_days = ZR_SIGN_PERIODS[current_sign] * ZR_LEVEL_UNIT_DAYS[level]
+        next_cursor = min(period_end, cursor + timedelta(days=duration_days))
+        loosing_of_bond = pending_loosing_of_bond
+        pending_loosing_of_bond = False
+        periods.append(
+            build_zodiacal_releasing_period(
+                sign_name=current_sign,
+                period_start=cursor,
+                period_end=next_cursor,
+                root_sign=root_sign,
+                parent_sign=parent_sign,
+                level=level,
+                analysis_datetime=analysis_datetime,
+                loosing_of_bond=loosing_of_bond,
+            )
+        )
+        cursor = next_cursor
+        next_sign_name = next_sign(current_sign)
+        if (
+            level > 1
+            and not loosing_used
+            and next_sign_name == cycle_start_sign
+            and cursor < period_end
+        ):
+            current_sign = opposite_sign(cycle_start_sign)
+            loosing_used = True
+            pending_loosing_of_bond = True
+        else:
+            current_sign = next_sign_name
+
+    return periods
+
+
+def clean_releasing_period(period: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if period is None:
+        return None
+    return {key: value for key, value in period.items() if not key.startswith("_")}
+
+
+def clean_releasing_timeline(periods: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    return [clean_releasing_period(period) for period in periods]
+
+
+def peak_signs_from_root(root_sign: str) -> List[Dict[str, str]]:
+    root_index = SIGNS.index(root_sign)
+    offsets = [0, 3, 6, 9]
+    signs = [SIGNS[(root_index + offset) % 12] for offset in offsets]
+    return [
+        {
+            "sign": sign_name,
+            "sign_label": sign_label(sign_name),
+        }
+        for sign_name in signs
+    ]
+
+
+def build_zodiacal_releasing_for_lot(
+    lot_key: str,
+    lot_payload: Dict[str, Any],
+    *,
+    birth_info: AstroBirthInfo,
+    analysis_datetime: datetime,
+    start_sign: Optional[str] = None,
+) -> Dict[str, Any]:
+    root_sign = start_sign or lot_payload["sign"]
+    level_one_timeline = build_releasing_level_preview(
+        start_sign=root_sign,
+        period_start=birth_info.local_datetime,
+        root_sign=root_sign,
+        parent_sign=root_sign,
+        level=1,
+        analysis_datetime=analysis_datetime,
+    )
+    current_level_1 = next((item for item in level_one_timeline if item["active"]), None)
+
+    level_two_timeline: List[Dict[str, Any]] = []
+    current_level_2 = None
+    if current_level_1 is not None:
+        level_two_timeline = build_releasing_level_within_interval(
+            start_sign=current_level_1["sign"],
+            period_start=current_level_1["_start"],
+            period_end=current_level_1["_end"],
+            root_sign=root_sign,
+            parent_sign=current_level_1["sign"],
+            level=2,
+            analysis_datetime=analysis_datetime,
+        )
+        current_level_2 = next((item for item in level_two_timeline if item["active"]), None)
+
+    level_three_timeline: List[Dict[str, Any]] = []
+    current_level_3 = None
+    if current_level_2 is not None:
+        level_three_timeline = build_releasing_level_within_interval(
+            start_sign=current_level_2["sign"],
+            period_start=current_level_2["_start"],
+            period_end=current_level_2["_end"],
+            root_sign=root_sign,
+            parent_sign=current_level_2["sign"],
+            level=3,
+            analysis_datetime=analysis_datetime,
+        )
+        current_level_3 = next(
+            (item for item in level_three_timeline if item["active"]),
+            None,
+        )
+
+    return {
+        "base_point": LOT_POINT_NAMES[lot_key],
+        "base_point_label": LOT_LABELS[lot_key],
+        "lot": lot_payload,
+        "release_start_sign": root_sign,
+        "release_start_sign_label": sign_label(root_sign),
+        "peak_signs": peak_signs_from_root(root_sign),
+        "current_level_1": clean_releasing_period(current_level_1),
+        "current_level_2": clean_releasing_period(current_level_2),
+        "current_level_3": clean_releasing_period(current_level_3),
+        "level_1_timeline": clean_releasing_timeline(level_one_timeline),
+        "level_2_timeline": clean_releasing_timeline(level_two_timeline),
+        "level_3_timeline": clean_releasing_timeline(level_three_timeline),
+    }
+
+
+def build_zodiacal_releasing_payload(
+    birth_info: AstroBirthInfo,
+    natal_subject: Any,
+    *,
+    analysis_datetime: datetime,
+) -> Dict[str, Any]:
+    lots = build_lot_payloads(natal_subject)
+    spirit_start_sign = lots["lot_of_spirit"]["sign"]
+    if spirit_start_sign == lots["lot_of_fortune"]["sign"]:
+        spirit_start_sign = next_sign(spirit_start_sign)
+    return {
+        "spirit": build_zodiacal_releasing_for_lot(
+            "lot_of_spirit",
+            lots["lot_of_spirit"],
+            birth_info=birth_info,
+            analysis_datetime=analysis_datetime,
+            start_sign=spirit_start_sign,
+        ),
+        "fortune": build_zodiacal_releasing_for_lot(
+            "lot_of_fortune",
+            lots["lot_of_fortune"],
+            birth_info=birth_info,
+            analysis_datetime=analysis_datetime,
+        ),
+    }
+
+
 def build_subject(
     *,
     name: str,
@@ -376,6 +806,10 @@ def build_subject(
     zodiac_type: str = "Tropic",
 ) -> Any:
     ensure_predictive_backend_available()
+    local_datetime, timezone_name = adapt_datetime_for_kerykeion(
+        local_datetime,
+        timezone_name,
+    )
     return AstrologicalSubjectFactory.from_birth_data(
         name=name,
         year=local_datetime.year,
@@ -391,6 +825,44 @@ def build_subject(
         houses_system_identifier=house_system,
         zodiac_type=zodiac_type,
     )
+
+
+def resolve_kerykeion_timezone_name(timezone_name: str) -> Optional[str]:
+    """Map fixed-offset strings into pytz-compatible timezone identifiers."""
+    try:
+        pytz.timezone(timezone_name)
+        return timezone_name
+    except Exception:
+        pass
+
+    tzinfo = parse_timezone_name(timezone_name)
+    reference_moment = datetime(2000, 1, 1, tzinfo=tzinfo)
+    offset = reference_moment.utcoffset()
+    if offset is None:
+        return None
+
+    total_minutes = int(offset.total_seconds() // 60)
+    if total_minutes == 0:
+        return "UTC"
+    if total_minutes % 60 != 0:
+        return None
+
+    hours = total_minutes // 60
+    # pytz's Etc/GMT zones invert the sign relative to UTC offsets.
+    sign = "-" if hours > 0 else "+"
+    return f"Etc/GMT{sign}{abs(hours)}"
+
+
+def adapt_datetime_for_kerykeion(
+    local_datetime: datetime,
+    timezone_name: str,
+) -> tuple[datetime, str]:
+    """Prepare datetime/timezone inputs for pytz-based predictive backends."""
+    backend_timezone = resolve_kerykeion_timezone_name(timezone_name)
+    if backend_timezone is not None:
+        return local_datetime, backend_timezone
+    utc_datetime = local_datetime.astimezone(parse_timezone_name("UTC"))
+    return utc_datetime, "UTC"
 
 
 def build_natal_subject(
@@ -467,11 +939,14 @@ def build_return_payload(
     return_latitude: float,
     return_timezone: str,
 ) -> Dict[str, Any]:
+    backend_return_timezone = (
+        resolve_kerykeion_timezone_name(return_timezone) or "UTC"
+    )
     factory = PlanetaryReturnFactory(
         natal_subject,
         lng=return_longitude,
         lat=return_latitude,
-        tz_str=return_timezone,
+        tz_str=backend_return_timezone,
         online=False,
     )
     solar_return = factory.next_return_from_year(analysis_datetime.year, "Solar")
@@ -606,6 +1081,314 @@ def collect_aspect_hits(
     return hits
 
 
+def primary_direction_method_label(method_name: str) -> str:
+    return PRIMARY_DIRECTION_METHOD_LABELS.get(method_name, method_name)
+
+
+def primary_direction_time_key_rate(time_key: str) -> float:
+    return PRIMARY_DIRECTION_TIME_KEY_RATES.get(time_key, 1.0)
+
+
+def normalize_primary_direction_aspects(
+    pd_aspects: Optional[List[int]],
+) -> List[int]:
+    if not pd_aspects:
+        return PRIMARY_DIRECTION_DEFAULT_ASPECTS.copy()
+    normalized: List[int] = []
+    for value in pd_aspects:
+        try:
+            degree = int(float(value)) % 360
+        except (TypeError, ValueError):
+            continue
+        if degree not in normalized:
+            normalized.append(degree)
+    return normalized or PRIMARY_DIRECTION_DEFAULT_ASPECTS.copy()
+
+
+def primary_direction_aspect_variants(aspect_degree: int) -> List[float]:
+    if aspect_degree in {0, 180}:
+        return [float(aspect_degree)]
+    return [float(aspect_degree), float((360 - aspect_degree) % 360)]
+
+
+def primary_direction_aspect_meta(aspect_degree: int) -> tuple[str, str]:
+    for aspect_key, aspect_label_text, aspect_value in ASPECT_DEGREES:
+        if int(aspect_value) == aspect_degree:
+            return aspect_key, aspect_label_text
+    return f"{aspect_degree}deg", f"{aspect_degree}°"
+
+
+def build_primary_direction_targets(natal_subject: Any) -> List[Dict[str, Any]]:
+    targets = [
+        {
+            "name": point_name,
+            "label": planet_label(point_name),
+            "longitude": point_absolute_position(natal_subject, point_name),
+        }
+        for point_name in TIMING_POINT_NAMES
+    ]
+    for lot_key, payload in build_lot_payloads(natal_subject).items():
+        point_name = LOT_POINT_NAMES[lot_key]
+        targets.append(
+            {
+                "name": point_name,
+                "label": LOT_LABELS[lot_key],
+                "longitude": float(payload["absolute_degree"]),
+            }
+        )
+    return targets
+
+
+def build_primary_direction_points(
+    natal_subject: Any,
+    *,
+    arc_degrees: float,
+) -> Dict[str, Dict[str, Any]]:
+    natal_longitudes = extract_reference_longitudes(natal_subject)
+    return {
+        point_name: longitude_to_point_dict(
+            point_name,
+            natal_longitudes[point_name] + arc_degrees,
+        )
+        for point_name in PRIMARY_DIRECTION_PROMISSORS
+    }
+
+
+def build_shifted_reference_points(
+    natal_subject: Any,
+    *,
+    arc_degrees: float,
+) -> Dict[str, Dict[str, Any]]:
+    natal_longitudes = extract_reference_longitudes(natal_subject)
+    return {
+        point_name: longitude_to_point_dict(
+            point_name,
+            natal_longitudes[point_name] + arc_degrees,
+        )
+        for point_name in TIMING_POINT_NAMES
+    }
+
+
+def build_shifted_lot_payloads(
+    natal_subject: Any,
+    *,
+    arc_degrees: float,
+) -> Dict[str, Dict[str, Any]]:
+    natal_lots = build_lot_payloads(natal_subject)
+    asc_sign = normalize_sign_name(natal_subject.ascendant.sign)
+    return {
+        lot_key: build_lot_point_dict(
+            lot_key,
+            float(payload["absolute_degree"]) + arc_degrees,
+            asc_sign=asc_sign,
+        )
+        for lot_key, payload in natal_lots.items()
+    }
+
+
+def build_sign_change_payloads(
+    natal_points: Dict[str, Dict[str, Any]],
+    directed_points: Dict[str, Dict[str, Any]],
+    natal_lots: Dict[str, Dict[str, Any]],
+    directed_lots: Dict[str, Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    changes: List[Dict[str, Any]] = []
+
+    for point_name in TIMING_POINT_NAMES:
+        natal_payload = natal_points[point_name.lower()]
+        directed_name = next(
+            (
+                candidate
+                for candidate in directed_points
+                if candidate.lower() == point_name.lower()
+            ),
+            point_name,
+        )
+        directed_payload = directed_points[directed_name]
+        if natal_payload["sign"] != directed_payload["sign"]:
+            changes.append(
+                {
+                    "point": directed_name,
+                    "point_label": planet_label(directed_name),
+                    "from_sign": natal_payload["sign"],
+                    "from_sign_label": natal_payload["sign_label"],
+                    "to_sign": directed_payload["sign"],
+                    "to_sign_label": directed_payload["sign_label"],
+                }
+            )
+
+    for lot_key, natal_payload in natal_lots.items():
+        directed_payload = directed_lots[lot_key]
+        if natal_payload["sign"] != directed_payload["sign"]:
+            changes.append(
+                {
+                    "point": LOT_POINT_NAMES[lot_key],
+                    "point_label": LOT_LABELS[lot_key],
+                    "from_sign": natal_payload["sign"],
+                    "from_sign_label": natal_payload["sign_label"],
+                    "to_sign": directed_payload["sign"],
+                    "to_sign_label": directed_payload["sign_label"],
+                }
+            )
+
+    return changes
+
+
+def build_primary_directions_payload(
+    birth_info: AstroBirthInfo,
+    natal_subject: Any,
+    *,
+    analysis_datetime: datetime,
+    pd_method: str,
+    pd_time_key: str,
+    pd_type: int = 0,
+    pd_aspects: Optional[List[int]] = None,
+    max_age_years: float = PRIMARY_DIRECTION_MAX_AGE_YEARS,
+    current_window_size: int = 12,
+) -> Dict[str, Any]:
+    age_years = calculate_age_years(birth_info, analysis_datetime)
+    time_key_rate = primary_direction_time_key_rate(pd_time_key)
+    aspects = normalize_primary_direction_aspects(pd_aspects)
+    natal_longitudes = extract_reference_longitudes(natal_subject)
+    targets = build_primary_direction_targets(natal_subject)
+    direction_mode = "converse" if pd_type == 1 else "direct"
+    direction_mode_label = "逆推" if pd_type == 1 else "顺推"
+    current_arc = age_years * time_key_rate * (-1 if pd_type == 1 else 1)
+    timeline: List[Dict[str, Any]] = []
+    seen_hits = set()
+
+    for promissor in PRIMARY_DIRECTION_PROMISSORS:
+        promissor_longitude = natal_longitudes[promissor]
+        for target in targets:
+            for aspect_degree in aspects:
+                aspect_key, aspect_label_text = primary_direction_aspect_meta(
+                    aspect_degree
+                )
+                for variant in primary_direction_aspect_variants(aspect_degree):
+                    arc = (target["longitude"] + variant - promissor_longitude) % 360.0
+                    event_age_years = arc / time_key_rate if time_key_rate else 0.0
+                    if event_age_years <= 0.05 or event_age_years > max_age_years:
+                        continue
+                    dedupe_key = (
+                        promissor,
+                        target["name"],
+                        aspect_key,
+                        round(event_age_years, 6),
+                    )
+                    if dedupe_key in seen_hits:
+                        continue
+                    seen_hits.add(dedupe_key)
+                    event_datetime = birth_info.local_datetime + timedelta(
+                        days=event_age_years * TROPICAL_YEAR_DAYS
+                    )
+                    timeline.append(
+                        {
+                            "arc_degrees": round(arc, 4),
+                            "promissor": promissor,
+                            "promissor_label": planet_label(promissor),
+                            "significator": target["name"],
+                            "significator_label": target["label"],
+                            "aspect": aspect_key,
+                            "aspect_label": aspect_label_text,
+                            "aspect_degree": aspect_degree,
+                            "event_age_years": round(event_age_years, 4),
+                            "event_datetime": event_datetime.isoformat(),
+                            "distance_from_current_years": round(
+                                abs(event_age_years - age_years),
+                                4,
+                            ),
+                        }
+                    )
+
+    timeline.sort(
+        key=lambda item: (
+            item["event_age_years"],
+            item["arc_degrees"],
+            item["promissor"],
+            item["significator"],
+        )
+    )
+    current_window = sorted(
+        timeline,
+        key=lambda item: (
+            item["distance_from_current_years"],
+            item["event_age_years"],
+            item["arc_degrees"],
+        ),
+    )[:current_window_size]
+
+    return {
+        "method": pd_method,
+        "method_label": primary_direction_method_label(pd_method),
+        "time_key": pd_time_key,
+        "time_key_label": pd_time_key,
+        "pd_type": pd_type,
+        "direction_mode": direction_mode,
+        "direction_mode_label": direction_mode_label,
+        "approximation": "axis_static_key",
+        "approximation_label": "轴点 static key 近似",
+        "promissors": PRIMARY_DIRECTION_PROMISSORS,
+        "aspects": aspects,
+        "current_age_years": round(age_years, 4),
+        "current_arc_degrees": round(current_arc, 4),
+        "current_arc_absolute_degrees": round(abs(current_arc), 4),
+        "current_window": current_window,
+        "timeline": timeline,
+    }
+
+
+def build_primary_direction_chart_payload(
+    natal_subject: Any,
+    *,
+    analysis_datetime: datetime,
+    pd_method: str,
+    pd_time_key: str,
+    pd_type: int,
+    current_arc_degrees: float,
+    current_hits: List[Dict[str, Any]],
+    show_pd_bounds: bool,
+) -> Dict[str, Any]:
+    natal_points = extract_reference_points(natal_subject)
+    natal_lots = build_lot_payloads(natal_subject)
+    directed_points = build_shifted_reference_points(
+        natal_subject,
+        arc_degrees=current_arc_degrees,
+    )
+    directed_lots = build_shifted_lot_payloads(
+        natal_subject,
+        arc_degrees=current_arc_degrees,
+    )
+    directed_axes = build_primary_direction_points(
+        natal_subject,
+        arc_degrees=current_arc_degrees,
+    )
+    return {
+        "analysis_datetime": analysis_datetime.isoformat(),
+        "method": pd_method,
+        "method_label": primary_direction_method_label(pd_method),
+        "time_key": pd_time_key,
+        "time_key_label": pd_time_key,
+        "pd_type": pd_type,
+        "direction_mode": "converse" if pd_type == 1 else "direct",
+        "direction_mode_label": "逆推" if pd_type == 1 else "顺推",
+        "current_arc_degrees": round(current_arc_degrees, 4),
+        "current_arc_absolute_degrees": round(abs(current_arc_degrees), 4),
+        "show_pd_bounds": show_pd_bounds,
+        "approximation": "axis_static_key",
+        "directed_points": directed_points,
+        "directed_lots": directed_lots,
+        "sign_changes": build_sign_change_payloads(
+            natal_points,
+            directed_points,
+            natal_lots,
+            directed_lots,
+        ),
+        "directed_ascendant": directed_axes["Ascendant"],
+        "directed_medium_coeli": directed_axes["Medium_Coeli"],
+        "hits": current_hits[:8],
+    }
+
+
 def build_annual_profection_payload(
     birth_info: AstroBirthInfo,
     natal_subject: Any,
@@ -644,6 +1427,128 @@ def build_annual_profection_payload(
         "monthly_house": monthly_house,
         "monthly_sign": monthly_sign,
         "monthly_sign_label": sign_label(monthly_sign),
+    }
+
+
+def resolve_last_birthday(
+    birth_info: AstroBirthInfo,
+    *,
+    analysis_datetime: datetime,
+    timezone_name: str,
+) -> tuple[datetime, datetime]:
+    analysis_local = rebuild_local_datetime(analysis_datetime, timezone_name)
+    birthday_this_year = datetime(
+        analysis_local.year,
+        birth_info.local_datetime.month,
+        min(
+            birth_info.local_datetime.day,
+            monthrange(analysis_local.year, birth_info.local_datetime.month)[1],
+        ),
+        birth_info.local_datetime.hour,
+        birth_info.local_datetime.minute,
+        birth_info.local_datetime.second,
+        birth_info.local_datetime.microsecond,
+        tzinfo=analysis_local.tzinfo,
+    )
+    if analysis_local < birthday_this_year:
+        last_birthday = replace_local_datetime_year(
+            birthday_this_year,
+            birthday_this_year.year - 1,
+        )
+    else:
+        last_birthday = birthday_this_year
+    return analysis_local, last_birthday
+
+
+def build_monthly_profections_payload(
+    *,
+    annual_house: int,
+    asc_sign: str,
+    year_start: datetime,
+    analysis_datetime: datetime,
+) -> List[Dict[str, Any]]:
+    timeline: List[Dict[str, Any]] = []
+    asc_index = SIGNS.index(asc_sign)
+    for month_offset in range(12):
+        start = add_months(year_start, month_offset)
+        end = add_months(year_start, month_offset + 1)
+        house = ((annual_house - 1 + month_offset) % 12) + 1
+        sign_name = SIGNS[(asc_index + house - 1) % 12]
+        ruler = RULER_BY_SIGN[sign_name]
+        timeline.append(
+            {
+                "month_index": month_offset + 1,
+                "house": house,
+                "house_label": f"第{house}宫",
+                "sign": sign_name,
+                "sign_label": sign_label(sign_name),
+                "lord": ruler,
+                "lord_label": planet_label(ruler),
+                "start": start.isoformat(),
+                "end": end.isoformat(),
+                "active": start <= analysis_datetime < end,
+            }
+        )
+    return timeline
+
+
+def build_given_year_payload(
+    birth_info: AstroBirthInfo,
+    natal_subject: Any,
+    *,
+    analysis_datetime: datetime,
+    annual_profection: Dict[str, Any],
+    return_longitude: float,
+    return_latitude: float,
+    return_timezone: str,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+) -> Dict[str, Any]:
+    analysis_local, last_birthday = resolve_last_birthday(
+        birth_info,
+        analysis_datetime=analysis_datetime,
+        timezone_name=return_timezone,
+    )
+    year_end = add_months(last_birthday, 12)
+    given_year_subject = build_subject(
+        name=f"{birth_info.name}-given-year",
+        local_datetime=analysis_local,
+        longitude=return_longitude,
+        latitude=return_latitude,
+        timezone_name=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+    )
+    monthly_profections = build_monthly_profections_payload(
+        annual_house=annual_profection["activated_house"],
+        asc_sign=normalize_sign_name(natal_subject.ascendant.sign),
+        year_start=last_birthday,
+        analysis_datetime=analysis_local,
+    )
+    hits = collect_aspect_hits(
+        source_longitudes=extract_reference_longitudes(given_year_subject),
+        target_longitudes=extract_reference_longitudes(natal_subject),
+        orb_limit=1.5,
+    )
+    return {
+        "analysis_datetime": analysis_local.isoformat(),
+        "year_start": last_birthday.isoformat(),
+        "year_end": year_end.isoformat(),
+        "sun": point_to_dict("Sun", given_year_subject.sun),
+        "moon": point_to_dict("Moon", given_year_subject.moon),
+        "ascendant": point_to_dict("Ascendant", given_year_subject.ascendant),
+        "medium_coeli": point_to_dict(
+            "Medium_Coeli",
+            given_year_subject.medium_coeli,
+        ),
+        "annual_profection": annual_profection,
+        "monthly_profections": monthly_profections,
+        "hits": hits[:8],
+        "location": {
+            "longitude": return_longitude,
+            "latitude": return_latitude,
+            "timezone": return_timezone,
+        },
     }
 
 
@@ -1163,6 +2068,11 @@ def build_western_timing_payload(
     return_timezone: Optional[str] = None,
     house_system: str = "P",
     zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[List[int]] = None,
+    show_pd_bounds: bool = True,
 ) -> Dict[str, Any]:
     natal_subject = build_natal_subject(
         birth_info,
@@ -1172,6 +2082,7 @@ def build_western_timing_payload(
     natal_reference = extract_reference_points(natal_subject)
     sect = determine_sect(natal_subject)
     natal_reference["sect"] = {"key": sect, "label": sect_label(sect)}
+    natal_reference["lots"] = build_lot_payloads(natal_subject)
 
     effective_return_longitude = (
         birth_info.longitude if return_longitude is None else return_longitude
@@ -1197,10 +2108,40 @@ def build_western_timing_payload(
     )
     progressed_subject = progression_payload.pop("subject")
     solar_arc_payload = build_solar_arc_payload(natal_subject, progressed_subject)
+    primary_directions_payload = build_primary_directions_payload(
+        birth_info,
+        natal_subject,
+        analysis_datetime=analysis_datetime,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+    )
+    primary_direction_chart_payload = build_primary_direction_chart_payload(
+        natal_subject,
+        analysis_datetime=analysis_datetime,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        current_arc_degrees=primary_directions_payload["current_arc_degrees"],
+        current_hits=primary_directions_payload["current_window"],
+        show_pd_bounds=show_pd_bounds,
+    )
     profection_payload = build_annual_profection_payload(
         birth_info,
         natal_subject,
         analysis_datetime=analysis_datetime,
+    )
+    given_year_payload = build_given_year_payload(
+        birth_info,
+        natal_subject,
+        analysis_datetime=analysis_datetime,
+        annual_profection=profection_payload,
+        return_longitude=effective_return_longitude,
+        return_latitude=effective_return_latitude,
+        return_timezone=effective_return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
     )
     firdaria_payload = build_firdaria_payload(
         birth_info,
@@ -1212,16 +2153,26 @@ def build_western_timing_payload(
         natal_subject,
         analysis_datetime=analysis_datetime,
     )
+    zodiacal_releasing_payload = build_zodiacal_releasing_payload(
+        birth_info,
+        natal_subject,
+        analysis_datetime=analysis_datetime,
+    )
 
     age_years = calculate_age_years(birth_info, analysis_datetime)
+    zr_spirit_current = zodiacal_releasing_payload["spirit"]["current_level_1"]
     summary = (
         f"{analysis_datetime.strftime('%Y-%m-%d')} 西占时运："
         f"太阳返照 {returns_payload['solar_return']['return_datetime']}，"
         f"月返 {returns_payload['lunar_return']['return_datetime']}，"
+        f"主限 {primary_directions_payload['time_key_label']}"
+        f" {primary_directions_payload['current_arc_degrees']:.2f}°，"
+        f"指定年盘上升 {given_year_payload['ascendant']['sign_label']}，"
         f"年小限落第{profection_payload['activated_house']}宫"
         f"{profection_payload['activated_sign_label']}，"
         f"法达 {firdaria_payload['current_major']['planet_label']}"
         f"/{firdaria_payload['current_sub']['planet_label']}，"
+        f"Spirit 黄道释放 L1 {zr_spirit_current['sign_label']}，"
         f"太阳弧 {solar_arc_payload['arc_degrees']:.2f}°。"
     )
 
@@ -1246,11 +2197,15 @@ def build_western_timing_payload(
         "directions": {
             "secondary_progression": progression_payload,
             "solar_arc": solar_arc_payload,
+            "primary_directions": primary_directions_payload,
+            "primary_direction_chart": primary_direction_chart_payload,
+            "given_year": given_year_payload,
         },
         "time_lords": {
             "annual_profection": profection_payload,
             "firdaria": firdaria_payload,
             "decennials": decennials_payload,
+            "zodiacal_releasing": zodiacal_releasing_payload,
         },
         "summary": summary,
     }

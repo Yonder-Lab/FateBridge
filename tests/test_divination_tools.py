@@ -1,6 +1,8 @@
 from pathlib import Path
 import sys
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import (
@@ -30,6 +32,115 @@ from fatebridge.services.divination import (
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
 )
+
+
+@pytest.fixture(autouse=True)
+def clear_horosa_env(monkeypatch):
+    for name in (
+        "HOROSA_CORE_JS_CLI",
+        "HOROSA_SKILL_CLI",
+        "HOROSA_SKILL_PYTHONPATH",
+        "HOROSA_SKILL_DATA_DIR",
+        "HOROSA_RUNTIME_ROOT",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+
+def _write_fake_phase2_horosa_skill_cli(path: Path) -> Path:
+    path.write_text(
+        """#!/usr/bin/env python3
+import json
+import sys
+
+tool = sys.argv[3]
+input_payload = json.load(sys.stdin)
+
+sixyao_desc = {
+    "101010": {"name": "水火既济", "卦辞": "既成之后，重在守成。"},
+    "100011": {"name": "风雷益", "卦辞": "增益其所当益。"},
+}
+
+shared_chart = {
+    "ok": True,
+    "houses": [{"id": "House1"}, {"id": "House2"}],
+    "objects": [
+        {"id": "Sun", "house": "House1", "sign": "Aries", "signlon": 15.0, "lon": 15.0, "su28": "角"},
+        {"id": "Moon", "house": "House2", "sign": "Taurus", "signlon": 8.0, "lon": 38.0, "su28": "亢"},
+    ],
+}
+
+outputs = {
+    "sixyao": {
+        "nongli": {
+            "birth": "2028-04-06 09:33:00",
+            "yearJieqi": "戊申",
+            "monthGanZi": "丙辰",
+            "dayGanZi": "辛酉",
+            "time": "癸巳",
+        },
+        "current_code": "101010",
+        "changed_code": "100011",
+        "lines": [
+            {"value": 1, "change": False, "god": "青龙", "name": "初爻"},
+            {"value": 0, "change": False, "god": "朱雀", "name": "二爻"},
+            {"value": 1, "change": True, "god": "勾陈", "name": "三爻"},
+            {"value": 0, "change": False, "god": "腾蛇", "name": "四爻"},
+            {"value": 1, "change": False, "god": "白虎", "name": "五爻"},
+            {"value": 0, "change": True, "god": "玄武", "name": "上爻"},
+        ],
+        "question": input_payload.get("question"),
+        "descriptions": sixyao_desc,
+        "snapshot_text": "[sixyao delegated]",
+    },
+    "suzhan": {
+        "params": {
+            "szchart": input_payload.get("szchart"),
+            "szshape": input_payload.get("szshape"),
+            "houseStartMode": input_payload.get("houseStartMode"),
+            "doubingSu28": input_payload.get("doubingSu28"),
+        },
+        "chart": shared_chart,
+        "snapshot_text": "[suzhan delegated]",
+    },
+    "otherbu": {
+        "planet": input_payload.get("planet", "Sun"),
+        "sign": input_payload.get("sign", "Aries"),
+        "house": input_payload.get("house", 0),
+        "diceChart": {"chart": shared_chart},
+        "chart": {"chart": shared_chart},
+        "question": input_payload.get("question"),
+        "interpretation": {"summary": "delegated otherbu summary"},
+        "snapshot_text": "[otherbu delegated]",
+    },
+    "sanshiunited": {
+        "qimen": {"engine": "delegated-qimen", "options_echo": input_payload.get("qimen_options", {})},
+        "taiyi": {"engine": "delegated-taiyi", "options_echo": input_payload.get("taiyi_options", {})},
+        "liureng": {
+            "engine": "delegated-liureng",
+            "month_general": {"branch": input_payload.get("liureng_yue") or "卯", "name": "太冲"},
+            "meta": {"is_diurnal": input_payload.get("liureng_isDiurnal")},
+            "patterns": [{"name": "委托测试格"}],
+        },
+        "subresults": {"qimen": {"source": "fake"}, "taiyi": {"source": "fake"}, "liureng_gods": {"source": "fake"}},
+        "sources": {"transport": "fake-horosa-skill-cli"},
+        "snapshot_text": "[sanshi delegated]",
+    },
+}
+
+response = {
+    "ok": True,
+    "tool": tool,
+    "input_normalized": input_payload,
+    "data": outputs[tool],
+    "summary": [],
+    "warnings": [],
+}
+sys.stdout.write(json.dumps(response, ensure_ascii=False))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(0o755)
+    return path
 
 
 def test_meihua_request_model_accepts_analysis_fields():
@@ -100,11 +211,12 @@ def test_phase2_request_models_accept_alias_and_nested_fields():
         qimen_options={"layout": "fly"},
         taiyi_options={"accNum": 1},
         liureng_yue="辰",
-        liureng_is_diurnal=True,
+        liureng_isDiurnal=True,
     )
 
     sixyao_payload = sixyao_request.model_dump(by_alias=True)
     suzhan_payload = suzhan_request.model_dump(by_alias=True)
+    sanshi_payload = sanshiunited_request.model_dump(by_alias=True)
 
     assert tongshefa_request.shaoyin == "震"
     assert sixyao_payload["gpsLat"] == 31.2
@@ -115,6 +227,7 @@ def test_phase2_request_models_accept_alias_and_nested_fields():
     assert otherbu_request.house == 3
     assert sanshiunited_request.qimen_options["layout"] == "fly"
     assert sanshiunited_request.liureng_is_diurnal is True
+    assert sanshi_payload["liureng_isDiurnal"] is True
 
 
 def test_calculate_gua_lookup_supports_hexagram_and_trigram_queries():
@@ -252,6 +365,36 @@ def test_calculate_sixyao_analysis_supports_explicit_lines():
     assert "问题：合作" in result["snapshot_text"]
 
 
+def test_calculate_sixyao_analysis_uses_upstream_default_lines_when_absent():
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+    )
+
+    assert result["current_code"] == "101010"
+    assert result["changed_code"] == "100011"
+    assert result["moving_lines"] == [3, 6]
+    assert result["lines"][0]["god"] == "青龙"
+    assert result["lines"][2]["change"] is True
+    assert result["lines"][5]["name"] == "上爻"
+    assert "第3爻：阳爻（动）" in result["snapshot_text"]
+    assert "第6爻：阴爻（动）" in result["snapshot_text"]
+
+
+def test_calculate_sixyao_analysis_keeps_upstream_truthy_string_line_semantics():
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lines=[{"value": "0", "change": False}] * 6,
+    )
+
+    assert result["current_code"] == "111111"
+    assert result["changed_code"] == "111111"
+    assert all(line["value"] == 1 for line in result["lines"])
+
+
 def test_calculate_suzhan_analysis_returns_chart_and_snapshot():
     result = calculate_suzhan_analysis(
         date="2028-04-06",
@@ -263,10 +406,15 @@ def test_calculate_suzhan_analysis_returns_chart_and_snapshot():
 
     assert result["analysis_type"] == "宿占 / 宿盘"
     assert result["chart"]["ok"] is True
+    assert result["params"]["birthLatitude"] == 31.2167
+    assert result["params"]["birthLongitude"] == 121.4667
     assert len(result["chart"]["houses"]) == 12
     assert any(item["id"] == "Sun" for item in result["chart"]["objects"])
+    assert any(item["id"] == "Pars Fortuna" for item in result["chart"]["objects"])
     assert "[宿盘宫位与二十八宿星曜]" in result["snapshot_text"]
     assert "宫位：House1" in result["snapshot_text"]
+    assert "星曜：Sun " in result["snapshot_text"]
+    assert "˚" in result["snapshot_text"]
 
 
 def test_calculate_otherbu_analysis_supports_traditional_mode():
@@ -295,7 +443,10 @@ def test_calculate_otherbu_analysis_supports_traditional_mode():
     assert dice_sun["sign"] == "Aries"
     assert not any(item["id"] == "Uranus" for item in natal_objects)
     assert "Sun主核心意志" in result["interpretation"]["summary"]
+    assert "星座：Aries" in result["snapshot_text"]
     assert "问题：合作" in result["snapshot_text"]
+    assert "[骰子盘宫位与星体]" in result["snapshot_text"]
+    assert "[天象盘宫位与星体]" in result["snapshot_text"]
 
 
 def test_calculate_sanshiunited_analysis_returns_local_aggregation():
@@ -308,13 +459,101 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
     )
 
     assert result["analysis_type"] == "三式合一"
-    assert result["qimen"]["ju_text"] == "阳遁1局"
-    assert result["taiyi"]["palace"] == "坎"
-    assert result["taiyi"]["main_calculation"] == 46
-    assert result["liureng"]["big_pattern"] == "太常合德格"
-    assert result["liureng"]["small_pattern"] == "六合入局"
-    assert "[八宫]" in result["snapshot_text"]
-    assert "坎宫：天盘干：辛" in result["snapshot_text"]
+    assert result["qimen"]["dun_type"] == "阳遁"
+    assert result["qimen"]["ju_number"] == 1
+    assert result["taiyi"]["core_board"]["main_calculation"] == "阳遁十一局"
+    assert result["liureng"]["patterns"][0]["name"] == "贵人逆行格"
+    assert "subresults" in result
+    assert "qimen" in result["subresults"]
+    assert result["subresults"]["qimen"]["pan"] == result["qimen"]
+    assert result["subresults"]["taiyi"]["pan"] == result["taiyi"]
+    assert result["subresults"]["liureng_gods"]["liureng"] == result["liureng"]
+    assert "[太乙十六宫]" in result["snapshot_text"]
+    assert "[六壬小局]" in result["snapshot_text"]
+    assert "[八宫详解]" in result["snapshot_text"]
+    assert "乾六宫：天盘干：丙" in result["snapshot_text"]
+
+
+def test_calculate_sanshiunited_analysis_respects_liureng_overrides():
+    result = calculate_sanshiunited_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        liureng_yue="申",
+        liureng_is_diurnal=False,
+    )
+
+    assert result["liureng"]["month_general"]["branch"] == "申"
+    assert result["liureng"]["meta"]["is_diurnal"] is False
+
+
+def test_phase2_services_can_delegate_to_horosa_skill_cli_when_configured(
+    tmp_path, monkeypatch
+):
+    fake_skill_cli = _write_fake_phase2_horosa_skill_cli(
+        tmp_path / "fake_phase2_horosa_skill_cli.py"
+    )
+    monkeypatch.setenv("HOROSA_SKILL_CLI", str(fake_skill_cli))
+
+    sixyao_result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        question="合作",
+    )
+    suzhan_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        szchart=1,
+        szshape=2,
+        house_start_mode=3,
+        doubing_su28=False,
+    )
+    otherbu_result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        sign="Aries",
+        house=2,
+        planet="Sun",
+        question="合作",
+    )
+    sanshi_result = calculate_sanshiunited_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        qimen_options={"layout": "fly"},
+        taiyi_options={"accNum": 1},
+        liureng_yue="申",
+        liureng_is_diurnal=False,
+    )
+
+    assert sixyao_result["engine"] == "horosa-skill-cli"
+    assert sixyao_result["current_code"] == "101010"
+    assert sixyao_result["current_hexagram"]["name"] == "水火既济"
+    assert sixyao_result["snapshot_text"] == "[sixyao delegated]"
+
+    assert suzhan_result["engine"] == "horosa-skill-cli"
+    assert suzhan_result["params"]["szchart"] == 1
+    assert suzhan_result["params"]["houseStartMode"] == 3
+    assert suzhan_result["snapshot_text"] == "[suzhan delegated]"
+
+    assert otherbu_result["engine"] == "horosa-skill-cli"
+    assert otherbu_result["house"] == 2
+    assert otherbu_result["interpretation"]["summary"] == "delegated otherbu summary"
+    assert otherbu_result["snapshot_text"] == "[otherbu delegated]"
+
+    assert sanshi_result["engine"] == "horosa-skill-cli"
+    assert sanshi_result["qimen"]["options_echo"] == {"layout": "fly"}
+    assert sanshi_result["taiyi"]["options_echo"] == {"accNum": 1}
+    assert sanshi_result["liureng"]["month_general"]["branch"] == "申"
+    assert sanshi_result["liureng"]["meta"]["is_diurnal"] is False
+    assert sanshi_result["snapshot_text"] == "[sanshi delegated]"
 
 
 def test_fastmcp_meihua_tool_exposes_parameters():

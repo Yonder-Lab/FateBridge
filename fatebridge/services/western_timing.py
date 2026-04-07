@@ -34,6 +34,11 @@ def calculate_western_timing_analysis(
     return_timezone: Optional[str] = None,
     house_system: str = "P",
     zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
 ) -> Dict[str, Any]:
     """
     Build a western astrology predictive package with returns, progressions,
@@ -66,6 +71,11 @@ def calculate_western_timing_analysis(
             return_timezone=return_timezone,
             house_system=house_system,
             zodiac_type=zodiac_type,
+            pd_method=pd_method,
+            pd_time_key=pd_time_key,
+            pd_type=pd_type,
+            pd_aspects=pd_aspects,
+            show_pd_bounds=show_pd_bounds,
         )
     except Exception as exc:
         return handle_calculation_error(exc, "西占推运与返照分析")

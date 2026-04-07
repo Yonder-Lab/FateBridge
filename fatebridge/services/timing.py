@@ -1,12 +1,13 @@
 """
 FateBridge Timing Services
 """
-from typing import Optional, Dict
-from datetime import datetime
+from typing import Any, Dict, List, Optional
+from datetime import datetime, timedelta
 import logging
 
 from fatebridge.core.almanac import build_calendar_context, get_jieqi_year_grid
 from fatebridge.utils.helpers import (
+    DEFAULT_BIRTH_TIMEZONE,
     PersonInfo,
     handle_calculation_error,
     create_pillar_dict,
@@ -19,6 +20,180 @@ from fatebridge.core.timing import TimingAnalysis
 from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
 
 logger = logging.getLogger(__name__)
+
+
+def _coerce_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y", "on"}
+    return False
+
+
+def _parse_calendar_datetime(date_text: str, time_text: str) -> datetime:
+    normalized_date = (date_text or "").strip().replace("/", "-")
+    normalized_time = (time_text or "").strip()
+    if not normalized_date or not normalized_time:
+        raise ValueError("date 和 time 不能为空。")
+
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+        try:
+            return datetime.strptime(
+                f"{normalized_date} {normalized_time}",
+                fmt,
+            )
+        except ValueError:
+            continue
+
+    raise ValueError("无法解析 date/time，请使用 YYYY-MM-DD 与 HH:MM[:SS]。")
+
+
+def calculate_jieqi_year(
+    *,
+    year: int,
+    zone: Optional[str] = None,
+    lat: Optional[str] = None,
+    lon: Optional[str] = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+    jieqis: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """
+    全年节气辅助工具 - 生成全年 24 节气列表，并可筛选重点节气。
+    """
+    try:
+        timezone_name = zone or DEFAULT_BIRTH_TIMEZONE
+        normalized_year = int(year)
+        annual_grid = get_jieqi_year_grid(normalized_year, timezone_name)
+        requested_terms = jieqis or []
+        by_name = {item["name"]: item for item in annual_grid}
+        selected_terms = [
+            by_name[name] for name in requested_terms if name in by_name
+        ] if requested_terms else annual_grid
+        missing_terms = [
+            name for name in requested_terms if name not in by_name
+        ]
+
+        summary = (
+            f"{normalized_year}年共生成{len(annual_grid)}个节气节点，"
+            f"当前返回{len(selected_terms)}个重点节气。"
+        )
+
+        result: Dict[str, Any] = {
+            "analysis_type": "全年节气盘",
+            "query_context": {
+                "year": normalized_year,
+                "timezone": timezone_name,
+                "lat": lat,
+                "lon": lon,
+                "gps_lat": gps_lat,
+                "gps_lon": gps_lon,
+                "requested_jieqis": requested_terms,
+            },
+            "year": normalized_year,
+            "jieqi24": annual_grid,
+            "jieqi_year": annual_grid,
+            "selected_jieqi": selected_terms,
+            "summary": summary,
+        }
+        if missing_terms:
+            result["warnings"] = [
+                f"未识别的节气名称：{'、'.join(missing_terms)}"
+            ]
+        return result
+    except Exception as exc:
+        return handle_calculation_error(exc, "全年节气盘")
+
+
+def calculate_nongli_time(
+    *,
+    date: str,
+    time: str,
+    zone: Optional[str] = None,
+    lat: Optional[str] = None,
+    lon: Optional[str] = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+    gender: Optional[Any] = None,
+    after23_new_day: Optional[Any] = False,
+    time_alg: int = 0,
+    ad: int = 1,
+) -> Dict[str, Any]:
+    """
+    农历换算辅助工具 - 输出农历、节气与干支上下文。
+    """
+    try:
+        timezone_name = zone or DEFAULT_BIRTH_TIMEZONE
+        analysis_datetime = _parse_calendar_datetime(date, time)
+        if _coerce_bool(after23_new_day) and analysis_datetime.hour >= 23:
+            analysis_datetime += timedelta(days=1)
+
+        pillars = BaZiCalendar.get_four_pillars(
+            analysis_datetime,
+            timezone_name=timezone_name,
+        )
+        calendar_context = build_calendar_context(
+            analysis_datetime,
+            timezone_name=timezone_name,
+            pillars=pillars,
+        )
+        lunar_calendar = calendar_context.get("lunar_calendar") or {}
+        summary = (
+            f"{calendar_context['solar_datetime']} 对应农历"
+            f"{lunar_calendar.get('display', '未知')}，"
+            f"当前节气为{calendar_context['current_solar_term']['name']}。"
+        )
+
+        year_ganzhi = f"{pillars['year'][0]}{pillars['year'][1]}"
+        month_ganzhi = f"{pillars['month'][0]}{pillars['month'][1]}"
+        day_ganzhi = f"{pillars['day'][0]}{pillars['day'][1]}"
+        time_ganzhi = f"{pillars['hour'][0]}{pillars['hour'][1]}"
+        nongli_display = (
+            f"{lunar_calendar.get('year_cn', '')}年"
+            f"{lunar_calendar.get('month_cn', '')}"
+            f"{lunar_calendar.get('day_cn', '')}"
+        ).strip() or lunar_calendar.get("display", "")
+
+        return {
+            "analysis_type": "农历换算",
+            "input_context": {
+                "date": date,
+                "time": time,
+                "timezone": timezone_name,
+                "lat": lat,
+                "lon": lon,
+                "gps_lat": gps_lat,
+                "gps_lon": gps_lon,
+                "gender": gender,
+                "after23_new_day": _coerce_bool(after23_new_day),
+                "time_alg": time_alg,
+                "ad": ad,
+            },
+            "birth": calendar_context["solar_datetime"],
+            "nongli": nongli_display,
+            "year": year_ganzhi,
+            "yearGanZi": year_ganzhi,
+            "yearJieqi": lunar_calendar.get("year_jieqi_ganzhi", year_ganzhi),
+            "monthGanZi": lunar_calendar.get("month_ganzhi", month_ganzhi),
+            "dayGanZi": lunar_calendar.get("day_ganzhi", day_ganzhi),
+            "time": lunar_calendar.get("time_ganzhi", time_ganzhi),
+            "timeGanZi": lunar_calendar.get("time_ganzhi", time_ganzhi),
+            "jieqi": lunar_calendar.get("jieqi"),
+            "jiedelta": lunar_calendar.get("jiedelta"),
+            "month": lunar_calendar.get("month_cn"),
+            "day": lunar_calendar.get("day_cn"),
+            "monthInt": lunar_calendar.get("month"),
+            "dayInt": lunar_calendar.get("day"),
+            "leap": lunar_calendar.get("is_leap_month", False),
+            "calendar_context": calendar_context,
+            "lunar_calendar": lunar_calendar,
+            "four_pillars": create_pillar_dict(pillars),
+            "summary": summary,
+        }
+    except Exception as exc:
+        return handle_calculation_error(exc, "农历换算")
 
 def calculate_comprehensive_timing(
     person: PersonInfo,

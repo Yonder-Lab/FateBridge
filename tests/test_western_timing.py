@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from pathlib import Path
 import sys
 
@@ -7,6 +8,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import WesternTimingRequest
 from fastmcp_server import western_timing_analysis
+from fatebridge.core.astrology_predictive import build_releasing_level_within_interval
+from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis
 
 
@@ -25,6 +28,10 @@ def test_western_timing_request_model_accepts_fields():
         analysis_year=2025,
         analysis_month=5,
         analysis_day=20,
+        pd_method="astroapp_alchabitius",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 60, 90, 120, 180],
+        show_pd_bounds=True,
     )
 
     payload = request.model_dump()
@@ -37,6 +44,28 @@ def test_western_timing_request_model_accepts_fields():
     assert payload["analysis_year"] == 2025
     assert payload["analysis_month"] == 5
     assert payload["analysis_day"] == 20
+    assert payload["pd_method"] == "astroapp_alchabitius"
+    assert payload["pd_time_key"] == "Ptolemy"
+    assert payload["pd_aspects"] == [0, 60, 90, 120, 180]
+    assert payload["show_pd_bounds"] is True
+
+
+def test_western_timing_request_model_accepts_pd_type():
+    request = WesternTimingRequest(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        pd_type=1,
+    )
+
+    payload = request.model_dump()
+
+    assert payload["pd_type"] == 1
 
 
 def test_calculate_western_timing_analysis_returns_predictive_sections():
@@ -54,6 +83,10 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
         analysis_year=2025,
         analysis_month=5,
         analysis_day=20,
+        pd_method="astroapp_alchabitius",
+        pd_time_key="Naibod",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
     )
 
     assert result["analysis_type"] == "西占推运与返照分析"
@@ -61,6 +94,10 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert result["natal_reference"]["sun"]["sign_label"] == "金牛座"
     assert result["natal_reference"]["ascendant"]["sign"] == "Libra"
     assert result["natal_reference"]["ascendant"]["sign_label"] == "天秤座"
+    assert result["natal_reference"]["lots"]["lot_of_fortune"]["sign"] == "Gemini"
+    assert result["natal_reference"]["lots"]["lot_of_fortune"]["sign_label"] == "双子座"
+    assert result["natal_reference"]["lots"]["lot_of_spirit"]["sign"] == "Capricorn"
+    assert result["natal_reference"]["lots"]["lot_of_spirit"]["sign_label"] == "摩羯座"
 
     assert result["returns"]["solar_return"]["return_datetime"].startswith(
         "2025-05-17T01:47:24+08:00"
@@ -75,6 +112,42 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert result["directions"]["solar_arc"]["arc_degrees"] == pytest.approx(
         33.5458, abs=0.01
     )
+    given_year = result["directions"]["given_year"]
+    assert given_year["analysis_datetime"].startswith("2025-05-20T15:30:00+08:00")
+    assert given_year["sun"]["sign"] == "Taurus"
+    assert given_year["ascendant"]["sign"] == "Libra"
+    assert len(given_year["monthly_profections"]) == 12
+    assert given_year["monthly_profections"][0]["house"] == 12
+    assert given_year["monthly_profections"][0]["sign"] == "Virgo"
+    primary_directions = result["directions"]["primary_directions"]
+    assert primary_directions["method"] == "astroapp_alchabitius"
+    assert primary_directions["time_key"] == "Naibod"
+    assert primary_directions["aspects"] == [0, 90, 180]
+    assert primary_directions["current_arc_degrees"] == pytest.approx(
+        34.5072, abs=0.01
+    )
+    assert len(primary_directions["current_window"]) > 0
+
+    primary_direction_chart = result["directions"]["primary_direction_chart"]
+    assert primary_direction_chart["analysis_datetime"].startswith(
+        "2025-05-20T15:30:00+08:00"
+    )
+    assert primary_direction_chart["show_pd_bounds"] is True
+    assert primary_direction_chart["current_arc_degrees"] == pytest.approx(
+        34.5072, abs=0.01
+    )
+    assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Cancer"
+    assert primary_direction_chart["directed_points"]["Moon"]["sign"] == "Pisces"
+    assert (
+        primary_direction_chart["directed_lots"]["lot_of_fortune"]["sign"] == "Leo"
+    )
+    sun_sign_change = next(
+        item
+        for item in primary_direction_chart["sign_changes"]
+        if item["point"] == "Sun"
+    )
+    assert sun_sign_change["from_sign"] == "Taurus"
+    assert sun_sign_change["to_sign"] == "Cancer"
 
     profection = result["time_lords"]["annual_profection"]
     assert profection["activated_house"] == 12
@@ -94,8 +167,102 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert decennials["current_level_2"]["planet"] == "Mars"
     assert decennials["current_level_3"]["planet"] == "Moon"
 
+    zodiacal_releasing = result["time_lords"]["zodiacal_releasing"]
+    assert zodiacal_releasing["spirit"]["lot"]["sign"] == "Capricorn"
+    assert zodiacal_releasing["fortune"]["lot"]["sign"] == "Gemini"
+    assert zodiacal_releasing["spirit"]["current_level_1"]["sign"] == "Aquarius"
+    assert zodiacal_releasing["spirit"]["current_level_2"]["sign"] == "Cancer"
+    assert zodiacal_releasing["spirit"]["current_level_3"]["sign"] == "Gemini"
+    assert zodiacal_releasing["fortune"]["current_level_1"]["sign"] == "Cancer"
+    assert zodiacal_releasing["fortune"]["current_level_2"]["sign"] == "Taurus"
+    assert zodiacal_releasing["fortune"]["current_level_3"]["sign"] == "Cancer"
+
     assert "太阳返照" in result["summary"]
     assert "法达" in result["summary"]
+    assert "Spirit 黄道释放" in result["summary"]
+
+
+def test_core_chart_supports_fixed_offset_timezones():
+    result = calculate_core_chart_analysis(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="+08:00",
+        birth_longitude=121.4667,
+        birth_latitude=31.2167,
+    )
+
+    assert result["chart_profile"]["chart_type"] == "chart"
+    assert result["chart_profile"]["engine_precision"] == "approximate_orbital_model"
+
+
+def test_western_timing_supports_fixed_offset_timezones():
+    result = calculate_western_timing_analysis(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="+00:00",
+        birth_longitude=174.5,
+        birth_latitude=-41.433333,
+        analysis_year=2031,
+        analysis_month=4,
+        analysis_day=6,
+        return_timezone="+08:00",
+        return_longitude=121.4667,
+        return_latitude=31.2167,
+    )
+
+    assert result["analysis_type"] == "西占推运与返照分析"
+    assert result["returns"]["solar_return"]["return_datetime"].endswith("+08:00")
+    assert result["returns"]["lunar_return"]["return_datetime"].endswith("+08:00")
+
+
+def test_primary_directions_support_converse_mode():
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="astroapp_alchabitius",
+        pd_time_key="Naibod",
+        pd_aspects=[0, 90, 180],
+        pd_type=1,
+        show_pd_bounds=True,
+    )
+
+    primary_directions = result["directions"]["primary_directions"]
+    assert primary_directions["direction_mode"] == "converse"
+    assert primary_directions["direction_mode_label"] == "逆推"
+    assert primary_directions["current_arc_degrees"] == pytest.approx(
+        -34.5072, abs=0.01
+    )
+    assert primary_directions["current_arc_absolute_degrees"] == pytest.approx(
+        34.5072, abs=0.01
+    )
+
+    primary_direction_chart = result["directions"]["primary_direction_chart"]
+    assert primary_direction_chart["direction_mode"] == "converse"
+    assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Aries"
+    sun_sign_change = next(
+        item
+        for item in primary_direction_chart["sign_changes"]
+        if item["point"] == "Sun"
+    )
+    assert sun_sign_change["from_sign"] == "Taurus"
+    assert sun_sign_change["to_sign"] == "Aries"
 
 
 def test_fastmcp_western_timing_tool_exposes_parameters():
@@ -107,3 +274,43 @@ def test_fastmcp_western_timing_tool_exposes_parameters():
     assert "analysis_year" in properties
     assert "analysis_month" in properties
     assert "analysis_day" in properties
+    assert "pd_method" in properties
+    assert "pd_time_key" in properties
+    assert "pd_type" in properties
+    assert "pd_aspects" in properties
+    assert "show_pd_bounds" in properties
+
+
+def test_zodiacal_releasing_loosing_of_bond_jumps_after_full_cycle():
+    start = datetime(2000, 1, 1)
+    periods = build_releasing_level_within_interval(
+        start_sign="Aquarius",
+        period_start=start,
+        period_end=start + timedelta(days=30 * 360),
+        root_sign="Aquarius",
+        parent_sign="Aquarius",
+        level=2,
+        analysis_datetime=start,
+        max_periods=20,
+    )
+
+    signs = [period["sign"] for period in periods[:14]]
+    loosing_flags = [period["loosing_of_bond"] for period in periods[:14]]
+
+    assert signs[:12] == [
+        "Aquarius",
+        "Pisces",
+        "Aries",
+        "Taurus",
+        "Gemini",
+        "Cancer",
+        "Leo",
+        "Virgo",
+        "Libra",
+        "Scorpio",
+        "Sagittarius",
+        "Capricorn",
+    ]
+    assert signs[12:14] == ["Leo", "Virgo"]
+    assert loosing_flags[6] is False
+    assert loosing_flags[12] is True

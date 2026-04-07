@@ -9,6 +9,13 @@ from typing import Any, Dict, Optional
 
 from fatebridge.core.almanac import build_calendar_context
 from fatebridge.core.calendar import BaZiCalendar
+from fatebridge.core.horosa_runtime import (
+    build_horosa_liureng,
+    build_horosa_liureng_runyear,
+    build_horosa_jinkou,
+    build_horosa_qimen,
+    build_horosa_taiyi,
+)
 from fatebridge.core.metaphysics import (
     MetaphysicsSeed,
     build_jinkou_board,
@@ -22,12 +29,12 @@ from fatebridge.core.metaphysics import (
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     PersonInfo,
-    calculate_equation_of_time_minutes,
+    SOLAR_TIME_STRATEGY_HOROSA_COMPAT,
+    calculate_solar_time_adjustment,
     create_pillar_dict,
     format_birth_datetime_display,
     handle_calculation_error,
     normalize_birth_time,
-    parse_timezone_name,
 )
 
 
@@ -57,20 +64,13 @@ def _build_analysis_seed(
         if analysis_longitude is None:
             raise ValueError("真太阳时修正需要 analysis_longitude")
 
-        timezone_info = parse_timezone_name(timezone_name)
-        aware_datetime = input_datetime.replace(tzinfo=timezone_info)
-        utc_offset = aware_datetime.utcoffset()
-        if utc_offset is None:
-            raise ValueError(f"Invalid analysis timezone: {timezone_name}")
-
-        daylight_saving = aware_datetime.dst() or timedelta(0)
-        standard_offset = utc_offset - daylight_saving
-        standard_meridian = (standard_offset.total_seconds() / 3600) * 15
-        longitude_correction_minutes = 4 * (analysis_longitude - standard_meridian)
-        equation_of_time_minutes = calculate_equation_of_time_minutes(input_datetime)
-        total_correction_minutes = (
-            longitude_correction_minutes + equation_of_time_minutes
+        adjustment = calculate_solar_time_adjustment(
+            input_datetime,
+            timezone_name,
+            analysis_longitude,
+            strategy=SOLAR_TIME_STRATEGY_HOROSA_COMPAT,
         )
+        total_correction_minutes = adjustment["total_correction_minutes"]
         corrected_datetime = input_datetime + timedelta(
             minutes=total_correction_minutes
         )
@@ -97,7 +97,10 @@ def _build_analysis_seed(
 
 
 def _build_person_seed(person: PersonInfo) -> MetaphysicsSeed:
-    normalized_birth_time = normalize_birth_time(person)
+    normalized_birth_time = normalize_birth_time(
+        person,
+        solar_time_strategy=SOLAR_TIME_STRATEGY_HOROSA_COMPAT,
+    )
     corrected_datetime = normalized_birth_time.corrected_datetime
     pillars = BaZiCalendar.get_four_pillars(
         corrected_datetime,
@@ -139,6 +142,7 @@ def calculate_ziwei_birth(person: PersonInfo) -> Dict[str, Any]:
     try:
         seed = _build_person_seed(person)
         ziwei_birth = build_ziwei_chart(seed, person.gender or "未知")
+        ziwei_birth["engine"] = "fatebridge-offline"
         return {
             "analysis_type": "紫微斗数命盘",
             "person_info": {
@@ -169,6 +173,7 @@ def calculate_ziwei_rules(year_stem: Optional[str] = None) -> Dict[str, Any]:
         if year_stem is not None and year_stem not in "甲乙丙丁戊己庚辛壬癸":
             raise ValueError("year_stem 必须是单个天干")
         payload = build_ziwei_rules(year_stem)
+        payload["engine"] = "fatebridge-offline"
         return {
             "analysis_type": "紫微规则库",
             **payload,
@@ -200,7 +205,12 @@ def calculate_liureng_gods(
             analysis_longitude=analysis_longitude,
             use_true_solar_time=use_true_solar_time,
         )
-        liureng = build_liureng_board(seed, gender=gender)
+        liureng = build_horosa_liureng(seed)
+        if liureng is None:
+            liureng = build_liureng_board(seed, gender=gender)
+            liureng["engine"] = "fatebridge-offline"
+        else:
+            liureng.pop("_raw_liureng", None)
         return {
             "analysis_type": "大六壬起课",
             "analysis_context": _analysis_context_payload(seed),
@@ -225,6 +235,7 @@ def calculate_liureng_runyear(
     use_true_solar_time: bool = False,
 ) -> Dict[str, Any]:
     try:
+        birth_seed = _build_person_seed(person)
         seed = _build_analysis_seed(
             analysis_year=analysis_year,
             analysis_month=analysis_month,
@@ -235,12 +246,24 @@ def calculate_liureng_runyear(
             analysis_longitude=analysis_longitude,
             use_true_solar_time=use_true_solar_time,
         )
-        liureng = build_liureng_board(seed, gender=person.gender or "未知")
-        runyear = build_liureng_runyear(
-            seed,
+        bridge_payload = build_horosa_liureng_runyear(
+            birth_seed=birth_seed,
+            analysis_seed=seed,
             gender=person.gender or "未知",
-            birth_year=person.birth_year,
         )
+        if bridge_payload is None:
+            liureng = build_liureng_board(seed, gender=person.gender or "未知")
+            liureng["engine"] = "fatebridge-offline"
+            runyear = build_liureng_runyear(
+                seed,
+                gender=person.gender or "未知",
+                birth_year=person.birth_year,
+            )
+            runyear["engine"] = "fatebridge-offline"
+        else:
+            liureng = bridge_payload.get("liureng") or {}
+            liureng.pop("_raw_liureng", None)
+            runyear = bridge_payload.get("runyear") or {}
         return {
             "analysis_type": "大六壬行年",
             "analysis_context": _analysis_context_payload(seed),
@@ -275,7 +298,10 @@ def calculate_qimen_analysis(
             analysis_longitude=analysis_longitude,
             use_true_solar_time=use_true_solar_time,
         )
-        qimen = build_qimen_board(seed)
+        qimen = build_horosa_qimen(seed)
+        if qimen is None:
+            qimen = build_qimen_board(seed)
+            qimen["engine"] = "fatebridge-offline"
         return {
             "analysis_type": "奇门遁甲",
             "analysis_context": _analysis_context_payload(seed),
@@ -310,7 +336,10 @@ def calculate_taiyi_analysis(
             analysis_longitude=analysis_longitude,
             use_true_solar_time=use_true_solar_time,
         )
-        taiyi = build_taiyi_board(seed, gender=gender)
+        taiyi = build_horosa_taiyi(seed, gender=gender)
+        if taiyi is None:
+            taiyi = build_taiyi_board(seed, gender=gender)
+            taiyi["engine"] = "fatebridge-offline"
         return {
             "analysis_type": "太乙神数",
             "analysis_context": _analysis_context_payload(seed),
@@ -346,13 +375,34 @@ def calculate_jinkou_analysis(
             analysis_longitude=analysis_longitude,
             use_true_solar_time=use_true_solar_time,
         )
-        liureng = build_liureng_board(seed, gender=gender)
-        jinkou = build_jinkou_board(
+        local_liureng = build_liureng_board(seed, gender=gender)
+        local_liureng["engine"] = "fatebridge-offline"
+        raw_liureng = None
+        liureng = build_horosa_liureng(
             seed,
-            liureng,
+            month_general_override=local_liureng["month_general"]["branch"],
+            is_diurnal_override=local_liureng["meta"]["is_diurnal"],
+        )
+        if liureng is not None:
+            raw_liureng = liureng.pop("_raw_liureng", None)
+        else:
+            liureng = local_liureng
+        jinkou = build_horosa_jinkou(
+            seed,
             gender=gender,
             di_fen=di_fen,
+            yue_branch=local_liureng["month_general"]["branch"],
+            is_diurnal=local_liureng["meta"]["is_diurnal"],
+            liureng_payload=raw_liureng,
         )
+        if jinkou is None:
+            jinkou = build_jinkou_board(
+                seed,
+                local_liureng,
+                gender=gender,
+                di_fen=di_fen,
+            )
+            jinkou["engine"] = "fatebridge-offline"
         return {
             "analysis_type": "金口诀",
             "analysis_context": _analysis_context_payload(seed),

@@ -2,8 +2,8 @@
 Phase 2 local technique helpers for FateBridge.
 
 These helpers adapt the Phase 2 local-technique surface from horosa-skill
-into lightweight, fully offline Python implementations that fit the current
-FateBridge architecture.
+into offline Python implementations that fit the current FateBridge
+architecture and reuse the repo's existing local engines whenever possible.
 """
 
 from __future__ import annotations
@@ -14,13 +14,19 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from .almanac import build_calendar_context, localize_datetime
+from .astrology import build_astro_birth_info, build_core_chart_payload
 from .calendar import BaZiCalendar
 from .divination import (
     BAGUA_BY_NAME,
-    BAGUA_BY_NUMBER,
-    BODY_USE_INTERPRETATIONS,
     HEXAGRAM_NAMES,
     lookup_hexagram_by_code,
+)
+from .horosa_runtime import build_horosa_phase2_tool
+from .metaphysics import (
+    MetaphysicsSeed,
+    build_liureng_board,
+    build_qimen_board,
+    build_taiyi_board,
 )
 from ..utils.helpers import DEFAULT_BIRTH_TIMEZONE, create_pillar_dict
 
@@ -104,6 +110,7 @@ PLANET_DEFS = [
 ]
 
 TRADITIONAL_PLANETS = {"Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"}
+OUTER_PLANETS = {"Uranus", "Neptune", "Pluto"}
 
 PLANET_KEYWORDS = {
     "Sun": "核心意志、主导权、要不要由自己拍板",
@@ -299,6 +306,216 @@ def _normalize_house_index(value: Any) -> int:
     except (TypeError, ValueError):
         return 0
     return max(0, min(number, 11))
+
+
+def _split_degree(value: Any) -> Tuple[int, int]:
+    try:
+        degree = float(value)
+    except (TypeError, ValueError):
+        return 0, 0
+    if degree < 0:
+        degree += 360.0
+    degree %= 30.0
+    whole_degree = int(degree)
+    minute = int((degree - whole_degree) * 60)
+    return whole_degree, minute
+
+
+def _resolve_phase2_coordinates(
+    *,
+    lat: Any = None,
+    lon: Any = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+) -> Tuple[float, float]:
+    latitude = gps_lat if gps_lat is not None else parse_geo_coordinate(lat)
+    longitude = gps_lon if gps_lon is not None else parse_geo_coordinate(lon)
+    return latitude or 31.2167, longitude or 121.4667
+
+
+def _build_phase2_birth_info(
+    *,
+    date_text: str,
+    time_text: str,
+    timezone_name: Optional[str],
+    lat: Any = None,
+    lon: Any = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+):
+    moment = parse_phase2_datetime(date_text, time_text, timezone_name)
+    latitude, longitude = _resolve_phase2_coordinates(
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
+    )
+    birth_info = build_astro_birth_info(
+        birth_year=moment.year,
+        birth_month=moment.month,
+        birth_day=moment.day,
+        birth_hour=moment.hour,
+        birth_minute=moment.minute,
+        birth_timezone=timezone_name or DEFAULT_BIRTH_TIMEZONE,
+        birth_longitude=longitude,
+        birth_latitude=latitude,
+    )
+    return birth_info, latitude, longitude
+
+
+def _adapt_chart_houses(core_payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    houses: List[Dict[str, Any]] = []
+    for item in core_payload.get("houses", []):
+        if not isinstance(item, dict):
+            continue
+        houses.append(
+            {
+                "id": f"House{item.get('house')}",
+                "lon": round(float(item.get("cusp_longitude", 0.0)), 4),
+                "sign": item.get("sign"),
+                "sign_zh": item.get("sign_zh"),
+            }
+        )
+    return houses
+
+
+def _build_phase2_point_object(
+    *,
+    point_id: str,
+    longitude: float,
+    house1_longitude: float,
+    include_su28: bool,
+) -> Dict[str, Any]:
+    sign = _sign_name(longitude)
+    payload = {
+        "id": point_id,
+        "house": _house_id_for_longitude(longitude, house1_longitude),
+        "sign": sign,
+        "signlon": round(longitude % 30.0, 4),
+        "lon": round(longitude, 4),
+    }
+    if include_su28:
+        payload["su28"] = _su28_name(longitude)
+    return payload
+
+
+def _adapt_chart_objects(
+    core_payload: Dict[str, Any],
+    *,
+    tradition: bool,
+    include_su28: bool,
+    house1_longitude: float,
+) -> List[Dict[str, Any]]:
+    objects: List[Dict[str, Any]] = []
+    for item in core_payload.get("planets", []):
+        if not isinstance(item, dict):
+            continue
+        point_id = str(item.get("id") or "")
+        if tradition and point_id in OUTER_PLANETS:
+            continue
+        payload = {
+            "id": point_id,
+            "house": f"House{item.get('house')}",
+            "sign": item.get("sign"),
+            "signlon": round(float(item.get("degree_in_sign", 0.0)), 4),
+            "lon": round(float(item.get("longitude", 0.0)), 4),
+        }
+        if include_su28:
+            payload["su28"] = _su28_name(payload["lon"])
+        objects.append(payload)
+
+    north_node = next((item for item in objects if item.get("id") == "North Node"), None)
+    if north_node is not None:
+        south_node_longitude = round((float(north_node["lon"]) + 180.0) % 360.0, 4)
+        objects.append(
+            _build_phase2_point_object(
+                point_id="South Node",
+                longitude=south_node_longitude,
+                house1_longitude=house1_longitude,
+                include_su28=include_su28,
+            )
+        )
+
+    sun = next((item for item in objects if item.get("id") == "Sun"), None)
+    moon = next((item for item in objects if item.get("id") == "Moon"), None)
+    if sun is not None and moon is not None:
+        try:
+            sun_house = int(str(sun["house"]).removeprefix("House"))
+        except (TypeError, ValueError):
+            sun_house = 7
+        if sun_house >= 7:
+            fortuna_longitude = (house1_longitude + moon["lon"] - sun["lon"]) % 360.0
+        else:
+            fortuna_longitude = (house1_longitude + sun["lon"] - moon["lon"]) % 360.0
+        objects.append(
+            _build_phase2_point_object(
+                point_id="Pars Fortuna",
+                longitude=fortuna_longitude,
+                house1_longitude=house1_longitude,
+                include_su28=include_su28,
+            )
+        )
+
+    return objects
+
+
+def _build_local_chart_response(
+    *,
+    date_text: str,
+    time_text: str,
+    timezone_name: Optional[str],
+    lat: Any = None,
+    lon: Any = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+    tradition: bool = False,
+    include_su28: bool = True,
+    extra_params: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    birth_info, latitude, longitude = _build_phase2_birth_info(
+        date_text=date_text,
+        time_text=time_text,
+        timezone_name=timezone_name,
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
+    )
+    core_payload = build_core_chart_payload(birth_info, "chart")
+    houses = _adapt_chart_houses(core_payload)
+    house1_longitude = houses[0]["lon"] if houses else round(float(core_payload["angles"]["ascendant"]["longitude"]), 4)
+    objects = _adapt_chart_objects(
+        core_payload,
+        tradition=tradition,
+        include_su28=include_su28,
+        house1_longitude=house1_longitude,
+    )
+    params = {
+        "date": _normalize_date_text(date_text),
+        "time": _normalize_time_text(time_text),
+        "zone": timezone_name or DEFAULT_BIRTH_TIMEZONE,
+        "lat": lat,
+        "lon": lon,
+        "gpsLat": gps_lat,
+        "gpsLon": gps_lon,
+        "birthLatitude": round(latitude, 4),
+        "birthLongitude": round(longitude, 4),
+        "tradition": tradition,
+    }
+    if extra_params:
+        params.update(extra_params)
+    return {
+        "params": params,
+        "chart": {
+            "ok": True,
+            "houses": houses,
+            "objects": objects,
+            "angles": {
+                "ascendant": round(float(core_payload["angles"]["ascendant"]["longitude"]), 4),
+                "midheaven": round(float(core_payload["angles"]["midheaven"]["longitude"]), 4),
+            },
+        },
+    }
 
 
 def _house_longitudes(ascendant: float) -> List[Dict[str, float]]:
@@ -614,11 +831,8 @@ def _normalize_gua_lines(lines: Optional[List[Dict[str, Any]]]) -> List[Dict[str
     for item in lines or []:
         if not isinstance(item, dict):
             continue
-        raw_value = item.get("value")
-        if isinstance(raw_value, str):
-            value = 1 if raw_value.strip() in {"1", "true", "True", "阳", "yang"} else 0
-        else:
-            value = 1 if bool(raw_value) else 0
+        # Keep upstream horosa-skill truthiness semantics for strict compatibility.
+        value = 1 if bool(item.get("value")) else 0
         normalized.append(
             {
                 "value": value,
@@ -632,6 +846,17 @@ def _normalize_gua_lines(lines: Optional[List[Dict[str, Any]]]) -> List[Dict[str
 
 def _clean_code(code: Optional[str]) -> str:
     return "".join(ch for ch in str(code or "") if ch in {"0", "1"})
+
+
+def _extract_remote_gua_detail(raw: Any, code: str) -> Dict[str, Any]:
+    if isinstance(raw, dict):
+        if isinstance(raw.get(code), dict):
+            return raw[code]
+        if isinstance(raw.get("data"), dict) and isinstance(raw["data"].get(code), dict):
+            return raw["data"][code]
+        if isinstance(raw.get("result"), dict) and isinstance(raw["result"].get(code), dict):
+            return raw["result"][code]
+    return {}
 
 
 def _derive_gua_code(lines: List[Dict[str, Any]]) -> str:
@@ -665,6 +890,17 @@ def _lines_from_codes(current_code: str, changed_code: Optional[str] = None) -> 
             }
         )
     return normalized
+
+
+def _default_sixyao_lines() -> List[Dict[str, Any]]:
+    return [
+        {"value": 1, "change": False, "god": "青龙", "name": "初爻"},
+        {"value": 0, "change": False, "god": "朱雀", "name": "二爻"},
+        {"value": 1, "change": True, "god": "勾陈", "name": "三爻"},
+        {"value": 0, "change": False, "god": "腾蛇", "name": "四爻"},
+        {"value": 1, "change": False, "god": "白虎", "name": "五爻"},
+        {"value": 0, "change": True, "god": "玄武", "name": "上爻"},
+    ]
 
 
 def _hexagram_desc_payload(code: str) -> Dict[str, Any]:
@@ -756,27 +992,58 @@ def build_sixyao_result(
     changed_code: Optional[str] = None,
     lines: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
+    remote_payload = {
+        "date": _normalize_date_text(date),
+        "time": _normalize_time_text(time),
+        "zone": zone or DEFAULT_BIRTH_TIMEZONE,
+        "lat": lat,
+        "lon": lon,
+        "gpsLat": gps_lat,
+        "gpsLon": gps_lon,
+        "question": question,
+        "gua_code": _clean_code(gua_code) or None,
+        "changed_code": _clean_code(changed_code) or None,
+        "lines": copy.deepcopy(lines) if lines else None,
+    }
+    remote_result = build_horosa_phase2_tool("sixyao", remote_payload)
+    if remote_result is not None:
+        remote_input = remote_result.get("input_normalized", remote_payload)
+        remote_lines = _normalize_gua_lines(remote_result.get("lines"))
+        current_code = _clean_code(remote_result.get("current_code"))
+        changed_code_remote = _clean_code(remote_result.get("changed_code"))
+        descriptions = remote_result.get("descriptions") or {}
+        current_hexagram = _extract_remote_gua_detail(descriptions, current_code)
+        changed_hexagram = _extract_remote_gua_detail(descriptions, changed_code_remote)
+        moving_lines = [
+            index + 1 for index, line in enumerate(remote_lines) if line.get("change")
+        ]
+        return {
+            "analysis_type": "六爻 / 易卦",
+            "input_normalized": remote_input,
+            "nongli": remote_result.get("nongli", {}),
+            "current_code": current_code,
+            "changed_code": changed_code_remote,
+            "lines": remote_lines,
+            "moving_lines": moving_lines,
+            "question": remote_result.get("question"),
+            "descriptions": descriptions,
+            "current_hexagram": current_hexagram,
+            "changed_hexagram": changed_hexagram,
+            "snapshot_text": remote_result.get("snapshot_text", ""),
+            "engine": remote_result.get("engine"),
+            "summary": (
+                f"已通过 horosa-skill 本地运行时生成易卦 / 六爻输出。"
+                f"本卦编码：{current_code}。之卦编码：{changed_code_remote}。"
+            ),
+        }
+
     context = _build_phase2_context(date_text=date, time_text=time, timezone_name=zone)
-    meihua = (context["lunar"] or {}).get("meihua") or {}
-
     normalized_lines = _normalize_gua_lines(lines)
-    current_code = _clean_code(gua_code)
-    next_code = _clean_code(changed_code)
+    if not normalized_lines:
+        normalized_lines = _default_sixyao_lines()
 
-    if normalized_lines:
-        current_code = current_code or _derive_gua_code(normalized_lines)
-        next_code = next_code or _derive_changed_code(normalized_lines)
-    elif len(current_code) == 6:
-        next_code = next_code or current_code
-        normalized_lines = _lines_from_codes(current_code, next_code)
-    elif meihua:
-        current_code = meihua["base_hexagram"]["binary_code"]
-        next_code = meihua["changed_hexagram"]["binary_code"]
-        normalized_lines = _lines_from_codes(current_code, next_code)
-    else:
-        normalized_lines = _lines_from_codes("101010", "101011")
-        current_code = _derive_gua_code(normalized_lines)
-        next_code = _derive_changed_code(normalized_lines)
+    current_code = _clean_code(gua_code) or _derive_gua_code(normalized_lines)
+    next_code = _clean_code(changed_code) or _derive_changed_code(normalized_lines)
 
     if len(current_code) != 6 or len(next_code) != 6:
         raise ValueError("六爻卦码必须是 6 位 0/1 字符串。")
@@ -826,7 +1093,8 @@ def build_sixyao_result(
     }
 
 
-def _build_suzhan_snapshot_text(input_normalized: Dict[str, Any], chart: Dict[str, Any]) -> str:
+def _build_suzhan_snapshot_text(input_normalized: Dict[str, Any], response: Dict[str, Any]) -> str:
+    chart = response.get("chart", {}) if isinstance(response, dict) else {}
     houses = chart.get("houses") if isinstance(chart, dict) else []
     objects = chart.get("objects") if isinstance(chart, dict) else []
     house_lines: List[str] = []
@@ -845,8 +1113,11 @@ def _build_suzhan_snapshot_text(input_normalized: Dict[str, Any], chart: Dict[st
             house_lines.append("")
             continue
         for item in in_house:
+            degree, minute = _split_degree(item.get("signlon", item.get("lon")))
+            su28 = str(item.get("su28") or "").strip()
+            star_text = f"{degree}˚{su28}{minute}分" if su28 else f"{degree}˚{minute}分"
             house_lines.append(
-                f"星曜：{item.get('id')} {int(item.get('signlon', 0))}˚{item.get('su28', '')}{int(round((float(item.get('signlon', 0)) % 1) * 60))}分"
+                f"星曜：{item.get('id')} {star_text}".strip()
             )
         house_lines.append("")
 
@@ -896,19 +1167,43 @@ def build_suzhan_result(
         "houseStartMode": house_start_mode,
         "doubingSu28": doubing_su28,
     }
-    payload = build_pseudo_chart(
+    remote_result = build_horosa_phase2_tool("suzhan", input_normalized)
+    if remote_result is not None:
+        params = remote_result.get("params") or {}
+        chart = remote_result.get("chart") or {}
+        return {
+            "analysis_type": "宿占 / 宿盘",
+            "input_normalized": remote_result.get("input_normalized", input_normalized),
+            "params": params,
+            "chart": chart,
+            "snapshot_text": remote_result.get("snapshot_text", ""),
+            "engine": remote_result.get("engine"),
+            "summary": f"已通过 horosa-skill 本地运行时生成宿占 / 宿盘输出。星曜数量：{len(chart.get('objects', []))}。",
+        }
+
+    response = _build_local_chart_response(
         date_text=input_normalized["date"],
         time_text=input_normalized["time"],
         timezone_name=input_normalized["zone"],
-        lat=lat or gps_lat,
-        lon=lon or gps_lon,
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
         tradition=False,
+        include_su28=True,
+        extra_params={
+            "szchart": szchart,
+            "szshape": szshape,
+            "houseStartMode": house_start_mode,
+            "doubingSu28": doubing_su28,
+        },
     )
-    chart = payload["chart"]
-    snapshot_text = _build_suzhan_snapshot_text(input_normalized, chart)
+    chart = response["chart"]
+    snapshot_text = _build_suzhan_snapshot_text(input_normalized, response)
     return {
         "analysis_type": "宿占 / 宿盘",
         "input_normalized": input_normalized,
+        "params": response["params"],
         "chart": chart,
         "snapshot_text": snapshot_text,
         "summary": f"已生成宿占 / 宿盘输出。星曜数量：{len(chart.get('objects', []))}。",
@@ -934,8 +1229,9 @@ def _build_otherbu_snapshot_text(input_normalized: Dict[str, Any], response: Dic
                 lines.append("星体：无")
                 continue
             for item in in_house:
+                degree, minute = _split_degree(item.get("signlon", item.get("lon")))
                 lines.append(
-                    f"星体：{item.get('id')} {int(item.get('signlon', 0))}˚{ZODIAC_SIGN_CN.get(item.get('sign'), item.get('sign'))}{int(round((float(item.get('signlon', 0)) % 1) * 60))}分"
+                    f"星体：{item.get('id')} {degree}˚{item.get('sign')}{minute}分"
                 )
         return lines
 
@@ -958,7 +1254,7 @@ def _build_otherbu_snapshot_text(input_normalized: Dict[str, Any], response: Dic
                 _join_lines(
                     [
                         f"行星：{response.get('planet')}",
-                        f"星座：{ZODIAC_SIGN_CN.get(response.get('sign'), response.get('sign'))}",
+                        f"星座：{response.get('sign') or '无'}",
                         f"宫位：House{response.get('house', 0) + 1}",
                     ]
                 ),
@@ -1002,14 +1298,28 @@ def build_otherbu_result(
         "planet": normalized_planet,
         "question": question,
     }
+    remote_result = build_horosa_phase2_tool("otherbu", input_normalized)
+    if remote_result is not None:
+        return {
+            "analysis_type": "西洋游戏 / 占星骰子",
+            "input_normalized": remote_result.get("input_normalized", input_normalized),
+            **remote_result,
+            "summary": (
+                f"已通过 horosa-skill 本地运行时生成西洋游戏 / 占星骰子结果。"
+                f"骰面：{remote_result.get('planet')} / {remote_result.get('sign')}。"
+            ),
+        }
 
-    base_chart = build_pseudo_chart(
+    base_chart = _build_local_chart_response(
         date_text=input_normalized["date"],
         time_text=input_normalized["time"],
         timezone_name=input_normalized["zone"],
-        lat=lat or gps_lat,
-        lon=lon or gps_lon,
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
         tradition=tradition,
+        include_su28=True,
     )
     dice_chart = copy.deepcopy(base_chart)
     target_longitude = ZODIAC_SIGNS.index(normalized_sign) * 30.0 + 15.0
@@ -1025,7 +1335,7 @@ def build_otherbu_result(
             "house": target_house_id,
             "sign": normalized_sign,
             "signlon": 15.0,
-            "lon": round(target_longitude, 2),
+            "lon": round(target_longitude, 4),
             "su28": _su28_name(target_longitude),
         }
         dice_chart["chart"]["objects"].append(target_object)
@@ -1035,7 +1345,7 @@ def build_otherbu_result(
                 "house": target_house_id,
                 "sign": normalized_sign,
                 "signlon": 15.0,
-                "lon": round(target_longitude, 2),
+                "lon": round(target_longitude, 4),
                 "su28": _su28_name(target_longitude),
             }
         )
@@ -1073,57 +1383,159 @@ def build_otherbu_result(
     }
 
 
+def _build_metaphysics_analysis_context(seed: MetaphysicsSeed) -> Dict[str, Any]:
+    lunar_context = seed.calendar_context.get("lunar_calendar") or {}
+    return {
+        "input_datetime": seed.input_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+        "corrected_datetime": seed.corrected_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+        "timezone": seed.timezone,
+        "longitude": seed.longitude,
+        "time_algorithm": "真太阳时" if seed.applied_true_solar else "直接时间",
+        "total_correction_minutes": round(seed.total_correction_minutes, 2),
+        "current_jieqi": seed.calendar_context["current_solar_term"]["name"],
+        "next_jieqi": seed.calendar_context["next_solar_term"]["name"],
+        "lunar_display": lunar_context.get("display"),
+    }
+
+
+def _render_qimen_palace_sections(qimen: Dict[str, Any]) -> List[Tuple[str, str]]:
+    sections: List[Tuple[str, str]] = []
+    for palace in qimen.get("palaces", []) or []:
+        if not isinstance(palace, dict):
+            continue
+        sections.append(
+            (
+                palace.get("name", "宫位"),
+                _join_lines(
+                    [
+                        f"宫卦：{palace.get('trigram', '无')}",
+                        f"天盘干：{palace.get('heaven_stem', '无')}",
+                        f"地盘干：{palace.get('earth_stem', '无')}",
+                        f"八神：{palace.get('god', '无')}",
+                        f"九星：{palace.get('star', '无')}",
+                        f"八门：{palace.get('door', '无')}",
+                        f"门卦：{(palace.get('door_hexagram') or {}).get('name', '无')}",
+                    ]
+                ),
+            )
+        )
+    return sections
+
+
 def _build_sanshi_snapshot_text(
     *,
-    lunar_label: str,
-    calendar_context: Dict[str, Any],
-    pillars: Dict[str, Tuple[str, str]],
+    seed: MetaphysicsSeed,
     qimen: Dict[str, Any],
     taiyi: Dict[str, Any],
     liureng: Dict[str, Any],
 ) -> str:
+    palace_lines = [
+        (
+            f"{palace.get('name', '宫位')}："
+            f"天盘干：{palace.get('heaven_stem', '无')}；"
+            f"地盘干：{palace.get('earth_stem', '无')}；"
+            f"八神：{palace.get('god', '无')}；"
+            f"九星：{palace.get('star', '无')}；"
+            f"八门：{palace.get('door', '无')}"
+        )
+        for palace in qimen.get("palaces", []) or []
+        if isinstance(palace, dict)
+    ]
+    taiyi_mark_lines = [
+        f"{item.get('palace', '宫位')}：{'、'.join(item.get('markers', []) or []) or '无'}"
+        for item in taiyi.get("palace_marks", []) or []
+        if isinstance(item, dict)
+    ]
+    liureng_four_lesson_lines = [
+        f"第{lesson.get('index', 0)}课：{lesson.get('text', '无')}（{lesson.get('relation', '无')}）"
+        for lesson in liureng.get("four_lessons", []) or []
+        if isinstance(lesson, dict)
+    ]
+    liureng_transmission_lines = []
+    transmissions = liureng.get("three_transmissions", {}) if isinstance(liureng, dict) else {}
+    for label, title in (("initial", "初传"), ("middle", "中传"), ("final", "末传")):
+        item = transmissions.get(label, {}) if isinstance(transmissions, dict) else {}
+        liureng_transmission_lines.append(
+            f"{title}：{item.get('branch', '无')} / {item.get('relation', '无')} / {item.get('god', '无')}"
+        )
+    big_pattern = next(
+        (item for item in liureng.get("patterns", []) or [] if isinstance(item, dict)),
+        {},
+    )
+    month_general = liureng.get("month_general", {}) if isinstance(liureng, dict) else {}
     sections = [
         (
             "起盘信息",
             _join_lines(
                 [
-                    f"农历：{lunar_label or '无'}",
-                    f"直接时间：{calendar_context['solar_datetime']}",
-                    f"四柱：{pillars['year'][0]}{pillars['year'][1]}年/{pillars['month'][0]}{pillars['month'][1]}月/{pillars['day'][0]}{pillars['day'][1]}日/{pillars['hour'][0]}{pillars['hour'][1]}时",
+                    f"农历：{(seed.calendar_context.get('lunar_calendar') or {}).get('display') or '无'}",
+                    f"直接时间：{seed.calendar_context['solar_datetime']}",
+                    f"四柱：{seed.pillars['year'][0]}{seed.pillars['year'][1]}年/{seed.pillars['month'][0]}{seed.pillars['month'][1]}月/{seed.pillars['day'][0]}{seed.pillars['day'][1]}日/{seed.pillars['hour'][0]}{seed.pillars['hour'][1]}时",
                     "时间算法：本地节气换月",
                     "换日：子初换日",
-                    f"月将：{pillars['month'][1]}",
-                    f"年命：{pillars['year'][1]}",
+                    f"月将：{month_general.get('branch', '无')}({month_general.get('name', '无')})",
+                    f"年命：{seed.pillars['year'][1]}",
                 ]
             ),
         ),
         (
-            "状态",
+            "概览",
             _join_lines(
                 [
-                    f"局数：{qimen['ju_text']}",
-                    f"旬首：{qimen['xun_shou']}",
-                    f"旬仪：{qimen['xun_yi']}",
-                    f"值符：{qimen['zhi_fu']}",
-                    f"值使：{qimen['zhi_shi']}",
-                    f"月将：{pillars['month'][1]}",
+                    f"盘型：{qimen.get('dun_type', '无')}{qimen.get('ju_number', '无')}局",
+                    f"旬首：{qimen.get('xun_head', '无')}",
+                    f"空亡：{qimen.get('kongwang', '无')}",
+                    f"值符：{(qimen.get('zhifu') or {}).get('star', '无')}在{(qimen.get('zhifu') or {}).get('palace', '无')}",
+                    f"值使：{(qimen.get('zhishi') or {}).get('door', '无')}在{(qimen.get('zhishi') or {}).get('palace', '无')}",
+                    f"伏使卦：{(qimen.get('fushi_hexagram') or {}).get('name', '无')}",
                 ]
             ),
         ),
-        ("太乙", taiyi["text"]),
-        ("大格", f"1. {liureng['big_pattern']}\n依据：{liureng['big_pattern_reason']}"),
-        ("小局", f"1. {liureng['small_pattern']}\n依据：{liureng['small_pattern_reason']}"),
-        ("参考", f"1. {liureng['reference']}"),
-        ("六壬格局概览", f"1. {liureng['overview']}"),
         (
-            "八宫",
+            "太乙",
             _join_lines(
                 [
-                    f"{palace['palace']}：天盘干：{palace['heaven_stem']}；八神：{palace['god']}；九星：{palace['star']}；地盘干：{palace['earth_stem']}"
-                    for palace in qimen["palaces"]
+                    taiyi.get("style_label", "无"),
+                    taiyi.get("accumulation_label", "无"),
+                    taiyi.get("rotation", "无"),
+                    taiyi.get("life_method", "无"),
+                    (taiyi.get("core_board") or {}).get("main_calculation", "无"),
+                    (taiyi.get("core_board") or {}).get("taiyi_position", "无"),
+                    (taiyi.get("core_board") or {}).get("wenchang_position", "无"),
+                    f"岁君：{(taiyi.get('core_board') or {}).get('suijun', '无')}",
+                    f"合神：{(taiyi.get('core_board') or {}).get('heshen', '无')}",
                 ]
             ),
         ),
+        ("太乙十六宫", _join_lines(taiyi_mark_lines) or "无"),
+        (
+            "神煞",
+            _join_lines(
+                [
+                    f"月将：{month_general.get('branch', '无')}({month_general.get('name', '无')})",
+                    f"布盘：{liureng.get('board_order', '无')}",
+                    f"课体：{liureng.get('board_style', '无')}",
+                    f"旬首：{liureng.get('xun_head', '无')}",
+                    f"空亡：{liureng.get('kongwang', '无')}",
+                    f"贵人体系：{liureng.get('guiren_system', '无')}",
+                ]
+            ),
+        ),
+        ("大六壬", _join_lines(liureng_four_lesson_lines) or "无"),
+        (
+            "六壬大格",
+            _join_lines(
+                [
+                    big_pattern.get("name", "无"),
+                    f"依据：{big_pattern.get('basis', '无')}",
+                ]
+            ),
+        ),
+        ("六壬小局", _join_lines(liureng_transmission_lines) or "无"),
+        ("六壬参考", _join_lines(liureng.get("overview", [])) or "无"),
+        ("六壬概览", _join_lines(liureng.get("overview", [])) or "无"),
+        ("八宫详解", _join_lines(palace_lines) or "无"),
+        *_render_qimen_palace_sections(qimen),
     ]
     return _render_snapshot_text(sections)
 
@@ -1155,84 +1567,94 @@ def build_sanshiunited_result(
         "liureng_yue": liureng_yue,
         "liureng_is_diurnal": liureng_is_diurnal,
     }
+    remote_payload = {
+        **input_normalized,
+        "liureng_isDiurnal": liureng_is_diurnal,
+    }
+    remote_result = build_horosa_phase2_tool("sanshiunited", remote_payload)
+    if remote_result is not None:
+        qimen = remote_result.get("qimen", {})
+        taiyi = remote_result.get("taiyi", {})
+        liureng = remote_result.get("liureng", {})
+        return {
+            "analysis_type": "三式合一",
+            "input_normalized": remote_result.get("input_normalized", remote_payload),
+            "qimen": qimen,
+            "taiyi": taiyi,
+            "liureng": liureng,
+            "subresults": remote_result.get("subresults", {}),
+            "sources": remote_result.get("sources", {}),
+            "snapshot_text": remote_result.get("snapshot_text", ""),
+            "engine": remote_result.get("engine"),
+            "summary": (
+                f"已通过 horosa-skill 本地运行时生成三式合一输出。"
+                f"奇门：{qimen.get('dun_type', '无')}{qimen.get('ju_number', '无')}局。"
+                f"太乙：{(taiyi.get('core_board') or {}).get('main_calculation', '无')}。"
+                f"六壬：{next((item.get('name') for item in liureng.get('patterns', []) if isinstance(item, dict)), '无')}。"
+            ),
+        }
 
     context = _build_phase2_context(
         date_text=input_normalized["date"],
         time_text=input_normalized["time"],
         timezone_name=input_normalized["zone"],
     )
-    moment = context["moment"]
-    pillars = context["pillars"]
-    lunar = context["lunar"]
-    meihua = lunar.get("meihua") or {}
-
-    total = (
-        moment.year
-        + moment.month
-        + moment.day
-        + moment.hour
-        + (lunar.get("month") or 0)
-        + (lunar.get("day") or 0)
+    _, longitude = _resolve_phase2_coordinates(
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
     )
-    ju_type = "阳遁" if moment.month in {11, 12, 1, 2, 3, 4} else "阴遁"
-    ju_number = total % 9 or 9
-    day_stem = pillars["day"][0]
-    day_branch = pillars["day"][1]
-    hour_branch = pillars["hour"][1]
-    day_stem_index = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"].index(day_stem)
-    day_branch_index = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"].index(day_branch)
-    hour_branch_index = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"].index(hour_branch)
-
-    qimen = {
-        "ju_type": ju_type,
-        "ju_number": ju_number,
-        "ju_text": f"{ju_type}{ju_number}局",
-        "xun_shou": f"{day_stem}{day_branch}",
-        "xun_yi": ["戊", "己", "庚", "辛", "壬", "癸"][(total + day_stem_index) % 6],
-        "zhi_fu": QIMEN_STARS[(day_branch_index + hour_branch_index) % len(QIMEN_STARS)],
-        "zhi_shi": QIMEN_DOORS[(lunar.get("day", 1) + hour_branch_index) % len(QIMEN_DOORS)],
-        "palaces": [],
-    }
-    for index, palace_name in enumerate(QIMEN_PALACES):
-        qimen["palaces"].append(
-            {
-                "palace": palace_name,
-                "heaven_stem": ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"][(day_stem_index + index) % 10],
-                "earth_stem": ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙"][(ju_number + index - 1) % 8],
-                "star": QIMEN_STARS[(ju_number + index - 1) % len(QIMEN_STARS)],
-                "god": QIMEN_GODS[(total + index) % len(QIMEN_GODS)],
-            }
-        )
-
-    taiyi_number = total % 72 or 72
-    taiyi_palace = BAGUA_BY_NAME[BAGUA_BY_NUMBER[(total % 8) or 8]]
-    taiyi = {
-        "main_calculation": taiyi_number,
-        "palace": taiyi_palace["name"],
-        "text": f"太乙在{taiyi_palace['name']}宫，主算{taiyi_number}局。",
-    }
-
-    body_use_relation = (meihua or {}).get("body_use_relation", "体用关系未明")
-    body_use_detail = BODY_USE_INTERPRETATIONS.get(body_use_relation, BODY_USE_INTERPRETATIONS["体用关系未明"])
-    liureng = {
-        "big_pattern": TAIYI_BIG_PATTERNS[(day_branch_index + total) % len(TAIYI_BIG_PATTERNS)],
-        "big_pattern_reason": f"以日支{day_branch}与时支{hour_branch}定势，主看{body_use_detail}",
-        "small_pattern": TAIYI_SMALL_PATTERNS[(hour_branch_index + (lunar.get('day') or 1)) % len(TAIYI_SMALL_PATTERNS)],
-        "small_pattern_reason": f"以时支{hour_branch}与农历日数{lunar.get('day') or 1}起局。",
-        "reference": SANSHI_REFERENCES[(total + day_stem_index) % len(SANSHI_REFERENCES)],
-        "overview": f"{body_use_relation}：{body_use_detail}",
-        "month_general": liureng_yue or pillars["month"][1],
-        "is_diurnal": liureng_is_diurnal if liureng_is_diurnal is not None else moment.hour < 18,
-    }
+    seed = MetaphysicsSeed(
+        input_datetime=context["moment"],
+        corrected_datetime=context["moment"],
+        timezone=input_normalized["zone"],
+        longitude=longitude,
+        applied_true_solar=False,
+        total_correction_minutes=0.0,
+        pillars=context["pillars"],
+        calendar_context=context["calendar_context"],
+    )
+    qimen = build_qimen_board(seed)
+    taiyi = build_taiyi_board(seed, gender="未知")
+    liureng = build_liureng_board(
+        seed,
+        gender="未知",
+        month_general_override=liureng_yue,
+        is_diurnal_override=liureng_is_diurnal,
+    )
 
     snapshot_text = _build_sanshi_snapshot_text(
-        lunar_label=lunar.get("display", ""),
-        calendar_context=context["calendar_context"],
-        pillars=pillars,
+        seed=seed,
         qimen=qimen,
         taiyi=taiyi,
         liureng=liureng,
     )
+    analysis_context = _build_metaphysics_analysis_context(seed)
+    four_pillars = create_pillar_dict(seed.pillars)
+    subresults = {
+        "qimen": {
+            "analysis_type": "奇门遁甲",
+            "analysis_context": analysis_context,
+            "four_pillars": four_pillars,
+            "calendar_context": context["calendar_context"],
+            "pan": qimen,
+        },
+        "taiyi": {
+            "analysis_type": "太乙神数",
+            "analysis_context": analysis_context,
+            "four_pillars": four_pillars,
+            "calendar_context": context["calendar_context"],
+            "pan": taiyi,
+        },
+        "liureng_gods": {
+            "analysis_type": "大六壬起课",
+            "analysis_context": analysis_context,
+            "four_pillars": four_pillars,
+            "calendar_context": context["calendar_context"],
+            "liureng": liureng,
+        },
+    }
 
     return {
         "analysis_type": "三式合一",
@@ -1240,11 +1662,16 @@ def build_sanshiunited_result(
         "qimen": qimen,
         "taiyi": taiyi,
         "liureng": liureng,
+        "subresults": subresults,
         "sources": {
-            "four_pillars": create_pillar_dict(pillars),
+            "four_pillars": four_pillars,
             "calendar_context": context["calendar_context"],
-            "meihua": meihua,
         },
         "snapshot_text": snapshot_text,
-        "summary": f"已运行本地三式合一聚合算法。奇门：{qimen['ju_text']}。太乙：{taiyi['palace']}宫{taiyi['main_calculation']}局。六壬：{liureng['big_pattern']}。",
+        "summary": (
+            f"已运行本地三式合一聚合算法。"
+            f"奇门：{qimen['dun_type']}{qimen['ju_number']}局。"
+            f"太乙：{(taiyi.get('core_board') or {}).get('main_calculation', '无')}。"
+            f"六壬：{next((item.get('name') for item in liureng.get('patterns', []) if isinstance(item, dict)), '无')}。"
+        ),
     }

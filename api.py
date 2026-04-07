@@ -21,12 +21,21 @@ from fatebridge.services.western_timing import calculate_western_timing_analysis
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.divination import (
     calculate_gua_lookup,
+    calculate_gua_meiyi,
     calculate_meihua_analysis,
     calculate_otherbu_analysis,
     calculate_sanshiunited_analysis,
     calculate_sixyao_analysis,
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
+)
+from fatebridge.services.export_tools import (
+    calculate_export_parse,
+    calculate_export_registry,
+)
+from fatebridge.services.knowledge import (
+    calculate_knowledge_read,
+    calculate_knowledge_registry,
 )
 from fatebridge.services.metaphysics import (
     calculate_jinkou_analysis,
@@ -38,9 +47,11 @@ from fatebridge.services.metaphysics import (
     calculate_ziwei_rules,
 )
 from fatebridge.services.timing import (
+    calculate_jieqi_year,
     calculate_jieqi_timeline_analysis,
     calculate_liuyue_analysis,
     calculate_liuri_analysis,
+    calculate_nongli_time,
 )
 from fatebridge.utils.helpers import create_person_info
 
@@ -165,6 +176,96 @@ class GuaLookupRequest(BaseModel):
     )
 
 
+class JieqiYearRequest(BaseModel):
+    """Request model for annual jieqi helper output."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    year: int = Field(description="Target year, e.g. 2028")
+    zone: Optional[str] = Field(default="Asia/Shanghai", description="Timezone spec")
+    lat: Optional[str] = Field(default=None, description="Latitude text hint")
+    lon: Optional[str] = Field(default=None, description="Longitude text hint")
+    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
+    jieqis: List[str] = Field(default_factory=list, description="Optional focused jieqi names")
+
+
+class NongliTimeRequest(BaseModel):
+    """Request model for nongli-time helper output."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str = Field(description="Date string, e.g. 2028-04-01")
+    time: str = Field(description="Time string, e.g. 09:00:00")
+    zone: Optional[str] = Field(default="Asia/Shanghai", description="Timezone spec")
+    lat: Optional[str] = Field(default=None, description="Latitude text hint")
+    lon: Optional[str] = Field(default=None, description="Longitude text hint")
+    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
+    gender: Optional[bool] = Field(default=None, description="Optional gender flag passthrough")
+    after23_new_day: bool = Field(default=False, alias="after23NewDay", description="Whether 23:00 counts as next day")
+    time_alg: int = Field(default=0, alias="timeAlg", description="Time algorithm passthrough flag")
+    ad: int = Field(default=1, description="Common era flag passthrough")
+
+
+class GuaMeiyiRequest(BaseModel):
+    """Request model for batch Meiyi hexagram meanings."""
+
+    name: List[str] = Field(description="Trigram or hexagram names/codes")
+
+
+class ExportRegistryRequest(BaseModel):
+    """Request model for export registry lookup."""
+
+    technique: Optional[str] = Field(default=None, description="Optional technique key")
+
+
+class ExportParseRequest(BaseModel):
+    """Request model for export snapshot parsing."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    technique: str = Field(description="Technique key, e.g. qimen")
+    content: str = Field(description="Snapshot text content")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional selected section titles",
+    )
+    planet_info: Optional[Dict[str, Any]] = Field(
+        default=None,
+        alias="planetInfo",
+        description="Optional planet info export toggles",
+    )
+    astro_meaning: Optional[Dict[str, Any]] = Field(
+        default=None,
+        alias="astroMeaning",
+        description="Optional astro meaning export toggles",
+    )
+
+
+class KnowledgeRegistryRequest(BaseModel):
+    """Request model for bundled knowledge registry."""
+
+    domain: Optional[str] = Field(default=None, description="Optional domain filter")
+
+
+class KnowledgeReadRequest(BaseModel):
+    """Request model for bundled knowledge lookup."""
+
+    domain: str = Field(description="Knowledge domain: astro, liureng, or qimen")
+    category: str = Field(description="Category within the domain")
+    key: Optional[str] = Field(default=None, description="Primary lookup key")
+    aspect_degree: Optional[int] = Field(
+        default=None,
+        description="Optional aspect degree for astro aspect lookups",
+    )
+    object_a: Optional[str] = Field(default=None, description="First astro object")
+    object_b: Optional[str] = Field(default=None, description="Second astro object")
+    jiang_name: Optional[str] = Field(default=None, description="Liureng general name")
+    tian_branch: Optional[str] = Field(default=None, description="Liureng heaven branch")
+    di_branch: Optional[str] = Field(default=None, description="Liureng earth branch")
+
+
 class TongSheFaRequest(BaseModel):
     """Request model for tongshefa."""
 
@@ -253,7 +354,7 @@ class SanShiUnitedRequest(BaseModel):
     qimen_options: Dict[str, Any] = Field(default_factory=dict, alias="qimen_options", description="Optional qimen settings")
     taiyi_options: Dict[str, Any] = Field(default_factory=dict, alias="taiyi_options", description="Optional taiyi settings")
     liureng_yue: Optional[str] = Field(default=None, alias="liureng_yue", description="Optional liureng month-general override")
-    liureng_is_diurnal: Optional[bool] = Field(default=None, alias="liureng_is_diurnal", description="Optional liureng day/night override")
+    liureng_is_diurnal: Optional[bool] = Field(default=None, alias="liureng_isDiurnal", description="Optional liureng day/night override")
 
 
 class ZiweiBirthRequest(FateBridgeRequest):
@@ -399,6 +500,28 @@ class WesternTimingRequest(AstroChartRequest):
     zodiac_type: str = Field(
         default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
     )
+    pd_method: str = Field(
+        default="astroapp_alchabitius",
+        description="Primary direction method identifier",
+    )
+    pd_time_key: str = Field(
+        default="Ptolemy",
+        description="Primary direction time key, e.g. Ptolemy or Naibod",
+    )
+    pd_type: int = Field(
+        default=0,
+        ge=0,
+        le=1,
+        description="Primary direction mode: 0 for direct, 1 for converse",
+    )
+    pd_aspects: List[int] = Field(
+        default_factory=lambda: [0, 60, 90, 120, 180],
+        description="Primary direction aspects in degrees",
+    )
+    show_pd_bounds: bool = Field(
+        default=True,
+        description="Whether to expose the bounds overlay preference for the primary direction chart",
+    )
 
 
 # ============================================================================
@@ -491,6 +614,224 @@ async def calculate_gua_description(request: GuaLookupRequest) -> dict:
         raise
     except Exception as e:
         logger.error(f"Unexpected error during gua lookup: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/cn/jieqi/year")
+async def calculate_jieqi_year_helper(request: JieqiYearRequest) -> dict:
+    """
+    Generate annual jieqi helper output.
+    """
+    try:
+        logger.info("Processing jieqi year helper request for %s", request.year)
+
+        result = calculate_jieqi_year(**request.model_dump())
+
+        if "error" in result:
+            logger.warning(f"Jieqi year helper failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Jieqi year helper successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的节气年份参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during jieqi year helper: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/cn/nongli/time")
+async def calculate_nongli_time_helper(request: NongliTimeRequest) -> dict:
+    """
+    Convert a solar datetime into lunar calendar and ganzhi context.
+    """
+    try:
+        logger.info(
+            "Processing nongli time helper request for %s %s",
+            request.date,
+            request.time,
+        )
+
+        result = calculate_nongli_time(**request.model_dump())
+
+        if "error" in result:
+            logger.warning(f"Nongli time helper failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Nongli time helper successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的农历换算参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during nongli time helper: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/cn/gua/meiyi")
+async def calculate_gua_meiyi_helper(request: GuaMeiyiRequest) -> dict:
+    """
+    Return batch Meiyi-oriented gua explanations.
+    """
+    try:
+        logger.info("Processing gua meiyi helper request for %s", request.name)
+
+        result = calculate_gua_meiyi(**request.model_dump())
+
+        if "error" in result:
+            logger.warning(f"Gua meiyi helper failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Gua meiyi helper successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的梅易卦义参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during gua meiyi helper: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/export/registry")
+async def export_registry_helper(request: ExportRegistryRequest) -> dict:
+    """
+    Return the local AI export registry compatible with horosa-style settings.
+    """
+    try:
+        logger.info("Processing export registry request for %s", request.technique)
+
+        result = calculate_export_registry(**request.model_dump())
+
+        if "error" in result:
+            logger.warning(f"Export registry failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Export registry successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的导出注册表参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during export registry lookup: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/export/parse")
+async def export_parse_helper(request: ExportParseRequest) -> dict:
+    """
+    Parse snapshot text into horosa-style export sections.
+    """
+    try:
+        logger.info("Processing export parse request for %s", request.technique)
+
+        payload = request.model_dump(by_alias=True)
+        result = calculate_export_parse(
+            technique=payload["technique"],
+            content=payload["content"],
+            selected_sections=payload.get("selected_sections") or None,
+            planet_info=payload.get("planetInfo"),
+            astro_meaning=payload.get("astroMeaning"),
+        )
+
+        if "error" in result:
+            logger.warning(f"Export parse failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Export parse successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的导出解析参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during export parse: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/knowledge/registry")
+async def knowledge_registry_helper(request: KnowledgeRegistryRequest) -> dict:
+    """
+    List bundled knowledge domains and categories.
+    """
+    try:
+        logger.info("Processing knowledge registry request for %s", request.domain)
+
+        result = calculate_knowledge_registry(**request.model_dump())
+
+        if "error" in result:
+            logger.warning(f"Knowledge registry failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Knowledge registry successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的知识目录参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during knowledge registry lookup: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/knowledge/read")
+async def knowledge_read_helper(request: KnowledgeReadRequest) -> dict:
+    """
+    Read one bundled knowledge entry by domain/category/key.
+    """
+    try:
+        logger.info(
+            "Processing knowledge read request for %s/%s",
+            request.domain,
+            request.category,
+        )
+
+        result = calculate_knowledge_read(**request.model_dump())
+
+        if "error" in result:
+            logger.warning(f"Knowledge read failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Knowledge read successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的知识读取参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during knowledge read: {str(e)}",
+            exc_info=True,
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 

@@ -296,11 +296,166 @@ curl http://localhost:8000/health
 
 ---
 
-#### 4.1 西占时运分析
+#### 4.1 全年节气盘 Helper
+
+**端点**: `POST /api/cn/jieqi/year`
+
+返回指定年份的 24 节气节点，并可按节气名筛选重点节点。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `year` | integer | **是** | 目标年份 |
+| `zone` | string | 否 | 时区，默认 `Asia/Shanghai` |
+| `lat` | string | 否 | 纬度文本提示 |
+| `lon` | string | 否 | 经度文本提示 |
+| `gpsLat` | number | 否 | GPS 纬度 |
+| `gpsLon` | number | 否 | GPS 经度 |
+| `jieqis` | string[] | 否 | 仅返回指定节气，例如 `["春分","冬至"]` |
+
+**返回重点**:
+
+- `query_context`: 请求年份、时区与筛选条件
+- `jieqi_year`: 全年 24 节气表
+- `selected_jieqi`: 按请求筛出的重点节气
+- `summary`: 年度节气摘要
+
+---
+
+#### 4.2 农历换算 Helper
+
+**端点**: `POST /api/cn/nongli/time`
+
+把公历时刻转换成农历、节气与四柱上下文，便于其他派生技法复用。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `date` | string | **是** | 公历日期，如 `2028-04-01` |
+| `time` | string | **是** | 时间，如 `09:00:00` |
+| `zone` | string | 否 | 时区，默认 `Asia/Shanghai` |
+| `lat` | string | 否 | 纬度文本提示 |
+| `lon` | string | 否 | 经度文本提示 |
+| `gpsLat` | number | 否 | GPS 纬度 |
+| `gpsLon` | number | 否 | GPS 经度 |
+| `after23NewDay` | boolean | 否 | 是否把 23 点后视为次日 |
+| `timeAlg` | integer | 否 | 时间算法透传位 |
+| `ad` | integer | 否 | 公元标记透传位 |
+
+**返回重点**:
+
+- `input_context`: 输入参数与换算配置
+- `calendar_context`: 节气上下文、月令边界与农历信息
+- `lunar_calendar`: 农历日期、节气、节差与梅花时卦辅助字段
+- `four_pillars`: 对应时刻的四柱
+- `summary`: 换算摘要
+
+---
+
+#### 4.3 梅易卦义 Helper
+
+**端点**: `POST /api/cn/gua/meiyi`
+
+按卦名或卦码批量返回偏梅花易数语境的卦义摘要。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `name` | string[] | **是** | 卦名或二进制卦码列表 |
+
+**返回重点**:
+
+- `queries`: 原始查询列表
+- `results.<query>.name`: 命中的卦名
+- `results.<query>.lookup_type`: `trigram` 或 `hexagram`
+- `results.<query>.desc`: 梅易取向摘要
+- `summary`: 批量查询摘要
+
+---
+
+#### 4.3.1 导出协议 Helper
+
+**端点**:
+
+- `POST /api/export/registry`
+- `POST /api/export/parse`
+
+这组端点对齐 `horosa-skill` 的 AI 导出 contract，可用于前端快照导出、分段筛选与文本安全过滤。
+
+`/api/export/registry` 请求体：
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `technique` | string | 否 | 可选技法 key，例如 `qimen` |
+
+`/api/export/parse` 请求体：
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `technique` | string | **是** | 技法 key |
+| `content` | string | **是** | 快照文本正文 |
+| `selected_sections` | string[] | 否 | 目标导出分段列表 |
+| `planetInfo` | object | 否 | 行星宫位/守护星输出开关 |
+| `astroMeaning` | object | 否 | 注释输出开关 |
+
+**返回重点**:
+
+- `settings_key / settings_version`: 导出协议元信息
+- `selected_technique`: 当前技法的分段预设与默认开关
+- `section_titles_detected`: 从正文检测出的分段标题
+- `selected_sections`: 实际参与导出的分段
+- `sections`: 每个分段是否纳入导出的判定
+- `export_text`: 过滤禁出栏目后的安全导出正文
+
+---
+
+#### 4.3.2 悬浮知识 Helper
+
+**端点**:
+
+- `POST /api/knowledge/registry`
+- `POST /api/knowledge/read`
+
+这组端点提供 astrology / 六壬 / 奇门的本地离线知识目录与单条读取能力，对齐 `horosa-skill` 的 `knowledge_*` surface。
+
+`/api/knowledge/registry` 请求体：
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `domain` | string | 否 | 可选域过滤：`astro`、`liureng`、`qimen` |
+
+`/api/knowledge/read` 请求体：
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `domain` | string | **是** | 知识域 |
+| `category` | string | **是** | 域内分类 |
+| `key` | string | 否 | 主查询 key |
+| `aspect_degree` | integer | 否 | astrology 相位角查询 |
+| `object_a` | string | 否 | astrology 相位对象 A |
+| `object_b` | string | 否 | astrology 相位对象 B |
+| `jiang_name` | string | 否 | 六壬将神名 |
+| `tian_branch` | string | 否 | 六壬天盘地支 |
+| `di_branch` | string | 否 | 六壬地盘地支 |
+
+**返回重点**:
+
+- `domains`: 可用知识域与分类目录
+- `title`: 命中的知识条目标题
+- `tips / lines / blocks`: 原始知识内容
+- `rendered_text`: 适合直接展示的文本版本
+- `provenance`: 数据来源与 bundle 版本
+
+---
+
+#### 4.4 西占时运分析
 
 **端点**: `POST /api/astro/timing`
 
-基于精确星历返回西占时运组合输出，聚合太阳返照、月返、次限推运、太阳弧、小限、法达与十年星限。
+基于精确星历返回西占时运组合输出，聚合太阳返照、月返、指定年盘、次限推运、太阳弧、轴点主限近似、小限、法达、十年星限，以及基于 Fortune / Spirit lots 的黄道释放。
 
 **请求体**:
 
@@ -323,17 +478,26 @@ curl http://localhost:8000/health
 | `return_timezone` | string | 否 | 返照盘地点时区，默认沿用出生时区 |
 | `house_system` | string | 否 | 宫制，默认 `P`（Placidus） |
 | `zodiac_type` | string | 否 | 黄道类型，默认 `Tropic` |
+| `pd_method` | string | 否 | 主限方法标识，默认 `astroapp_alchabitius` |
+| `pd_time_key` | string | 否 | 主限 time key，默认 `Ptolemy`，可传 `Naibod` |
+| `pd_aspects` | integer[] | 否 | 主限事件表纳入的相位度数，默认 `[0,60,90,120,180]` |
+| `show_pd_bounds` | boolean | 否 | 主限法盘是否保留界限法显示偏好，默认 `true` |
 
 **返回重点**:
 
-- `natal_reference`: 本命日月、上升、天顶与盘型（昼夜盘）参考点
+- `natal_reference`: 本命日月、上升、天顶、盘型（昼夜盘）与 Fortune / Spirit lots
 - `returns.solar_return`: 太阳返照时刻与关键点位
 - `returns.lunar_return`: 月返时刻与关键点位
+- `directions.given_year`: 指定年盘关键点位、命盘相位命中，以及从生日起算的 12 段月推限时间线
 - `directions.secondary_progression`: 次限推运日期、关键点位与命盘相位命中
 - `directions.solar_arc`: 太阳弧度数、定向点位与命盘相位命中
+- `directions.primary_directions`: 基于 static key 的轴点主限近似，返回当前弧度、主限事件表与最近事件窗口
+- `directions.primary_direction_chart`: 当前分析时刻对应的轴点主限法盘视图，返回完整 directed points / lots、换座提示与当前事件命中
 - `time_lords.annual_profection`: 年小限主宫、激活星座与年主星
 - `time_lords.firdaria`: 当前法达主限 / 子限与时间范围
 - `time_lords.decennials`: 当前十年星限的 L1 / L2 / L3 层级与时间轴片段
+- `time_lords.zodiacal_releasing.spirit`: 基于 Spirit 的黄道释放，返回当前 L1 / L2 / L3、时间片段，以及 `loosing_of_bond` 标记
+- `time_lords.zodiacal_releasing.fortune`: 基于 Fortune 的黄道释放，返回当前 L1 / L2 / L3、时间片段，以及 `loosing_of_bond` 标记
 
 ---
 
@@ -503,7 +667,7 @@ print(result)  # JSON 字符串
 | `house_system` | str | 否 | 宫制，默认 `P` |
 | `zodiac_type` | str | 否 | 黄道类型，默认 `Tropic` |
 
-**返回**: JSON 格式字符串，包含 `returns`、`directions` 与 `time_lords` 三组西占时运数据
+**返回**: JSON 格式字符串，包含 `natal_reference.lots`、`returns`、`directions`、`time_lords.zodiacal_releasing` 等西占时运数据
 
 ---
 
@@ -639,7 +803,118 @@ print(result)  # JSON 字符串
 
 ---
 
-#### 8. `jieqi_timeline_analysis`
+#### 7.1 `export_registry`
+
+Horosa 风格导出协议注册表工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `technique` | str | 否 | 技法 key，如 `qimen` |
+
+**返回**: JSON 格式字符串，包含导出协议版本、全部技法 registry 与可选技法详情
+
+---
+
+#### 7.2 `export_parse`
+
+Horosa 风格快照导出解析工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `technique` | str | **是** | 技法 key |
+| `content` | str | **是** | 快照文本 |
+| `selected_sections` | list[str] | 否 | 目标导出分段 |
+| `planet_info` | dict | 否 | 行星信息导出配置 |
+| `astro_meaning` | dict | 否 | 注释导出配置 |
+
+**返回**: JSON 格式字符串，包含检测分段、过滤结果与最终 `export_text`
+
+---
+
+#### 7.3 `knowledge_registry`
+
+本地悬浮知识目录工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `domain` | str | 否 | 可选域过滤 |
+
+**返回**: JSON 格式字符串，包含 astrology / 六壬 / 奇门的知识分类目录
+
+---
+
+#### 7.4 `knowledge_read`
+
+本地悬浮知识读取工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `domain` | str | **是** | 知识域 |
+| `category` | str | **是** | 域内分类 |
+| `key` | str | 否 | 主查询 key |
+| `aspect_degree` | int | 否 | astrology 相位角 |
+| `object_a` | str | 否 | astrology 对象 A |
+| `object_b` | str | 否 | astrology 对象 B |
+| `jiang_name` | str | 否 | 六壬将神名 |
+| `tian_branch` | str | 否 | 六壬天盘地支 |
+| `di_branch` | str | 否 | 六壬地盘地支 |
+
+**返回**: JSON 格式字符串，包含命中的知识正文与 `rendered_text`
+
+---
+
+#### 8. `jieqi_year`
+
+全年节气盘辅助工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `year` | int | **是** | 目标年份 |
+| `zone` | str | 否 | 时区，默认 `Asia/Shanghai` |
+| `lat` | str | 否 | 纬度文本提示 |
+| `lon` | str | 否 | 经度文本提示 |
+| `gps_lat` | float | 否 | GPS 纬度 |
+| `gps_lon` | float | 否 | GPS 经度 |
+| `jieqis` | list[str] | 否 | 只筛选指定节气 |
+
+**返回**: JSON 格式字符串，包含全年 24 节气与重点筛选结果
+
+---
+
+#### 9. `nongli_time`
+
+农历换算辅助工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `date` | str | **是** | 公历日期 |
+| `time` | str | **是** | 时间 |
+| `zone` | str | 否 | 时区 |
+| `lon` | str | 否 | 经度文本提示 |
+| `lat` | str | 否 | 纬度文本提示 |
+| `gps_lat` | float | 否 | GPS 纬度 |
+| `gps_lon` | float | 否 | GPS 经度 |
+| `after23_new_day` | bool | 否 | 是否 23 点后视为次日 |
+| `time_alg` | int | 否 | 时间算法透传位 |
+| `ad` | int | 否 | 公元标记透传位 |
+
+**返回**: JSON 格式字符串，包含农历、节气与四柱上下文
+
+---
+
+#### 10. `jieqi_timeline_analysis`
 
 节气节点时间轴分析工具。
 
@@ -661,7 +936,21 @@ print(result)  # JSON 字符串
 
 ---
 
-#### 9. `meihua_analysis`
+#### 11. `gua_meiyi`
+
+梅易卦义辅助工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `name` | list[str] | **是** | 卦名或卦码列表 |
+
+**返回**: JSON 格式字符串，包含批量卦义说明与摘要
+
+---
+
+#### 12. `meihua_analysis`
 
 梅花时卦分析工具。
 
@@ -681,7 +970,7 @@ print(result)  # JSON 字符串
 
 ---
 
-#### 10. `gua_lookup`
+#### 13. `gua_lookup`
 
 卦义检索工具。
 

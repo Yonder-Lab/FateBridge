@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_BIRTH_TIMEZONE = "Asia/Shanghai"
+SOLAR_TIME_STRATEGY_APPARENT = "apparent"
+SOLAR_TIME_STRATEGY_HOROSA_COMPAT = "horosa_compat"
 PLACE_TEXT_SANITIZER = re.compile(r"[^0-9a-z\u4e00-\u9fff]+")
 
 PLACE_SPECIFICITY = {
@@ -459,6 +461,8 @@ def parse_timezone_name(timezone_name: str):
         return timezone_info
 
     normalized_name = timezone_name.upper().replace("GMT", "UTC")
+    if normalized_name.startswith(("+", "-")):
+        normalized_name = f"UTC{normalized_name}"
     if normalized_name == "UTC":
         return tz.tzutc()
 
@@ -493,7 +497,51 @@ def calculate_equation_of_time_minutes(target_datetime: datetime) -> float:
     return 9.87 * math.sin(2 * b) - 7.53 * math.cos(b) - 1.5 * math.sin(b)
 
 
-def normalize_birth_time(person: PersonInfo) -> NormalizedBirthTime:
+def calculate_solar_time_adjustment(
+    input_datetime: datetime,
+    timezone_name: str,
+    longitude: float,
+    *,
+    strategy: str = SOLAR_TIME_STRATEGY_APPARENT,
+) -> Dict[str, float]:
+    """Calculate solar-time correction details for a local civil datetime."""
+    timezone_info = parse_timezone_name(timezone_name)
+    aware_datetime = input_datetime.replace(tzinfo=timezone_info)
+    utc_offset = aware_datetime.utcoffset()
+    if utc_offset is None:
+        raise ValueError(f"Invalid birth timezone: {timezone_name}")
+
+    daylight_saving = aware_datetime.dst() or timedelta(0)
+    standard_offset = utc_offset - daylight_saving
+    standard_meridian = (standard_offset.total_seconds() / 3600) * 15
+    longitude_correction_minutes = 4 * (longitude - standard_meridian)
+
+    if strategy == SOLAR_TIME_STRATEGY_APPARENT:
+        equation_of_time_minutes = calculate_equation_of_time_minutes(input_datetime)
+        total_correction_minutes = (
+            longitude_correction_minutes + equation_of_time_minutes
+        )
+    elif strategy == SOLAR_TIME_STRATEGY_HOROSA_COMPAT:
+        # Horosa's exported Chinese-metaphysics snapshots align with a
+        # longitude-only civil-time correction, without an equation-of-time term.
+        equation_of_time_minutes = 0.0
+        total_correction_minutes = -longitude_correction_minutes
+    else:
+        raise ValueError(f"Unsupported solar time strategy: {strategy}")
+
+    return {
+        "standard_meridian": standard_meridian,
+        "longitude_correction_minutes": longitude_correction_minutes,
+        "equation_of_time_minutes": equation_of_time_minutes,
+        "total_correction_minutes": total_correction_minutes,
+    }
+
+
+def normalize_birth_time(
+    person: PersonInfo,
+    *,
+    solar_time_strategy: str = SOLAR_TIME_STRATEGY_APPARENT,
+) -> NormalizedBirthTime:
     """Normalize birth time and optionally apply true solar time correction."""
     input_datetime = create_birth_datetime(
         person.birth_year,
@@ -508,15 +556,7 @@ def normalize_birth_time(person: PersonInfo) -> NormalizedBirthTime:
     timezone_name = (
         person.birth_timezone or inferred_place.timezone or DEFAULT_BIRTH_TIMEZONE
     )
-    timezone_info = parse_timezone_name(timezone_name)
-    aware_datetime = input_datetime.replace(tzinfo=timezone_info)
-    utc_offset = aware_datetime.utcoffset()
-    if utc_offset is None:
-        raise ValueError(f"Invalid birth timezone: {timezone_name}")
-
-    daylight_saving = aware_datetime.dst() or timedelta(0)
-    standard_offset = utc_offset - daylight_saving
-    standard_meridian = (standard_offset.total_seconds() / 3600) * 15
+    parse_timezone_name(timezone_name)
 
     longitude = person.birth_longitude
     longitude_source = "birth_longitude" if longitude is not None else None
@@ -546,11 +586,15 @@ def normalize_birth_time(person: PersonInfo) -> NormalizedBirthTime:
             "True solar time correction requires birth_longitude or a supported birth_place"
         )
 
-    longitude_correction_minutes = 4 * (longitude - standard_meridian)
-    equation_of_time_minutes = calculate_equation_of_time_minutes(input_datetime)
-    total_correction_minutes = (
-        longitude_correction_minutes + equation_of_time_minutes
+    adjustment = calculate_solar_time_adjustment(
+        input_datetime,
+        timezone_name,
+        longitude,
+        strategy=solar_time_strategy,
     )
+    longitude_correction_minutes = adjustment["longitude_correction_minutes"]
+    equation_of_time_minutes = adjustment["equation_of_time_minutes"]
+    total_correction_minutes = adjustment["total_correction_minutes"]
     corrected_datetime = input_datetime + timedelta(minutes=total_correction_minutes)
 
     return NormalizedBirthTime(
