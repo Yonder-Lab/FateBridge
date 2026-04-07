@@ -11,6 +11,8 @@
 
 from typing import Dict, Optional
 from datetime import datetime
+
+from ..core.almanac import DEFAULT_TIMEZONE
 from ..core.timing import TimingAnalysis
 from ..core.elements import ElementAnalysis
 
@@ -114,7 +116,11 @@ class TimingEffectsAnalysis:
 
     @staticmethod
     def analyze_dayun_effects(
-        birth_pillars: Dict, birth_date: datetime, gender: str, analysis_age: int
+        birth_pillars: Dict,
+        birth_date: datetime,
+        gender: str,
+        analysis_age: int,
+        timezone_name: str = DEFAULT_TIMEZONE,
     ) -> Dict:
         """
         分析指定年龄的大运影响
@@ -132,24 +138,33 @@ class TimingEffectsAnalysis:
         month_branch = birth_pillars["month"][1]
 
         # 计算起运年龄
-        start_age = TimingAnalysis.calculate_dayun_start_age(
-            birth_date, month_stem, gender
+        start_info = TimingAnalysis.calculate_dayun_start_details(
+            birth_date,
+            month_stem,
+            gender,
+            timezone_name=timezone_name,
         )
+        start_age = start_info["start_age_precise"]
 
         if analysis_age < start_age:
             return {
                 "status": "before_dayun",
-                "message": f"尚未起运，将在{start_age}岁起运",
+                "message": f"尚未起运，约在{start_age}岁起运",
             }
 
         # 获取大运序列
         dayun_sequence = TimingAnalysis.calculate_dayun_sequence(
-            month_stem, month_branch, gender, birth_date.year
+            month_stem,
+            month_branch,
+            gender,
+            birth_date.year,
+            start_age=start_age,
+            year_stem=start_info["year_stem"],
         )
 
         # 确定当前大运期
-        dayun_age = analysis_age - start_age + 1
-        current_period = (dayun_age - 1) // 10 + 1
+        dayun_age = round(analysis_age - start_age, 2)
+        current_period = int(dayun_age // 10) + 1
 
         if current_period > len(dayun_sequence):
             return {"status": "beyond_calculation", "message": "超出计算范围"}
@@ -169,9 +184,12 @@ class TimingEffectsAnalysis:
             "dayun_info": current_dayun,
             "age_info": {
                 "analysis_age": analysis_age,
-                "start_age": start_age,
+                "start_age": start_info["start_age_rounded"],
+                "start_age_precise": start_age,
                 "dayun_age": dayun_age,
-                "years_in_period": (dayun_age - 1) % 10 + 1,
+                "years_in_period": round(dayun_age - (current_period - 1) * 10, 2),
+                "direction": "顺行" if start_info["forward_direction"] else "逆行",
+                "reference_term": start_info["reference_term"],
             },
             "element_effects": element_effects,
             "summary": TimingEffectsAnalysis._generate_dayun_summary(
@@ -219,7 +237,12 @@ class TimingEffectsAnalysis:
 
     @staticmethod
     def analyze_liuyue_effects(
-        birth_pillars: Dict, target_year: int, target_month: int
+        birth_pillars: Dict,
+        target_year: int,
+        target_month: int,
+        target_day: int = 1,
+        timezone_name: str = DEFAULT_TIMEZONE,
+        target_date: Optional[datetime] = None,
     ) -> Dict:
         """
         分析流月影响
@@ -233,11 +256,22 @@ class TimingEffectsAnalysis:
             流月影响分析
         """
         # 获取流月信息
-        liuyue_info = TimingAnalysis.calculate_liuyue(target_year, target_month)
+        liuyue_info = TimingAnalysis.calculate_liuyue(
+            target_year,
+            target_month,
+            target_day=target_day,
+            timezone_name=timezone_name,
+            target_date=target_date,
+        )
 
         # 使用新的详细分析功能
         detailed_analysis = TimingAnalysis.analyze_liuyue_detailed(
-            birth_pillars, target_year, target_month
+            birth_pillars,
+            target_year,
+            target_month,
+            target_day=target_day,
+            timezone_name=timezone_name,
+            target_date=target_date,
         )
 
         # 分析流月对命局的影响
@@ -258,12 +292,49 @@ class TimingEffectsAnalysis:
         }
 
     @staticmethod
+    def analyze_liuri_effects(
+        birth_pillars: Dict,
+        target_date: datetime,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> Dict:
+        """
+        分析流日影响。
+        """
+        liuri_info = TimingAnalysis.calculate_liuri(
+            target_date, timezone_name=timezone_name
+        )
+        detailed_analysis = TimingAnalysis.analyze_liuri_detailed(
+            birth_pillars,
+            target_date,
+            timezone_name=timezone_name,
+        )
+
+        timing_pillars = {
+            "liuri": {"stem": liuri_info["stem"], "branch": liuri_info["branch"]}
+        }
+
+        element_effects = TimingEffectsAnalysis.analyze_element_strength_changes(
+            birth_pillars, timing_pillars
+        )
+
+        return {
+            "liuri_info": liuri_info,
+            "detailed_analysis": detailed_analysis,
+            "element_effects": element_effects,
+            "summary": f"流日{liuri_info['pillar']}，{element_effects['overall_effect']}",
+            "enhanced_summary": detailed_analysis["overall_summary"],
+        }
+
+    @staticmethod
     def analyze_liuyue_comprehensive(
         birth_pillars: Dict,
         target_year: int,
         target_month: int,
         include_dayun: bool = True,
         include_liunian: bool = True,
+        target_day: int = 1,
+        timezone_name: str = DEFAULT_TIMEZONE,
+        target_date: Optional[datetime] = None,
     ) -> Dict:
         """
         流月的综合分析，包括与大运、流年的组合影响
@@ -280,7 +351,12 @@ class TimingEffectsAnalysis:
         """
         # 基础流月分析
         liuyue_analysis = TimingEffectsAnalysis.analyze_liuyue_effects(
-            birth_pillars, target_year, target_month
+            birth_pillars,
+            target_year,
+            target_month,
+            target_day=target_day,
+            timezone_name=timezone_name,
+            target_date=target_date,
         )
 
         result = {"liuyue_analysis": liuyue_analysis, "combination_effects": {}}
@@ -430,6 +506,7 @@ class TimingEffectsAnalysis:
         birth_date: datetime,
         gender: str,
         analysis_date: Optional[datetime] = None,
+        timezone_name: str = DEFAULT_TIMEZONE,
     ) -> Dict:
         """
         综合时运分析
@@ -456,7 +533,11 @@ class TimingEffectsAnalysis:
 
         # 大运分析
         dayun_analysis = TimingEffectsAnalysis.analyze_dayun_effects(
-            birth_pillars, birth_date, gender, current_age
+            birth_pillars,
+            birth_date,
+            gender,
+            current_age,
+            timezone_name=timezone_name,
         )
 
         # 流年分析
@@ -466,7 +547,17 @@ class TimingEffectsAnalysis:
 
         # 流月分析
         liuyue_analysis = TimingEffectsAnalysis.analyze_liuyue_effects(
-            birth_pillars, analysis_date.year, analysis_date.month
+            birth_pillars,
+            analysis_date.year,
+            analysis_date.month,
+            target_day=analysis_date.day,
+            timezone_name=timezone_name,
+            target_date=analysis_date,
+        )
+        liuri_analysis = TimingEffectsAnalysis.analyze_liuri_effects(
+            birth_pillars,
+            analysis_date,
+            timezone_name=timezone_name,
         )
 
         # 综合分析
@@ -486,6 +577,10 @@ class TimingEffectsAnalysis:
             "stem": liuyue_analysis["liuyue_info"]["stem"],
             "branch": liuyue_analysis["liuyue_info"]["branch"],
         }
+        combined_timing_pillars["liuri"] = {
+            "stem": liuri_analysis["liuri_info"]["stem"],
+            "branch": liuri_analysis["liuri_info"]["branch"],
+        }
 
         combined_effects = TimingEffectsAnalysis.analyze_element_strength_changes(
             birth_pillars, combined_timing_pillars
@@ -497,9 +592,14 @@ class TimingEffectsAnalysis:
             "dayun_analysis": dayun_analysis,
             "liunian_analysis": liunian_analysis,
             "liuyue_analysis": liuyue_analysis,
+            "liuri_analysis": liuri_analysis,
             "combined_effects": combined_effects,
             "comprehensive_summary": TimingEffectsAnalysis._generate_comprehensive_summary(
-                dayun_analysis, liunian_analysis, liuyue_analysis, combined_effects
+                dayun_analysis,
+                liunian_analysis,
+                liuyue_analysis,
+                liuri_analysis,
+                combined_effects,
             ),
         }
 
@@ -508,6 +608,7 @@ class TimingEffectsAnalysis:
         dayun_analysis: Dict,
         liunian_analysis: Dict,
         liuyue_analysis: Dict,
+        liuri_analysis: Dict,
         combined_effects: Dict,
     ) -> str:
         """生成综合时运分析总结"""
@@ -519,8 +620,11 @@ class TimingEffectsAnalysis:
 
         liunian_pillar = liunian_analysis["liunian_info"]["pillar"]
         liuyue_pillar = liuyue_analysis["liuyue_info"]["pillar"]
+        liuri_pillar = liuri_analysis["liuri_info"]["pillar"]
 
-        summary_parts.extend([f"流年{liunian_pillar}", f"流月{liuyue_pillar}"])
+        summary_parts.extend(
+            [f"流年{liunian_pillar}", f"流月{liuyue_pillar}", f"流日{liuri_pillar}"]
+        )
 
         overall_effect = combined_effects["overall_effect"]
 

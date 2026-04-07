@@ -5,6 +5,13 @@ Converts Gregorian dates to Chinese sexagenary cycle (干支).
 
 from datetime import datetime, date
 from typing import Tuple, Dict
+
+from .almanac import (
+    DEFAULT_TIMEZONE,
+    get_bazi_month_context,
+    get_bazi_year,
+    localize_datetime,
+)
 from ..utils.data import (
     HEAVENLY_STEMS,
     EARTHLY_BRANCHES,
@@ -58,6 +65,28 @@ class BaZiCalendar:
         # Get the earthly branch for the month
         month_branch = MONTH_BRANCHES[month]
 
+        return cls.calculate_month_pillar_by_branch(year, month_branch)
+
+    @classmethod
+    def calculate_month_pillar_by_branch(
+        cls, year: int, month_branch: str
+    ) -> Tuple[str, str]:
+        """Calculate the month pillar using a resolved BaZi month branch."""
+        month_index = [
+            "寅",
+            "卯",
+            "辰",
+            "巳",
+            "午",
+            "未",
+            "申",
+            "酉",
+            "戌",
+            "亥",
+            "子",
+            "丑",
+        ].index(month_branch)
+
         # Calculate heavenly stem based on year stem
         year_stem, _ = cls.calculate_year_pillar(year)
         year_stem_index = HEAVENLY_STEMS.index(year_stem)
@@ -79,11 +108,7 @@ class BaZiCalendar:
 
         base_stem_index = month_stem_base_mapping[year_stem_index]
 
-        # 月份偏移计算 - 寅月(2月)为基准月，索引为0
-        # 注意：现在MONTH_BRANCHES已修正，2月对应寅月
-        month_offset = (month - 2) % 12  # 2月(寅)=0, 3月(卯)=1, ..., 1月(丑)=11
-
-        month_stem_index = (base_stem_index + month_offset) % 10
+        month_stem_index = (base_stem_index + month_index) % 10
         month_stem = HEAVENLY_STEMS[month_stem_index]
 
         return month_stem, month_branch
@@ -147,7 +172,11 @@ class BaZiCalendar:
         return hour_stem, hour_branch
 
     @classmethod
-    def get_four_pillars(cls, birth_datetime: datetime) -> Dict[str, Tuple[str, str]]:
+    def get_four_pillars(
+        cls,
+        birth_datetime: datetime,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> Dict[str, Tuple[str, str]]:
         """
         Calculate all four pillars (四柱) for a given birth datetime.
 
@@ -155,14 +184,19 @@ class BaZiCalendar:
             Dict with keys: 'year', 'month', 'day', 'hour'
             Each value is a tuple of (heavenly_stem, earthly_branch)
         """
-        year = birth_datetime.year
-        month = birth_datetime.month
-        day = birth_datetime.day
-        hour = birth_datetime.hour
+        local_birth_datetime = localize_datetime(birth_datetime, timezone_name)
+        year = local_birth_datetime.year
+        month = local_birth_datetime.month
+        day = local_birth_datetime.day
+        hour = local_birth_datetime.hour
+
+        bazi_year = get_bazi_year(local_birth_datetime, timezone_name)
+        month_context = get_bazi_month_context(local_birth_datetime, timezone_name)
+        month_branch = month_context["branch"]
 
         return {
-            "year": cls.calculate_year_pillar(year),
-            "month": cls.calculate_month_pillar(year, month),
+            "year": cls.calculate_year_pillar(bazi_year),
+            "month": cls.calculate_month_pillar_by_branch(bazi_year, month_branch),
             "day": cls.calculate_day_pillar(year, month, day),
             "hour": cls.calculate_hour_pillar(year, month, day, hour),
         }

@@ -159,7 +159,7 @@ def get_ten_god(day_stem: str, other_stem: str) -> TenGod:
 
 
 # 月份地支对应表 (Month to Branch mapping)
-# 注意：传统八字以节气为准，这里使用简化映射
+# 说明：传统八字以节气为准；此表保留给无节气上下文时的兜底映射
 MONTH_BRANCHES = {
     1: "丑",  # 一月 -> 丑月 (大寒-立春)
     2: "寅",  # 二月 -> 寅月 (立春-惊蛰)

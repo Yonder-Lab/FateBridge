@@ -1,6 +1,6 @@
 """
 FastAPI REST server for FateBridge calculations.
-Provides HTTP endpoints for birth analysis and compatibility calculations.
+Provides HTTP endpoints for birth analysis, timing, and divination calculations.
 """
 
 import logging
@@ -13,6 +13,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from fatebridge.services.calculation import calculate_destiny_analysis
+from fatebridge.services.divination import calculate_meihua_analysis
+from fatebridge.services.timing import (
+    calculate_jieqi_timeline_analysis,
+    calculate_liuri_analysis,
+)
 from fatebridge.utils.helpers import create_person_info
 
 # ============================================================================
@@ -78,6 +83,42 @@ class FateBridgeRequest(BaseModel):
     )
 
 
+class LiuriAnalysisRequest(FateBridgeRequest):
+    """Request model for liuri analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+
+
+class JieqiTimelineRequest(FateBridgeRequest):
+    """Request model for jieqi timeline analysis."""
+
+    target_year: Optional[int] = Field(default=None, description="Target year")
+
+
+class MeihuaAnalysisRequest(BaseModel):
+    """Request model for time-seeded Mei Hua Yi Shu analysis."""
+
+    analysis_year: int = Field(description="Analysis year, e.g., 2028")
+    analysis_month: int = Field(ge=1, le=12, description="Analysis month (1-12)")
+    analysis_day: int = Field(ge=1, le=31, description="Analysis day (1-31)")
+    analysis_hour: int = Field(ge=0, le=23, description="Analysis hour (0-23)")
+    analysis_minute: int = Field(
+        default=0, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    analysis_timezone: Optional[str] = Field(
+        default=None, description="Analysis timezone (IANA name or UTC offset)"
+    )
+    question: Optional[str] = Field(
+        default=None, description="Question or topic for the divination context"
+    )
+
+
 # ============================================================================
 # API Endpoints
 # ============================================================================
@@ -140,6 +181,138 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
 async def health_check() -> dict:
     """Health check endpoint for monitoring."""
     return {"status": "healthy"}
+
+
+@app.post("/api/divination/meihua")
+async def calculate_meihua(request: MeihuaAnalysisRequest) -> dict:
+    """
+    Calculate a Mei Hua Yi Shu time-seeded hexagram for the specified moment.
+    """
+    try:
+        logger.info(
+            "Processing meihua analysis request for %s-%s-%s %s:%s",
+            request.analysis_year,
+            request.analysis_month,
+            request.analysis_day,
+            request.analysis_hour,
+            request.analysis_minute,
+        )
+
+        result = calculate_meihua_analysis(
+            analysis_year=request.analysis_year,
+            analysis_month=request.analysis_month,
+            analysis_day=request.analysis_day,
+            analysis_hour=request.analysis_hour,
+            analysis_minute=request.analysis_minute,
+            analysis_timezone=request.analysis_timezone,
+            question=request.question,
+        )
+
+        if "error" in result:
+            logger.warning(f"Meihua analysis failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Meihua analysis successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的输入参数，请检查日期有效性")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during meihua analysis: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/timing/liuri")
+async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
+    """
+    Calculate liuri analysis for a specific analysis date.
+    """
+    try:
+        logger.info(f"Processing liuri analysis request for {request.name}")
+
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = calculate_liuri_analysis(
+            person,
+            analysis_year=request.analysis_year,
+            analysis_month=request.analysis_month,
+            analysis_day=request.analysis_day,
+        )
+
+        if "error" in result:
+            logger.warning(f"Liuri analysis failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info(f"Liuri analysis successful for {request.name}")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的输入参数，请检查日期有效性")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during liuri analysis: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/timing/jieqi")
+async def calculate_jieqi_timeline(request: JieqiTimelineRequest) -> dict:
+    """
+    Calculate yearly jieqi timeline analysis.
+    """
+    try:
+        logger.info(f"Processing jieqi timeline request for {request.name}")
+
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = calculate_jieqi_timeline_analysis(
+            person,
+            target_year=request.target_year,
+        )
+
+        if "error" in result:
+            logger.warning(f"Jieqi timeline analysis failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info(f"Jieqi timeline analysis successful for {request.name}")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的输入参数，请检查日期有效性")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during jieqi timeline analysis: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
 # ============================================================================

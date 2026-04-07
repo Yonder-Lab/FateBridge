@@ -129,6 +129,40 @@ curl -X POST http://localhost:8000/api/calculate \
     "harmony": {...},
     "clash": {...},
     "special": {...}
+  },
+  "calendar_context": {
+    "timezone": "Asia/Shanghai",
+    "solar_datetime": "1990-05-15 10:19:00",
+    "current_solar_term": {
+      "name": "立夏",
+      "datetime": "1990-05-06 03:27:00",
+      "date_key": "19900506",
+      "day_ganzhi": "丙寅"
+    },
+    "next_solar_term": {
+      "name": "小满",
+      "datetime": "1990-05-21 16:37:00",
+      "date_key": "19900521",
+      "day_ganzhi": "辛巳"
+    },
+    "bazi_month_boundary": {
+      "branch": "巳",
+      "month_index": 3
+    },
+    "lunar_calendar": {
+      "display": "四月廿一",
+      "jieqi": "立夏",
+      "jiedelta": "立夏后第9天",
+      "meihua": {
+        "base_hexagram": {
+          "name": "地水师"
+        },
+        "changed_hexagram": {
+          "name": "山水蒙"
+        },
+        "summary": "梅花时卦得地水师，动6爻，之山水蒙；上卦坤、下卦坎，五行关系为上制下。"
+      }
+    }
   }
 }
 ```
@@ -151,6 +185,10 @@ curl -X POST http://localhost:8000/api/calculate \
 - **favorable_elements**: 喜用神列表
 - **ten_gods**: 十神分析
 - **patterns**: 格局分析
+- **calendar_context**: 历法辅助上下文
+  - `current_solar_term` / `next_solar_term`: 当前与下一节气
+  - `bazi_month_boundary`: 当前所处月令边界、月支与距下一节的天数
+  - `lunar_calendar`: 农历日期、节气标记，以及基于农历月日和时支生成的梅花时卦辅助信息
 
 **错误响应**:
 
@@ -186,6 +224,64 @@ curl http://localhost:8000/health
 
 ---
 
+#### 3. 梅花时卦分析
+
+**端点**: `POST /api/divination/meihua`
+
+根据指定时刻生成梅花易数时卦，返回本卦、变卦、互卦、综卦与体用关系。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `analysis_year` | integer | **是** | 起卦年份 |
+| `analysis_month` | integer | **是** | 起卦月份，1-12 |
+| `analysis_day` | integer | **是** | 起卦日期，1-31 |
+| `analysis_hour` | integer | **是** | 起卦时辰，0-23 |
+| `analysis_minute` | integer | 否 | 起卦分钟，默认：0 |
+| `analysis_timezone` | string | 否 | 起卦时区，默认：`Asia/Shanghai` |
+| `question` | string | 否 | 占问主题 |
+
+**返回重点**:
+
+- `analysis_context`: 起卦时刻、时区、农历日期与节气上下文
+- `four_pillars`: 起卦时刻对应四柱
+- `meihua.base_hexagram`: 本卦
+- `meihua.changed_hexagram`: 变卦
+- `meihua.mutual_hexagram`: 互卦
+- `meihua.opposite_hexagram`: 综卦
+- `meihua.body_use_relation`: 体用五行关系
+
+---
+
+#### 4. 流日专项分析
+
+**端点**: `POST /api/timing/liuri`
+
+在出生盘基础上分析指定日期的流日影响。
+
+**返回重点**:
+
+- `calendar_context`: 出生时刻节气/农历上下文
+- `analysis_calendar.analysis_date_context`: 分析日期节气上下文
+- `liuri_info`: 流日干支、五行与星期
+- `summary`: 流日摘要
+
+---
+
+#### 5. 节气节点时间轴
+
+**端点**: `POST /api/timing/jieqi`
+
+输出目标年份 24 节气节点的流月/流日切换与简要影响。
+
+**返回重点**:
+
+- `target_year_jieqi`: 全年 24 节气表
+- `jieqi_timeline`: 每个节气节点对应的流月、流日与摘要
+
+---
+
 ## FastMCP API
 
 FastMCP API 通过 Model Context Protocol 提供相同功能，可用于 AI 助手集成。
@@ -212,7 +308,7 @@ FastMCP API 通过 Model Context Protocol 提供相同功能，可用于 AI 助�
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
-**返回**: JSON 格式字符串
+**返回**: JSON 格式字符串，包含四柱主分析以及 `calendar_context` 历法辅助信息
 
 **示例**:
 
@@ -303,7 +399,14 @@ print(result)  # JSON 字符串
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
-**返回**: JSON 格式字符串，包含大运、流年、流月分析
+**返回**: JSON 格式字符串，包含大运、流年、流月分析，以及：
+
+- `calendar_context`: 出生时刻的节气/农历上下文
+- `analysis_calendar.analysis_date_context`: 目标分析日期的节气上下文
+- `analysis_calendar.analysis_year_jieqi`: 目标年份 24 节气表
+- `analysis_calendar.liuyue_timeline`: 目标年份 12 个节令月时间轴，每项包含起止节气、月柱和简要运势总结
+- `analysis_calendar.jieqi_timeline`: 目标年份 24 个节气节点时间轴，每项包含节气切换点对应的流月、流日和简要影响
+- `liuri_analysis`: 分析日期对应的流日信息
 
 ---
 
@@ -328,6 +431,8 @@ print(result)  # JSON 字符串
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
+**返回**: JSON 格式字符串，包含指定年龄的大运分析与 `calendar_context`
+
 ---
 
 #### 5. `liunian_analysis`
@@ -350,6 +455,74 @@ print(result)  # JSON 字符串
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+
+**返回**: JSON 格式字符串，包含指定流年分析、`calendar_context` 与 `target_year_jieqi`
+
+---
+
+#### 6. `liuri_analysis`
+
+流日（单日时运）分析工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | int | **是** | 出生年份 |
+| `birth_month` | int | **是** | 出生月份 |
+| `birth_day` | int | **是** | 出生日期 |
+| `birth_hour` | int | **是** | 出生时辰 |
+| `analysis_year` | int | 否 | 分析年份 |
+| `analysis_month` | int | 否 | 分析月份 |
+| `analysis_day` | int | 否 | 分析日期 |
+| `birth_minute` | int | 否 | 出生分钟 |
+| `birth_timezone` | str | 否 | 出生时区 |
+| `birth_longitude` | float | 否 | 出生地经度 |
+| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+
+**返回**: JSON 格式字符串，包含流日分析、`calendar_context` 与 `analysis_calendar`
+
+---
+
+#### 7. `jieqi_timeline_analysis`
+
+节气节点时间轴分析工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | int | **是** | 出生年份 |
+| `birth_month` | int | **是** | 出生月份 |
+| `birth_day` | int | **是** | 出生日期 |
+| `birth_hour` | int | **是** | 出生时辰 |
+| `target_year` | int | 否 | 目标年份 |
+| `birth_minute` | int | 否 | 出生分钟 |
+| `birth_timezone` | str | 否 | 出生时区 |
+| `birth_longitude` | float | 否 | 出生地经度 |
+| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+
+**返回**: JSON 格式字符串，包含全年 24 节气节点时间轴
+
+---
+
+#### 8. `meihua_analysis`
+
+梅花时卦分析工具。
+
+**参数**:
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `analysis_year` | int | **是** | 起卦年份 |
+| `analysis_month` | int | **是** | 起卦月份 |
+| `analysis_day` | int | **是** | 起卦日期 |
+| `analysis_hour` | int | **是** | 起卦时辰 |
+| `analysis_minute` | int | 否 | 起卦分钟，默认：0 |
+| `analysis_timezone` | str | 否 | 起卦时区 |
+| `question` | str | 否 | 占问主题 |
+
+**返回**: JSON 格式字符串，包含本卦、变卦、互卦、综卦、体用关系与历法上下文
 
 ---
 
@@ -566,7 +739,8 @@ curl http://localhost:8000/health | jq .
 - 真太阳时修正依赖 `birth_timezone` + `birth_longitude`，或命中内置 `birth_place` 地点库
 - `birth_place` 现在支持更广泛的离线地址匹配：可输入中文、英文或拼音，优先解析到更具体的城市，命不中城市时回退到可识别的省级近似值
 - 离线解析不是联网街道级地理编码，最高精度仍建议直接传 `birth_longitude`
-- 即使启用真太阳时修正，月柱与起运仍采用简化节气口径，不是完整天文历表精排
+- 月柱与起运采用本地离线节气算法：以立春分年、以十二节判月，并按节令边界换算起运岁数
+- 节气时刻基于 fixed-qì 近似算法，适合本地推演；若需要更高天文精度，建议接入专门历表
 - 结果仅供参考，基于传统八字理论
 - CORS 配置通过环境变量控制（生产环境务必配置）
 

@@ -8,8 +8,20 @@
 3. 流月计算 - 每月的运势变化
 """
 
-from datetime import datetime
+import math
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+
+from .almanac import (
+    BAZI_MONTH_START_TERMS,
+    DEFAULT_TIMEZONE,
+    get_bazi_month_boundaries,
+    get_bazi_month_context,
+    get_bazi_year,
+    get_solar_terms_for_year,
+    localize_datetime,
+)
+from .calendar import BaZiCalendar
 from ..utils.data import (
     HEAVENLY_STEMS,
     EARTHLY_BRANCHES,
@@ -46,10 +58,13 @@ class TimingAnalysis:
 
     @staticmethod
     def calculate_dayun_start_age(
-        birth_date: datetime, month_pillar_stem: str, gender: str
+        birth_date: datetime,
+        month_pillar_stem: str,
+        gender: str,
+        timezone_name: str = DEFAULT_TIMEZONE,
     ) -> int:
         """
-        计算起运年龄
+        计算起运年龄（保持向上取整的兼容接口）
 
         Args:
             birth_date: 出生日期
@@ -59,53 +74,54 @@ class TimingAnalysis:
         Returns:
             起运年龄
         """
-        birth_year = birth_date.year
-        birth_month = birth_date.month
-        birth_day = birth_date.day
+        details = TimingAnalysis.calculate_dayun_start_details(
+            birth_date,
+            month_pillar_stem,
+            gender,
+            timezone_name=timezone_name,
+        )
+        return max(1, math.ceil(details["start_age_precise"]))
 
-        # 判断阳年还是阴年
-        year_stem_index = (birth_year - 4) % 10
-        is_yang_year = year_stem_index % 2 == 0
+    @staticmethod
+    def calculate_dayun_start_details(
+        birth_date: datetime,
+        month_pillar_stem: str,
+        gender: str,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> Dict:
+        """
+        计算起运细节，按节令边界而不是固定月中日。
 
-        # 判断男女和阴阳年的组合
+        Returns:
+            包含顺逆行方向、参考节令和精确起运岁数的字典
+        """
+        local_birth_date = localize_datetime(birth_date, timezone_name)
+        bazi_year = get_bazi_year(local_birth_date, timezone_name)
+        year_stem, _ = BaZiCalendar.calculate_year_pillar(bazi_year)
+        is_yang_year = HEAVENLY_STEMS.index(year_stem) % 2 == 0
+
         if (gender == "男" and is_yang_year) or (gender == "女" and not is_yang_year):
-            # 顺行大运
             forward_direction = True
         else:
-            # 逆行大运
             forward_direction = False
 
-        # 计算到下一个节气的天数
-        # 简化计算：假设每月15日为节气
-        if forward_direction:
-            # 顺行：计算到下个月节气的天数
-            if birth_day <= 15:
-                days_to_next_jieqi = 15 - birth_day
-            else:
-                # 到下个月15日
-                if birth_month == 12:
-                    next_month_date = datetime(birth_year + 1, 1, 15)
-                else:
-                    next_month_date = datetime(birth_year, birth_month + 1, 15)
-                days_to_next_jieqi = (next_month_date - birth_date).days
-        else:
-            # 逆行：计算到上个节气的天数
-            if birth_day >= 15:
-                days_to_next_jieqi = birth_day - 15
-            else:
-                # 到上个月15日
-                if birth_month == 1:
-                    prev_month_date = datetime(birth_year - 1, 12, 15)
-                else:
-                    prev_month_date = datetime(birth_year, birth_month - 1, 15)
-                days_to_next_jieqi = (birth_date - prev_month_date).days
+        start_term, next_term, _, _ = get_bazi_month_boundaries(
+            local_birth_date, timezone_name
+        )
+        target_term = next_term if forward_direction else start_term
+        delta_days = abs(
+            (target_term.moment - local_birth_date).total_seconds()
+        ) / 86400
+        start_age_precise = round(delta_days / 3, 2)
 
-        # 3天为1年，计算起运年龄
-        start_age = days_to_next_jieqi // 3
-        if days_to_next_jieqi % 3 > 0:
-            start_age += 1
-
-        return max(1, start_age)  # 最小1岁起运
+        return {
+            "forward_direction": forward_direction,
+            "year_stem": year_stem,
+            "reference_term": target_term.as_dict(),
+            "days_to_boundary": round(delta_days, 4),
+            "start_age_precise": start_age_precise,
+            "start_age_rounded": max(1, math.ceil(start_age_precise)),
+        }
 
     @staticmethod
     def calculate_dayun_sequence(
@@ -114,6 +130,8 @@ class TimingAnalysis:
         gender: str,
         birth_year: int,
         periods: int = 8,
+        start_age: float = 1.0,
+        year_stem: Optional[str] = None,
     ) -> List[Dict]:
         """
         计算大运序列
@@ -122,15 +140,19 @@ class TimingAnalysis:
             month_pillar_stem: 月柱天干
             month_pillar_branch: 月柱地支
             gender: 性别
-            birth_year: 出生年份
+            birth_year: 出生年份（兼容旧接口）
             periods: 计算的大运期数，默认8期（80年）
+            year_stem: 八字年干；提供时优先用于判定顺逆
 
         Returns:
             大运序列列表
         """
         # 判断大运方向
-        year_stem_index = (birth_year - 4) % 10
-        is_yang_year = year_stem_index % 2 == 0
+        if year_stem is not None:
+            is_yang_year = HEAVENLY_STEMS.index(year_stem) % 2 == 0
+        else:
+            year_stem_index = (birth_year - 4) % 10
+            is_yang_year = year_stem_index % 2 == 0
 
         if (gender == "男" and is_yang_year) or (gender == "女" and not is_yang_year):
             direction = 1  # 顺行
@@ -161,8 +183,8 @@ class TimingAnalysis:
                 "branch": dayun_branch,
                 "pillar": f"{dayun_stem}{dayun_branch}",
                 "age_range": {
-                    "start": period_index * 10 + 1,
-                    "end": (period_index + 1) * 10,
+                    "start": round(start_age + period_index * 10, 2),
+                    "end": round(start_age + (period_index + 1) * 10, 2),
                 },
             }
 
@@ -203,41 +225,35 @@ class TimingAnalysis:
         }
 
     @staticmethod
-    def calculate_liuyue(target_year: int, target_month: int) -> Dict:
+    def calculate_liuyue(
+        target_year: int,
+        target_month: int,
+        target_day: int = 1,
+        timezone_name: str = DEFAULT_TIMEZONE,
+        target_date: Optional[datetime] = None,
+    ) -> Dict:
         """
-        计算指定年月的流月干支
+        按节气月令计算指定时点的流月干支
 
         Args:
             target_year: 目标年份
             target_month: 目标月份 (1-12)
+            target_day: 目标日期，默认 1
+            timezone_name: 时区
+            target_date: 完整的分析时刻；提供时优先使用
 
         Returns:
             流月信息
         """
-        # 获取年干
-        liunian_info = TimingAnalysis.calculate_liunian(target_year)
-        year_stem_index = HEAVENLY_STEMS.index(liunian_info["stem"])
+        if target_date is None:
+            target_date = datetime(target_year, target_month, target_day)
 
-        # 月干计算公式：年干索引 * 2 + 月份索引
-        # 正月建寅，从寅月开始
-        month_branch_index = (target_month + 1) % 12  # 寅月为起始
-
-        # 月干的计算
-        if year_stem_index in [0, 5]:  # 甲己年
-            month_stem_base = 2  # 丙
-        elif year_stem_index in [1, 6]:  # 乙庚年
-            month_stem_base = 4  # 戊
-        elif year_stem_index in [2, 7]:  # 丙辛年
-            month_stem_base = 6  # 庚
-        elif year_stem_index in [3, 8]:  # 丁壬年
-            month_stem_base = 8  # 壬
-        else:  # 戊癸年
-            month_stem_base = 0  # 甲
-
-        month_stem_index = (month_stem_base + target_month - 1) % 10
-
-        liuyue_stem = HEAVENLY_STEMS[month_stem_index]
-        liuyue_branch = EARTHLY_BRANCHES[month_branch_index]
+        local_target_date = localize_datetime(target_date, timezone_name)
+        bazi_year = get_bazi_year(local_target_date, timezone_name)
+        month_context = get_bazi_month_context(local_target_date, timezone_name)
+        liuyue_stem, liuyue_branch = BaZiCalendar.calculate_month_pillar_by_branch(
+            bazi_year, month_context["branch"]
+        )
 
         # 获取天干五行
         stem_element, stem_polarity = STEM_ELEMENTS[liuyue_stem]
@@ -248,13 +264,180 @@ class TimingAnalysis:
         return {
             "year": target_year,
             "month": target_month,
+            "day": local_target_date.day,
+            "analysis_datetime": local_target_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "bazi_year": bazi_year,
             "stem": liuyue_stem,
             "branch": liuyue_branch,
             "pillar": f"{liuyue_stem}{liuyue_branch}",
             "element": stem_element.value,
             "polarity": stem_polarity.value,
             "nayin": nayin,
+            "solar_term_window": {
+                "start_term": month_context["start_term"],
+                "next_term": month_context["next_term"],
+                "days_since_start": month_context["days_since_start"],
+                "days_until_next": month_context["days_until_next"],
+            },
         }
+
+    @staticmethod
+    def calculate_liuyue_timeline(
+        target_year: int,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> List[Dict]:
+        """
+        生成目标年份的 12 个节令月时间轴。
+        """
+        current_year_terms = [
+            term
+            for term in get_solar_terms_for_year(target_year, timezone_name)
+            if term.name in BAZI_MONTH_START_TERMS
+        ]
+        next_year_terms = [
+            term
+            for term in get_solar_terms_for_year(target_year + 1, timezone_name)
+            if term.name in BAZI_MONTH_START_TERMS
+        ]
+
+        timeline: List[Dict] = []
+
+        for index, start_term in enumerate(current_year_terms):
+            next_term = (
+                current_year_terms[index + 1]
+                if index + 1 < len(current_year_terms)
+                else next_year_terms[0]
+            )
+            anchor = start_term.moment + timedelta(minutes=1)
+            liuyue_info = TimingAnalysis.calculate_liuyue(
+                anchor.year,
+                anchor.month,
+                anchor.day,
+                timezone_name=timezone_name,
+                target_date=anchor,
+            )
+            timeline.append(
+                {
+                    "order": index + 1,
+                    "analysis_anchor": anchor.strftime("%Y-%m-%d %H:%M:%S"),
+                    "gregorian_window": {
+                        "start": start_term.moment.strftime("%Y-%m-%d %H:%M:%S"),
+                        "end": next_term.moment.strftime("%Y-%m-%d %H:%M:%S"),
+                        "days": round(
+                            (next_term.moment - start_term.moment).total_seconds()
+                            / 86400,
+                            4,
+                        ),
+                    },
+                    "start_term": start_term.as_dict(),
+                    "next_term": next_term.as_dict(),
+                    "liuyue": liuyue_info,
+                }
+            )
+
+        return timeline
+
+    @staticmethod
+    def calculate_liuri(
+        target_date: datetime,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> Dict:
+        """
+        计算指定时点的流日干支。
+        """
+        local_target_date = localize_datetime(target_date, timezone_name)
+        liuri_stem, liuri_branch = BaZiCalendar.calculate_day_pillar(
+            local_target_date.year,
+            local_target_date.month,
+            local_target_date.day,
+        )
+        stem_element, stem_polarity = STEM_ELEMENTS[liuri_stem]
+        nayin = get_nayin(liuri_stem, liuri_branch)
+        month_context = get_bazi_month_context(local_target_date, timezone_name)
+        weekday_names = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+
+        return {
+            "year": local_target_date.year,
+            "month": local_target_date.month,
+            "day": local_target_date.day,
+            "analysis_datetime": local_target_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "stem": liuri_stem,
+            "branch": liuri_branch,
+            "pillar": f"{liuri_stem}{liuri_branch}",
+            "element": stem_element.value,
+            "polarity": stem_polarity.value,
+            "nayin": nayin,
+            "weekday": weekday_names[local_target_date.weekday()],
+            "solar_term_window": {
+                "start_term": month_context["start_term"],
+                "next_term": month_context["next_term"],
+                "days_since_start": month_context["days_since_start"],
+                "days_until_next": month_context["days_until_next"],
+            },
+        }
+
+    @staticmethod
+    def calculate_jieqi_transition_timeline(
+        target_year: int,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> List[Dict]:
+        """
+        生成目标年份 24 节气切换节点的时运时间轴。
+        """
+        timeline: List[Dict] = []
+        for index, term in enumerate(get_solar_terms_for_year(target_year, timezone_name)):
+            anchor = term.moment + timedelta(minutes=1)
+            timeline.append(
+                {
+                    "order": index + 1,
+                    "jieqi": term.as_dict(),
+                    "analysis_anchor": anchor.strftime("%Y-%m-%d %H:%M:%S"),
+                    "liuyue": TimingAnalysis.calculate_liuyue(
+                        anchor.year,
+                        anchor.month,
+                        anchor.day,
+                        timezone_name=timezone_name,
+                        target_date=anchor,
+                    ),
+                    "liuri": TimingAnalysis.calculate_liuri(
+                        anchor, timezone_name=timezone_name
+                    ),
+                }
+            )
+        return timeline
+
+    @staticmethod
+    def _collect_branch_relations(
+        target_branch: str,
+        birth_pillars: Dict,
+        label: str,
+    ) -> List[Dict]:
+        """收集目标支与命局四支的冲合关系。"""
+        branch_relations = []
+        for pillar_name, pillar_data in birth_pillars.items():
+            pillar_branch = pillar_data[1]
+
+            if check_branch_conflict(target_branch, pillar_branch):
+                branch_relations.append(
+                    {
+                        "type": "六冲",
+                        "with_pillar": pillar_name,
+                        "with_branch": pillar_branch,
+                        "description": f"{label}{target_branch}与{pillar_name}柱{pillar_branch}相冲",
+                    }
+                )
+
+            if check_branch_combination(target_branch, pillar_branch):
+                branch_relations.append(
+                    {
+                        "type": "六合",
+                        "with_pillar": pillar_name,
+                        "with_branch": pillar_branch,
+                        "description": f"{label}{target_branch}与{pillar_name}柱{pillar_branch}六合",
+                    }
+                )
+
+        return branch_relations
 
     @staticmethod
     def analyze_liuyue_detailed(
@@ -262,6 +445,9 @@ class TimingAnalysis:
         target_year: int,
         target_month: int,
         day_stem: Optional[str] = None,
+        target_day: int = 1,
+        timezone_name: str = DEFAULT_TIMEZONE,
+        target_date: Optional[datetime] = None,
     ) -> Dict:
         """
         流月的详细分析，包括十神关系、吉凶判断等
@@ -276,7 +462,13 @@ class TimingAnalysis:
             流月详细分析结果
         """
         # 获取基础流月信息
-        liuyue_info = TimingAnalysis.calculate_liuyue(target_year, target_month)
+        liuyue_info = TimingAnalysis.calculate_liuyue(
+            target_year,
+            target_month,
+            target_day=target_day,
+            timezone_name=timezone_name,
+            target_date=target_date,
+        )
 
         # 获取日主
         if day_stem is None:
@@ -286,40 +478,18 @@ class TimingAnalysis:
         stem_shishen = get_shishen(day_stem, liuyue_info["stem"])
 
         # 分析流月与命局的冲合关系
-        branch_relations = []
-        for pillar_name, pillar_data in birth_pillars.items():
-            pillar_branch = pillar_data[1]  # 地支
-
-            # 检查六冲
-            if check_branch_conflict(liuyue_info["branch"], pillar_branch):
-                branch_relations.append(
-                    {
-                        "type": "六冲",
-                        "with_pillar": pillar_name,
-                        "with_branch": pillar_branch,
-                        "description": f"流月{liuyue_info['branch']}与{pillar_name}柱{pillar_branch}相冲",
-                    }
-                )
-
-            # 检查六合
-            if check_branch_combination(liuyue_info["branch"], pillar_branch):
-                branch_relations.append(
-                    {
-                        "type": "六合",
-                        "with_pillar": pillar_name,
-                        "with_branch": pillar_branch,
-                        "description": f"流月{liuyue_info['branch']}与{pillar_name}柱{pillar_branch}六合",
-                    }
-                )
+        branch_relations = TimingAnalysis._collect_branch_relations(
+            liuyue_info["branch"], birth_pillars, "流月"
+        )
 
         # 分析吉凶趋势
         fortune_analysis = TimingAnalysis._analyze_liuyue_fortune(
-            stem_shishen, branch_relations, liuyue_info
+            stem_shishen, branch_relations, liuyue_info, scope_label="本月"
         )
 
         # 生成运势建议
         suggestions = TimingAnalysis._generate_liuyue_suggestions(
-            stem_shishen, branch_relations, fortune_analysis
+            stem_shishen, branch_relations, fortune_analysis, scope_label="本月"
         )
 
         return {
@@ -337,8 +507,53 @@ class TimingAnalysis:
         }
 
     @staticmethod
+    def analyze_liuri_detailed(
+        birth_pillars: Dict,
+        target_date: datetime,
+        day_stem: Optional[str] = None,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> Dict:
+        """
+        流日详细分析，包括十神关系、冲合与日级建议。
+        """
+        liuri_info = TimingAnalysis.calculate_liuri(
+            target_date, timezone_name=timezone_name
+        )
+
+        if day_stem is None:
+            day_stem = birth_pillars["day"][0]
+
+        stem_shishen = get_shishen(day_stem, liuri_info["stem"])
+        branch_relations = TimingAnalysis._collect_branch_relations(
+            liuri_info["branch"], birth_pillars, "流日"
+        )
+        fortune_analysis = TimingAnalysis._analyze_liuyue_fortune(
+            stem_shishen, branch_relations, liuri_info, scope_label="本日"
+        )
+        suggestions = TimingAnalysis._generate_liuyue_suggestions(
+            stem_shishen, branch_relations, fortune_analysis, scope_label="本日"
+        )
+
+        return {
+            "basic_info": liuri_info,
+            "shishen_analysis": {
+                "stem_relation": stem_shishen,
+                "description": f"流日天干{liuri_info['stem']}对日主{day_stem}为{stem_shishen}",
+            },
+            "branch_relations": branch_relations,
+            "fortune_analysis": fortune_analysis,
+            "suggestions": suggestions,
+            "overall_summary": TimingAnalysis._generate_liuri_summary(
+                liuri_info, stem_shishen, branch_relations, fortune_analysis
+            ),
+        }
+
+    @staticmethod
     def _analyze_liuyue_fortune(
-        stem_shishen: str, branch_relations: List[Dict], liuyue_info: Dict
+        stem_shishen: str,
+        branch_relations: List[Dict],
+        liuyue_info: Dict,
+        scope_label: str = "本阶段",
     ) -> Dict:
         """
         分析流月的吉凶趋势
@@ -415,12 +630,15 @@ class TimingAnalysis:
             "fortune_factors": fortune_factors,
             "overall_fortune": overall_fortune,
             "nayin_description": nayin_desc,
-            "detailed_analysis": f"本月运势{overall_fortune}，总分{fortune_score}分",
+            "detailed_analysis": f"{scope_label}运势{overall_fortune}，总分{fortune_score}分",
         }
 
     @staticmethod
     def _generate_liuyue_suggestions(
-        stem_shishen: str, branch_relations: List[Dict], fortune_analysis: Dict
+        stem_shishen: str,
+        branch_relations: List[Dict],
+        fortune_analysis: Dict,
+        scope_label: str = "本阶段",
     ) -> List[str]:
         """
         生成流月运势建议
@@ -457,9 +675,9 @@ class TimingAnalysis:
         has_combination = any(r["type"] == "六合" for r in branch_relations)
 
         if has_conflict:
-            suggestions.append("本月有冲克之象，宜静不宜动，避免重大决策")
+            suggestions.append(f"{scope_label}有冲克之象，宜静不宜动，避免重大决策")
         if has_combination:
-            suggestions.append("本月有合化之象，人际关系和谐，适合合作")
+            suggestions.append(f"{scope_label}有合化之象，人际关系和谐，适合合作")
 
         # 基于总体运势的建议
         overall_fortune = fortune_analysis["overall_fortune"]
@@ -509,12 +727,40 @@ class TimingAnalysis:
         return "，".join(summary_parts) + "。"
 
     @staticmethod
+    def _generate_liuri_summary(
+        liuri_info: Dict,
+        stem_shishen: str,
+        branch_relations: List[Dict],
+        fortune_analysis: Dict,
+    ) -> str:
+        """生成流日分析总结。"""
+        year_month_day = (
+            f"{liuri_info['year']}年{liuri_info['month']}月{liuri_info['day']}日"
+        )
+        pillar = liuri_info["pillar"]
+        nayin = liuri_info["nayin"]
+        overall_fortune = fortune_analysis["overall_fortune"]
+
+        summary_parts = [
+            f"{year_month_day}流日{pillar}({nayin})",
+            f"十神{stem_shishen}",
+            f"总体运势{overall_fortune}",
+        ]
+
+        if branch_relations:
+            relation_desc = "、".join([r["type"] for r in branch_relations])
+            summary_parts.append(f"有{relation_desc}关系")
+
+        return "，".join(summary_parts) + "。"
+
+    @staticmethod
     def get_current_dayun(
         birth_date: datetime,
         month_pillar_stem: str,
         month_pillar_branch: str,
         gender: str,
         current_date: Optional[datetime] = None,
+        timezone_name: str = DEFAULT_TIMEZONE,
     ) -> Dict:
         """
         获取当前大运信息
@@ -533,9 +779,13 @@ class TimingAnalysis:
             current_date = datetime.now()
 
         # 计算起运年龄
-        start_age = TimingAnalysis.calculate_dayun_start_age(
-            birth_date, month_pillar_stem, gender
+        start_info = TimingAnalysis.calculate_dayun_start_details(
+            birth_date,
+            month_pillar_stem,
+            gender,
+            timezone_name=timezone_name,
         )
+        start_age = start_info["start_age_precise"]
 
         # 计算当前年龄
         current_age = current_date.year - birth_date.year
@@ -548,23 +798,31 @@ class TimingAnalysis:
         if current_age < start_age:
             return {
                 "status": "before_dayun",
-                "message": f"尚未起运，将在{start_age}岁起运",
-                "start_age": start_age,
+                "message": f"尚未起运，约在{start_age}岁起运",
+                "start_age": start_info["start_age_rounded"],
+                "start_age_precise": start_age,
             }
 
-        dayun_age = current_age - start_age + 1
-        current_period = (dayun_age - 1) // 10 + 1
+        dayun_age = round(current_age - start_age, 2)
+        current_period = int(dayun_age // 10) + 1
 
         # 获取大运序列
         dayun_sequence = TimingAnalysis.calculate_dayun_sequence(
-            month_pillar_stem, month_pillar_branch, gender, birth_date.year
+            month_pillar_stem,
+            month_pillar_branch,
+            gender,
+            birth_date.year,
+            start_age=start_age,
+            year_stem=start_info["year_stem"],
         )
 
         if current_period <= len(dayun_sequence):
             current_dayun = dayun_sequence[current_period - 1]
             current_dayun["current_age"] = current_age
             current_dayun["dayun_age"] = dayun_age
-            current_dayun["years_in_period"] = (dayun_age - 1) % 10 + 1
+            current_dayun["years_in_period"] = round(
+                dayun_age - (current_period - 1) * 10, 2
+            )
             return current_dayun
         else:
             return {
@@ -600,16 +858,21 @@ class TimingAnalysis:
 
         # 获取当前流月
         current_liuyue = TimingAnalysis.calculate_liuyue(
-            current_date.year, current_date.month
+            current_date.year,
+            current_date.month,
+            target_day=current_date.day,
+            target_date=current_date,
         )
 
         return {
             "analysis_date": current_date.strftime("%Y-%m-%d"),
             "liunian": current_liunian,
             "liuyue": current_liuyue,
+            "liuri": TimingAnalysis.calculate_liuri(current_date),
             "summary": {
                 "year_pillar": current_liunian["pillar"],
                 "month_pillar": current_liuyue["pillar"],
+                "day_pillar": TimingAnalysis.calculate_liuri(current_date)["pillar"],
                 "analysis": "时运分析需要结合具体命局进行详细解读",
             },
         }

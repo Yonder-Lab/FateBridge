@@ -6,10 +6,20 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import FateBridgeRequest
-from fastmcp_server import analyze_destiny, timing_analysis, two_person_compatibility
+from api import FateBridgeRequest, JieqiTimelineRequest, LiuriAnalysisRequest
+from fastmcp_server import (
+    analyze_destiny,
+    jieqi_timeline_analysis,
+    liuri_analysis,
+    timing_analysis,
+    two_person_compatibility,
+)
 from fatebridge.services.calculation import calculate_destiny_analysis
-from fatebridge.services.timing import calculate_comprehensive_timing
+from fatebridge.services.timing import (
+    calculate_comprehensive_timing,
+    calculate_jieqi_timeline_analysis,
+    calculate_liuri_analysis,
+)
 from fatebridge.utils.helpers import create_person_info, normalize_birth_time
 
 
@@ -34,6 +44,33 @@ def test_request_model_accepts_birth_time_precision_fields():
     assert payload["birth_timezone"] == "Asia/Shanghai"
     assert payload["birth_longitude"] == pytest.approx(116.4074)
     assert payload["use_true_solar_time"] is True
+
+
+def test_timing_request_models_accept_analysis_fields():
+    liuri_request = LiuriAnalysisRequest(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+    )
+    jieqi_request = JieqiTimelineRequest(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        target_year=2028,
+    )
+
+    liuri_payload = liuri_request.model_dump()
+    jieqi_payload = jieqi_request.model_dump()
+
+    assert liuri_payload["analysis_year"] == 2028
+    assert liuri_payload["analysis_month"] == 4
+    assert liuri_payload["analysis_day"] == 1
+    assert jieqi_payload["target_year"] == 2028
 
 
 def test_normalize_birth_time_preserves_legacy_hour_only_behavior():
@@ -239,10 +276,54 @@ def test_calculate_comprehensive_timing_uses_corrected_birth_time():
     assert result["birth_pillars"]["hour"]["branch"] == "亥"
 
 
+def test_calculate_liuri_analysis_returns_expected_pillar():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_liuri_analysis(
+        person, analysis_year=2028, analysis_month=4, analysis_day=1
+    )
+
+    assert result["liuri_info"]["pillar"] == "丙辰"
+    assert result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
+
+
+def test_calculate_jieqi_timeline_analysis_returns_qingming_node():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_jieqi_timeline_analysis(person, target_year=2028)
+
+    assert len(result["jieqi_timeline"]) == 24
+    qingming_node = next(
+        item for item in result["jieqi_timeline"] if item["jieqi"]["name"] == "清明"
+    )
+    assert qingming_node["liuyue"]["pillar"] == "丙辰"
+    assert qingming_node["liuri"]["pillar"] == "己未"
+
+
 def test_fastmcp_tools_expose_birth_time_precision_arguments():
     analyze_properties = analyze_destiny.parameters["properties"]
     compatibility_properties = two_person_compatibility.parameters["properties"]
     timing_properties = timing_analysis.parameters["properties"]
+    liuri_properties = liuri_analysis.parameters["properties"]
+    jieqi_properties = jieqi_timeline_analysis.parameters["properties"]
 
     assert "birth_minute" in analyze_properties
     assert "birth_timezone" in analyze_properties
@@ -256,3 +337,7 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     assert "person1_birth_longitude" in compatibility_properties
     assert "person2_birth_longitude" in compatibility_properties
     assert "use_true_solar_time" in timing_properties
+    assert "analysis_year" in liuri_properties
+    assert "analysis_month" in liuri_properties
+    assert "analysis_day" in liuri_properties
+    assert "target_year" in jieqi_properties

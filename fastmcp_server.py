@@ -6,6 +6,7 @@ Provides core BaZi fortune-telling functionality via FastMCP protocol:
 1. analyze_destiny - Individual destiny analysis
 2. two_person_compatibility - Compatibility analysis between two people
 3. timing_analysis - Comprehensive timing (luck period) analysis
+4. meihua_analysis - Mei Hua Yi Shu time-seeded divination
 """
 
 import logging
@@ -19,11 +20,14 @@ from fatebridge.utils.helpers import (
     format_error_response,
 )
 from fatebridge.services.calculation import calculate_destiny_analysis
+from fatebridge.services.divination import calculate_meihua_analysis
 from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,
     calculate_dayun_analysis,
+    calculate_jieqi_timeline_analysis,
     calculate_liunian_analysis,
+    calculate_liuri_analysis,
 )
 
 # ============================================================================
@@ -43,8 +47,8 @@ logger = logging.getLogger(__name__)
 
 app = FastMCP(
     name="fatebridge",
-    instructions="中国传统八字测算工具，提供单人分析、双人配合度计算和时运分析（大运、流年、流月）。只输出计算数据，不包含建议。",
-    version="2.1.0",
+    instructions="中国传统八字与时运测算工具，提供单人分析、双人配合度、时运分析与梅花时卦辅助。只输出计算数据，不包含建议。",
+    version="2.2.0",
 )
 
 
@@ -392,6 +396,137 @@ def liunian_analysis(
     
     if "error" in result:
         return format_error_response(result, "流年分析")
+
+    return format_json_response(result)
+
+
+@app.tool
+def meihua_analysis(
+    analysis_year: int,
+    analysis_month: int,
+    analysis_day: int,
+    analysis_hour: int,
+    question: Optional[str] = None,
+    *,
+    analysis_minute: int = 0,
+    analysis_timezone: Optional[str] = None,
+) -> str:
+    """
+    梅花时卦分析工具 - 根据指定时刻起本卦、变卦、互卦、综卦与体用关系
+
+    Args:
+        analysis_year: 起卦年份
+        analysis_month: 起卦月份 (1-12)
+        analysis_day: 起卦日期 (1-31)
+        analysis_hour: 起卦时辰 (0-23)
+        question: 占问主题（可选）
+        analysis_minute: 起卦分钟，默认0
+        analysis_timezone: 起卦时区（可选）
+
+    Returns:
+        格式化的梅花时卦分析结果
+    """
+    result = calculate_meihua_analysis(
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
+        analysis_timezone=analysis_timezone,
+        question=question,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "梅花时卦分析")
+
+    return format_json_response(result)
+
+
+@app.tool
+def liuri_analysis(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    name: Optional[str] = "未提供",
+    gender: Optional[str] = "未知",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    use_true_solar_time: bool = False,
+) -> str:
+    """
+    流日分析工具 - 专门分析指定日期的流日影响
+    """
+    person = create_person_info(
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+
+    result = calculate_liuri_analysis(
+        person,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "流日分析")
+
+    return format_json_response(result)
+
+
+@app.tool
+def jieqi_timeline_analysis(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    target_year: Optional[int] = None,
+    name: Optional[str] = "未提供",
+    gender: Optional[str] = "未知",
+    birth_place: Optional[str] = "未提供",
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    use_true_solar_time: bool = False,
+) -> str:
+    """
+    节气节点时间轴分析工具 - 输出全年 24 节气节点的流月/流日切换信息
+    """
+    person = create_person_info(
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+
+    result = calculate_jieqi_timeline_analysis(person, target_year=target_year)
+
+    if "error" in result:
+        return format_error_response(result, "节气时间轴分析")
 
     return format_json_response(result)
 

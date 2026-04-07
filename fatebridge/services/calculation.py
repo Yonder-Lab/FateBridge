@@ -4,6 +4,7 @@ FateBridge Calculation Services
 from typing import Dict
 
 # Import core modules
+from fatebridge.core.almanac import build_calendar_context
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.rules import BaZiRules
@@ -30,7 +31,15 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
         )
 
         # 计算四柱
-        pillars = BaZiCalendar.get_four_pillars(corrected_birth_datetime)
+        pillars = BaZiCalendar.get_four_pillars(
+            corrected_birth_datetime,
+            timezone_name=normalized_birth_time.timezone,
+        )
+        calendar_context = build_calendar_context(
+            corrected_birth_datetime,
+            timezone_name=normalized_birth_time.timezone,
+            pillars=pillars,
+        )
 
         # 五行分析
         element_analysis = ElementAnalysis.comprehensive_analysis(pillars)
@@ -82,6 +91,7 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
                 "fu_yin_fan_yin": fu_yin_fan_yin,
                 "special": special_patterns,
             },
+            "calendar_context": calendar_context,
         }
     except Exception as e:
         return handle_calculation_error(e, "命理分析计算")
