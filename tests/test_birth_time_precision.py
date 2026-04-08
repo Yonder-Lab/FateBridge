@@ -7,14 +7,19 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import (
+    DayunAnalysisRequest,
     FateBridgeRequest,
     JieqiTimelineRequest,
+    LiunianAnalysisRequest,
     LiuriAnalysisRequest,
     LiuyueAnalysisRequest,
+    TimingAnalysisRequest,
 )
 from fastmcp_server import (
     analyze_destiny,
+    dayun_analysis,
     jieqi_timeline_analysis,
+    liunian_analysis,
     liuri_analysis,
     liuyue_analysis,
     timing_analysis,
@@ -23,7 +28,9 @@ from fastmcp_server import (
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,
+    calculate_dayun_analysis,
     calculate_jieqi_timeline_analysis,
+    calculate_liunian_analysis,
     calculate_liuri_analysis,
     calculate_liuyue_analysis,
 )
@@ -54,6 +61,33 @@ def test_request_model_accepts_birth_time_precision_fields():
 
 
 def test_timing_request_models_accept_analysis_fields():
+    timing_request = TimingAnalysisRequest(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_age=38,
+        selected_sections=["查询信息", "综合影响"],
+    )
+    dayun_request = DayunAnalysisRequest(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        gender="男",
+        analysis_age=38,
+        selected_sections=["查询信息", "大运信息"],
+    )
+    liunian_request = LiunianAnalysisRequest(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        target_year=2028,
+        selected_sections=["查询信息", "流年信息"],
+    )
     liuyue_request = LiuyueAnalysisRequest(
         birth_year=1990,
         birth_month=5,
@@ -62,6 +96,7 @@ def test_timing_request_models_accept_analysis_fields():
         analysis_year=2028,
         analysis_month=4,
         analysis_day=1,
+        selected_sections=["查询信息", "流月信息"],
     )
     liuri_request = LiuriAnalysisRequest(
         birth_year=1990,
@@ -78,19 +113,34 @@ def test_timing_request_models_accept_analysis_fields():
         birth_day=15,
         birth_hour=10,
         target_year=2028,
+        selected_sections=["查询信息", "节点时间轴"],
     )
 
+    timing_payload = timing_request.model_dump()
+    dayun_payload = dayun_request.model_dump()
+    liunian_payload = liunian_request.model_dump()
     liuyue_payload = liuyue_request.model_dump()
     liuri_payload = liuri_request.model_dump()
     jieqi_payload = jieqi_request.model_dump()
 
+    assert timing_payload["analysis_year"] == 2028
+    assert timing_payload["analysis_month"] == 4
+    assert timing_payload["analysis_age"] == 38
+    assert timing_payload["selected_sections"] == ["查询信息", "综合影响"]
+    assert dayun_payload["gender"] == "男"
+    assert dayun_payload["analysis_age"] == 38
+    assert dayun_payload["selected_sections"] == ["查询信息", "大运信息"]
+    assert liunian_payload["target_year"] == 2028
+    assert liunian_payload["selected_sections"] == ["查询信息", "流年信息"]
     assert liuyue_payload["analysis_year"] == 2028
     assert liuyue_payload["analysis_month"] == 4
     assert liuyue_payload["analysis_day"] == 1
+    assert liuyue_payload["selected_sections"] == ["查询信息", "流月信息"]
     assert liuri_payload["analysis_year"] == 2028
     assert liuri_payload["analysis_month"] == 4
     assert liuri_payload["analysis_day"] == 1
     assert jieqi_payload["target_year"] == 2028
+    assert jieqi_payload["selected_sections"] == ["查询信息", "节点时间轴"]
 
 
 def test_normalize_birth_time_preserves_legacy_hour_only_behavior():
@@ -296,6 +346,88 @@ def test_calculate_comprehensive_timing_uses_corrected_birth_time():
     assert result["birth_pillars"]["hour"]["branch"] == "亥"
 
 
+def test_calculate_comprehensive_timing_supports_snapshot_export_and_age_override():
+    person = create_person_info(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_comprehensive_timing(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_age=42,
+        selected_sections=["查询信息", "综合影响"],
+    )
+    dayun_result = calculate_dayun_analysis(person, 42)
+
+    assert result["personal_info"]["current_age"] == 42
+    assert result["dayun_analysis"]["current_dayun"] == dayun_result["dayun_info"]["current_dayun"]
+    assert "[查询信息]" in result["snapshot_text"]
+    assert "[大运摘要]" in result["snapshot_text"]
+    assert "[流年流月流日]" in result["snapshot_text"]
+    assert "[综合影响]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "综合影响"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[综合影响]" in result["snapshot_export"]["export_text"]
+    assert "[大运摘要]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
+def test_calculate_dayun_analysis_supports_snapshot_export():
+    person = create_person_info(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_dayun_analysis(person, 38)
+
+    assert "current_dayun" in result["dayun_info"]
+    assert "[查询信息]" in result["snapshot_text"]
+    assert "[大运信息]" in result["snapshot_text"]
+    assert "[影响摘要]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_dayun_analysis_supports_selected_export_sections():
+    person = create_person_info(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_dayun_analysis(
+        person,
+        38,
+        selected_sections=["查询信息", "大运信息"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "大运信息"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[大运信息]" in result["snapshot_export"]["export_text"]
+    assert "[影响摘要]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
 def test_calculate_liuri_analysis_returns_expected_pillar():
     person = create_person_info(
         birth_year=2028,
@@ -314,6 +446,88 @@ def test_calculate_liuri_analysis_returns_expected_pillar():
 
     assert result["liuri_info"]["pillar"] == "丙辰"
     assert result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
+    assert "[查询信息]" in result["snapshot_text"]
+    assert "[流日信息]" in result["snapshot_text"]
+    assert "[影响摘要]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_liuri_analysis_supports_selected_export_sections():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_liuri_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+        selected_sections=["查询信息", "流日信息"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "流日信息"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[流日信息]" in result["snapshot_export"]["export_text"]
+    assert "[影响摘要]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
+def test_calculate_liunian_analysis_supports_snapshot_export():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_liunian_analysis(
+        person,
+        2028,
+    )
+
+    assert result["liunian_info"]["pillar"] == "戊申"
+    assert "[查询信息]" in result["snapshot_text"]
+    assert "[流年信息]" in result["snapshot_text"]
+    assert "[影响摘要]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_liunian_analysis_supports_selected_export_sections():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_liunian_analysis(
+        person,
+        2028,
+        selected_sections=["查询信息", "流年信息"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "流年信息"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[流年信息]" in result["snapshot_export"]["export_text"]
+    assert "[影响摘要]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
 
 
 def test_calculate_liuyue_analysis_returns_expected_pillar():
@@ -337,6 +551,39 @@ def test_calculate_liuyue_analysis_returns_expected_pillar():
     assert result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
     assert result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"] == "清明"
     assert result["liunian_info"]["pillar"] == "戊申"
+    assert "[查询信息]" in result["snapshot_text"]
+    assert "[流月信息]" in result["snapshot_text"]
+    assert "[流年联动]" in result["snapshot_text"]
+    assert "[影响摘要]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_liuyue_analysis_supports_selected_export_sections():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_liuyue_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+        selected_sections=["查询信息", "流月信息"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "流月信息"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[流月信息]" in result["snapshot_export"]["export_text"]
+    assert "[流年联动]" not in result["snapshot_export"]["export_text"]
+    assert "[影响摘要]" not in result["snapshot_export"]["export_text"]
 
 
 def test_calculate_jieqi_timeline_analysis_returns_qingming_node():
@@ -359,12 +606,85 @@ def test_calculate_jieqi_timeline_analysis_returns_qingming_node():
     )
     assert qingming_node["liuyue"]["pillar"] == "丙辰"
     assert qingming_node["liuri"]["pillar"] == "己未"
+    assert "[查询信息]" in result["snapshot_text"]
+    assert "[年度节气]" in result["snapshot_text"]
+    assert "[节点时间轴]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_jieqi_timeline_analysis_supports_selected_export_sections():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_jieqi_timeline_analysis(
+        person,
+        target_year=2028,
+        selected_sections=["查询信息", "节点时间轴"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "节点时间轴"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[节点时间轴]" in result["snapshot_export"]["export_text"]
+    assert "[年度节气]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
+def test_comprehensive_timing_matches_specialized_timing_tools():
+    person = create_person_info(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    timing_result = calculate_comprehensive_timing(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_age=42,
+    )
+    dayun_result = calculate_dayun_analysis(person, 42)
+    liunian_result = calculate_liunian_analysis(person, 2028)
+    liuyue_result = calculate_liuyue_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+    )
+    liuri_result = calculate_liuri_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+    )
+
+    assert timing_result["dayun_analysis"]["current_dayun"] == dayun_result["dayun_info"]["current_dayun"]
+    assert timing_result["dayun_analysis"]["start_age"] == dayun_result["dayun_info"]["start_age"]
+    assert timing_result["dayun_analysis"]["dayun_age"] == dayun_result["dayun_info"]["dayun_age"]
+    assert timing_result["liunian_analysis"]["pillar"] == liunian_result["liunian_info"]["pillar"]
+    assert timing_result["liuyue_analysis"]["pillar"] == liuyue_result["liuyue_info"]["pillar"]
+    assert timing_result["liuri_analysis"]["pillar"] == liuri_result["liuri_info"]["pillar"]
 
 
 def test_fastmcp_tools_expose_birth_time_precision_arguments():
     analyze_properties = analyze_destiny.parameters["properties"]
     compatibility_properties = two_person_compatibility.parameters["properties"]
     timing_properties = timing_analysis.parameters["properties"]
+    dayun_properties = dayun_analysis.parameters["properties"]
+    liunian_properties = liunian_analysis.parameters["properties"]
     liuyue_properties = liuyue_analysis.parameters["properties"]
     liuri_properties = liuri_analysis.parameters["properties"]
     jieqi_properties = jieqi_timeline_analysis.parameters["properties"]
@@ -381,10 +701,16 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     assert "person1_birth_longitude" in compatibility_properties
     assert "person2_birth_longitude" in compatibility_properties
     assert "use_true_solar_time" in timing_properties
+    assert "selected_sections" in timing_properties
+    assert "selected_sections" in dayun_properties
+    assert "selected_sections" in liunian_properties
     assert "analysis_year" in liuyue_properties
     assert "analysis_month" in liuyue_properties
     assert "analysis_day" in liuyue_properties
+    assert "selected_sections" in liuyue_properties
     assert "analysis_year" in liuri_properties
     assert "analysis_month" in liuri_properties
     assert "analysis_day" in liuri_properties
+    assert "selected_sections" in liuri_properties
     assert "target_year" in jieqi_properties
+    assert "selected_sections" in jieqi_properties

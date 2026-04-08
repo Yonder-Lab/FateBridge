@@ -21,14 +21,15 @@ Provides Chinese metaphysics and approximate astrology functionality via FastMCP
 16. bazi_direct - Standalone BaZi direct timing snapshot
 17. solarreturn - Standalone solar return snapshot
 18. lunarreturn - Standalone lunar return snapshot
-19. solararc - Standalone solar arc snapshot
-20. givenyear - Standalone given-year chart snapshot
-21. profection - Standalone annual profection snapshot
-22. pd - Standalone primary-directions snapshot
-23. pdchart - Standalone primary-direction chart snapshot
-24. zr - Standalone zodiacal releasing snapshot
-25. firdaria - Standalone firdaria snapshot
-26. decennials - Standalone decennials snapshot
+19. transit - Standalone transit snapshot
+20. solararc - Standalone solar arc snapshot
+21. givenyear - Standalone given-year chart snapshot
+22. profection - Standalone annual profection snapshot
+23. pd - Standalone primary-directions snapshot
+24. pdchart - Standalone primary-direction chart snapshot
+25. zr - Standalone zodiacal releasing snapshot
+26. firdaria - Standalone firdaria snapshot
+27. decennials - Standalone decennials snapshot
 """
 
 import logging
@@ -56,6 +57,7 @@ from fatebridge.services.western_timing_tools import (
     calculate_profection as calculate_profection_service,
     calculate_solararc as calculate_solararc_service,
     calculate_solarreturn as calculate_solarreturn_service,
+    calculate_transit as calculate_transit_service,
     calculate_zr as calculate_zr_service,
 )
 from fatebridge.utils.helpers import (
@@ -409,10 +411,11 @@ def timing_analysis(
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
-    时运分析工具 - 分析大运、流年、流月对命局的影响
+    时运分析工具 - 分析大运、流年、流月对命局的影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
 
     Args:
         birth_year: 出生年份
@@ -428,6 +431,7 @@ def timing_analysis(
         birth_minute: 出生分钟，默认0
         birth_timezone: 出生时区（可选）
         birth_longitude: 出生地经度（可选）
+        selected_sections: 仅导出指定 section（可选）
         use_true_solar_time: 是否启用真太阳时修正
 
     Returns:
@@ -451,7 +455,11 @@ def timing_analysis(
 
     # 计算时运分析
     result = calculate_comprehensive_timing(
-        person, analysis_year, analysis_month, analysis_age
+        person,
+        analysis_year,
+        analysis_month,
+        analysis_age,
+        selected_sections=selected_sections,
     )
 
     if "error" in result:
@@ -474,10 +482,11 @@ def dayun_analysis(
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
-    大运分析工具 - 专门分析指定年龄的大运情况
+    大运分析工具 - 专门分析指定年龄的大运情况，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
 
     Args:
         birth_year: 出生年份
@@ -491,6 +500,7 @@ def dayun_analysis(
         birth_minute: 出生分钟，默认0
         birth_timezone: 出生时区（可选）
         birth_longitude: 出生地经度（可选）
+        selected_sections: 仅导出指定 section（可选）
         use_true_solar_time: 是否启用真太阳时修正
 
     Returns:
@@ -510,7 +520,11 @@ def dayun_analysis(
         use_true_solar_time=use_true_solar_time,
     )
 
-    result = calculate_dayun_analysis(person, analysis_age)
+    result = calculate_dayun_analysis(
+        person,
+        analysis_age,
+        selected_sections=selected_sections,
+    )
     
     if "error" in result and result.get("analysis_type") is None:
          # Only treat as error response if it's not a partial error inside the result
@@ -533,10 +547,11 @@ def liunian_analysis(
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
-    流年分析工具 - 专门分析指定年份的流年影响
+    流年分析工具 - 专门分析指定年份的流年影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
 
     Args:
         birth_year: 出生年份
@@ -569,7 +584,11 @@ def liunian_analysis(
         use_true_solar_time=use_true_solar_time,
     )
 
-    result = calculate_liunian_analysis(person, target_year)
+    result = calculate_liunian_analysis(
+        person,
+        target_year,
+        selected_sections=selected_sections,
+    )
     
     if "error" in result:
         return format_error_response(result, "流年分析")
@@ -593,10 +612,11 @@ def liuyue_analysis(
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
-    流月分析工具 - 专门分析指定日期所在节令月的影响
+    流月分析工具 - 专门分析指定日期所在节令月的影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
 
     Args:
         birth_year: 出生年份
@@ -636,6 +656,7 @@ def liuyue_analysis(
         analysis_year=analysis_year,
         analysis_month=analysis_month,
         analysis_day=analysis_day,
+        selected_sections=selected_sections,
     )
 
     if "error" in result:
@@ -955,9 +976,10 @@ def jieqi_year(
     gps_lat: Optional[float] = None,
     gps_lon: Optional[float] = None,
     jieqis: Optional[list[str]] = None,
+    selected_sections: Optional[list[str]] = None,
 ) -> str:
     """
-    全年节气盘辅助工具 - 输出全年 24 节气节点，可按名称筛选重点节气。
+    全年节气盘辅助工具 - 输出全年 24 节气节点，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     result = calculate_jieqi_year(
         year=year,
@@ -967,6 +989,7 @@ def jieqi_year(
         gps_lat=gps_lat,
         gps_lon=gps_lon,
         jieqis=jieqis,
+        selected_sections=selected_sections,
     )
 
     if "error" in result:
@@ -989,9 +1012,10 @@ def nongli_time(
     after23_new_day: bool = False,
     time_alg: int = 0,
     ad: int = 1,
+    selected_sections: Optional[list[str]] = None,
 ) -> str:
     """
-    农历换算辅助工具 - 输出农历日期、节气与四柱上下文。
+    农历换算辅助工具 - 输出农历日期、节气与四柱上下文，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     result = calculate_nongli_time(
         date=date,
@@ -1005,6 +1029,7 @@ def nongli_time(
         after23_new_day=after23_new_day,
         time_alg=time_alg,
         ad=ad,
+        selected_sections=selected_sections,
     )
 
     if "error" in result:
@@ -1587,10 +1612,11 @@ def liuri_analysis(
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
-    流日分析工具 - 专门分析指定日期的流日影响
+    流日分析工具 - 专门分析指定日期的流日影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
     """
     person = create_person_info(
         birth_year,
@@ -1611,6 +1637,7 @@ def liuri_analysis(
         analysis_year=analysis_year,
         analysis_month=analysis_month,
         analysis_day=analysis_day,
+        selected_sections=selected_sections,
     )
 
     if "error" in result:
@@ -1633,10 +1660,11 @@ def jieqi_timeline_analysis(
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
-    节气节点时间轴分析工具 - 输出全年 24 节气节点的流月/流日切换信息
+    节气节点时间轴分析工具 - 输出全年 24 节气节点的流月/流日切换信息，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
     """
     person = create_person_info(
         birth_year,
@@ -1652,7 +1680,11 @@ def jieqi_timeline_analysis(
         use_true_solar_time=use_true_solar_time,
     )
 
-    result = calculate_jieqi_timeline_analysis(person, target_year=target_year)
+    result = calculate_jieqi_timeline_analysis(
+        person,
+        target_year=target_year,
+        selected_sections=selected_sections,
+    )
 
     if "error" in result:
         return format_error_response(result, "节气时间轴分析")
@@ -2003,6 +2035,65 @@ def lunarreturn(
     return _run_western_timing_module_tool(
         "西占月亮返照",
         calculate_lunarreturn_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def transit(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占行运盘独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占行运盘",
+        calculate_transit_service,
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,

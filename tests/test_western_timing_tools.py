@@ -16,6 +16,7 @@ from fastmcp_server import (
     profection,
     solararc,
     solarreturn,
+    transit,
     zr,
 )
 from fatebridge.services.western_timing_tools import (
@@ -28,6 +29,7 @@ from fatebridge.services.western_timing_tools import (
     calculate_profection,
     calculate_solararc,
     calculate_solarreturn,
+    calculate_transit,
     calculate_zr,
 )
 
@@ -76,6 +78,10 @@ def test_western_return_and_direction_tools_generate_snapshots():
         selected_sections=["起盘信息", "星盘信息"],
     )
     lunarreturn_result = calculate_lunarreturn(**_build_kwargs())
+    transit_result = calculate_transit(
+        **_build_kwargs(),
+        selected_sections=["起盘信息", "相位"],
+    )
     solararc_result = calculate_solararc(**_build_kwargs())
     givenyear_result = calculate_givenyear(**_build_kwargs())
     profection_result = calculate_profection(**_build_kwargs())
@@ -98,6 +104,21 @@ def test_western_return_and_direction_tools_generate_snapshots():
         "2025-05-20T01:30:17+08:00"
     )
     assert lunarreturn_result["snapshot_export"]["technique"]["key"] == "lunarreturn"
+
+    assert transit_result["analysis_type"] == "西占行运盘"
+    assert transit_result["transit"]["analysis_datetime"].startswith(
+        "2025-05-20T15:30:00+08:00"
+    )
+    assert transit_result["transit"]["location"]["timezone"] == "Asia/Shanghai"
+    assert transit_result["transit"]["transit_reference"]["uranus"]["point_label"] == "天王星"
+    assert transit_result["snapshot_export"]["technique"]["key"] == "transit"
+    assert transit_result["snapshot_export"]["selected_sections"] == [
+        "起盘信息",
+        "相位",
+    ]
+    assert "[起盘信息]" in transit_result["snapshot_export"]["export_text"]
+    assert "[相位]" in transit_result["snapshot_export"]["export_text"]
+    assert "[星盘信息]" not in transit_result["snapshot_export"]["export_text"]
 
     assert solararc_result["analysis_type"] == "西占太阳弧"
     assert solararc_result["solararc"]["arc_degrees"] == pytest.approx(33.5458, abs=0.01)
@@ -167,6 +188,7 @@ def test_fastmcp_western_timing_tools_expose_parameters():
     tools = [
         solarreturn,
         lunarreturn,
+        transit,
         solararc,
         givenyear,
         profection,

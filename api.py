@@ -29,6 +29,7 @@ from fatebridge.services.western_timing_tools import (
     calculate_profection,
     calculate_solararc,
     calculate_solarreturn,
+    calculate_transit,
     calculate_zr,
 )
 from fatebridge.services.calculation import calculate_destiny_analysis
@@ -219,6 +220,10 @@ class TimingAnalysisRequest(FateBridgeRequest):
     analysis_age: Optional[int] = Field(
         default=None, ge=0, description="Analysis age override"
     )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class DayunAnalysisRequest(FateBridgeRequest):
@@ -226,12 +231,20 @@ class DayunAnalysisRequest(FateBridgeRequest):
 
     gender: str = Field(description="Gender used for dayun direction rules")
     analysis_age: int = Field(ge=0, description="Analysis age")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class LiunianAnalysisRequest(FateBridgeRequest):
     """Request model for liunian analysis."""
 
     target_year: int = Field(description="Target analysis year")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class LiuriAnalysisRequest(FateBridgeRequest):
@@ -244,12 +257,20 @@ class LiuriAnalysisRequest(FateBridgeRequest):
     analysis_day: Optional[int] = Field(
         default=None, ge=1, le=31, description="Analysis day (1-31)"
     )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class JieqiTimelineRequest(FateBridgeRequest):
     """Request model for jieqi timeline analysis."""
 
     target_year: Optional[int] = Field(default=None, description="Target year")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class LiuyueAnalysisRequest(FateBridgeRequest):
@@ -261,6 +282,10 @@ class LiuyueAnalysisRequest(FateBridgeRequest):
     )
     analysis_day: Optional[int] = Field(
         default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
     )
 
 
@@ -308,6 +333,10 @@ class JieqiYearRequest(BaseModel):
     gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
     gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
     jieqis: List[str] = Field(default_factory=list, description="Optional focused jieqi names")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class NongliTimeRequest(BaseModel):
@@ -326,6 +355,10 @@ class NongliTimeRequest(BaseModel):
     after23_new_day: bool = Field(default=False, alias="after23NewDay", description="Whether 23:00 counts as next day")
     time_alg: int = Field(default=0, alias="timeAlg", description="Time algorithm passthrough flag")
     ad: int = Field(default=1, description="Common era flag passthrough")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class GuaMeiyiRequest(BaseModel):
@@ -1041,6 +1074,7 @@ async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_age=request.analysis_age,
+            selected_sections=request.selected_sections or None,
         )
 
         if "error" in result:
@@ -1084,7 +1118,11 @@ async def calculate_dayun(request: DayunAnalysisRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_dayun_analysis(person, request.analysis_age)
+        result = calculate_dayun_analysis(
+            person,
+            request.analysis_age,
+            selected_sections=request.selected_sections or None,
+        )
 
         if "error" in result and result.get("analysis_type") is None:
             logger.warning(f"Dayun analysis failed: {result['error']}")
@@ -1124,7 +1162,11 @@ async def calculate_liunian(request: LiunianAnalysisRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_liunian_analysis(person, request.target_year)
+        result = calculate_liunian_analysis(
+            person,
+            request.target_year,
+            selected_sections=request.selected_sections or None,
+        )
 
         if "error" in result:
             logger.warning(f"Liunian analysis failed: {result['error']}")
@@ -2067,6 +2109,16 @@ async def calculate_lunarreturn_module(request: WesternTimingModuleRequest) -> d
     )
 
 
+@app.post("/api/astro/timing/transit")
+async def calculate_transit_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone transit chart output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_transit,
+        label="transit",
+    )
+
+
 @app.post("/api/astro/timing/solararc")
 async def calculate_solararc_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone solar arc output."""
@@ -2174,6 +2226,7 @@ async def calculate_liuyue(request: LiuyueAnalysisRequest) -> dict:
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
+            selected_sections=request.selected_sections or None,
         )
 
         if "error" in result:
@@ -2219,6 +2272,7 @@ async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
+            selected_sections=request.selected_sections or None,
         )
 
         if "error" in result:
@@ -2262,6 +2316,7 @@ async def calculate_jieqi_timeline(request: JieqiTimelineRequest) -> dict:
         result = calculate_jieqi_timeline_analysis(
             person,
             target_year=request.target_year,
+            selected_sections=request.selected_sections or None,
         )
 
         if "error" in result:

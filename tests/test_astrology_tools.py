@@ -181,9 +181,17 @@ def test_core_chart_includes_snapshot_text_and_export():
     assert "[行星]" in chart["snapshot_text"]
     assert "太阳：" in chart["snapshot_text"]
     assert "Asc：" in chart["snapshot_text"]
+    assert "人格签名：" in chart["snapshot_text"]
+    assert "核心人格：" in chart["snapshot_text"]
+    assert "成长建议：" in chart["snapshot_text"]
     assert chart["snapshot_export"]["technique"]["key"] == "astrochart"
     assert "[起盘信息]" in chart["snapshot_export"]["export_text"]
     assert "[行星]" in chart["snapshot_export"]["export_text"]
+    assert chart["interpretation"]["signature"].startswith("太阳")
+    assert "核心驱动力" in chart["interpretation"]["core_identity"]
+    assert "安全感" in chart["interpretation"]["emotional_style"]
+    assert len(chart["summary"]) >= 7
+    assert chart["summary"][1].startswith("核心签名：")
 
 
 def test_core_chart_can_infer_coordinates_from_birth_place():

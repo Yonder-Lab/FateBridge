@@ -21,7 +21,10 @@
 - **FateBridge 导出协议 helper**：新增 `export_registry` 与 `export_parse`，支持按 FateBridge AI 导出 contract 解析快照文本
 - **悬浮知识 helper**：新增 `knowledge_registry` 与 `knowledge_read`，支持 astrology / 六壬 / 奇门离线知识读取；两者现已统一返回 `snapshot_text + snapshot_export`
 - **农历与卦象辅助**：输出农历、节气上下文与梅花易数时卦辅助信息
-- **节气 / 农历 helper**：新增全年节气盘与独立农历换算接口，便于派生技法直接复用
+- **节气 / 农历 helper**：`jieqi_year` 与 `nongli_time` 现已统一返回 `snapshot_text + snapshot_export`，便于历法辅助结果按 section 离线导出
+- **时运 helper 导出协议**：`liuyue_analysis` 与 `jieqi_timeline_analysis` 现已统一返回 `snapshot_text + snapshot_export`，可按 section 离线导出时运摘要
+- **流年 / 流日导出协议**：`liunian_analysis` 与 `liuri_analysis` 现已统一返回 `snapshot_text + snapshot_export`，便于时运专项结果按 section 离线消费
+- **综合时运 / 大运导出协议**：`timing_analysis` 与 `dayun_analysis` 现已统一返回 `snapshot_text + snapshot_export`，并补上专项结果一致性回归
 - **梅花时卦分析**：独立输出本卦、变卦、互卦、综卦与体用关系
 - **梅易卦义批量查询**：支持按卦码 / 卦名批量读取偏梅花易数语境的卦义摘要
 - **梅花问事骨架**：自动串联本卦、变卦、体用与动爻阶段，生成可直接阅读的占断摘要
@@ -343,7 +346,7 @@ FateBridge/
 |------|------|
 | `analyze_destiny` | 个人命理分析 |
 | `two_person_compatibility` | 双人配合分析 |
-| `timing_analysis` | 综合时运分析 |
+| `timing_analysis` | 综合时运分析（含 snapshot_export） |
 | `astro_chart` | 标准星盘 |
 | `astro_chart13` | 13 扇区扩展盘 |
 | `astro_hellen_chart` | 希腊星盘 |
@@ -352,17 +355,17 @@ FateBridge/
 | `astro_germany_chart` | 量化盘 / 中点盘 |
 | `astro_relative_chart` | 合盘 / 关系盘 |
 | `western_timing_analysis` | 西占推运 / 返照 / 时运系统（含指定年盘、顺逆主限、界限 overlay、黄道释放） |
-| `dayun_analysis` | 大运专项分析 |
-| `liunian_analysis` | 流年专项分析 |
-| `liuyue_analysis` | 流月专项分析 |
-| `liuri_analysis` | 流日专项分析 |
+| `dayun_analysis` | 大运专项分析（含 snapshot_export） |
+| `liunian_analysis` | 流年专项分析（含 snapshot_export） |
+| `liuyue_analysis` | 流月专项分析（含 snapshot_export） |
+| `liuri_analysis` | 流日专项分析（含 snapshot_export） |
 | `export_registry` | FateBridge 导出协议注册表 |
 | `export_parse` | FateBridge 快照导出解析 |
 | `knowledge_registry` | astrology / 六壬 / 奇门知识目录（含 snapshot_export） |
 | `knowledge_read` | astrology / 六壬 / 奇门知识读取（含 snapshot_export） |
 | `jieqi_year` | 全年节气盘 helper |
 | `nongli_time` | 农历换算 helper |
-| `jieqi_timeline_analysis` | 节气节点时间轴分析 |
+| `jieqi_timeline_analysis` | 节气节点时间轴分析（含 snapshot_export） |
 | `gua_meiyi` | 梅易卦义 helper（含 snapshot_export） |
 | `bazi_birth` | 独立八字命盘 |
 | `bazi_direct` | 独立八字直断 |

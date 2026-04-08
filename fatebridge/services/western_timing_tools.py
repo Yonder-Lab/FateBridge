@@ -27,6 +27,13 @@ TOOL_SPECS: dict[str, dict[str, Any]] = {
         "section_kind": "chart",
         "label": "月亮返照",
     },
+    "transit": {
+        "analysis_type": "西占行运盘",
+        "technique": "transit",
+        "path": ("transits", "current_transit"),
+        "section_kind": "transit",
+        "label": "行运盘",
+    },
     "solararc": {
         "analysis_type": "西占太阳弧",
         "technique": "solararc",
@@ -153,6 +160,33 @@ def _build_sections(
                 ),
             ),
             ("相位", _json_block(_build_aspect_summary(label, result, payload))),
+        ]
+
+    if section_kind == "transit":
+        return [
+            ("起盘信息", _json_block(context)),
+            (
+                "星盘信息",
+                _json_block(
+                    {
+                        "natal_reference": natal_reference,
+                        "transit_reference": payload.get("transit_reference"),
+                        "house_emphasis": payload.get("house_emphasis"),
+                        "location": payload.get("location"),
+                    }
+                ),
+            ),
+            (
+                "相位",
+                _json_block(
+                    {
+                        "summary": result.get("summary"),
+                        "orb_limit": payload.get("orb_limit"),
+                        "top_hits": payload.get("hits"),
+                        "exact_hits": payload.get("exact_hits"),
+                    }
+                ),
+            ),
         ]
 
     if section_kind == "pd":
@@ -329,6 +363,10 @@ def calculate_solarreturn(*, selected_sections: Optional[list[str]] = None, **kw
 
 def calculate_lunarreturn(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
     return _calculate_tool("lunarreturn", selected_sections=selected_sections, **kwargs)
+
+
+def calculate_transit(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+    return _calculate_tool("transit", selected_sections=selected_sections, **kwargs)
 
 
 def calculate_solararc(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:

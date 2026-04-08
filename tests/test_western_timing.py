@@ -116,6 +116,14 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert result["directions"]["solar_arc"]["arc_degrees"] == pytest.approx(
         33.5458, abs=0.01
     )
+    transit = result["transits"]["current_transit"]
+    assert transit["analysis_datetime"].startswith("2025-05-20T15:30:00+08:00")
+    assert transit["location"]["timezone"] == "Asia/Shanghai"
+    assert transit["transit_reference"]["uranus"]["point_label"] == "天王星"
+    assert transit["natal_reference"]["pluto"]["point_label"] == "冥王星"
+    assert len(transit["house_emphasis"]) > 0
+    assert len(transit["hits"]) > 0
+    assert transit["hits"][0]["orb"] <= 1.5
     given_year = result["directions"]["given_year"]
     assert given_year["analysis_datetime"].startswith("2025-05-20T15:30:00+08:00")
     assert given_year["sun"]["sign"] == "Taurus"
@@ -207,6 +215,30 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert "太阳返照" in result["summary"]
     assert "法达" in result["summary"]
     assert "Spirit 黄道释放" in result["summary"]
+    assert "行运太阳" in result["summary"]
+
+
+def test_western_timing_transit_respects_transit_timezone():
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        return_timezone="UTC",
+    )
+
+    assert result["transits"]["current_transit"]["analysis_datetime"].endswith("+00:00")
+    assert result["transits"]["current_transit"]["location"]["timezone"] == "UTC"
+    assert result["directions"]["given_year"]["analysis_datetime"].endswith("+00:00")
 
 
 def test_core_chart_supports_fixed_offset_timezones():

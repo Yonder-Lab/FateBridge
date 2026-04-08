@@ -9,6 +9,7 @@ of the existing offline natal chart surface.
 from __future__ import annotations
 
 from calendar import monthrange
+from collections import Counter
 from datetime import datetime, timedelta
 import math
 from typing import Any, Dict, List, Optional
@@ -52,6 +53,12 @@ TIMING_POINT_NAMES = [
     "Ascendant",
     "Medium_Coeli",
 ]
+TRANSIT_POINT_NAMES = [
+    *TIMING_POINT_NAMES,
+    "Uranus",
+    "Neptune",
+    "Pluto",
+]
 TRADITIONAL_PLANETS = [
     "Sun",
     "Moon",
@@ -70,6 +77,9 @@ POINT_ATTRIBUTE_NAMES = {
     "Mars": "mars",
     "Jupiter": "jupiter",
     "Saturn": "saturn",
+    "Uranus": "uranus",
+    "Neptune": "neptune",
+    "Pluto": "pluto",
     "Ascendant": "ascendant",
     "Medium_Coeli": "medium_coeli",
 }
@@ -97,6 +107,9 @@ PLANET_LABELS = {
     "Mars": "火星",
     "Jupiter": "木星",
     "Saturn": "土星",
+    "Uranus": "天王星",
+    "Neptune": "海王星",
+    "Pluto": "冥王星",
     "Ascendant": "上升点",
     "Medium_Coeli": "天顶",
     "North Node": "北交点",
@@ -1066,8 +1079,15 @@ def calculate_age_years_int(
 
 
 def extract_reference_points(subject: Any) -> Dict[str, Dict[str, Any]]:
+    return extract_named_points(subject, TIMING_POINT_NAMES)
+
+
+def extract_named_points(
+    subject: Any,
+    point_names: List[str],
+) -> Dict[str, Dict[str, Any]]:
     result = {}
-    for point_name in TIMING_POINT_NAMES:
+    for point_name in point_names:
         result[point_name.lower()] = point_to_dict(
             point_name,
             getattr(subject, point_attribute_name(point_name)),
@@ -1076,9 +1096,16 @@ def extract_reference_points(subject: Any) -> Dict[str, Dict[str, Any]]:
 
 
 def extract_reference_longitudes(subject: Any) -> Dict[str, float]:
+    return extract_named_longitudes(subject, TIMING_POINT_NAMES)
+
+
+def extract_named_longitudes(
+    subject: Any,
+    point_names: List[str],
+) -> Dict[str, float]:
     return {
         point_name: point_absolute_position(subject, point_name)
-        for point_name in TIMING_POINT_NAMES
+        for point_name in point_names
     }
 
 
@@ -1166,6 +1193,69 @@ def build_secondary_progression_payload(
         ),
         "hits": hits[:8],
         "subject": progressed_subject,
+    }
+
+
+def build_transit_payload(
+    birth_info: AstroBirthInfo,
+    natal_subject: Any,
+    *,
+    analysis_datetime: datetime,
+    transit_longitude: float,
+    transit_latitude: float,
+    transit_timezone: str,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    orb_limit: float = 1.5,
+) -> Dict[str, Any]:
+    analysis_local = rebuild_local_datetime(analysis_datetime, transit_timezone)
+    transit_subject = build_subject(
+        name=f"{birth_info.name}-transit",
+        local_datetime=analysis_local,
+        longitude=transit_longitude,
+        latitude=transit_latitude,
+        timezone_name=transit_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+    )
+    transit_reference = extract_named_points(transit_subject, TRANSIT_POINT_NAMES)
+    natal_reference = extract_named_points(natal_subject, TRANSIT_POINT_NAMES)
+    hits = collect_aspect_hits(
+        source_longitudes=extract_named_longitudes(transit_subject, TRANSIT_POINT_NAMES),
+        target_longitudes=extract_named_longitudes(natal_subject, TRANSIT_POINT_NAMES),
+        orb_limit=orb_limit,
+    )
+    house_counter = Counter(
+        point["house"]
+        for key, point in transit_reference.items()
+        if key not in {"ascendant", "medium_coeli"} and point.get("house") is not None
+    )
+    house_emphasis = [
+        {
+            "house": house,
+            "house_label": f"第{house}宫",
+            "count": count,
+        }
+        for house, count in sorted(house_counter.items(), key=lambda item: (-item[1], item[0]))
+    ]
+    exact_hits = [item for item in hits if float(item.get("orb", 99.0)) <= 0.3][:12]
+    return {
+        "analysis_datetime": analysis_local.isoformat(),
+        "location": {
+            "longitude": transit_longitude,
+            "latitude": transit_latitude,
+            "timezone": transit_timezone,
+        },
+        "orb_limit": orb_limit,
+        "sun": transit_reference["sun"],
+        "moon": transit_reference["moon"],
+        "ascendant": transit_reference["ascendant"],
+        "medium_coeli": transit_reference["medium_coeli"],
+        "transit_reference": transit_reference,
+        "natal_reference": natal_reference,
+        "house_emphasis": house_emphasis,
+        "hits": hits[:24],
+        "exact_hits": exact_hits,
     }
 
 
@@ -3009,9 +3099,20 @@ def build_western_timing_payload(
         natal_subject,
         analysis_datetime=analysis_datetime,
     )
+    transit_payload = build_transit_payload(
+        birth_info,
+        natal_subject,
+        analysis_datetime=analysis_datetime,
+        transit_longitude=effective_return_longitude,
+        transit_latitude=effective_return_latitude,
+        transit_timezone=effective_return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+    )
 
     age_years = calculate_age_years(birth_info, analysis_datetime)
     zr_spirit_current = zodiacal_releasing_payload["spirit"]["current_level_1"]
+    transit_top_hit = transit_payload["hits"][0] if transit_payload["hits"] else None
     summary = (
         f"{analysis_datetime.strftime('%Y-%m-%d')} 西占时运："
         f"太阳返照 {returns_payload['solar_return']['return_datetime']}，"
@@ -3026,7 +3127,15 @@ def build_western_timing_payload(
         f"法达 {firdaria_payload['current_major']['planet_label']}"
         f"/{firdaria_payload['current_sub']['planet_label']}，"
         f"Spirit 黄道释放 L1 {zr_spirit_current['sign_label']}，"
-        f"太阳弧 {solar_arc_payload['arc_degrees']:.2f}°。"
+        f"太阳弧 {solar_arc_payload['arc_degrees']:.2f}°，"
+        f"行运太阳 {transit_payload['sun']['sign_label']}"
+        + (
+            f"，最紧密命中 "
+            f"{transit_top_hit['source_label']}{transit_top_hit['aspect_label']}{transit_top_hit['target_label']}"
+            if transit_top_hit
+            else ""
+        )
+        + "。"
     )
 
     return {
@@ -3047,6 +3156,9 @@ def build_western_timing_payload(
         },
         "natal_reference": natal_reference,
         "returns": returns_payload,
+        "transits": {
+            "current_transit": transit_payload,
+        },
         "directions": {
             "secondary_progression": progression_payload,
             "solar_arc": solar_arc_payload,

@@ -68,10 +68,12 @@ def test_alignment_request_models_accept_fastmcp_offline_fields():
         analysis_year=2028,
         analysis_month=4,
         analysis_age=38,
+        selected_sections=["查询信息", "综合影响"],
     )
     dayun_request = DayunAnalysisRequest(
         **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
         analysis_age=38,
+        selected_sections=["查询信息", "大运信息"],
     )
     liunian_request = LiunianAnalysisRequest(
         **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
@@ -90,8 +92,10 @@ def test_alignment_request_models_accept_fastmcp_offline_fields():
     assert timing_payload["analysis_year"] == 2028
     assert timing_payload["analysis_month"] == 4
     assert timing_payload["analysis_age"] == 38
+    assert timing_payload["selected_sections"] == ["查询信息", "综合影响"]
     assert dayun_payload["gender"] == "男"
     assert dayun_payload["analysis_age"] == 38
+    assert dayun_payload["selected_sections"] == ["查询信息", "大运信息"]
     assert liunian_payload["target_year"] == 2028
 
 
@@ -132,6 +136,7 @@ def test_timing_analysis_api_matches_fastmcp_tool_output():
         analysis_year=2028,
         analysis_month=4,
         analysis_age=38,
+        selected_sections=["查询信息", "综合影响"],
     )
 
     api_result = asyncio.run(calculate_timing_analysis(request))
@@ -144,6 +149,7 @@ def test_dayun_analysis_api_matches_fastmcp_tool_output():
     request = DayunAnalysisRequest(
         **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
         analysis_age=38,
+        selected_sections=["查询信息", "大运信息"],
     )
 
     api_result = asyncio.run(calculate_dayun(request))

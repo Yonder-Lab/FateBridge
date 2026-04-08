@@ -651,6 +651,7 @@ curl http://localhost:8000/health
 | `gpsLat` | number | 否 | GPS 纬度 |
 | `gpsLon` | number | 否 | GPS 经度 |
 | `jieqis` | string[] | 否 | 仅返回指定节气，例如 `["春分","冬至"]` |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`全年节气`、`重点节气`、`来源` |
 
 **返回重点**:
 
@@ -658,6 +659,10 @@ curl http://localhost:8000/health
 - `jieqi_year`: 全年 24 节气表
 - `selected_jieqi`: 按请求筛出的重点节气
 - `summary`: 年度节气摘要
+- `snapshot_text`: 按 `[查询信息] / [全年节气] / [重点节气] / [来源]` 输出离线节气快照
+- `snapshot_export.section_titles_detected`: 本次节气快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整节气快照
 
 ---
 
@@ -681,6 +686,7 @@ curl http://localhost:8000/health
 | `after23NewDay` | boolean | 否 | 是否把 23 点后视为次日 |
 | `timeAlg` | integer | 否 | 时间算法透传位 |
 | `ad` | integer | 否 | 公元标记透传位 |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`农历上下文`、`四柱上下文`、`来源` |
 
 **返回重点**:
 
@@ -689,6 +695,10 @@ curl http://localhost:8000/health
 - `lunar_calendar`: 农历日期、节气、节差与梅花时卦辅助字段
 - `four_pillars`: 对应时刻的四柱
 - `summary`: 换算摘要
+- `snapshot_text`: 按 `[查询信息] / [农历上下文] / [四柱上下文] / [来源]` 输出离线农历快照
+- `snapshot_export.section_titles_detected`: 本次农历快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整农历快照
 
 ---
 
@@ -881,11 +891,62 @@ curl http://localhost:8000/health
 
 ---
 
+#### 4.5 流年专项分析
+
+**端点**: `POST /api/timing/liunian`
+
+在出生盘基础上分析指定年份的流年影响。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | integer | **是** | 出生年份 |
+| `birth_month` | integer | **是** | 出生月份 |
+| `birth_day` | integer | **是** | 出生日期 |
+| `birth_hour` | integer | **是** | 出生时辰 |
+| `target_year` | integer | **是** | 目标分析年份 |
+| `birth_minute` | integer | 否 | 出生分钟 |
+| `birth_timezone` | string | 否 | 出生时区 |
+| `birth_longitude` | number | 否 | 出生地经度 |
+| `use_true_solar_time` | boolean | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`流年信息`、`影响摘要`、`来源` |
+
+**返回重点**:
+
+- `calendar_context`: 出生时刻节气/农历上下文
+- `target_year_jieqi`: 目标年份 24 节气表
+- `liunian_info`: 流年干支与五行
+- `summary`: 流年摘要
+- `snapshot_text`: 按 `[查询信息] / [流年信息] / [影响摘要] / [来源]` 输出离线流年快照
+- `snapshot_export.section_titles_detected`: 本次流年快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流年快照
+
+---
+
 #### 5. 流日专项分析
 
 **端点**: `POST /api/timing/liuri`
 
 在出生盘基础上分析指定日期的流日影响。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | integer | **是** | 出生年份 |
+| `birth_month` | integer | **是** | 出生月份 |
+| `birth_day` | integer | **是** | 出生日期 |
+| `birth_hour` | integer | **是** | 出生时辰 |
+| `analysis_year` | integer | 否 | 分析年份 |
+| `analysis_month` | integer | 否 | 分析月份 |
+| `analysis_day` | integer | 否 | 分析日期 |
+| `birth_minute` | integer | 否 | 出生分钟 |
+| `birth_timezone` | string | 否 | 出生时区 |
+| `birth_longitude` | number | 否 | 出生地经度 |
+| `use_true_solar_time` | boolean | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`流日信息`、`影响摘要`、`来源` |
 
 **返回重点**:
 
@@ -893,6 +954,10 @@ curl http://localhost:8000/health
 - `analysis_calendar.analysis_date_context`: 分析日期节气上下文
 - `liuri_info`: 流日干支、五行与星期
 - `summary`: 流日摘要
+- `snapshot_text`: 按 `[查询信息] / [流日信息] / [影响摘要] / [来源]` 输出离线流日快照
+- `snapshot_export.section_titles_detected`: 本次流日快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流日快照
 
 ---
 
@@ -901,6 +966,23 @@ curl http://localhost:8000/health
 **端点**: `POST /api/timing/liuyue`
 
 在出生盘基础上分析指定日期所在节令月的影响，不按公历月份近似。
+
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | integer | **是** | 出生年份 |
+| `birth_month` | integer | **是** | 出生月份 |
+| `birth_day` | integer | **是** | 出生日期 |
+| `birth_hour` | integer | **是** | 出生时辰 |
+| `analysis_year` | integer | 否 | 分析年份 |
+| `analysis_month` | integer | 否 | 分析月份 |
+| `analysis_day` | integer | 否 | 分析日期 |
+| `birth_minute` | integer | 否 | 出生分钟 |
+| `birth_timezone` | string | 否 | 出生时区 |
+| `birth_longitude` | number | 否 | 出生地经度 |
+| `use_true_solar_time` | boolean | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`流月信息`、`流年联动`、`影响摘要`、`来源` |
 
 **返回重点**:
 
@@ -911,6 +993,10 @@ curl http://localhost:8000/health
 - `liunian_info`: 同年流年信息
 - `combination_effects`: 流月与流年组合关系
 - `summary`: 流月综合摘要
+- `snapshot_text`: 按 `[查询信息] / [流月信息] / [流年联动] / [影响摘要] / [来源]` 输出离线流月快照
+- `snapshot_export.section_titles_detected`: 本次流月快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流月快照
 
 ---
 
@@ -920,10 +1006,30 @@ curl http://localhost:8000/health
 
 输出目标年份 24 节气节点的流月/流日切换与简要影响。
 
+**请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `birth_year` | integer | **是** | 出生年份 |
+| `birth_month` | integer | **是** | 出生月份 |
+| `birth_day` | integer | **是** | 出生日期 |
+| `birth_hour` | integer | **是** | 出生时辰 |
+| `target_year` | integer | 否 | 目标年份 |
+| `birth_minute` | integer | 否 | 出生分钟 |
+| `birth_timezone` | string | 否 | 出生时区 |
+| `birth_longitude` | number | 否 | 出生地经度 |
+| `use_true_solar_time` | boolean | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`年度节气`、`节点时间轴`、`来源` |
+
 **返回重点**:
 
 - `target_year_jieqi`: 全年 24 节气表
 - `jieqi_timeline`: 每个节气节点对应的流月、流日与摘要
+- `summary`: 年度节气时间轴摘要
+- `snapshot_text`: 按 `[查询信息] / [年度节气] / [节点时间轴] / [来源]` 输出离线节气时间轴快照
+- `snapshot_export.section_titles_detected`: 本次节气时间轴快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整节气时间轴快照
 
 ---
 
@@ -1072,6 +1178,7 @@ print(result)  # JSON 字符串
 | `birth_minute` | int | 否 | 出生分钟 |
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
+| `selected_sections` | list[str] | 否 | 仅导出指定 snapshot section |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
 **返回**: JSON 格式字符串，包含大运、流年、流月分析，以及：
@@ -1082,6 +1189,8 @@ print(result)  # JSON 字符串
 - `analysis_calendar.liuyue_timeline`: 目标年份 12 个节令月时间轴，每项包含起止节气、月柱和简要运势总结
 - `analysis_calendar.jieqi_timeline`: 目标年份 24 个节气节点时间轴，每项包含节气切换点对应的流月、流日和简要影响
 - `liuri_analysis`: 分析日期对应的流日信息
+- `snapshot_text`: 完整离线综合时运快照
+- `snapshot_export`: 可按 `selected_sections` 过滤的导出结果
 
 ---
 
@@ -1104,9 +1213,10 @@ print(result)  # JSON 字符串
 | `birth_minute` | int | 否 | 出生分钟 |
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
+| `selected_sections` | list[str] | 否 | 仅导出指定 snapshot section |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
 
-**返回**: JSON 格式字符串，包含指定年龄的大运分析与 `calendar_context`
+**返回**: JSON 格式字符串，包含指定年龄的大运分析、`calendar_context`、`snapshot_text` 与可按 `selected_sections` 过滤的 `snapshot_export`
 
 ---
 
@@ -1130,8 +1240,14 @@ print(result)  # JSON 字符串
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`流年信息`、`影响摘要`、`来源` |
 
-**返回**: JSON 格式字符串，包含指定流年分析、`calendar_context` 与 `target_year_jieqi`
+**返回**: JSON 格式字符串，包含指定流年分析、`calendar_context` 与 `target_year_jieqi`，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [流年信息] / [影响摘要] / [来源]` 输出离线流年快照
+- `snapshot_export.section_titles_detected`: 本次流年快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流年快照
 
 ---
 
@@ -1154,8 +1270,14 @@ print(result)  # JSON 字符串
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`流日信息`、`影响摘要`、`来源` |
 
-**返回**: JSON 格式字符串，包含流日分析、`calendar_context` 与 `analysis_calendar`
+**返回**: JSON 格式字符串，包含流日分析、`calendar_context` 与 `analysis_calendar`，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [流日信息] / [影响摘要] / [来源]` 输出离线流日快照
+- `snapshot_export.section_titles_detected`: 本次流日快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流日快照
 
 ---
 
@@ -1178,8 +1300,14 @@ print(result)  # JSON 字符串
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`流月信息`、`流年联动`、`影响摘要`、`来源` |
 
-**返回**: JSON 格式字符串，包含流月分析、`liunian_info`、`calendar_context` 与 `analysis_calendar`
+**返回**: JSON 格式字符串，包含流月分析、`liunian_info`、`calendar_context` 与 `analysis_calendar`，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [流月信息] / [流年联动] / [影响摘要] / [来源]` 输出离线流月快照
+- `snapshot_export.section_titles_detected`: 本次流月快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流月快照
 
 ---
 
@@ -1278,8 +1406,14 @@ FateBridge 快照导出解析工具。
 | `gps_lat` | float | 否 | GPS 纬度 |
 | `gps_lon` | float | 否 | GPS 经度 |
 | `jieqis` | list[str] | 否 | 只筛选指定节气 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`全年节气`、`重点节气`、`来源` |
 
-**返回**: JSON 格式字符串，包含全年 24 节气与重点筛选结果
+**返回**: JSON 格式字符串，包含全年 24 节气与重点筛选结果，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [全年节气] / [重点节气] / [来源]` 输出离线节气快照
+- `snapshot_export.section_titles_detected`: 本次节气快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整节气快照
 
 ---
 
@@ -1301,8 +1435,14 @@ FateBridge 快照导出解析工具。
 | `after23_new_day` | bool | 否 | 是否 23 点后视为次日 |
 | `time_alg` | int | 否 | 时间算法透传位 |
 | `ad` | int | 否 | 公元标记透传位 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`农历上下文`、`四柱上下文`、`来源` |
 
-**返回**: JSON 格式字符串，包含农历、节气与四柱上下文
+**返回**: JSON 格式字符串，包含农历、节气与四柱上下文，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [农历上下文] / [四柱上下文] / [来源]` 输出离线农历快照
+- `snapshot_export.section_titles_detected`: 本次农历快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整农历快照
 
 ---
 
@@ -1323,8 +1463,14 @@ FateBridge 快照导出解析工具。
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
 | `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`年度节气`、`节点时间轴`、`来源` |
 
-**返回**: JSON 格式字符串，包含全年 24 节气节点时间轴
+**返回**: JSON 格式字符串，包含全年 24 节气节点时间轴，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [年度节气] / [节点时间轴] / [来源]` 输出离线节气时间轴快照
+- `snapshot_export.section_titles_detected`: 本次节气时间轴快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整节气时间轴快照
 
 ---
 
