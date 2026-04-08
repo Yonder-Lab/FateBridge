@@ -19,7 +19,7 @@
 - **喜用神推算**：科学推断命局所需的平衡元素
 - **核心星盘与派生星盘**：新增标准星盘、13 扇区扩展盘、希腊星盘、果老风格盘、印度盘、量化中点盘与关系盘
 - **FateBridge 导出协议 helper**：新增 `export_registry` 与 `export_parse`，支持按 FateBridge AI 导出 contract 解析快照文本
-- **悬浮知识 helper**：新增 `knowledge_registry` 与 `knowledge_read`，支持 astrology / 六壬 / 奇门离线知识读取
+- **悬浮知识 helper**：新增 `knowledge_registry` 与 `knowledge_read`，支持 astrology / 六壬 / 奇门离线知识读取；两者现已统一返回 `snapshot_text + snapshot_export`
 - **农历与卦象辅助**：输出农历、节气上下文与梅花易数时卦辅助信息
 - **节气 / 农历 helper**：新增全年节气盘与独立农历换算接口，便于派生技法直接复用
 - **梅花时卦分析**：独立输出本卦、变卦、互卦、综卦与体用关系
@@ -29,13 +29,14 @@
 - **六爻全表**：按本卦 1-6 爻逐条生成变卦走向、体用关系与爻位摘要
 - **卦义断辞层**：本卦、变卦、互卦、综卦与卦义检索统一返回 `judgement`、`image`、`favorable`、`caution`
 - **卦义检索**：支持按卦名或二进制卦码查询八卦/六十四卦义理摘要
+- **卦义 helper 导出协议**：`gua_lookup` 与 `gua_meiyi` 现已统一返回 `snapshot_text + snapshot_export`
 - **Phase 2 本地技法**：统摄法、六爻、宿占、占星骰子、三式合一均由 FateBridge 离线内核直接计算，无需外部 runtime
 - **宿占离线宫制 / 黄道切换**：标准 `suzhan` 现已支持 FateBridge 本地 `0..8` 全套旧版兼容宫制与 `tropical / sidereal(Lahiri-like)` 模式；当 `houseStartMode=1` 时，`1..8` 会保留真实离线宫头
 - **占星骰子离线宫制 / 黄道切换**：`otherbu` 现已支持 FateBridge 本地 `0..8` 全套旧版兼容宫制与 `tropical / sidereal(Lahiri-like)` 模式，且 `1..7` 会保留真实离线宫头而不是退化成等宽 30° ring
 - **奇门变体盘语义稳定化**：独立 `qimen` 与 `qimen_options` 变体盘统一返回 `content_palace / content_trigram`，`zhifu / zhishi` 也会直接带内容来源，并新增独立 `snapshot_text` 与可按 `selected_sections` 过滤的 `snapshot_export`
 - **三式合一本地真太阳时**：`sanshiunited` 现已支持 `use_true_solar_time`，会直接复用 FateBridge 离线真太阳时修正链路重算三式盘面
 - **三式合一离线导出协议**：`sanshiunited` 新增 `snapshot_export`，可按 `selected_sections` 定向导出起盘摘要、太乙/六壬分段与单宫详解
-- **独立紫微 / 太乙 / 六壬 / 金口诀导出协议**：`ziwei_birth`、`taiyi`、`liureng_gods`、`liureng_runyear`、`jinkou` 现已统一返回 `snapshot_text + snapshot_export`
+- **独立八字 / 紫微 / 规则库 / 太乙 / 六壬 / 金口诀导出协议**：`bazi_birth`、`bazi_direct`、`ziwei_birth`、`ziwei_rules`、`taiyi`、`liureng_gods`、`liureng_runyear`、`jinkou` 现已统一返回 `snapshot_text + snapshot_export`
 
 ### 🤝 高级功能
 
@@ -90,7 +91,7 @@ cp .env.example .env
 
 # 5. 启动 API 服务器
 python api.py
-# API 将在 http://localhost:8000 运行
+# API 将在 http://localhost:8010 运行
 
 # 6. （可选）启动 FastMCP 服务器
 python fastmcp_server.py
@@ -117,7 +118,7 @@ npm run dev
 
 ```bash
 # 检查 API 是否在线
-curl http://localhost:8000/health
+curl http://localhost:8010/health
 # 返回: {"status":"healthy"}
 ```
 
@@ -133,7 +134,7 @@ curl http://localhost:8000/health
 import requests
 import json
 
-url = "http://localhost:8000/api/calculate"
+url = "http://localhost:8010/api/calculate"
 payload = {
     "name": "张三",
     "gender": "男",
@@ -154,7 +155,7 @@ print(json.dumps(result, ensure_ascii=False, indent=2))
 #### JavaScript/TypeScript
 
 ```typescript
-const response = await fetch('http://localhost:8000/api/calculate', {
+const response = await fetch('http://localhost:8010/api/calculate', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -177,7 +178,7 @@ console.log(analysis);
 #### cURL
 
 ```bash
-curl -X POST http://localhost:8000/api/calculate \
+curl -X POST http://localhost:8010/api/calculate \
   -H "Content-Type: application/json" \
   -d '{
     "name": "张三",
@@ -296,6 +297,7 @@ FateBridge/
 | 方法 | 端点 | 说明 |
 |------|------|------|
 | `POST` | `/api/calculate` | 个人命理分析 |
+| `POST` | `/api/compatibility` | 双人配合分析 |
 | `POST` | `/api/astro/chart` | 标准星盘 |
 | `POST` | `/api/astro/chart13` | 13 扇区扩展盘 |
 | `POST` | `/api/astro/hellen` | 希腊星盘 |
@@ -311,6 +313,8 @@ FateBridge/
 | `POST` | `/api/cn/jieqi/year` | 全年节气盘 helper |
 | `POST` | `/api/cn/nongli/time` | 农历换算 helper |
 | `POST` | `/api/cn/gua/meiyi` | 梅易卦义 helper |
+| `POST` | `/api/cn/bazi/birth` | 独立八字命盘 |
+| `POST` | `/api/cn/bazi/direct` | 独立八字直断 |
 | `POST` | `/api/cn/ziwei/birth` | 独立紫微斗数命盘 |
 | `POST` | `/api/cn/ziwei/rules` | 紫微规则库 |
 | `POST` | `/api/cn/liureng/gods` | 独立六壬起课分析 |
@@ -325,6 +329,9 @@ FateBridge/
 | `POST` | `/api/divination/suzhan` | 宿占 / 宿盘分析 |
 | `POST` | `/api/divination/otherbu` | 西洋游戏 / 占星骰子分析 |
 | `POST` | `/api/divination/sanshiunited` | 三式合一聚合分析 |
+| `POST` | `/api/timing/comprehensive` | 综合时运分析 |
+| `POST` | `/api/timing/dayun` | 大运专项分析 |
+| `POST` | `/api/timing/liunian` | 流年专项分析 |
 | `POST` | `/api/timing/liuyue` | 流月专项分析 |
 | `POST` | `/api/timing/liuri` | 流日专项分析 |
 | `POST` | `/api/timing/jieqi` | 全年 24 节气节点时间轴 |
@@ -351,20 +358,22 @@ FateBridge/
 | `liuri_analysis` | 流日专项分析 |
 | `export_registry` | FateBridge 导出协议注册表 |
 | `export_parse` | FateBridge 快照导出解析 |
-| `knowledge_registry` | astrology / 六壬 / 奇门知识目录 |
-| `knowledge_read` | astrology / 六壬 / 奇门知识读取 |
+| `knowledge_registry` | astrology / 六壬 / 奇门知识目录（含 snapshot_export） |
+| `knowledge_read` | astrology / 六壬 / 奇门知识读取（含 snapshot_export） |
 | `jieqi_year` | 全年节气盘 helper |
 | `nongli_time` | 农历换算 helper |
 | `jieqi_timeline_analysis` | 节气节点时间轴分析 |
-| `gua_meiyi` | 梅易卦义 helper |
+| `gua_meiyi` | 梅易卦义 helper（含 snapshot_export） |
+| `bazi_birth` | 独立八字命盘 |
+| `bazi_direct` | 独立八字直断 |
 | `ziwei_birth` | 独立紫微斗数命盘 |
-| `ziwei_rules` | 紫微规则库 |
+| `ziwei_rules` | 紫微规则库（含 snapshot_export） |
 | `liureng_gods` | 独立六壬起课分析 |
 | `liureng_runyear` | 独立六壬行年分析 |
 | `qimen` | 独立奇门遁甲分析 |
 | `taiyi` | 独立太乙神数分析 |
 | `jinkou` | 独立金口诀分析 |
-| `gua_lookup` | 卦义检索 |
+| `gua_lookup` | 卦义检索（含 snapshot_export） |
 | `meihua_analysis` | 梅花时卦分析 |
 | `tongshefa` | 统摄法分析 |
 | `sixyao` | 六爻 / 易卦分析 |
@@ -389,7 +398,7 @@ cp .env.example .env
 # 编辑 .env 文件
 ALLOWED_ORIGINS=http://localhost:3000  # CORS 允许的源
 API_HOST=0.0.0.0                       # API 绑定地址
-API_PORT=8000                          # API 端口
+API_PORT=8010                          # API 端口
 LOG_LEVEL=INFO                         # 日志级别
 ```
 

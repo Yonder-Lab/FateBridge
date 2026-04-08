@@ -552,6 +552,60 @@ def _build_ziwei_snapshot_text(
     return _render_snapshot_text(sections)
 
 
+def _build_ziwei_rules_snapshot_text(payload: Dict[str, Any]) -> str:
+    rule_catalogue = payload.get("rule_catalogue", {}) if isinstance(payload, dict) else {}
+    focused_rules = payload.get("focused_rules", {}) if isinstance(payload, dict) else {}
+    palace_sequence = "、".join(rule_catalogue.get("palace_sequence", []) or []) or "无"
+    sihua_lines = [
+        f"{stem}："
+        + "；".join(
+            f"{label}={star}"
+            for label, star in (mapping.items() if isinstance(mapping, dict) else [])
+        )
+        for stem, mapping in (rule_catalogue.get("sihua_by_year_stem", {}) or {}).items()
+        if isinstance(mapping, dict)
+    ]
+    focused_sihua = focused_rules.get("sihua", {}) if isinstance(focused_rules, dict) else {}
+    sections = [
+        (
+            "规则概览",
+            _join_snapshot_lines(
+                [
+                    f"请求天干：{payload.get('requested_year_stem') or '全部'}",
+                    f"引擎：{payload.get('engine', 'fatebridge-offline')}",
+                ]
+            ),
+        ),
+        ("宫位序列", palace_sequence),
+        (
+            "命身宫规则",
+            _join_snapshot_lines(
+                [
+                    f"命宫：{rule_catalogue.get('ming_gong_method', '无')}",
+                    f"身宫：{rule_catalogue.get('shen_gong_method', '无')}",
+                ]
+            ),
+        ),
+        ("四化总表", _join_snapshot_lines(sihua_lines) or "无"),
+    ]
+    if focused_sihua:
+        sections.append(
+            (
+                "当前天干四化",
+                _join_snapshot_lines(
+                    [
+                        f"天干：{focused_rules.get('year_stem', payload.get('requested_year_stem') or '无')}",
+                        *[
+                            f"{label}：{star}"
+                            for label, star in focused_sihua.items()
+                        ],
+                    ]
+                ),
+            )
+        )
+    return _render_snapshot_text(sections)
+
+
 def calculate_ziwei_birth(
     person: PersonInfo,
     *,
@@ -594,15 +648,27 @@ def calculate_ziwei_birth(
         return handle_calculation_error(exc, "紫微斗数命盘")
 
 
-def calculate_ziwei_rules(year_stem: Optional[str] = None) -> Dict[str, Any]:
+def calculate_ziwei_rules(
+    year_stem: Optional[str] = None,
+    *,
+    selected_sections: Optional[List[str]] = None,
+) -> Dict[str, Any]:
     try:
         if year_stem is not None and year_stem not in "甲乙丙丁戊己庚辛壬癸":
             raise ValueError("year_stem 必须是单个天干")
         payload = build_ziwei_rules(year_stem)
         payload["engine"] = "fatebridge-offline"
+        snapshot_text = _build_ziwei_rules_snapshot_text(payload)
+        snapshot_export = _build_snapshot_export(
+            technique="ziwei_rules",
+            snapshot_text=snapshot_text,
+            selected_sections=selected_sections,
+        )
         return {
             "analysis_type": "紫微规则库",
             **payload,
+            "snapshot_text": snapshot_text,
+            "snapshot_export": snapshot_export,
         }
     except Exception as exc:
         return handle_calculation_error(exc, "紫微规则库")

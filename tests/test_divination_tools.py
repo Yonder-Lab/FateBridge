@@ -4,6 +4,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import (
+    GuaMeiyiRequest,
     GuaLookupRequest,
     MeihuaAnalysisRequest,
     OtherBuRequest,
@@ -13,6 +14,7 @@ from api import (
     TongSheFaRequest,
 )
 from fastmcp_server import (
+    gua_meiyi,
     gua_lookup,
     meihua_analysis,
     otherbu,
@@ -23,6 +25,7 @@ from fastmcp_server import (
 )
 from fatebridge.services.divination import (
     calculate_gua_lookup,
+    calculate_gua_meiyi,
     calculate_meihua_analysis,
     calculate_otherbu_analysis,
     calculate_sanshiunited_analysis,
@@ -169,12 +172,26 @@ def test_gua_lookup_request_model_accepts_fields():
     request = GuaLookupRequest(
         query="111111",
         lookup_mode="hexagram",
+        selected_sections=["查询信息", "义理摘要"],
     )
 
     payload = request.model_dump()
 
     assert payload["query"] == "111111"
     assert payload["lookup_mode"] == "hexagram"
+    assert payload["selected_sections"] == ["查询信息", "义理摘要"]
+
+
+def test_gua_meiyi_request_model_accepts_fields():
+    request = GuaMeiyiRequest(
+        name=["111111", "111"],
+        selected_sections=["查询概览", "批量结果"],
+    )
+
+    payload = request.model_dump()
+
+    assert payload["name"] == ["111111", "111"]
+    assert payload["selected_sections"] == ["查询概览", "批量结果"]
 
 
 def test_phase2_request_models_accept_alias_and_nested_fields():
@@ -256,6 +273,11 @@ def test_calculate_gua_lookup_supports_hexagram_and_trigram_queries():
     assert "刚愎" in hexagram_result["result"]["caution"]
     assert "主动定方向" in hexagram_result["summary"]
     assert "忌刚愎" in hexagram_result["summary"]
+    assert "[查询信息]" in hexagram_result["snapshot_text"]
+    assert "[卦象结构]" in hexagram_result["snapshot_text"]
+    assert "[义理摘要]" in hexagram_result["snapshot_text"]
+    assert "[来源]" in hexagram_result["snapshot_text"]
+    assert hexagram_result["snapshot_export"]["export_text"] == hexagram_result["snapshot_text"]
 
     assert trigram_result["result"]["lookup_type"] == "trigram"
     assert trigram_result["result"]["name"] == "乾"
@@ -265,6 +287,43 @@ def test_calculate_gua_lookup_supports_hexagram_and_trigram_queries():
     assert "刚亢" in trigram_result["result"]["caution"]
     assert "立方向" in trigram_result["summary"]
     assert "忌刚亢" in trigram_result["summary"]
+
+
+def test_calculate_gua_lookup_supports_selected_export_sections():
+    result = calculate_gua_lookup(
+        query="111111",
+        lookup_mode="auto",
+        selected_sections=["查询信息", "义理摘要"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "义理摘要"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[义理摘要]" in result["snapshot_export"]["export_text"]
+    assert "[卦象结构]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
+def test_calculate_gua_meiyi_returns_snapshot_export():
+    result = calculate_gua_meiyi(name=["111111", "111"])
+
+    assert result["results"]["111111"]["name"] == "乾为天"
+    assert result["results"]["111"]["name"] == "乾"
+    assert "[查询概览]" in result["snapshot_text"]
+    assert "[批量结果]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_gua_meiyi_supports_selected_export_sections():
+    result = calculate_gua_meiyi(
+        name=["111111", "111"],
+        selected_sections=["批量结果"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["批量结果"]
+    assert "[批量结果]" in result["snapshot_export"]["export_text"]
+    assert "[查询概览]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
 
 
 def test_calculate_meihua_analysis_returns_expected_hexagram_chain():
@@ -1006,6 +1065,14 @@ def test_fastmcp_gua_lookup_tool_exposes_parameters():
 
     assert "query" in properties
     assert "lookup_mode" in properties
+    assert "selected_sections" in properties
+
+
+def test_fastmcp_gua_meiyi_tool_exposes_parameters():
+    properties = gua_meiyi.parameters["properties"]
+
+    assert "name" in properties
+    assert "selected_sections" in properties
 
 
 def test_fastmcp_phase2_tools_expose_parameters():

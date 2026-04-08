@@ -443,7 +443,31 @@ curl http://localhost:8000/health
 - `snapshot_export.selected_sections`: 实际应用后的导出 section；旧式方向宫名会归一到 `离九宫` 这类本地标题
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整三式快照
 
-##### 3.1.6 独立紫微 / ZiWei
+##### 3.1.6 独立八字 / BaZi
+
+**端点**:
+
+- `POST /api/cn/bazi/birth`
+- `POST /api/cn/bazi/direct`
+
+**关键参数**:
+
+- `birth` / `direct` 端点复用标准出生信息输入，并支持 `use_true_solar_time`
+- `analysis_year` / `analysis_month` / `analysis_day`: 可选分析日期；用于生成对应日期下的流年 / 流月 / 流日摘要
+- `selected_sections`: 可选导出 section，如 `起盘信息`、`四柱与三元`、`流年行运概略`、`神煞（四柱与三元）`
+
+**返回重点**:
+
+- `bazi_birth.four_pillars / three_origins`: 四柱与胎元 / 命宫 / 身宫
+- `bazi_birth.day_master / element_distribution / favorable_elements`: 日主与五行分布
+- `bazi_birth.timing_overview`: 当前分析日期对应的大运 / 流年 / 流月 / 流日概览
+- `bazi_direct.timing_overview`: 强调当前分析日期下的行运直断摘要
+- `snapshot_text`: 按 `[起盘信息] / [四柱与三元] / [流年行运概略] / [神煞（四柱与三元）]` 输出离线八字快照
+- `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整八字快照
+
+##### 3.1.7 独立紫微 / ZiWei
 
 **端点**:
 
@@ -455,6 +479,7 @@ curl http://localhost:8000/health
 - `birth` 端点复用标准出生信息输入，并支持 `use_true_solar_time`
 - `birth.selected_sections`: 可选导出 section，如 `起盘信息`、`宫位总览`
 - `rules.year_stem`: 可选天干过滤，例如 `甲`
+- `rules.selected_sections`: 可选导出 section，如 `规则概览`、`命身宫规则`、`四化总表`、`当前天干四化`
 
 **返回重点**:
 
@@ -465,9 +490,12 @@ curl http://localhost:8000/health
 - `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整紫微快照
-- `rules` 端点继续返回宫位顺序、命身宫法与四化规则目录，不附加快照导出
+- `rules.snapshot_text`: 按 `[规则概览] / [宫位序列] / [命身宫规则] / [四化总表] / [当前天干四化]` 输出离线规则快照
+- `rules.snapshot_export.section_titles_detected`: 本次规则快照中实际可导出的 section 列表
+- `rules.snapshot_export.selected_sections`: 实际应用后的规则 section 选择结果
+- `rules.snapshot_export.export_text`: 按 `selected_sections` 过滤后的规则导出文本；未传时默认保留完整规则快照
 
-##### 3.1.7 独立奇门 / QiMen
+##### 3.1.8 独立奇门 / QiMen
 
 **端点**: `POST /api/cn/qimen`
 
@@ -491,7 +519,7 @@ curl http://localhost:8000/health
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整奇门快照与九宫单宫分段
 
-##### 3.1.8 独立六壬 / LiuReng
+##### 3.1.9 独立六壬 / LiuReng
 
 **端点**:
 
@@ -518,7 +546,7 @@ curl http://localhost:8000/health
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整六壬快照
 
-##### 3.1.9 独立太乙 / TaiYi
+##### 3.1.10 独立太乙 / TaiYi
 
 **端点**: `POST /api/cn/taiyi`
 
@@ -541,7 +569,7 @@ curl http://localhost:8000/health
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整太乙快照
 
-##### 3.1.10 独立金口诀 / JinKou
+##### 3.1.11 独立金口诀 / JinKou
 
 **端点**: `POST /api/cn/jinkou`
 
@@ -580,6 +608,7 @@ curl http://localhost:8000/health
 |------|------|------|------|
 | `query` | string | **是** | 卦名、八卦码或六十四卦码 |
 | `lookup_mode` | string | 否 | `auto`、`hexagram`、`trigram`，默认 `auto` |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`卦象结构`、`义理摘要`、`来源` |
 
 **示例**:
 
@@ -598,6 +627,10 @@ curl http://localhost:8000/health
 - `result.favorable`: 当前较宜采取的方向
 - `result.caution`: 当前需防的偏差
 - `result.summary`: 汇总描述
+- `snapshot_text`: 按 `[查询信息] / [卦象结构] / [义理摘要] / [来源]` 输出离线卦义快照
+- `snapshot_export.section_titles_detected`: 本次卦义快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整卦义快照
 
 ---
 
@@ -670,6 +703,7 @@ curl http://localhost:8000/health
 | 字段 | 类型 | 必需 | 说明 |
 |------|------|------|------|
 | `name` | string[] | **是** | 卦名或二进制卦码列表 |
+| `selected_sections` | string[] | 否 | 可选导出 section，如 `查询概览`、`批量结果`、`来源` |
 
 **返回重点**:
 
@@ -678,6 +712,10 @@ curl http://localhost:8000/health
 - `results.<query>.lookup_type`: `trigram` 或 `hexagram`
 - `results.<query>.desc`: 梅易取向摘要
 - `summary`: 批量查询摘要
+- `snapshot_text`: 按 `[查询概览] / [批量结果] / [来源]` 输出离线梅易快照
+- `snapshot_export.section_titles_detected`: 本次梅易快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整梅易快照
 
 ---
 
@@ -1186,8 +1224,14 @@ FateBridge 快照导出解析工具。
 | 参数 | 类型 | 必需 | 说明 |
 |------|------|------|------|
 | `domain` | str | 否 | 可选域过滤 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `目录概览`、`astro`、`liureng`、`qimen`、`来源` |
 
-**返回**: JSON 格式字符串，包含 astrology / 六壬 / 奇门的知识分类目录
+**返回**: JSON 格式字符串，包含 astrology / 六壬 / 奇门的知识分类目录，并附带：
+
+- `snapshot_text`: 按 `[目录概览] / [astro] / [liureng] / [qimen] / [来源]` 输出离线知识目录快照
+- `snapshot_export.section_titles_detected`: 本次目录快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的目录导出文本；未传时默认保留完整目录快照
 
 ---
 
@@ -1202,6 +1246,7 @@ FateBridge 快照导出解析工具。
 | `domain` | str | **是** | 知识域 |
 | `category` | str | **是** | 域内分类 |
 | `key` | str | 否 | 主查询 key |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`知识正文`、`来源` |
 | `aspect_degree` | int | 否 | astrology 相位角 |
 | `object_a` | str | 否 | astrology 对象 A |
 | `object_b` | str | 否 | astrology 对象 B |
@@ -1209,7 +1254,12 @@ FateBridge 快照导出解析工具。
 | `tian_branch` | str | 否 | 六壬天盘地支 |
 | `di_branch` | str | 否 | 六壬地盘地支 |
 
-**返回**: JSON 格式字符串，包含命中的知识正文与 `rendered_text`
+**返回**: JSON 格式字符串，包含命中的知识正文与 `rendered_text`，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [知识正文] / [来源]` 输出离线知识快照
+- `snapshot_export.section_titles_detected`: 本次知识快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的知识导出文本；未传时默认保留完整知识快照
 
 ---
 
@@ -1287,8 +1337,14 @@ FateBridge 快照导出解析工具。
 | 参数 | 类型 | 必需 | 说明 |
 |------|------|------|------|
 | `name` | list[str] | **是** | 卦名或卦码列表 |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询概览`、`批量结果`、`来源` |
 
-**返回**: JSON 格式字符串，包含批量卦义说明与摘要
+**返回**: JSON 格式字符串，包含批量卦义说明与摘要，并附带：
+
+- `snapshot_text`: 按 `[查询概览] / [批量结果] / [来源]` 输出离线梅易快照
+- `snapshot_export.section_titles_detected`: 本次梅易快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整梅易快照
 
 ---
 
@@ -1322,8 +1378,14 @@ FateBridge 快照导出解析工具。
 |------|------|------|------|
 | `query` | str | **是** | 卦名或二进制卦码 |
 | `lookup_mode` | str | 否 | 查询模式：`auto`、`hexagram`、`trigram` |
+| `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`卦象结构`、`义理摘要`、`来源` |
 
-**返回**: JSON 格式字符串，包含命中卦象的义理主旨、断辞、卦象、宜忌提示与结构信息
+**返回**: JSON 格式字符串，包含命中卦象的义理主旨、断辞、卦象、宜忌提示与结构信息，并附带：
+
+- `snapshot_text`: 按 `[查询信息] / [卦象结构] / [义理摘要] / [来源]` 输出离线卦义快照
+- `snapshot_export.section_titles_detected`: 本次卦义快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整卦义快照
 
 ---
 

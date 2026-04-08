@@ -38,6 +38,119 @@ def _build_snapshot_export(
     )
 
 
+def _render_snapshot_text(sections: List[tuple[str, List[str]]]) -> str:
+    blocks: list[str] = []
+    for title, lines in sections:
+        body = "\n".join(line for line in lines if line is not None).strip()
+        if body:
+            blocks.append(f"[{title}]\n{body}")
+        else:
+            blocks.append(f"[{title}]")
+    return "\n\n".join(blocks).strip()
+
+
+def _build_gua_lookup_snapshot_text(
+    *,
+    query: str,
+    lookup_mode: str,
+    result: Dict[str, Any],
+) -> str:
+    query_lines = [
+        f"查询：{query}",
+        f"模式：{lookup_mode}",
+        f"命中类型：{result.get('lookup_type', '未知')}",
+        f"命中卦名：{result.get('name', '未知')}",
+        f"匹配文本：{result.get('matched_query', query)}",
+        f"卦码：{result.get('code') or result.get('binary_code') or '无'}",
+    ]
+    upper = result.get("upper") or {}
+    lower = result.get("lower") or {}
+    structure_lines = [
+        f"符号：{result.get('symbol', '无')}",
+        f"卦爻：{''.join(str(item) for item in result.get('lines', []) or []) or '无'}",
+    ]
+    if upper:
+        structure_lines.append(
+            f"上卦：{upper.get('name', '无')} / {upper.get('nature', '无')} / "
+            f"{upper.get('element', '无')} / {upper.get('keywords', '无')}"
+        )
+    if lower:
+        structure_lines.append(
+            f"下卦：{lower.get('name', '无')} / {lower.get('nature', '无')} / "
+            f"{lower.get('element', '无')} / {lower.get('keywords', '无')}"
+        )
+
+    meaning_lines = [
+        f"主题：{result.get('theme', '无')}",
+    ]
+    if result.get("judgement"):
+        meaning_lines.append(f"判断：{result['judgement']}")
+    if result.get("guidance"):
+        meaning_lines.append(f"建议：{result['guidance']}")
+    if result.get("image"):
+        meaning_lines.append(f"卦象：{result['image']}")
+    if result.get("favorable"):
+        meaning_lines.append(f"可为：{result['favorable']}")
+    if result.get("caution"):
+        meaning_lines.append(f"风险：{result['caution']}")
+    if result.get("summary"):
+        meaning_lines.append(f"摘要：{result['summary']}")
+
+    source_lines = [
+        "来源：FateBridge 离线卦义库",
+        "引用：fatebridge.core.gua_meanings / lookup_gua",
+    ]
+
+    return _render_snapshot_text(
+        [
+            ("查询信息", query_lines),
+            ("卦象结构", structure_lines),
+            ("义理摘要", meaning_lines),
+            ("来源", source_lines),
+        ]
+    )
+
+
+def _build_gua_meiyi_snapshot_text(
+    *,
+    queries: List[str],
+    results: Dict[str, Dict[str, Any]],
+    summary: str,
+) -> str:
+    overview_lines = [
+        f"查询数量：{len(queries)}",
+        f"原始请求：{'、'.join(queries) or '无'}",
+        f"摘要：{summary}",
+    ]
+    result_lines: list[str] = []
+    for query in queries:
+        item = results.get(query) or {}
+        result_lines.append(f"{query} -> {item.get('name', '未知')} ({item.get('lookup_type', '未知')})")
+        if item.get("theme"):
+            result_lines.append(f"主题：{item['theme']}")
+        if item.get("judgement"):
+            result_lines.append(f"判断：{item['judgement']}")
+        if item.get("guidance"):
+            result_lines.append(f"建议：{item['guidance']}")
+        if item.get("desc"):
+            result_lines.append(f"摘要：{item['desc']}")
+        result_lines.append("")
+    if result_lines and result_lines[-1] == "":
+        result_lines.pop()
+
+    source_lines = [
+        "来源：FateBridge 离线卦义库",
+        "引用：fatebridge.core.gua_meanings / lookup_gua",
+    ]
+    return _render_snapshot_text(
+        [
+            ("查询概览", overview_lines),
+            ("批量结果", result_lines or ["无"]),
+            ("来源", source_lines),
+        ]
+    )
+
+
 def calculate_meihua_analysis(
     *,
     analysis_year: int,
@@ -106,18 +219,31 @@ def calculate_gua_lookup(
     *,
     query: str,
     lookup_mode: str = "auto",
+    selected_sections: Optional[List[str]] = None,
 ) -> Dict:
     """
     卦义检索工具 - 支持六十四卦与八卦的离线义理查询。
     """
     try:
         result = lookup_gua(query, lookup_mode=lookup_mode)
+        snapshot_text = _build_gua_lookup_snapshot_text(
+            query=query,
+            lookup_mode=lookup_mode,
+            result=result,
+        )
+        snapshot_export = _build_snapshot_export(
+            technique="gua_lookup",
+            snapshot_text=snapshot_text,
+            selected_sections=selected_sections,
+        )
         return {
             "analysis_type": "卦义检索",
             "query": query,
             "lookup_mode": lookup_mode,
             "result": result,
             "summary": result["summary"],
+            "snapshot_text": snapshot_text,
+            "snapshot_export": snapshot_export,
         }
     except Exception as exc:
         return handle_calculation_error(exc, "卦义检索")
@@ -126,6 +252,7 @@ def calculate_gua_lookup(
 def calculate_gua_meiyi(
     *,
     name: List[str],
+    selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """
     梅易卦义辅助工具 - 批量返回偏梅花易数语境的卦义说明。
@@ -156,12 +283,26 @@ def calculate_gua_meiyi(
             }
             ordered_names.append(item["name"])
 
+        summary = f"共查询{len(queries)}项梅易卦义：{'、'.join(ordered_names)}。"
+        snapshot_text = _build_gua_meiyi_snapshot_text(
+            queries=queries,
+            results=results,
+            summary=summary,
+        )
+        snapshot_export = _build_snapshot_export(
+            technique="gua_meiyi",
+            snapshot_text=snapshot_text,
+            selected_sections=selected_sections,
+        )
+
         return {
             "analysis_type": "梅易卦义",
             "queries": queries,
             "results": results,
             **results,
-            "summary": f"共查询{len(queries)}项梅易卦义：{'、'.join(ordered_names)}。",
+            "summary": summary,
+            "snapshot_text": snapshot_text,
+            "snapshot_export": snapshot_export,
         }
     except Exception as exc:
         return handle_calculation_error(exc, "梅易卦义")

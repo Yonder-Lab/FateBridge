@@ -42,6 +42,16 @@ def _build_birth_payload():
 
 def test_astro_request_models_accept_geo_fields():
     request = AstroChartRequest(**_build_birth_payload(), hsys=0, zodiacal=1)
+    place_only_request = AstroChartRequest(
+        name="测试者",
+        birth_year=1993,
+        birth_month=12,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone=None,
+        birth_place="北京",
+    )
     default_relative_request = AstroRelativeRequest(
         inner=AstroRelativePartyRequest(**_build_birth_payload()),
         outer=AstroRelativePartyRequest(
@@ -90,6 +100,7 @@ def test_astro_request_models_accept_geo_fields():
     )
 
     chart_payload = request.model_dump()
+    place_only_payload = place_only_request.model_dump()
     default_relation_payload = default_relative_request.model_dump()
     legacy_relation_payload = legacy_relative_request.model_dump()
     modern_relation_payload = modern_relative_request.model_dump()
@@ -98,6 +109,8 @@ def test_astro_request_models_accept_geo_fields():
     assert chart_payload["birth_latitude"] == 31.2167
     assert chart_payload["hsys"] == 0
     assert chart_payload["zodiacal"] == 1
+    assert place_only_payload["birth_longitude"] is None
+    assert place_only_payload["birth_latitude"] is None
     assert default_relation_payload["relative_mode"] == 0
     assert default_relation_payload["relationship_mode"] == 0
     assert default_relative_request.mode_input_source == "default"
@@ -156,6 +169,44 @@ def test_core_chart_variants_expose_variant_specific_fields():
     assert india["chart_profile"]["zodiac"] == "sidereal"
     assert india["india"]["ayanamsha"] > 0
     assert "nakshatra" in next(item for item in india["planets"] if item["id"] == "Moon")
+
+
+def test_core_chart_includes_snapshot_text_and_export():
+    chart = calculate_core_chart_analysis(chart_variant="chart", **_build_birth_payload())
+
+    assert "[起盘信息]" in chart["snapshot_text"]
+    assert "[宫位宫头]" in chart["snapshot_text"]
+    assert "[星与虚点]" in chart["snapshot_text"]
+    assert "[相位]" in chart["snapshot_text"]
+    assert "[行星]" in chart["snapshot_text"]
+    assert "太阳：" in chart["snapshot_text"]
+    assert "Asc：" in chart["snapshot_text"]
+    assert chart["snapshot_export"]["technique"]["key"] == "astrochart"
+    assert "[起盘信息]" in chart["snapshot_export"]["export_text"]
+    assert "[行星]" in chart["snapshot_export"]["export_text"]
+
+
+def test_core_chart_can_infer_coordinates_from_birth_place():
+    chart = calculate_core_chart_analysis(
+        chart_variant="chart",
+        name="测试者",
+        birth_year=1993,
+        birth_month=12,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone=None,
+        birth_longitude=None,
+        birth_latitude=None,
+        birth_place="北京",
+    )
+
+    assert chart["person_info"]["birth_place"] == "北京"
+    assert chart["person_info"]["birth_timezone"] == "Asia/Shanghai"
+    assert chart["person_info"]["birth_longitude"] == 116.4074
+    assert chart["person_info"]["birth_latitude"] == 39.9042
+    assert chart["angles"]["ascendant"]["sign"] == "Leo"
+    assert "[起盘信息]" in chart["snapshot_text"]
 
 
 def test_core_chart_offline_options_preserve_defaults_and_allow_overrides():

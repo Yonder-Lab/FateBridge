@@ -121,7 +121,10 @@ def test_cn_analysis_request_models_accept_fields():
         analysis_longitude=121.4737,
         selected_sections=["起盘信息", "行年"],
     )
-    rules_request = ZiweiRulesRequest(year_stem="甲")
+    rules_request = ZiweiRulesRequest(
+        year_stem="甲",
+        selected_sections=["规则概览", "当前天干四化"],
+    )
 
     assert liureng_request.model_dump()["analysis_longitude"] == 121.4737
     assert liureng_request.model_dump()["selected_sections"] == ["起盘信息", "三传"]
@@ -135,6 +138,7 @@ def test_cn_analysis_request_models_accept_fields():
     assert runyear_request.model_dump()["birth_year"] == 1994
     assert runyear_request.model_dump()["selected_sections"] == ["起盘信息", "行年"]
     assert rules_request.model_dump()["year_stem"] == "甲"
+    assert rules_request.model_dump()["selected_sections"] == ["规则概览", "当前天干四化"]
 
 
 def test_calculate_ziwei_birth_returns_twelve_palaces():
@@ -197,6 +201,22 @@ def test_calculate_ziwei_rules_supports_year_stem_filter():
     assert result["focused_rules"]["year_stem"] == "甲"
     assert set(result["focused_rules"]["sihua"].keys()) == {"化禄", "化权", "化科", "化忌"}
     assert "palace_sequence" in result["rule_catalogue"]
+    assert "[规则概览]" in result["snapshot_text"]
+    assert "[四化总表]" in result["snapshot_text"]
+    assert "[当前天干四化]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_ziwei_rules_supports_selected_export_sections():
+    result = calculate_ziwei_rules(
+        year_stem="甲",
+        selected_sections=["规则概览", "当前天干四化"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["规则概览", "当前天干四化"]
+    assert "[规则概览]" in result["snapshot_export"]["export_text"]
+    assert "[当前天干四化]" in result["snapshot_export"]["export_text"]
+    assert "[四化总表]" not in result["snapshot_export"]["export_text"]
 
 
 def test_calculate_liureng_gods_returns_core_sections():
@@ -736,6 +756,7 @@ def test_fastmcp_tools_expose_new_parameters():
     assert "birth_year" in ziwei_birth.parameters["properties"]
     assert "selected_sections" in ziwei_birth.parameters["properties"]
     assert "year_stem" in ziwei_rules.parameters["properties"]
+    assert "selected_sections" in ziwei_rules.parameters["properties"]
     assert "analysis_year" in liureng_gods.parameters["properties"]
     assert "selected_sections" in liureng_gods.parameters["properties"]
     assert "birth_year" in liureng_runyear.parameters["properties"]

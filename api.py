@@ -8,7 +8,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
@@ -17,8 +17,22 @@ from fatebridge.services.astrology import (
     calculate_germany_chart_analysis,
     calculate_relative_chart_analysis,
 )
+from fatebridge.services.bazi import calculate_bazi_birth, calculate_bazi_direct
 from fatebridge.services.western_timing import calculate_western_timing_analysis
+from fatebridge.services.western_timing_tools import (
+    calculate_decennials,
+    calculate_firdaria,
+    calculate_givenyear,
+    calculate_lunarreturn,
+    calculate_pd,
+    calculate_pdchart,
+    calculate_profection,
+    calculate_solararc,
+    calculate_solarreturn,
+    calculate_zr,
+)
 from fatebridge.services.calculation import calculate_destiny_analysis
+from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.divination import (
     calculate_gua_lookup,
     calculate_gua_meiyi,
@@ -47,8 +61,11 @@ from fatebridge.services.metaphysics import (
     calculate_ziwei_rules,
 )
 from fatebridge.services.timing import (
+    calculate_comprehensive_timing,
+    calculate_dayun_analysis,
     calculate_jieqi_year,
     calculate_jieqi_timeline_analysis,
+    calculate_liunian_analysis,
     calculate_liuyue_analysis,
     calculate_liuri_analysis,
     calculate_nongli_time,
@@ -118,6 +135,105 @@ class FateBridgeRequest(BaseModel):
     )
 
 
+class BaziBirthRequest(FateBridgeRequest):
+    """Request model for standalone BaZi birth output."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+
+class BaziDirectRequest(BaziBirthRequest):
+    """Request model for standalone BaZi direct output."""
+
+
+class TwoPersonCompatibilityRequest(BaseModel):
+    """Request model for two-person compatibility analysis."""
+
+    person1_name: str = Field(description="First person name")
+    person1_birth_year: int = Field(description="First person birth year, e.g., 1990")
+    person1_birth_month: int = Field(ge=1, le=12, description="First person birth month")
+    person1_birth_day: int = Field(ge=1, le=31, description="First person birth day")
+    person1_birth_hour: int = Field(ge=0, le=23, description="First person birth hour")
+    person1_gender: str = Field(default="未知", description="First person gender")
+    person1_birth_place: str = Field(
+        default="未提供", description="First person birth place"
+    )
+    person1_birth_minute: int = Field(
+        default=0, ge=0, le=59, description="First person birth minute"
+    )
+    person1_birth_timezone: Optional[str] = Field(
+        default=None, description="First person birth timezone"
+    )
+    person1_birth_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="First person birth longitude"
+    )
+    person1_use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time for first person"
+    )
+    person2_name: str = Field(description="Second person name")
+    person2_birth_year: int = Field(
+        description="Second person birth year, e.g., 1992"
+    )
+    person2_birth_month: int = Field(
+        ge=1, le=12, description="Second person birth month"
+    )
+    person2_birth_day: int = Field(ge=1, le=31, description="Second person birth day")
+    person2_birth_hour: int = Field(ge=0, le=23, description="Second person birth hour")
+    person2_gender: str = Field(default="未知", description="Second person gender")
+    person2_birth_place: str = Field(
+        default="未提供", description="Second person birth place"
+    )
+    person2_birth_minute: int = Field(
+        default=0, ge=0, le=59, description="Second person birth minute"
+    )
+    person2_birth_timezone: Optional[str] = Field(
+        default=None, description="Second person birth timezone"
+    )
+    person2_birth_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Second person birth longitude"
+    )
+    person2_use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time for second person"
+    )
+    relationship_type: str = Field(
+        default="general", description="Relationship type, e.g. marriage or business"
+    )
+
+
+class TimingAnalysisRequest(FateBridgeRequest):
+    """Request model for comprehensive timing analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_age: Optional[int] = Field(
+        default=None, ge=0, description="Analysis age override"
+    )
+
+
+class DayunAnalysisRequest(FateBridgeRequest):
+    """Request model for dayun analysis."""
+
+    gender: str = Field(description="Gender used for dayun direction rules")
+    analysis_age: int = Field(ge=0, description="Analysis age")
+
+
+class LiunianAnalysisRequest(FateBridgeRequest):
+    """Request model for liunian analysis."""
+
+    target_year: int = Field(description="Target analysis year")
+
+
 class LiuriAnalysisRequest(FateBridgeRequest):
     """Request model for liuri analysis."""
 
@@ -174,6 +290,10 @@ class GuaLookupRequest(BaseModel):
         default="auto",
         description="Lookup mode: auto, hexagram, or trigram",
     )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class JieqiYearRequest(BaseModel):
@@ -212,6 +332,10 @@ class GuaMeiyiRequest(BaseModel):
     """Request model for batch Meiyi hexagram meanings."""
 
     name: List[str] = Field(description="Trigram or hexagram names/codes")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class ExportRegistryRequest(BaseModel):
@@ -247,6 +371,10 @@ class KnowledgeRegistryRequest(BaseModel):
     """Request model for bundled knowledge registry."""
 
     domain: Optional[str] = Field(default=None, description="Optional domain filter")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class KnowledgeReadRequest(BaseModel):
@@ -255,6 +383,10 @@ class KnowledgeReadRequest(BaseModel):
     domain: str = Field(description="Knowledge domain: astro, liureng, or qimen")
     category: str = Field(description="Category within the domain")
     key: Optional[str] = Field(default=None, description="Primary lookup key")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
     aspect_degree: Optional[int] = Field(
         default=None,
         description="Optional aspect degree for astro aspect lookups",
@@ -397,6 +529,10 @@ class ZiweiRulesRequest(BaseModel):
         default=None,
         description="Optional heavenly stem filter, e.g. 甲",
     )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
 
 
 class LiuRengGodsRequest(BaseModel):
@@ -508,6 +644,24 @@ class AstroBirthRequest(BaseModel):
 class AstroChartRequest(AstroBirthRequest):
     """Request model for approximate offline astrology chart generation."""
 
+    birth_longitude: Optional[float] = Field(
+        default=None,
+        ge=-180,
+        le=180,
+        description=(
+            "Birth longitude. Optional for core chart endpoints when FateBridge can "
+            "infer it from a supported birth_place."
+        ),
+    )
+    birth_latitude: Optional[float] = Field(
+        default=None,
+        ge=-90,
+        le=90,
+        description=(
+            "Birth latitude. Optional for core chart endpoints when FateBridge can "
+            "infer it from a supported birth_place."
+        ),
+    )
     hsys: Optional[int] = Field(
         default=None,
         description=(
@@ -643,6 +797,15 @@ class WesternTimingRequest(AstroBirthRequest):
     )
 
 
+class WesternTimingModuleRequest(WesternTimingRequest):
+    """Request model for standalone western timing module tools."""
+
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional export sections to keep in snapshot_export",
+    )
+
+
 # ============================================================================
 # API Endpoints
 # ============================================================================
@@ -701,6 +864,287 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
+@app.post("/api/cn/bazi/birth")
+async def calculate_bazi_birth_chart(request: BaziBirthRequest) -> dict:
+    """
+    Calculate a standalone BaZi birth chart with export-ready snapshot sections.
+    """
+    try:
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = calculate_bazi_birth(
+            person,
+            analysis_year=request.analysis_year,
+            analysis_month=request.analysis_month,
+            analysis_day=request.analysis_day,
+            selected_sections=request.selected_sections or None,
+        )
+
+        if "error" in result:
+            logger.warning(f"BaZi birth calculation failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的八字命盘参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during bazi birth analysis: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/cn/bazi/direct")
+async def calculate_bazi_direct_chart(request: BaziDirectRequest) -> dict:
+    """
+    Calculate standalone BaZi direct timing output with export-ready snapshot sections.
+    """
+    try:
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = calculate_bazi_direct(
+            person,
+            analysis_year=request.analysis_year,
+            analysis_month=request.analysis_month,
+            analysis_day=request.analysis_day,
+            selected_sections=request.selected_sections or None,
+        )
+
+        if "error" in result:
+            logger.warning(f"BaZi direct calculation failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的八字直断参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during bazi direct analysis: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/compatibility")
+async def calculate_two_person_compatibility(
+    request: TwoPersonCompatibilityRequest,
+) -> dict:
+    """
+    Calculate two-person compatibility using FateBridge's offline compatibility engine.
+    """
+    try:
+        logger.info(
+            "Processing compatibility request for %s and %s",
+            request.person1_name,
+            request.person2_name,
+        )
+
+        person1 = create_person_info(
+            birth_year=request.person1_birth_year,
+            birth_month=request.person1_birth_month,
+            birth_day=request.person1_birth_day,
+            birth_hour=request.person1_birth_hour,
+            name=request.person1_name,
+            gender=request.person1_gender,
+            birth_place=request.person1_birth_place,
+            birth_minute=request.person1_birth_minute,
+            birth_timezone=request.person1_birth_timezone,
+            birth_longitude=request.person1_birth_longitude,
+            use_true_solar_time=request.person1_use_true_solar_time,
+        )
+        person2 = create_person_info(
+            birth_year=request.person2_birth_year,
+            birth_month=request.person2_birth_month,
+            birth_day=request.person2_birth_day,
+            birth_hour=request.person2_birth_hour,
+            name=request.person2_name,
+            gender=request.person2_gender,
+            birth_place=request.person2_birth_place,
+            birth_minute=request.person2_birth_minute,
+            birth_timezone=request.person2_birth_timezone,
+            birth_longitude=request.person2_birth_longitude,
+            use_true_solar_time=request.person2_use_true_solar_time,
+        )
+
+        result = calculate_compatibility_analysis(
+            person1, person2, request.relationship_type
+        )
+
+        if "error" in result:
+            logger.warning(f"Compatibility analysis failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Compatibility analysis successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的双人配合分析参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during compatibility analysis: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/timing/comprehensive")
+async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
+    """
+    Calculate comprehensive timing analysis using FateBridge's offline timing engine.
+    """
+    try:
+        logger.info("Processing comprehensive timing request for %s", request.name)
+
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = calculate_comprehensive_timing(
+            person,
+            analysis_year=request.analysis_year,
+            analysis_month=request.analysis_month,
+            analysis_age=request.analysis_age,
+        )
+
+        if "error" in result:
+            logger.warning(f"Comprehensive timing analysis failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Comprehensive timing analysis successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的综合时运分析参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during comprehensive timing analysis: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/timing/dayun")
+async def calculate_dayun(request: DayunAnalysisRequest) -> dict:
+    """
+    Calculate dayun analysis using FateBridge's offline timing engine.
+    """
+    try:
+        logger.info("Processing dayun analysis request for %s", request.name)
+
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = calculate_dayun_analysis(person, request.analysis_age)
+
+        if "error" in result and result.get("analysis_type") is None:
+            logger.warning(f"Dayun analysis failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Dayun analysis successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的大运分析参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during dayun analysis: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/timing/liunian")
+async def calculate_liunian(request: LiunianAnalysisRequest) -> dict:
+    """
+    Calculate liunian analysis using FateBridge's offline timing engine.
+    """
+    try:
+        logger.info("Processing liunian analysis request for %s", request.name)
+
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = calculate_liunian_analysis(person, request.target_year)
+
+        if "error" in result:
+            logger.warning(f"Liunian analysis failed: {result['error']}")
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        logger.info("Liunian analysis successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的流年分析参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during liunian analysis: {str(e)}",
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
 @app.get("/health")
 async def health_check() -> dict:
     """Health check endpoint for monitoring."""
@@ -718,6 +1162,7 @@ async def calculate_gua_description(request: GuaLookupRequest) -> dict:
         result = calculate_gua_lookup(
             query=request.query,
             lookup_mode=request.lookup_mode,
+            selected_sections=request.selected_sections or None,
         )
 
         if "error" in result:
@@ -806,7 +1251,11 @@ async def calculate_gua_meiyi_helper(request: GuaMeiyiRequest) -> dict:
     try:
         logger.info("Processing gua meiyi helper request for %s", request.name)
 
-        result = calculate_gua_meiyi(**request.model_dump())
+        payload = request.model_dump()
+        result = calculate_gua_meiyi(
+            name=payload["name"],
+            selected_sections=payload.get("selected_sections") or None,
+        )
 
         if "error" in result:
             logger.warning(f"Gua meiyi helper failed: {result['error']}")
@@ -895,12 +1344,18 @@ async def export_parse_helper(request: ExportParseRequest) -> dict:
 @app.post("/api/knowledge/registry")
 async def knowledge_registry_helper(request: KnowledgeRegistryRequest) -> dict:
     """
-    List bundled knowledge domains and categories.
+    List bundled knowledge domains and categories with optional section export.
     """
     try:
         logger.info("Processing knowledge registry request for %s", request.domain)
 
-        result = calculate_knowledge_registry(**request.model_dump())
+        payload = request.model_dump()
+        result = calculate_knowledge_registry(
+            **{
+                **payload,
+                "selected_sections": payload.get("selected_sections") or None,
+            }
+        )
 
         if "error" in result:
             logger.warning(f"Knowledge registry failed: {result['error']}")
@@ -924,7 +1379,7 @@ async def knowledge_registry_helper(request: KnowledgeRegistryRequest) -> dict:
 @app.post("/api/knowledge/read")
 async def knowledge_read_helper(request: KnowledgeReadRequest) -> dict:
     """
-    Read one bundled knowledge entry by domain/category/key.
+    Read one bundled knowledge entry by domain/category/key with optional section export.
     """
     try:
         logger.info(
@@ -933,7 +1388,13 @@ async def knowledge_read_helper(request: KnowledgeReadRequest) -> dict:
             request.category,
         )
 
-        result = calculate_knowledge_read(**request.model_dump())
+        payload = request.model_dump()
+        result = calculate_knowledge_read(
+            **{
+                **payload,
+                "selected_sections": payload.get("selected_sections") or None,
+            }
+        )
 
         if "error" in result:
             logger.warning(f"Knowledge read failed: {result['error']}")
@@ -1216,10 +1677,13 @@ async def calculate_ziwei_birth_chart(request: ZiweiBirthRequest) -> dict:
 @app.post("/api/cn/ziwei/rules")
 async def get_ziwei_rules(request: ZiweiRulesRequest) -> dict:
     """
-    Return the Zi Wei rule catalogue, optionally filtered by year stem.
+    Return the Zi Wei rule catalogue, optionally filtered by year stem and export sections.
     """
     try:
-        result = calculate_ziwei_rules(year_stem=request.year_stem)
+        result = calculate_ziwei_rules(
+            year_stem=request.year_stem,
+            selected_sections=request.selected_sections or None,
+        )
 
         if "error" in result:
             logger.warning(f"Ziwei rule lookup failed: {result['error']}")
@@ -1557,6 +2021,130 @@ async def calculate_western_timing(request: WesternTimingRequest) -> dict:
             exc_info=True,
         )
         raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+def _run_western_timing_module_request(
+    *,
+    request: WesternTimingModuleRequest,
+    runner,
+    label: str,
+) -> dict:
+    try:
+        logger.info("Processing %s request for %s", label, request.name)
+        result = runner(**request.model_dump())
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            "Unexpected error during %s calculation: %s",
+            label,
+            str(e),
+            exc_info=True,
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/astro/timing/solarreturn")
+async def calculate_solarreturn_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone solar return output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_solarreturn,
+        label="solarreturn",
+    )
+
+
+@app.post("/api/astro/timing/lunarreturn")
+async def calculate_lunarreturn_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone lunar return output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_lunarreturn,
+        label="lunarreturn",
+    )
+
+
+@app.post("/api/astro/timing/solararc")
+async def calculate_solararc_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone solar arc output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_solararc,
+        label="solararc",
+    )
+
+
+@app.post("/api/astro/timing/givenyear")
+async def calculate_givenyear_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone given-year chart output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_givenyear,
+        label="givenyear",
+    )
+
+
+@app.post("/api/astro/timing/profection")
+async def calculate_profection_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone annual profection output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_profection,
+        label="profection",
+    )
+
+
+@app.post("/api/astro/timing/pd")
+async def calculate_pd_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone primary-directions output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_pd,
+        label="pd",
+    )
+
+
+@app.post("/api/astro/timing/pdchart")
+async def calculate_pdchart_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone primary-direction-chart output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_pdchart,
+        label="pdchart",
+    )
+
+
+@app.post("/api/astro/timing/zr")
+async def calculate_zr_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone zodiacal releasing output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_zr,
+        label="zr",
+    )
+
+
+@app.post("/api/astro/timing/firdaria")
+async def calculate_firdaria_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone firdaria output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_firdaria,
+        label="firdaria",
+    )
+
+
+@app.post("/api/astro/timing/decennials")
+async def calculate_decennials_module(request: WesternTimingModuleRequest) -> dict:
+    """Generate standalone decennials output."""
+    return _run_western_timing_module_request(
+        request=request,
+        runner=calculate_decennials,
+        label="decennials",
+    )
 
 
 @app.post("/api/timing/liuyue")

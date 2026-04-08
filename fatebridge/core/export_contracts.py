@@ -71,6 +71,7 @@ AI_EXPORT_TECHNIQUES = [
     {"key": "decennials", "label": "推运盘-十年大运"},
     {"key": "bazi", "label": "八字"},
     {"key": "ziwei", "label": "紫微斗数"},
+    {"key": "ziwei_rules", "label": "紫微规则库"},
     {"key": "suzhan", "label": "宿占"},
     {"key": "sixyao", "label": "易卦"},
     {"key": "tongshefa", "label": "统摄法"},
@@ -87,8 +88,12 @@ AI_EXPORT_TECHNIQUES = [
     {"key": "jieqi_xiazhi", "label": "节气盘-夏至"},
     {"key": "jieqi_qiufen", "label": "节气盘-秋分"},
     {"key": "jieqi_dongzhi", "label": "节气盘-冬至"},
+    {"key": "knowledge_registry", "label": "知识目录"},
+    {"key": "gua_lookup", "label": "卦义检索"},
+    {"key": "gua_meiyi", "label": "梅易卦义"},
     {"key": "otherbu", "label": "西洋游戏"},
     {"key": "fengshui", "label": "风水"},
+    {"key": "knowledge", "label": "悬浮知识"},
     {"key": "generic", "label": "其他页面"},
 ]
 
@@ -109,6 +114,7 @@ AI_EXPORT_PRESET_SECTIONS = {
     "decennials": ["起盘信息", "星盘信息", "十年大运设置", "基于X起运"],
     "bazi": ["起盘信息", "四柱与三元", "流年行运概略", "神煞（四柱与三元）"],
     "ziwei": ["起盘信息", "宫位总览"],
+    "ziwei_rules": ["规则概览", "宫位序列", "命身宫规则", "四化总表", "当前天干四化"],
     "suzhan": ["起盘信息", "宿盘宫位与二十八宿星曜"],
     "sixyao": ["起盘信息", "卦象", "六爻与动爻", "卦辞与断语"],
     "tongshefa": ["本卦", "六爻", "潜藏", "亲和"],
@@ -158,8 +164,12 @@ AI_EXPORT_PRESET_SECTIONS = {
     "germany": ["起盘信息", "宫位宫头", "中点", "中点相位"],
     "jieqi": ["节气盘参数", "春分星盘", "春分宿盘", "夏至星盘", "夏至宿盘", "秋分星盘", "秋分宿盘", "冬至星盘", "冬至宿盘"],
     **JIEQI_SETTING_PRESETS,
+    "knowledge_registry": ["目录概览", "astro", "liureng", "qimen", "来源"],
+    "gua_lookup": ["查询信息", "卦象结构", "义理摘要", "来源"],
+    "gua_meiyi": ["查询概览", "批量结果", "来源"],
     "otherbu": ["起盘信息", "骰子结果", "骰子盘宫位与星体", "天象盘宫位与星体"],
     "fengshui": ["起盘信息", "标记判定", "冲突清单", "建议汇总", "纳气建议"],
+    "knowledge": ["查询信息", "知识正文", "来源"],
     "generic": ["起盘信息"],
 }
 

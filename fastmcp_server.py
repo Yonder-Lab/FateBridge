@@ -17,6 +17,18 @@ Provides Chinese metaphysics and approximate astrology functionality via FastMCP
 12. suzhan - Local lunar-mansion chart output
 13. otherbu - Local astrology-dice output
 14. sanshiunited - Local Sanshi aggregation output
+15. bazi_birth - Standalone BaZi birth chart snapshot
+16. bazi_direct - Standalone BaZi direct timing snapshot
+17. solarreturn - Standalone solar return snapshot
+18. lunarreturn - Standalone lunar return snapshot
+19. solararc - Standalone solar arc snapshot
+20. givenyear - Standalone given-year chart snapshot
+21. profection - Standalone annual profection snapshot
+22. pd - Standalone primary-directions snapshot
+23. pdchart - Standalone primary-direction chart snapshot
+24. zr - Standalone zodiacal releasing snapshot
+25. firdaria - Standalone firdaria snapshot
+26. decennials - Standalone decennials snapshot
 """
 
 import logging
@@ -29,7 +41,23 @@ from fatebridge.services.astrology import (
     calculate_germany_chart_analysis,
     calculate_relative_chart_analysis,
 )
+from fatebridge.services.bazi import (
+    calculate_bazi_birth as calculate_bazi_birth_service,
+    calculate_bazi_direct as calculate_bazi_direct_service,
+)
 from fatebridge.services.western_timing import calculate_western_timing_analysis
+from fatebridge.services.western_timing_tools import (
+    calculate_decennials as calculate_decennials_service,
+    calculate_firdaria as calculate_firdaria_service,
+    calculate_givenyear as calculate_givenyear_service,
+    calculate_lunarreturn as calculate_lunarreturn_service,
+    calculate_pd as calculate_pd_service,
+    calculate_pdchart as calculate_pdchart_service,
+    calculate_profection as calculate_profection_service,
+    calculate_solararc as calculate_solararc_service,
+    calculate_solarreturn as calculate_solarreturn_service,
+    calculate_zr as calculate_zr_service,
+)
 from fatebridge.utils.helpers import (
     create_person_info,
     format_json_response,
@@ -156,6 +184,110 @@ def analyze_destiny(
 
     data = calculate_destiny_analysis(person)
     return format_json_response(data)
+
+
+@app.tool
+def bazi_birth(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    name: Optional[str] = "未提供",
+    gender: Optional[str] = "未知",
+    birth_place: Optional[str] = "未提供",
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    selected_sections: Optional[list[str]] = None,
+    use_true_solar_time: bool = False,
+) -> str:
+    """
+    八字命盘工具
+
+    根据出生信息生成离线八字命盘，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
+    """
+    person = create_person_info(
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+
+    result = calculate_bazi_birth_service(
+        person,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        selected_sections=selected_sections,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "八字命盘")
+
+    return format_json_response(result)
+
+
+@app.tool
+def bazi_direct(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    name: Optional[str] = "未提供",
+    gender: Optional[str] = "未知",
+    birth_place: Optional[str] = "未提供",
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    selected_sections: Optional[list[str]] = None,
+    use_true_solar_time: bool = False,
+) -> str:
+    """
+    八字直断工具
+
+    根据出生信息生成离线八字直断，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
+    """
+    person = create_person_info(
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+
+    result = calculate_bazi_direct_service(
+        person,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        selected_sections=selected_sections,
+    )
+
+    if "error" in result:
+        return format_error_response(result, "八字直断")
+
+    return format_json_response(result)
 
 
 @app.tool
@@ -760,11 +892,16 @@ def export_parse(
 @app.tool
 def knowledge_registry(
     domain: Optional[str] = None,
+    *,
+    selected_sections: Optional[list[str]] = None,
 ) -> str:
     """
-    悬浮知识目录工具 - 列出 astrology / 六壬 / 奇门的本地知识分类。
+    悬浮知识目录工具 - 列出 astrology / 六壬 / 奇门的本地知识分类，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
-    result = calculate_knowledge_registry(domain=domain)
+    result = calculate_knowledge_registry(
+        domain=domain,
+        selected_sections=selected_sections,
+    )
 
     if "error" in result:
         return format_error_response(result, "知识目录")
@@ -778,6 +915,7 @@ def knowledge_read(
     category: str,
     key: Optional[str] = None,
     *,
+    selected_sections: Optional[list[str]] = None,
     aspect_degree: Optional[int] = None,
     object_a: Optional[str] = None,
     object_b: Optional[str] = None,
@@ -786,12 +924,13 @@ def knowledge_read(
     di_branch: Optional[str] = None,
 ) -> str:
     """
-    悬浮知识读取工具 - 按 domain/category/key 读取单条本地知识。
+    悬浮知识读取工具 - 按 domain/category/key 读取单条本地知识，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     result = calculate_knowledge_read(
         domain=domain,
         category=category,
         key=key,
+        selected_sections=selected_sections,
         aspect_degree=aspect_degree,
         object_a=object_a,
         object_b=object_b,
@@ -877,11 +1016,13 @@ def nongli_time(
 @app.tool
 def gua_meiyi(
     name: list[str],
+    *,
+    selected_sections: Optional[list[str]] = None,
 ) -> str:
     """
-    梅易卦义辅助工具 - 批量返回偏梅花易数语境的卦义摘要。
+    梅易卦义辅助工具 - 批量返回偏梅花易数语境的卦义摘要，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
-    result = calculate_gua_meiyi(name=name)
+    result = calculate_gua_meiyi(name=name, selected_sections=selected_sections)
 
     if "error" in result:
         return format_error_response(result, "梅易卦义")
@@ -893,9 +1034,11 @@ def gua_meiyi(
 def gua_lookup(
     query: str,
     lookup_mode: str = "auto",
+    *,
+    selected_sections: Optional[list[str]] = None,
 ) -> str:
     """
-    卦义检索工具 - 查询六十四卦或八卦的离线义理说明
+    卦义检索工具 - 查询六十四卦或八卦的离线义理说明，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
 
     Args:
         query: 卦名或二进制卦码。六十四卦可用 6 位码如 111111，八卦可用 3 位码如 111
@@ -904,7 +1047,11 @@ def gua_lookup(
     Returns:
         格式化的卦义检索结果
     """
-    result = calculate_gua_lookup(query=query, lookup_mode=lookup_mode)
+    result = calculate_gua_lookup(
+        query=query,
+        lookup_mode=lookup_mode,
+        selected_sections=selected_sections,
+    )
 
     if "error" in result:
         return format_error_response(result, "卦义检索")
@@ -1191,13 +1338,18 @@ def ziwei_birth(
 @app.tool
 def ziwei_rules(
     year_stem: Optional[str] = None,
+    *,
+    selected_sections: Optional[list[str]] = None,
 ) -> str:
     """
     紫微规则库工具
 
-    查询 FateBridge 内置的紫微宫位、命身宫与四化规则，可按天干过滤。
+    查询 FateBridge 内置的紫微宫位、命身宫与四化规则，可按天干过滤，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
-    result = calculate_ziwei_rules_service(year_stem=year_stem)
+    result = calculate_ziwei_rules_service(
+        year_stem=year_stem,
+        selected_sections=selected_sections,
+    )
     if "error" in result:
         return format_error_response(result, "紫微规则库")
 
@@ -1696,6 +1848,658 @@ def western_timing_analysis(
         return format_error_response(result, "西占时运分析")
 
     return format_json_response(result)
+
+
+def _run_western_timing_module_tool(
+    label: str,
+    runner,
+    *,
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    result = runner(
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+    if "error" in result:
+        return format_error_response(result, label)
+
+    return format_json_response(result)
+
+
+@app.tool
+def solarreturn(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占太阳返照独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占太阳返照",
+        calculate_solarreturn_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def lunarreturn(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占月亮返照独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占月亮返照",
+        calculate_lunarreturn_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def solararc(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占太阳弧独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占太阳弧",
+        calculate_solararc_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def givenyear(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占指定年盘独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占指定年盘",
+        calculate_givenyear_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def profection(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占年小限独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占年小限",
+        calculate_profection_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def pd(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占主限独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占主限",
+        calculate_pd_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def pdchart(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占主限法盘独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占主限法盘",
+        calculate_pdchart_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def zr(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占黄道释放独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占黄道释放",
+        calculate_zr_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def firdaria(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占法达星限独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占法达星限",
+        calculate_firdaria_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
+
+
+@app.tool
+def decennials(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    birth_longitude: float,
+    birth_latitude: float,
+    birth_timezone: str,
+    name: Optional[str] = "未提供",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[list[int]] = None,
+    show_pd_bounds: bool = True,
+    selected_sections: Optional[list[str]] = None,
+) -> str:
+    """西占十年星限独立工具。"""
+    return _run_western_timing_module_tool(
+        "西占十年星限",
+        calculate_decennials_service,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour=birth_hour,
+        birth_longitude=birth_longitude,
+        birth_latitude=birth_latitude,
+        birth_timezone=birth_timezone,
+        name=name,
+        birth_place=birth_place,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        birth_minute=birth_minute,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        pd_method=pd_method,
+        pd_time_key=pd_time_key,
+        pd_type=pd_type,
+        pd_aspects=pd_aspects,
+        show_pd_bounds=show_pd_bounds,
+        selected_sections=selected_sections,
+    )
 
 
 if __name__ == "__main__":
