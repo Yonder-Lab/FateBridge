@@ -23,6 +23,8 @@ from fastmcp_server import (
     suzhan,
     tongshefa,
 )
+from fatebridge.core import astrology as astrology_core
+from fatebridge.core.phase2_local import build_pseudo_chart
 from fatebridge.services.divination import (
     calculate_gua_lookup,
     calculate_gua_meiyi,
@@ -33,6 +35,12 @@ from fatebridge.services.divination import (
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
 )
+
+
+def _expected_offline_engine() -> tuple[str, str]:
+    if astrology_core.swe is not None:
+        return ("ephemeris_runtime_model", "swisseph_api")
+    return ("approximate_orbital_model", "fatebridge_approximate_orbital_model")
 
 
 def _house_id_for_longitude(houses, longitude):
@@ -489,6 +497,50 @@ def test_calculate_suzhan_analysis_returns_chart_and_snapshot():
     assert "˚" in result["snapshot_text"]
 
 
+def test_build_pseudo_chart_reuses_local_chart_runtime():
+    pseudo_chart = build_pseudo_chart(
+        date_text="2028-04-06",
+        time_text="09:33:00",
+        timezone_name="+08:00",
+        lat="31n13",
+        lon="121e28",
+    )
+    suzhan_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+    )
+    expected_precision, expected_backend = _expected_offline_engine()
+    pseudo_sun = next(
+        item for item in pseudo_chart["chart"]["objects"] if item["id"] == "Sun"
+    )
+    suzhan_sun = next(
+        item for item in suzhan_result["chart"]["objects"] if item["id"] == "Sun"
+    )
+
+    assert pseudo_chart["chart"]["houses"] == suzhan_result["chart"]["houses"]
+    assert pseudo_chart["chart"]["angles"] == suzhan_result["chart"]["angles"]
+    assert pseudo_sun == suzhan_sun
+    assert pseudo_chart["params"]["enginePrecision"] == expected_precision
+    assert pseudo_chart["params"]["engineBackend"] == expected_backend
+
+
+def test_calculate_suzhan_analysis_exposes_runtime_engine_metadata():
+    result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+    )
+    expected_precision, expected_backend = _expected_offline_engine()
+
+    assert result["params"]["enginePrecision"] == expected_precision
+    assert result["params"]["engineBackend"] == expected_backend
+
+
 def test_calculate_suzhan_analysis_applies_chart_modes_to_offline_output():
     default_result = calculate_suzhan_analysis(
         date="2028-04-06",
@@ -706,6 +758,25 @@ def test_calculate_otherbu_analysis_supports_offline_house_system_and_zodiacal_m
     assert tropical_equal_result["chart"]["chart"]["houses"][0]["lon"] != sidereal_whole_result["chart"]["chart"]["houses"][0]["lon"]
     assert tropical_sun["lon"] != sidereal_sun["lon"]
     assert tropical_sun["sign"] != sidereal_sun["sign"]
+
+
+def test_calculate_otherbu_analysis_exposes_runtime_engine_metadata():
+    result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        sign="Aries",
+        house=6,
+        planet="Sun",
+    )
+    expected_precision, expected_backend = _expected_offline_engine()
+
+    assert result["chart"]["params"]["enginePrecision"] == expected_precision
+    assert result["chart"]["params"]["engineBackend"] == expected_backend
+    assert result["diceChart"]["params"]["enginePrecision"] == expected_precision
+    assert result["diceChart"]["params"]["engineBackend"] == expected_backend
 
 
 def test_calculate_otherbu_analysis_supports_extended_offline_house_systems():
@@ -990,9 +1061,9 @@ def test_phase2_offline_golden_samples_match_current_contract():
             "houseOrientation": "reverse",
             "house1": {
                 "id": "House1",
-                "lon": 240.0,
-                "sign": "Sagittarius",
-                "sign_zh": "射手座",
+                "lon": 60.0,
+                "sign": "Gemini",
+                "sign_zh": "双子座",
             },
             "hasUranus": False,
             "su28Count": 0,

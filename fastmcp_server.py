@@ -2,7 +2,7 @@
 """
 FateBridge FastMCP Server - 命运之桥：连接古典智慧与现代技术的命理工具
 
-Provides Chinese metaphysics and approximate astrology functionality via FastMCP:
+Provides Chinese metaphysics and offline astrology functionality via FastMCP:
 1. analyze_destiny - Individual destiny analysis
 2. two_person_compatibility - Compatibility analysis between two people
 3. timing_analysis - Comprehensive timing (luck period) analysis
@@ -122,7 +122,7 @@ logger = logging.getLogger(__name__)
 
 app = FastMCP(
     name="fatebridge",
-    instructions="中国传统八字、时运、节气/农历 helper、FateBridge 导出协议/悬浮知识 helper 与离线近似星盘测算工具，提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。",
+    instructions="中国传统八字、时运、节气/农历 helper、FateBridge 导出协议/悬浮知识 helper 与离线星盘测算工具（优先本地高精度 ephemeris，缺失时回退近似模型），提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。",
     version="2.4.0",
 )
 
@@ -1729,9 +1729,10 @@ def astro_chart(
     zodiacal: Optional[int] = None,
 ) -> str:
     """
-    离线近似星盘工具
+    离线星盘工具
 
     支持核心盘、13 宫扩展盘、希腊式整宫盘、果老/宿度盘、印度式恒星黄道盘，以及中点量化盘。
+    计算优先走本地 Swiss Ephemeris runtime；缺失时回退 FateBridge 近似模型。
     未显式传入时，会沿用各盘型原本的默认宫制与黄道类型；显式传入 `hsys` /
     `zodiacal` 时，会走 FateBridge 离线宫制与黄道覆盖逻辑。
     """
@@ -1793,9 +1794,10 @@ def astro_relative_chart(
     zodiacal: int = 0,
 ) -> str:
     """
-    离线近似关系盘工具
+    离线关系盘工具
 
     返回双人本命盘、方向相位层、合成盘与基础兼容度评分。
+    关系盘底层本命盘优先走本地 Swiss Ephemeris runtime；缺失时回退近似模型。
     `relative_mode` 走现代 Horosa 风格语义；旧 `relationship_mode='synastry'`
     仍保留为 FateBridge 比较盘兼容路径。
     """

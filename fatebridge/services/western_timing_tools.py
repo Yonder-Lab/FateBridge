@@ -208,6 +208,8 @@ def _build_sections(
                         "coordinate_label": payload.get("coordinate_label"),
                         "approximation": payload.get("approximation"),
                         "approximation_label": payload.get("approximation_label"),
+                        "coordinate_precision": payload.get("coordinate_precision"),
+                        "coordinate_backend": payload.get("coordinate_backend"),
                         "aspects": payload.get("aspects"),
                     }
                 ),
@@ -246,6 +248,8 @@ def _build_sections(
                         "coordinate_label": payload.get("coordinate_label"),
                         "approximation": payload.get("approximation"),
                         "approximation_label": payload.get("approximation_label"),
+                        "coordinate_precision": payload.get("coordinate_precision"),
+                        "coordinate_backend": payload.get("coordinate_backend"),
                         "show_pd_bounds": payload.get("show_pd_bounds"),
                     }
                 ),

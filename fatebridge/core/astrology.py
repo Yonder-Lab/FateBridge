@@ -1,8 +1,10 @@
 """
-Approximate offline astrology engine for FateBridge.
+Offline astrology engine for FateBridge.
 
-This module intentionally uses lightweight orbital approximations so the new
-chart family can run without external ephemeris dependencies.
+When a local Swiss Ephemeris runtime is available, core charts prefer it for
+high-precision planetary and house calculations. The engine still preserves a
+fully offline fallback path based on lightweight orbital approximations so the
+chart family remains usable without external ephemeris files or network access.
 """
 
 from __future__ import annotations
@@ -240,6 +242,24 @@ PLANET_SEQUENCE = [
     "Pluto",
     "North Node",
 ]
+
+PLANET_SWISSEPH_IDS = (
+    {
+        "Sun": swe.SUN,
+        "Moon": swe.MOON,
+        "Mercury": swe.MERCURY,
+        "Venus": swe.VENUS,
+        "Mars": swe.MARS,
+        "Jupiter": swe.JUPITER,
+        "Saturn": swe.SATURN,
+        "Uranus": swe.URANUS,
+        "Neptune": swe.NEPTUNE,
+        "Pluto": swe.PLUTO,
+        "North Node": swe.MEAN_NODE,
+    }
+    if swe is not None
+    else {}
+)
 
 TRADITIONAL_PLANETS = [
     "Sun",
@@ -775,6 +795,23 @@ def _angles(julian_day: float, longitude: float, latitude: float) -> Dict[str, f
     return {"ascendant": ascendant, "midheaven": midheaven}
 
 
+def _swisseph_angles(
+    julian_day: float,
+    longitude: float,
+    latitude: float,
+) -> Optional[Dict[str, float]]:
+    if swe is None:
+        return None
+    try:
+        _, ascmc = swe.houses_ex(julian_day, latitude, longitude, b"E")
+    except Exception:
+        return None
+    return {
+        "ascendant": normalize_angle(float(ascmc[0])),
+        "midheaven": normalize_angle(float(ascmc[1])),
+    }
+
+
 def _build_houses(
     ascendant: float,
     house_system: str,
@@ -831,6 +868,108 @@ def _planet_set(chart_variant: str) -> List[str]:
     if chart_variant in {"hellen_chart", "guolao_chart"}:
         return list(TRADITIONAL_PLANETS)
     return list(PLANET_SEQUENCE)
+
+
+def _swisseph_planet_state(
+    planet: str,
+    julian_day: float,
+) -> Optional[Dict[str, float]]:
+    if swe is None:
+        return None
+    planet_id = PLANET_SWISSEPH_IDS.get(planet)
+    if planet_id is None:
+        return None
+    try:
+        coordinates, _ = swe.calc_ut(julian_day, planet_id, swe.FLG_SWIEPH)
+    except Exception:
+        return None
+    return {
+        "longitude": normalize_angle(float(coordinates[0])),
+        "latitude": float(coordinates[1]),
+    }
+
+
+def _build_planet_states(
+    chart_variant: str,
+    julian_day: float,
+    day_number: float,
+) -> Tuple[Dict[str, Dict[str, float]], str, str]:
+    planet_names = _planet_set(chart_variant)
+    if swe is not None:
+        ephemeris_states: Dict[str, Dict[str, float]] = {}
+        for planet in planet_names:
+            state = _swisseph_planet_state(planet, julian_day)
+            if state is None:
+                ephemeris_states = {}
+                break
+            ephemeris_states[planet] = state
+        if ephemeris_states:
+            return ephemeris_states, "ephemeris_runtime_model", "swisseph_api"
+
+    sun_state = _sun_state(day_number)
+    return (
+        {
+            planet: _planet_state(planet, day_number, sun_state)
+            for planet in planet_names
+        },
+        "approximate_orbital_model",
+        "fatebridge_approximate_orbital_model",
+    )
+
+
+def _derive_engine_profile(
+    *profiles: Optional[Dict[str, Any]],
+) -> Dict[str, str]:
+    precisions = {
+        str(profile["engine_precision"])
+        for profile in profiles
+        if isinstance(profile, dict) and profile.get("engine_precision")
+    }
+    backends = {
+        str(profile["engine_backend"])
+        for profile in profiles
+        if isinstance(profile, dict) and profile.get("engine_backend")
+    }
+
+    if not precisions:
+        engine_precision = "approximate_orbital_model"
+    elif len(precisions) == 1:
+        engine_precision = next(iter(precisions))
+    else:
+        engine_precision = "mixed_precision_runtime_model"
+
+    if not backends:
+        if engine_precision == "ephemeris_runtime_model":
+            engine_backend = "swisseph_api"
+        elif engine_precision == "mixed_precision_runtime_model":
+            engine_backend = "mixed_runtime_backends"
+        else:
+            engine_backend = "fatebridge_approximate_orbital_model"
+    elif len(backends) == 1:
+        engine_backend = next(iter(backends))
+    else:
+        engine_backend = "mixed_runtime_backends"
+
+    return {
+        "engine_precision": engine_precision,
+        "engine_backend": engine_backend,
+    }
+
+
+def _precision_label_zh(engine_precision: str) -> str:
+    if engine_precision == "ephemeris_runtime_model":
+        return "离线高精度"
+    if engine_precision == "mixed_precision_runtime_model":
+        return "离线混合精度"
+    return "离线近似"
+
+
+def _precision_label_from_profiles(
+    *profiles: Optional[Dict[str, Any]],
+) -> str:
+    return _precision_label_zh(
+        _derive_engine_profile(*profiles)["engine_precision"]
+    )
 
 
 def _build_planet_record(
@@ -905,11 +1044,22 @@ def _balance(planets: Iterable[Dict[str, Any]], key: str) -> Dict[str, int]:
     return dict(counter)
 
 
-def _summary(chart_variant: str, planets: List[Dict[str, Any]], aspects: List[Dict[str, Any]]) -> List[str]:
+def _summary(
+    chart_variant: str,
+    planets: List[Dict[str, Any]],
+    aspects: List[Dict[str, Any]],
+    *,
+    engine_precision: str,
+) -> List[str]:
     sun = next((item for item in planets if item["id"] == "Sun"), None)
     moon = next((item for item in planets if item["id"] == "Moon"), None)
     top_aspect = aspects[0] if aspects else None
-    lines = [f"已生成 {chart_variant} 的离线近似星盘。"]
+    chart_label = (
+        "离线高精度星盘"
+        if engine_precision == "ephemeris_runtime_model"
+        else "离线近似星盘"
+    )
+    lines = [f"已生成 {chart_variant} 的 {chart_label}。"]
     if sun is not None:
         lines.append(f"太阳落在 {sun['sign_zh']}，宫位 {sun['house']}。")
     if moon is not None:
@@ -980,7 +1130,6 @@ def build_core_chart_payload(
 ) -> Dict[str, Any]:
     julian_day = _julian_day(birth_info.utc_datetime)
     day_number = julian_day - 2451543.5
-    sun_state = _sun_state(day_number)
     house_system_info = _resolve_core_chart_house_system(
         hsys,
         chart_variant=chart_variant,
@@ -1001,10 +1150,11 @@ def build_core_chart_payload(
     house_cusps = (
         None if house_system_info["key"] == "whole_sign" else layout["house_cusps"]
     )
-    planet_states = {
-        planet: _planet_state(planet, day_number, sun_state)
-        for planet in _planet_set(chart_variant)
-    }
+    planet_states, engine_precision, engine_backend = _build_planet_states(
+        chart_variant,
+        julian_day,
+        day_number,
+    )
     planets = [
         _build_planet_record(
             planet,
@@ -1043,7 +1193,8 @@ def build_core_chart_payload(
             "house_system_label_zh": house_system_info["label_zh"],
             "house_system_source": house_system_info.get("source", "explicit"),
             "tradition": chart_variant in {"hellen_chart", "guolao_chart"},
-            "engine_precision": "approximate_orbital_model",
+            "engine_precision": engine_precision,
+            "engine_backend": engine_backend,
         },
         "angles": {
             "ascendant": {
@@ -1066,7 +1217,12 @@ def build_core_chart_payload(
         "aspects": aspects,
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
-        "summary": _summary(chart_variant, planets, aspects),
+        "summary": _summary(
+            chart_variant,
+            planets,
+            aspects,
+            engine_precision=engine_precision,
+        ),
     }
 
     if chart_variant == "chart13":
@@ -1117,6 +1273,7 @@ def build_midpoint_payload(
         hsys=hsys,
         zodiacal=zodiacal,
     )
+    engine_profile = _derive_engine_profile(base_chart.get("chart_profile", {}))
     midpoint_bodies = [
         item for item in base_chart["planets"] if item["id"] in TRADITIONAL_PLANETS
     ]
@@ -1156,7 +1313,6 @@ def build_midpoint_payload(
     return {
         "chart_profile": {
             "chart_type": "germany",
-            "engine_precision": "approximate_orbital_model",
             "analysis_focus": "midpoints",
             "house_system": base_chart["chart_profile"]["house_system"],
             "house_system_code": base_chart["chart_profile"].get("house_system_code"),
@@ -1165,6 +1321,7 @@ def build_midpoint_payload(
             "zodiacal": base_chart["chart_profile"].get("zodiacal"),
             "zodiac_label_zh": base_chart["chart_profile"].get("zodiac_label_zh"),
             "ayanamsha": base_chart["chart_profile"].get("ayanamsha"),
+            **engine_profile,
         },
         "base_chart": base_chart,
         "midpoints": midpoints,
@@ -1184,6 +1341,10 @@ def _composite_chart(
     house_system: str = "equal",
     zodiacal_info: Dict[str, Any],
 ) -> Dict[str, Any]:
+    engine_profile = _derive_engine_profile(
+        inner_chart.get("chart_profile", {}),
+        outer_chart.get("chart_profile", {}),
+    )
     inner_planets = {item["id"]: item for item in inner_chart["planets"]}
     outer_planets = {item["id"]: item for item in outer_chart["planets"]}
     house_cusps = (
@@ -1246,11 +1407,11 @@ def _composite_chart(
         "chart_profile": {
             "chart_type": "composite",
             "tradition": inner_chart.get("chart_profile", {}).get("tradition", False),
-            "engine_precision": "approximate_orbital_model",
             "house_system": house_system,
             "house_system_code": inner_chart.get("chart_profile", {}).get("house_system_code"),
             "house_system_label_zh": inner_chart.get("chart_profile", {}).get("house_system_label_zh"),
             **_relative_zodiac_profile_overrides(zodiacal_info),
+            **engine_profile,
         },
         "angles": {
             "ascendant": {
@@ -1274,7 +1435,7 @@ def _composite_chart(
         "element_balance": _balance(composite_planets, "element"),
         "modality_balance": _balance(composite_planets, "modality"),
         "summary": [
-            "已生成 FateBridge 组合盘近似层。",
+            f"已生成 FateBridge 组合盘{_precision_label_zh(engine_profile['engine_precision'])}层。",
             f"行星数量：{len(composite_planets)}。",
             f"相位数量：{len(aspects)}。",
         ],
@@ -1740,7 +1901,11 @@ def _relative_house_layout(
     ayanamsha = _ayanamsha(julian_day) if zodiacal_info["sidereal"] else None
 
     if swe is None or house_system_info["key"] in {"whole_sign", "equal"}:
-        angle_state = _angles(julian_day, birth_info.longitude, birth_info.latitude)
+        angle_state = _swisseph_angles(
+            julian_day,
+            birth_info.longitude,
+            birth_info.latitude,
+        ) or _angles(julian_day, birth_info.longitude, birth_info.latitude)
         ascendant = angle_state["ascendant"]
         midheaven = angle_state["midheaven"]
         if ayanamsha is not None:
@@ -1826,6 +1991,7 @@ def _build_relative_base_chart(
     zodiacal_info: Dict[str, Any],
 ) -> Dict[str, Any]:
     base_chart = build_core_chart_payload(birth_info, "chart")
+    engine_profile = _derive_engine_profile(base_chart.get("chart_profile", {}))
     source_planets = _chart_source_planets(base_chart)
     layout = _relative_house_layout(
         birth_info,
@@ -1854,6 +2020,7 @@ def _build_relative_base_chart(
             else layout["house_cusps"]
         ),
         summary_prefix="已生成 FateBridge 关系盘基础命盘。",
+        engine_profile=engine_profile,
         profile_overrides={
             "tradition": base_chart["chart_profile"].get("tradition", False),
             **_relative_house_profile_overrides(house_system_info),
@@ -1882,6 +2049,7 @@ def _build_chart_from_positions(
     house_cusps: Optional[List[float]] = None,
     summary_prefix: str,
     profile_overrides: Optional[Dict[str, Any]] = None,
+    engine_profile: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     planets = [
         _build_planet_record(
@@ -1901,7 +2069,10 @@ def _build_chart_from_positions(
         "house_system": house_system,
         "tradition": False,
         "engine_precision": "approximate_orbital_model",
+        "engine_backend": "fatebridge_approximate_orbital_model",
     }
+    if engine_profile:
+        chart_profile.update(engine_profile)
     if profile_overrides:
         chart_profile.update(profile_overrides)
     return {
@@ -1965,6 +2136,7 @@ def _build_timespace_chart(
 ) -> Dict[str, Any]:
     midpoint_birth = _build_midpoint_birth_info(inner_birth, outer_birth)
     midpoint_chart = build_core_chart_payload(midpoint_birth, "chart")
+    engine_profile = _derive_engine_profile(midpoint_chart.get("chart_profile", {}))
     source_planets = _chart_source_planets(midpoint_chart)
     layout = _relative_house_layout(
         midpoint_birth,
@@ -1993,6 +2165,7 @@ def _build_timespace_chart(
             else layout["house_cusps"]
         ),
         summary_prefix="已生成 FateBridge 时空中点盘。",
+        engine_profile=engine_profile,
         profile_overrides={
             "derivation": "midpoint_birth",
             "tradition": midpoint_chart["chart_profile"].get("tradition", False),
@@ -2012,6 +2185,10 @@ def _build_influence_chart_wrapper(
     house_system: str,
     zodiacal_info: Dict[str, Any],
 ) -> Dict[str, Any]:
+    engine_profile = _derive_engine_profile(
+        house_chart.get("chart_profile", {}),
+        source_chart.get("chart_profile", {}),
+    )
     target_name = house_chart["person_info"]["name"]
     source_name = source_chart["person_info"]["name"]
     house_cusps = (
@@ -2031,6 +2208,7 @@ def _build_influence_chart_wrapper(
         house_system=house_system,
         house_cusps=house_cusps,
         summary_prefix=f"已生成 {target_name} 视角的影响图盘。",
+        engine_profile=engine_profile,
         profile_overrides={
             "reference_frame": f"{source_name}_planets_in_{target_name}_houses",
             "tradition": house_chart.get("chart_profile", {}).get("tradition", False),
@@ -2042,7 +2220,6 @@ def _build_influence_chart_wrapper(
     return {
         "chart_profile": {
             "chart_type": f"influence_{role}",
-            "engine_precision": "approximate_orbital_model",
             "house_system": house_system,
             "house_system_code": house_chart.get("chart_profile", {}).get("house_system_code"),
             "house_system_label_zh": house_chart.get("chart_profile", {}).get("house_system_label_zh"),
@@ -2050,6 +2227,7 @@ def _build_influence_chart_wrapper(
             "zodiacal": zodiacal_info["value"],
             "zodiac_label_zh": zodiacal_info["label_zh"],
             "reference_frame": influence_chart["chart_profile"]["reference_frame"],
+            **engine_profile,
         },
         "chart": influence_chart,
         "summary": [
@@ -2092,6 +2270,10 @@ def _build_marks_chart(
     house_system: str,
     zodiacal_info: Dict[str, Any],
 ) -> Dict[str, Any]:
+    engine_profile = _derive_engine_profile(
+        composite_chart.get("chart_profile", {}),
+        timespace_chart.get("chart_profile", {}),
+    )
     composite_planets = {item["id"]: item for item in composite_chart["planets"]}
     timespace_planets = {item["id"]: item for item in timespace_chart["planets"]}
     house_cusps = (
@@ -2142,7 +2324,8 @@ def _build_marks_chart(
         midheaven=midheaven,
         house_system=house_system,
         house_cusps=house_cusps or None,
-        summary_prefix="已生成 FateBridge 马克斯盘近似层。",
+        summary_prefix=f"已生成 FateBridge 马克斯盘{_precision_label_zh(engine_profile['engine_precision'])}层。",
+        engine_profile=engine_profile,
         profile_overrides={
             "derivation": "composite_timespace_blend",
             "tradition": composite_chart.get("chart_profile", {}).get("tradition", False),
@@ -2160,7 +2343,9 @@ def _base_relative_relationship_profile(
     zodiacal: int,
     house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
+    source_profiles: Optional[Iterable[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
+    engine_profile = _derive_engine_profile(*(source_profiles or []))
     profile = {
         "chart_type": "relative",
         "relationship_mode": relative_mode_info["input"],
@@ -2175,7 +2360,7 @@ def _base_relative_relationship_profile(
         "zodiacal": zodiacal,
         "zodiac_mode": zodiacal_info["zodiac"],
         "zodiac_label_zh": zodiacal_info["label_zh"],
-        "engine_precision": "approximate_orbital_model",
+        **engine_profile,
     }
     if relative_mode_info.get("note"):
         profile["relative_mode_note"] = relative_mode_info["note"]
@@ -2213,6 +2398,11 @@ def _build_compare_relative_payload(
                 zodiacal=zodiacal,
                 house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
+                source_profiles=(
+                    inner_chart.get("chart_profile", {}),
+                    outer_chart.get("chart_profile", {}),
+                    composite_chart.get("chart_profile", {}),
+                ),
             ),
             "primary_layer": "directional_synastry",
             "mode_status": "implemented",
@@ -2249,7 +2439,8 @@ def _build_compare_relative_payload(
             f"A对B映点命中：{len(in_to_out_antiscia)}。",
             f"综合分：{compatibility['overall_score']}。",
             "合成图盘保留在 composite_chart 兼容字段；主 chart 层在比较盘模式下当前留空。",
-            "影响图盘、中点相位与映点/反映点均已提供离线近似结果。",
+            "影响图盘、中点相位与映点/反映点均已提供"
+            f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
         ],
     }
 
@@ -2285,6 +2476,11 @@ def _build_composite_relative_payload(
                 zodiacal=zodiacal,
                 house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
+                source_profiles=(
+                    inner_chart.get("chart_profile", {}),
+                    outer_chart.get("chart_profile", {}),
+                    composite_chart.get("chart_profile", {}),
+                ),
             ),
             "primary_layer": "composite_chart",
             "mode_status": "implemented",
@@ -2320,7 +2516,8 @@ def _build_composite_relative_payload(
             f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
             f"A对B映点命中：{len(in_to_out_antiscia)}。",
             f"综合分：{compatibility['overall_score']}。",
-            "影响图盘、中点相位与映点/反映点均已提供离线近似结果。",
+            "影响图盘、中点相位与映点/反映点均已提供"
+            f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
         ],
     }
 
@@ -2356,6 +2553,11 @@ def _build_influence_relative_payload(
                 zodiacal=zodiacal,
                 house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
+                source_profiles=(
+                    inner_chart.get("chart_profile", {}),
+                    outer_chart.get("chart_profile", {}),
+                    composite_chart.get("chart_profile", {}),
+                ),
             ),
             "primary_layer": "influence_chart_pair",
             "mode_status": "implemented",
@@ -2427,6 +2629,11 @@ def _build_timespace_relative_payload(
                 zodiacal=zodiacal,
                 house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
+                source_profiles=(
+                    inner_chart.get("chart_profile", {}),
+                    outer_chart.get("chart_profile", {}),
+                    timespace_chart.get("chart_profile", {}),
+                ),
             ),
             "primary_layer": "timespace_chart",
             "mode_status": "implemented",
@@ -2460,7 +2667,10 @@ def _build_timespace_relative_payload(
             f"时空中点盘行星数量：{len(timespace_chart.get('planets', []))}。",
             f"A对B相位主体数：{len(in_to_out_aspects)}。",
             f"综合分：{compatibility['overall_score']}。",
-            "主 chart 层采用双方出生时间与地理位置中点生成的离线近似盘。",
+            (
+                "主 chart 层采用双方出生时间与地理位置中点生成的"
+                f"{_precision_label_zh(timespace_chart.get('chart_profile', {}).get('engine_precision', 'approximate_orbital_model'))}盘。"
+            ),
         ],
     }
 
@@ -2497,6 +2707,11 @@ def _build_marks_relative_payload(
                 zodiacal=zodiacal,
                 house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
+                source_profiles=(
+                    inner_chart.get("chart_profile", {}),
+                    outer_chart.get("chart_profile", {}),
+                    marks_chart.get("chart_profile", {}),
+                ),
             ),
             "primary_layer": "marks_chart",
             "mode_status": "implemented",
@@ -2530,7 +2745,10 @@ def _build_marks_relative_payload(
             f"马克斯盘行星数量：{len(marks_chart.get('planets', []))}。",
             f"A对B相位主体数：{len(in_to_out_aspects)}。",
             f"综合分：{compatibility['overall_score']}。",
-            "主 chart 层采用组合盘与时空中点盘之间的离线混合近似结果。",
+            (
+                "主 chart 层采用组合盘与时空中点盘之间的"
+                f"{_precision_label_zh(marks_chart.get('chart_profile', {}).get('engine_precision', 'approximate_orbital_model'))}派生结果。"
+            ),
         ],
     }
 
@@ -2566,6 +2784,11 @@ def _build_unimplemented_relative_payload(
                 zodiacal=zodiacal,
                 house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
+                source_profiles=(
+                    inner_chart.get("chart_profile", {}),
+                    outer_chart.get("chart_profile", {}),
+                    composite_chart.get("chart_profile", {}),
+                ),
             ),
             "primary_layer": "placeholder",
             "mode_status": "placeholder",
@@ -2600,7 +2823,8 @@ def _build_unimplemented_relative_payload(
             f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
             f"A对B映点命中：{len(in_to_out_antiscia)}。",
             f"综合分：{compatibility['overall_score']}。",
-            "该模式的深层图盘算法尚未实现，当前已提供兼容 contract、方向相位层、影响图盘，以及中点/映点离线近似结果。",
+            "该模式的深层图盘算法尚未实现，当前已提供兼容 contract、方向相位层、影响图盘，以及中点/映点"
+            f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
         ],
     }
 

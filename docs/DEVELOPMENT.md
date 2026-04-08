@@ -1,746 +1,222 @@
 # FateBridge 开发指南
 
-本指南为想要参与 FateBridge 开发的开发者提供完整的设置、开发流程和最佳实践。
+本指南面向准备在当前仓库里修改算法、补接口或修文档的开发者。当前仓库是 backend-only Python 项目，不包含内置前端应用。
 
-## 目录
-
-- [环境设置](#环境设置)
-- [项目结构](#项目结构)
-- [开发工作流](#开发工作流)
-- [测试](#测试)
-- [代码风格](#代码风格)
-- [调试](#调试)
-- [提交指南](#提交指南)
-
----
-
-## 环境设置
-
-### 系统要求
-
-- **Python**: 3.8 或更高版本
-- **Node.js**: 16.x 或更高版本
-- **npm** 或 **yarn**: 最新版本
-- **Git**: 2.x 或更高版本
-
-### 后端开发环境
-
-#### 1. 克隆仓库
+## 1. 环境准备
 
 ```bash
 git clone https://github.com/thomas-yanxin/FateBridge.git
 cd FateBridge
-```
 
-#### 2. 创建虚拟环境
-
-```bash
-# 使用 venv
 python -m venv venv
-
-# 激活虚拟环境
-# macOS/Linux:
 source venv/bin/activate
 
-# Windows:
-venv\Scripts\activate
-```
-
-#### 3. 安装依赖
-
-```bash
 pip install -r requirements.txt
-
-# 安装开发依赖（可选）
 pip install -e ".[dev]"
 ```
 
-#### 4. 环境配置
+可选环境变量：
 
 ```bash
-# 复制环境模板
 cp .env.example .env
+```
 
-# 编辑 .env 文件
-# 必需配置:
-ALLOWED_ORIGINS=http://localhost:3000
+默认值：
+
+```bash
 API_HOST=0.0.0.0
-API_PORT=8000
+API_PORT=8010
+ALLOWED_ORIGINS=http://localhost:3000
 LOG_LEVEL=INFO
 ```
 
-### 前端开发环境
+## 2. 当前项目结构
 
-#### 1. 安装依赖
-
-```bash
-cd fatebridge-web
-npm install
-# 或
-yarn install
-```
-
-#### 2. 环境配置
-
-```bash
-# 创建 .env.local 文件
-cat > .env.local <<EOF
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXT_PUBLIC_API_URL=http://localhost:8000
-EOF
-```
-
-#### 3. 启动开发服务器
-
-```bash
-npm run dev
-# 访问 http://localhost:3000
-```
-
----
-
-## 项目结构
-
-### 详细的文件树
-
-```
+```text
 FateBridge/
-├── docs/                          # 文档
-│   ├── API.md                    # API 文档
-│   ├── ARCHITECTURE.md           # 架构文档
-│   └── DEVELOPMENT.md            # 本文档
-│
-├── fatebridge/                   # Python 核心包
-│   ├── __init__.py
-│   ├── core/                     # 核心计算
-│   │   ├── __init__.py
-│   │   ├── calendar.py          # 干支历法计算
-│   │   ├── elements.py          # 五行分析
-│   │   ├── rules.py             # 格局识别
-│   │   └── timing.py            # 大运流年计算
-│   │
-│   ├── analysis/                # 高级分析
-│   │   ├── __init__.py
-│   │   ├── compatibility.py     # 双人配合
-│   │   └── timing_effects.py    # 时运影响
-│   │
-│   └── utils/                   # 工具模块
-│       ├── __init__.py
-│       ├── data.py              # 数据定义和常量
-│       └── helpers.py           # 共享工具函数
-│
-├── fatebridge-web/              # Next.js 前端
-│   ├── app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   ├── login/
-│   │   ├── auth/
-│   │   └── globals.css
-│   ├── components/              # React 组件
-│   ├── utils/
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── api.py                       # FastAPI 服务器
-├── fastmcp_server.py            # FastMCP 服务器
-├── logic.py                     # 业务逻辑层
-│
-├── requirements.txt             # Python 依赖
-├── pyproject.toml              # 项目配置
-├── .env.example                # 环境模板
-├── .gitignore                  # Git 忽略规则
-│
-├── README.md                   # 项目说明
-├── FIXES.md                    # 修复记录
-└── LICENSE                     # MIT 许可证
+├── api.py
+├── fastmcp_server.py
+├── fatebridge/
+│   ├── analysis/
+│   ├── core/
+│   ├── data/
+│   ├── services/
+│   └── utils/
+├── tests/
+├── docs/
+├── requirements.txt
+├── pyproject.toml
+└── CONTRIBUTING.md
 ```
 
----
+### 关键目录职责
 
-## 开发工作流
+| 路径 | 职责 |
+| --- | --- |
+| `api.py` | REST 路由、Pydantic request model、HTTP 层错误处理 |
+| `fastmcp_server.py` | MCP 工具定义与 JSON 文本封装 |
+| `fatebridge/core` | 核心算法与合同 |
+| `fatebridge/services` | transport-facing 编排层 |
+| `fatebridge/analysis` | 复合分析逻辑 |
+| `fatebridge/utils` | 时间、地点、输入归一化 |
+| `tests` | 回归、合同、API/MCP 对齐 |
+| `docs` | 用户与开发者文档 |
 
-### 1. 创建新分支
+## 3. 本地运行
+
+### 启动 REST API
 
 ```bash
-# 从 master 创建新分支
-git checkout -b feature/your-feature-name
-
-# 分支命名规范
-# feature/...      # 新功能
-# fix/...         # bug 修复
-# docs/...        # 文档改进
-# refactor/...    # 代码重构
-# test/...        # 测试相关
-```
-
-### 2. 开发流程
-
-#### 后端开发示例
-
-假设要添加"获取四柱信息"的 API 端点:
-
-**第 1 步: 更新核心模块**
-
-```python
-# fatebridge/core/calendar.py
-
-@classmethod
-def get_pillar_descriptions(cls, pillars: Dict) -> Dict[str, str]:
-    """获取四柱的详细描述"""
-    descriptions = {
-        "year": f"{pillars['year'][0]}{pillars['year'][1]} - 年柱",
-        "month": f"{pillars['month'][0]}{pillars['month'][1]} - 月柱",
-        "day": f"{pillars['day'][0]}{pillars['day'][1]} - 日柱",
-        "hour": f"{pillars['hour'][0]}{pillars['hour'][1]} - 时柱",
-    }
-    return descriptions
-```
-
-**第 2 步: 添加 API 端点**
-
-```python
-# api.py
-
-from fastapi import APIRouter
-
-router = APIRouter()
-
-@app.get("/api/pillars/{year}/{month}/{day}/{hour}")
-async def get_pillars(year: int, month: int, day: int, hour: int) -> dict:
-    """获取四柱信息"""
-    try:
-        birth_date = datetime(year, month, day, hour)
-        pillars = BaZiCalendar.get_four_pillars(birth_date)
-        descriptions = BaZiCalendar.get_pillar_descriptions(pillars)
-        return {
-            "pillars": pillars,
-            "descriptions": descriptions
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-```
-
-**第 3 步: 编写测试**
-
-```python
-# tests/test_api.py
-
-import pytest
-from api import app
-
-@pytest.fixture
-def client():
-    return TestClient(app)
-
-def test_get_pillars(client):
-    response = client.get("/api/pillars/1990/5/15/10")
-    assert response.status_code == 200
-    data = response.json()
-    assert "pillars" in data
-    assert "descriptions" in data
-```
-
-#### 前端开发示例
-
-假设要创建"四柱展示"组件:
-
-```typescript
-// fatebridge-web/components/PillarDisplay.tsx
-
-import React from 'react';
-
-interface Pillar {
-  stem: string;
-  branch: string;
-}
-
-interface PillarDisplayProps {
-  pillars: {
-    year: Pillar;
-    month: Pillar;
-    day: Pillar;
-    hour: Pillar;
-  };
-}
-
-export const PillarDisplay: React.FC<PillarDisplayProps> = ({ pillars }) => {
-  const pillarNames = ['年柱', '月柱', '日柱', '时柱'];
-  const pillarValues = [pillars.year, pillars.month, pillars.day, pillars.hour];
-
-  return (
-    <div className="grid grid-cols-4 gap-4">
-      {pillarNames.map((name, index) => (
-        <div key={index} className="p-4 border rounded-lg">
-          <h3 className="font-bold text-center mb-2">{name}</h3>
-          <div className="text-3xl font-bold text-center">
-            {pillarValues[index].stem}
-            <br />
-            {pillarValues[index].branch}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-```
-
-在父组件中使用:
-
-```typescript
-// fatebridge-web/components/FateBridgeChart.tsx
-
-import { PillarDisplay } from './PillarDisplay';
-
-export const FateBridgeChart: React.FC<Props> = ({ analysis }) => {
-  return (
-    <div>
-      <h2>四柱分析</h2>
-      <PillarDisplay pillars={analysis.four_pillars} />
-    </div>
-  );
-};
-```
-
-### 3. 测试和验证
-
-```bash
-# 运行后端测试
-pytest tests/ -v
-
-# 检查代码风格
-black --check fatebridge/ api.py logic.py
-isort --check-only fatebridge/ api.py logic.py
-
-# 类型检查
-mypy fatebridge/ api.py logic.py
-
-# 运行前端测试
-cd fatebridge-web
-npm run test
-
-# 构建检查
-npm run build
-```
-
-### 4. 提交代码
-
-```bash
-# 查看更改
-git status
-git diff
-
-# 添加文件
-git add .
-
-# 创建提交
-git commit -m "feat: Add pillar descriptions API endpoint
-
-- Add get_pillar_descriptions() method to BaZiCalendar
-- Create /api/pillars endpoint for retrieving pillar details
-- Add comprehensive test coverage
-- Update API documentation
-
-Related to: #123"
-
-# 推送到远程
-git push origin feature/your-feature-name
-```
-
----
-
-## 测试
-
-### 测试结构
-
-```
-tests/
-├── __init__.py
-├── test_calendar.py        # 历法计算测试
-├── test_elements.py        # 五行分析测试
-├── test_rules.py           # 格局识别测试
-├── test_compatibility.py   # 配合度测试
-├── test_api.py             # API 端点测试
-└── fixtures.py             # 测试数据
-```
-
-### 编写测试
-
-```python
-# tests/test_calendar.py
-
-import pytest
-from datetime import datetime
-from fatebridge.core.calendar import BaZiCalendar
-
-class TestBaZiCalendar:
-    """四柱历法计算测试"""
-
-    def test_year_pillar_1984(self):
-        """测试 1984 年是甲子年"""
-        stem, branch = BaZiCalendar.calculate_year_pillar(1984)
-        assert stem == "甲"
-        assert branch == "子"
-
-    def test_day_pillar_base_date(self):
-        """测试基准日期 1984-03-31 是甲子日"""
-        stem, branch = BaZiCalendar.calculate_day_pillar(1984, 3, 31)
-        assert stem == "甲"
-        assert branch == "子"
-
-    @pytest.mark.parametrize("year,expected_stem,expected_branch", [
-        (1990, "庚", "午"),
-        (2000, "庚", "辰"),
-        (2020, "庚", "子"),
-    ])
-    def test_year_pillar_known_values(self, year, expected_stem, expected_branch):
-        """参数化测试已知的年柱值"""
-        stem, branch = BaZiCalendar.calculate_year_pillar(year)
-        assert stem == expected_stem
-        assert branch == expected_branch
-
-    def test_invalid_date_raises_error(self):
-        """测试无效日期抛出错误"""
-        with pytest.raises(ValueError):
-            BaZiCalendar.calculate_day_pillar(2000, 2, 30)
-```
-
-### 运行测试
-
-```bash
-# 运行所有测试
-pytest
-
-# 运行特定测试文件
-pytest tests/test_calendar.py
-
-# 运行特定测试类
-pytest tests/test_calendar.py::TestBaZiCalendar
-
-# 运行特定测试
-pytest tests/test_calendar.py::TestBaZiCalendar::test_year_pillar_1984
-
-# 显示详细输出
-pytest -v
-
-# 显示覆盖率
-pytest --cov=fatebridge --cov-report=html
-```
-
----
-
-## 代码风格
-
-### Python 代码风格指南
-
-遵循 [PEP 8](https://peps.python.org/pep-0008/)：
-
-```python
-# ✅ 好的代码
-def calculate_five_elements(pillars: Dict[str, Tuple[str, str]]) -> Dict[str, int]:
-    """计算五行分布。
-
-    Args:
-        pillars: 四柱信息字典
-
-    Returns:
-        五行计数字典
-    """
-    element_count = {"木": 0, "火": 0, "土": 0, "金": 0, "水": 0}
-
-    for pillar_name, (stem, branch) in pillars.items():
-        element = get_element(stem)
-        if element:
-            element_count[element] += 1
-
-    return element_count
-
-# ❌ 避免
-def calc5elem(p):
-    c = {}
-    for k, v in p.items():
-        for s in v:
-            if s in stems:
-                c[get_e(s)] = c.get(get_e(s), 0) + 1
-    return c
-```
-
-### 使用工具自动格式化
-
-```bash
-# 自动格式化代码
-black fatebridge/ api.py logic.py
-
-# 排序导入
-isort fatebridge/ api.py logic.py
-
-# 验证代码风格
-flake8 fatebridge/ api.py logic.py
-```
-
-### TypeScript/React 代码风格
-
-```typescript
-// ✅ 好的代码
-interface AnalysisResult {
-  person_info: PersonInfo;
-  four_pillars: FourPillars;
-  element_distribution: ElementDistribution;
-}
-
-const AnalysisComponent: React.FC<AnalysisComponentProps> = ({
-  analysis,
-  onUpdate,
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleAnalysis = async () => {
-    setIsLoading(true);
-    try {
-      const result = await analyzeDestiny(birthInfo);
-      onUpdate(result);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="analysis-container">
-      {/* 组件内容 */}
-    </div>
-  );
-};
-
-// ❌ 避免
-const AnalysisComp = (props: any) => {
-  const [loading, setLoading] = useState(false);
-
-  const handle = () => {
-    setLoading(true);
-    analyzeDestiny(props.info).then(r => {
-      props.cb(r);
-    });
-  };
-
-  return <div>{/* ... */}</div>;
-};
-```
-
----
-
-## 调试
-
-### 后端调试
-
-#### 使用 Python 调试器
-
-```python
-# 在代码中设置断点
-import pdb
-
-def calculate_fatebridge(person):
-    pdb.set_trace()  # 调试器会在此处暂停
-    result = ...
-    return result
-```
-
-或使用 IDE 的调试功能（VSCode, PyCharm）。
-
-#### 启用详细日志
-
-```python
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-def calculate_fatebridge(person):
-    logger.debug(f"Calculating for: {person.name}")
-    logger.debug(f"Birth date: {person.birth_datetime}")
-
-    result = ...
-
-    logger.debug(f"Result: {result}")
-    return result
-```
-
-#### 运行单个 API 测试
-
-```bash
-# 启用详细日志
-LOG_LEVEL=DEBUG python api.py
-
-# 使用 curl 测试
-curl -X POST http://localhost:8000/api/calculate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "birth_year": 1990,
-    "birth_month": 5,
-    "birth_day": 15,
-    "birth_hour": 10
-  }' | jq .
-```
-
-### 前端调试
-
-#### 使用浏览器开发工具
-
-```bash
-npm run dev
-
-# 打开浏览器 DevTools (F12)
-# 查看 Console, Network, Elements 等选项卡
-```
-
-#### React DevTools
-
-```bash
-# 安装 React DevTools 浏览器扩展
-# https://react-devtools-tutorial.vercel.app/
-
-# 在代码中添加调试日志
-console.log('Analysis result:', analysis);
-console.error('API error:', error);
-```
-
-#### 使用 VS Code 调试
-
-创建 `.vscode/launch.json`:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Python: FastAPI",
-      "type": "python",
-      "request": "launch",
-      "module": "uvicorn",
-      "args": ["api:app", "--reload"],
-      "jinja": true,
-      "justMyCode": true
-    }
-  ]
-}
-```
-
----
-
-## 提交指南
-
-### 提交信息格式
-
-遵循 [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-### 类型
-
-- `feat`: 新功能
-- `fix`: 缺陷修复
-- `docs`: 文档改进
-- `style`: 代码风格（格式化、分号等）
-- `refactor`: 代码重构
-- `perf`: 性能改进
-- `test`: 测试相关
-- `chore`: 构建、依赖管理等
-
-### 示例
-
-```bash
-git commit -m "feat(calendar): Add lunar calendar support
-
-- Implement lunar to gregorian conversion
-- Add traditional Chinese calendar calculations
-- Include validation for lunar dates
-
-Closes #42
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
-```
-
-### Pre-commit 钩子
-
-创建 `.git/hooks/pre-commit`:
-
-```bash
-#!/bin/bash
-
-# 格式检查
-black --check fatebridge/ api.py logic.py || exit 1
-isort --check-only fatebridge/ api.py logic.py || exit 1
-
-# 类型检查
-mypy fatebridge/ api.py logic.py || exit 1
-
-# 测试
-pytest tests/ || exit 1
-```
-
-```bash
-chmod +x .git/hooks/pre-commit
-```
-
----
-
-## 常见问题
-
-### Q: 如何添加新的依赖？
-
-```bash
-# 添加到 requirements.txt
-pip install new-package
-pip freeze > requirements.txt
-
-# 或在 pyproject.toml 中声明
-# 然后安装
-pip install -e .
-```
-
-### Q: 如何运行特定的测试用例？
-
-```bash
-pytest tests/test_calendar.py::TestBaZiCalendar::test_year_pillar_1984 -v
-```
-
-### Q: 如何查看 API 文档？
-
-项目提供 Swagger UI：
-
-```bash
-# 启动 API 服务器
 python api.py
-
-# 访问 http://localhost:8000/docs
 ```
 
-### Q: 如何贡献文档？
+### 启动 FastMCP
 
-文档在 `docs/` 目录中，使用 Markdown 格式。提交 PR 即可。
+```bash
+python fastmcp_server.py
+```
 
----
+### 健康检查
 
-## 资源
+```bash
+curl http://localhost:8010/health
+```
 
-- [FastAPI 文档](https://fastapi.tiangolo.com/)
-- [Pydantic 文档](https://docs.pydantic.dev/)
-- [Next.js 文档](https://nextjs.org/docs)
-- [React 文档](https://react.dev/)
-- [Python PEP 8](https://peps.python.org/pep-0008/)
-- [Pytest 文档](https://docs.pytest.org/)
+## 4. 常用开发命令
 
----
+### 测试
 
-## 获取帮助
+```bash
+pytest -q
+pytest tests/test_api_alignment.py -q
+pytest tests/test_astrology_tools.py -q
+pytest tests/test_chinese_metaphysics.py -q
+```
 
-- 查看 GitHub Issues
-- 查看 Discussions
-- 查看 TROUBLESHOOTING.md
-- 联系维护者
+### 格式化与静态检查
 
-祝开发愉快！🚀
+```bash
+black fatebridge/ api.py fastmcp_server.py
+isort fatebridge/ api.py fastmcp_server.py
+mypy fatebridge/ api.py
+```
+
+### 只做检查、不改文件
+
+```bash
+black --check fatebridge/ api.py fastmcp_server.py
+isort --check-only fatebridge/ api.py fastmcp_server.py
+mypy fatebridge/ api.py
+```
+
+## 5. 推荐开发流程
+
+### 新增或修改一个领域能力
+
+建议顺序：
+
+1. 先改 `fatebridge/core/*` 或 `fatebridge/analysis/*`
+2. 在 `fatebridge/services/*` 封装 transport 友好的返回结构
+3. 在 `api.py` 暴露 REST 路由
+4. 在 `fastmcp_server.py` 暴露 MCP 工具
+5. 在 `tests/` 增加能力测试与 API/MCP 对齐测试
+6. 更新 `docs/API.md` 与 `docs/ALGORITHM_COVERAGE.md`
+
+### 只改 transport，不改算法
+
+如果只是补入口或修参数对齐，也建议补：
+
+- request model 验证用例
+- API/MCP parity test
+
+这样可以防止两套接入层继续漂移。
+
+## 6. 设计约束
+
+### 6.1 输入归一化不要分散实现
+
+涉及出生时间、地点、时区、真太阳时修正时，优先复用：
+
+- `create_person_info`
+- `normalize_birth_time`
+- `resolve_birth_place_context`
+
+不要在具体 endpoint 或 tool 里复制逻辑。
+
+### 6.2 快照能力尽量复用统一合同
+
+如果新增的工具需要“可读文本 + 可筛选 section”，优先复用：
+
+- `snapshot_text`
+- `snapshot_export`
+- `parse_export_content`
+
+不要自己发明另一套 section 过滤格式。
+
+### 6.3 REST 和 MCP 应共享 service 层
+
+新增能力时，尽量不要把领域逻辑直接写进 `api.py` 或 `fastmcp_server.py`。这两处应尽量保持为 adapter，而不是业务实现层。
+
+## 7. 测试策略
+
+### 7.1 什么时候补 API/MCP 对齐测试
+
+满足任一条件时建议补：
+
+- 同时暴露 REST 与 MCP
+- 修改了请求字段默认值
+- 修改了响应结构
+- 修改了 `selected_sections`、`snapshot_export`、section 名映射
+
+### 7.2 什么时候补能力回归测试
+
+满足任一条件时建议补：
+
+- 改动了 `fatebridge/core/*`
+- 改动了算法边界条件
+- 改动了占星精度回退逻辑
+- 改动了导出合同或知识索引
+
+## 8. 文档改动的最低同步面
+
+如果你改了接口或能力范围，至少同步更新：
+
+- `README.md`
+- `docs/API.md`
+- `docs/ALGORITHM_COVERAGE.md`
+
+如果改了结构性设计，再补：
+
+- `docs/ARCHITECTURE.md`
+
+## 9. 依赖与运行时注意事项
+
+### 核心占星盘
+
+- 可以在缺少 `swisseph` 时继续运行
+- 但会回退到近似轨道模型
+- 某些 `hsys` 覆盖值依赖 `swisseph`
+
+### 西占推运
+
+- 依赖 `kerykeion` / Swiss Ephemeris
+- 缺少依赖时不会自动降级
+
+这两类能力的差异在文档和代码里都要保持清晰，不要把“可运行”写成“等精度”。
+
+## 10. 提交前检查清单
+
+提交前建议自查：
+
+1. `pytest -q` 至少跑过相关子集
+2. `black --check` / `isort --check-only` / `mypy` 通过
+3. REST 与 MCP 新增入口是否都补齐
+4. 文档是否更新了端口、能力名、section 名
+5. 是否错误地把近似实现写成了高精度实现
+
+## 11. 常用入口
+
+- 交互接口文档：`http://localhost:8010/docs`
+- 架构说明：[ARCHITECTURE.md](ARCHITECTURE.md)
+- API 参考：[API.md](API.md)
+- 故障排除：[TROUBLESHOOTING.md](TROUBLESHOOTING.md)

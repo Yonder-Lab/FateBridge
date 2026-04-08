@@ -1,647 +1,226 @@
-# FateBridge 架构设计文档
+# FateBridge 架构说明
 
-本文档详细说明 FateBridge 的系统架构、核心模块和数据流。
+本文档描述当前仓库的真实结构、运行路径和设计取舍。FateBridge 当前是一个 backend-only Python 仓库，同一套领域能力通过 FastAPI 和 FastMCP 双通道暴露。
 
-## 目录
+## 1. 系统边界
 
-- [系统架构](#系统架构)
-- [模块设计](#模块设计)
-- [数据流](#数据流)
-- [核心算法](#核心算法)
-- [扩展性设计](#扩展性设计)
+```mermaid
+flowchart LR
+    Client["HTTP Client / Script / Agent Host"] --> REST["FastAPI<br/>api.py"]
+    Client --> MCP["FastMCP<br/>fastmcp_server.py"]
 
----
+    REST --> Models["Pydantic 请求模型"]
+    MCP --> Args["Tool 参数归一化"]
 
-## 系统架构
+    Models --> Services["fatebridge.services.*"]
+    Args --> Services
 
-### 高级架构
+    Services --> Helpers["fatebridge.utils.helpers"]
+    Services --> Analysis["fatebridge.analysis.*"]
+    Services --> Core["fatebridge.core.*"]
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    前端 (fatebridge-web)                 │
-│              Next.js + React + TypeScript                │
-│                 (http://localhost:3000)                  │
-└────────────────────┬────────────────────────────────────┘
-                     │
-        ┌────────────┴────────────┐
-        │                         │
-┌───────▼──────────┐     ┌────────▼──────────┐
-│   REST API       │     │  FastMCP Server   │
-│  (api.py)        │     │(fastmcp_server.py)│
-│ :8000            │     │ (MCP Protocol)    │
-└────────┬─────────┘     └────────┬──────────┘
-         │                        │
-         └────────────┬───────────┘
-                      │
-         ┌────────────▼────────────┐
-         │  业务逻辑层 (logic.py)   │
-         └────────────┬────────────┘
-                      │
-         ┌────────────▼────────────────────────┐
-         │      核心计算模块 (fatebridge/)     │
-         │  ├── core/ (历法、五行、规则)      │
-         │  ├── analysis/ (配合度、时运)      │
-         │  └── utils/ (数据、帮助函数)       │
-         └─────────────────────────────────────┘
+    Core --> Bundles["fatebridge/data/knowledge/*"]
+    Core --> Contracts["导出合同 / section 规则"]
 ```
 
-### 技术栈
+### 核心结论
 
-| 层级 | 技术 | 用途 |
-|------|------|------|
-| **前端** | Next.js 16, React 19, TypeScript | Web UI |
-| **API 网关** | FastAPI, Uvicorn | REST API |
-| **AI 集成** | FastMCP | Model Context Protocol |
-| **业务逻辑** | Python 3.8+ | 计算和分析 |
-| **数据验证** | Pydantic 2.0+ | 类型检查和验证 |
-| **样式** | Tailwind CSS 4 | UI 样式 |
-| **认证** | Supabase Auth | 用户认证 |
+- `api.py` 和 `fastmcp_server.py` 是两层 transport adapter，不承担核心算法
+- `fatebridge/services` 是服务编排层，负责把 transport 输入转换成核心算法调用
+- `fatebridge/core` 是主要算法层
+- `fatebridge/utils/helpers.py` 是输入归一化和真太阳时修正的关键入口
+- `fatebridge/data/knowledge` 与导出合同共同构成了“结果可消费层”
 
----
+## 2. 分层职责
 
-## 模块设计
+| 层 | 主要文件 | 职责 |
+| --- | --- | --- |
+| 传输层 | `api.py`, `fastmcp_server.py` | 路由、工具定义、请求模型、HTTP/MCP 错误包装 |
+| 服务层 | `fatebridge/services/*.py` | 编排核心算法、拼装响应、生成 `snapshot_text` / `snapshot_export` |
+| 分析层 | `fatebridge/analysis/*.py` | 复合分析逻辑，如配合度和时运影响 |
+| 核心层 | `fatebridge/core/*.py` | 历法、八字、占星、占术、导出解析、知识索引 |
+| 通用工具层 | `fatebridge/utils/*.py` | 出生信息模型、地点解析、真太阳时、公共格式化 |
+| 数据层 | `fatebridge/data/knowledge/*.json` | 内置知识 bundle |
+| 测试层 | `tests/*.py` | API/MCP 对齐、合同回归、算法回归 |
 
-### 1. 前端模块 (`fatebridge-web/`)
+## 3. 代码地图
 
-```
-fatebridge-web/
-├── app/
-│   ├── layout.tsx          # 根布局
-│   ├── page.tsx            # 主页面
-│   ├── login/page.tsx      # 登录页面
-│   ├── auth/callback/      # OAuth 回调
-│   └── globals.css         # 全局样式
-├── components/
-│   ├── FateBridgeForm.tsx          # 输入表单
-│   ├── FateBridgeChart.tsx         # 结果展示
-│   ├── FateBridgeChartVisuals.tsx  # 可视化效果
-│   ├── ChatInterface.tsx           # 聊天界面
-│   └── EthereaLogo.tsx             # Logo 组件
-├── utils/
-│   └── supabase/            # Supabase 客户端
-├── package.json
-└── tsconfig.json
-```
+### 3.1 Transport
 
-**关键组件职责**:
+- `api.py`
+  - 定义 FastAPI app、CORS、中英文 request model
+  - 暴露 51 个 REST 路由（含 `/health`）
+  - 负责把 Pydantic 模型转为 service 参数
+- `fastmcp_server.py`
+  - 定义 FastMCP app
+  - 暴露 50 个 MCP 工具
+  - 返回 JSON 字符串，适合 Agent host 直接消费
 
-- **FateBridgeForm**: 收集用户出生信息
-- **FateBridgeChart**: 展示命理分析结果
-- **ChatInterface**: AI 对话界面
-- **EthereaLogo**: 品牌标识
+### 3.2 Services
 
----
+| 文件 | 职责 |
+| --- | --- |
+| `fatebridge/services/calculation.py` | 单人命理分析 |
+| `fatebridge/services/compatibility.py` | 双人配合分析 |
+| `fatebridge/services/timing.py` | 综合时运、大运、流年、流月、流日、节气时间轴、calendar helper |
+| `fatebridge/services/divination.py` | 梅花、卦义、统摄法、六爻、宿占、占星骰子、三式合一 |
+| `fatebridge/services/metaphysics.py` | 紫微、六壬、奇门、太乙、金口诀 |
+| `fatebridge/services/astrology.py` | 核心盘、关系盘、中点盘以及对应快照 |
+| `fatebridge/services/western_timing.py` | 西占推运总览 |
+| `fatebridge/services/western_timing_tools.py` | 独立 western timing technique 工具 |
+| `fatebridge/services/knowledge.py` | 内置知识目录与条目读取 |
+| `fatebridge/services/export_tools.py` | 导出注册表与快照解析 |
+| `fatebridge/services/bazi.py` | 八字命盘与直断的独立快照输出 |
 
-### 2. API 层 (`api.py`)
+### 3.3 Core
 
-FastAPI 服务器，提供 REST 接口。
+| 文件 | 职责 |
+| --- | --- |
+| `fatebridge/core/calendar.py` | 四柱计算、干支历法 |
+| `fatebridge/core/almanac.py` | 节气、农历、calendar context |
+| `fatebridge/core/elements.py` | 五行、十神、日主强弱 |
+| `fatebridge/core/rules.py` | 格局、合冲刑害等规则 |
+| `fatebridge/core/timing.py` | 时运基础算法 |
+| `fatebridge/core/divination.py` | 梅花易数与卦义核心 |
+| `fatebridge/core/gua_meanings.py` | 八卦/六十四卦离线断辞 |
+| `fatebridge/core/astrology.py` | 核心占星盘、关系盘、近似/高精度双路径 |
+| `fatebridge/core/astrology_predictive.py` | 西占返照、推运、时间主星系统 |
+| `fatebridge/core/phase2_local.py` | 宿占、占星骰子、三式本地适配 |
+| `fatebridge/core/export_contracts.py` | section 预设、导出规则、标准化 |
+| `fatebridge/core/export_parser.py` | `snapshot_text -> snapshot_export` 解析 |
+| `fatebridge/core/knowledge_store.py` | 内置知识索引与读取 |
 
-**职责**:
-- 接收 HTTP 请求
-- 参数验证和错误处理
-- CORS 和安全配置
-- 请求日志和监控
+## 4. 典型请求流
 
-**主要端点**:
-- `POST /api/calculate` - 命理分析
-- `GET /health` - 健康检查
+### 4.1 单人命理分析
 
-```python
-# 架构示例
-@app.post("/api/calculate")
-async def calculate_destiny(request: FateBridgeRequest):
-    # 1. 验证请求
-    person = create_person_info(...)
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as api.py
+    participant H as helpers.py
+    participant S as services/calculation.py
+    participant CAL as core/calendar.py
+    participant ELE as core/elements.py
+    participant RULE as core/rules.py
+    participant ALM as core/almanac.py
 
-    # 2. 调用业务逻辑
-    result = calculate_fatebridge(person)
-
-    # 3. 返回结果
-    return result
-```
-
----
-
-### 3. FastMCP 服务器 (`fastmcp_server.py`)
-
-Model Context Protocol 服务器，为 AI 助手提供工具。
-
-**可用工具**:
-
-1. **analyze_destiny** - 个人命理分析
-2. **two_person_compatibility** - 双人配合分析
-3. **timing_analysis** - 时运综合分析
-4. **dayun_analysis** - 大运专项分析
-5. **liunian_analysis** - 流年专项分析
-
-**特点**:
-- 与 AI 助手无缝集成
-- 支持 Claude, ChatGPT 等
-- 标准 MCP 协议
-
----
-
-### 4. 业务逻辑层 (`logic.py`)
-
-中间层，协调核心计算模块。
-
-**主要函数**:
-
-```python
-def calculate_fatebridge(person: PersonInfo) -> dict:
-    """
-    执行完整的命理分析流程:
-    1. 转换日期格式
-    2. 计算四柱
-    3. 分析五行
-    4. 识别格局
-    """
+    C->>API: POST /api/calculate
+    API->>H: create_person_info(...)
+    API->>S: calculate_destiny_analysis(person)
+    S->>H: normalize_birth_time(person)
+    S->>CAL: get_four_pillars(...)
+    S->>ALM: build_calendar_context(...)
+    S->>ELE: comprehensive_analysis(...)
+    S->>RULE: harmony / clash / special pattern checks
+    S-->>API: structured JSON result
+    API-->>C: HTTP JSON response
 ```
 
----
+这一条链路说明了 FateBridge 的一个核心原则：时间、地点和真太阳时修正必须先被标准化，然后才进入算法层。
 
-### 5. 核心计算模块 (`fatebridge/`)
+### 4.2 快照导出流
 
-#### 5.1 历法模块 (`core/calendar.py`)
-
-负责干支计算。
-
-```
-输入: 公历日期
-  │
-  ├─► 年柱 (60年循环)
-  │   • 基准年: 1984 (甲子年)
-  │   • 计算偏移
-  │
-  ├─► 月柱 (12月循环)
-  │   • 根据年干推算月干
-  │   • 月支 = 月份固定对应
-  │
-  ├─► 日柱 (60天循环)
-  │   • 基准日: 1984-03-31 (甲子日)
-  │   • 计算日期差
-  │
-  └─► 时柱 (12个时辰)
-      • 根据日干推算时干
-      • 时支 = 时辰对应
-
-输出: 四柱干支
+```mermaid
+flowchart TD
+    Input["某独立工具结果"] --> Snapshot["service 生成 snapshot_text"]
+    Snapshot --> Parser["core/export_parser.parse_export_content"]
+    Parser --> Export["snapshot_export"]
+    Export --> Downstream["Agent / UI / 二次导出"]
 ```
 
-**关键常量**:
-- `BASE_YEAR = 1984` - 年柱基准
-- `BASE_DAY_PILLAR_DATE = 1984-03-31` - 日柱基准
-- `HEAVENLY_STEMS` - 十天干
-- `EARTHLY_BRANCHES` - 十二地支
-
----
-
-#### 5.2 五行分析模块 (`core/elements.py`)
-
-分析命局中的五行关系。
-
-```
-输入: 四柱信息
-  │
-  ├─► 五行属性 (每个干支对应)
-  │
-  ├─► 五行分布 (百分比统计)
-  │
-  ├─► 日主分析
-  │   • 元素: 日干对应的五行
-  │   • 强弱: 根据相对数量
-  │   • 极端: 过旺/过弱判断
-  │
-  ├─► 十神关系 (日干与他干的关系)
-  │   • 正官、偏官
-  │   • 正财、偏财
-  │   • 正印、偏印
-  │   • 食神、伤官
-  │   • 比肩、劫财
-  │
-  └─► 喜用神 (有利五行)
-      • 用来平衡命局
-      • 减弱过旺元素
-      • 增强过弱元素
-
-输出: 五行分析结果
-```
-
----
-
-#### 5.3 规则模块 (`core/rules.py`)
-
-识别命局中的特殊格局。
-
-```
-输入: 四柱信息
-  │
-  ├─► 三合 (3个地支和谐)
-  │   • 申子辰 (水局)
-  │   • 亥卯未 (木局)
-  │   • 寅午戌 (火局)
-  │   • 巳酉丑 (金局)
-  │
-  ├─► 六合 (2个地支相合)
-  │   • 子丑、寅亥、卯戌、
-  │   • 辰酉、巳申、午未
-  │
-  ├─► 六冲 (2个地支相冲)
-  │   • 子午、丑未、寅申
-  │   • 卯酉、辰戌、巳亥
-  │
-  ├─► 三刑 (3个地支惩罚)
-  │   • 寅刑巳、巳刑申、申刑寅
-  │   • 丑刑戌、戌刑未、未刑丑
-  │
-  ├─► 害关系 (地支相害)
-  │   • 子未、丑午、寅巳等
-  │
-  └─► 特殊格局
-      • 日贵格 (特定日干)
-      • 魁罡格 (庚戌、辛丑)
-
-输出: 格局分析结果
-```
-
----
-
-#### 5.4 时运模块 (`core/timing.py`)
-
-大运、流年、流月计算。
-
-```
-输入: 命局信息
-  │
-  ├─► 大运 (10年周期)
-  │   • 根据性别和年龄
-  │   • 推算当前大运
-  │   • 五行变化影响
-  │
-  ├─► 流年 (年份影响)
-  │   • 当年干支
-  │   • 与命局关系
-  │
-  └─► 流月 (月份影响)
-      • 当月干支
-      • 短期影响
-
-输出: 时运分析结果
-```
-
----
-
-#### 5.5 配合度分析模块 (`analysis/compatibility.py`)
-
-分析两人八字配合度。
-
-```
-输入: 两人命理信息
-  │
-  ├─► 五行平衡分析
-  │   • 补充对方不足
-  │   • 中和过旺元素
-  │
-  ├─► 喜用神协调
-  │   • 共同喜神加分
-  │   • 冲突减分
-  │
-  ├─► 十神关系分析
-  │   • 两人十神对应
-  │   • 互补或冲突
-  │
-  ├─► 格局协调
-  │   • 特殊格局匹配
-  │   • 调和度计算
-  │
-  └─► 关系专化 (根据类型)
-      • 婚姻: 看感情稳定性
-      • 商业: 看合作互补性
-      • 友谊: 看志趣相投
-      • 家庭: 看协调包容
-
-输出: 配合度评分 (0-100)
-```
-
----
-
-#### 5.6 工具模块 (`utils/`)
-
-**helpers.py** - 共享工具函数
-
-```python
-# 数据模型
-PersonInfo          # 个人信息
-TwoPersonRequest    # 双人请求
-
-# 工具函数
-create_person_info()        # 创建人员对象
-create_birth_datetime()     # 创建日期时间
-handle_calculation_error()  # 统一错误处理
-create_pillar_dict()        # 标准化四柱格式
-format_json_response()      # JSON 格式化
-get_current_analysis_date() # 获取当前日期
-```
-
-**data.py** - 数据定义
-
-```python
-HEAVENLY_STEMS      # 十天干
-EARTHLY_BRANCHES    # 十二地支
-MONTH_BRANCHES      # 月份对应地支
-Element             # 五行枚举
-GENERATION_CYCLE    # 五行相生关系
-DESTRUCTION_CYCLE   # 五行相克关系
-```
-
----
-
-## 数据流
-
-### 完整请求流程
-
-```
-1. 用户输入 (前端)
-   ↓
-2. REST API 接收请求
-   ├─ 参数验证 (Pydantic)
-   ├─ 日期验证
-   └─ CORS 检查
-   ↓
-3. 业务逻辑层
-   └─ 调用 calculate_fatebridge()
-   ↓
-4. 核心计算模块
-   ├─ BaZiCalendar.get_four_pillars()
-   │  └─ 计算年月日时柱
-   ├─ ElementAnalysis.comprehensive_analysis()
-   │  ├─ 五行分布
-   │  ├─ 十神关系
-   │  └─ 喜用神推算
-   └─ BaZiRules 格局识别
-      ├─ 三合六合
-      ├─ 六冲三刑
-      └─ 特殊格局
-   ↓
-5. 结果组织
-   └─ 创建完整分析对象
-   ↓
-6. 返回响应
-   └─ JSON 格式化
-   ↓
-7. 前端展示
-   └─ 渲染图表和分析
-```
-
-### 双人配合分析流程
-
-```
-输入: 两人出生信息
-  │
-  ├─► 分别分析 (第一人 & 第二人)
-  │   └─ 执行上述流程
-  │
-  ├─► 配合度计算
-  │   ├─ 五行配合分析
-  │   ├─ 十神关系对比
-  │   ├─ 喜用神互补性
-  │   └─ 格局协调度
-  │
-  ├─► 关系特化
-  │   └─ 根据关系类型加权
-  │
-  └─► 生成报告
-      ├─ 总体评分
-      ├─ 优势分析
-      ├─ 挑战分析
-      └─ 建议建议
-
-输出: 配合度报告
-```
-
----
-
-## 核心算法
-
-### 1. 日柱计算算法
-
-```python
-def calculate_day_pillar(year, month, day):
-    # 基准: 1984-03-31 = 甲子日
-    base_date = date(1984, 3, 31)
-    target_date = date(year, month, day)
-
-    # 计算天数差
-    days_diff = (target_date - base_date).days
-
-    # 60天循环
-    stem_index = (0 + days_diff) % 10  # 甲 = 0
-    branch_index = (0 + days_diff) % 12 # 子 = 0
-
-    return HEAVENLY_STEMS[stem_index], EARTHLY_BRANCHES[branch_index]
-```
-
-**准确性**: 通过 1984 年基准点验证，±100 年内误差 < 0.1%
-
----
-
-### 2. 月柱推算算法
-
-```
-规则表 (根据年干):
-甲己年 → 丙寅月开始
-乙庚年 → 戊寅月开始
-丙辛年 → 庚寅月开始
-丁壬年 → 壬寅月开始
-戊癸年 → 甲寅月开始
-
-月份偏移:
-寅月 (2月) = +0
-卯月 (3月) = +1
-...
-丑月 (1月) = +11
-```
-
----
-
-### 3. 五行强弱判断
-
-```
-计算方法:
-1. 统计五行出现次数
-2. 计算五行百分比
-3. 对比基准值 (20%)
-
-判断标准:
-- 极弱: < 5%
-- 弱: 5-15%
-- 一般: 15-25%
-- 强: 25-40%
-- 极强: > 40%
-```
-
----
-
-### 4. 配合度评分算法
-
-```
-总分 = 100
-
-五行平衡 (30%)
-├─ 补充对方: +15
-├─ 和谐共处: +10
-└─ 对比中和: +5
-
-十神关系 (25%)
-├─ 互补: +15
-├─ 和谐: +10
-└─ 平衡: 0
-
-喜用神 (20%)
-├─ 共同喜神: +15
-├─ 不冲突: +5
-└─ 冲突: -5
-
-格局协调 (15%)
-└─ 各有特色: +15
-
-关系类型调整 (10%)
-├─ 婚姻: 强调感情稳定性
-├─ 商业: 强调互补能力
-├─ 友谊: 强调志趣相投
-└─ 家庭: 强调包容理解
-```
-
----
-
-## 扩展性设计
-
-### 1. 新增模块的步骤
-
-假设要添加"开运建议"模块:
-
-```python
-# fatebridge/analysis/recommendations.py
-
-from enum import Enum
-from typing import List
-
-class Recommendation:
-    """开运建议数据类"""
-    def __init__(self, category: str, advice: str, reason: str):
-        self.category = category
-        self.advice = advice
-        self.reason = reason
-
-def generate_recommendations(analysis: dict) -> List[Recommendation]:
-    """基于分析结果生成建议"""
-    recommendations = []
-
-    # 根据五行分析
-    weak_element = find_weakest_element(analysis)
-    recommendations.append(Recommendation(
-        category="增强五行",
-        advice=f"增强{weak_element}相关活动",
-        reason=f"{weak_element}在命局中偏弱"
-    ))
-
-    return recommendations
-```
-
-然后在 API 中使用:
-
-```python
-# api.py
-result = calculate_fatebridge(person)
-if "error" not in result:
-    recommendations = generate_recommendations(result)
-    result["recommendations"] = [
-        {
-            "category": r.category,
-            "advice": r.advice,
-            "reason": r.reason
-        }
-        for r in recommendations
-    ]
-```
-
-### 2. 插件架构潜力
-
-```
-future/
-├── plugins/
-│   ├── recommendation_plugin.py    # 建议生成
-│   ├── forecast_plugin.py          # 前景预测
-│   └── cure_plugin.py              # 调理方案
-├── plugin_interface.py             # 插件基类
-└── plugin_manager.py               # 插件管理
-```
-
-### 3. 数据库集成
-
-```python
-# 未来支持持久化
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-engine = create_engine('postgresql://...')
-Session = sessionmaker(bind=engine)
-
-# 存储分析历史
-def save_analysis(person_info, result):
-    session = Session()
-    analysis_record = AnalysisRecord(
-        person_name=person_info.name,
-        birth_date=person_info.birth_datetime,
-        result=json.dumps(result),
-        created_at=datetime.now()
-    )
-    session.add(analysis_record)
-    session.commit()
-```
-
----
-
-## 性能考虑
-
-### 计算复杂度
-
-| 操作 | 复杂度 | 耗时 |
-|------|--------|------|
-| 四柱计算 | O(1) | ~1ms |
-| 五行分析 | O(1) | ~1ms |
-| 格局识别 | O(1) | ~1ms |
-| 双人配合 | O(1) | ~5ms |
-| 总计 | O(1) | <100ms |
-
-### 优化策略
-
-1. **缓存**: 重复查询结果缓存 (Redis)
-2. **异步**: 大批量分析使用异步处理
-3. **CDN**: 静态资源通过 CDN 分发
-4. **索引**: 数据库查询优化
-
----
-
-## 安全性
-
-- ✅ 输入验证 (Pydantic)
-- ✅ CORS 安全配置
-- ✅ 错误处理 (无堆栈泄露)
-- ✅ 日志记录 (安全审计)
-- ⏳ 认证和授权 (未来实现)
-- ⏳ 速率限制 (未来实现)
-- ⏳ 加密通信 (HTTPS)
-
----
-
-## 未来路线图
-
-- [ ] 数据库持久化
-- [ ] 用户认证系统
-- [ ] 历史记录功能
-- [ ] 高级建议引擎
-- [ ] 预测模型
-- [ ] 移动应用
-- [ ] GraphQL API
-- [ ] WebSocket 实时分析
+这套机制让大量工具共享一致的“可读文本 + 可筛选导出”合同，而不是各自发明私有输出格式。
+
+## 5. 关键设计决策
+
+### 5.1 双 transport，单核心
+
+FateBridge 没有为 REST 和 MCP 分别维护两套领域逻辑。`api.py` 与 `fastmcp_server.py` 只负责接入层差异，真正算法都下沉到 `services` / `core`。
+
+好处：
+
+- REST 与 MCP 更容易保持响应一致
+- API/MCP parity test 更容易写
+- 文档可以按能力域组织，而不是按 transport 分裂
+
+### 5.2 输入归一化前置
+
+`fatebridge.utils.helpers` 统一处理以下问题：
+
+- 出生地文本解析
+- 时区名解析
+- 经度补全
+- 真太阳时修正
+- 标准化出生时刻对象
+
+这是 FateBridge 非常关键的稳定器，因为几乎所有八字、时运与部分 metaphysics 工具都依赖这条链路。
+
+### 5.3 快照协议统一
+
+很多术数工具天然适合“读一段说明”，但系统集成又需要结构化 section。FateBridge 的选择是同时输出：
+
+- `snapshot_text`：面向人读
+- `snapshot_export`：面向机器和二次消费
+
+这让同一份结果既能给开发者看，也能给 Agent 继续拆解、裁剪和转述。
+
+### 5.4 占星采用双精度路径
+
+`fatebridge.core.astrology` 的策略是：
+
+1. 若本地 `swisseph` 可用，优先走本地高精度路径
+2. 若不可用，保留完全离线的近似轨道模型
+
+这意味着：
+
+- 核心 chart 家族具备“能跑起来”的兜底能力
+- 但高阶 house system override 不会在缺失 `swisseph` 时假装精确，而是直接报错
+
+### 5.5 西占推运不做静默降级
+
+与核心 chart 不同，`fatebridge.core.astrology_predictive` 明确依赖 `kerykeion` / Swiss Ephemeris 运行时。缺依赖时，FateBridge 会直接报错，而不是伪造近似推运结果。
+
+这是一个准确性优先的设计选择。
+
+## 6. 运行时与配置
+
+默认运行参数来自 `api.py`：
+
+- `API_HOST=0.0.0.0`
+- `API_PORT=8010`
+- `ALLOWED_ORIGINS=http://localhost:3000`
+
+`fastmcp_server.py` 则通过 `app.run()` 启动 FastMCP 服务。
+
+## 7. 测试策略
+
+当前测试大致分为四类：
+
+- 领域能力测试：如 `tests/test_chinese_metaphysics.py`
+- 占星与推运测试：如 `tests/test_astrology_tools.py`、`tests/test_western_timing_tools.py`
+- API/MCP 对齐测试：`tests/test_api_alignment.py`
+- 合同/导出测试：`snapshot_text`、`snapshot_export`、`selected_sections`
+
+对于文档来说，最重要的事实是：FateBridge 不是只测算法本身，也在测 transport 层结果是否一致。
+
+## 8. 扩展方式
+
+新增一个能力时，推荐遵循下面的顺序：
+
+1. 在 `core` 实现或补充底层算法
+2. 在 `services` 中封装领域返回结构
+3. 在 `api.py` 增加 request model 和 REST 路由
+4. 在 `fastmcp_server.py` 增加对应 MCP 工具
+5. 在 `tests/` 增加能力测试与 API/MCP 对齐测试
+6. 更新 [API.md](API.md) 和 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)
+
+## 9. 当前非目标
+
+以下内容当前不在仓库架构内：
+
+- 内置 Web 前端
+- 数据库存储与账户体系
+- 任务编排平台、队列、缓存层
+- 多服务拆分
+
+因此阅读和扩展本仓库时，应把它理解为“单仓库、多能力的 Python 领域服务”，而不是完整产品栈。

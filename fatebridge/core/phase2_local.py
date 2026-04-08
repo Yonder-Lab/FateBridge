@@ -694,6 +694,12 @@ def _build_local_chart_response(
             (core_payload.get("chart_profile") or {}).get("house_system")
         ),
         "zodiacMode": (core_payload.get("chart_profile") or {}).get("zodiac"),
+        "enginePrecision": (core_payload.get("chart_profile") or {}).get(
+            "engine_precision"
+        ),
+        "engineBackend": (core_payload.get("chart_profile") or {}).get(
+            "engine_backend"
+        ),
     }
     if resolved_hsys is not None:
         params["hsys"] = resolved_hsys
@@ -717,13 +723,6 @@ def _build_local_chart_response(
             },
         },
     }
-
-
-def _house_longitudes(ascendant: float) -> List[Dict[str, float]]:
-    return [
-        {"id": f"House{index + 1}", "lon": round((ascendant + index * 30.0) % 360.0, 2)}
-        for index in range(12)
-    ]
 
 
 def _house_id_for_phase2_houses(longitude: float, houses: List[Dict[str, Any]]) -> str:
@@ -760,10 +759,6 @@ def _house_id_for_longitude(
     return f"House{index}"
 
 
-def _planet_longitude(days_since_j2000: float, base: float, speed: float) -> float:
-    return (base + speed * days_since_j2000) % 360.0
-
-
 def build_pseudo_chart(
     *,
     date_text: str,
@@ -773,80 +768,24 @@ def build_pseudo_chart(
     lon: Any = None,
     tradition: bool = False,
 ) -> Dict[str, Any]:
-    moment = parse_phase2_datetime(date_text, time_text, timezone_name)
-    latitude = parse_geo_coordinate(lat) or 31.2167
-    longitude = parse_geo_coordinate(lon) or 121.4667
-    days_since_j2000 = _julian_day(moment) - 2451545.0
-
-    local_hours = moment.hour + moment.minute / 60.0 + moment.second / 3600.0
-    ascendant = (100.46 + 0.985647 * days_since_j2000 + longitude + local_hours * 15.0 + latitude * 0.25) % 360.0
-
-    objects: List[Dict[str, Any]] = []
-    for definition in PLANET_DEFS:
-        if tradition and definition["id"] not in TRADITIONAL_PLANETS:
-            continue
-        longitude_value = round(
-            _planet_longitude(days_since_j2000, definition["base"], definition["speed"]),
-            2,
-        )
-        objects.append(
-            {
-                "id": definition["id"],
-                "house": _house_id_for_longitude(longitude_value, ascendant),
-                "sign": _sign_name(longitude_value),
-                "signlon": _sign_degree(longitude_value),
-                "lon": longitude_value,
-                "su28": _su28_name(longitude_value),
-            }
-        )
-
-    north_node_longitude = round((125.0 - 0.0529539 * days_since_j2000) % 360.0, 2)
-    south_node_longitude = round((north_node_longitude + 180.0) % 360.0, 2)
-    for object_id, longitude_value in (
-        ("North Node", north_node_longitude),
-        ("South Node", south_node_longitude),
-    ):
-        objects.append(
-            {
-                "id": object_id,
-                "house": _house_id_for_longitude(longitude_value, ascendant),
-                "sign": _sign_name(longitude_value),
-                "signlon": _sign_degree(longitude_value),
-                "lon": longitude_value,
-                "su28": _su28_name(longitude_value),
-            }
-        )
-
-    moon_longitude = next(item["lon"] for item in objects if item["id"] == "Moon")
-    sun_longitude = next(item["lon"] for item in objects if item["id"] == "Sun")
-    fortuna_longitude = round((moon_longitude - sun_longitude + ascendant) % 360.0, 2)
-    objects.append(
-        {
-            "id": "Pars Fortuna",
-            "house": _house_id_for_longitude(fortuna_longitude, ascendant),
-            "sign": _sign_name(fortuna_longitude),
-            "signlon": _sign_degree(fortuna_longitude),
-            "lon": fortuna_longitude,
-            "su28": _su28_name(fortuna_longitude),
-        }
+    # Legacy entry point kept for compatibility. It now delegates to the shared
+    # local chart runtime so callers benefit from the same ephemeris-backed
+    # precision path used by suzhan / otherbu.
+    return _build_local_chart_response(
+        date_text=date_text,
+        time_text=time_text,
+        timezone_name=timezone_name,
+        lat=lat,
+        lon=lon,
+        tradition=tradition,
+        include_su28=True,
+        chart_variant="chart",
+        house_start_mode=1,
+        shape_mode=0,
+        hsys=8,
+        zodiacal=0,
+        allow_extended_hsys=True,
     )
-
-    return {
-        "params": {
-            "date": _normalize_date_text(date_text),
-            "time": _normalize_time_text(time_text),
-            "zone": timezone_name or DEFAULT_BIRTH_TIMEZONE,
-            "lat": lat,
-            "lon": lon,
-            "tradition": tradition,
-        },
-        "chart": {
-            "ok": True,
-            "houses": _house_longitudes(ascendant),
-            "objects": objects,
-            "angles": {"ascendant": round(ascendant, 2)},
-        },
-    }
 
 
 def _phase2_bagua(name: str) -> Dict[str, Any]:

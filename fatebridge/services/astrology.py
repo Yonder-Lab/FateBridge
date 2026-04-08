@@ -536,9 +536,19 @@ def _build_chart_interpretation(payload: Dict[str, Any], chart_variant: str) -> 
     return interpretation
 
 
-def _build_chart_summary(chart_variant: str, interpretation: Dict[str, str]) -> List[str]:
+def _build_chart_summary(
+    chart_variant: str,
+    interpretation: Dict[str, str],
+    *,
+    engine_precision: str,
+) -> List[str]:
+    chart_label = (
+        "FateBridge 离线高精度星盘"
+        if engine_precision == "ephemeris_runtime_model"
+        else "FateBridge 离线近似星盘"
+    )
     lines = [
-        f"已生成 {chart_variant} 的 FateBridge 离线近似星盘。",
+        f"已生成 {chart_variant} 的 {chart_label}。",
         f"核心签名：{interpretation['signature']}。",
         interpretation["core_identity"],
         interpretation["emotional_style"],
@@ -558,7 +568,14 @@ def _augment_core_chart_reading(
     interpretation = _build_chart_interpretation(payload, chart_variant)
     return {
         "interpretation": interpretation,
-        "summary": _build_chart_summary(chart_variant, interpretation),
+        "summary": _build_chart_summary(
+            chart_variant,
+            interpretation,
+            engine_precision=payload.get("chart_profile", {}).get(
+                "engine_precision",
+                "approximate_orbital_model",
+            ),
+        ),
     }
 
 
@@ -737,7 +754,10 @@ def calculate_core_chart_analysis(
     zodiacal: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
-    Build an offline approximate core astrology chart family payload.
+    Build an offline core astrology chart family payload.
+
+    Core charts prefer a local Swiss Ephemeris runtime when available and fall
+    back to the bundled approximate orbital model when it is not.
     """
     try:
         if chart_variant not in SUPPORTED_CHART_VARIANTS:

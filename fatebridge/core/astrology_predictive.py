@@ -520,17 +520,25 @@ def rebuild_local_datetime(moment: datetime, timezone_name: str) -> datetime:
     )
 
 
-def replace_local_datetime_year(moment: datetime, year: int) -> datetime:
-    target_day = min(moment.day, monthrange(year, moment.month)[1])
+def resolve_local_birthday_anniversary(
+    birth_local_datetime: datetime,
+    target_year: int,
+    *,
+    tzinfo: Optional[Any] = None,
+) -> datetime:
+    target_day = min(
+        birth_local_datetime.day,
+        monthrange(target_year, birth_local_datetime.month)[1],
+    )
     return datetime(
-        year,
-        moment.month,
+        target_year,
+        birth_local_datetime.month,
         target_day,
-        moment.hour,
-        moment.minute,
-        moment.second,
-        moment.microsecond,
-        tzinfo=moment.tzinfo,
+        birth_local_datetime.hour,
+        birth_local_datetime.minute,
+        birth_local_datetime.second,
+        birth_local_datetime.microsecond,
+        tzinfo=tzinfo or birth_local_datetime.tzinfo,
     )
 
 
@@ -1072,7 +1080,11 @@ def calculate_age_years_int(
     analysis_datetime: datetime,
 ) -> int:
     years = analysis_datetime.year - birth_info.local_datetime.year
-    birthday_this_year = birth_info.local_datetime.replace(year=analysis_datetime.year)
+    birthday_this_year = resolve_local_birthday_anniversary(
+        birth_info.local_datetime,
+        analysis_datetime.year,
+        tzinfo=analysis_datetime.tzinfo,
+    )
     if analysis_datetime < birthday_this_year:
         years -= 1
     return years
@@ -1351,6 +1363,24 @@ def primary_direction_approximation_meta(pd_method: str) -> tuple[str, str]:
     return "axis_static_key", "轴点 static key 近似"
 
 
+def primary_direction_coordinate_runtime_meta(pd_method: str) -> tuple[str, str]:
+    if pd_method in {"legacy_reference", "legacy_equatorial"}:
+        if swe is not None:
+            return "equatorial_runtime_projection", "swisseph_equatorial_projection"
+        return (
+            "ecliptic_runtime_reference_fallback",
+            "kerykeion_ecliptic_reference_fallback",
+        )
+    if pd_method == "fatebridge_mundane_semiarc":
+        if swe is not None:
+            return "mundane_runtime_projection", "swisseph_mundane_semiarc_projection"
+        return (
+            "ecliptic_runtime_reference_fallback",
+            "kerykeion_ecliptic_reference_fallback",
+        )
+    return "ephemeris_runtime_model", "kerykeion_subject_abs_pos"
+
+
 def normalize_signed_angle(angle: float) -> float:
     normalized = normalize_angle(angle)
     if normalized >= 180.0:
@@ -1420,6 +1450,76 @@ def point_equatorial_position(
     )
 
 
+def project_equatorial_to_ecliptic(
+    right_ascension: float,
+    declination: float,
+    *,
+    obliquity: float,
+) -> tuple[float, float]:
+    longitude, latitude, _ = swe.cotrans(
+        (normalize_angle(right_ascension), declination, 1.0),
+        obliquity,
+    )
+    return normalize_angle(float(longitude)), float(latitude)
+
+
+def build_reprojected_primary_direction_chart_layers(
+    birth_info: AstroBirthInfo,
+    natal_subject: Any,
+    *,
+    arc_degrees: float,
+) -> tuple[
+    Dict[str, Dict[str, Any]],
+    Dict[str, Dict[str, Any]],
+    Dict[str, Dict[str, Any]],
+]:
+    equatorial_context = build_primary_direction_equatorial_context(birth_info)
+    julian_day = equatorial_context["julian_day"]
+    obliquity = equatorial_context["obliquity"]
+    armc = equatorial_context["armc"]
+    natal_lots = build_lot_payloads(natal_subject)
+    asc_sign = normalize_sign_name(natal_subject.ascendant.sign)
+
+    directed_points: Dict[str, Dict[str, Any]] = {}
+    for point_name in TIMING_POINT_NAMES:
+        right_ascension, declination = point_equatorial_position(
+            point_name,
+            natal_subject,
+            julian_day=julian_day,
+            obliquity=obliquity,
+            armc=armc,
+        )
+        longitude, _latitude = project_equatorial_to_ecliptic(
+            right_ascension + arc_degrees,
+            declination,
+            obliquity=obliquity,
+        )
+        directed_points[point_name] = longitude_to_point_dict(point_name, longitude)
+
+    directed_lots: Dict[str, Dict[str, Any]] = {}
+    for lot_key, payload in natal_lots.items():
+        right_ascension, declination = project_absolute_degree_to_equatorial(
+            float(payload["absolute_degree"]),
+            obliquity=obliquity,
+        )
+        longitude, _latitude = project_equatorial_to_ecliptic(
+            right_ascension + arc_degrees,
+            declination,
+            obliquity=obliquity,
+        )
+        directed_lots[lot_key] = build_lot_point_dict(
+            lot_key,
+            longitude,
+            asc_sign=asc_sign,
+        )
+
+    directed_axes = {
+        point_name: directed_points[point_name]
+        for point_name in PRIMARY_DIRECTION_PROMISSORS
+    }
+    return directed_points, directed_lots, directed_axes
+
+
 def semiarc_degrees_for_declination(latitude: float, declination: float) -> float:
     latitude_radians = math.radians(latitude)
     declination_radians = math.radians(declination)
@@ -1453,6 +1553,123 @@ def mundane_semiarc_position(
         quadrant = "below_east"
 
     return normalize_angle(position), quadrant
+
+
+def hour_angle_from_mundane_coordinate(
+    coordinate_degrees: float,
+    *,
+    semiarc_degrees: float,
+) -> float:
+    normalized_coordinate = normalize_angle(coordinate_degrees)
+    clamped_semiarc = min(max(semiarc_degrees, 1e-6), 179.999999)
+    nocturnal_semiarc = max(180.0 - clamped_semiarc, 1e-6)
+
+    if normalized_coordinate <= 90.0:
+        return ((normalized_coordinate / 90.0) * clamped_semiarc) - clamped_semiarc
+    if normalized_coordinate <= 180.0:
+        return ((normalized_coordinate - 90.0) / 90.0) * clamped_semiarc
+    if normalized_coordinate <= 270.0:
+        return clamped_semiarc + (
+            ((normalized_coordinate - 180.0) / 90.0) * nocturnal_semiarc
+        )
+    return -180.0 + (
+        ((normalized_coordinate - 270.0) / 90.0) * nocturnal_semiarc
+    )
+
+
+def build_reprojected_mundane_primary_direction_chart_layers(
+    birth_info: AstroBirthInfo,
+    natal_subject: Any,
+    *,
+    arc_degrees: float,
+) -> tuple[
+    Dict[str, Dict[str, Any]],
+    Dict[str, Dict[str, Any]],
+    Dict[str, Dict[str, Any]],
+]:
+    equatorial_context = build_primary_direction_equatorial_context(birth_info)
+    julian_day = equatorial_context["julian_day"]
+    obliquity = equatorial_context["obliquity"]
+    armc = equatorial_context["armc"]
+    natal_lots = build_lot_payloads(natal_subject)
+    asc_sign = normalize_sign_name(natal_subject.ascendant.sign)
+
+    directed_points: Dict[str, Dict[str, Any]] = {}
+    for point_name in TRADITIONAL_PLANETS:
+        right_ascension, declination = point_equatorial_position(
+            point_name,
+            natal_subject,
+            julian_day=julian_day,
+            obliquity=obliquity,
+            armc=armc,
+        )
+        semiarc = semiarc_degrees_for_declination(birth_info.latitude, declination)
+        natal_hour_angle = normalize_signed_angle(armc - right_ascension)
+        natal_coordinate, _quadrant = mundane_semiarc_position(
+            hour_angle=natal_hour_angle,
+            semiarc_degrees=semiarc,
+        )
+        target_coordinate = normalize_angle(natal_coordinate + arc_degrees)
+        directed_hour_angle = hour_angle_from_mundane_coordinate(
+            target_coordinate,
+            semiarc_degrees=semiarc,
+        )
+        directed_right_ascension = normalize_angle(armc - directed_hour_angle)
+        longitude, _latitude = project_equatorial_to_ecliptic(
+            directed_right_ascension,
+            declination,
+            obliquity=obliquity,
+        )
+        directed_points[point_name] = longitude_to_point_dict(point_name, longitude)
+
+    for point_name, base_coordinate in (("Ascendant", 0.0), ("Medium_Coeli", 90.0)):
+        target_coordinate = normalize_angle(base_coordinate + arc_degrees)
+        directed_hour_angle = hour_angle_from_mundane_coordinate(
+            target_coordinate,
+            semiarc_degrees=90.0,
+        )
+        directed_right_ascension = normalize_angle(armc - directed_hour_angle)
+        longitude, _latitude = project_equatorial_to_ecliptic(
+            directed_right_ascension,
+            0.0,
+            obliquity=obliquity,
+        )
+        directed_points[point_name] = longitude_to_point_dict(point_name, longitude)
+
+    directed_lots: Dict[str, Dict[str, Any]] = {}
+    for lot_key, payload in natal_lots.items():
+        right_ascension, declination = project_absolute_degree_to_equatorial(
+            float(payload["absolute_degree"]),
+            obliquity=obliquity,
+        )
+        semiarc = semiarc_degrees_for_declination(birth_info.latitude, declination)
+        natal_hour_angle = normalize_signed_angle(armc - right_ascension)
+        natal_coordinate, _quadrant = mundane_semiarc_position(
+            hour_angle=natal_hour_angle,
+            semiarc_degrees=semiarc,
+        )
+        target_coordinate = normalize_angle(natal_coordinate + arc_degrees)
+        directed_hour_angle = hour_angle_from_mundane_coordinate(
+            target_coordinate,
+            semiarc_degrees=semiarc,
+        )
+        directed_right_ascension = normalize_angle(armc - directed_hour_angle)
+        longitude, _latitude = project_equatorial_to_ecliptic(
+            directed_right_ascension,
+            declination,
+            obliquity=obliquity,
+        )
+        directed_lots[lot_key] = build_lot_point_dict(
+            lot_key,
+            longitude,
+            asc_sign=asc_sign,
+        )
+
+    directed_axes = {
+        point_name: directed_points[point_name]
+        for point_name in PRIMARY_DIRECTION_PROMISSORS
+    }
+    return directed_points, directed_lots, directed_axes
 
 
 def quadrant_for_mundane_coordinate(coordinate_degrees: float) -> str:
@@ -1724,6 +1941,9 @@ def extract_primary_direction_coordinate_payload(
     pd_method: str,
 ) -> Dict[str, Any]:
     coordinate_system, _coordinate_label = primary_direction_coordinate_meta(pd_method)
+    coordinate_precision, coordinate_backend = primary_direction_coordinate_runtime_meta(
+        pd_method
+    )
     coordinate_map = extract_reference_longitudes(natal_subject)
     lot_payloads = build_lot_payloads(natal_subject)
     for lot_key, payload in lot_payloads.items():
@@ -1740,6 +1960,8 @@ def extract_primary_direction_coordinate_payload(
         "diagnostics": {},
         "approximation": approximation,
         "approximation_label": approximation_label,
+        "coordinate_precision": coordinate_precision,
+        "coordinate_backend": coordinate_backend,
     }
 
     if swe is None:
@@ -1758,8 +1980,9 @@ def extract_primary_direction_coordinate_payload(
     armc = equatorial_context["armc"]
 
     if pd_method in {"legacy_reference", "legacy_equatorial"}:
+        diagnostics: Dict[str, Dict[str, Any]] = {}
         for point_name in TIMING_POINT_NAMES:
-            right_ascension, _declination = point_equatorial_position(
+            right_ascension, declination = point_equatorial_position(
                 point_name,
                 natal_subject,
                 julian_day=julian_day,
@@ -1767,20 +1990,36 @@ def extract_primary_direction_coordinate_payload(
                 armc=armc,
             )
             coordinate_map[point_name] = right_ascension
+            diagnostics[point_name] = {
+                "projection": "equatorial",
+                "projection_label": "赤道坐标投影",
+                "right_ascension": round(right_ascension, 4),
+                "declination": round(declination, 4),
+            }
 
         for lot_key, payload in lot_payloads.items():
-            right_ascension, _declination = project_absolute_degree_to_equatorial(
+            point_name = LOT_POINT_NAMES[lot_key]
+            right_ascension, declination = project_absolute_degree_to_equatorial(
                 float(payload["absolute_degree"]),
                 obliquity=obliquity,
             )
-            coordinate_map[LOT_POINT_NAMES[lot_key]] = right_ascension
+            coordinate_map[point_name] = right_ascension
+            diagnostics[point_name] = {
+                "projection": "equatorial",
+                "projection_label": "赤道坐标投影",
+                "right_ascension": round(right_ascension, 4),
+                "declination": round(declination, 4),
+            }
 
+        result["diagnostics"] = diagnostics
         return result
 
     coordinate_map["Ascendant"] = 0.0
     coordinate_map["Medium_Coeli"] = 90.0
     diagnostics = {
         "Ascendant": {
+            "projection": "mundane_semiarc",
+            "projection_label": "半弧坐标投影",
             "quadrant": "horizon_east",
             "quadrant_label": PRIMARY_DIRECTION_QUADRANT_LABELS["horizon_east"],
             "mundane_position_degrees": 0.0,
@@ -1788,6 +2027,8 @@ def extract_primary_direction_coordinate_payload(
             "nocturnal_semiarc_degrees": 90.0,
         },
         "Medium_Coeli": {
+            "projection": "mundane_semiarc",
+            "projection_label": "半弧坐标投影",
             "quadrant": "upper_meridian",
             "quadrant_label": PRIMARY_DIRECTION_QUADRANT_LABELS["upper_meridian"],
             "mundane_position_degrees": 90.0,
@@ -1812,6 +2053,8 @@ def extract_primary_direction_coordinate_payload(
         )
         coordinate_map[point_name] = mundane_position
         diagnostics[point_name] = {
+            "projection": "mundane_semiarc",
+            "projection_label": "半弧坐标投影",
             "right_ascension": round(right_ascension, 4),
             "declination": round(declination, 4),
             "hour_angle_degrees": round(hour_angle, 4),
@@ -1836,6 +2079,8 @@ def extract_primary_direction_coordinate_payload(
         )
         coordinate_map[point_name] = mundane_position
         diagnostics[point_name] = {
+            "projection": "mundane_semiarc",
+            "projection_label": "半弧坐标投影",
             "right_ascension": round(right_ascension, 4),
             "declination": round(declination, 4),
             "hour_angle_degrees": round(hour_angle, 4),
@@ -2224,6 +2469,8 @@ def build_primary_directions_payload(
         "coordinate_label": coordinate_label,
         "approximation": coordinate_payload["approximation"],
         "approximation_label": coordinate_payload["approximation_label"],
+        "coordinate_precision": coordinate_payload["coordinate_precision"],
+        "coordinate_backend": coordinate_payload["coordinate_backend"],
         "coordinate_diagnostics": coordinate_payload["diagnostics"],
         "coordinate_points": coordinate_rings["points"],
         "coordinate_lots": coordinate_rings["lots"],
@@ -2243,6 +2490,7 @@ def build_primary_directions_payload(
 
 
 def build_primary_direction_chart_payload(
+    birth_info: AstroBirthInfo,
     natal_subject: Any,
     *,
     analysis_datetime: datetime,
@@ -2253,6 +2501,8 @@ def build_primary_direction_chart_payload(
     coordinate_label: str,
     approximation: str,
     approximation_label: str,
+    coordinate_precision: str,
+    coordinate_backend: str,
     coordinate_diagnostics: Dict[str, Dict[str, Any]],
     coordinate_points: Dict[str, Dict[str, Any]],
     coordinate_lots: Dict[str, Dict[str, Any]],
@@ -2264,18 +2514,35 @@ def build_primary_direction_chart_payload(
 ) -> Dict[str, Any]:
     natal_points = extract_reference_points(natal_subject)
     natal_lots = build_lot_payloads(natal_subject)
-    directed_points = build_shifted_reference_points(
-        natal_subject,
-        arc_degrees=current_arc_degrees,
-    )
-    directed_lots = build_shifted_lot_payloads(
-        natal_subject,
-        arc_degrees=current_arc_degrees,
-    )
-    directed_axes = build_primary_direction_points(
-        natal_subject,
-        arc_degrees=current_arc_degrees,
-    )
+    if coordinate_system == "right_ascension" and swe is not None:
+        directed_points, directed_lots, directed_axes = (
+            build_reprojected_primary_direction_chart_layers(
+                birth_info,
+                natal_subject,
+                arc_degrees=current_arc_degrees,
+            )
+        )
+    elif coordinate_system == "mundane_semiarc" and swe is not None:
+        directed_points, directed_lots, directed_axes = (
+            build_reprojected_mundane_primary_direction_chart_layers(
+                birth_info,
+                natal_subject,
+                arc_degrees=current_arc_degrees,
+            )
+        )
+    else:
+        directed_points = build_shifted_reference_points(
+            natal_subject,
+            arc_degrees=current_arc_degrees,
+        )
+        directed_lots = build_shifted_lot_payloads(
+            natal_subject,
+            arc_degrees=current_arc_degrees,
+        )
+        directed_axes = build_primary_direction_points(
+            natal_subject,
+            arc_degrees=current_arc_degrees,
+        )
     bounds_overlay = build_primary_direction_bounds_overlay(
         directed_points,
         directed_lots,
@@ -2297,6 +2564,8 @@ def build_primary_direction_chart_payload(
         "show_pd_bounds": show_pd_bounds,
         "approximation": approximation,
         "approximation_label": approximation_label,
+        "coordinate_precision": coordinate_precision,
+        "coordinate_backend": coordinate_backend,
         "coordinate_diagnostics": coordinate_diagnostics,
         "natal_coordinate_points": coordinate_points,
         "natal_coordinate_lots": coordinate_lots,
@@ -2334,9 +2603,17 @@ def build_annual_profection_payload(
     activated_sign = SIGNS[(asc_index + activated_house - 1) % 12]
     lord = RULER_BY_SIGN[activated_sign]
 
-    birthday_this_year = birth_info.local_datetime.replace(year=analysis_datetime.year)
+    birthday_this_year = resolve_local_birthday_anniversary(
+        birth_info.local_datetime,
+        analysis_datetime.year,
+        tzinfo=analysis_datetime.tzinfo,
+    )
     if analysis_datetime < birthday_this_year:
-        last_birthday = birthday_this_year.replace(year=analysis_datetime.year - 1)
+        last_birthday = resolve_local_birthday_anniversary(
+            birth_info.local_datetime,
+            analysis_datetime.year - 1,
+            tzinfo=analysis_datetime.tzinfo,
+        )
     else:
         last_birthday = birthday_this_year
 
@@ -2369,23 +2646,16 @@ def resolve_last_birthday(
     timezone_name: str,
 ) -> tuple[datetime, datetime]:
     analysis_local = rebuild_local_datetime(analysis_datetime, timezone_name)
-    birthday_this_year = datetime(
+    birthday_this_year = resolve_local_birthday_anniversary(
+        birth_info.local_datetime,
         analysis_local.year,
-        birth_info.local_datetime.month,
-        min(
-            birth_info.local_datetime.day,
-            monthrange(analysis_local.year, birth_info.local_datetime.month)[1],
-        ),
-        birth_info.local_datetime.hour,
-        birth_info.local_datetime.minute,
-        birth_info.local_datetime.second,
-        birth_info.local_datetime.microsecond,
         tzinfo=analysis_local.tzinfo,
     )
     if analysis_local < birthday_this_year:
-        last_birthday = replace_local_datetime_year(
-            birthday_this_year,
-            birthday_this_year.year - 1,
+        last_birthday = resolve_local_birthday_anniversary(
+            birth_info.local_datetime,
+            analysis_local.year - 1,
+            tzinfo=analysis_local.tzinfo,
         )
     else:
         last_birthday = birthday_this_year
@@ -3050,6 +3320,7 @@ def build_western_timing_payload(
         pd_aspects=pd_aspects,
     )
     primary_direction_chart_payload = build_primary_direction_chart_payload(
+        birth_info,
         natal_subject,
         analysis_datetime=analysis_datetime,
         pd_method=pd_method,
@@ -3059,6 +3330,8 @@ def build_western_timing_payload(
         coordinate_label=primary_directions_payload["coordinate_label"],
         approximation=primary_directions_payload["approximation"],
         approximation_label=primary_directions_payload["approximation_label"],
+        coordinate_precision=primary_directions_payload["coordinate_precision"],
+        coordinate_backend=primary_directions_payload["coordinate_backend"],
         coordinate_diagnostics=primary_directions_payload["coordinate_diagnostics"],
         coordinate_points=primary_directions_payload["coordinate_points"],
         coordinate_lots=primary_directions_payload["coordinate_lots"],

@@ -8,13 +8,24 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import WesternTimingRequest
 from fastmcp_server import western_timing_analysis
+from fatebridge.core import astrology as astrology_core
 from fatebridge.core.astrology_predictive import (
+    build_lot_payloads,
+    build_natal_subject,
+    build_primary_direction_equatorial_context,
+    calculate_age_years_int,
     build_predictive_birth_info,
     build_releasing_level_within_interval,
     build_western_timing_payload,
+    normalize_angle,
+    point_equatorial_position,
+    project_absolute_degree_to_equatorial,
+    semiarc_degrees_for_declination,
+    swe as predictive_swe,
 )
 from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis
+from fatebridge.utils.helpers import parse_timezone_name
 
 
 def test_western_timing_request_model_accepts_fields():
@@ -254,7 +265,12 @@ def test_core_chart_supports_fixed_offset_timezones():
     )
 
     assert result["chart_profile"]["chart_type"] == "chart"
-    assert result["chart_profile"]["engine_precision"] == "approximate_orbital_model"
+    expected_precision = (
+        "ephemeris_runtime_model"
+        if astrology_core.swe is not None
+        else "approximate_orbital_model"
+    )
+    assert result["chart_profile"]["engine_precision"] == expected_precision
 
 
 def test_primary_directions_expose_exact_window_for_exact_hit_moment():
@@ -344,6 +360,80 @@ def test_western_timing_supports_fixed_offset_timezones():
     assert result["analysis_type"] == "西占推运与返照分析"
     assert result["returns"]["solar_return"]["return_datetime"].endswith("+08:00")
     assert result["returns"]["lunar_return"]["return_datetime"].endswith("+08:00")
+
+
+def test_calculate_age_years_int_handles_leap_day_birth_in_common_year():
+    birth_info = build_predictive_birth_info(
+        name="Leap Native",
+        birth_year=2000,
+        birth_month=2,
+        birth_day=29,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+    )
+    tzinfo = parse_timezone_name("Asia/Shanghai")
+
+    before_adjusted_birthday = datetime(2025, 2, 27, 10, 30, tzinfo=tzinfo)
+    adjusted_birthday = datetime(2025, 2, 28, 10, 30, tzinfo=tzinfo)
+
+    assert calculate_age_years_int(birth_info, before_adjusted_birthday) == 24
+    assert calculate_age_years_int(birth_info, adjusted_birthday) == 25
+
+
+def test_western_timing_handles_leap_day_births_for_profection_and_given_year():
+    result = calculate_western_timing_analysis(
+        name="Leap Native",
+        birth_year=2000,
+        birth_month=2,
+        birth_day=29,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=2,
+        analysis_day=28,
+        return_timezone="Asia/Shanghai",
+        return_longitude=121.4737,
+        return_latitude=31.2304,
+    )
+
+    profection = result["time_lords"]["annual_profection"]
+    assert profection["activated_house"] == 2
+
+    given_year = result["directions"]["given_year"]
+    assert given_year["year_start"].startswith("2025-02-28T10:30:00+08:00")
+    assert given_year["year_end"].startswith("2026-02-28T10:30:00+08:00")
+    assert len(given_year["monthly_profections"]) == 12
+    assert given_year["monthly_profections"][0]["active"] is True
+
+
+def test_western_timing_uses_previous_real_leap_birthday_before_adjusted_birthday():
+    result = calculate_western_timing_analysis(
+        name="Leap Native",
+        birth_year=2000,
+        birth_month=2,
+        birth_day=29,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=2,
+        analysis_day=27,
+        return_timezone="Asia/Shanghai",
+        return_longitude=121.4737,
+        return_latitude=31.2304,
+    )
+
+    given_year = result["directions"]["given_year"]
+    assert given_year["year_start"].startswith("2024-02-29T10:30:00+08:00")
+    assert given_year["year_end"].startswith("2025-02-28T10:30:00+08:00")
 
 
 def test_primary_directions_support_converse_mode():
@@ -500,6 +590,254 @@ def test_legacy_reference_primary_directions_use_right_ascension_arc():
     primary_direction_chart = result["directions"]["primary_direction_chart"]
     assert primary_direction_chart["coordinate_system"] == "right_ascension"
     assert primary_direction_chart["coordinate_label"] == "赤经"
+
+
+def test_legacy_reference_primary_directions_expose_coordinate_runtime_metadata():
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="legacy_reference",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+
+    expected_precision = (
+        "equatorial_runtime_projection"
+        if predictive_swe is not None
+        else "ecliptic_runtime_reference_fallback"
+    )
+    expected_backend = (
+        "swisseph_equatorial_projection"
+        if predictive_swe is not None
+        else "kerykeion_ecliptic_reference_fallback"
+    )
+
+    primary_directions = result["directions"]["primary_directions"]
+    assert primary_directions["coordinate_precision"] == expected_precision
+    assert primary_directions["coordinate_backend"] == expected_backend
+
+    primary_direction_chart = result["directions"]["primary_direction_chart"]
+    assert primary_direction_chart["coordinate_precision"] == expected_precision
+    assert primary_direction_chart["coordinate_backend"] == expected_backend
+
+    if predictive_swe is not None:
+        asc_diagnostic = primary_directions["coordinate_diagnostics"]["Ascendant"]
+        sun_diagnostic = primary_directions["coordinate_diagnostics"]["Sun"]
+
+        assert asc_diagnostic["projection"] == "equatorial"
+        assert asc_diagnostic["right_ascension"] == pytest.approx(
+            primary_directions["coordinate_points"]["Ascendant"]["coordinate_degrees"],
+            abs=0.01,
+        )
+        assert "declination" in sun_diagnostic
+
+
+def test_legacy_reference_primary_direction_chart_reconstructs_ecliptic_positions_from_ra():
+    if predictive_swe is None:
+        pytest.skip("Swiss Ephemeris is required for legacy_reference reconstruction")
+
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="legacy_reference",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+
+    birth_info = build_predictive_birth_info(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+    )
+    natal_subject = build_natal_subject(birth_info)
+    equatorial_context = build_primary_direction_equatorial_context(birth_info)
+    arc_degrees = result["directions"]["primary_direction_chart"]["current_arc_degrees"]
+
+    sun_ra, sun_declination = point_equatorial_position(
+        "Sun",
+        natal_subject,
+        julian_day=equatorial_context["julian_day"],
+        obliquity=equatorial_context["obliquity"],
+        armc=equatorial_context["armc"],
+    )
+    expected_sun_longitude, _expected_sun_latitude, _ = predictive_swe.cotrans(
+        (normalize_angle(sun_ra + arc_degrees), sun_declination, 1.0),
+        equatorial_context["obliquity"],
+    )
+
+    fortune_payload = build_lot_payloads(natal_subject)["lot_of_fortune"]
+    fortune_ra, fortune_declination, _ = predictive_swe.cotrans(
+        (float(fortune_payload["absolute_degree"]), 0.0, 1.0),
+        -equatorial_context["obliquity"],
+    )
+    expected_fortune_longitude, _expected_fortune_latitude, _ = predictive_swe.cotrans(
+        (normalize_angle(fortune_ra + arc_degrees), fortune_declination, 1.0),
+        equatorial_context["obliquity"],
+    )
+
+    primary_direction_chart = result["directions"]["primary_direction_chart"]
+    assert primary_direction_chart["directed_points"]["Sun"]["absolute_degree"] == pytest.approx(
+        normalize_angle(expected_sun_longitude),
+        abs=0.01,
+    )
+    assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Gemini"
+    assert (
+        primary_direction_chart["directed_lots"]["lot_of_fortune"]["absolute_degree"]
+        == pytest.approx(normalize_angle(expected_fortune_longitude), abs=0.01)
+    )
+    sun_sign_change = next(
+        item
+        for item in primary_direction_chart["sign_changes"]
+        if item["point"] == "Sun"
+    )
+    assert sun_sign_change["to_sign"] == "Gemini"
+
+
+def test_mundane_semiarc_primary_direction_chart_reconstructs_projection_from_mundane_arc():
+    if predictive_swe is None:
+        pytest.skip("Swiss Ephemeris is required for mundane semiarc reconstruction")
+
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="fatebridge_mundane_semiarc",
+        pd_time_key="Ptolemy",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+
+    birth_info = build_predictive_birth_info(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+    )
+    natal_subject = build_natal_subject(birth_info)
+    equatorial_context = build_primary_direction_equatorial_context(birth_info)
+    arc_degrees = result["directions"]["primary_direction_chart"]["current_arc_degrees"]
+    primary_directions = result["directions"]["primary_directions"]
+
+    def inverse_mundane_hour_angle(coordinate_degrees: float, semiarc_degrees: float) -> float:
+        normalized_coordinate = normalize_angle(coordinate_degrees)
+        clamped_semiarc = min(max(semiarc_degrees, 1e-6), 179.999999)
+        nocturnal_semiarc = max(180.0 - clamped_semiarc, 1e-6)
+        if normalized_coordinate <= 90.0:
+            return ((normalized_coordinate / 90.0) * clamped_semiarc) - clamped_semiarc
+        if normalized_coordinate <= 180.0:
+            return ((normalized_coordinate - 90.0) / 90.0) * clamped_semiarc
+        if normalized_coordinate <= 270.0:
+            return clamped_semiarc + (
+                ((normalized_coordinate - 180.0) / 90.0) * nocturnal_semiarc
+            )
+        return -180.0 + (
+            ((normalized_coordinate - 270.0) / 90.0) * nocturnal_semiarc
+        )
+
+    sun_ra, sun_declination = point_equatorial_position(
+        "Sun",
+        natal_subject,
+        julian_day=equatorial_context["julian_day"],
+        obliquity=equatorial_context["obliquity"],
+        armc=equatorial_context["armc"],
+    )
+    sun_semiarc = semiarc_degrees_for_declination(
+        birth_info.latitude,
+        sun_declination,
+    )
+    sun_target_coordinate = normalize_angle(
+        primary_directions["coordinate_points"]["Sun"]["coordinate_degrees"] + arc_degrees
+    )
+    sun_hour_angle = inverse_mundane_hour_angle(sun_target_coordinate, sun_semiarc)
+    directed_sun_ra = normalize_angle(equatorial_context["armc"] - sun_hour_angle)
+    expected_sun_longitude, _expected_sun_latitude, _ = predictive_swe.cotrans(
+        (directed_sun_ra, sun_declination, 1.0),
+        equatorial_context["obliquity"],
+    )
+
+    fortune_payload = build_lot_payloads(natal_subject)["lot_of_fortune"]
+    fortune_ra, fortune_declination = project_absolute_degree_to_equatorial(
+        float(fortune_payload["absolute_degree"]),
+        obliquity=equatorial_context["obliquity"],
+    )
+    fortune_semiarc = semiarc_degrees_for_declination(
+        birth_info.latitude,
+        fortune_declination,
+    )
+    fortune_target_coordinate = normalize_angle(
+        primary_directions["coordinate_lots"]["lot_of_fortune"]["coordinate_degrees"]
+        + arc_degrees
+    )
+    fortune_hour_angle = inverse_mundane_hour_angle(
+        fortune_target_coordinate,
+        fortune_semiarc,
+    )
+    directed_fortune_ra = normalize_angle(
+        equatorial_context["armc"] - fortune_hour_angle
+    )
+    expected_fortune_longitude, _expected_fortune_latitude, _ = predictive_swe.cotrans(
+        (directed_fortune_ra, fortune_declination, 1.0),
+        equatorial_context["obliquity"],
+    )
+
+    primary_direction_chart = result["directions"]["primary_direction_chart"]
+    assert primary_direction_chart["directed_points"]["Sun"]["absolute_degree"] == pytest.approx(
+        normalize_angle(expected_sun_longitude),
+        abs=0.01,
+    )
+    assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Aries"
+    assert (
+        primary_direction_chart["directed_lots"]["lot_of_fortune"]["absolute_degree"]
+        == pytest.approx(normalize_angle(expected_fortune_longitude), abs=0.01)
+    )
+    assert primary_direction_chart["directed_lots"]["lot_of_fortune"]["sign"] == "Taurus"
 
 
 def test_legacy_equatorial_alias_matches_legacy_reference_coordinate_branch():

@@ -6,16 +6,23 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import (
+    AstroChartRequest,
+    AstroRelativePartyRequest,
+    AstroRelativeRequest,
     DayunAnalysisRequest,
     LiunianAnalysisRequest,
     TimingAnalysisRequest,
     TwoPersonCompatibilityRequest,
+    calculate_astro_chart,
     calculate_dayun,
     calculate_liunian,
+    calculate_relative_chart,
     calculate_timing_analysis,
     calculate_two_person_compatibility,
 )
 from fastmcp_server import (
+    astro_chart,
+    astro_relative_chart,
     dayun_analysis,
     liunian_analysis,
     timing_analysis,
@@ -132,6 +139,73 @@ def test_two_person_compatibility_api_matches_fastmcp_tool_output():
 
     api_result = asyncio.run(calculate_two_person_compatibility(request))
     mcp_result = json.loads(two_person_compatibility.fn(**request.model_dump()))
+
+    assert api_result == mcp_result
+
+
+def test_astro_chart_api_matches_fastmcp_tool_output():
+    request = AstroChartRequest(
+        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
+    )
+
+    api_result = asyncio.run(calculate_astro_chart(request))
+    mcp_result = json.loads(astro_chart.fn(**request.model_dump()))
+
+    assert api_result == mcp_result
+
+
+def test_astro_relative_api_matches_fastmcp_tool_output():
+    request = AstroRelativeRequest(
+        inner=AstroRelativePartyRequest(
+            **_build_birth_payload(name="甲", gender="男", birth_place="上海"),
+            birth_latitude=31.2304,
+        ),
+        outer=AstroRelativePartyRequest(
+            **{
+                **_build_birth_payload(name="乙", gender="女", birth_place="北京"),
+                "birth_year": 1992,
+                "birth_month": 3,
+                "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+                "birth_longitude": 116.4074,
+                "birth_latitude": 39.9042,
+            }
+        ),
+        relative_mode="Composite",
+        hsys=0,
+        zodiacal=0,
+    )
+
+    api_result = asyncio.run(calculate_relative_chart(request))
+    mcp_result = json.loads(
+        astro_relative_chart.fn(
+            inner_birth_year=request.inner.birth_year,
+            inner_birth_month=request.inner.birth_month,
+            inner_birth_day=request.inner.birth_day,
+            inner_birth_hour=request.inner.birth_hour,
+            inner_birth_minute=request.inner.birth_minute,
+            inner_birth_timezone=request.inner.birth_timezone,
+            inner_birth_longitude=request.inner.birth_longitude,
+            inner_birth_latitude=request.inner.birth_latitude,
+            inner_name=request.inner.name,
+            inner_birth_place=request.inner.birth_place,
+            outer_birth_year=request.outer.birth_year,
+            outer_birth_month=request.outer.birth_month,
+            outer_birth_day=request.outer.birth_day,
+            outer_birth_hour=request.outer.birth_hour,
+            outer_birth_minute=request.outer.birth_minute,
+            outer_birth_timezone=request.outer.birth_timezone,
+            outer_birth_longitude=request.outer.birth_longitude,
+            outer_birth_latitude=request.outer.birth_latitude,
+            outer_name=request.outer.name,
+            outer_birth_place=request.outer.birth_place,
+            relationship_mode=request.relationship_mode,
+            relative_mode=request.relative_mode,
+            hsys=request.hsys,
+            zodiacal=request.zodiacal,
+        )
+    )
 
     assert api_result == mcp_result
 

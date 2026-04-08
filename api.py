@@ -86,7 +86,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="FateBridge API",
-    description="API for FateBridge calculations across BaZi, divination, timing, and approximate offline astrology charts",
+    description="API for FateBridge calculations across BaZi, divination, timing, and offline astrology charts with local ephemeris preference",
     version="0.2.0",
 )
 
@@ -703,7 +703,7 @@ class AstroBirthRequest(BaseModel):
 
 
 class AstroChartRequest(AstroBirthRequest):
-    """Request model for approximate offline astrology chart generation."""
+    """Request model for offline astrology chart generation."""
 
     birth_longitude: Optional[float] = Field(
         default=None,
@@ -1969,7 +1969,7 @@ def _run_astro_chart_variant(request: AstroChartRequest, chart_variant: str) -> 
 
 @app.post("/api/astro/chart")
 async def calculate_astro_chart(request: AstroChartRequest) -> dict:
-    """Generate a core approximate astrology chart."""
+    """Generate a core offline astrology chart with local ephemeris preference."""
     try:
         logger.info("Processing astrology chart request for %s", request.name)
         return _run_astro_chart_variant(request, "chart")

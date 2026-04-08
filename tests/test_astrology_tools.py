@@ -2,6 +2,8 @@ import asyncio
 from pathlib import Path
 import sys
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import (
@@ -18,6 +20,8 @@ from fastmcp_server import (
     astro_india_chart,
     astro_relative_chart,
 )
+from fatebridge.core import astrology as astrology_core
+from fatebridge.core.astrology import build_astro_birth_info, _julian_day
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
     calculate_germany_chart_analysis,
@@ -213,8 +217,51 @@ def test_core_chart_can_infer_coordinates_from_birth_place():
     assert chart["person_info"]["birth_timezone"] == "Asia/Shanghai"
     assert chart["person_info"]["birth_longitude"] == 116.4074
     assert chart["person_info"]["birth_latitude"] == 39.9042
-    assert chart["angles"]["ascendant"]["sign"] == "Leo"
+    if astrology_core.swe is not None:
+        birth_info = build_astro_birth_info(
+            name="测试者",
+            birth_year=1993,
+            birth_month=12,
+            birth_day=15,
+            birth_hour=10,
+            birth_minute=30,
+            birth_timezone="Asia/Shanghai",
+            birth_longitude=116.4074,
+            birth_latitude=39.9042,
+            birth_place="北京",
+        )
+        angle_state = astrology_core._swisseph_angles(
+            _julian_day(birth_info.utc_datetime),
+            birth_info.longitude,
+            birth_info.latitude,
+        )
+        assert angle_state is not None
+        expected_asc_sign = astrology_core._sign_name(angle_state["ascendant"])
+    else:
+        expected_asc_sign = "Leo"
+    assert chart["angles"]["ascendant"]["sign"] == expected_asc_sign
     assert "[起盘信息]" in chart["snapshot_text"]
+
+
+def test_core_chart_prefers_local_ephemeris_runtime_when_available():
+    swe = pytest.importorskip("swisseph")
+    birth_payload = _build_birth_payload()
+
+    chart = calculate_core_chart_analysis(chart_variant="chart", **birth_payload)
+    birth_info = build_astro_birth_info(**birth_payload)
+    julian_day = _julian_day(birth_info.utc_datetime)
+    expected_sun, _ = swe.calc_ut(julian_day, swe.SUN, swe.FLG_SWIEPH)
+    expected_moon, _ = swe.calc_ut(julian_day, swe.MOON, swe.FLG_SWIEPH)
+
+    sun = next(item for item in chart["planets"] if item["id"] == "Sun")
+    moon = next(item for item in chart["planets"] if item["id"] == "Moon")
+
+    assert chart["chart_profile"]["engine_precision"] == "ephemeris_runtime_model"
+    assert chart["chart_profile"]["engine_backend"] == "swisseph_api"
+    assert sun["longitude"] == pytest.approx(expected_sun[0], abs=0.001)
+    assert sun["latitude"] == pytest.approx(expected_sun[1], abs=0.001)
+    assert moon["longitude"] == pytest.approx(expected_moon[0], abs=0.001)
+    assert moon["latitude"] == pytest.approx(expected_moon[1], abs=0.001)
 
 
 def test_core_chart_offline_options_preserve_defaults_and_allow_overrides():
@@ -293,6 +340,25 @@ def test_germany_chart_respects_core_house_and_zodiac_overrides():
     assert result["midpoints"]
 
 
+def test_germany_chart_inherits_runtime_precision_from_base_chart():
+    result = calculate_germany_chart_analysis(**_build_birth_payload())
+    expected_precision = (
+        "ephemeris_runtime_model"
+        if astrology_core.swe is not None
+        else "approximate_orbital_model"
+    )
+    expected_backend = (
+        "swisseph_api"
+        if astrology_core.swe is not None
+        else "fatebridge_approximate_orbital_model"
+    )
+
+    assert result["chart_profile"]["engine_precision"] == expected_precision
+    assert result["chart_profile"]["engine_backend"] == expected_backend
+    assert result["base_chart"]["chart_profile"]["engine_precision"] == expected_precision
+    assert result["base_chart"]["chart_profile"]["engine_backend"] == expected_backend
+
+
 def test_relative_chart_returns_legacy_style_layers_and_metadata():
     result = calculate_relative_chart_analysis(
         inner_payload=_build_birth_payload(),
@@ -346,6 +412,64 @@ def test_relative_chart_returns_legacy_style_layers_and_metadata():
     assert result["chart"]["chart_profile"]["house_system"] == "whole_sign"
     assert result["compatibility"]["element_harmony_score"] >= 0
     assert result["compatibility"]["element_harmony_score"] <= 100
+
+
+def test_relative_derived_layers_inherit_runtime_precision_from_sources():
+    expected_precision = (
+        "ephemeris_runtime_model"
+        if astrology_core.swe is not None
+        else "approximate_orbital_model"
+    )
+    expected_backend = (
+        "swisseph_api"
+        if astrology_core.swe is not None
+        else "fatebridge_approximate_orbital_model"
+    )
+    outer_payload = {
+        **_build_birth_payload(),
+        "name": "对盘者",
+        "birth_year": 1992,
+        "birth_month": 3,
+        "birth_day": 2,
+        "birth_hour": 8,
+        "birth_minute": 18,
+    }
+
+    composite_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload=outer_payload,
+        relative_mode="Composite",
+        hsys=0,
+    )
+    timespace_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload=outer_payload,
+        relative_mode="TimeSpace",
+        hsys=0,
+    )
+    marks_result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload=outer_payload,
+        relative_mode="Marks",
+        hsys=0,
+    )
+
+    assert composite_result["relationship_profile"]["engine_precision"] == expected_precision
+    assert composite_result["relationship_profile"]["engine_backend"] == expected_backend
+    assert composite_result["chart"]["chart_profile"]["engine_precision"] == expected_precision
+    assert composite_result["chart"]["chart_profile"]["engine_backend"] == expected_backend
+    assert composite_result["inner"]["chart"]["chart_profile"]["engine_precision"] == expected_precision
+    assert composite_result["inner"]["chart"]["chart_profile"]["engine_backend"] == expected_backend
+
+    assert timespace_result["relationship_profile"]["engine_precision"] == expected_precision
+    assert timespace_result["relationship_profile"]["engine_backend"] == expected_backend
+    assert timespace_result["chart"]["chart_profile"]["engine_precision"] == expected_precision
+    assert timespace_result["chart"]["chart_profile"]["engine_backend"] == expected_backend
+
+    assert marks_result["relationship_profile"]["engine_precision"] == expected_precision
+    assert marks_result["relationship_profile"]["engine_backend"] == expected_backend
+    assert marks_result["chart"]["chart_profile"]["engine_precision"] == expected_precision
+    assert marks_result["chart"]["chart_profile"]["engine_backend"] == expected_backend
 
 
 def test_relative_chart_legacy_synastry_alias_maps_to_compare_mode():
