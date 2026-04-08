@@ -1024,7 +1024,7 @@ curl http://localhost:8000/health
 **返回重点**:
 
 - `target_year_jieqi`: 全年 24 节气表
-- `jieqi_timeline`: 每个节气节点对应的流月、流日与摘要
+- `jieqi_timeline`: 每个节气节点对应的流月、流日与摘要；`analysis_anchor` 为节气切换后的首个整分钟，可直接用于 `liuyue_analysis / liuri_analysis / timing_analysis`
 - `summary`: 年度节气时间轴摘要
 - `snapshot_text`: 按 `[查询信息] / [年度节气] / [节点时间轴] / [来源]` 输出离线节气时间轴快照
 - `snapshot_export.section_titles_detected`: 本次节气时间轴快照中实际可导出的 section 列表
@@ -1174,6 +1174,9 @@ print(result)  # JSON 字符串
 | `birth_place` | str | 否 | 出生地 |
 | `analysis_year` | int | 否 | 分析年份（默认当前年） |
 | `analysis_month` | int | 否 | 分析月份（默认当前月） |
+| `analysis_day` | int | 否 | 分析日期（默认 1） |
+| `analysis_hour` | int | 否 | 分析小时（默认 0） |
+| `analysis_minute` | int | 否 | 分析分钟（默认 0） |
 | `analysis_age` | int | 否 | 分析年龄（用于大运分析） |
 | `birth_minute` | int | 否 | 出生分钟 |
 | `birth_timezone` | str | 否 | 出生时区 |
@@ -1186,11 +1189,13 @@ print(result)  # JSON 字符串
 - `calendar_context`: 出生时刻的节气/农历上下文
 - `analysis_calendar.analysis_date_context`: 目标分析日期的节气上下文
 - `analysis_calendar.analysis_year_jieqi`: 目标年份 24 节气表
-- `analysis_calendar.liuyue_timeline`: 目标年份 12 个节令月时间轴，每项包含起止节气、月柱和简要运势总结
-- `analysis_calendar.jieqi_timeline`: 目标年份 24 个节气节点时间轴，每项包含节气切换点对应的流月、流日和简要影响
+- `analysis_calendar.liuyue_timeline`: 目标年份 12 个节令月时间轴，每项包含起止节气、分钟级可复现的 `analysis_anchor`、月柱和简要运势总结
+- `analysis_calendar.jieqi_timeline`: 目标年份 24 个节气节点时间轴，每项包含节气切换点后的首个整分钟 `analysis_anchor`、对应流月、流日和简要影响
 - `liuri_analysis`: 分析日期对应的流日信息
 - `snapshot_text`: 完整离线综合时运快照
 - `snapshot_export`: 可按 `selected_sections` 过滤的导出结果
+
+传入 `analysis_day / analysis_hour / analysis_minute` 后，综合时运会按具体分析时刻重算流月、流日和节气上下文，不再固定落在每月 1 日 `00:00`。
 
 ---
 
@@ -1266,6 +1271,8 @@ print(result)  # JSON 字符串
 | `analysis_year` | int | 否 | 分析年份 |
 | `analysis_month` | int | 否 | 分析月份 |
 | `analysis_day` | int | 否 | 分析日期 |
+| `analysis_hour` | int | 否 | 分析小时 |
+| `analysis_minute` | int | 否 | 分析分钟 |
 | `birth_minute` | int | 否 | 出生分钟 |
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
@@ -1278,6 +1285,8 @@ print(result)  # JSON 字符串
 - `snapshot_export.section_titles_detected`: 本次流日快照中实际可导出的 section 列表
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流日快照
+
+传入 `analysis_hour / analysis_minute` 后，流日分析返回的节气上下文会按具体切换时刻更新。
 
 ---
 
@@ -1296,6 +1305,8 @@ print(result)  # JSON 字符串
 | `analysis_year` | int | 否 | 分析年份 |
 | `analysis_month` | int | 否 | 分析月份 |
 | `analysis_day` | int | 否 | 分析日期 |
+| `analysis_hour` | int | 否 | 分析小时 |
+| `analysis_minute` | int | 否 | 分析分钟 |
 | `birth_minute` | int | 否 | 出生分钟 |
 | `birth_timezone` | str | 否 | 出生时区 |
 | `birth_longitude` | float | 否 | 出生地经度 |
@@ -1308,6 +1319,8 @@ print(result)  # JSON 字符串
 - `snapshot_export.section_titles_detected`: 本次流月快照中实际可导出的 section 列表
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整流月快照
+
+传入 `analysis_hour / analysis_minute` 后，可精确覆盖节气切换当天的月令边界。
 
 ---
 
@@ -1467,6 +1480,7 @@ FateBridge 快照导出解析工具。
 
 **返回**: JSON 格式字符串，包含全年 24 节气节点时间轴，并附带：
 
+- `jieqi_timeline`: 每个节气节点对应的流月、流日与摘要；`analysis_anchor` 为节气切换后的首个整分钟，可直接回放到专项时运工具
 - `snapshot_text`: 按 `[查询信息] / [年度节气] / [节点时间轴] / [来源]` 输出离线节气时间轴快照
 - `snapshot_export.section_titles_detected`: 本次节气时间轴快照中实际可导出的 section 列表
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果

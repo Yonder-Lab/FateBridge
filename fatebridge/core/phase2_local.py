@@ -13,7 +13,11 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
-from .almanac import build_calendar_context, localize_datetime
+from .almanac import (
+    DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    build_calendar_context,
+    localize_datetime,
+)
 from .astrology import build_astro_birth_info, build_core_chart_payload
 from .calendar import BaZiCalendar
 from .divination import (
@@ -1094,6 +1098,7 @@ def _build_phase2_metaphysics_seed(
     pillars = BaZiCalendar.get_four_pillars(
         corrected_datetime,
         timezone_name=timezone_value,
+        day_pillar_strategy=DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
     )
     calendar_context = build_calendar_context(
         corrected_datetime,

@@ -282,6 +282,24 @@ class TimingAnalysis:
         }
 
     @staticmethod
+    def _next_supported_analysis_anchor(
+        moment: datetime,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> datetime:
+        """
+        将节气切换点规范到外部接口可复现的最早分钟锚点。
+
+        FastMCP / REST 当前只暴露到小时、分钟精度，因此时间轴里的
+        analysis_anchor 需要落在“节气发生后的第一个整分钟”，这样调用方
+        可以直接把该锚点回放到专项分析工具，而不会因秒级偏移产生歧义。
+        """
+        local_moment = localize_datetime(moment, timezone_name)
+        anchor = local_moment.replace(second=0, microsecond=0)
+        if anchor <= local_moment:
+            anchor += timedelta(minutes=1)
+        return anchor
+
+    @staticmethod
     def calculate_liuyue_timeline(
         target_year: int,
         timezone_name: str = DEFAULT_TIMEZONE,
@@ -308,7 +326,10 @@ class TimingAnalysis:
                 if index + 1 < len(current_year_terms)
                 else next_year_terms[0]
             )
-            anchor = start_term.moment + timedelta(minutes=1)
+            anchor = TimingAnalysis._next_supported_analysis_anchor(
+                start_term.moment,
+                timezone_name=timezone_name,
+            )
             liuyue_info = TimingAnalysis.calculate_liuyue(
                 anchor.year,
                 anchor.month,
@@ -386,7 +407,10 @@ class TimingAnalysis:
         """
         timeline: List[Dict] = []
         for index, term in enumerate(get_solar_terms_for_year(target_year, timezone_name)):
-            anchor = term.moment + timedelta(minutes=1)
+            anchor = TimingAnalysis._next_supported_analysis_anchor(
+                term.moment,
+                timezone_name=timezone_name,
+            )
             timeline.append(
                 {
                     "order": index + 1,

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 import sys
 
@@ -34,6 +34,7 @@ from fatebridge.services.timing import (
     calculate_liuri_analysis,
     calculate_liuyue_analysis,
 )
+from fatebridge.core.timing import TimingAnalysis
 from fatebridge.utils.helpers import create_person_info, normalize_birth_time
 
 
@@ -68,6 +69,9 @@ def test_timing_request_models_accept_analysis_fields():
         birth_hour=10,
         analysis_year=2028,
         analysis_month=4,
+        analysis_day=6,
+        analysis_hour=21,
+        analysis_minute=55,
         analysis_age=38,
         selected_sections=["查询信息", "综合影响"],
     )
@@ -96,6 +100,8 @@ def test_timing_request_models_accept_analysis_fields():
         analysis_year=2028,
         analysis_month=4,
         analysis_day=1,
+        analysis_hour=21,
+        analysis_minute=55,
         selected_sections=["查询信息", "流月信息"],
     )
     liuri_request = LiuriAnalysisRequest(
@@ -106,6 +112,8 @@ def test_timing_request_models_accept_analysis_fields():
         analysis_year=2028,
         analysis_month=4,
         analysis_day=1,
+        analysis_hour=21,
+        analysis_minute=55,
     )
     jieqi_request = JieqiTimelineRequest(
         birth_year=1990,
@@ -125,6 +133,9 @@ def test_timing_request_models_accept_analysis_fields():
 
     assert timing_payload["analysis_year"] == 2028
     assert timing_payload["analysis_month"] == 4
+    assert timing_payload["analysis_day"] == 6
+    assert timing_payload["analysis_hour"] == 21
+    assert timing_payload["analysis_minute"] == 55
     assert timing_payload["analysis_age"] == 38
     assert timing_payload["selected_sections"] == ["查询信息", "综合影响"]
     assert dayun_payload["gender"] == "男"
@@ -135,10 +146,14 @@ def test_timing_request_models_accept_analysis_fields():
     assert liuyue_payload["analysis_year"] == 2028
     assert liuyue_payload["analysis_month"] == 4
     assert liuyue_payload["analysis_day"] == 1
+    assert liuyue_payload["analysis_hour"] == 21
+    assert liuyue_payload["analysis_minute"] == 55
     assert liuyue_payload["selected_sections"] == ["查询信息", "流月信息"]
     assert liuri_payload["analysis_year"] == 2028
     assert liuri_payload["analysis_month"] == 4
     assert liuri_payload["analysis_day"] == 1
+    assert liuri_payload["analysis_hour"] == 21
+    assert liuri_payload["analysis_minute"] == 55
     assert jieqi_payload["target_year"] == 2028
     assert jieqi_payload["selected_sections"] == ["查询信息", "节点时间轴"]
 
@@ -362,12 +377,17 @@ def test_calculate_comprehensive_timing_supports_snapshot_export_and_age_overrid
         person,
         analysis_year=2028,
         analysis_month=4,
+        analysis_day=6,
+        analysis_hour=21,
+        analysis_minute=55,
         analysis_age=42,
         selected_sections=["查询信息", "综合影响"],
     )
     dayun_result = calculate_dayun_analysis(person, 42)
 
     assert result["personal_info"]["current_age"] == 42
+    assert result["personal_info"]["analysis_date"] == "2028-04-06"
+    assert result["personal_info"]["analysis_datetime"] == "2028-04-06 21:55"
     assert result["dayun_analysis"]["current_dayun"] == dayun_result["dayun_info"]["current_dayun"]
     assert "[查询信息]" in result["snapshot_text"]
     assert "[大运摘要]" in result["snapshot_text"]
@@ -379,6 +399,131 @@ def test_calculate_comprehensive_timing_supports_snapshot_export_and_age_overrid
     assert "[综合影响]" in result["snapshot_export"]["export_text"]
     assert "[大运摘要]" not in result["snapshot_export"]["export_text"]
     assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
+def test_calculate_comprehensive_timing_supports_analysis_day_boundaries():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    timing_result = calculate_comprehensive_timing(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+    )
+    liuyue_result = calculate_liuyue_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+    )
+    liuri_result = calculate_liuri_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+    )
+
+    assert timing_result["personal_info"]["analysis_date"] == "2028-04-06"
+    assert timing_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
+    assert timing_result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"] == "谷雨"
+    assert timing_result["liuyue_analysis"]["pillar"] == "丙辰"
+    assert timing_result["liuri_analysis"]["pillar"] == "辛酉"
+    assert timing_result["liuyue_analysis"]["pillar"] == liuyue_result["liuyue_info"]["pillar"]
+    assert timing_result["liuri_analysis"]["pillar"] == liuri_result["liuri_info"]["pillar"]
+
+
+def test_time_precision_changes_liuyue_across_qingming_boundary():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+    qingming_node = next(
+        item
+        for item in TimingAnalysis.calculate_jieqi_transition_timeline(
+            2028, timezone_name="Asia/Shanghai"
+        )
+        if item["jieqi"]["name"] == "清明"
+    )
+
+    before_result = calculate_liuyue_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=4,
+    )
+    boundary_result = calculate_liuyue_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=4,
+        analysis_hour=21,
+        analysis_minute=55,
+    )
+
+    assert before_result["liuyue_info"]["pillar"] == "乙卯"
+    assert before_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
+    assert boundary_result["liuyue_info"]["pillar"] == qingming_node["liuyue"]["pillar"]
+    assert boundary_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
+    assert boundary_result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"] == "谷雨"
+
+
+def test_time_precision_aligns_liuri_and_timing_with_jieqi_anchor():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+    qingming_node = next(
+        item
+        for item in TimingAnalysis.calculate_jieqi_transition_timeline(
+            2028, timezone_name="Asia/Shanghai"
+        )
+        if item["jieqi"]["name"] == "清明"
+    )
+
+    liuri_result = calculate_liuri_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=4,
+        analysis_hour=21,
+        analysis_minute=55,
+    )
+    timing_result = calculate_comprehensive_timing(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=4,
+        analysis_hour=21,
+        analysis_minute=55,
+    )
+
+    assert liuri_result["liuri_info"]["pillar"] == qingming_node["liuri"]["pillar"]
+    assert liuri_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
+    assert timing_result["personal_info"]["analysis_datetime"] == "2028-04-04 21:55"
+    assert timing_result["liuyue_analysis"]["pillar"] == qingming_node["liuyue"]["pillar"]
+    assert timing_result["liuri_analysis"]["pillar"] == qingming_node["liuri"]["pillar"]
+    assert timing_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
 
 
 def test_calculate_dayun_analysis_supports_snapshot_export():
@@ -604,6 +749,7 @@ def test_calculate_jieqi_timeline_analysis_returns_qingming_node():
     qingming_node = next(
         item for item in result["jieqi_timeline"] if item["jieqi"]["name"] == "清明"
     )
+    assert qingming_node["analysis_anchor"] == "2028-04-04 21:55:00"
     assert qingming_node["liuyue"]["pillar"] == "丙辰"
     assert qingming_node["liuri"]["pillar"] == "己未"
     assert "[查询信息]" in result["snapshot_text"]
@@ -638,6 +784,107 @@ def test_calculate_jieqi_timeline_analysis_supports_selected_export_sections():
     assert "[来源]" not in result["snapshot_export"]["export_text"]
 
 
+def test_liuyue_timeline_anchor_is_minute_safe_and_replayable():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    timeline = TimingAnalysis.calculate_liuyue_timeline(
+        2028, timezone_name="Asia/Shanghai"
+    )
+
+    for item in timeline:
+        anchor = datetime.strptime(item["analysis_anchor"], "%Y-%m-%d %H:%M:%S")
+        start_term = datetime.strptime(
+            item["start_term"]["datetime"], "%Y-%m-%d %H:%M:%S"
+        )
+        assert anchor.second == 0
+        assert timedelta(0) < anchor - start_term <= timedelta(minutes=1)
+
+    qingming_month = next(
+        item for item in timeline if item["start_term"]["name"] == "清明"
+    )
+    anchor = datetime.strptime(qingming_month["analysis_anchor"], "%Y-%m-%d %H:%M:%S")
+    liuyue_result = calculate_liuyue_analysis(
+        person,
+        analysis_year=anchor.year,
+        analysis_month=anchor.month,
+        analysis_day=anchor.day,
+        analysis_hour=anchor.hour,
+        analysis_minute=anchor.minute,
+    )
+
+    assert qingming_month["analysis_anchor"] == "2028-04-04 21:55:00"
+    assert liuyue_result["liuyue_info"]["pillar"] == qingming_month["liuyue"]["pillar"]
+    assert (
+        liuyue_result["liuyue_info"]["solar_term_window"]["start_term"]["name"] == "清明"
+    )
+
+
+def test_jieqi_timeline_anchor_is_minute_safe_and_replayable():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    timeline = TimingAnalysis.calculate_jieqi_transition_timeline(
+        2028, timezone_name="Asia/Shanghai"
+    )
+    sample_names = {"清明", "立秋", "冬至"}
+
+    for item in timeline:
+        anchor = datetime.strptime(item["analysis_anchor"], "%Y-%m-%d %H:%M:%S")
+        term = datetime.strptime(item["jieqi"]["datetime"], "%Y-%m-%d %H:%M:%S")
+        assert anchor.second == 0
+        assert timedelta(0) < anchor - term <= timedelta(minutes=1)
+
+        if item["jieqi"]["name"] not in sample_names:
+            continue
+
+        liuyue_result = calculate_liuyue_analysis(
+            person,
+            analysis_year=anchor.year,
+            analysis_month=anchor.month,
+            analysis_day=anchor.day,
+            analysis_hour=anchor.hour,
+            analysis_minute=anchor.minute,
+        )
+        liuri_result = calculate_liuri_analysis(
+            person,
+            analysis_year=anchor.year,
+            analysis_month=anchor.month,
+            analysis_day=anchor.day,
+            analysis_hour=anchor.hour,
+            analysis_minute=anchor.minute,
+        )
+        timing_result = calculate_comprehensive_timing(
+            person,
+            analysis_year=anchor.year,
+            analysis_month=anchor.month,
+            analysis_day=anchor.day,
+            analysis_hour=anchor.hour,
+            analysis_minute=anchor.minute,
+        )
+
+        assert liuyue_result["liuyue_info"]["pillar"] == item["liuyue"]["pillar"]
+        assert liuri_result["liuri_info"]["pillar"] == item["liuri"]["pillar"]
+        assert timing_result["liuyue_analysis"]["pillar"] == item["liuyue"]["pillar"]
+        assert timing_result["liuri_analysis"]["pillar"] == item["liuri"]["pillar"]
+
+
 def test_comprehensive_timing_matches_specialized_timing_tools():
     person = create_person_info(
         birth_year=1990,
@@ -654,6 +901,7 @@ def test_comprehensive_timing_matches_specialized_timing_tools():
         person,
         analysis_year=2028,
         analysis_month=4,
+        analysis_day=6,
         analysis_age=42,
     )
     dayun_result = calculate_dayun_analysis(person, 42)
@@ -662,13 +910,13 @@ def test_comprehensive_timing_matches_specialized_timing_tools():
         person,
         analysis_year=2028,
         analysis_month=4,
-        analysis_day=1,
+        analysis_day=6,
     )
     liuri_result = calculate_liuri_analysis(
         person,
         analysis_year=2028,
         analysis_month=4,
-        analysis_day=1,
+        analysis_day=6,
     )
 
     assert timing_result["dayun_analysis"]["current_dayun"] == dayun_result["dayun_info"]["current_dayun"]
@@ -701,16 +949,23 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     assert "person1_birth_longitude" in compatibility_properties
     assert "person2_birth_longitude" in compatibility_properties
     assert "use_true_solar_time" in timing_properties
+    assert "analysis_day" in timing_properties
+    assert "analysis_hour" in timing_properties
+    assert "analysis_minute" in timing_properties
     assert "selected_sections" in timing_properties
     assert "selected_sections" in dayun_properties
     assert "selected_sections" in liunian_properties
     assert "analysis_year" in liuyue_properties
     assert "analysis_month" in liuyue_properties
     assert "analysis_day" in liuyue_properties
+    assert "analysis_hour" in liuyue_properties
+    assert "analysis_minute" in liuyue_properties
     assert "selected_sections" in liuyue_properties
     assert "analysis_year" in liuri_properties
     assert "analysis_month" in liuri_properties
     assert "analysis_day" in liuri_properties
+    assert "analysis_hour" in liuri_properties
+    assert "analysis_minute" in liuri_properties
     assert "selected_sections" in liuri_properties
     assert "target_year" in jieqi_properties
     assert "selected_sections" in jieqi_properties

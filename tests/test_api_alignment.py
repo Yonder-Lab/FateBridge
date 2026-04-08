@@ -67,6 +67,9 @@ def test_alignment_request_models_accept_fastmcp_offline_fields():
         **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
         analysis_year=2028,
         analysis_month=4,
+        analysis_day=6,
+        analysis_hour=21,
+        analysis_minute=55,
         analysis_age=38,
         selected_sections=["查询信息", "综合影响"],
     )
@@ -91,6 +94,9 @@ def test_alignment_request_models_accept_fastmcp_offline_fields():
     assert compatibility_payload["relationship_type"] == "marriage"
     assert timing_payload["analysis_year"] == 2028
     assert timing_payload["analysis_month"] == 4
+    assert timing_payload["analysis_day"] == 6
+    assert timing_payload["analysis_hour"] == 21
+    assert timing_payload["analysis_minute"] == 55
     assert timing_payload["analysis_age"] == 38
     assert timing_payload["selected_sections"] == ["查询信息", "综合影响"]
     assert dayun_payload["gender"] == "男"
@@ -135,6 +141,9 @@ def test_timing_analysis_api_matches_fastmcp_tool_output():
         **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
         analysis_year=2028,
         analysis_month=4,
+        analysis_day=6,
+        analysis_hour=21,
+        analysis_minute=55,
         analysis_age=38,
         selected_sections=["查询信息", "综合影响"],
     )

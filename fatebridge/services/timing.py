@@ -202,7 +202,7 @@ def _build_liuyue_snapshot_text(
     next_term = (analysis_calendar_context.get("next_solar_term") or {}).get("name", "未知")
     query_lines = [
         f"姓名：{person_name or '未提供'}",
-        f"分析日期：{analysis_date.strftime('%Y-%m-%d')}",
+        f"分析时刻：{analysis_date.strftime('%Y-%m-%d %H:%M')}",
         f"出生时间：{birth_datetime.strftime('%Y-%m-%d %H:%M')}",
         f"归一时间：{normalized_birth_datetime.strftime('%Y-%m-%d %H:%M')}",
         f"时区：{timezone_name}",
@@ -387,7 +387,7 @@ def _build_liuri_snapshot_text(
     next_term = (analysis_calendar_context.get("next_solar_term") or {}).get("name", "未知")
     query_lines = [
         f"姓名：{person_name or '未提供'}",
-        f"分析日期：{analysis_date.strftime('%Y-%m-%d')}",
+        f"分析时刻：{analysis_date.strftime('%Y-%m-%d %H:%M')}",
         f"出生时间：{birth_datetime.strftime('%Y-%m-%d %H:%M')}",
         f"归一时间：{normalized_birth_datetime.strftime('%Y-%m-%d %H:%M')}",
         f"时区：{timezone_name}",
@@ -492,7 +492,7 @@ def _build_comprehensive_timing_snapshot_text(
     )
     query_lines = [
         f"姓名：{person_name or '未提供'}",
-        f"分析日期：{analysis_date.strftime('%Y-%m-%d')}",
+        f"分析时刻：{analysis_date.strftime('%Y-%m-%d %H:%M')}",
         f"当前年龄：{current_age}",
         f"出生时间：{birth_datetime.strftime('%Y-%m-%d %H:%M')}",
         f"归一时间：{normalized_birth_datetime.strftime('%Y-%m-%d %H:%M')}",
@@ -771,6 +771,9 @@ def calculate_comprehensive_timing(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_age: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict:
     """
@@ -797,7 +800,19 @@ def calculate_comprehensive_timing(
             analysis_year, analysis_month
         )
 
-        analysis_date = datetime(analysis_year, analysis_month, 1)
+        if analysis_day is None:
+            analysis_day = 1
+        if analysis_hour is None:
+            analysis_hour = 0
+        if analysis_minute is None:
+            analysis_minute = 0
+        analysis_date = datetime(
+            analysis_year,
+            analysis_month,
+            analysis_day,
+            analysis_hour,
+            analysis_minute,
+        )
         analysis_calendar_context = build_calendar_context(
             analysis_date,
             timezone_name=normalized_birth_time.timezone,
@@ -922,6 +937,7 @@ def calculate_comprehensive_timing(
                 "normalized_birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
                 "gender": person.gender,
                 "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+                "analysis_datetime": analysis_date.strftime("%Y-%m-%d %H:%M"),
                 "current_age": current_age,
                 "time_adjustment": normalized_birth_time.as_dict(),
             },
@@ -1229,6 +1245,8 @@ def calculate_liuyue_analysis(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict:
     """
@@ -1254,8 +1272,18 @@ def calculate_liuyue_analysis(
             analysis_month = now.month
         if analysis_day is None:
             analysis_day = 1
+        if analysis_hour is None:
+            analysis_hour = 0
+        if analysis_minute is None:
+            analysis_minute = 0
 
-        analysis_date = datetime(analysis_year, analysis_month, analysis_day)
+        analysis_date = datetime(
+            analysis_year,
+            analysis_month,
+            analysis_day,
+            analysis_hour,
+            analysis_minute,
+        )
         analysis_calendar_context = build_calendar_context(
             analysis_date,
             timezone_name=normalized_birth_time.timezone,
@@ -1306,6 +1334,7 @@ def calculate_liuyue_analysis(
             "personal_info": {
                 "name": person.name,
                 "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+                "analysis_datetime": analysis_date.strftime("%Y-%m-%d %H:%M"),
                 "birth_datetime": normalized_birth_time.input_datetime.strftime(
                     "%Y-%m-%d %H:%M"
                 ),
@@ -1373,6 +1402,8 @@ def calculate_liuri_analysis(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict:
     """
@@ -1398,8 +1429,18 @@ def calculate_liuri_analysis(
             analysis_month = now.month
         if analysis_day is None:
             analysis_day = now.day
+        if analysis_hour is None:
+            analysis_hour = 0
+        if analysis_minute is None:
+            analysis_minute = 0
 
-        analysis_date = datetime(analysis_year, analysis_month, analysis_day)
+        analysis_date = datetime(
+            analysis_year,
+            analysis_month,
+            analysis_day,
+            analysis_hour,
+            analysis_minute,
+        )
         analysis_calendar_context = build_calendar_context(
             analysis_date,
             timezone_name=normalized_birth_time.timezone,
@@ -1440,6 +1481,7 @@ def calculate_liuri_analysis(
                 ),
                 "normalized_birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
                 "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+                "analysis_datetime": analysis_date.strftime("%Y-%m-%d %H:%M"),
                 "time_adjustment": normalized_birth_time.as_dict(),
             },
             "calendar_context": birth_calendar_context,

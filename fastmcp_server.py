@@ -406,6 +406,9 @@ def timing_analysis(
     birth_place: Optional[str] = "未提供",
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     analysis_age: Optional[int] = None,
     *,
     birth_minute: int = 0,
@@ -427,6 +430,9 @@ def timing_analysis(
         birth_place: 出生地（可选）
         analysis_year: 分析年份（可选，默认当前年份）
         analysis_month: 分析月份（可选，默认当前月份）
+        analysis_day: 分析日期（可选，默认 1）
+        analysis_hour: 分析时（可选，默认 0）
+        analysis_minute: 分析分（可选，默认 0）
         analysis_age: 分析年龄（可选，用于大运分析）
         birth_minute: 出生分钟，默认0
         birth_timezone: 出生时区（可选）
@@ -459,6 +465,9 @@ def timing_analysis(
         analysis_year,
         analysis_month,
         analysis_age,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
         selected_sections=selected_sections,
     )
 
@@ -608,6 +617,8 @@ def liuyue_analysis(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
@@ -629,6 +640,8 @@ def liuyue_analysis(
         analysis_year: 分析年份（可选）
         analysis_month: 分析月份（可选）
         analysis_day: 分析日期（可选）
+        analysis_hour: 分析时刻（小时，可选）
+        analysis_minute: 分析时刻（分钟，可选）
         birth_minute: 出生分钟，默认0
         birth_timezone: 出生时区（可选）
         birth_longitude: 出生地经度（可选）
@@ -656,6 +669,8 @@ def liuyue_analysis(
         analysis_year=analysis_year,
         analysis_month=analysis_month,
         analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
         selected_sections=selected_sections,
     )
 
@@ -1608,6 +1623,8 @@ def liuri_analysis(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
@@ -1637,6 +1654,8 @@ def liuri_analysis(
         analysis_year=analysis_year,
         analysis_month=analysis_month,
         analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
         selected_sections=selected_sections,
     )
 

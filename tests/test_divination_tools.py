@@ -817,7 +817,7 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
     assert result["qimen"]["dun_type"] == "阳遁"
     assert result["qimen"]["ju_number"] == 4
     assert result["taiyi"]["core_board"]["main_calculation"] == "阳遁二十三局"
-    assert result["liureng"]["patterns"][0]["name"] == "贵人逆行格"
+    assert result["liureng"]["patterns"][0]["name"] == "贵人顺行格"
     assert "subresults" in result
     assert "qimen" in result["subresults"]
     assert result["subresults"]["qimen"]["pan"] == result["qimen"]
@@ -828,12 +828,12 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
     assert "[八宫详解]" in result["snapshot_text"]
     assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
     assert "离九宫" in result["snapshot_export"]["section_titles_detected"]
-    assert result["qimen"]["zhifu"]["star"] == "天心"
-    assert result["qimen"]["zhifu"]["palace"] == "离九宫"
-    assert result["qimen"]["zhishi"]["door"] == "开门"
-    assert result["qimen"]["zhishi"]["palace"] == "乾六宫"
-    assert "值符：天心在离九宫" in result["snapshot_text"]
-    assert "乾六宫：天盘干：乙" in result["snapshot_text"]
+    assert result["qimen"]["zhifu"]["star"] == "天芮"
+    assert result["qimen"]["zhifu"]["palace"] == "兑七宫"
+    assert result["qimen"]["zhishi"]["door"] == "死门"
+    assert result["qimen"]["zhishi"]["palace"] == "震三宫"
+    assert "值符：天芮在兑七宫" in result["snapshot_text"]
+    assert "震三宫：天盘干：乙" in result["snapshot_text"]
     zhifu_palace = next(
         palace
         for palace in result["qimen"]["palaces"]
@@ -1016,27 +1016,27 @@ def test_phase2_offline_golden_samples_match_current_contract():
                 "ju_number": 4,
                 "ju_text": "阳遁四局上元",
                 "zhifu": {
-                    "star": "天心",
-                    "palace": "中五宫",
-                    "trigram": "中",
-                    "content_palace": "离九宫",
-                    "content_trigram": "离",
-                    "code": "心",
+                    "star": "天芮",
+                    "palace": "震三宫",
+                    "trigram": "震",
+                    "content_palace": "兑七宫",
+                    "content_trigram": "兑",
+                    "code": "芮",
                 },
                 "zhishi": {
-                    "door": "开门",
-                    "palace": "坤二宫",
-                    "trigram": "坤",
-                    "content_palace": "乾六宫",
-                    "content_trigram": "乾",
-                    "code": "开",
+                    "door": "死门",
+                    "palace": "艮八宫",
+                    "trigram": "艮",
+                    "content_palace": "震三宫",
+                    "content_trigram": "震",
+                    "code": "死",
                 },
                 "layout": "fly",
                 "reference": "外部有助，内部更要对齐。",
             },
             "taiyi": {
                 "main_calculation": "阳遁二十三局（积数+1）",
-                "taiyi_palace": "戌",
+                "taiyi_palace": "乾",
                 "big_pattern": "龙德扶身格",
                 "small_pattern": "六合入局",
             },

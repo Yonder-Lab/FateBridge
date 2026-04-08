@@ -217,6 +217,15 @@ class TimingAnalysisRequest(FateBridgeRequest):
     analysis_month: Optional[int] = Field(
         default=None, ge=1, le=12, description="Analysis month (1-12)"
     )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
+    )
     analysis_age: Optional[int] = Field(
         default=None, ge=0, description="Analysis age override"
     )
@@ -257,6 +266,12 @@ class LiuriAnalysisRequest(FateBridgeRequest):
     analysis_day: Optional[int] = Field(
         default=None, ge=1, le=31, description="Analysis day (1-31)"
     )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
+    )
     selected_sections: List[str] = Field(
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
@@ -282,6 +297,12 @@ class LiuyueAnalysisRequest(FateBridgeRequest):
     )
     analysis_day: Optional[int] = Field(
         default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
     )
     selected_sections: List[str] = Field(
         default_factory=list,
@@ -1074,6 +1095,9 @@ async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_age=request.analysis_age,
+            analysis_day=request.analysis_day,
+            analysis_hour=request.analysis_hour,
+            analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
         )
 
@@ -2226,6 +2250,8 @@ async def calculate_liuyue(request: LiuyueAnalysisRequest) -> dict:
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
+            analysis_hour=request.analysis_hour,
+            analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
         )
 
@@ -2272,6 +2298,8 @@ async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
+            analysis_hour=request.analysis_hour,
+            analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
         )
 

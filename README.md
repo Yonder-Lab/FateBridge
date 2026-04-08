@@ -25,6 +25,9 @@
 - **时运 helper 导出协议**：`liuyue_analysis` 与 `jieqi_timeline_analysis` 现已统一返回 `snapshot_text + snapshot_export`，可按 section 离线导出时运摘要
 - **流年 / 流日导出协议**：`liunian_analysis` 与 `liuri_analysis` 现已统一返回 `snapshot_text + snapshot_export`，便于时运专项结果按 section 离线消费
 - **综合时运 / 大运导出协议**：`timing_analysis` 与 `dayun_analysis` 现已统一返回 `snapshot_text + snapshot_export`，并补上专项结果一致性回归
+- **综合时运支持具体分析日**：`timing_analysis` 现可通过 `analysis_day` 按指定日期重算流月、流日与节气上下文，不再固定取每月 1 日
+- **时运支持时分精度**：`timing_analysis`、`liuyue_analysis`、`liuri_analysis` 现可按 `analysis_hour / analysis_minute` 计算节气切换当天的真实边界，不再只能按 `00:00` 近似
+- **节气时间轴锚点可复现**：`liuyue_timeline` 与 `jieqi_timeline` 的 `analysis_anchor` 现统一落在节气后的首个整分钟，可直接回放到专项工具重算
 - **梅花时卦分析**：独立输出本卦、变卦、互卦、综卦与体用关系
 - **梅易卦义批量查询**：支持按卦码 / 卦名批量读取偏梅花易数语境的卦义摘要
 - **梅花问事骨架**：自动串联本卦、变卦、体用与动爻阶段，生成可直接阅读的占断摘要

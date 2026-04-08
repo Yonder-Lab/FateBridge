@@ -1457,15 +1457,14 @@ def build_qimen_board(seed: MetaphysicsSeed) -> Dict[str, Any]:
     current_term = current_term_info["name"]
     day_ganzhi = ganzhi_text(seed.pillars["day"])
     time_ganzhi = ganzhi_text(seed.pillars["hour"])
-    fu_tou = current_term_info.get("day_ganzhi") or qimen_futou_for_ganzhi(day_ganzhi)
+    # 时家奇门的符头与三元都应从当前日干支回推，不应直接借用节气元数据里的日柱。
+    fu_tou = qimen_futou_for_ganzhi(day_ganzhi)
     dun_type = "阳遁" if current_term in QIMEN_YANG_TERMS else "阴遁"
     month_index = EARTHLY_BRANCHES.index(seed.pillars["month"][1])
     day_index = EARTHLY_BRANCHES.index(seed.pillars["day"][1])
     hour_index = EARTHLY_BRANCHES.index(seed.pillars["hour"][1])
     fallback_ju = ((month_index + day_index + hour_index) % 9) + 1
-    solar_term_delta = seed.calendar_context.get("solar_term_delta") or {}
-    days_since_current = float(solar_term_delta.get("days_since_current") or 0.0)
-    yuan = _qimen_find_yuan_from_delta(days_since_current)
+    yuan = _qimen_find_yuan(day_ganzhi)
     ju_number = _qimen_ju_number_for_term(
         current_term=current_term,
         yuan=yuan,
