@@ -15,6 +15,11 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from fatebridge.utils.helpers import parse_timezone_name
 
+try:
+    import swisseph as swe
+except ImportError:  # pragma: no cover - optional runtime dependency
+    swe = None
+
 SIGNS = [
     "Aries",
     "Taurus",
@@ -198,6 +203,54 @@ RELATIVE_ZODIACAL_LABELS_ZH = {
     1: "恒星黄道，岁差:Lahiri",
 }
 
+RELATIVE_HOUSE_SYSTEM_SPECS = {
+    0: {
+        "key": "whole_sign",
+        "label_zh": "整宫制",
+        "swisseph_code": b"W",
+    },
+    1: {
+        "key": "alcabitus",
+        "label_zh": "Alcabitus",
+        "swisseph_code": b"B",
+    },
+    2: {
+        "key": "regiomontanus",
+        "label_zh": "Regiomontanus",
+        "swisseph_code": b"R",
+    },
+    3: {
+        "key": "placidus",
+        "label_zh": "Placidus",
+        "swisseph_code": b"P",
+    },
+    4: {
+        "key": "koch",
+        "label_zh": "Koch",
+        "swisseph_code": b"K",
+    },
+    5: {
+        "key": "vehlow_equal",
+        "label_zh": "Vehlow Equal",
+        "swisseph_code": b"V",
+    },
+    6: {
+        "key": "polich_page",
+        "label_zh": "Polich Page",
+        "swisseph_code": b"T",
+    },
+    7: {
+        "key": "sripati",
+        "label_zh": "Sripati",
+        "swisseph_code": b"S",
+    },
+    8: {
+        "key": "equal_mc",
+        "label_zh": "天顶为10宫中点等宫制",
+        "swisseph_code": b"D",
+    },
+}
+
 RELATIVE_MODE_NUMERIC_MAP = {
     0: "compare",
     1: "composite",
@@ -218,7 +271,6 @@ RELATIVE_MODE_FALLBACK_ALIASES = {
     "compare": "compare",
     "comparison": "compare",
     "comp": "compare",
-    "synastry": "compare",
     "比较盘": "compare",
     "组合盘": "composite",
     "composite": "composite",
@@ -229,6 +281,27 @@ RELATIVE_MODE_FALLBACK_ALIASES = {
     "时空中点盘": "timespace",
     "marks": "marks",
     "马克斯盘": "marks",
+}
+
+CORE_CHART_DEFAULT_HOUSE_SYSTEMS = {
+    "chart": "equal",
+    "chart13": "equal",
+    "hellen_chart": "whole_sign",
+    "guolao_chart": "whole_sign",
+    "india_chart": "whole_sign",
+}
+
+CORE_CHART_DEFAULT_HOUSE_LABELS_ZH = {
+    "equal": "等宫制（上升起点）",
+    "whole_sign": "整宫制",
+}
+
+CORE_CHART_DEFAULT_ZODIACAL = {
+    "chart": 0,
+    "chart13": 0,
+    "hellen_chart": 0,
+    "guolao_chart": 0,
+    "india_chart": 1,
 }
 
 PLANET_ORBITAL_ELEMENTS = {
@@ -507,7 +580,40 @@ def _degree_in_sign(longitude: float) -> float:
     return normalize_angle(longitude) % 30
 
 
-def _house_for_longitude(longitude: float, ascendant: float, house_system: str) -> int:
+def _continuous_house_cusps(house_cusps: List[float]) -> List[float]:
+    continuous: List[float] = []
+    for cusp in house_cusps:
+        normalized = normalize_angle(cusp)
+        if continuous:
+            while normalized <= continuous[-1]:
+                normalized += 360.0
+        continuous.append(normalized)
+    return continuous
+
+
+def _house_for_longitude(
+    longitude: float,
+    ascendant: float,
+    house_system: str,
+    house_cusps: Optional[List[float]] = None,
+) -> int:
+    if house_cusps:
+        continuous_cusps = _continuous_house_cusps(house_cusps)
+        cycle_end = continuous_cusps[0] + 360.0
+        continuous_longitude = normalize_angle(longitude)
+        while continuous_longitude < continuous_cusps[0]:
+            continuous_longitude += 360.0
+        while continuous_longitude >= cycle_end:
+            continuous_longitude -= 360.0
+        for index, start in enumerate(continuous_cusps):
+            end = (
+                continuous_cusps[index + 1]
+                if index < len(continuous_cusps) - 1
+                else cycle_end
+            )
+            if start <= continuous_longitude < end:
+                return index + 1
+        return 12
     if house_system == "whole_sign":
         asc_sign_index = int(normalize_angle(ascendant) // 30)
         sign_index = int(normalize_angle(longitude) // 30)
@@ -584,8 +690,25 @@ def _angles(julian_day: float, longitude: float, latitude: float) -> Dict[str, f
     return {"ascendant": ascendant, "midheaven": midheaven}
 
 
-def _build_houses(ascendant: float, house_system: str) -> List[Dict[str, Any]]:
+def _build_houses(
+    ascendant: float,
+    house_system: str,
+    house_cusps: Optional[List[float]] = None,
+) -> List[Dict[str, Any]]:
     houses: List[Dict[str, Any]] = []
+    if house_cusps:
+        for house_number, cusp in enumerate(house_cusps, start=1):
+            normalized_cusp = normalize_angle(cusp)
+            sign = _sign_name(normalized_cusp)
+            houses.append(
+                {
+                    "house": house_number,
+                    "cusp_longitude": round(normalized_cusp, 4),
+                    "sign": sign,
+                    "sign_zh": SIGN_LABELS_ZH[sign],
+                }
+            )
+        return houses
     if house_system == "whole_sign":
         first_cusp = math.floor(ascendant / 30.0) * 30.0
     else:
@@ -632,6 +755,7 @@ def _build_planet_record(
     ascendant: float,
     house_system: str,
     *,
+    house_cusps: Optional[List[float]] = None,
     sidereal: bool = False,
     ayanamsha: float = 0.0,
     include_sector13: bool = False,
@@ -647,7 +771,12 @@ def _build_planet_record(
         "sign": sign,
         "sign_zh": SIGN_LABELS_ZH[sign],
         "degree_in_sign": round(_degree_in_sign(effective_longitude), 4),
-        "house": _house_for_longitude(effective_longitude, ascendant, house_system),
+        "house": _house_for_longitude(
+            effective_longitude,
+            ascendant,
+            house_system,
+            house_cusps=house_cusps,
+        ),
         "element": ELEMENT_BY_SIGN[sign],
         "modality": MODALITY_BY_SIGN[sign],
     }
@@ -757,16 +886,36 @@ def _compatibility_score(inner: List[Dict[str, Any]], outer: List[Dict[str, Any]
     }
 
 
-def build_core_chart_payload(birth_info: AstroBirthInfo, chart_variant: str) -> Dict[str, Any]:
+def build_core_chart_payload(
+    birth_info: AstroBirthInfo,
+    chart_variant: str,
+    *,
+    hsys: Any = None,
+    zodiacal: Any = None,
+) -> Dict[str, Any]:
     julian_day = _julian_day(birth_info.utc_datetime)
     day_number = julian_day - 2451543.5
     sun_state = _sun_state(day_number)
-    house_system = "whole_sign" if chart_variant in {"hellen_chart", "guolao_chart", "india_chart"} else "equal"
-    sidereal = chart_variant == "india_chart"
-    ayanamsha = _ayanamsha(julian_day) if sidereal else 0.0
-    angle_state = _angles(julian_day, birth_info.longitude, birth_info.latitude)
-    effective_ascendant = normalize_angle(angle_state["ascendant"] - ayanamsha) if sidereal else angle_state["ascendant"]
-    effective_midheaven = normalize_angle(angle_state["midheaven"] - ayanamsha) if sidereal else angle_state["midheaven"]
+    house_system_info = _resolve_core_chart_house_system(
+        hsys,
+        chart_variant=chart_variant,
+    )
+    zodiacal_info = _resolve_core_chart_zodiacal_mode(
+        zodiacal,
+        chart_variant=chart_variant,
+    )
+    sidereal = zodiacal_info["sidereal"]
+    layout = _relative_house_layout(
+        birth_info,
+        house_system_info=house_system_info,
+        zodiacal_info=zodiacal_info,
+    )
+    effective_ascendant = layout["ascendant"]
+    effective_midheaven = layout["midheaven"]
+    ayanamsha = layout["ayanamsha"] or 0.0
+    house_cusps = (
+        None if house_system_info["key"] == "whole_sign" else layout["house_cusps"]
+    )
     planet_states = {
         planet: _planet_state(planet, day_number, sun_state)
         for planet in _planet_set(chart_variant)
@@ -777,7 +926,8 @@ def build_core_chart_payload(birth_info: AstroBirthInfo, chart_variant: str) -> 
             planet_states[planet]["longitude"],
             planet_states[planet]["latitude"],
             effective_ascendant,
-            house_system,
+            house_system_info["key"],
+            house_cusps=house_cusps,
             sidereal=sidereal,
             ayanamsha=ayanamsha,
             include_sector13=chart_variant == "chart13",
@@ -799,9 +949,14 @@ def build_core_chart_payload(birth_info: AstroBirthInfo, chart_variant: str) -> 
         },
         "chart_profile": {
             "chart_type": chart_variant,
-            "zodiac": "sidereal" if sidereal else "tropical",
+            "zodiac": zodiacal_info["zodiac"],
+            "zodiacal": zodiacal_info["value"],
+            "zodiac_label_zh": zodiacal_info["label_zh"],
             "ayanamsha": round(ayanamsha, 4),
-            "house_system": house_system,
+            "house_system": house_system_info["key"],
+            "house_system_code": house_system_info["value"],
+            "house_system_label_zh": house_system_info["label_zh"],
+            "house_system_source": house_system_info.get("source", "explicit"),
             "tradition": chart_variant in {"hellen_chart", "guolao_chart"},
             "engine_precision": "approximate_orbital_model",
         },
@@ -817,7 +972,11 @@ def build_core_chart_payload(birth_info: AstroBirthInfo, chart_variant: str) -> 
                 "sign_zh": SIGN_LABELS_ZH[_sign_name(effective_midheaven)],
             },
         },
-        "houses": _build_houses(effective_ascendant, house_system),
+        "houses": _build_houses(
+            effective_ascendant,
+            house_system_info["key"],
+            house_cusps=house_cusps,
+        ),
         "planets": planets,
         "aspects": aspects,
         "element_balance": _balance(planets, "element"),
@@ -861,8 +1020,18 @@ def build_core_chart_payload(birth_info: AstroBirthInfo, chart_variant: str) -> 
     return result
 
 
-def build_midpoint_payload(birth_info: AstroBirthInfo) -> Dict[str, Any]:
-    base_chart = build_core_chart_payload(birth_info, "chart")
+def build_midpoint_payload(
+    birth_info: AstroBirthInfo,
+    *,
+    hsys: Any = None,
+    zodiacal: Any = None,
+) -> Dict[str, Any]:
+    base_chart = build_core_chart_payload(
+        birth_info,
+        "chart",
+        hsys=hsys,
+        zodiacal=zodiacal,
+    )
     midpoint_bodies = [
         item for item in base_chart["planets"] if item["id"] in TRADITIONAL_PLANETS
     ]
@@ -904,6 +1073,13 @@ def build_midpoint_payload(birth_info: AstroBirthInfo) -> Dict[str, Any]:
             "chart_type": "germany",
             "engine_precision": "approximate_orbital_model",
             "analysis_focus": "midpoints",
+            "house_system": base_chart["chart_profile"]["house_system"],
+            "house_system_code": base_chart["chart_profile"].get("house_system_code"),
+            "house_system_label_zh": base_chart["chart_profile"].get("house_system_label_zh"),
+            "zodiac": base_chart["chart_profile"]["zodiac"],
+            "zodiacal": base_chart["chart_profile"].get("zodiacal"),
+            "zodiac_label_zh": base_chart["chart_profile"].get("zodiac_label_zh"),
+            "ayanamsha": base_chart["chart_profile"].get("ayanamsha"),
         },
         "base_chart": base_chart,
         "midpoints": midpoints,
@@ -925,6 +1101,14 @@ def _composite_chart(
 ) -> Dict[str, Any]:
     inner_planets = {item["id"]: item for item in inner_chart["planets"]}
     outer_planets = {item["id"]: item for item in outer_chart["planets"]}
+    house_cusps = (
+        []
+        if house_system == "whole_sign"
+        else _midpoint_house_cusps(
+            _house_cusp_values_from_payload(inner_chart),
+            _house_cusp_values_from_payload(outer_chart),
+        )
+    )
     composite_planets: List[Dict[str, Any]] = []
     ascendant = _midpoint(
         inner_chart["angles"]["ascendant"]["longitude"],
@@ -948,6 +1132,7 @@ def _composite_chart(
                 (inner_planets[planet]["latitude"] + outer_planets[planet]["latitude"]) / 2.0,
                 ascendant,
                 house_system,
+                house_cusps=house_cusps or None,
             )
         )
     aspects = _build_aspects(composite_planets)
@@ -975,9 +1160,11 @@ def _composite_chart(
         },
         "chart_profile": {
             "chart_type": "composite",
-            "house_system": house_system,
             "tradition": inner_chart.get("chart_profile", {}).get("tradition", False),
             "engine_precision": "approximate_orbital_model",
+            "house_system": house_system,
+            "house_system_code": inner_chart.get("chart_profile", {}).get("house_system_code"),
+            "house_system_label_zh": inner_chart.get("chart_profile", {}).get("house_system_label_zh"),
             **_relative_zodiac_profile_overrides(zodiacal_info),
         },
         "angles": {
@@ -992,7 +1179,11 @@ def _composite_chart(
                 "sign_zh": SIGN_LABELS_ZH[_sign_name(midheaven)],
             }
         },
-        "houses": _build_houses(ascendant, house_system),
+        "houses": _build_houses(
+            ascendant,
+            house_system,
+            house_cusps=house_cusps or None,
+        ),
         "planets": composite_planets,
         "aspects": aspects,
         "element_balance": _balance(composite_planets, "element"),
@@ -1005,32 +1196,67 @@ def _composite_chart(
     }
 
 
-def _normalize_relative_mode(value: Any) -> Dict[str, Any]:
+def _normalize_relative_mode(
+    value: Any,
+    *,
+    source: str = "default",
+) -> Dict[str, Any]:
     raw_value = value if value not in (None, "") else 0
     normalized: Optional[str] = None
+    resolution = "default"
+    note: Optional[str] = None
+    mode_source = source if source in {"default", "relative_mode", "relationship_mode"} else "default"
 
     if isinstance(raw_value, int) and raw_value in RELATIVE_MODE_NUMERIC_MAP:
         normalized = RELATIVE_MODE_NUMERIC_MAP[raw_value]
+        resolution = "numeric"
     elif isinstance(raw_value, str):
         stripped = raw_value.strip()
         if stripped.isdigit():
             numeric_value = int(stripped)
             normalized = RELATIVE_MODE_NUMERIC_MAP.get(numeric_value)
+            if normalized is not None:
+                resolution = "numeric_string"
         if normalized is None:
             normalized = RELATIVE_MODE_EXACT_ALIASES.get(stripped)
+            if normalized is not None:
+                resolution = "exact_alias"
+        lowered = stripped.lower()
+        if normalized is None and lowered == "synastry":
+            if mode_source == "relationship_mode":
+                normalized = "compare"
+                resolution = "legacy_relationship_mode_synastry"
+                note = (
+                    "兼容旧版 relationship_mode='synastry' 语义，当前仍按比较盘处理；"
+                    "如需影响盘语义，请改用 relative_mode='Synastry'、"
+                    "'synastry' 或 'influence'。"
+                )
+            else:
+                normalized = "influence"
+                resolution = "relative_mode_synastry_alias"
         if normalized is None:
             normalized = RELATIVE_MODE_FALLBACK_ALIASES.get(stripped)
+            if normalized is not None:
+                resolution = "fallback_alias"
         if normalized is None:
-            normalized = RELATIVE_MODE_FALLBACK_ALIASES.get(stripped.lower())
+            normalized = RELATIVE_MODE_FALLBACK_ALIASES.get(lowered)
+            if normalized is not None:
+                resolution = "fallback_alias_casefold"
 
     if normalized is None:
         normalized = "compare"
+        resolution = "default_compare_fallback"
 
-    return {
+    payload = {
         "input": raw_value,
+        "source": mode_source,
+        "resolution": resolution,
         "normalized": normalized,
         "label_zh": RELATIVE_MODE_LABELS_ZH[normalized],
     }
+    if note:
+        payload["note"] = note
+    return payload
 
 
 def _match_cross_aspect(longitude_a: float, longitude_b: float, orb: float = 4.0) -> Optional[Dict[str, Any]]:
@@ -1232,34 +1458,96 @@ def _count_directional_relative_midpoint_hits(
     return sum(len(items) for items in midpoint_hits.values())
 
 
-def _resolve_relative_house_system(hsys: int) -> str:
+def _resolve_offline_house_system(hsys: Any, *, context_label: str) -> Dict[str, Any]:
     try:
         resolved = int(hsys)
     except (TypeError, ValueError):
-        raise ValueError("relative 关系盘暂仅支持 hsys=0 或 hsys=8。")
-    if resolved == 0:
-        return "whole_sign"
-    if resolved == 8:
-        return "equal"
-    raise ValueError("relative 关系盘离线模式暂仅支持 hsys=0(整宫制) 或 hsys=8(等宫制)。")
+        raise ValueError(
+            f"{context_label}离线模式暂仅支持 hsys=0..8。"
+        )
+    if resolved not in RELATIVE_HOUSE_SYSTEM_SPECS:
+        raise ValueError(
+            f"{context_label}离线模式暂仅支持 hsys=0..8（整宫制、Alcabitus、Regiomontanus、Placidus、Koch、Vehlow Equal、Polich Page、Sripati、天顶为10宫中点等宫制）。"
+        )
+    if swe is None and resolved != 0:
+        raise ValueError(
+            f"当前环境缺少 swisseph，{context_label}离线模式仅能在 hsys=0(整宫制) 下运行。"
+        )
+    return {"value": resolved, **RELATIVE_HOUSE_SYSTEM_SPECS[resolved]}
 
 
-def _resolve_relative_zodiacal_mode(zodiacal: Any) -> Dict[str, Any]:
+def _resolve_relative_house_system(hsys: Any) -> Dict[str, Any]:
+    return _resolve_offline_house_system(hsys, context_label="relative 关系盘")
+
+
+def _resolve_core_chart_house_system(
+    hsys: Any,
+    *,
+    chart_variant: str,
+) -> Dict[str, Any]:
+    if hsys in (None, ""):
+        default_house_system = CORE_CHART_DEFAULT_HOUSE_SYSTEMS[chart_variant]
+        return {
+            "value": None,
+            "key": default_house_system,
+            "label_zh": CORE_CHART_DEFAULT_HOUSE_LABELS_ZH[default_house_system],
+            "source": "variant_default",
+        }
+    return {
+        **_resolve_offline_house_system(hsys, context_label="核心星盘"),
+        "source": "explicit",
+    }
+
+
+def _resolve_offline_zodiacal_mode(
+    zodiacal: Any,
+    *,
+    context_label: str,
+) -> Dict[str, Any]:
     try:
         resolved = int(zodiacal)
     except (TypeError, ValueError):
         raise ValueError(
-            "relative 关系盘离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。"
+            f"{context_label}离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。"
         )
     if resolved not in RELATIVE_ZODIACAL_LABELS_ZH:
         raise ValueError(
-            "relative 关系盘离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。"
+            f"{context_label}离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。"
         )
     return {
         "value": resolved,
         "zodiac": "sidereal" if resolved == 1 else "tropical",
         "label_zh": RELATIVE_ZODIACAL_LABELS_ZH[resolved],
         "sidereal": resolved == 1,
+    }
+
+
+def _resolve_relative_zodiacal_mode(zodiacal: Any) -> Dict[str, Any]:
+    return _resolve_offline_zodiacal_mode(
+        zodiacal,
+        context_label="relative 关系盘",
+    )
+
+
+def _resolve_core_chart_zodiacal_mode(
+    zodiacal: Any,
+    *,
+    chart_variant: str,
+) -> Dict[str, Any]:
+    if zodiacal in (None, ""):
+        return {
+            **_resolve_offline_zodiacal_mode(
+                CORE_CHART_DEFAULT_ZODIACAL[chart_variant],
+                context_label="核心星盘",
+            ),
+            "source": "variant_default",
+        }
+    return {
+        **_resolve_offline_zodiacal_mode(
+            zodiacal,
+            context_label="核心星盘",
+        ),
+        "source": "explicit",
     }
 
 
@@ -1276,6 +1564,16 @@ def _relative_zodiac_profile_overrides(
     if ayanamsha is not None:
         overrides["ayanamsha"] = round(ayanamsha, 4)
     return overrides
+
+
+def _relative_house_profile_overrides(
+    house_system_info: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "house_system": house_system_info["key"],
+        "house_system_code": house_system_info["value"],
+        "house_system_label_zh": house_system_info["label_zh"],
+    }
 
 
 def _person_info_from_birth_info(
@@ -1299,6 +1597,7 @@ def _rehouse_chart_payload(
     chart_payload: Dict[str, Any],
     *,
     house_system: str,
+    house_cusps: Optional[List[float]] = None,
 ) -> Dict[str, Any]:
     ascendant = chart_payload["angles"]["ascendant"]["longitude"]
     midheaven = chart_payload["angles"]["midheaven"]["longitude"]
@@ -1309,6 +1608,7 @@ def _rehouse_chart_payload(
             item.get("latitude", 0.0),
             ascendant,
             house_system,
+            house_cusps=house_cusps,
         )
         for item in sorted(chart_payload["planets"], key=_planet_sort_key)
     ]
@@ -1317,11 +1617,83 @@ def _rehouse_chart_payload(
     return {
         **chart_payload,
         "chart_profile": chart_profile,
-        "houses": _build_houses(ascendant, house_system),
+        "houses": _build_houses(ascendant, house_system, house_cusps=house_cusps),
         "planets": planets,
         "aspects": _build_aspects(planets),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
+    }
+
+
+def _house_cusp_values_from_payload(chart_payload: Dict[str, Any]) -> List[float]:
+    return [
+        float(item["cusp_longitude"])
+        for item in chart_payload.get("houses", [])
+        if "cusp_longitude" in item
+    ]
+
+
+def _midpoint_house_cusps(
+    left_cusps: List[float],
+    right_cusps: List[float],
+) -> List[float]:
+    if len(left_cusps) != 12 or len(right_cusps) != 12:
+        return []
+    return [
+        _midpoint(left_cusps[index], right_cusps[index])
+        for index in range(12)
+    ]
+
+
+def _relative_house_layout(
+    birth_info: AstroBirthInfo,
+    *,
+    house_system_info: Dict[str, Any],
+    zodiacal_info: Dict[str, Any],
+) -> Dict[str, Any]:
+    julian_day = _julian_day(birth_info.utc_datetime)
+    ayanamsha = _ayanamsha(julian_day) if zodiacal_info["sidereal"] else None
+
+    if swe is None or house_system_info["key"] in {"whole_sign", "equal"}:
+        angle_state = _angles(julian_day, birth_info.longitude, birth_info.latitude)
+        ascendant = angle_state["ascendant"]
+        midheaven = angle_state["midheaven"]
+        if ayanamsha is not None:
+            ascendant = normalize_angle(ascendant - ayanamsha)
+            midheaven = normalize_angle(midheaven - ayanamsha)
+        house_cusps = [
+            item["cusp_longitude"]
+            for item in _build_houses(ascendant, house_system_info["key"])
+        ]
+        return {
+            "ascendant": ascendant,
+            "midheaven": midheaven,
+            "house_cusps": house_cusps,
+            "ayanamsha": ayanamsha,
+        }
+
+    cusps, ascmc = swe.houses_ex(
+        julian_day,
+        birth_info.latitude,
+        birth_info.longitude,
+        house_system_info["swisseph_code"],
+    )
+    ascendant = float(ascmc[0])
+    midheaven = float(ascmc[1])
+    house_cusps = [float(item) for item in cusps[:12]]
+
+    if ayanamsha is not None:
+        ascendant = normalize_angle(ascendant - ayanamsha)
+        midheaven = normalize_angle(midheaven - ayanamsha)
+        house_cusps = [
+            normalize_angle(item - ayanamsha) for item in house_cusps
+        ]
+
+    return {
+        "ascendant": ascendant,
+        "midheaven": midheaven,
+        "house_cusps": house_cusps,
+        "ayanamsha": ayanamsha,
     }
 
 
@@ -1365,25 +1737,41 @@ def _relative_chart_positions(
 def _build_relative_base_chart(
     birth_info: AstroBirthInfo,
     *,
-    house_system: str,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
 ) -> Dict[str, Any]:
     base_chart = build_core_chart_payload(birth_info, "chart")
-    source_planets, ascendant, midheaven, ayanamsha = _relative_chart_positions(
-        base_chart,
+    source_planets = _chart_source_planets(base_chart)
+    layout = _relative_house_layout(
+        birth_info,
+        house_system_info=house_system_info,
         zodiacal_info=zodiacal_info,
-        utc_datetime=birth_info.utc_datetime,
     )
+    ayanamsha = layout["ayanamsha"]
+    if ayanamsha is not None:
+        source_planets = [
+            {
+                **item,
+                "longitude": normalize_angle(item["longitude"] - ayanamsha),
+            }
+            for item in source_planets
+        ]
     return _build_chart_from_positions(
         chart_type=base_chart["chart_profile"]["chart_type"],
         person_info=base_chart["person_info"],
         source_planets=source_planets,
-        ascendant=ascendant,
-        midheaven=midheaven,
-        house_system=house_system,
+        ascendant=layout["ascendant"],
+        midheaven=layout["midheaven"],
+        house_system=house_system_info["key"],
+        house_cusps=(
+            None
+            if house_system_info["key"] == "whole_sign"
+            else layout["house_cusps"]
+        ),
         summary_prefix="已生成 FateBridge 关系盘基础命盘。",
         profile_overrides={
             "tradition": base_chart["chart_profile"].get("tradition", False),
+            **_relative_house_profile_overrides(house_system_info),
             **_relative_zodiac_profile_overrides(
                 zodiacal_info, ayanamsha=ayanamsha
             ),
@@ -1406,6 +1794,7 @@ def _build_chart_from_positions(
     ascendant: float,
     midheaven: float,
     house_system: str,
+    house_cusps: Optional[List[float]] = None,
     summary_prefix: str,
     profile_overrides: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
@@ -1416,6 +1805,7 @@ def _build_chart_from_positions(
             item.get("latitude", 0.0),
             ascendant,
             house_system,
+            house_cusps=house_cusps,
         )
         for item in sorted(source_planets, key=_planet_sort_key)
     ]
@@ -1444,7 +1834,7 @@ def _build_chart_from_positions(
                 "sign_zh": SIGN_LABELS_ZH[_sign_name(midheaven)],
             },
         },
-        "houses": _build_houses(ascendant, house_system),
+        "houses": _build_houses(ascendant, house_system, house_cusps=house_cusps),
         "planets": planets,
         "aspects": aspects,
         "element_balance": _balance(planets, "element"),
@@ -1485,27 +1875,43 @@ def _build_timespace_chart(
     inner_birth: AstroBirthInfo,
     outer_birth: AstroBirthInfo,
     *,
-    house_system: str,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
 ) -> Dict[str, Any]:
     midpoint_birth = _build_midpoint_birth_info(inner_birth, outer_birth)
     midpoint_chart = build_core_chart_payload(midpoint_birth, "chart")
-    source_planets, ascendant, midheaven, ayanamsha = _relative_chart_positions(
-        midpoint_chart,
+    source_planets = _chart_source_planets(midpoint_chart)
+    layout = _relative_house_layout(
+        midpoint_birth,
+        house_system_info=house_system_info,
         zodiacal_info=zodiacal_info,
-        utc_datetime=midpoint_birth.utc_datetime,
     )
+    ayanamsha = layout["ayanamsha"]
+    if ayanamsha is not None:
+        source_planets = [
+            {
+                **item,
+                "longitude": normalize_angle(item["longitude"] - ayanamsha),
+            }
+            for item in source_planets
+        ]
     return _build_chart_from_positions(
         chart_type="timespace",
         person_info=_person_info_from_birth_info(midpoint_birth),
         source_planets=source_planets,
-        ascendant=ascendant,
-        midheaven=midheaven,
-        house_system=house_system,
+        ascendant=layout["ascendant"],
+        midheaven=layout["midheaven"],
+        house_system=house_system_info["key"],
+        house_cusps=(
+            None
+            if house_system_info["key"] == "whole_sign"
+            else layout["house_cusps"]
+        ),
         summary_prefix="已生成 FateBridge 时空中点盘。",
         profile_overrides={
             "derivation": "midpoint_birth",
             "tradition": midpoint_chart["chart_profile"].get("tradition", False),
+            **_relative_house_profile_overrides(house_system_info),
             **_relative_zodiac_profile_overrides(
                 zodiacal_info, ayanamsha=ayanamsha
             ),
@@ -1523,6 +1929,11 @@ def _build_influence_chart_wrapper(
 ) -> Dict[str, Any]:
     target_name = house_chart["person_info"]["name"]
     source_name = source_chart["person_info"]["name"]
+    house_cusps = (
+        None
+        if house_system == "whole_sign"
+        else _house_cusp_values_from_payload(house_chart)
+    )
     influence_chart = _build_chart_from_positions(
         chart_type=f"influence_{role}",
         person_info={
@@ -1533,10 +1944,13 @@ def _build_influence_chart_wrapper(
         ascendant=house_chart["angles"]["ascendant"]["longitude"],
         midheaven=house_chart["angles"]["midheaven"]["longitude"],
         house_system=house_system,
+        house_cusps=house_cusps,
         summary_prefix=f"已生成 {target_name} 视角的影响图盘。",
         profile_overrides={
             "reference_frame": f"{source_name}_planets_in_{target_name}_houses",
             "tradition": house_chart.get("chart_profile", {}).get("tradition", False),
+            "house_system_code": house_chart.get("chart_profile", {}).get("house_system_code"),
+            "house_system_label_zh": house_chart.get("chart_profile", {}).get("house_system_label_zh"),
             **_relative_zodiac_profile_overrides(zodiacal_info),
         },
     )
@@ -1545,6 +1959,8 @@ def _build_influence_chart_wrapper(
             "chart_type": f"influence_{role}",
             "engine_precision": "approximate_orbital_model",
             "house_system": house_system,
+            "house_system_code": house_chart.get("chart_profile", {}).get("house_system_code"),
+            "house_system_label_zh": house_chart.get("chart_profile", {}).get("house_system_label_zh"),
             "zodiac": influence_chart["chart_profile"].get("zodiac", "tropical"),
             "zodiacal": zodiacal_info["value"],
             "zodiac_label_zh": zodiacal_info["label_zh"],
@@ -1593,6 +2009,14 @@ def _build_marks_chart(
 ) -> Dict[str, Any]:
     composite_planets = {item["id"]: item for item in composite_chart["planets"]}
     timespace_planets = {item["id"]: item for item in timespace_chart["planets"]}
+    house_cusps = (
+        []
+        if house_system == "whole_sign"
+        else _midpoint_house_cusps(
+            _house_cusp_values_from_payload(composite_chart),
+            _house_cusp_values_from_payload(timespace_chart),
+        )
+    )
     blended_planets: List[Dict[str, Any]] = []
     for planet in PLANET_SEQUENCE:
         if planet not in composite_planets or planet not in timespace_planets:
@@ -1632,10 +2056,13 @@ def _build_marks_chart(
         ascendant=ascendant,
         midheaven=midheaven,
         house_system=house_system,
+        house_cusps=house_cusps or None,
         summary_prefix="已生成 FateBridge 马克斯盘近似层。",
         profile_overrides={
             "derivation": "composite_timespace_blend",
             "tradition": composite_chart.get("chart_profile", {}).get("tradition", False),
+            "house_system_code": composite_chart.get("chart_profile", {}).get("house_system_code"),
+            "house_system_label_zh": composite_chart.get("chart_profile", {}).get("house_system_label_zh"),
             **_relative_zodiac_profile_overrides(zodiacal_info),
         },
     )
@@ -1646,20 +2073,28 @@ def _base_relative_relationship_profile(
     *,
     hsys: int,
     zodiacal: int,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
 ) -> Dict[str, Any]:
-    return {
+    profile = {
         "chart_type": "relative",
         "relationship_mode": relative_mode_info["input"],
         "relative_mode_input": relative_mode_info["input"],
+        "relative_mode_source": relative_mode_info["source"],
+        "relative_mode_resolution": relative_mode_info["resolution"],
         "relative_mode_normalized": relative_mode_info["normalized"],
         "relative_mode_label_zh": relative_mode_info["label_zh"],
         "hsys": hsys,
+        "house_system": house_system_info["key"],
+        "house_system_label_zh": house_system_info["label_zh"],
         "zodiacal": zodiacal,
         "zodiac_mode": zodiacal_info["zodiac"],
         "zodiac_label_zh": zodiacal_info["label_zh"],
         "engine_precision": "approximate_orbital_model",
     }
+    if relative_mode_info.get("note"):
+        profile["relative_mode_note"] = relative_mode_info["note"]
+    return profile
 
 
 def _build_compare_relative_payload(
@@ -1667,6 +2102,7 @@ def _build_compare_relative_payload(
     relative_mode_info: Dict[str, Any],
     hsys: int,
     zodiacal: int,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
     inner_chart: Dict[str, Any],
     outer_chart: Dict[str, Any],
@@ -1690,6 +2126,7 @@ def _build_compare_relative_payload(
                 relative_mode_info,
                 hsys=hsys,
                 zodiacal=zodiacal,
+                house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
             ),
             "primary_layer": "directional_synastry",
@@ -1737,6 +2174,7 @@ def _build_composite_relative_payload(
     relative_mode_info: Dict[str, Any],
     hsys: int,
     zodiacal: int,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
     inner_chart: Dict[str, Any],
     outer_chart: Dict[str, Any],
@@ -1760,6 +2198,7 @@ def _build_composite_relative_payload(
                 relative_mode_info,
                 hsys=hsys,
                 zodiacal=zodiacal,
+                house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
             ),
             "primary_layer": "composite_chart",
@@ -1806,6 +2245,7 @@ def _build_influence_relative_payload(
     relative_mode_info: Dict[str, Any],
     hsys: int,
     zodiacal: int,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
     inner_chart: Dict[str, Any],
     outer_chart: Dict[str, Any],
@@ -1829,6 +2269,7 @@ def _build_influence_relative_payload(
                 relative_mode_info,
                 hsys=hsys,
                 zodiacal=zodiacal,
+                house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
             ),
             "primary_layer": "influence_chart_pair",
@@ -1874,6 +2315,7 @@ def _build_timespace_relative_payload(
     relative_mode_info: Dict[str, Any],
     hsys: int,
     zodiacal: int,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
     inner_chart: Dict[str, Any],
     outer_chart: Dict[str, Any],
@@ -1898,6 +2340,7 @@ def _build_timespace_relative_payload(
                 relative_mode_info,
                 hsys=hsys,
                 zodiacal=zodiacal,
+                house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
             ),
             "primary_layer": "timespace_chart",
@@ -1942,6 +2385,7 @@ def _build_marks_relative_payload(
     relative_mode_info: Dict[str, Any],
     hsys: int,
     zodiacal: int,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
     inner_chart: Dict[str, Any],
     outer_chart: Dict[str, Any],
@@ -1966,6 +2410,7 @@ def _build_marks_relative_payload(
                 relative_mode_info,
                 hsys=hsys,
                 zodiacal=zodiacal,
+                house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
             ),
             "primary_layer": "marks_chart",
@@ -2010,6 +2455,7 @@ def _build_unimplemented_relative_payload(
     relative_mode_info: Dict[str, Any],
     hsys: int,
     zodiacal: int,
+    house_system_info: Dict[str, Any],
     zodiacal_info: Dict[str, Any],
     inner_chart: Dict[str, Any],
     outer_chart: Dict[str, Any],
@@ -2033,6 +2479,7 @@ def _build_unimplemented_relative_payload(
                 relative_mode_info,
                 hsys=hsys,
                 zodiacal=zodiacal,
+                house_system_info=house_system_info,
                 zodiacal_info=zodiacal_info,
             ),
             "primary_layer": "placeholder",
@@ -2077,20 +2524,24 @@ def build_relative_payload(
     inner_birth: AstroBirthInfo,
     outer_birth: AstroBirthInfo,
     relative_mode: Any = None,
+    relative_mode_source: str = "default",
     hsys: int = 0,
     zodiacal: int = 0,
 ) -> Dict[str, Any]:
-    relative_mode_info = _normalize_relative_mode(relative_mode)
+    relative_mode_info = _normalize_relative_mode(
+        relative_mode,
+        source=relative_mode_source,
+    )
     relative_house_system = _resolve_relative_house_system(hsys)
     zodiacal_info = _resolve_relative_zodiacal_mode(zodiacal)
     inner_chart = _build_relative_base_chart(
         inner_birth,
-        house_system=relative_house_system,
+        house_system_info=relative_house_system,
         zodiacal_info=zodiacal_info,
     )
     outer_chart = _build_relative_base_chart(
         outer_birth,
-        house_system=relative_house_system,
+        house_system_info=relative_house_system,
         zodiacal_info=zodiacal_info,
     )
     in_to_out_aspects = _build_directional_relative_aspects(
@@ -2109,25 +2560,25 @@ def build_relative_payload(
     composite_chart = _composite_chart(
         inner_chart,
         outer_chart,
-        house_system=relative_house_system,
+        house_system=relative_house_system["key"],
         zodiacal_info=zodiacal_info,
     )
     timespace_chart = _build_timespace_chart(
         inner_birth,
         outer_birth,
-        house_system=relative_house_system,
+        house_system_info=relative_house_system,
         zodiacal_info=zodiacal_info,
     )
     marks_chart = _build_marks_chart(
         composite_chart,
         timespace_chart,
-        house_system=relative_house_system,
+        house_system=relative_house_system["key"],
         zodiacal_info=zodiacal_info,
     )
     inner_influence, outer_influence = _build_relative_influence_pair(
         inner_chart,
         outer_chart,
-        house_system=relative_house_system,
+        house_system=relative_house_system["key"],
         zodiacal_info=zodiacal_info,
     )
     compatibility = _compatibility_score(
@@ -2155,6 +2606,7 @@ def build_relative_payload(
         "relative_mode_info": relative_mode_info,
         "hsys": hsys,
         "zodiacal": zodiacal,
+        "house_system_info": relative_house_system,
         "zodiacal_info": zodiacal_info,
         "inner_chart": inner_chart,
         "outer_chart": outer_chart,

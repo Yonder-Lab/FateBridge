@@ -224,6 +224,54 @@ curl http://localhost:8000/health
 
 ---
 
+#### 2.1 核心星盘与派生星盘
+
+**端点族**:
+
+- `POST /api/astro/chart`
+- `POST /api/astro/chart13`
+- `POST /api/astro/hellen`
+- `POST /api/astro/guolao`
+- `POST /api/astro/india`
+- `POST /api/astro/germany`
+
+用于生成 FateBridge 离线近似的核心星盘、派生盘与中点盘。各端点共用同一套出生信息请求体，`germany` 在此基础上再派生中点层。
+
+**公共请求体**:
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `name` | string | 否 | 姓名，默认 `"未提供"` |
+| `birth_year` | integer | **是** | 出生年份 |
+| `birth_month` | integer | **是** | 出生月份，1-12 |
+| `birth_day` | integer | **是** | 出生日期，1-31 |
+| `birth_hour` | integer | **是** | 出生小时，0-23 |
+| `birth_minute` | integer | 否 | 出生分钟，0-59，默认 `0` |
+| `birth_timezone` | string | 否 | IANA 时区名或 UTC offset，默认 `UTC` |
+| `birth_longitude` | number | **是** | 出生经度，-180 到 180 |
+| `birth_latitude` | number | **是** | 出生纬度，-90 到 90 |
+| `birth_place` | string | 否 | 出生地点，默认 `"未提供"` |
+| `hsys` | integer | 否 | 可选离线宫制覆盖；当前支持 `0=整宫制`、`1=Alcabitus`、`2=Regiomontanus`、`3=Placidus`、`4=Koch`、`5=Vehlow Equal`、`6=Polich Page`、`7=Sripati`、`8=天顶为10宫中点等宫制`。省略时保留各盘型默认值 |
+| `zodiacal` | integer | 否 | 可选离线黄道覆盖；当前支持 `0=回归黄道`、`1=恒星黄道(Lahiri-like)`。省略时保留各盘型默认值 |
+
+**盘型默认语义**:
+
+- `chart / chart13`: `equal + tropical`
+- `hellen / guolao`: `whole_sign + tropical`
+- `india`: `whole_sign + sidereal`
+- `germany`: 继承其底层基准 `chart` 的 `hsys / zodiacal` 结果
+
+**返回重点**:
+
+- `chart_profile.house_system / house_system_code / house_system_source`: 当前实际采用的离线宫制，以及是否来自盘型默认值还是显式覆盖
+- `chart_profile.zodiac / zodiacal / zodiac_label_zh / ayanamsha`: 当前实际采用的黄道模式；`zodiacal=1` 时返回 sidereal 标签与 ayanamsha
+- `angles.ascendant / angles.midheaven`: 实际起盘角点
+- `houses`: 当前宫制下的 12 宫数据；整宫制时一宫宫头会锚定在上升所在星座的 0 度
+- `planets`: 星体列表；`chart13` 会额外附带 `sector13`，`guolao` 会附带 `su28`，`india` 会附带 `nakshatra`
+- `germany.base_chart`: 中点盘的底层基准 chart；`midpoints / midpoint_aspects` 为进一步派生层
+
+---
+
 #### 3. 梅花时卦分析
 
 **端点**: `POST /api/divination/meihua`
@@ -317,11 +365,17 @@ curl http://localhost:8000/health
 - `szshape`: 宫位方向开关；`0` 顺布，`1` 逆布
 - `houseStartMode`: 宫位起点模式；`1` 沿用本地宫头，`2` 以整宫起点重建 house ring
 - `doubingSu28`: 是否把二十八宿标签写入星体对象
+- `hsys`: 标准宿盘当前离线支持 `8=等宫制`、`0=整宫制`；默认 `8`
+- `zodiacal`: 标准宿盘当前离线支持 `0=回归黄道`、`1=恒星黄道(Lahiri-like)`；默认 `0`
+  `szchart=1` 的果老盘模式保持 FateBridge 固定离线语义，不支持额外切换
 
 **返回重点**:
 
 - `params.chartVariant`: 实际采用的本地盘型
 - `params.houseOrientation`: `forward` 或 `reverse`
+- `params.houseSystemResolved`: 标准宿盘实际采用的宫制
+- `params.zodiacMode`: 标准宿盘实际采用的黄道模式
+- `params.zodiacLabelZh / ayanamsha`: `zodiacal=1` 时返回的黄道中文标签与 ayanamsha
 - `chart.houses`: 重建后的宿盘宫位
 - `chart.objects`: 星体 / 点位列表；启用时会带 `su28`
 - `snapshot_text`: 宿盘宫位与星曜摘要
@@ -336,11 +390,18 @@ curl http://localhost:8000/health
 - `lat` / `lon` / `gpsLat` / `gpsLon`: 地理位置
 - `tradition`: 是否关闭三王星
 - `sign` / `house` / `planet`: 骰面指定的星座、宫位与行星
+- `hsys`: 当前离线支持 `0=整宫制`、`1=Alcabitus`、`2=Regiomontanus`、`3=Placidus`、`4=Koch`、`5=Vehlow Equal`、`6=Polich Page`、`7=Sripati`、`8=天顶为10宫中点等宫制`；默认 `8`
+- `zodiacal`: 当前离线支持 `0=回归黄道`、`1=恒星黄道(Lahiri-like)`；默认 `0`
 - `question`: 可选问事主题
 
 **返回重点**:
 
 - `planet` / `sign` / `house`: 当前骰面
+- `chart.params.houseSystemResolved`: 本地天象盘实际采用的宫制
+- `chart.params.zodiacMode`: 本地天象盘实际采用的黄道模式
+- `chart.params.zodiacLabelZh`: `zodiacal=1` 时返回黄道中文标签
+- `chart.params.ayanamsha`: `zodiacal=1` 时返回当前离线 ayanamsha
+- `chart.chart.houses`: 当前离线宫制真实转换后的 house cusps；`1..7` 不再退化成等宽 30° house ring
 - `diceChart.params.diceHouse1Longitude`: 本地重建后的骰子盘一宫起点
 - `diceChart.chart.houses`: 与骰面一致的 house ring
 - `diceChart.chart.objects`: 按新 house ring 重新归宫后的星体列表
@@ -359,11 +420,15 @@ curl http://localhost:8000/health
 - `qimen_options.palaceShift` / `qimen_options.palace_shift`: 奇门宫位内容位移
 - `taiyi_options.accNum` / `taiyi_options.acc_num`: 太乙积数偏移
 - `taiyi_options.rotation`: 太乙布盘方向，可用 `reverse` / `逆布`
+- `use_true_solar_time`: 是否启用 FateBridge 本地真太阳时修正；使用解析后的经度进行离线校正
+- `selected_sections`: 可选导出 section；支持主分段，也兼容旧式方向宫名如 `正南离宫`
 - `liureng_yue`: 六壬月将 override
 - `liureng_isDiurnal`: 六壬昼夜盘 override
 
 **返回重点**:
 
+- `analysis_context.input_datetime / corrected_datetime`: 原始输入时刻与真太阳时修正后的实际起盘时刻
+- `analysis_context.time_algorithm / total_correction_minutes`: 当前时间算法与修正分钟数
 - `qimen.palaces[].name / trigram`: 当前槽位宫名与宫卦
 - `qimen.palaces[].content_palace / content_trigram`: 当前槽位中实际承载内容的来源宫位
 - `qimen.palaces[].door_hexagram`: 按当前槽位宫卦与八门重算的门卦
@@ -374,6 +439,33 @@ curl http://localhost:8000/health
 - `liureng.meta.is_diurnal`: 六壬昼夜标记
 - `subresults`: 三式子结果原文聚合
 - `snapshot_text`: 在 `[八宫详解]` 中直接显示 `内容来源：...`
+- `snapshot_export.section_titles_detected`: 本次三式快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的导出 section；旧式方向宫名会归一到 `离九宫` 这类本地标题
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整三式快照
+
+##### 3.1.6 独立奇门 / QiMen
+
+**端点**: `POST /api/cn/qimen`
+
+**关键参数**:
+
+- `analysis_year` / `analysis_month` / `analysis_day` / `analysis_hour` / `analysis_minute`: 起盘时刻
+- `analysis_timezone`: 时区；支持 IANA 名称或 UTC offset
+- `analysis_longitude`: 经度；启用真太阳时时用于修正时刻
+- `use_true_solar_time`: 是否使用本地真太阳时
+- `qimen_options.layout`: 当前支持 `direct` / `fly` / `mirror` / `reverse`
+- `qimen_options.palaceShift`: 奇门宫位内容位移
+- `selected_sections`: 可选导出 section；支持主分段，也支持单宫标题如 `离九宫`
+
+**返回重点**:
+
+- `qimen.palaces[].content_palace / content_trigram`: 当前槽位承载内容的来源宫位
+- `qimen.zhifu / zhishi`: 独立奇门下的值符 / 值使，并直接附带 `content_palace / content_trigram`
+- `qimen.layout / options_applied`: 启用变体盘后的布局信息
+- `snapshot_text`: 按 `[起盘信息] / [盘型] / [盘面要素] / [奇门演卦] / [八宫详解] / [九宫方盘]` 输出离线文本快照
+- `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整奇门快照与九宫单宫分段
 
 ---
 
@@ -577,15 +669,19 @@ curl http://localhost:8000/health
 |------|------|------|------|
 | `inner` | object | **是** | 星盘 A，结构同 `AstroChartRequest` |
 | `outer` | object | **是** | 星盘 B，结构同 `AstroChartRequest` |
-| `relative_mode` | string/integer | 否 | 旧版兼容盘型，例如 `0`、`Comp`、`Composite`、`Synastry`、`TimeSpace`、`Marks`；未传时默认 `0` |
-| `relationship_mode` | string/integer | 否 | 旧兼容别名；未传 `relative_mode` 时会回填为 mode 输入；两者都不传时默认 `0` |
-| `hsys` | integer | 否 | 旧版兼容宫制标识，默认 `0`；当前离线仅可靠支持 `0=整宫制`、`8=等宫制`，其余值会返回错误，避免静默误算 |
+| `relative_mode` | string/integer | 否 | 现代盘型字段，例如 `0`、`Comp`、`Composite`、`Synastry`、`TimeSpace`、`Marks`；未传时默认 `0`。当前 `relative_mode=Synastry/synastry` 会按影响盘语义收敛为 `influence` |
+| `relationship_mode` | string/integer | 否 | 旧兼容别名；未传 `relative_mode` 时会回填为 mode 输入；两者都不传时默认 `0`。当前 `relationship_mode=synastry` 会保留 FateBridge 旧版“比较盘”兼容语义 |
+| `hsys` | integer | 否 | 旧版兼容宫制标识，默认 `0`；当前离线支持 `0=整宫制`、`1=Alcabitus`、`2=Regiomontanus`、`3=Placidus`、`4=Koch`、`5=Vehlow Equal`、`6=Polich Page`、`7=Sripati`、`8=天顶为10宫中点等宫制`，其余值会返回错误，避免静默误算 |
 | `zodiacal` | integer | 否 | 旧版兼容黄道标识，默认 `0`；当前离线仅支持 `0=回归黄道`、`1=恒星黄道(Lahiri-like)`，其余值会返回错误，避免静默误算 |
 
 **返回重点**:
 
 - `relationship_profile.relative_mode_normalized`: 归一化盘型，当前会收敛为 `compare / composite / influence / timespace / marks`
+- `relationship_profile.relative_mode_source`: 本次 mode 解析主要依据的输入来源，`default / relative_mode / relationship_mode`
+- `relationship_profile.relative_mode_resolution`: 本次 mode 归一化路径，例如 `numeric`、`exact_alias`、`legacy_relationship_mode_synastry`
 - `relationship_profile.relative_mode_label_zh`: 中文盘型标签
+- `relationship_profile.relative_mode_note`: 当命中旧兼容路径时，会返回额外说明，提醒调用方改用现代字段
+- `relationship_profile.house_system` / `relationship_profile.house_system_label_zh`: 当前关系盘实际采用的宫制标识与中文标签
 - `relationship_profile.zodiac_mode` / `relationship_profile.zodiac_label_zh`: 当前关系盘实际采用的黄道模式
 - `relationship_profile.primary_layer`: 当前主输出层；`compare` 为 `directional_synastry`，`composite` 为 `composite_chart`，`influence` 为 `influence_chart_pair`，`timespace` 为 `timespace_chart`，`marks` 为 `marks_chart`
 - `inner_chart.chart_profile.zodiac` / `chart.chart_profile.zodiac`: 当前盘层实际采用的黄道类型；`zodiacal=1` 时会真实切到 sidereal 近似计算，而不是仅保留 metadata
@@ -638,8 +734,8 @@ curl http://localhost:8000/health
 - `directions.given_year`: 指定年盘关键点位、命盘相位命中，以及从生日起算的 12 段月推限时间线
 - `directions.secondary_progression`: 次限推运日期、关键点位与命盘相位命中
 - `directions.solar_arc`: 太阳弧度数、定向点位与命盘相位命中
-- `directions.primary_directions`: 基于 static key 的轴点主限近似，返回顺推 / 逆推模式、主限坐标系（Arc / 赤经 / SemiArc）、近似类型、当前弧度、主限事件表、最近事件窗口，以及可选的坐标诊断与本命坐标环
-- `directions.primary_direction_chart`: 当前分析时刻对应的轴点主限法盘视图，返回顺推 / 逆推模式下的主限坐标系、近似类型、完整 directed points / lots、换座提示、当前事件命中、坐标诊断、本命 / directed 坐标环，以及可选的 `bounds_overlay`
+- `directions.primary_directions`: 基于 static key 的轴点主限近似，返回顺推 / 逆推模式、主限坐标系（Arc / 赤经 / SemiArc）、近似类型、当前弧度、主限事件表、最近事件窗口，以及可选的坐标诊断、本命坐标环；其中 `timeline` 事件项带事件弧度下的 `coordinate_context`、`arc_applied_degrees`、`relative_years_from_current`、`relative_arc_from_current` 与 `timing_phase`，`current_window` / `past_window` / `future_window` 则带当前分析弧度下的 `coordinate_context`
+- `directions.primary_direction_chart`: 当前分析时刻对应的轴点主限法盘视图，返回顺推 / 逆推模式下的主限坐标系、近似类型、完整 directed points / lots、换座提示、当前事件命中、坐标诊断、本命 / directed 坐标环、带 `coordinate_context` 的 `hits` / `coordinate_hits`，以及可选的 `bounds_overlay`
 - `time_lords.annual_profection`: 年小限主宫、激活星座与年主星
 - `time_lords.firdaria`: 当前法达主限 / 子限与时间范围
 - `time_lords.decennials`: 当前十年星限的 L1 / L2 / L3 层级与时间轴片段

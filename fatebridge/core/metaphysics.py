@@ -455,6 +455,19 @@ LIURENG_STYLE_PRIORITY = {
     "六合": 20,
     "比用": 10,
 }
+JINKOU_USE_POSITION_PREFERENCE = {
+    "元首": "贵神",
+    "遥克": "贵神",
+    "官鬼": "贵神",
+    "重审": "地分",
+    "别责": "地分",
+    "八专": "地分",
+    "伏吟": "地分",
+    "返吟": "地分",
+    "六合": "将神",
+    "昴星": "将神",
+    "涉害": "将神",
+}
 SIHUA_DISPLAY_ORDER = {
     "化忌": 0,
     "化权": 1,
@@ -605,6 +618,100 @@ def _liureng_judge_lesson(
     if with_day == "六合" or with_lower == "六合":
         return "六合", "上神见合，以和合成局为先。", with_day, with_lower
     return "比用", "同类比用，以首课取发用。", with_day, with_lower
+
+
+def _liureng_follow_sky(
+    start_branch: str,
+    sky_to_earth: Dict[str, str],
+    steps: int,
+) -> List[str]:
+    path = [start_branch]
+    current = start_branch
+    for _ in range(steps):
+        current = sky_to_earth.get(current, current)
+        path.append(current)
+    return path
+
+
+def _liureng_build_transmissions(
+    *,
+    style: str,
+    initial_lesson: Dict[str, Any],
+    sky_to_earth: Dict[str, str],
+) -> Tuple[str, List[str]]:
+    initial_branch = initial_lesson["upper_branch"]
+    lower_branch = initial_lesson["lower_branch"]
+
+    if style == "伏吟":
+        return "伏吟守一", [initial_branch, initial_branch, initial_branch]
+    if style == "返吟":
+        middle = SIX_CLASH_BRANCHES.get(initial_branch, initial_branch)
+        final = sky_to_earth.get(middle, middle)
+        return "返吟取冲", [initial_branch, middle, final]
+    if style == "六合":
+        middle = SIX_HARMONY_BRANCHES.get(initial_branch, lower_branch)
+        final = sky_to_earth.get(middle, middle)
+        return "六合取合", [initial_branch, middle, final]
+    if style == "涉害":
+        middle = lower_branch
+        final = sky_to_earth.get(middle, middle)
+        return "涉害循下", [initial_branch, middle, final]
+    if style == "官鬼":
+        return "官鬼循盘", _liureng_follow_sky(initial_branch, sky_to_earth, 2)
+    return "比用循盘", _liureng_follow_sky(initial_branch, sky_to_earth, 2)
+
+
+def _liureng_upper_lower_relation(upper_branch: str, lower_branch: str) -> str:
+    upper_element = branch_element_text(upper_branch)
+    lower_element = branch_element_text(lower_branch)
+    if upper_element == lower_element:
+        return "比和"
+    if ELEMENT_CONTROLS[upper_element] == lower_element:
+        return "上克下"
+    if ELEMENT_CONTROLS[lower_element] == upper_element:
+        return "下贼上"
+    if ELEMENT_GENERATES[upper_element] == lower_element:
+        return "上生下"
+    if ELEMENT_GENERATES[lower_element] == upper_element:
+        return "下生上"
+    return "平"
+
+
+def _liureng_refine_style_detail(
+    *,
+    style: str,
+    selected_lesson: Dict[str, Any],
+    four_lessons: List[Dict[str, Any]],
+) -> Tuple[str, str]:
+    upper_branches = [lesson["upper_branch"] for lesson in four_lessons]
+    unique_upper = len(set(upper_branches))
+    repeated_pair = (
+        len(upper_branches) >= 4
+        and upper_branches[0] == upper_branches[2]
+        and upper_branches[1] == upper_branches[3]
+    )
+    upper_lower_relation = selected_lesson.get("upper_lower_relation", "平")
+    selected_index = int(selected_lesson.get("index") or 1)
+
+    if style == "伏吟":
+        return "伏吟", "上下同临，细课体仍从伏吟。"
+    if style == "返吟":
+        return "返吟", "冲返往复，细课体仍从返吟。"
+    if selected_index != 1 and style == "官鬼":
+        return "遥克", "发用不居首课，以远神克应论遥克。"
+    if repeated_pair and unique_upper <= 2:
+        return "八专", "四课两两重见，取偏专之象。"
+    if upper_lower_relation == "上克下":
+        return "元首", "上神克下神，取元首先发之象。"
+    if upper_lower_relation == "下贼上":
+        return "重审", "下神贼上神，回身重审其因。"
+    if style == "涉害":
+        return "涉害", "课中见害，细课体仍从涉害。"
+    if unique_upper == 4 and style == "比用":
+        return "昴星", "四课分张散列，取昴星之象。"
+    if unique_upper <= 2:
+        return "别责", "四课多重叠，以偏专责一端观之。"
+    return style, selected_lesson.get("style_basis", "依主课体取象。")
 
 
 def _qimen_new_list(values: Iterable[str], start_value: str) -> List[str]:
@@ -1214,6 +1321,10 @@ def build_liureng_board(
                 "lower_branch": lower_branch,
                 "text": f"{upper_branch}加{lower_branch}",
                 "relation": relation,
+                "upper_lower_relation": _liureng_upper_lower_relation(
+                    upper_branch,
+                    lower_branch,
+                ),
                 "relations": {
                     "with_day_branch": with_day,
                     "with_lower_branch": with_lower,
@@ -1240,16 +1351,20 @@ def build_liureng_board(
         style = initial_lesson["style_hint"]
         style_basis = initial_lesson["style_basis"]
     initial_lesson["use_candidate"] = True
+    style_detail, style_detail_basis = _liureng_refine_style_detail(
+        style=style,
+        selected_lesson=initial_lesson,
+        four_lessons=four_lessons,
+    )
 
-    step = 1 if not guiren_reverse else -1
-    initial_branch = initial_lesson["upper_branch"]
-    initial_index = EARTHLY_BRANCHES.index(initial_branch)
-    transmission_branches = [
-        EARTHLY_BRANCHES[(initial_index + step * offset) % 12]
-        for offset in range(3)
-    ]
+    transmission_method, transmission_branches = _liureng_build_transmissions(
+        style=style,
+        initial_lesson=initial_lesson,
+        sky_to_earth=sky_to_earth,
+    )
+    initial_branch = transmission_branches[0]
     transmission_labels = ["initial", "middle", "final"]
-    transmission_payload = {}
+    transmission_payload = {"method": transmission_method}
     for offset, label in enumerate(transmission_labels):
         branch = transmission_branches[offset]
         relation = liuqin_against_day(day_element, branch_element_text(branch))
@@ -1264,7 +1379,8 @@ def build_liureng_board(
         f"月将{yuejiang_branch}({yuejiang_name})加{hour_branch}时，当前以{current_term_name}节气入局。",
         f"贵人起于{guiren_start}，{'逆' if guiren_reverse else '顺'}行布十二神将。",
         f"{style}课主导，首传落{initial_branch}，{style_basis}",
-        f"首传见{transmission_payload['initial']['relation']}，末传归{transmission_payload['final']['branch']}。",
+        f"细课体：{style_detail}。{style_detail_basis}",
+        f"取传法：{transmission_method}。首传见{transmission_payload['initial']['relation']}，末传归{transmission_payload['final']['branch']}。",
     ]
 
     patterns = [
@@ -1277,6 +1393,13 @@ def build_liureng_board(
             "basis": style_basis,
         },
     ]
+    if style_detail != style:
+        patterns.append(
+            {
+                "name": f"{style_detail}课",
+                "basis": style_detail_basis,
+            }
+        )
 
     return {
         "month_general": {
@@ -1284,6 +1407,7 @@ def build_liureng_board(
             "name": yuejiang_name,
         },
         "board_style": style,
+        "board_style_detail": style_detail,
         "board_order": "天盘逆布" if guiren_reverse else "天盘顺布",
         "kongwang": kongwang,
         "xun_head": xun_head,
@@ -1306,6 +1430,8 @@ def build_liureng_board(
             "lunar_display": lunar.get("display"),
             "questioner_gender": gender,
             "is_diurnal": is_day,
+            "selected_lesson_index": initial_lesson["index"],
+            "selected_lesson_relation": initial_lesson.get("upper_lower_relation"),
         },
     }
 
@@ -1506,6 +1632,44 @@ def _wuzidun_stem(day_stem: str, branch: str) -> str:
     return HEAVENLY_STEMS[(start_index + branch_index) % len(HEAVENLY_STEMS)]
 
 
+def _jinkou_pick_use_position(
+    *,
+    rows: List[Dict[str, Any]],
+    board_style_detail: str,
+    selected_lesson_relation: str,
+) -> Tuple[str, str]:
+    if not rows:
+        return "人元", "四位未齐，暂以人元为用。"
+
+    strongest_rank = max(POWER_RANK[row["power"]] for row in rows)
+    strongest_rows = [
+        row for row in rows if POWER_RANK[row["power"]] == strongest_rank
+    ]
+
+    preferred_label = JINKOU_USE_POSITION_PREFERENCE.get(board_style_detail)
+    if preferred_label and any(row["label"] == preferred_label for row in strongest_rows):
+        return (
+            preferred_label,
+            f"{board_style_detail}课并见同旺，以{preferred_label}为用。",
+        )
+
+    relation_preference = {
+        "上克下": "贵神",
+        "下贼上": "地分",
+        "上生下": "将神",
+        "下生上": "地分",
+        "比和": "将神",
+    }
+    preferred_label = relation_preference.get(selected_lesson_relation)
+    if preferred_label and any(row["label"] == preferred_label for row in strongest_rows):
+        return (
+            preferred_label,
+            f"发用见{selected_lesson_relation}，并旺时偏取{preferred_label}。",
+        )
+
+    return strongest_rows[0]["label"], "按四位旺衰取最旺者为用。"
+
+
 def build_jinkou_board(
     seed: MetaphysicsSeed,
     liureng_board: Dict[str, Any],
@@ -1541,14 +1705,8 @@ def build_jinkou_board(
     ]
 
     rows = []
-    strongest_label = "人元"
-    strongest_rank = -1
     for label, content, element, shenjiang in row_defs:
         power = status_against_anchor(anchor_element, element)
-        rank = POWER_RANK[power]
-        if rank > strongest_rank:
-            strongest_rank = rank
-            strongest_label = label
         rows.append(
             {
                 "label": label,
@@ -1559,19 +1717,39 @@ def build_jinkou_board(
             }
         )
 
+    board_style_detail = liureng_board.get("board_style_detail", "")
+    transmission_method = (
+        liureng_board.get("three_transmissions", {}) or {}
+    ).get("method", "")
+    selected_lesson_relation = (
+        (liureng_board.get("meta") or {}).get("selected_lesson_relation") or ""
+    )
+    use_position, use_position_basis = _jinkou_pick_use_position(
+        rows=rows,
+        board_style_detail=board_style_detail,
+        selected_lesson_relation=selected_lesson_relation,
+    )
+
     shensha = [
         {"label": "人元", "value": "纳音引气"},
         {"label": "贵神", "value": f"{guishen_name}守时"},
         {"label": "将神", "value": f"{jiangshen_name}临地分"},
         {"label": "地分", "value": f"{di_fen_branch}守位"},
     ]
+    if board_style_detail:
+        shensha.append({"label": "课体", "value": f"{board_style_detail}课"})
+    if transmission_method:
+        shensha.append({"label": "取传", "value": transmission_method})
 
     overview = {
         "di_fen": di_fen_branch,
         "kongwang": liureng_board["kongwang"],
         "si_da_kong": f"{branch_element_text(di_fen_branch)}空",
         "board_style": liureng_board.get("board_style", ""),
-        "use_position": strongest_label,
+        "board_style_detail": board_style_detail,
+        "transmission_method": transmission_method,
+        "use_position": use_position,
+        "use_position_basis": use_position_basis,
         "yuejiang": {
             "branch": jiangshen_branch,
             "name": jiangshen_name,

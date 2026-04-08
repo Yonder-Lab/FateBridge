@@ -5,22 +5,26 @@ Chinese metaphysics services for FateBridge.
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fatebridge.core.almanac import (
     DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
     build_calendar_context,
 )
 from fatebridge.core.calendar import BaZiCalendar
+from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.metaphysics import (
     MetaphysicsSeed,
     build_jinkou_board,
     build_liureng_board,
     build_liureng_runyear,
-    build_qimen_board,
     build_taiyi_board,
     build_ziwei_chart,
     build_ziwei_rules,
+)
+from fatebridge.core.phase2_local import (
+    build_qimen_snapshot_text,
+    build_qimen_with_options,
 )
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
@@ -134,6 +138,19 @@ def _analysis_context_payload(seed: MetaphysicsSeed) -> Dict[str, Any]:
         "next_jieqi": seed.calendar_context["next_solar_term"]["name"],
         "lunar_display": lunar_context.get("display"),
     }
+
+
+def _build_snapshot_export(
+    *,
+    technique: str,
+    snapshot_text: str,
+    selected_sections: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    return parse_export_content(
+        technique=technique,
+        content=snapshot_text,
+        selected_sections=selected_sections,
+    )
 
 
 def calculate_ziwei_birth(person: PersonInfo) -> Dict[str, Any]:
@@ -270,6 +287,8 @@ def calculate_qimen_analysis(
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
     use_true_solar_time: bool = False,
+    qimen_options: Optional[Dict[str, Any]] = None,
+    selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     try:
         seed = _build_analysis_seed(
@@ -282,14 +301,22 @@ def calculate_qimen_analysis(
             analysis_longitude=analysis_longitude,
             use_true_solar_time=use_true_solar_time,
         )
-        qimen = build_qimen_board(seed)
+        qimen = build_qimen_with_options(seed, qimen_options)
         qimen["engine"] = "fatebridge-offline"
+        snapshot_text = build_qimen_snapshot_text(seed=seed, qimen=qimen)
+        snapshot_export = _build_snapshot_export(
+            technique="qimen",
+            snapshot_text=snapshot_text,
+            selected_sections=selected_sections,
+        )
         return {
             "analysis_type": "奇门遁甲",
             "analysis_context": _analysis_context_payload(seed),
             "four_pillars": create_pillar_dict(seed.pillars),
             "calendar_context": seed.calendar_context,
             "qimen": qimen,
+            "snapshot_text": snapshot_text,
+            "snapshot_export": snapshot_export,
         }
     except Exception as exc:
         return handle_calculation_error(exc, "奇门遁甲")

@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 from fatebridge.core.almanac import build_calendar_context
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.divination import build_meihua_interpretation, lookup_gua
+from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.phase2_local import (
     build_otherbu_result,
     build_sanshiunited_result,
@@ -22,6 +23,19 @@ from fatebridge.utils.helpers import (
     create_pillar_dict,
     handle_calculation_error,
 )
+
+
+def _build_snapshot_export(
+    *,
+    technique: str,
+    snapshot_text: str,
+    selected_sections: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    return parse_export_content(
+        technique=technique,
+        content=snapshot_text,
+        selected_sections=selected_sections,
+    )
 
 
 def calculate_meihua_analysis(
@@ -218,6 +232,8 @@ def calculate_suzhan_analysis(
     szshape: int = 0,
     house_start_mode: int = 1,
     doubing_su28: bool = True,
+    hsys: int = 8,
+    zodiacal: int = 0,
 ) -> Dict[str, Any]:
     """宿占 / 宿盘分析工具。"""
     try:
@@ -233,6 +249,8 @@ def calculate_suzhan_analysis(
             szshape=szshape,
             house_start_mode=house_start_mode,
             doubing_su28=doubing_su28,
+            hsys=hsys,
+            zodiacal=zodiacal,
         )
     except Exception as exc:
         return handle_calculation_error(exc, "宿占分析")
@@ -252,6 +270,8 @@ def calculate_otherbu_analysis(
     house: int = 0,
     planet: Optional[str] = None,
     question: Optional[str] = None,
+    hsys: int = 8,
+    zodiacal: int = 0,
 ) -> Dict[str, Any]:
     """西洋游戏 / 占星骰子分析工具。"""
     try:
@@ -268,6 +288,8 @@ def calculate_otherbu_analysis(
             house=house,
             planet=planet,
             question=question,
+            hsys=hsys,
+            zodiacal=zodiacal,
         )
     except Exception as exc:
         return handle_calculation_error(exc, "占星骰子分析")
@@ -286,10 +308,12 @@ def calculate_sanshiunited_analysis(
     taiyi_options: Optional[Dict[str, Any]] = None,
     liureng_yue: Optional[str] = None,
     liureng_is_diurnal: Optional[bool] = None,
+    selected_sections: Optional[List[str]] = None,
+    use_true_solar_time: bool = False,
 ) -> Dict[str, Any]:
     """三式合一本地聚合工具。"""
     try:
-        return build_sanshiunited_result(
+        result = build_sanshiunited_result(
             date=date,
             time=time,
             zone=zone,
@@ -301,6 +325,15 @@ def calculate_sanshiunited_analysis(
             taiyi_options=taiyi_options,
             liureng_yue=liureng_yue,
             liureng_is_diurnal=liureng_is_diurnal,
+            use_true_solar_time=use_true_solar_time,
         )
+        snapshot_text = result.get("snapshot_text")
+        if isinstance(snapshot_text, str) and snapshot_text.strip():
+            result["snapshot_export"] = _build_snapshot_export(
+                technique="sanshiunited",
+                snapshot_text=snapshot_text,
+                selected_sections=selected_sections,
+            )
+        return result
     except Exception as exc:
         return handle_calculation_error(exc, "三式合一分析")

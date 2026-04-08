@@ -30,7 +30,11 @@
 - **卦义断辞层**：本卦、变卦、互卦、综卦与卦义检索统一返回 `judgement`、`image`、`favorable`、`caution`
 - **卦义检索**：支持按卦名或二进制卦码查询八卦/六十四卦义理摘要
 - **Phase 2 本地技法**：统摄法、六爻、宿占、占星骰子、三式合一均由 FateBridge 离线内核直接计算，无需外部 runtime
-- **奇门变体盘语义稳定化**：默认盘与 `qimen_options` 变体盘统一返回 `content_palace / content_trigram`，`zhifu / zhishi` 也会直接带内容来源，`八宫详解` 会标出内容来源
+- **宿占离线宫制 / 黄道切换**：标准 `suzhan` 现已支持 FateBridge 本地 `equal / whole_sign` 与 `tropical / sidereal(Lahiri-like)` 模式
+- **占星骰子离线宫制 / 黄道切换**：`otherbu` 现已支持 FateBridge 本地 `0..8` 全套旧版兼容宫制与 `tropical / sidereal(Lahiri-like)` 模式，且 `1..7` 会保留真实离线宫头而不是退化成等宽 30° ring
+- **奇门变体盘语义稳定化**：独立 `qimen` 与 `qimen_options` 变体盘统一返回 `content_palace / content_trigram`，`zhifu / zhishi` 也会直接带内容来源，并新增独立 `snapshot_text` 与可按 `selected_sections` 过滤的 `snapshot_export`
+- **三式合一本地真太阳时**：`sanshiunited` 现已支持 `use_true_solar_time`，会直接复用 FateBridge 离线真太阳时修正链路重算三式盘面
+- **三式合一离线导出协议**：`sanshiunited` 新增 `snapshot_export`，可按 `selected_sections` 定向导出起盘摘要、太乙/六壬分段与单宫详解
 
 ### 🤝 高级功能
 
@@ -306,6 +310,7 @@ FateBridge/
 | `POST` | `/api/cn/jieqi/year` | 全年节气盘 helper |
 | `POST` | `/api/cn/nongli/time` | 农历换算 helper |
 | `POST` | `/api/cn/gua/meiyi` | 梅易卦义 helper |
+| `POST` | `/api/cn/qimen` | 独立奇门遁甲分析 |
 | `POST` | `/api/divination/gua` | 卦义检索 |
 | `POST` | `/api/divination/meihua` | 梅花时卦分析 |
 | `POST` | `/api/divination/tongshefa` | 统摄法分析 |
@@ -345,6 +350,7 @@ FateBridge/
 | `nongli_time` | 农历换算 helper |
 | `jieqi_timeline_analysis` | 节气节点时间轴分析 |
 | `gua_meiyi` | 梅易卦义 helper |
+| `qimen` | 独立奇门遁甲分析 |
 | `gua_lookup` | 卦义检索 |
 | `meihua_analysis` | 梅花时卦分析 |
 | `tongshefa` | 统摄法分析 |
@@ -353,7 +359,9 @@ FateBridge/
 | `otherbu` | 西洋游戏 / 占星骰子分析 |
 | `sanshiunited` | 三式合一聚合分析 |
 
-> `relative` 关系盘现已支持旧版兼容的 `relative_mode`、`hsys`、`zodiacal` 输入；旧 `relationship_mode` 仍兼容。当前缺省 mode 会按旧版兼容语义的 `0=比较盘` 处理。`compare` 以方向相位层为主，`composite` 以合成盘层为主，`influence / timespace / marks` 也已提供 FateBridge 离线近似主层；中点相位、映点/反映点与 `inner / outer` 影响图盘均已可用。当前离线 house system 仅可靠支持 `hsys=0`（整宫制）与 `hsys=8`（等宫制），其余旧版兼容宫制编号会显式返回错误，避免静默误算。`zodiacal` 当前离线仅支持 `0=回归黄道` 与 `1=恒星黄道(Lahiri-like)`，且 `1` 会真实切换到 sidereal 近似计算，不再只是 metadata。
+> 核心星盘家族 `chart / chart13 / hellen / guolao / india / germany` 现已支持显式 `hsys` / `zodiacal` 覆盖。未显式传入时，FateBridge 会保留各盘型原本的离线默认语义：`chart / chart13` 默认 `equal + tropical`，`hellen / guolao` 默认 `whole_sign + tropical`，`india` 默认 `whole_sign + sidereal`；`germany` 会继承其底层基准 chart 的覆盖结果。
+
+> `relative` 关系盘现已支持旧版兼容的 `relative_mode`、`hsys`、`zodiacal` 输入；旧 `relationship_mode` 仍兼容。当前缺省 mode 会按旧版兼容语义的 `0=比较盘` 处理。现代字段 `relative_mode=Synastry/synastry` 现统一收敛为“影响盘”，而旧字段 `relationship_mode=synastry` 仍保留 FateBridge 早期“比较盘”兼容路径，并会在返回 metadata 里显式标注解析来源。`compare` 以方向相位层为主，`composite` 以合成盘层为主，`influence / timespace / marks` 也已提供 FateBridge 离线近似主层；中点相位、映点/反映点与 `inner / outer` 影响图盘均已可用。当前离线 `hsys` 已支持 `0..8` 的整套旧版兼容宫制编号，其中 `1..8` 通过本地 Swiss house cusps 驱动，不再局限于 `0/8`。`zodiacal` 当前离线仅支持 `0=回归黄道` 与 `1=恒星黄道(Lahiri-like)`，且 `1` 会真实切换到 sidereal 近似计算，不再只是 metadata。
 
 ---
 

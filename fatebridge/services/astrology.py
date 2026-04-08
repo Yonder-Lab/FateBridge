@@ -52,6 +52,8 @@ def calculate_core_chart_analysis(
     birth_timezone: Optional[str] = None,
     name: Optional[str] = None,
     birth_place: Optional[str] = None,
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Build an offline approximate core astrology chart family payload.
@@ -77,7 +79,12 @@ def calculate_core_chart_analysis(
                 "birth_place": birth_place,
             }
         )
-        return build_core_chart_payload(birth_info, chart_variant)
+        return build_core_chart_payload(
+            birth_info,
+            chart_variant,
+            hsys=hsys,
+            zodiacal=zodiacal,
+        )
     except Exception as exc:
         return handle_calculation_error(exc, "核心星盘分析")
 
@@ -94,6 +101,8 @@ def calculate_germany_chart_analysis(
     birth_timezone: Optional[str] = None,
     name: Optional[str] = None,
     birth_place: Optional[str] = None,
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Build the FateBridge midpoint/germany chart payload.
@@ -113,7 +122,11 @@ def calculate_germany_chart_analysis(
                 "birth_place": birth_place,
             }
         )
-        return build_midpoint_payload(birth_info)
+        return build_midpoint_payload(
+            birth_info,
+            hsys=hsys,
+            zodiacal=zodiacal,
+        )
     except Exception as exc:
         return handle_calculation_error(exc, "量化盘分析")
 
@@ -124,6 +137,7 @@ def calculate_relative_chart_analysis(
     outer_payload: Dict[str, Any],
     relative_mode: Any = None,
     relationship_mode: Any = None,
+    relative_mode_source: Optional[str] = None,
     hsys: int = 0,
     zodiacal: int = 0,
 ) -> Dict[str, Any]:
@@ -133,10 +147,20 @@ def calculate_relative_chart_analysis(
     try:
         inner_birth = _build_birth_info(inner_payload)
         outer_birth = _build_birth_info(outer_payload)
+        resolved_mode_source = relative_mode_source
+        if resolved_mode_source not in {"default", "relative_mode", "relationship_mode"}:
+            if relative_mode not in (None, ""):
+                resolved_mode_source = "relative_mode"
+            elif relationship_mode not in (None, ""):
+                resolved_mode_source = "relationship_mode"
+            else:
+                resolved_mode_source = "default"
+        resolved_mode = relative_mode if relative_mode not in (None, "") else relationship_mode
         return build_relative_payload(
             inner_birth=inner_birth,
             outer_birth=outer_birth,
-            relative_mode=relative_mode if relative_mode is not None else relationship_mode,
+            relative_mode=resolved_mode,
+            relative_mode_source=resolved_mode_source,
             hsys=hsys,
             zodiacal=zodiacal,
         )

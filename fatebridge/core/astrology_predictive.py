@@ -149,6 +149,7 @@ PRIMARY_DIRECTION_BOUNDS_LABEL = "埃及界限"
 PRIMARY_DIRECTION_DEFAULT_ASPECTS = [0, 60, 90, 120, 180]
 PRIMARY_DIRECTION_PROMISSORS = ["Ascendant", "Medium_Coeli"]
 PRIMARY_DIRECTION_MAX_AGE_YEARS = 100.0
+PRIMARY_DIRECTION_EXACT_WINDOW_YEARS = 0.01
 SWISSEPH_PLANET_IDS = {
     "Sun": 0,
     "Moon": 1,
@@ -167,6 +168,11 @@ PRIMARY_DIRECTION_QUADRANT_LABELS = {
     "horizon_west": "西方地平",
     "upper_meridian": "上中天",
     "lower_meridian": "下中天",
+}
+PRIMARY_DIRECTION_TIMING_PHASE_LABELS = {
+    "past": "已发生",
+    "future": "即将发生",
+    "exact": "当前触发",
 }
 EGYPTIAN_BOUNDS_BY_SIGN = {
     "Aries": [
@@ -386,6 +392,7 @@ LOT_POINT_NAMES = {
     "lot_of_fortune": "Fortune",
     "lot_of_spirit": "Spirit",
 }
+LOT_KEY_BY_POINT_NAME = {value: key for key, value in LOT_POINT_NAMES.items()}
 ZR_SIGN_PERIODS = {
     "Aries": 15,
     "Taurus": 8,
@@ -1443,6 +1450,119 @@ def build_primary_direction_coordinate_rings(
     }
 
 
+def resolve_primary_direction_coordinate_entry(
+    point_name: str,
+    *,
+    coordinate_points: Dict[str, Dict[str, Any]],
+    coordinate_lots: Dict[str, Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    if point_name in coordinate_points:
+        return coordinate_points[point_name]
+    lot_key = LOT_KEY_BY_POINT_NAME.get(point_name)
+    if lot_key:
+        return coordinate_lots.get(lot_key)
+    return None
+
+
+def build_primary_direction_hit_coordinate_context(
+    hit: Dict[str, Any],
+    *,
+    coordinate_system: str,
+    coordinate_label: str,
+    natal_coordinate_points: Dict[str, Dict[str, Any]],
+    natal_coordinate_lots: Dict[str, Dict[str, Any]],
+    current_coordinate_points: Dict[str, Dict[str, Any]],
+    current_coordinate_lots: Dict[str, Dict[str, Any]],
+) -> Dict[str, Any]:
+    promissor_natal = resolve_primary_direction_coordinate_entry(
+        hit["promissor"],
+        coordinate_points=natal_coordinate_points,
+        coordinate_lots=natal_coordinate_lots,
+    )
+    promissor_current = resolve_primary_direction_coordinate_entry(
+        hit["promissor"],
+        coordinate_points=current_coordinate_points,
+        coordinate_lots=current_coordinate_lots,
+    )
+    significator_natal = resolve_primary_direction_coordinate_entry(
+        hit["significator"],
+        coordinate_points=natal_coordinate_points,
+        coordinate_lots=natal_coordinate_lots,
+    )
+    aspect_target_degrees = normalize_angle(
+        significator_natal["coordinate_degrees"] + hit["aspect_variant_degrees"]
+    )
+    aspect_target = build_primary_direction_coordinate_entry(
+        item_key=f"{hit['significator']}_{hit['aspect']}",
+        item_label=f"{hit['significator_label']} {hit['aspect_label']}",
+        coordinate_degrees=aspect_target_degrees,
+        coordinate_system=coordinate_system,
+        coordinate_label=coordinate_label,
+    )
+    current_orb = min(
+        normalize_angle(
+            promissor_current["coordinate_degrees"] - aspect_target["coordinate_degrees"]
+        ),
+        normalize_angle(
+            aspect_target["coordinate_degrees"] - promissor_current["coordinate_degrees"]
+        ),
+    )
+    return {
+        "promissor_natal": promissor_natal,
+        "promissor_current": promissor_current,
+        "significator_natal": significator_natal,
+        "aspect_target": aspect_target,
+        "current_orb_degrees": round(current_orb, 4),
+    }
+
+
+def primary_direction_arc_applied_degrees(hit: Dict[str, Any]) -> float:
+    arc_degrees = float(hit.get("arc_degrees", 0.0))
+    if hit.get("direction_mode") == "converse":
+        return -arc_degrees
+    return arc_degrees
+
+
+def primary_direction_timing_phase(relative_years: float) -> tuple[str, str]:
+    if abs(relative_years) <= PRIMARY_DIRECTION_EXACT_WINDOW_YEARS:
+        phase = "exact"
+    elif relative_years < 0:
+        phase = "past"
+    else:
+        phase = "future"
+    return phase, PRIMARY_DIRECTION_TIMING_PHASE_LABELS[phase]
+
+
+def enrich_primary_direction_hit_with_coordinate_context(
+    hit: Dict[str, Any],
+    *,
+    natal_coordinates: Dict[str, float],
+    coordinate_system: str,
+    coordinate_label: str,
+    natal_coordinate_points: Dict[str, Dict[str, Any]],
+    natal_coordinate_lots: Dict[str, Dict[str, Any]],
+    arc_applied_degrees: float,
+) -> Dict[str, Any]:
+    current_coordinate_rings = build_primary_direction_coordinate_rings(
+        natal_coordinates,
+        coordinate_system=coordinate_system,
+        coordinate_label=coordinate_label,
+        arc_applied_degrees=arc_applied_degrees,
+    )
+    return {
+        **hit,
+        "coordinate_context": build_primary_direction_hit_coordinate_context(
+            hit,
+            coordinate_system=coordinate_system,
+            coordinate_label=coordinate_label,
+            natal_coordinate_points=natal_coordinate_points,
+            natal_coordinate_lots=natal_coordinate_lots,
+            current_coordinate_points=current_coordinate_rings["points"],
+            current_coordinate_lots=current_coordinate_rings["lots"],
+        ),
+    }
+
+
 def normalize_primary_direction_aspects(
     pd_aspects: Optional[List[int]],
 ) -> List[int]:
@@ -1852,9 +1972,18 @@ def build_primary_directions_payload(
                     event_datetime = birth_info.local_datetime + timedelta(
                         days=event_age_years * TROPICAL_YEAR_DAYS
                     )
+                    relative_years = round(event_age_years - age_years, 4)
+                    timing_phase, timing_phase_label = primary_direction_timing_phase(
+                        relative_years
+                    )
+                    arc_applied_degrees = round(
+                        (-arc if pd_type == 1 else arc),
+                        4,
+                    )
                     timeline.append(
                         {
                             "arc_degrees": round(arc, 4),
+                            "arc_applied_degrees": arc_applied_degrees,
                             "promissor": promissor,
                             "promissor_label": planet_label(promissor),
                             "significator": target["name"],
@@ -1862,14 +1991,22 @@ def build_primary_directions_payload(
                             "aspect": aspect_key,
                             "aspect_label": aspect_label_text,
                             "aspect_degree": aspect_degree,
+                            "aspect_variant_degrees": round(variant, 4),
                             "event_age_years": round(event_age_years, 4),
                             "event_datetime": event_datetime.isoformat(),
                             "direction_mode": direction_mode,
                             "direction_mode_label": direction_mode_label,
                             "coordinate_system": coordinate_system,
                             "coordinate_label": coordinate_label,
+                            "relative_years_from_current": relative_years,
+                            "relative_arc_from_current": round(
+                                arc_applied_degrees - current_arc,
+                                4,
+                            ),
+                            "timing_phase": timing_phase,
+                            "timing_phase_label": timing_phase_label,
                             "distance_from_current_years": round(
-                                abs(event_age_years - age_years),
+                                abs(relative_years),
                                 4,
                             ),
                         }
@@ -1883,6 +2020,18 @@ def build_primary_directions_payload(
             item["significator"],
         )
     )
+    timeline = [
+        enrich_primary_direction_hit_with_coordinate_context(
+            item,
+            natal_coordinates=natal_coordinates,
+            coordinate_system=coordinate_system,
+            coordinate_label=coordinate_label,
+            natal_coordinate_points=coordinate_rings["points"],
+            natal_coordinate_lots=coordinate_rings["lots"],
+            arc_applied_degrees=primary_direction_arc_applied_degrees(item),
+        )
+        for item in timeline
+    ]
     current_window = sorted(
         timeline,
         key=lambda item: (
@@ -1891,6 +2040,64 @@ def build_primary_directions_payload(
             item["arc_degrees"],
         ),
     )[:current_window_size]
+    current_window = [
+        enrich_primary_direction_hit_with_coordinate_context(
+            item,
+            natal_coordinates=natal_coordinates,
+            coordinate_system=coordinate_system,
+            coordinate_label=coordinate_label,
+            natal_coordinate_points=coordinate_rings["points"],
+            natal_coordinate_lots=coordinate_rings["lots"],
+            arc_applied_degrees=current_arc,
+        )
+        for item in current_window
+    ]
+    phase_window_size = max(3, current_window_size // 2)
+    past_window = [
+        enrich_primary_direction_hit_with_coordinate_context(
+            item,
+            natal_coordinates=natal_coordinates,
+            coordinate_system=coordinate_system,
+            coordinate_label=coordinate_label,
+            natal_coordinate_points=coordinate_rings["points"],
+            natal_coordinate_lots=coordinate_rings["lots"],
+            arc_applied_degrees=current_arc,
+        )
+        for item in sorted(
+            (
+                timeline_item
+                for timeline_item in timeline
+                if timeline_item["timing_phase"] == "past"
+            ),
+            key=lambda item: item["event_age_years"],
+            reverse=True,
+        )[:phase_window_size]
+    ]
+    future_window = [
+        enrich_primary_direction_hit_with_coordinate_context(
+            item,
+            natal_coordinates=natal_coordinates,
+            coordinate_system=coordinate_system,
+            coordinate_label=coordinate_label,
+            natal_coordinate_points=coordinate_rings["points"],
+            natal_coordinate_lots=coordinate_rings["lots"],
+            arc_applied_degrees=current_arc,
+        )
+        for item in sorted(
+            (
+                timeline_item
+                for timeline_item in timeline
+                if timeline_item["timing_phase"] in {"future", "exact"}
+            ),
+            key=lambda item: item["event_age_years"],
+        )[:phase_window_size]
+    ]
+    current_coordinate_rings = build_primary_direction_coordinate_rings(
+        natal_coordinates,
+        coordinate_system=coordinate_system,
+        coordinate_label=coordinate_label,
+        arc_applied_degrees=current_arc,
+    )
 
     return {
         "method": pd_method,
@@ -1907,12 +2114,16 @@ def build_primary_directions_payload(
         "coordinate_diagnostics": coordinate_payload["diagnostics"],
         "coordinate_points": coordinate_rings["points"],
         "coordinate_lots": coordinate_rings["lots"],
+        "current_coordinate_points": current_coordinate_rings["points"],
+        "current_coordinate_lots": current_coordinate_rings["lots"],
         "promissors": PRIMARY_DIRECTION_PROMISSORS,
         "aspects": aspects,
         "current_age_years": round(age_years, 4),
         "current_arc_degrees": round(current_arc, 4),
         "current_arc_absolute_degrees": round(abs(current_arc), 4),
         "current_window": current_window,
+        "past_window": past_window,
+        "future_window": future_window,
         "timeline": timeline,
     }
 
@@ -1931,6 +2142,8 @@ def build_primary_direction_chart_payload(
     coordinate_diagnostics: Dict[str, Dict[str, Any]],
     coordinate_points: Dict[str, Dict[str, Any]],
     coordinate_lots: Dict[str, Dict[str, Any]],
+    current_coordinate_points: Dict[str, Dict[str, Any]],
+    current_coordinate_lots: Dict[str, Dict[str, Any]],
     current_arc_degrees: float,
     current_hits: List[Dict[str, Any]],
     show_pd_bounds: bool,
@@ -1948,21 +2161,6 @@ def build_primary_direction_chart_payload(
     directed_axes = build_primary_direction_points(
         natal_subject,
         arc_degrees=current_arc_degrees,
-    )
-    directed_coordinate_rings = build_primary_direction_coordinate_rings(
-        {
-            **{
-                point_name: coordinate_points[point_name]["coordinate_degrees"]
-                for point_name in TIMING_POINT_NAMES
-            },
-            **{
-                LOT_POINT_NAMES[lot_key]: coordinate_lots[lot_key]["coordinate_degrees"]
-                for lot_key in LOT_POINT_NAMES
-            },
-        },
-        coordinate_system=coordinate_system,
-        coordinate_label=coordinate_label,
-        arc_applied_degrees=current_arc_degrees,
     )
     bounds_overlay = build_primary_direction_bounds_overlay(
         directed_points,
@@ -1988,8 +2186,9 @@ def build_primary_direction_chart_payload(
         "coordinate_diagnostics": coordinate_diagnostics,
         "natal_coordinate_points": coordinate_points,
         "natal_coordinate_lots": coordinate_lots,
-        "directed_coordinate_points": directed_coordinate_rings["points"],
-        "directed_coordinate_lots": directed_coordinate_rings["lots"],
+        "directed_coordinate_points": current_coordinate_points,
+        "directed_coordinate_lots": current_coordinate_lots,
+        "coordinate_hits": current_hits[:8],
         "bounds_overlay": bounds_overlay,
         "directed_points": directed_points,
         "directed_lots": directed_lots,
@@ -2746,6 +2945,8 @@ def build_western_timing_payload(
         coordinate_diagnostics=primary_directions_payload["coordinate_diagnostics"],
         coordinate_points=primary_directions_payload["coordinate_points"],
         coordinate_lots=primary_directions_payload["coordinate_lots"],
+        current_coordinate_points=primary_directions_payload["current_coordinate_points"],
+        current_coordinate_lots=primary_directions_payload["current_coordinate_lots"],
         current_arc_degrees=primary_directions_payload["current_arc_degrees"],
         current_hits=primary_directions_payload["current_window"],
         show_pd_bounds=show_pd_bounds,

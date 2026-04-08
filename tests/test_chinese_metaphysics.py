@@ -76,6 +76,8 @@ def test_cn_analysis_request_models_accept_fields():
         analysis_minute=18,
         analysis_timezone="Asia/Shanghai",
         analysis_longitude=121.4737,
+        qimen_options={"layout": "fly"},
+        selected_sections=["起盘信息", "九宫方盘"],
     )
     taiyi_request = TaiyiAnalysisRequest(
         analysis_year=2026,
@@ -117,6 +119,8 @@ def test_cn_analysis_request_models_accept_fields():
 
     assert liureng_request.model_dump()["analysis_longitude"] == 121.4737
     assert qimen_request.model_dump()["analysis_hour"] == 21
+    assert qimen_request.model_dump()["qimen_options"]["layout"] == "fly"
+    assert qimen_request.model_dump()["selected_sections"] == ["起盘信息", "九宫方盘"]
     assert taiyi_request.model_dump()["gender"] == "男"
     assert jinkou_request.model_dump()["di_fen"] == "酉"
     assert runyear_request.model_dump()["birth_year"] == 1994
@@ -232,6 +236,168 @@ def test_calculate_liureng_gods_distinguishes_liuhe_style():
     assert any(pattern["name"] == "六合课" for pattern in result["liureng"]["patterns"])
 
 
+def test_calculate_liureng_gods_uses_liuhe_transmission_rule():
+    result = calculate_liureng_gods(
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+        analysis_hour=9,
+        analysis_minute=33,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4667,
+        gender="男",
+    )
+
+    transmissions = result["liureng"]["three_transmissions"]
+    assert result["liureng"]["board_style"] == "六合"
+    assert transmissions["method"] == "六合取合"
+    assert transmissions["initial"]["branch"] == "卯"
+    assert transmissions["middle"]["branch"] == "戌"
+    assert transmissions["final"]["branch"] == "卯"
+
+
+def test_calculate_liureng_gods_uses_fanyin_transmission_rule():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=1,
+        analysis_hour=0,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    transmissions = result["liureng"]["three_transmissions"]
+    assert result["liureng"]["board_style"] == "返吟"
+    assert transmissions["method"] == "返吟取冲"
+    assert transmissions["initial"]["branch"] == "午"
+    assert transmissions["middle"]["branch"] == "子"
+    assert transmissions["final"]["branch"] == "丑"
+
+
+def test_calculate_liureng_gods_uses_fuyin_transmission_rule():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=1,
+        analysis_hour=2,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    transmissions = result["liureng"]["three_transmissions"]
+    assert result["liureng"]["board_style"] == "伏吟"
+    assert transmissions["method"] == "伏吟守一"
+    assert transmissions["initial"]["branch"] == "子"
+    assert transmissions["middle"]["branch"] == "子"
+    assert transmissions["final"]["branch"] == "子"
+
+
+def test_calculate_liureng_gods_marks_yaoke_detail():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=1,
+        analysis_hour=18,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    assert result["liureng"]["board_style"] == "官鬼"
+    assert result["liureng"]["board_style_detail"] == "遥克"
+    assert result["liureng"]["meta"]["selected_lesson_index"] == 4
+    assert any(pattern["name"] == "遥克课" for pattern in result["liureng"]["patterns"])
+
+
+def test_calculate_liureng_gods_marks_bazhuan_detail():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=2,
+        analysis_hour=10,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    assert result["liureng"]["board_style_detail"] == "八专"
+    assert any(pattern["name"] == "八专课" for pattern in result["liureng"]["patterns"])
+
+
+def test_calculate_liureng_gods_marks_maoxing_detail():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=4,
+        analysis_hour=22,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    assert result["liureng"]["board_style"] == "比用"
+    assert result["liureng"]["board_style_detail"] == "昴星"
+    assert any(pattern["name"] == "昴星课" for pattern in result["liureng"]["patterns"])
+
+
+def test_calculate_liureng_gods_marks_chongshen_detail():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=1,
+        analysis_hour=4,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    assert result["liureng"]["board_style"] == "六合"
+    assert result["liureng"]["board_style_detail"] == "重审"
+    assert any(pattern["name"] == "重审课" for pattern in result["liureng"]["patterns"])
+
+
+def test_calculate_liureng_gods_marks_yuanshou_detail():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=3,
+        analysis_hour=0,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    assert result["liureng"]["board_style_detail"] == "元首"
+    assert result["liureng"]["meta"]["selected_lesson_relation"] == "上克下"
+    assert any(pattern["name"] == "元首课" for pattern in result["liureng"]["patterns"])
+
+
+def test_calculate_liureng_gods_marks_bieze_detail():
+    result = calculate_liureng_gods(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=6,
+        analysis_hour=9,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+    )
+
+    assert result["liureng"]["board_style_detail"] == "别责"
+    assert result["liureng"]["meta"]["selected_lesson_relation"] == "下生上"
+    assert any(pattern["name"] == "别责课" for pattern in result["liureng"]["patterns"])
+
+
 def test_calculate_qimen_analysis_returns_nine_palaces():
     result = calculate_qimen_analysis(
         analysis_year=2026,
@@ -252,6 +418,11 @@ def test_calculate_qimen_analysis_returns_nine_palaces():
     assert result["qimen"]["palaces"][0]["door_hexagram"]["name"]
     assert result["qimen"]["palaces"][0]["content_palace"] == result["qimen"]["palaces"][0]["name"]
     assert result["qimen"]["palaces"][0]["content_trigram"] == result["qimen"]["palaces"][0]["trigram"]
+    assert "[八宫详解]" in result["snapshot_text"]
+    assert "[九宫方盘]" in result["snapshot_text"]
+    assert "[奇门演卦]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+    assert "离九宫" in result["snapshot_export"]["section_titles_detected"]
 
 
 def test_metaphysics_true_solar_time_uses_longitude_only_correction():
@@ -312,6 +483,69 @@ def test_metaphysics_true_solar_time_uses_longitude_only_correction():
     )
     assert zhifu_palace["star"] == result["qimen"]["zhifu"]["star"]
     assert zhishi_palace["door"] == result["qimen"]["zhishi"]["door"]
+    assert "值符：天蓬在离九宫" in result["snapshot_text"]
+
+
+def test_calculate_qimen_analysis_applies_qimen_options_and_snapshot_text():
+    default_result = calculate_qimen_analysis(
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+        analysis_hour=9,
+        analysis_minute=33,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+    )
+    optioned_result = calculate_qimen_analysis(
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+        analysis_hour=9,
+        analysis_minute=33,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        qimen_options={"layout": "fly"},
+    )
+
+    assert optioned_result["qimen"] != default_result["qimen"]
+    assert optioned_result["qimen"]["layout"] == "fly"
+    assert optioned_result["snapshot_text"] != default_result["snapshot_text"]
+    assert "[九宫方盘]" in optioned_result["snapshot_text"]
+    assert "内容来源：" in optioned_result["snapshot_text"]
+    optioned_zhifu_palace = next(
+        palace
+        for palace in optioned_result["qimen"]["palaces"]
+        if palace["name"] == optioned_result["qimen"]["zhifu"]["palace"]
+    )
+    optioned_zhishi_palace = next(
+        palace
+        for palace in optioned_result["qimen"]["palaces"]
+        if palace["name"] == optioned_result["qimen"]["zhishi"]["palace"]
+    )
+    assert optioned_result["qimen"]["zhifu"]["content_palace"] == optioned_zhifu_palace["content_palace"]
+    assert optioned_result["qimen"]["zhifu"]["content_trigram"] == optioned_zhifu_palace["content_trigram"]
+    assert optioned_result["qimen"]["zhishi"]["content_palace"] == optioned_zhishi_palace["content_palace"]
+    assert optioned_result["qimen"]["zhishi"]["content_trigram"] == optioned_zhishi_palace["content_trigram"]
+
+
+def test_calculate_qimen_analysis_supports_selected_export_sections():
+    result = calculate_qimen_analysis(
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+        analysis_hour=9,
+        analysis_minute=33,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        selected_sections=["起盘信息", "九宫方盘", "离九宫"],
+    )
+
+    assert "[八宫详解]" in result["snapshot_text"]
+    assert result["snapshot_export"]["selected_sections"] == ["起盘信息", "九宫方盘", "离九宫"]
+    assert "[起盘信息]" in result["snapshot_export"]["export_text"]
+    assert "[九宫方盘]" in result["snapshot_export"]["export_text"]
+    assert "[离九宫]" in result["snapshot_export"]["export_text"]
+    assert "[八宫详解]" not in result["snapshot_export"]["export_text"]
 
 
 def test_calculate_taiyi_analysis_returns_sixteen_palaces():
@@ -364,11 +598,40 @@ def test_calculate_jinkou_analysis_returns_four_positions():
     assert result["jinkou"]["shensha"]
 
 
+def test_calculate_jinkou_analysis_uses_liureng_detail_to_break_ties():
+    result = calculate_jinkou_analysis(
+        analysis_year=2026,
+        analysis_month=1,
+        analysis_day=6,
+        analysis_hour=9,
+        analysis_minute=0,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+        gender="男",
+        di_fen="巳",
+    )
+
+    assert result["liureng"]["board_style_detail"] == "别责"
+    assert result["jinkou"]["overview"]["board_style_detail"] == "别责"
+    assert result["jinkou"]["overview"]["use_position"] == "地分"
+    assert any(
+        item["label"] == "课体" and item["value"] == "别责课"
+        for item in result["jinkou"]["shensha"]
+    )
+    assert any(
+        item["label"] == "取传"
+        and item["value"] == result["liureng"]["three_transmissions"]["method"]
+        for item in result["jinkou"]["shensha"]
+    )
+
+
 def test_fastmcp_tools_expose_new_parameters():
     assert "birth_year" in ziwei_birth.parameters["properties"]
     assert "year_stem" in ziwei_rules.parameters["properties"]
     assert "analysis_year" in liureng_gods.parameters["properties"]
     assert "birth_year" in liureng_runyear.parameters["properties"]
     assert "analysis_year" in qimen.parameters["properties"]
+    assert "qimen_options" in qimen.parameters["properties"]
+    assert "selected_sections" in qimen.parameters["properties"]
     assert "gender" in taiyi.parameters["properties"]
     assert "di_fen" in jinkou.parameters["properties"]

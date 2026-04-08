@@ -1,10 +1,23 @@
+import asyncio
 from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import AstroChartRequest, AstroRelativePartyRequest, AstroRelativeRequest
-from fastmcp_server import astro_chart, astro_relative_chart
+from api import (
+    AstroChartRequest,
+    AstroRelativePartyRequest,
+    AstroRelativeRequest,
+    calculate_relative_chart as calculate_relative_chart_endpoint,
+)
+from fastmcp_server import (
+    astro_chart,
+    astro_chart13,
+    astro_germany_chart,
+    astro_hellen_chart,
+    astro_india_chart,
+    astro_relative_chart,
+)
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
     calculate_germany_chart_analysis,
@@ -28,7 +41,7 @@ def _build_birth_payload():
 
 
 def test_astro_request_models_accept_geo_fields():
-    request = AstroChartRequest(**_build_birth_payload())
+    request = AstroChartRequest(**_build_birth_payload(), hsys=0, zodiacal=1)
     default_relative_request = AstroRelativeRequest(
         inner=AstroRelativePartyRequest(**_build_birth_payload()),
         outer=AstroRelativePartyRequest(
@@ -83,14 +96,19 @@ def test_astro_request_models_accept_geo_fields():
 
     assert chart_payload["birth_longitude"] == 121.4667
     assert chart_payload["birth_latitude"] == 31.2167
+    assert chart_payload["hsys"] == 0
+    assert chart_payload["zodiacal"] == 1
     assert default_relation_payload["relative_mode"] == 0
     assert default_relation_payload["relationship_mode"] == 0
+    assert default_relative_request.mode_input_source == "default"
     assert legacy_relation_payload["inner"]["birth_latitude"] == 31.2167
     assert legacy_relation_payload["outer"]["name"] == "对盘者"
     assert legacy_relation_payload["relative_mode"] == "synastry"
     assert legacy_relation_payload["relationship_mode"] == "synastry"
+    assert legacy_relative_request.mode_input_source == "relationship_mode"
     assert modern_relation_payload["relative_mode"] == "Composite"
     assert modern_relation_payload["relationship_mode"] == "Composite"
+    assert modern_relative_request.mode_input_source == "relative_mode"
     assert modern_relation_payload["hsys"] == 1
     assert modern_relation_payload["zodiacal"] == 1
 
@@ -140,6 +158,59 @@ def test_core_chart_variants_expose_variant_specific_fields():
     assert "nakshatra" in next(item for item in india["planets"] if item["id"] == "Moon")
 
 
+def test_core_chart_offline_options_preserve_defaults_and_allow_overrides():
+    default_chart = calculate_core_chart_analysis(
+        chart_variant="chart",
+        **_build_birth_payload(),
+    )
+    whole_sign_chart = calculate_core_chart_analysis(
+        chart_variant="chart",
+        hsys=0,
+        **_build_birth_payload(),
+    )
+    equal_mc_sidereal_chart = calculate_core_chart_analysis(
+        chart_variant="chart",
+        hsys=8,
+        zodiacal=1,
+        **_build_birth_payload(),
+    )
+    india_tropical_placidus = calculate_core_chart_analysis(
+        chart_variant="india_chart",
+        hsys=3,
+        zodiacal=0,
+        **_build_birth_payload(),
+    )
+
+    assert default_chart["chart_profile"]["house_system"] == "equal"
+    assert default_chart["chart_profile"]["house_system_code"] is None
+    assert default_chart["chart_profile"]["house_system_source"] == "variant_default"
+    assert default_chart["chart_profile"]["zodiac"] == "tropical"
+    assert default_chart["chart_profile"]["zodiacal"] == 0
+
+    assert whole_sign_chart["chart_profile"]["house_system"] == "whole_sign"
+    assert whole_sign_chart["chart_profile"]["house_system_code"] == 0
+    assert whole_sign_chart["chart_profile"]["house_system_label_zh"] == "整宫制"
+    ascendant = whole_sign_chart["angles"]["ascendant"]["longitude"]
+    assert whole_sign_chart["houses"][0]["cusp_longitude"] == float(int(ascendant // 30) * 30)
+
+    assert equal_mc_sidereal_chart["chart_profile"]["house_system"] == "equal_mc"
+    assert equal_mc_sidereal_chart["chart_profile"]["house_system_code"] == 8
+    assert equal_mc_sidereal_chart["chart_profile"]["zodiac"] == "sidereal"
+    assert equal_mc_sidereal_chart["chart_profile"]["zodiac_label_zh"] == "恒星黄道，岁差:Lahiri"
+    assert equal_mc_sidereal_chart["chart_profile"]["ayanamsha"] > 0
+    default_sun = next(item for item in default_chart["planets"] if item["id"] == "Sun")
+    sidereal_sun = next(
+        item for item in equal_mc_sidereal_chart["planets"] if item["id"] == "Sun"
+    )
+    assert default_sun["longitude"] != sidereal_sun["longitude"]
+
+    assert india_tropical_placidus["chart_profile"]["zodiac"] == "tropical"
+    assert india_tropical_placidus["chart_profile"]["zodiacal"] == 0
+    assert india_tropical_placidus["chart_profile"]["house_system"] == "placidus"
+    assert india_tropical_placidus["chart_profile"]["house_system_code"] == 3
+    assert india_tropical_placidus["india"]["ayanamsha"] == 0.0
+
+
 def test_germany_chart_returns_midpoint_payload():
     result = calculate_germany_chart_analysis(**_build_birth_payload())
 
@@ -147,6 +218,20 @@ def test_germany_chart_returns_midpoint_payload():
     assert result["midpoints"]
     assert result["midpoint_aspects"]
     assert result["base_chart"]["planets"]
+
+
+def test_germany_chart_respects_core_house_and_zodiac_overrides():
+    result = calculate_germany_chart_analysis(
+        **_build_birth_payload(),
+        hsys=0,
+        zodiacal=1,
+    )
+
+    assert result["chart_profile"]["house_system"] == "whole_sign"
+    assert result["chart_profile"]["zodiac"] == "sidereal"
+    assert result["base_chart"]["chart_profile"]["house_system"] == "whole_sign"
+    assert result["base_chart"]["chart_profile"]["zodiac"] == "sidereal"
+    assert result["midpoints"]
 
 
 def test_relative_chart_returns_legacy_style_layers_and_metadata():
@@ -220,8 +305,11 @@ def test_relative_chart_legacy_synastry_alias_maps_to_compare_mode():
     )
 
     assert result["relationship_profile"]["relationship_mode"] == "synastry"
+    assert result["relationship_profile"]["relative_mode_source"] == "relationship_mode"
+    assert result["relationship_profile"]["relative_mode_resolution"] == "legacy_relationship_mode_synastry"
     assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
     assert result["relationship_profile"]["relative_mode_label_zh"] == "比较盘"
+    assert "比较盘处理" in result["relationship_profile"]["relative_mode_note"]
     assert result["relationship_profile"]["primary_layer"] == "directional_synastry"
     assert result["relationship_profile"]["mode_status"] == "implemented"
     assert result["in_to_out_aspects"]
@@ -232,6 +320,30 @@ def test_relative_chart_legacy_synastry_alias_maps_to_compare_mode():
     assert result["composite_chart"]["planets"]
     assert result["inner"]["chart"]["planets"]
     assert result["outer"]["chart"]["planets"]
+
+
+def test_relative_chart_modern_lowercase_synastry_maps_to_influence_mode():
+    result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={
+            **_build_birth_payload(),
+            "name": "对盘者",
+            "birth_year": 1992,
+            "birth_month": 3,
+            "birth_day": 2,
+            "birth_hour": 8,
+            "birth_minute": 18,
+        },
+        relative_mode="synastry",
+    )
+
+    assert result["relationship_profile"]["relative_mode_source"] == "relative_mode"
+    assert result["relationship_profile"]["relative_mode_resolution"] == "relative_mode_synastry_alias"
+    assert result["relationship_profile"]["relative_mode_normalized"] == "influence"
+    assert result["relationship_profile"]["relative_mode_label_zh"] == "影响盘"
+    assert result["relationship_profile"]["primary_layer"] == "influence_chart_pair"
+    assert result["inner"]["chart"]["chart_profile"]["chart_type"] == "influence_inner"
+    assert result["outer"]["chart"]["chart_profile"]["chart_type"] == "influence_outer"
 
 
 def test_relative_chart_defaults_to_compare_mode_when_mode_omitted():
@@ -250,8 +362,33 @@ def test_relative_chart_defaults_to_compare_mode_when_mode_omitted():
 
     assert result["relationship_profile"]["relationship_mode"] == 0
     assert result["relationship_profile"]["relative_mode_input"] == 0
+    assert result["relationship_profile"]["relative_mode_source"] == "default"
+    assert result["relationship_profile"]["relative_mode_resolution"] == "numeric"
     assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
     assert result["relationship_profile"]["primary_layer"] == "directional_synastry"
+
+
+def test_relative_chart_api_preserves_mode_source_for_legacy_aliases():
+    request = AstroRelativeRequest(
+        inner=AstroRelativePartyRequest(**_build_birth_payload()),
+        outer=AstroRelativePartyRequest(
+            **{
+                **_build_birth_payload(),
+                "name": "对盘者",
+                "birth_year": 1992,
+                "birth_month": 3,
+                "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+            }
+        ),
+        relationship_mode="synastry",
+    )
+
+    result = asyncio.run(calculate_relative_chart_endpoint(request))
+
+    assert result["relationship_profile"]["relative_mode_source"] == "relationship_mode"
+    assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
 
 
 def test_relative_compare_and_composite_modes_expose_different_primary_layers():
@@ -389,8 +526,43 @@ def test_relative_hsys_zero_and_eight_drive_supported_offline_house_systems():
 
     assert whole_sign_result["inner_chart"]["chart_profile"]["house_system"] == "whole_sign"
     assert whole_sign_result["chart"]["chart_profile"]["house_system"] == "whole_sign"
-    assert equal_result["inner_chart"]["chart_profile"]["house_system"] == "equal"
-    assert equal_result["chart"]["chart_profile"]["house_system"] == "equal"
+    assert whole_sign_result["relationship_profile"]["house_system_label_zh"] == "整宫制"
+    assert equal_result["inner_chart"]["chart_profile"]["house_system"] == "equal_mc"
+    assert equal_result["chart"]["chart_profile"]["house_system"] == "equal_mc"
+    assert equal_result["relationship_profile"]["house_system_label_zh"] == "天顶为10宫中点等宫制"
+
+
+def test_relative_hsys_one_to_seven_are_available_offline():
+    expected_house_systems = {
+        1: "alcabitus",
+        2: "regiomontanus",
+        3: "placidus",
+        4: "koch",
+        5: "vehlow_equal",
+        6: "polich_page",
+        7: "sripati",
+    }
+
+    for hsys, expected_house_system in expected_house_systems.items():
+        result = calculate_relative_chart_analysis(
+            inner_payload=_build_birth_payload(),
+            outer_payload={
+                **_build_birth_payload(),
+                "name": "对盘者",
+                "birth_year": 1992,
+                "birth_month": 3,
+                "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+            },
+            relative_mode="TimeSpace",
+            hsys=hsys,
+        )
+
+        assert result["inner_chart"]["chart_profile"]["house_system"] == expected_house_system
+        assert result["chart"]["chart_profile"]["house_system"] == expected_house_system
+        assert result["relationship_profile"]["house_system"] == expected_house_system
+        assert result["chart"]["houses"]
 
 
 def test_relative_unsupported_hsys_returns_error_payload():
@@ -406,7 +578,7 @@ def test_relative_unsupported_hsys_returns_error_payload():
             "birth_minute": 18,
         },
         relative_mode="TimeSpace",
-        hsys=1,
+        hsys=9,
     )
 
     assert result == {"error": "关系星盘分析失败，请重试"}
@@ -485,10 +657,24 @@ def test_relative_unsupported_zodiacal_returns_error_payload():
 
 def test_fastmcp_astro_tools_expose_geo_parameters():
     chart_properties = astro_chart.parameters["properties"]
+    chart13_properties = astro_chart13.parameters["properties"]
+    hellen_properties = astro_hellen_chart.parameters["properties"]
+    india_properties = astro_india_chart.parameters["properties"]
+    germany_properties = astro_germany_chart.parameters["properties"]
     relative_properties = astro_relative_chart.parameters["properties"]
 
     assert "birth_longitude" in chart_properties
     assert "birth_latitude" in chart_properties
+    assert "hsys" in chart_properties
+    assert "zodiacal" in chart_properties
+    assert "hsys" in chart13_properties
+    assert "zodiacal" in chart13_properties
+    assert "hsys" in hellen_properties
+    assert "zodiacal" in hellen_properties
+    assert "hsys" in india_properties
+    assert "zodiacal" in india_properties
+    assert "hsys" in germany_properties
+    assert "zodiacal" in germany_properties
     assert "inner_birth_latitude" in relative_properties
     assert "outer_birth_longitude" in relative_properties
     assert "relative_mode" in relative_properties

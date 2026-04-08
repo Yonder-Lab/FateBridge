@@ -197,6 +197,8 @@ def test_phase2_request_models_accept_alias_and_nested_fields():
         time="09:33:00",
         houseStartMode=2,
         doubingSu28=False,
+        hsys=0,
+        zodiacal=1,
     )
     otherbu_request = OtherBuRequest(
         date="2028-04-06",
@@ -204,19 +206,24 @@ def test_phase2_request_models_accept_alias_and_nested_fields():
         sign="Aries",
         house=3,
         planet="Sun",
+        hsys=0,
+        zodiacal=1,
     )
     sanshiunited_request = SanShiUnitedRequest(
         date="2028-04-06",
         time="09:33:00",
         qimen_options={"layout": "fly"},
         taiyi_options={"accNum": 1},
+        selected_sections=["起盘信息", "离九宫"],
         liureng_yue="辰",
         liureng_isDiurnal=True,
+        use_true_solar_time=True,
     )
 
     sixyao_payload = sixyao_request.model_dump(by_alias=True)
     suzhan_payload = suzhan_request.model_dump(by_alias=True)
     sanshi_payload = sanshiunited_request.model_dump(by_alias=True)
+    otherbu_payload = otherbu_request.model_dump(by_alias=True)
 
     assert tongshefa_request.shaoyin == "震"
     assert sixyao_payload["gpsLat"] == 31.2
@@ -224,10 +231,16 @@ def test_phase2_request_models_accept_alias_and_nested_fields():
     assert sixyao_payload["lines"][0]["change"] is True
     assert suzhan_payload["houseStartMode"] == 2
     assert suzhan_payload["doubingSu28"] is False
+    assert suzhan_payload["hsys"] == 0
+    assert suzhan_payload["zodiacal"] == 1
     assert otherbu_request.house == 3
+    assert otherbu_payload["hsys"] == 0
+    assert otherbu_payload["zodiacal"] == 1
     assert sanshiunited_request.qimen_options["layout"] == "fly"
+    assert sanshiunited_request.selected_sections == ["起盘信息", "离九宫"]
     assert sanshiunited_request.liureng_is_diurnal is True
     assert sanshi_payload["liureng_isDiurnal"] is True
+    assert sanshi_payload["use_true_solar_time"] is True
 
 
 def test_calculate_gua_lookup_supports_hexagram_and_trigram_queries():
@@ -450,6 +463,68 @@ def test_calculate_suzhan_analysis_applies_chart_modes_to_offline_output():
     assert default_result["snapshot_text"] != adjusted_result["snapshot_text"]
 
 
+def test_calculate_suzhan_analysis_supports_offline_house_system_and_zodiacal_modes():
+    tropical_equal_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        szchart=0,
+        hsys=8,
+        zodiacal=0,
+    )
+    sidereal_whole_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        szchart=0,
+        hsys=0,
+        zodiacal=1,
+    )
+
+    tropical_sun = next(
+        item for item in tropical_equal_result["chart"]["objects"] if item["id"] == "Sun"
+    )
+    sidereal_sun = next(
+        item for item in sidereal_whole_result["chart"]["objects"] if item["id"] == "Sun"
+    )
+
+    assert tropical_equal_result["params"]["houseSystemResolved"] == "equal"
+    assert tropical_equal_result["params"]["zodiacMode"] == "tropical"
+    assert sidereal_whole_result["params"]["houseSystemResolved"] == "whole_sign"
+    assert sidereal_whole_result["params"]["zodiacMode"] == "sidereal"
+    assert sidereal_whole_result["params"]["zodiacLabelZh"] == "恒星黄道，岁差:Lahiri"
+    assert sidereal_whole_result["params"]["ayanamsha"] > 0
+    assert tropical_equal_result["chart"]["houses"][0]["lon"] != sidereal_whole_result["chart"]["houses"][0]["lon"]
+    assert tropical_sun["lon"] != sidereal_sun["lon"]
+    assert tropical_sun["sign"] != sidereal_sun["sign"]
+
+
+def test_calculate_suzhan_analysis_rejects_unsupported_offline_modes():
+    invalid_hsys_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        hsys=1,
+    )
+    invalid_zodiac_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        zodiacal=2,
+    )
+
+    assert invalid_hsys_result == {"error": "宿占分析失败，请重试"}
+    assert invalid_zodiac_result == {"error": "宿占分析失败，请重试"}
+
+
 def test_calculate_otherbu_analysis_supports_traditional_mode():
     result = calculate_otherbu_analysis(
         date="2028-04-06",
@@ -480,6 +555,124 @@ def test_calculate_otherbu_analysis_supports_traditional_mode():
     assert "问题：合作" in result["snapshot_text"]
     assert "[骰子盘宫位与星体]" in result["snapshot_text"]
     assert "[天象盘宫位与星体]" in result["snapshot_text"]
+
+
+def test_calculate_otherbu_analysis_supports_offline_house_system_and_zodiacal_modes():
+    tropical_equal_result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        sign="Aries",
+        house=6,
+        planet="Sun",
+        hsys=8,
+        zodiacal=0,
+    )
+    sidereal_whole_result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        sign="Aries",
+        house=6,
+        planet="Sun",
+        hsys=0,
+        zodiacal=1,
+    )
+
+    tropical_sun = next(
+        item for item in tropical_equal_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+    )
+    sidereal_sun = next(
+        item for item in sidereal_whole_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+    )
+
+    assert tropical_equal_result["chart"]["params"]["houseSystemResolved"] == "equal"
+    assert tropical_equal_result["chart"]["params"]["zodiacMode"] == "tropical"
+    assert sidereal_whole_result["chart"]["params"]["houseSystemResolved"] == "whole_sign"
+    assert sidereal_whole_result["chart"]["params"]["zodiacMode"] == "sidereal"
+    assert sidereal_whole_result["chart"]["params"]["zodiacLabelZh"] == "恒星黄道，岁差:Lahiri"
+    assert sidereal_whole_result["chart"]["params"]["ayanamsha"] > 0
+    assert tropical_equal_result["chart"]["chart"]["houses"][0]["lon"] != sidereal_whole_result["chart"]["chart"]["houses"][0]["lon"]
+    assert tropical_sun["lon"] != sidereal_sun["lon"]
+    assert tropical_sun["sign"] != sidereal_sun["sign"]
+
+
+def test_calculate_otherbu_analysis_supports_extended_offline_house_systems():
+    placidus_result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        sign="Aries",
+        house=6,
+        planet="Sun",
+        hsys=3,
+        zodiacal=0,
+    )
+    sripati_result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        sign="Aries",
+        house=6,
+        planet="Sun",
+        hsys=7,
+        zodiacal=0,
+    )
+
+    placidus_sun = next(
+        item for item in placidus_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+    )
+    sripati_sun = next(
+        item for item in sripati_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+    )
+    placidus_houses = placidus_result["chart"]["chart"]["houses"]
+    sripati_houses = sripati_result["chart"]["chart"]["houses"]
+    placidus_spans = [
+        round((placidus_houses[(index + 1) % 12]["lon"] - house["lon"]) % 360.0, 4)
+        for index, house in enumerate(placidus_houses)
+    ]
+    sripati_spans = [
+        round((sripati_houses[(index + 1) % 12]["lon"] - house["lon"]) % 360.0, 4)
+        for index, house in enumerate(sripati_houses)
+    ]
+
+    assert placidus_result["chart"]["params"]["houseSystemResolved"] == "placidus"
+    assert sripati_result["chart"]["params"]["houseSystemResolved"] == "sripati"
+    assert any(span != 30.0 for span in placidus_spans)
+    assert any(span != 30.0 for span in sripati_spans)
+    assert _house_id_for_longitude(placidus_houses, placidus_sun["lon"]) == placidus_sun["house"]
+    assert _house_id_for_longitude(sripati_houses, sripati_sun["lon"]) == sripati_sun["house"]
+    assert placidus_houses[0]["lon"] != sripati_houses[0]["lon"]
+
+
+def test_calculate_otherbu_analysis_rejects_unsupported_offline_modes():
+    invalid_hsys_result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        hsys=9,
+    )
+    invalid_zodiac_result = calculate_otherbu_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        zodiacal=2,
+    )
+
+    assert invalid_hsys_result == {"error": "占星骰子分析失败，请重试"}
+    assert invalid_zodiac_result == {"error": "占星骰子分析失败，请重试"}
 
 
 def test_calculate_otherbu_analysis_keeps_dice_chart_house_geometry_consistent():
@@ -526,6 +719,8 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
     assert "[太乙十六宫]" in result["snapshot_text"]
     assert "[六壬小局]" in result["snapshot_text"]
     assert "[八宫详解]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+    assert "离九宫" in result["snapshot_export"]["section_titles_detected"]
     assert result["qimen"]["zhifu"]["star"] == "天心"
     assert result["qimen"]["zhifu"]["palace"] == "离九宫"
     assert result["qimen"]["zhishi"]["door"] == "开门"
@@ -616,6 +811,56 @@ def test_calculate_sanshiunited_analysis_applies_qimen_and_taiyi_options():
         for palace in optioned_result["qimen"]["palaces"]
     )
     assert optioned_result["qimen"]["palaces"][0]["trigram"] == "坎"
+
+
+def test_calculate_sanshiunited_analysis_supports_selected_export_sections():
+    result = calculate_sanshiunited_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        selected_sections=["起盘信息", "太乙", "正南离宫"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["起盘信息", "太乙", "离九宫"]
+    assert "[起盘信息]" in result["snapshot_export"]["export_text"]
+    assert "[太乙]" in result["snapshot_export"]["export_text"]
+    assert "[离九宫]" in result["snapshot_export"]["export_text"]
+    assert "[概览]" not in result["snapshot_export"]["export_text"]
+    assert "[八宫详解]" not in result["snapshot_export"]["export_text"]
+
+
+def test_calculate_sanshiunited_analysis_supports_true_solar_time():
+    default_result = calculate_sanshiunited_analysis(
+        date="2026-04-04",
+        time="23:50:00",
+        zone="+08:00",
+        gps_lat=39.9,
+        gps_lon=73.0,
+    )
+    true_solar_result = calculate_sanshiunited_analysis(
+        date="2026-04-04",
+        time="23:50:00",
+        zone="+08:00",
+        gps_lat=39.9,
+        gps_lon=73.0,
+        use_true_solar_time=True,
+    )
+
+    assert true_solar_result["analysis_context"]["time_algorithm"] == "真太阳时"
+    assert true_solar_result["analysis_context"]["longitude"] == 73.0
+    assert true_solar_result["analysis_context"]["total_correction_minutes"] != 0
+    assert (
+        true_solar_result["analysis_context"]["corrected_datetime"]
+        != true_solar_result["analysis_context"]["input_datetime"]
+    )
+    assert "真太阳时" in true_solar_result["snapshot_text"]
+    assert true_solar_result["snapshot_text"] != default_result["snapshot_text"]
+    assert (
+        true_solar_result["sources"]["four_pillars"]["hour"]
+        != default_result["sources"]["four_pillars"]["hour"]
+    )
 
 
 def test_phase2_offline_golden_samples_match_current_contract():
@@ -730,15 +975,21 @@ def test_fastmcp_phase2_tools_expose_parameters():
     assert "szchart" in suzhan_properties
     assert "szshape" in suzhan_properties
     assert "house_start_mode" in suzhan_properties
+    assert "hsys" in suzhan_properties
+    assert "zodiacal" in suzhan_properties
 
     otherbu_properties = otherbu.parameters["properties"]
     assert "tradition" in otherbu_properties
     assert "sign" in otherbu_properties
     assert "house" in otherbu_properties
     assert "planet" in otherbu_properties
+    assert "hsys" in otherbu_properties
+    assert "zodiacal" in otherbu_properties
 
     sanshi_properties = sanshiunited.parameters["properties"]
     assert "qimen_options" in sanshi_properties
     assert "taiyi_options" in sanshi_properties
+    assert "selected_sections" in sanshi_properties
     assert "liureng_yue" in sanshi_properties
     assert "liureng_is_diurnal" in sanshi_properties
+    assert "use_true_solar_time" in sanshi_properties

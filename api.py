@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
@@ -318,6 +318,14 @@ class SuZhanRequest(BaseModel):
     szshape: int = Field(default=0, description="Chart shape flag")
     house_start_mode: int = Field(default=1, alias="houseStartMode", description="House start mode")
     doubing_su28: bool = Field(default=True, alias="doubingSu28", description="Whether to double-check su28 labels")
+    hsys: int = Field(
+        default=8,
+        description="Offline house system selector; standard suzhan supports 8=equal and 0=whole_sign",
+    )
+    zodiacal: int = Field(
+        default=0,
+        description="Offline zodiac selector; standard suzhan supports 0=tropical and 1=sidereal(Lahiri-like)",
+    )
 
 
 class OtherBuRequest(BaseModel):
@@ -336,6 +344,14 @@ class OtherBuRequest(BaseModel):
     sign: Optional[str] = Field(default="Aries", description="Dice sign")
     house: int = Field(default=0, ge=0, le=11, description="Dice house index (0-11)")
     planet: Optional[str] = Field(default="Sun", description="Dice planet")
+    hsys: int = Field(
+        default=8,
+        description="Offline house system selector; supports 0..8 via local Swiss house cusps",
+    )
+    zodiacal: int = Field(
+        default=0,
+        description="Offline zodiac selector; supports 0=tropical and 1=sidereal(Lahiri-like)",
+    )
     question: Optional[str] = Field(default=None, description="Question or topic")
 
 
@@ -353,8 +369,16 @@ class SanShiUnitedRequest(BaseModel):
     gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
     qimen_options: Dict[str, Any] = Field(default_factory=dict, alias="qimen_options", description="Optional qimen settings")
     taiyi_options: Dict[str, Any] = Field(default_factory=dict, alias="taiyi_options", description="Optional taiyi settings")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
     liureng_yue: Optional[str] = Field(default=None, alias="liureng_yue", description="Optional liureng month-general override")
     liureng_is_diurnal: Optional[bool] = Field(default=None, alias="liureng_isDiurnal", description="Optional liureng day/night override")
+    use_true_solar_time: bool = Field(
+        default=False,
+        description="Enable local true solar time correction before sanshi aggregation",
+    )
 
 
 class ZiweiBirthRequest(FateBridgeRequest):
@@ -426,6 +450,14 @@ class QimenAnalysisRequest(BaseModel):
     analysis_longitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description="Analysis longitude"
     )
+    qimen_options: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Optional qimen settings like layout or palaceShift",
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
     use_true_solar_time: bool = Field(
         default=False, description="Enable true solar time correction"
     )
@@ -443,8 +475,8 @@ class JinkouAnalysisRequest(LiuRengGodsRequest):
     di_fen: Optional[str] = Field(default=None, description="Ground division branch")
 
 
-class AstroChartRequest(BaseModel):
-    """Request model for approximate offline astrology chart generation."""
+class AstroBirthRequest(BaseModel):
+    """Base birth request model for offline astrology endpoints."""
 
     name: Optional[str] = Field(default="未提供", description="Name (optional)")
     birth_year: int = Field(description="Birth year, e.g., 1990")
@@ -460,7 +492,29 @@ class AstroChartRequest(BaseModel):
     birth_place: Optional[str] = Field(default="未提供", description="Birth place")
 
 
-class AstroRelativePartyRequest(AstroChartRequest):
+class AstroChartRequest(AstroBirthRequest):
+    """Request model for approximate offline astrology chart generation."""
+
+    hsys: Optional[int] = Field(
+        default=None,
+        description=(
+            "Optional offline house system override; if omitted, FateBridge keeps each "
+            "chart variant's historical default. Explicit values currently support "
+            "0=whole_sign, 1=Alcabitus, 2=Regiomontanus, 3=Placidus, 4=Koch, "
+            "5=Vehlow Equal, 6=Polich Page, 7=Sripati, 8=equal_mc"
+        ),
+    )
+    zodiacal: Optional[int] = Field(
+        default=None,
+        description=(
+            "Optional offline zodiac override; if omitted, FateBridge keeps each "
+            "chart variant's historical default. Explicit values currently support "
+            "0=tropical and 1=sidereal(Lahiri-like)"
+        ),
+    )
+
+
+class AstroRelativePartyRequest(AstroBirthRequest):
     """One side of a relative/synastry request."""
 
 
@@ -469,22 +523,43 @@ class AstroRelativeRequest(BaseModel):
 
     inner: AstroRelativePartyRequest
     outer: AstroRelativePartyRequest
+    _mode_input_source: str = PrivateAttr(default="default")
     relative_mode: Optional[str | int] = Field(
         default=None,
-        description="Legacy-compatible relative mode, e.g. 0/1/2/3/4, Comp, Composite, Synastry, TimeSpace, or Marks",
+        description=(
+            "Modern relative mode selector, e.g. 0/1/2/3/4, Comp, Composite, "
+            "Synastry, TimeSpace, or Marks; when using relative_mode, "
+            "Synastry/synastry will resolve to the Horosa-style influence chart"
+        ),
     )
     relationship_mode: Optional[str | int] = Field(
         default=None,
-        description="Legacy alias for relative_mode",
+        description=(
+            "Legacy alias for relative_mode; relationship_mode='synastry' is "
+            "preserved as FateBridge's older compare-mode compatibility path"
+        ),
     )
     hsys: int = Field(
         default=0,
-        description="Legacy-compatible house system identifier",
+        description="Legacy-compatible house system identifier; offline mode currently supports 0..8 via local Swiss house cusps",
     )
     zodiacal: int = Field(
         default=0,
         description="Legacy-compatible zodiac selector; offline mode currently supports 0=tropical and 1=sidereal(Lahiri-like) only",
     )
+
+    def __init__(self, **data: Any):
+        mode_source = "default"
+        if data.get("relative_mode") not in (None, ""):
+            mode_source = "relative_mode"
+        elif data.get("relationship_mode") not in (None, ""):
+            mode_source = "relationship_mode"
+        super().__init__(**data)
+        self._mode_input_source = mode_source
+
+    @property
+    def mode_input_source(self) -> str:
+        return self._mode_input_source
 
     @model_validator(mode="before")
     @classmethod
@@ -503,7 +578,7 @@ class AstroRelativeRequest(BaseModel):
         return payload
 
 
-class WesternTimingRequest(AstroChartRequest):
+class WesternTimingRequest(AstroBirthRequest):
     """Request model for western predictive timing analysis."""
 
     analysis_year: Optional[int] = Field(default=None, description="Analysis year")
@@ -987,6 +1062,8 @@ async def calculate_suzhan(request: SuZhanRequest) -> dict:
             szshape=request.szshape,
             house_start_mode=request.house_start_mode,
             doubing_su28=request.doubing_su28,
+            hsys=request.hsys,
+            zodiacal=request.zodiacal,
         )
 
         if "error" in result:
@@ -1022,6 +1099,8 @@ async def calculate_otherbu(request: OtherBuRequest) -> dict:
             sign=request.sign,
             house=request.house,
             planet=request.planet,
+            hsys=request.hsys,
+            zodiacal=request.zodiacal,
             question=request.question,
         )
 
@@ -1043,7 +1122,7 @@ async def calculate_otherbu(request: OtherBuRequest) -> dict:
 
 @app.post("/api/divination/sanshiunited")
 async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
-    """Calculate local sanshiunited analysis with stable qimen content metadata for palaces and zhifu/zhishi."""
+    """Calculate local sanshiunited analysis with stable qimen content metadata and export-ready snapshot sections."""
     try:
         logger.info("Processing sanshiunited request for %s %s", request.date, request.time)
         result = calculate_sanshiunited_analysis(
@@ -1056,8 +1135,10 @@ async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
             gps_lon=request.gps_lon,
             qimen_options=request.qimen_options,
             taiyi_options=request.taiyi_options,
+            selected_sections=request.selected_sections or None,
             liureng_yue=request.liureng_yue,
             liureng_is_diurnal=request.liureng_is_diurnal,
+            use_true_solar_time=request.use_true_solar_time,
         )
 
         if "error" in result:
@@ -1221,7 +1302,7 @@ async def get_liureng_runyear(request: LiuRengRunyearRequest) -> dict:
 @app.post("/api/cn/qimen")
 async def get_qimen_analysis(request: QimenAnalysisRequest) -> dict:
     """
-    Calculate a Qi Men Dun Jia board.
+    Calculate a Qi Men Dun Jia board with offline snapshot text, export sections, and optional local layout transforms.
     """
     try:
         result = calculate_qimen_analysis(
@@ -1232,6 +1313,8 @@ async def get_qimen_analysis(request: QimenAnalysisRequest) -> dict:
             analysis_minute=request.analysis_minute,
             analysis_timezone=request.analysis_timezone,
             analysis_longitude=request.analysis_longitude,
+            qimen_options=request.qimen_options,
+            selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
 
@@ -1422,6 +1505,7 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
             outer_payload=request.outer.model_dump(),
             relative_mode=request.relative_mode,
             relationship_mode=request.relationship_mode,
+            relative_mode_source=request.mode_input_source or "default",
             hsys=request.hsys,
             zodiacal=request.zodiacal,
         )

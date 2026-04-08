@@ -532,9 +532,14 @@ def astro_chart13(
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = "UTC",
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> str:
     """
     13宫扩展盘工具 - 生成 13 扇区覆盖层
+
+    未显式传入时沿用 FateBridge 对 chart13 的默认离线语义；显式传入 `hsys` /
+    `zodiacal` 时，会走核心星盘家族统一的离线覆盖逻辑。
     """
     return _run_astro_chart_tool(
         "chart13",
@@ -548,6 +553,8 @@ def astro_chart13(
         birth_latitude=birth_latitude,
         name=name,
         birth_place=birth_place,
+        hsys=hsys,
+        zodiacal=zodiacal,
     )
 
 
@@ -564,9 +571,14 @@ def astro_hellen_chart(
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = "UTC",
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> str:
     """
     希腊星盘工具 - 生成 whole-sign + sect + fortune lot 输出
+
+    未显式传入时沿用 FateBridge 对 hellen_chart 的默认离线语义；显式传入 `hsys` /
+    `zodiacal` 时，会走核心星盘家族统一的离线覆盖逻辑。
     """
     return _run_astro_chart_tool(
         "hellen_chart",
@@ -580,6 +592,8 @@ def astro_hellen_chart(
         birth_latitude=birth_latitude,
         name=name,
         birth_place=birth_place,
+        hsys=hsys,
+        zodiacal=zodiacal,
     )
 
 
@@ -596,9 +610,14 @@ def astro_guolao_chart(
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = "UTC",
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> str:
     """
     果老/七政四余风格星盘工具 - 生成二十八宿辅助输出
+
+    未显式传入时沿用 FateBridge 对 guolao_chart 的默认离线语义；显式传入 `hsys` /
+    `zodiacal` 时，会走核心星盘家族统一的离线覆盖逻辑。
     """
     return _run_astro_chart_tool(
         "guolao_chart",
@@ -612,6 +631,8 @@ def astro_guolao_chart(
         birth_latitude=birth_latitude,
         name=name,
         birth_place=birth_place,
+        hsys=hsys,
+        zodiacal=zodiacal,
     )
 
 
@@ -628,9 +649,14 @@ def astro_india_chart(
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = "UTC",
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> str:
     """
     印度盘工具 - 生成 sidereal + nakshatra 输出
+
+    未显式传入时沿用 FateBridge 对 india_chart 的默认离线语义；显式传入 `hsys` /
+    `zodiacal` 时，会走核心星盘家族统一的离线覆盖逻辑。
     """
     return _run_astro_chart_tool(
         "india_chart",
@@ -644,6 +670,8 @@ def astro_india_chart(
         birth_latitude=birth_latitude,
         name=name,
         birth_place=birth_place,
+        hsys=hsys,
+        zodiacal=zodiacal,
     )
 
 
@@ -660,9 +688,14 @@ def astro_germany_chart(
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = "UTC",
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> str:
     """
     量化盘/中点盘工具 - 输出传统七曜中点与相位
+
+    `hsys` / `zodiacal` 会先作用于其底层基准 chart，再派生出中点层，保持核心盘
+    与 germany 中点盘的离线覆盖语义一致。
     """
     result = calculate_germany_chart_analysis(
         birth_year=birth_year,
@@ -675,6 +708,8 @@ def astro_germany_chart(
         birth_latitude=birth_latitude,
         name=name,
         birth_place=birth_place,
+        hsys=hsys,
+        zodiacal=zodiacal,
     )
     if "error" in result:
         return format_error_response(result, "germany 中点盘")
@@ -994,6 +1029,8 @@ def suzhan(
     szshape: int = 0,
     house_start_mode: int = 1,
     doubing_su28: bool = True,
+    hsys: int = 8,
+    zodiacal: int = 0,
 ) -> str:
     """
     宿占 / 宿盘工具 - 本地生成二十八宿与宫位分布
@@ -1010,6 +1047,8 @@ def suzhan(
         szshape=szshape,
         house_start_mode=house_start_mode,
         doubing_su28=doubing_su28,
+        hsys=hsys,
+        zodiacal=zodiacal,
     )
 
     if "error" in result:
@@ -1033,6 +1072,8 @@ def otherbu(
     sign: Optional[str] = "Aries",
     house: int = 0,
     planet: Optional[str] = "Sun",
+    hsys: int = 8,
+    zodiacal: int = 0,
 ) -> str:
     """
     西洋游戏 / 占星骰子工具 - 本地生成骰面与对应解释
@@ -1049,6 +1090,8 @@ def otherbu(
         sign=sign,
         house=house,
         planet=planet,
+        hsys=hsys,
+        zodiacal=zodiacal,
         question=question,
     )
 
@@ -1070,11 +1113,13 @@ def sanshiunited(
     gps_lon: Optional[float] = None,
     qimen_options: Optional[dict] = None,
     taiyi_options: Optional[dict] = None,
+    selected_sections: Optional[list[str]] = None,
     liureng_yue: Optional[str] = None,
     liureng_is_diurnal: Optional[bool] = None,
+    use_true_solar_time: bool = False,
 ) -> str:
     """
-    三式合一工具 - 本地聚合奇门、太乙与六壬摘要；奇门宫位与值符/值使统一返回 content_palace / content_trigram
+    三式合一工具 - 本地聚合奇门、太乙与六壬摘要，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
     """
     result = calculate_sanshiunited_analysis(
         date=date,
@@ -1086,8 +1131,10 @@ def sanshiunited(
         gps_lon=gps_lon,
         qimen_options=qimen_options,
         taiyi_options=taiyi_options,
+        selected_sections=selected_sections,
         liureng_yue=liureng_yue,
         liureng_is_diurnal=liureng_is_diurnal,
+        use_true_solar_time=use_true_solar_time,
     )
 
     if "error" in result:
@@ -1258,12 +1305,14 @@ def qimen(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
+    qimen_options: Optional[dict] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
     奇门遁甲工具
 
-    生成离线奇门盘，输出遁型、局数、旬首、空亡、值符值使与九宫方盘。
+    生成离线奇门盘，支持本地 layout/palaceShift 变体，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     result = calculate_qimen_analysis_service(
         analysis_year=analysis_year,
@@ -1273,6 +1322,8 @@ def qimen(
         analysis_minute=analysis_minute,
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
+        qimen_options=qimen_options,
+        selected_sections=selected_sections,
         use_true_solar_time=use_true_solar_time,
     )
 
@@ -1459,11 +1510,15 @@ def astro_chart(
     *,
     birth_minute: int = 0,
     birth_timezone: Optional[str] = "UTC",
+    hsys: Optional[int] = None,
+    zodiacal: Optional[int] = None,
 ) -> str:
     """
     离线近似星盘工具
 
     支持核心盘、13 宫扩展盘、希腊式整宫盘、果老/宿度盘、印度式恒星黄道盘，以及中点量化盘。
+    未显式传入时，会沿用各盘型原本的默认宫制与黄道类型；显式传入 `hsys` /
+    `zodiacal` 时，会走 FateBridge 离线宫制与黄道覆盖逻辑。
     """
     payload = {
         "birth_year": birth_year,
@@ -1476,6 +1531,8 @@ def astro_chart(
         "birth_latitude": birth_latitude,
         "name": name,
         "birth_place": birth_place,
+        "hsys": hsys,
+        "zodiacal": zodiacal,
     }
 
     if chart_variant == "germany":
@@ -1524,6 +1581,8 @@ def astro_relative_chart(
     离线近似关系盘工具
 
     返回双人本命盘、方向相位层、合成盘与基础兼容度评分。
+    `relative_mode` 走现代 Horosa 风格语义；旧 `relationship_mode='synastry'`
+    仍保留为 FateBridge 比较盘兼容路径。
     """
     result = calculate_relative_chart_analysis(
         inner_payload={
