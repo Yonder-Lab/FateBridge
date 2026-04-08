@@ -8,7 +8,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import WesternTimingRequest
 from fastmcp_server import western_timing_analysis
-from fatebridge.core.astrology_predictive import build_releasing_level_within_interval
+from fatebridge.core.astrology_predictive import (
+    build_predictive_birth_info,
+    build_releasing_level_within_interval,
+    build_western_timing_payload,
+)
 from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis
 
@@ -131,6 +135,7 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert len(primary_directions["current_window"]) > 0
     assert len(primary_directions["past_window"]) > 0
     assert len(primary_directions["future_window"]) > 0
+    assert "exact_window" in primary_directions
     assert primary_directions["past_window"][0]["relative_years_from_current"] <= 0
     assert primary_directions["future_window"][0]["relative_years_from_current"] >= 0
 
@@ -144,6 +149,7 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert primary_direction_chart["current_arc_degrees"] == pytest.approx(
         34.5072, abs=0.01
     )
+    assert "exact_hits" in primary_direction_chart
     assert primary_direction_chart["bounds_overlay"]["system"] == "egyptian_bounds"
     assert primary_direction_chart["bounds_overlay"]["enabled"] is True
     assert primary_direction_chart["bounds_overlay"]["points"]["Sun"]["sign"] == "Cancer"
@@ -217,6 +223,72 @@ def test_core_chart_supports_fixed_offset_timezones():
 
     assert result["chart_profile"]["chart_type"] == "chart"
     assert result["chart_profile"]["engine_precision"] == "approximate_orbital_model"
+
+
+def test_primary_directions_expose_exact_window_for_exact_hit_moment():
+    baseline_result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=5,
+        analysis_day=20,
+        pd_method="astroapp_alchabitius",
+        pd_time_key="Naibod",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+    exact_moment = datetime.fromisoformat(
+        baseline_result["directions"]["primary_directions"]["current_window"][0][
+            "event_datetime"
+        ]
+    )
+    birth_info = build_predictive_birth_info(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+    )
+
+    exact_result = build_western_timing_payload(
+        birth_info,
+        analysis_datetime=exact_moment,
+        pd_method="astroapp_alchabitius",
+        pd_time_key="Naibod",
+        pd_aspects=[0, 90, 180],
+        show_pd_bounds=True,
+    )
+
+    exact_window = exact_result["directions"]["primary_directions"]["exact_window"]
+    assert len(exact_window) > 0
+    assert exact_window[0]["timing_phase"] == "exact"
+    assert abs(exact_window[0]["relative_years_from_current"]) <= 0.01
+
+    exact_hits = exact_result["directions"]["primary_direction_chart"]["exact_hits"]
+    assert len(exact_hits) > 0
+    assert exact_hits[0]["timing_phase"] == "exact"
+    assert (
+        exact_hits[0]["promissor"],
+        exact_hits[0]["significator"],
+        exact_hits[0]["aspect"],
+    ) == (
+        exact_window[0]["promissor"],
+        exact_window[0]["significator"],
+        exact_window[0]["aspect"],
+    )
 
 
 def test_western_timing_supports_fixed_offset_timezones():

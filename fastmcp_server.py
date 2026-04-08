@@ -1156,12 +1156,13 @@ def ziwei_birth(
     birth_minute: int = 0,
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
     紫微斗数命盘工具
 
-    根据出生信息生成离线紫微斗数命盘，输出命宫、身宫、十二宫位、主星与四化结构。
+    根据出生信息生成离线紫微斗数命盘，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     person = create_person_info(
         birth_year,
@@ -1177,7 +1178,10 @@ def ziwei_birth(
         use_true_solar_time=use_true_solar_time,
     )
 
-    result = calculate_ziwei_birth_service(person)
+    result = calculate_ziwei_birth_service(
+        person,
+        selected_sections=selected_sections,
+    )
     if "error" in result:
         return format_error_response(result, "紫微斗数命盘")
 
@@ -1211,12 +1215,13 @@ def liureng_gods(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
     大六壬起课工具
 
-    根据指定时刻生成月将、四课、三传、贵人盘序与概览。
+    根据指定时刻生成月将、四课、三传、贵人盘序与概览，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     result = calculate_liureng_gods_service(
         analysis_year=analysis_year,
@@ -1227,6 +1232,7 @@ def liureng_gods(
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
         gender=gender or "未知",
+        selected_sections=selected_sections,
         use_true_solar_time=use_true_solar_time,
     )
 
@@ -1256,12 +1262,13 @@ def liureng_runyear(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
     大六壬行年工具
 
-    在起课结果上叠加行年干支与年龄信息，适合结合出生上下文查看当前行运。
+    在起课结果上叠加行年干支与年龄信息，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     person = create_person_info(
         birth_year,
@@ -1286,6 +1293,7 @@ def liureng_runyear(
         analysis_minute=analysis_minute,
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
+        selected_sections=selected_sections,
         use_true_solar_time=use_true_solar_time,
     )
 
@@ -1344,12 +1352,13 @@ def taiyi(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
     太乙神数工具
 
-    生成离线太乙盘，输出主算、太乙、文昌与十六宫标记。
+    生成离线太乙盘，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     result = calculate_taiyi_analysis_service(
         analysis_year=analysis_year,
@@ -1360,6 +1369,7 @@ def taiyi(
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
         gender=gender or "未知",
+        selected_sections=selected_sections,
         use_true_solar_time=use_true_solar_time,
     )
 
@@ -1381,12 +1391,13 @@ def jinkou(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
 ) -> str:
     """
     金口诀工具
 
-    在六壬语境上生成金口诀四位、用爻、四大空亡与四位神煞。
+    在六壬语境上生成金口诀四位、用爻、四大空亡与四位神煞，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
     result = calculate_jinkou_analysis_service(
         analysis_year=analysis_year,
@@ -1398,6 +1409,7 @@ def jinkou(
         analysis_longitude=analysis_longitude,
         gender=gender or "未知",
         di_fen=di_fen,
+        selected_sections=selected_sections,
         use_true_solar_time=use_true_solar_time,
     )
 

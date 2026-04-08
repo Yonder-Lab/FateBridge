@@ -320,7 +320,7 @@ class SuZhanRequest(BaseModel):
     doubing_su28: bool = Field(default=True, alias="doubingSu28", description="Whether to double-check su28 labels")
     hsys: int = Field(
         default=8,
-        description="Offline house system selector; standard suzhan supports 8=equal and 0=whole_sign",
+        description="Offline house system selector; standard suzhan supports 0..8 with the same FateBridge local house semantics as core chart",
     )
     zodiacal: int = Field(
         default=0,
@@ -384,6 +384,11 @@ class SanShiUnitedRequest(BaseModel):
 class ZiweiBirthRequest(FateBridgeRequest):
     """Request model for Zi Wei birth chart analysis."""
 
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
 
 class ZiweiRulesRequest(BaseModel):
     """Request model for Zi Wei rule catalogue lookup."""
@@ -411,6 +416,10 @@ class LiuRengGodsRequest(BaseModel):
         default=None, ge=-180, le=180, description="Analysis longitude"
     )
     gender: Optional[str] = Field(default="未知", description="Gender")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
     use_true_solar_time: bool = Field(
         default=False, description="Enable true solar time correction"
     )
@@ -431,6 +440,10 @@ class LiuRengRunyearRequest(FateBridgeRequest):
     )
     analysis_longitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description="Analysis longitude"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
     )
 
 
@@ -1160,7 +1173,7 @@ async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
 @app.post("/api/cn/ziwei/birth")
 async def calculate_ziwei_birth_chart(request: ZiweiBirthRequest) -> dict:
     """
-    Calculate a Zi Wei birth chart from birth information.
+    Calculate a Zi Wei birth chart with offline snapshot text and export sections.
     """
     try:
         logger.info("Processing ziwei birth request for %s", request.name)
@@ -1179,7 +1192,10 @@ async def calculate_ziwei_birth_chart(request: ZiweiBirthRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_ziwei_birth(person)
+        result = calculate_ziwei_birth(
+            person,
+            selected_sections=request.selected_sections or None,
+        )
 
         if "error" in result:
             logger.warning(f"Ziwei birth calculation failed: {result['error']}")
@@ -1223,7 +1239,7 @@ async def get_ziwei_rules(request: ZiweiRulesRequest) -> dict:
 @app.post("/api/cn/liureng/gods")
 async def get_liureng_gods(request: LiuRengGodsRequest) -> dict:
     """
-    Calculate a Liu Ren divination board.
+    Calculate a Liu Ren divination board with offline snapshot text and export sections.
     """
     try:
         result = calculate_liureng_gods(
@@ -1235,6 +1251,7 @@ async def get_liureng_gods(request: LiuRengGodsRequest) -> dict:
             analysis_timezone=request.analysis_timezone,
             analysis_longitude=request.analysis_longitude,
             gender=request.gender or "未知",
+            selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
 
@@ -1256,7 +1273,7 @@ async def get_liureng_gods(request: LiuRengGodsRequest) -> dict:
 @app.post("/api/cn/liureng/runyear")
 async def get_liureng_runyear(request: LiuRengRunyearRequest) -> dict:
     """
-    Calculate a Liu Ren runyear analysis using birth context.
+    Calculate a Liu Ren runyear analysis using birth context, with offline snapshot export support.
     """
     try:
         person = create_person_info(
@@ -1281,6 +1298,7 @@ async def get_liureng_runyear(request: LiuRengRunyearRequest) -> dict:
             analysis_minute=request.analysis_minute,
             analysis_timezone=request.analysis_timezone,
             analysis_longitude=request.analysis_longitude,
+            selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
 
@@ -1336,7 +1354,7 @@ async def get_qimen_analysis(request: QimenAnalysisRequest) -> dict:
 @app.post("/api/cn/taiyi")
 async def get_taiyi_analysis(request: TaiyiAnalysisRequest) -> dict:
     """
-    Calculate a Taiyi board.
+    Calculate a Taiyi board with offline snapshot text and export sections.
     """
     try:
         result = calculate_taiyi_analysis(
@@ -1348,6 +1366,7 @@ async def get_taiyi_analysis(request: TaiyiAnalysisRequest) -> dict:
             analysis_timezone=request.analysis_timezone,
             analysis_longitude=request.analysis_longitude,
             gender=request.gender or "未知",
+            selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
 
@@ -1369,7 +1388,7 @@ async def get_taiyi_analysis(request: TaiyiAnalysisRequest) -> dict:
 @app.post("/api/cn/jinkou")
 async def get_jinkou_analysis(request: JinkouAnalysisRequest) -> dict:
     """
-    Calculate a Jin Kou board.
+    Calculate a Jin Kou board with offline snapshot text and export sections.
     """
     try:
         result = calculate_jinkou_analysis(
@@ -1382,6 +1401,7 @@ async def get_jinkou_analysis(request: JinkouAnalysisRequest) -> dict:
             analysis_longitude=request.analysis_longitude,
             gender=request.gender or "未知",
             di_fen=request.di_fen,
+            selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
 

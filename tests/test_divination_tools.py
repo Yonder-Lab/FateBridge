@@ -503,6 +503,54 @@ def test_calculate_suzhan_analysis_supports_offline_house_system_and_zodiacal_mo
     assert tropical_sun["sign"] != sidereal_sun["sign"]
 
 
+def test_calculate_suzhan_analysis_supports_extended_offline_house_systems():
+    placidus_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        szchart=0,
+        hsys=3,
+        zodiacal=0,
+    )
+    sripati_result = calculate_suzhan_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        szchart=0,
+        hsys=7,
+        zodiacal=0,
+    )
+
+    placidus_sun = next(
+        item for item in placidus_result["chart"]["objects"] if item["id"] == "Sun"
+    )
+    sripati_sun = next(
+        item for item in sripati_result["chart"]["objects"] if item["id"] == "Sun"
+    )
+    placidus_houses = placidus_result["chart"]["houses"]
+    sripati_houses = sripati_result["chart"]["houses"]
+    placidus_spans = [
+        round((placidus_houses[(index + 1) % 12]["lon"] - house["lon"]) % 360.0, 4)
+        for index, house in enumerate(placidus_houses)
+    ]
+    sripati_spans = [
+        round((sripati_houses[(index + 1) % 12]["lon"] - house["lon"]) % 360.0, 4)
+        for index, house in enumerate(sripati_houses)
+    ]
+
+    assert placidus_result["params"]["houseSystemResolved"] == "placidus"
+    assert sripati_result["params"]["houseSystemResolved"] == "sripati"
+    assert any(span != 30.0 for span in placidus_spans)
+    assert any(span != 30.0 for span in sripati_spans)
+    assert _house_id_for_longitude(placidus_houses, placidus_sun["lon"]) == placidus_sun["house"]
+    assert _house_id_for_longitude(sripati_houses, sripati_sun["lon"]) == sripati_sun["house"]
+    assert placidus_houses[0]["lon"] != sripati_houses[0]["lon"]
+
+
 def test_calculate_suzhan_analysis_rejects_unsupported_offline_modes():
     invalid_hsys_result = calculate_suzhan_analysis(
         date="2028-04-06",
@@ -510,7 +558,7 @@ def test_calculate_suzhan_analysis_rejects_unsupported_offline_modes():
         zone="+08:00",
         lat="31n13",
         lon="121e28",
-        hsys=1,
+        hsys=9,
     )
     invalid_zodiac_result = calculate_suzhan_analysis(
         date="2028-04-06",

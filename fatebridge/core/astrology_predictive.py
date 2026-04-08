@@ -2092,6 +2092,29 @@ def build_primary_directions_payload(
             key=lambda item: item["event_age_years"],
         )[:phase_window_size]
     ]
+    exact_window = [
+        enrich_primary_direction_hit_with_coordinate_context(
+            item,
+            natal_coordinates=natal_coordinates,
+            coordinate_system=coordinate_system,
+            coordinate_label=coordinate_label,
+            natal_coordinate_points=coordinate_rings["points"],
+            natal_coordinate_lots=coordinate_rings["lots"],
+            arc_applied_degrees=current_arc,
+        )
+        for item in sorted(
+            (
+                timeline_item
+                for timeline_item in timeline
+                if timeline_item["timing_phase"] == "exact"
+            ),
+            key=lambda item: (
+                item["distance_from_current_years"],
+                item["event_age_years"],
+                item["arc_degrees"],
+            ),
+        )[:current_window_size]
+    ]
     current_coordinate_rings = build_primary_direction_coordinate_rings(
         natal_coordinates,
         coordinate_system=coordinate_system,
@@ -2124,6 +2147,7 @@ def build_primary_directions_payload(
         "current_window": current_window,
         "past_window": past_window,
         "future_window": future_window,
+        "exact_window": exact_window,
         "timeline": timeline,
     }
 
@@ -2189,6 +2213,9 @@ def build_primary_direction_chart_payload(
         "directed_coordinate_points": current_coordinate_points,
         "directed_coordinate_lots": current_coordinate_lots,
         "coordinate_hits": current_hits[:8],
+        "exact_hits": [
+            item for item in current_hits[:8] if item.get("timing_phase") == "exact"
+        ],
         "bounds_overlay": bounds_overlay,
         "directed_points": directed_points,
         "directed_lots": directed_lots,

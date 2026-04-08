@@ -1427,6 +1427,7 @@ def build_suzhan_result(
         shape_mode=normalized_szshape,
         hsys=normalized_hsys,
         zodiacal=normalized_zodiacal,
+        allow_extended_hsys=not bool(normalized_szchart),
         extra_params={
             "szchart": normalized_szchart,
             "szshape": normalized_szshape,

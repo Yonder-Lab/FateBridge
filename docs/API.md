@@ -365,7 +365,7 @@ curl http://localhost:8000/health
 - `szshape`: 宫位方向开关；`0` 顺布，`1` 逆布
 - `houseStartMode`: 宫位起点模式；`1` 沿用本地宫头，`2` 以整宫起点重建 house ring
 - `doubingSu28`: 是否把二十八宿标签写入星体对象
-- `hsys`: 标准宿盘当前离线支持 `8=等宫制`、`0=整宫制`；默认 `8`
+- `hsys`: 标准宿盘当前离线支持 `0=整宫制`、`1=Alcabitus`、`2=Regiomontanus`、`3=Placidus`、`4=Koch`、`5=Vehlow Equal`、`6=Polich Page`、`7=Sripati`、`8=天顶为10宫中点等宫制`；默认 `8`
 - `zodiacal`: 标准宿盘当前离线支持 `0=回归黄道`、`1=恒星黄道(Lahiri-like)`；默认 `0`
   `szchart=1` 的果老盘模式保持 FateBridge 固定离线语义，不支持额外切换
 
@@ -376,7 +376,7 @@ curl http://localhost:8000/health
 - `params.houseSystemResolved`: 标准宿盘实际采用的宫制
 - `params.zodiacMode`: 标准宿盘实际采用的黄道模式
 - `params.zodiacLabelZh / ayanamsha`: `zodiacal=1` 时返回的黄道中文标签与 ayanamsha
-- `chart.houses`: 重建后的宿盘宫位
+- `chart.houses`: 重建后的宿盘宫位；`hsys=1..8` 且 `houseStartMode=1` 时会保留对应离线 cusp 结构，不再统一退化成等宽 30° ring
 - `chart.objects`: 星体 / 点位列表；启用时会带 `su28`
 - `snapshot_text`: 宿盘宫位与星曜摘要
 
@@ -443,7 +443,31 @@ curl http://localhost:8000/health
 - `snapshot_export.selected_sections`: 实际应用后的导出 section；旧式方向宫名会归一到 `离九宫` 这类本地标题
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整三式快照
 
-##### 3.1.6 独立奇门 / QiMen
+##### 3.1.6 独立紫微 / ZiWei
+
+**端点**:
+
+- `POST /api/cn/ziwei/birth`
+- `POST /api/cn/ziwei/rules`
+
+**关键参数**:
+
+- `birth` 端点复用标准出生信息输入，并支持 `use_true_solar_time`
+- `birth.selected_sections`: 可选导出 section，如 `起盘信息`、`宫位总览`
+- `rules.year_stem`: 可选天干过滤，例如 `甲`
+
+**返回重点**:
+
+- `ziwei_birth.ming_gong / shen_gong`: 命宫、身宫信息
+- `ziwei_birth.sihua`: 生年四化
+- `ziwei_birth.palaces`: 十二宫位、大限与主辅星分布
+- `snapshot_text`: 按 `[起盘信息] / [宫位总览]` 输出离线紫微快照
+- `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整紫微快照
+- `rules` 端点继续返回宫位顺序、命身宫法与四化规则目录，不附加快照导出
+
+##### 3.1.7 独立奇门 / QiMen
 
 **端点**: `POST /api/cn/qimen`
 
@@ -466,6 +490,81 @@ curl http://localhost:8000/health
 - `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
 - `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
 - `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整奇门快照与九宫单宫分段
+
+##### 3.1.8 独立六壬 / LiuReng
+
+**端点**:
+
+- `POST /api/cn/liureng/gods`
+- `POST /api/cn/liureng/runyear`
+
+**关键参数**:
+
+- `analysis_year` / `analysis_month` / `analysis_day` / `analysis_hour` / `analysis_minute`: 起课时刻
+- `analysis_timezone`: 时区；支持 IANA 名称或 UTC offset
+- `analysis_longitude`: 经度；启用真太阳时时用于修正时刻
+- `use_true_solar_time`: 是否使用本地真太阳时
+- `selected_sections`: 可选导出 section，如 `起盘信息`、`三传`、`概览`
+- `runyear` 端点额外需要出生信息，并会输出 `行年`
+
+**返回重点**:
+
+- `liureng.month_general`: 月将
+- `liureng.four_lessons`: 四课
+- `liureng.three_transmissions`: 三传与取传法
+- `runyear.age / ganzhi`: 行年端点附加的年龄与行年干支
+- `snapshot_text`: 按 `[起盘信息] / [十二盘式] / [四课] / [三传] / [行年] / [概览] ...` 输出离线快照
+- `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整六壬快照
+
+##### 3.1.9 独立太乙 / TaiYi
+
+**端点**: `POST /api/cn/taiyi`
+
+**关键参数**:
+
+- `analysis_year` / `analysis_month` / `analysis_day` / `analysis_hour` / `analysis_minute`: 起盘时刻
+- `analysis_timezone`: 时区；支持 IANA 名称或 UTC offset
+- `analysis_longitude`: 经度；启用真太阳时时用于修正时刻
+- `gender`: 性别
+- `use_true_solar_time`: 是否使用本地真太阳时
+- `selected_sections`: 可选导出 section，如 `起盘信息`、`太乙盘`、`十六宫标记`
+
+**返回重点**:
+
+- `taiyi.core_board.main_calculation`: 主算结果
+- `taiyi.taiyi_palace / wenchang_palace`: 太乙与文昌落宫
+- `taiyi.palace_marks`: 十六宫标记
+- `snapshot_text`: 按 `[起盘信息] / [太乙盘] / [十六宫标记]` 输出离线快照
+- `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整太乙快照
+
+##### 3.1.10 独立金口诀 / JinKou
+
+**端点**: `POST /api/cn/jinkou`
+
+**关键参数**:
+
+- `analysis_year` / `analysis_month` / `analysis_day` / `analysis_hour` / `analysis_minute`: 起课时刻
+- `analysis_timezone`: 时区；支持 IANA 名称或 UTC offset
+- `analysis_longitude`: 经度；启用真太阳时时用于修正时刻
+- `gender`: 性别
+- `di_fen`: 可选地分；省略时默认取当前时支
+- `use_true_solar_time`: 是否使用本地真太阳时
+- `selected_sections`: 可选导出 section，如 `起盘信息`、`金口诀速览`、`金口诀四位`、`四位神煞`
+
+**返回重点**:
+
+- `jinkou.overview`: 地分、月将、贵神、课体、取传法、用爻与空亡概览
+- `jinkou.rows`: 人元 / 贵神 / 将神 / 地分四位明细，含神将、五行与旺衰
+- `jinkou.shensha`: 四位神煞与课体辅助列表
+- `liureng`: 当前金口诀依附的离线六壬语境，用于保持课体与取传判断一致
+- `snapshot_text`: 按 `[起盘信息] / [金口诀速览] / [金口诀四位] / [四位神煞]` 输出离线快照
+- `snapshot_export.section_titles_detected`: 本次离线快照中实际可导出的 section 列表
+- `snapshot_export.selected_sections`: 实际应用后的 section 选择结果
+- `snapshot_export.export_text`: 按 `selected_sections` 过滤后的导出文本；未传时默认保留完整金口诀快照
 
 ---
 
@@ -734,8 +833,8 @@ curl http://localhost:8000/health
 - `directions.given_year`: 指定年盘关键点位、命盘相位命中，以及从生日起算的 12 段月推限时间线
 - `directions.secondary_progression`: 次限推运日期、关键点位与命盘相位命中
 - `directions.solar_arc`: 太阳弧度数、定向点位与命盘相位命中
-- `directions.primary_directions`: 基于 static key 的轴点主限近似，返回顺推 / 逆推模式、主限坐标系（Arc / 赤经 / SemiArc）、近似类型、当前弧度、主限事件表、最近事件窗口，以及可选的坐标诊断、本命坐标环；其中 `timeline` 事件项带事件弧度下的 `coordinate_context`、`arc_applied_degrees`、`relative_years_from_current`、`relative_arc_from_current` 与 `timing_phase`，`current_window` / `past_window` / `future_window` 则带当前分析弧度下的 `coordinate_context`
-- `directions.primary_direction_chart`: 当前分析时刻对应的轴点主限法盘视图，返回顺推 / 逆推模式下的主限坐标系、近似类型、完整 directed points / lots、换座提示、当前事件命中、坐标诊断、本命 / directed 坐标环、带 `coordinate_context` 的 `hits` / `coordinate_hits`，以及可选的 `bounds_overlay`
+- `directions.primary_directions`: 基于 static key 的轴点主限近似，返回顺推 / 逆推模式、主限坐标系（Arc / 赤经 / SemiArc）、近似类型、当前弧度、主限事件表、最近事件窗口，以及可选的坐标诊断、本命坐标环；其中 `timeline` 事件项带事件弧度下的 `coordinate_context`、`arc_applied_degrees`、`relative_years_from_current`、`relative_arc_from_current` 与 `timing_phase`，`current_window` / `past_window` / `future_window` / `exact_window` 则带当前分析弧度下的 `coordinate_context`
+- `directions.primary_direction_chart`: 当前分析时刻对应的轴点主限法盘视图，返回顺推 / 逆推模式下的主限坐标系、近似类型、完整 directed points / lots、换座提示、当前事件命中、坐标诊断、本命 / directed 坐标环、带 `coordinate_context` 的 `hits` / `coordinate_hits` / `exact_hits`，以及可选的 `bounds_overlay`
 - `time_lords.annual_profection`: 年小限主宫、激活星座与年主星
 - `time_lords.firdaria`: 当前法达主限 / 子限与时间范围
 - `time_lords.decennials`: 当前十年星限的 L1 / L2 / L3 层级与时间轴片段

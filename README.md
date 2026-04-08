@@ -30,11 +30,12 @@
 - **卦义断辞层**：本卦、变卦、互卦、综卦与卦义检索统一返回 `judgement`、`image`、`favorable`、`caution`
 - **卦义检索**：支持按卦名或二进制卦码查询八卦/六十四卦义理摘要
 - **Phase 2 本地技法**：统摄法、六爻、宿占、占星骰子、三式合一均由 FateBridge 离线内核直接计算，无需外部 runtime
-- **宿占离线宫制 / 黄道切换**：标准 `suzhan` 现已支持 FateBridge 本地 `equal / whole_sign` 与 `tropical / sidereal(Lahiri-like)` 模式
+- **宿占离线宫制 / 黄道切换**：标准 `suzhan` 现已支持 FateBridge 本地 `0..8` 全套旧版兼容宫制与 `tropical / sidereal(Lahiri-like)` 模式；当 `houseStartMode=1` 时，`1..8` 会保留真实离线宫头
 - **占星骰子离线宫制 / 黄道切换**：`otherbu` 现已支持 FateBridge 本地 `0..8` 全套旧版兼容宫制与 `tropical / sidereal(Lahiri-like)` 模式，且 `1..7` 会保留真实离线宫头而不是退化成等宽 30° ring
 - **奇门变体盘语义稳定化**：独立 `qimen` 与 `qimen_options` 变体盘统一返回 `content_palace / content_trigram`，`zhifu / zhishi` 也会直接带内容来源，并新增独立 `snapshot_text` 与可按 `selected_sections` 过滤的 `snapshot_export`
 - **三式合一本地真太阳时**：`sanshiunited` 现已支持 `use_true_solar_time`，会直接复用 FateBridge 离线真太阳时修正链路重算三式盘面
 - **三式合一离线导出协议**：`sanshiunited` 新增 `snapshot_export`，可按 `selected_sections` 定向导出起盘摘要、太乙/六壬分段与单宫详解
+- **独立紫微 / 太乙 / 六壬 / 金口诀导出协议**：`ziwei_birth`、`taiyi`、`liureng_gods`、`liureng_runyear`、`jinkou` 现已统一返回 `snapshot_text + snapshot_export`
 
 ### 🤝 高级功能
 
@@ -310,7 +311,13 @@ FateBridge/
 | `POST` | `/api/cn/jieqi/year` | 全年节气盘 helper |
 | `POST` | `/api/cn/nongli/time` | 农历换算 helper |
 | `POST` | `/api/cn/gua/meiyi` | 梅易卦义 helper |
+| `POST` | `/api/cn/ziwei/birth` | 独立紫微斗数命盘 |
+| `POST` | `/api/cn/ziwei/rules` | 紫微规则库 |
+| `POST` | `/api/cn/liureng/gods` | 独立六壬起课分析 |
+| `POST` | `/api/cn/liureng/runyear` | 独立六壬行年分析 |
 | `POST` | `/api/cn/qimen` | 独立奇门遁甲分析 |
+| `POST` | `/api/cn/taiyi` | 独立太乙神数分析 |
+| `POST` | `/api/cn/jinkou` | 独立金口诀分析 |
 | `POST` | `/api/divination/gua` | 卦义检索 |
 | `POST` | `/api/divination/meihua` | 梅花时卦分析 |
 | `POST` | `/api/divination/tongshefa` | 统摄法分析 |
@@ -350,7 +357,13 @@ FateBridge/
 | `nongli_time` | 农历换算 helper |
 | `jieqi_timeline_analysis` | 节气节点时间轴分析 |
 | `gua_meiyi` | 梅易卦义 helper |
+| `ziwei_birth` | 独立紫微斗数命盘 |
+| `ziwei_rules` | 紫微规则库 |
+| `liureng_gods` | 独立六壬起课分析 |
+| `liureng_runyear` | 独立六壬行年分析 |
 | `qimen` | 独立奇门遁甲分析 |
+| `taiyi` | 独立太乙神数分析 |
+| `jinkou` | 独立金口诀分析 |
 | `gua_lookup` | 卦义检索 |
 | `meihua_analysis` | 梅花时卦分析 |
 | `tongshefa` | 统摄法分析 |
