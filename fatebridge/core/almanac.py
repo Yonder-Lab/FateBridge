@@ -155,6 +155,9 @@ LUNAR_DAY_NAMES = {
 
 OFFSET_RE = re.compile(r"^([+-]?)(\d{1,2})(?::?(\d{2}))?$")
 
+LUNAR_SUPPORTED_SOLAR_START = datetime(1900, 1, 31).date()
+LUNAR_SUPPORTED_SOLAR_END = datetime(2100, 2, 8).date()
+
 DAY_GANZHI_JDN_OFFSETS = {
     DAY_GANZHI_STRATEGY_STANDARD: 49,
     DAY_GANZHI_STRATEGY_REFERENCE_OFFSET: 38,
@@ -349,21 +352,48 @@ def _format_lunar_year(year: int) -> str:
     return "".join(digits[int(char)] for char in str(year))
 
 
+def _lunar_supported_range_payload() -> Dict[str, str]:
+    return {
+        "start": LUNAR_SUPPORTED_SOLAR_START.isoformat(),
+        "end": LUNAR_SUPPORTED_SOLAR_END.isoformat(),
+    }
+
+
+def _safe_lunar_date_from_solar(
+    moment: datetime, timezone_name: str
+) -> Optional["LunarDate"]:
+    if LunarDate is None:
+        return None
+
+    local_moment = localize_datetime(moment, timezone_name)
+    solar_date = local_moment.date()
+    if (
+        solar_date < LUNAR_SUPPORTED_SOLAR_START
+        or solar_date > LUNAR_SUPPORTED_SOLAR_END
+    ):
+        return None
+
+    try:
+        lunar = LunarDate.fromSolarDate(
+            solar_date.year, solar_date.month, solar_date.day
+        )
+        if lunar.toSolarDate() != solar_date:
+            return None
+    except ValueError:
+        return None
+
+    return lunar
+
+
 def get_lunar_context(
     moment: datetime,
     *,
     timezone_name: str = DEFAULT_TIMEZONE,
     pillars: Optional[Dict[str, Tuple[str, str]]] = None,
 ) -> Optional[Dict[str, object]]:
-    if LunarDate is None:
-        return None
-
     local_moment = localize_datetime(moment, timezone_name)
-    try:
-        lunar = LunarDate.fromSolarDate(
-            local_moment.year, local_moment.month, local_moment.day
-        )
-    except ValueError:
+    lunar = _safe_lunar_date_from_solar(local_moment, timezone_name)
+    if lunar is None:
         return None
 
     previous_term, next_term = get_adjacent_solar_terms(local_moment, timezone_name)
@@ -420,6 +450,14 @@ def build_calendar_context(
     lunar_context = get_lunar_context(
         local_moment, timezone_name=timezone_name, pillars=pillars
     )
+    lunar_support = {
+        "supported": lunar_context is not None,
+        "supported_range": _lunar_supported_range_payload(),
+    }
+    if lunar_context is None:
+        lunar_support["reason"] = (
+            "离线农历换算仅支持公历 1900-01-31 至 2100-02-08。"
+        )
 
     return {
         "timezone": timezone_name,
@@ -437,4 +475,5 @@ def build_calendar_context(
         },
         "bazi_month_boundary": month_context,
         "lunar_calendar": lunar_context,
+        "lunar_calendar_support": lunar_support,
     }

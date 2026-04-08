@@ -8,10 +8,17 @@ Jin Kou outputs without depending on a separate runtime.
 
 from __future__ import annotations
 
+from functools import lru_cache
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from .almanac import (
+    DAY_GANZHI_STRATEGY_STANDARD,
+    get_jieqi_year_grid,
+    localize_datetime,
+)
+from .calendar import BaZiCalendar
 from .divination import build_hexagram
 from ..utils.data import (
     BRANCH_ELEMENTS,
@@ -426,6 +433,32 @@ QIMEN_JU_BY_TERM = {
     "小雪": (5, 8, 2),
     "大雪": (4, 7, 1),
 }
+QIMEN_ZHIRUN_TERM_SEQUENCE = (
+    "春分",
+    "清明",
+    "谷雨",
+    "立夏",
+    "小满",
+    "芒种",
+    "夏至",
+    "小暑",
+    "大暑",
+    "立秋",
+    "处暑",
+    "白露",
+    "秋分",
+    "寒露",
+    "霜降",
+    "立冬",
+    "小雪",
+    "大雪",
+    "冬至",
+    "小寒",
+    "大寒",
+    "立春",
+    "雨水",
+    "惊蛰",
+)
 QIMEN_PALACE_BY_TRIGRAM = {item["trigram"]: item for item in QIMEN_PALACES}
 QIMEN_GUA_BY_NUMERAL = dict(zip(QIMEN_CN_NUMBERS, QIMEN_GUA_SEQUENCE))
 QIMEN_JIU_XING_BY_NUMERAL = dict(zip(QIMEN_CN_NUMBERS, QIMEN_JIU_XING_RING))
@@ -741,6 +774,225 @@ def _qimen_rotate_gua_sequence(yinyang: str) -> Tuple[str, ...]:
     if yinyang == "阴":
         return tuple(reversed(QIMEN_CLOCKWISE_GUA_SEQUENCE))
     return QIMEN_CLOCKWISE_GUA_SEQUENCE
+
+
+def _qimen_key_to_day_number(key: str) -> int:
+    if len(key or "") != 8:
+        raise ValueError(f"Invalid qimen day key: {key!r}")
+    year = int(key[0:4])
+    month = int(key[4:6])
+    day = int(key[6:8])
+    return datetime(year, month, day).date().toordinal()
+
+
+def _qimen_day_number_to_key(day_number: int) -> str:
+    return datetime.fromordinal(day_number).strftime("%Y%m%d")
+
+
+def _qimen_next_term(name: str) -> str:
+    if name not in QIMEN_ZHIRUN_TERM_SEQUENCE:
+        return "冬至"
+    index = QIMEN_ZHIRUN_TERM_SEQUENCE.index(name)
+    return QIMEN_ZHIRUN_TERM_SEQUENCE[
+        (index + 1) % len(QIMEN_ZHIRUN_TERM_SEQUENCE)
+    ]
+
+
+@lru_cache(maxsize=16)
+def _qimen_build_year_term_seed(
+    year: int,
+    timezone_name: str,
+) -> Dict[str, Dict[str, str]]:
+    return {
+        item["name"]: {
+            "term": item["name"],
+            "date_key": item["date_key"],
+            "day_ganzhi": item["day_ganzhi"],
+        }
+        for item in get_jieqi_year_grid(year, timezone_name)
+        if item.get("name")
+    }
+
+
+@lru_cache(maxsize=16)
+def _qimen_build_yinyangdun_map(
+    year: int,
+    timezone_name: str,
+) -> Dict[str, Tuple[str, str]]:
+    previous_year = _qimen_build_year_term_seed(year - 1, timezone_name)
+    current_year = _qimen_build_year_term_seed(year, timezone_name)
+    if (
+        not previous_year
+        or not current_year
+        or "大雪" not in previous_year
+        or "芒种" not in current_year
+        or "大雪" not in current_year
+    ):
+        return {}
+
+    result: Dict[str, Tuple[str, str]] = {}
+
+    previous_daxue = previous_year["大雪"]
+    daxue_start_key = previous_daxue.get("date_key") or ""
+    daxue_day_ganzhi = previous_daxue.get("day_ganzhi") or "甲子"
+    daxue_index = sexagenary_index_for(daxue_day_ganzhi)
+    futou_index = (daxue_index // 15) * 15
+    current_day_number = _qimen_key_to_day_number(daxue_start_key)
+    rizhu_index = daxue_index
+
+    for _ in range(daxue_index, futou_index + 15):
+        result[_qimen_day_number_to_key(current_day_number)] = (
+            "大雪",
+            sexagenary_text(rizhu_index),
+        )
+        current_day_number += 1
+        rizhu_index = (rizhu_index + 1) % 60
+
+    current_term = "大雪" if daxue_index - futou_index >= 9 else "冬至"
+    term_days = 0
+    mangzhong_day_number: Optional[int] = None
+
+    for _ in range(300):
+        result[_qimen_day_number_to_key(current_day_number)] = (
+            current_term,
+            sexagenary_text(rizhu_index),
+        )
+        current_day_number += 1
+        rizhu_index = (rizhu_index + 1) % 60
+        term_days += 1
+        if term_days == 15:
+            term_days = 0
+            current_term = _qimen_next_term(current_term)
+            if current_term == "芒种":
+                mangzhong_day_number = current_day_number
+                for _ in range(15):
+                    result[_qimen_day_number_to_key(current_day_number)] = (
+                        current_term,
+                        sexagenary_text(rizhu_index),
+                    )
+                    current_day_number += 1
+                    rizhu_index = (rizhu_index + 1) % 60
+                break
+
+    mangzhong_start_day = _qimen_key_to_day_number(
+        current_year["芒种"].get("date_key") or ""
+    )
+    current_term = "芒种" if (
+        mangzhong_day_number is not None
+        and mangzhong_start_day > mangzhong_day_number + 9
+    ) else "夏至"
+    term_days = 0
+    daxue_day_number: Optional[int] = None
+
+    for _ in range(300):
+        result[_qimen_day_number_to_key(current_day_number)] = (
+            current_term,
+            sexagenary_text(rizhu_index),
+        )
+        current_day_number += 1
+        rizhu_index = (rizhu_index + 1) % 60
+        term_days += 1
+        if term_days == 15:
+            term_days = 0
+            current_term = _qimen_next_term(current_term)
+            if current_term == "大雪":
+                daxue_day_number = current_day_number
+                for _ in range(15):
+                    result[_qimen_day_number_to_key(current_day_number)] = (
+                        current_term,
+                        sexagenary_text(rizhu_index),
+                    )
+                    current_day_number += 1
+                    rizhu_index = (rizhu_index + 1) % 60
+                break
+
+    current_daxue_start_day = _qimen_key_to_day_number(
+        current_year["大雪"].get("date_key") or ""
+    )
+    current_term = "大雪" if (
+        daxue_day_number is not None
+        and current_daxue_start_day > daxue_day_number + 9
+    ) else "冬至"
+    term_days = 0
+
+    for _ in range(300):
+        result[_qimen_day_number_to_key(current_day_number)] = (
+            current_term,
+            sexagenary_text(rizhu_index),
+        )
+        current_day_number += 1
+        rizhu_index = (rizhu_index + 1) % 60
+        term_days += 1
+        if term_days == 15:
+            term_days = 0
+            current_term = _qimen_next_term(current_term)
+            if current_term == "立春":
+                result[_qimen_day_number_to_key(current_day_number)] = (
+                    current_term,
+                    sexagenary_text(rizhu_index),
+                )
+                break
+
+    return result
+
+
+def _qimen_effective_ganzhi(seed: MetaphysicsSeed) -> Tuple[str, str]:
+    local_datetime = localize_datetime(seed.corrected_datetime, seed.timezone)
+    if local_datetime.hour != 23:
+        return ganzhi_text(seed.pillars["day"]), ganzhi_text(seed.pillars["hour"])
+
+    effective_date = local_datetime.date()
+    effective_date = effective_date + timedelta(days=1)
+
+    day_pillar = BaZiCalendar.calculate_day_pillar(
+        effective_date.year,
+        effective_date.month,
+        effective_date.day,
+        strategy=DAY_GANZHI_STRATEGY_STANDARD,
+    )
+    hour_pillar = BaZiCalendar.calculate_hour_pillar(
+        effective_date.year,
+        effective_date.month,
+        effective_date.day,
+        local_datetime.hour,
+        day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
+    )
+    return ganzhi_text(day_pillar), ganzhi_text(hour_pillar)
+
+
+def _qimen_resolve_zhirun_meta(
+    *,
+    seed: MetaphysicsSeed,
+    fallback_term: str,
+    fallback_ju: int,
+) -> Dict[str, Any]:
+    local_datetime = localize_datetime(seed.corrected_datetime, seed.timezone)
+    target_day_number = _qimen_key_to_day_number(local_datetime.strftime("%Y%m%d"))
+    if local_datetime.hour == 23:
+        target_day_number += 1
+    target_key = _qimen_day_number_to_key(target_day_number)
+    target_year = int(target_key[:4])
+    yinyangdun_map = _qimen_build_yinyangdun_map(target_year, seed.timezone)
+    resolved_term, resolved_day_ganzhi = yinyangdun_map.get(
+        target_key,
+        (fallback_term, None),
+    )
+    effective_day_ganzhi, _ = _qimen_effective_ganzhi(seed)
+    ju_day_ganzhi = resolved_day_ganzhi or effective_day_ganzhi
+    yuan = _qimen_find_yuan(ju_day_ganzhi)
+    ju_number = _qimen_ju_number_for_term(
+        current_term=resolved_term,
+        yuan=yuan,
+        fallback_ju=fallback_ju,
+    )
+    dun_type = "阳遁" if resolved_term in QIMEN_YANG_TERMS else "阴遁"
+    return {
+        "current_term": resolved_term,
+        "day_ganzhi": ju_day_ganzhi,
+        "yuan": yuan,
+        "ju_number": ju_number,
+        "dun_type": dun_type,
+    }
 
 
 def _qimen_find_yuan(day_ganzhi: str) -> str:
@@ -1455,21 +1707,22 @@ def build_liureng_runyear(seed: MetaphysicsSeed, gender: str, birth_year: int) -
 def build_qimen_board(seed: MetaphysicsSeed) -> Dict[str, Any]:
     current_term_info = seed.calendar_context["current_solar_term"]
     current_term = current_term_info["name"]
-    day_ganzhi = ganzhi_text(seed.pillars["day"])
-    time_ganzhi = ganzhi_text(seed.pillars["hour"])
+    day_ganzhi, time_ganzhi = _qimen_effective_ganzhi(seed)
     # 时家奇门的符头与三元都应从当前日干支回推，不应直接借用节气元数据里的日柱。
     fu_tou = qimen_futou_for_ganzhi(day_ganzhi)
-    dun_type = "阳遁" if current_term in QIMEN_YANG_TERMS else "阴遁"
     month_index = EARTHLY_BRANCHES.index(seed.pillars["month"][1])
-    day_index = EARTHLY_BRANCHES.index(seed.pillars["day"][1])
-    hour_index = EARTHLY_BRANCHES.index(seed.pillars["hour"][1])
+    day_index = EARTHLY_BRANCHES.index(day_ganzhi[1])
+    hour_index = EARTHLY_BRANCHES.index(time_ganzhi[1])
     fallback_ju = ((month_index + day_index + hour_index) % 9) + 1
-    yuan = _qimen_find_yuan(day_ganzhi)
-    ju_number = _qimen_ju_number_for_term(
-        current_term=current_term,
-        yuan=yuan,
+    ju_meta = _qimen_resolve_zhirun_meta(
+        seed=seed,
+        fallback_term=current_term,
         fallback_ju=fallback_ju,
     )
+    current_term = ju_meta["current_term"]
+    dun_type = ju_meta["dun_type"]
+    yuan = ju_meta["yuan"]
+    ju_number = ju_meta["ju_number"]
     ju_text = _qimen_build_ju_text(dun_type, ju_number, yuan)
     zfzs = _qimen_zhifu_zhishi(
         time_ganzhi,
@@ -1477,8 +1730,8 @@ def build_qimen_board(seed: MetaphysicsSeed) -> Dict[str, Any]:
         dun_type=dun_type,
         current_term=current_term,
     )
-    xun_head = zfzs["xun_head"]
-    kongwang = kongwang_for_ganzhi(time_ganzhi)
+    xun_head = xun_head_for_ganzhi(day_ganzhi)
+    kongwang = kongwang_for_ganzhi(day_ganzhi)
     palaces = _qimen_build_palaces(
         time_ganzhi=time_ganzhi,
         ju_text=ju_text,

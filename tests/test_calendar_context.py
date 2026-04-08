@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.core.almanac import (
     DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    build_calendar_context,
     get_bazi_month_context,
     get_solar_terms_for_year,
 )
@@ -145,3 +146,21 @@ def test_comprehensive_timing_returns_jieqi_grid_and_analysis_calendar():
     )
     assert qingming_node["liuyue"]["pillar"] == "丙辰"
     assert qingming_node["liuri"]["pillar"] == "己未"
+
+
+def test_build_calendar_context_marks_out_of_range_lunar_support():
+    moment = datetime(2100, 2, 9, 12, 0, 0)
+    pillars = BaZiCalendar.get_four_pillars(moment, timezone_name="Asia/Shanghai")
+
+    calendar_context = build_calendar_context(
+        moment,
+        timezone_name="Asia/Shanghai",
+        pillars=pillars,
+    )
+
+    assert calendar_context["lunar_calendar"] is None
+    assert calendar_context["lunar_calendar_support"]["supported"] is False
+    assert calendar_context["lunar_calendar_support"]["supported_range"] == {
+        "start": "1900-01-31",
+        "end": "2100-02-08",
+    }

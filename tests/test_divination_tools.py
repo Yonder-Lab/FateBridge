@@ -815,7 +815,7 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
 
     assert result["analysis_type"] == "三式合一"
     assert result["qimen"]["dun_type"] == "阳遁"
-    assert result["qimen"]["ju_number"] == 4
+    assert result["qimen"]["ju_number"] == 6
     assert result["taiyi"]["core_board"]["main_calculation"] == "阳遁二十三局"
     assert result["liureng"]["patterns"][0]["name"] == "贵人顺行格"
     assert "subresults" in result
@@ -828,12 +828,12 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
     assert "[八宫详解]" in result["snapshot_text"]
     assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
     assert "离九宫" in result["snapshot_export"]["section_titles_detected"]
-    assert result["qimen"]["zhifu"]["star"] == "天芮"
-    assert result["qimen"]["zhifu"]["palace"] == "兑七宫"
-    assert result["qimen"]["zhishi"]["door"] == "死门"
-    assert result["qimen"]["zhishi"]["palace"] == "震三宫"
-    assert "值符：天芮在兑七宫" in result["snapshot_text"]
-    assert "震三宫：天盘干：乙" in result["snapshot_text"]
+    assert result["qimen"]["zhifu"]["star"] == "天任"
+    assert result["qimen"]["zhifu"]["palace"] == "坤二宫"
+    assert result["qimen"]["zhishi"]["door"] == "生门"
+    assert result["qimen"]["zhishi"]["palace"] == "艮八宫"
+    assert "值符：天任在坤二宫" in result["snapshot_text"]
+    assert "艮八宫：天盘干：癸" in result["snapshot_text"]
     zhifu_palace = next(
         palace
         for palace in result["qimen"]["palaces"]
@@ -889,7 +889,7 @@ def test_calculate_sanshiunited_analysis_applies_qimen_and_taiyi_options():
     assert optioned_result["subresults"]["taiyi"]["pan"] == optioned_result["taiyi"]
     assert optioned_result["snapshot_text"] != default_result["snapshot_text"]
     assert "内容来源：" in optioned_result["snapshot_text"]
-    assert "坎一宫：天盘干：己；地盘干：己；八神：值符；九星：天禽；八门：中门；内容来源：中五宫 / 中" in optioned_result["snapshot_text"]
+    assert "坎一宫：天盘干：丁；地盘干：己；八神：螣蛇；九星：天冲；八门：惊门；内容来源：兑七宫 / 兑" in optioned_result["snapshot_text"]
     optioned_zhifu_palace = next(
         palace
         for palace in optioned_result["qimen"]["palaces"]
@@ -1013,26 +1013,26 @@ def test_phase2_offline_golden_samples_match_current_contract():
         },
         "sanshiunited": {
             "qimen": {
-                "ju_number": 4,
-                "ju_text": "阳遁四局上元",
+                "ju_number": 6,
+                "ju_text": "阳遁六局下元",
                 "zhifu": {
-                    "star": "天芮",
-                    "palace": "震三宫",
-                    "trigram": "震",
-                    "content_palace": "兑七宫",
-                    "content_trigram": "兑",
-                    "code": "芮",
+                    "star": "天任",
+                    "palace": "中五宫",
+                    "trigram": "中",
+                    "content_palace": "坤二宫",
+                    "content_trigram": "坤",
+                    "code": "任",
                 },
                 "zhishi": {
-                    "door": "死门",
-                    "palace": "艮八宫",
-                    "trigram": "艮",
-                    "content_palace": "震三宫",
-                    "content_trigram": "震",
-                    "code": "死",
+                    "door": "生门",
+                    "palace": "坤二宫",
+                    "trigram": "坤",
+                    "content_palace": "艮八宫",
+                    "content_trigram": "艮",
+                    "code": "生",
                 },
                 "layout": "fly",
-                "reference": "外部有助，内部更要对齐。",
+                "reference": "门迫逢旺，先阻后成。",
             },
             "taiyi": {
                 "main_calculation": "阳遁二十三局（积数+1）",

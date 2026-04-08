@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from fatebridge.core.almanac import (
     DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    DAY_GANZHI_STRATEGY_STANDARD,
     build_calendar_context,
 )
 from fatebridge.core.calendar import BaZiCalendar
@@ -48,6 +49,7 @@ def _build_analysis_seed(
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
     use_true_solar_time: bool = False,
+    day_pillar_strategy: str = DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
 ) -> MetaphysicsSeed:
     timezone_name = analysis_timezone or DEFAULT_BIRTH_TIMEZONE
     input_datetime = datetime(
@@ -78,7 +80,7 @@ def _build_analysis_seed(
     pillars = BaZiCalendar.get_four_pillars(
         corrected_datetime,
         timezone_name=timezone_name,
-        day_pillar_strategy=DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+        day_pillar_strategy=day_pillar_strategy,
     )
     calendar_context = build_calendar_context(
         corrected_datetime,
@@ -799,6 +801,7 @@ def calculate_qimen_analysis(
             analysis_timezone=analysis_timezone,
             analysis_longitude=analysis_longitude,
             use_true_solar_time=use_true_solar_time,
+            day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
         )
         qimen = build_qimen_with_options(seed, qimen_options)
         qimen["engine"] = "fatebridge-offline"

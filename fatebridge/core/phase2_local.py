@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from .almanac import (
     DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    DAY_GANZHI_STRATEGY_STANDARD,
     build_calendar_context,
     localize_datetime,
 )
@@ -1065,6 +1066,7 @@ def _build_phase2_metaphysics_seed(
     gps_lat: Optional[float] = None,
     gps_lon: Optional[float] = None,
     use_true_solar_time: bool = False,
+    day_pillar_strategy: str = DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
 ) -> MetaphysicsSeed:
     timezone_value = timezone_name or DEFAULT_BIRTH_TIMEZONE
     input_datetime_naive = datetime.fromisoformat(
@@ -1098,7 +1100,7 @@ def _build_phase2_metaphysics_seed(
     pillars = BaZiCalendar.get_four_pillars(
         corrected_datetime,
         timezone_name=timezone_value,
-        day_pillar_strategy=DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+        day_pillar_strategy=day_pillar_strategy,
     )
     calendar_context = build_calendar_context(
         corrected_datetime,
@@ -2008,10 +2010,12 @@ def _build_taiyi_with_options(seed: MetaphysicsSeed, options: Optional[Dict[str,
 def _build_sanshi_snapshot_text(
     *,
     seed: MetaphysicsSeed,
+    qimen_seed: Optional[MetaphysicsSeed],
     qimen: Dict[str, Any],
     taiyi: Dict[str, Any],
     liureng: Dict[str, Any],
 ) -> str:
+    qimen_display_seed = qimen_seed or seed
     palace_lines = _build_qimen_palace_overview_lines(qimen)
     taiyi_mark_lines = [
         f"{item.get('palace', '宫位')}：{'、'.join(item.get('markers', []) or []) or '无'}"
@@ -2041,11 +2045,11 @@ def _build_sanshi_snapshot_text(
             _join_lines(
                 [
                     f"农历：{(seed.calendar_context.get('lunar_calendar') or {}).get('display') or '无'}",
-                    f"直接时间：{seed.calendar_context['solar_datetime']}",
-                    f"四柱：{seed.pillars['year'][0]}{seed.pillars['year'][1]}年/{seed.pillars['month'][0]}{seed.pillars['month'][1]}月/{seed.pillars['day'][0]}{seed.pillars['day'][1]}日/{seed.pillars['hour'][0]}{seed.pillars['hour'][1]}时",
+                    f"直接时间：{qimen_display_seed.calendar_context['solar_datetime']}",
+                    f"四柱：{qimen_display_seed.pillars['year'][0]}{qimen_display_seed.pillars['year'][1]}年/{qimen_display_seed.pillars['month'][0]}{qimen_display_seed.pillars['month'][1]}月/{qimen_display_seed.pillars['day'][0]}{qimen_display_seed.pillars['day'][1]}日/{qimen_display_seed.pillars['hour'][0]}{qimen_display_seed.pillars['hour'][1]}时",
                     (
                         "时间算法：真太阳时 + 本地节气换月"
-                        if seed.applied_true_solar
+                        if qimen_display_seed.applied_true_solar
                         else "时间算法：直接时间 + 本地节气换月"
                     ),
                     "换日：子初换日",
@@ -2157,7 +2161,18 @@ def build_sanshiunited_result(
         gps_lon=gps_lon,
         use_true_solar_time=bool(use_true_solar_time),
     )
-    qimen = build_qimen_with_options(seed, qimen_options)
+    qimen_seed = _build_phase2_metaphysics_seed(
+        date_text=input_normalized["date"],
+        time_text=input_normalized["time"],
+        timezone_name=input_normalized["zone"],
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
+        use_true_solar_time=bool(use_true_solar_time),
+        day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
+    )
+    qimen = build_qimen_with_options(qimen_seed, qimen_options)
     taiyi = _build_taiyi_with_options(seed, taiyi_options)
     liureng = build_liureng_board(
         seed,
@@ -2168,18 +2183,21 @@ def build_sanshiunited_result(
 
     snapshot_text = _build_sanshi_snapshot_text(
         seed=seed,
+        qimen_seed=qimen_seed,
         qimen=qimen,
         taiyi=taiyi,
         liureng=liureng,
     )
     analysis_context = _build_metaphysics_analysis_context(seed)
     four_pillars = create_pillar_dict(seed.pillars)
+    qimen_analysis_context = _build_metaphysics_analysis_context(qimen_seed)
+    qimen_four_pillars = create_pillar_dict(qimen_seed.pillars)
     subresults = {
         "qimen": {
             "analysis_type": "奇门遁甲",
-            "analysis_context": analysis_context,
-            "four_pillars": four_pillars,
-            "calendar_context": seed.calendar_context,
+            "analysis_context": qimen_analysis_context,
+            "four_pillars": qimen_four_pillars,
+            "calendar_context": qimen_seed.calendar_context,
             "pan": qimen,
         },
         "taiyi": {

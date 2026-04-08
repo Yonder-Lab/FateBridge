@@ -670,7 +670,7 @@ curl http://localhost:8000/health
 
 **端点**: `POST /api/cn/nongli/time`
 
-把公历时刻转换成农历、节气与四柱上下文，便于其他派生技法复用。
+把公历时刻转换成农历、节气与四柱上下文，便于其他派生技法复用。离线农历换算当前仅支持公历 `1900-01-31` 至 `2100-02-08`。
 
 **请求体**:
 
@@ -684,8 +684,8 @@ curl http://localhost:8000/health
 | `gpsLat` | number | 否 | GPS 纬度 |
 | `gpsLon` | number | 否 | GPS 经度 |
 | `after23NewDay` | boolean | 否 | 是否把 23 点后视为次日 |
-| `timeAlg` | integer | 否 | 时间算法透传位 |
-| `ad` | integer | 否 | 公元标记透传位 |
+| `timeAlg` | integer | 否 | 时间算法，`0=真太阳时`（需 `lon` 或 `gpsLon`），`1=直接时间` |
+| `ad` | integer | 否 | 公元标记；离线 `nongli_time` 当前仅支持 `ad=1`，且有效公历范围为 `1900-01-31` 至 `2100-02-08` |
 | `selected_sections` | string[] | 否 | 可选导出 section，如 `查询信息`、`农历上下文`、`四柱上下文`、`来源` |
 
 **返回重点**:
@@ -694,6 +694,7 @@ curl http://localhost:8000/health
 - `calendar_context`: 节气上下文、月令边界与农历信息
 - `lunar_calendar`: 农历日期、节气、节差与梅花时卦辅助字段
 - `four_pillars`: 对应时刻的四柱
+- `analysis_context`: 原始输入时刻、真太阳时修正后时刻、实际起算时刻与修正分钟数
 - `summary`: 换算摘要
 - `snapshot_text`: 按 `[查询信息] / [农历上下文] / [四柱上下文] / [来源]` 输出离线农历快照
 - `snapshot_export.section_titles_detected`: 本次农历快照中实际可导出的 section 列表
@@ -1446,8 +1447,8 @@ FateBridge 快照导出解析工具。
 | `gps_lat` | float | 否 | GPS 纬度 |
 | `gps_lon` | float | 否 | GPS 经度 |
 | `after23_new_day` | bool | 否 | 是否 23 点后视为次日 |
-| `time_alg` | int | 否 | 时间算法透传位 |
-| `ad` | int | 否 | 公元标记透传位 |
+| `time_alg` | int | 否 | 时间算法，`0=真太阳时`（需 `lon` 或 `gps_lon`），`1=直接时间` |
+| `ad` | int | 否 | 公元标记；离线 `nongli_time` 当前仅支持 `ad=1`，且有效公历范围为 `1900-01-31` 至 `2100-02-08` |
 | `selected_sections` | list[str] | 否 | 可选导出分段，如 `查询信息`、`农历上下文`、`四柱上下文`、`来源` |
 
 **返回**: JSON 格式字符串，包含农历、节气与四柱上下文，并附带：

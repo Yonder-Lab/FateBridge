@@ -508,29 +508,29 @@ def test_metaphysics_true_solar_time_uses_longitude_only_correction():
     assert result["four_pillars"] == {
         "year": {"stem": "丙", "branch": "午"},
         "month": {"stem": "辛", "branch": "卯"},
-        "day": {"stem": "丁", "branch": "酉"},
-        "hour": {"stem": "辛", "branch": "亥"},
+        "day": {"stem": "戊", "branch": "申"},
+        "hour": {"stem": "癸", "branch": "亥"},
     }
-    assert result["qimen"]["ju_text"] == "阳遁三局上元"
-    assert result["qimen"]["yuan"] == "上元"
-    assert result["qimen"]["fu_tou"] == "甲午"
+    assert result["qimen"]["ju_text"] == "阳遁六局下元"
+    assert result["qimen"]["yuan"] == "下元"
+    assert result["qimen"]["fu_tou"] == "甲辰"
     assert result["qimen"]["xun_head"] == "甲辰"
     assert result["qimen"]["kongwang"] == "寅卯空"
     assert result["qimen"]["zhifu"] == {
-        "star": "天柱",
-        "palace": "乾六宫",
-        "trigram": "乾",
-        "content_palace": "乾六宫",
-        "content_trigram": "乾",
-        "code": "柱",
+        "star": "天芮",
+        "palace": "坤二宫",
+        "trigram": "坤",
+        "content_palace": "坤二宫",
+        "content_trigram": "坤",
+        "code": "芮",
     }
     assert result["qimen"]["zhishi"] == {
-        "door": "中门",
-        "palace": "中五宫",
-        "trigram": "中",
-        "content_palace": "中五宫",
-        "content_trigram": "中",
-        "code": "惊",
+        "door": "死门",
+        "palace": "坤二宫",
+        "trigram": "坤",
+        "content_palace": "坤二宫",
+        "content_trigram": "坤",
+        "code": "死",
     }
     zhifu_palace = next(
         palace
@@ -544,7 +544,7 @@ def test_metaphysics_true_solar_time_uses_longitude_only_correction():
     )
     assert zhifu_palace["star"] == result["qimen"]["zhifu"]["star"]
     assert zhishi_palace["door"] == result["qimen"]["zhishi"]["door"]
-    assert "值符：天柱在乾六宫" in result["snapshot_text"]
+    assert "值符：天芮在坤二宫" in result["snapshot_text"]
 
 
 def test_calculate_qimen_analysis_applies_qimen_options_and_snapshot_text():

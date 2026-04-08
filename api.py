@@ -374,8 +374,15 @@ class NongliTimeRequest(BaseModel):
     gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
     gender: Optional[bool] = Field(default=None, description="Optional gender flag passthrough")
     after23_new_day: bool = Field(default=False, alias="after23NewDay", description="Whether 23:00 counts as next day")
-    time_alg: int = Field(default=0, alias="timeAlg", description="Time algorithm passthrough flag")
-    ad: int = Field(default=1, description="Common era flag passthrough")
+    time_alg: int = Field(
+        default=0,
+        alias="timeAlg",
+        description="Time algorithm: 0=true solar time (requires longitude), 1=direct clock time",
+    )
+    ad: int = Field(
+        default=1,
+        description="Common era flag; offline nongli conversion supports ad=1 only within 1900-01-31 to 2100-02-08",
+    )
     selected_sections: List[str] = Field(
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",

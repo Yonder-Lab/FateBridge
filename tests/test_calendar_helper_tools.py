@@ -103,7 +103,12 @@ def test_calculate_nongli_time_returns_lunar_and_ganzhi_context():
     assert result["input_context"]["date"] == "2028-04-01"
     assert result["input_context"]["time"] == "09:00:00"
     assert result["input_context"]["timezone"] == "Asia/Shanghai"
-    assert result["birth"] == "2028-04-01 09:00:00"
+    assert result["birth"] == "2028-04-01 09:01:50"
+    assert result["analysis_context"]["input_datetime"] == "2028-04-01 09:00:00"
+    assert result["analysis_context"]["corrected_datetime"] == "2028-04-01 09:01:50"
+    assert result["analysis_context"]["effective_datetime"] == "2028-04-01 09:01:50"
+    assert result["analysis_context"]["time_algorithm"] == "真太阳时"
+    assert result["analysis_context"]["total_correction_minutes"] == 1.85
     assert result["yearJieqi"] == "戊申"
     assert result["monthGanZi"] == "乙卯"
     assert result["dayGanZi"] == "丙辰"
@@ -117,6 +122,7 @@ def test_calculate_nongli_time_returns_lunar_and_ganzhi_context():
     assert result["lunar_calendar"]["jieqi"] == "春分"
     assert set(result["four_pillars"]) == {"year", "month", "day", "hour"}
     assert result["calendar_context"]["current_solar_term"]["name"] == "春分"
+    assert "2028-04-01 09:01:50" in result["summary"]
     assert "三月初七" in result["summary"]
     assert "春分" in result["summary"]
     assert "[查询信息]" in result["snapshot_text"]
@@ -140,6 +146,88 @@ def test_calculate_nongli_time_supports_selected_export_sections():
     assert "[四柱上下文]" in result["snapshot_export"]["export_text"]
     assert "[查询信息]" not in result["snapshot_export"]["export_text"]
     assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
+def test_calculate_nongli_time_time_alg_zero_applies_true_solar_correction():
+    direct_result = calculate_nongli_time(
+        date="2020-01-01",
+        time="00:30:00",
+        zone="Asia/Shanghai",
+        gps_lon=87.6168,
+        time_alg=1,
+    )
+    true_solar_result = calculate_nongli_time(
+        date="2020-01-01",
+        time="00:30:00",
+        zone="Asia/Shanghai",
+        gps_lon=87.6168,
+        time_alg=0,
+    )
+
+    assert direct_result["birth"] == "2020-01-01 00:30:00"
+    assert direct_result["dayGanZi"] == "癸卯"
+    assert direct_result["timeGanZi"] == "壬子"
+    assert true_solar_result["birth"].startswith("2019-12-31 22:16:")
+    assert true_solar_result["dayGanZi"] == "壬寅"
+    assert true_solar_result["timeGanZi"] == "辛亥"
+    assert true_solar_result["birth"] != direct_result["birth"]
+    assert true_solar_result["dayGanZi"] != direct_result["dayGanZi"]
+    assert true_solar_result["timeGanZi"] != direct_result["timeGanZi"]
+
+
+def test_calculate_nongli_time_time_alg_zero_warns_without_longitude():
+    result = calculate_nongli_time(
+        date="2020-01-01",
+        time="00:30:00",
+        zone="Asia/Shanghai",
+        time_alg=0,
+    )
+
+    assert result["birth"] == "2020-01-01 00:30:00"
+    assert result["dayGanZi"] == "癸卯"
+    assert result["timeGanZi"] == "壬子"
+    assert result["warnings"] == [
+        "time_alg=0 需要 lon 或 gps_lon 才能计算真太阳时，已回退为直接时间。"
+    ]
+
+
+def test_calculate_nongli_time_supports_last_valid_offline_lunar_date():
+    result = calculate_nongli_time(
+        date="2100-02-08",
+        time="12:00:00",
+        zone="Asia/Shanghai",
+        time_alg=1,
+    )
+
+    assert result["analysis_type"] == "农历换算"
+    assert result["birth"] == "2100-02-08 12:00:00"
+    assert result["nongli"] == "二零九九年腊月三十"
+    assert result["monthInt"] == 12
+    assert result["dayInt"] == 30
+    assert result["lunar_calendar"]["display"] == "腊月三十"
+
+
+def test_calculate_nongli_time_rejects_dates_after_offline_lunar_range():
+    result = calculate_nongli_time(
+        date="2100-02-09",
+        time="12:00:00",
+        zone="Asia/Shanghai",
+        time_alg=1,
+    )
+
+    assert result == {"error": "农历换算失败，请重试"}
+
+
+def test_calculate_nongli_time_rejects_non_ce_ad_flag():
+    result = calculate_nongli_time(
+        date="2028-04-01",
+        time="09:00:00",
+        zone="Asia/Shanghai",
+        lon="121e28",
+        ad=0,
+    )
+
+    assert result == {"error": "农历换算失败，请重试"}
 
 
 def test_calculate_gua_meiyi_returns_batch_meiyi_explanations():

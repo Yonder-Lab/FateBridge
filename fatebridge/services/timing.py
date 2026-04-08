@@ -1,6 +1,7 @@
 """
 FateBridge Timing Services
 """
+import re
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 import logging
@@ -14,6 +15,7 @@ from fatebridge.utils.helpers import (
     create_pillar_dict,
     get_current_analysis_date,
     format_json_response,
+    calculate_solar_time_adjustment,
     normalize_birth_time,
 )
 from fatebridge.core.calendar import BaZiCalendar
@@ -21,6 +23,10 @@ from fatebridge.core.timing import TimingAnalysis
 from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
 
 logger = logging.getLogger(__name__)
+
+GEO_COORDINATE_RE = re.compile(
+    r"^\s*(?P<degrees>-?\d+(?:\.\d+)?)(?:(?P<direction>[NSEWnsew])(?P<minutes>\d+(?:\.\d+)?))?\s*$"
+)
 
 
 def _build_snapshot_export(
@@ -122,7 +128,10 @@ def _build_nongli_time_snapshot_text(
     gender: Optional[Any],
     after23_new_day: bool,
     time_alg: int,
+    time_algorithm_label: str,
     ad: int,
+    effective_longitude: Optional[float],
+    total_correction_minutes: float,
     calendar_context: Dict[str, Any],
     lunar_calendar: Dict[str, Any],
     year_ganzhi: str,
@@ -140,8 +149,10 @@ def _build_nongli_time_snapshot_text(
         _format_location_line(lat=lat, lon=lon, gps_lat=gps_lat, gps_lon=gps_lon),
         f"gender 透传：{gender if gender is not None else '未提供'}",
         f"after23_new_day：{'是' if after23_new_day else '否'}",
-        f"time_alg：{time_alg}",
+        f"time_alg：{time_alg}（{time_algorithm_label}）",
         f"ad：{ad}",
+        f"有效经度：{round(effective_longitude, 4) if effective_longitude is not None else '未提供'}",
+        f"太阳时修正分钟：{round(total_correction_minutes, 2)}",
         f"摘要：{summary}",
     ]
 
@@ -572,6 +583,33 @@ def _parse_calendar_datetime(date_text: str, time_text: str) -> datetime:
     raise ValueError("无法解析 date/time，请使用 YYYY-MM-DD 与 HH:MM[:SS]。")
 
 
+def _normalize_time_alg(value: Any) -> int:
+    return 1 if value == 1 else 0
+
+
+def _parse_geo_coordinate(value: Any) -> Optional[float]:
+    if value is None or value == "":
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    match = GEO_COORDINATE_RE.match(str(value))
+    if not match:
+        return None
+
+    degrees = float(match.group("degrees"))
+    direction = (match.group("direction") or "").upper()
+    minutes = float(match.group("minutes") or "0")
+
+    if direction:
+        decimal = abs(degrees) + minutes / 60.0
+        if direction in {"S", "W"}:
+            decimal *= -1
+        return decimal
+
+    return degrees
+
+
 def calculate_jieqi_year(
     *,
     year: int,
@@ -669,8 +707,39 @@ def calculate_nongli_time(
     农历换算辅助工具 - 输出农历、节气与干支上下文。
     """
     try:
+        if ad != 1:
+            raise ValueError("离线农历换算当前仅支持公元日期（ad=1）。")
+
         timezone_name = zone or DEFAULT_BIRTH_TIMEZONE
-        analysis_datetime = _parse_calendar_datetime(date, time)
+        normalized_time_alg = _normalize_time_alg(time_alg)
+        input_datetime = _parse_calendar_datetime(date, time)
+        corrected_datetime = input_datetime
+        analysis_datetime = input_datetime
+        total_correction_minutes = 0.0
+        effective_longitude = (
+            gps_lon if gps_lon is not None else _parse_geo_coordinate(lon)
+        )
+        time_algorithm_label = "直接时间"
+        warnings: List[str] = []
+
+        if normalized_time_alg == 0:
+            if effective_longitude is not None:
+                adjustment = calculate_solar_time_adjustment(
+                    input_datetime,
+                    timezone_name,
+                    effective_longitude,
+                )
+                total_correction_minutes = adjustment["total_correction_minutes"]
+                corrected_datetime = input_datetime + timedelta(
+                    minutes=total_correction_minutes
+                )
+                analysis_datetime = corrected_datetime
+                time_algorithm_label = "真太阳时"
+            else:
+                warnings.append(
+                    "time_alg=0 需要 lon 或 gps_lon 才能计算真太阳时，已回退为直接时间。"
+                )
+
         if _coerce_bool(after23_new_day) and analysis_datetime.hour >= 23:
             analysis_datetime += timedelta(days=1)
 
@@ -684,6 +753,12 @@ def calculate_nongli_time(
             pillars=pillars,
         )
         lunar_calendar = calendar_context.get("lunar_calendar") or {}
+        lunar_support = calendar_context.get("lunar_calendar_support") or {}
+        if not lunar_support.get("supported", bool(lunar_calendar)):
+            raise ValueError(
+                lunar_support.get("reason")
+                or "离线农历换算当前不支持该日期。"
+            )
         summary = (
             f"{calendar_context['solar_datetime']} 对应农历"
             f"{lunar_calendar.get('display', '未知')}，"
@@ -709,8 +784,11 @@ def calculate_nongli_time(
             gps_lon=gps_lon,
             gender=gender,
             after23_new_day=_coerce_bool(after23_new_day),
-            time_alg=time_alg,
+            time_alg=normalized_time_alg,
+            time_algorithm_label=time_algorithm_label,
             ad=ad,
+            effective_longitude=effective_longitude,
+            total_correction_minutes=total_correction_minutes,
             calendar_context=calendar_context,
             lunar_calendar=lunar_calendar,
             year_ganzhi=year_ganzhi,
@@ -725,7 +803,7 @@ def calculate_nongli_time(
             selected_sections=selected_sections,
         )
 
-        return {
+        result = {
             "analysis_type": "农历换算",
             "input_context": {
                 "date": date,
@@ -737,8 +815,16 @@ def calculate_nongli_time(
                 "gps_lon": gps_lon,
                 "gender": gender,
                 "after23_new_day": _coerce_bool(after23_new_day),
-                "time_alg": time_alg,
+                "time_alg": normalized_time_alg,
                 "ad": ad,
+            },
+            "analysis_context": {
+                "input_datetime": input_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+                "corrected_datetime": corrected_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+                "effective_datetime": analysis_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+                "time_algorithm": time_algorithm_label,
+                "longitude": effective_longitude,
+                "total_correction_minutes": round(total_correction_minutes, 2),
             },
             "birth": calendar_context["solar_datetime"],
             "nongli": nongli_display,
@@ -763,8 +849,12 @@ def calculate_nongli_time(
             "snapshot_text": snapshot_text,
             "snapshot_export": snapshot_export,
         }
+        if warnings:
+            result["warnings"] = warnings
+        return result
     except Exception as exc:
         return handle_calculation_error(exc, "农历换算")
+
 
 def calculate_comprehensive_timing(
     person: PersonInfo,
