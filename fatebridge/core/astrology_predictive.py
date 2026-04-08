@@ -579,9 +579,9 @@ def resolve_egyptian_bound(sign_name: str, degree_in_sign: float) -> Dict[str, A
                 "segment_start_degree": round(start_degree, 4),
                 "segment_end_degree": round(end_degree, 4),
             }
-    fallback_lord, start_degree, end_degree = EGYPTIAN_BOUNDS_BY_SIGN[
-        normalized_sign
-    ][-1]
+    fallback_lord, start_degree, end_degree = EGYPTIAN_BOUNDS_BY_SIGN[normalized_sign][
+        -1
+    ]
     return {
         "bound_lord": fallback_lord,
         "bound_lord_label": planet_label(fallback_lord),
@@ -851,7 +851,9 @@ def build_releasing_level_within_interval(
     return periods
 
 
-def clean_releasing_period(period: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+def clean_releasing_period(
+    period: Optional[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
     if period is None:
         return None
     return {key: value for key, value in period.items() if not key.startswith("_")}
@@ -891,7 +893,9 @@ def build_zodiacal_releasing_for_lot(
         level=1,
         analysis_datetime=analysis_datetime,
     )
-    current_level_1 = next((item for item in level_one_timeline if item["active"]), None)
+    current_level_1 = next(
+        (item for item in level_one_timeline if item["active"]), None
+    )
 
     level_two_timeline: List[Dict[str, Any]] = []
     current_level_2 = None
@@ -905,7 +909,9 @@ def build_zodiacal_releasing_for_lot(
             level=2,
             analysis_datetime=analysis_datetime,
         )
-        current_level_2 = next((item for item in level_two_timeline if item["active"]), None)
+        current_level_2 = next(
+            (item for item in level_two_timeline if item["active"]), None
+        )
 
     level_three_timeline: List[Dict[str, Any]] = []
     current_level_3 = None
@@ -1128,10 +1134,9 @@ def build_return_payload(
     return_longitude: float,
     return_latitude: float,
     return_timezone: str,
+    include: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    backend_return_timezone = (
-        resolve_kerykeion_timezone_name(return_timezone) or "UTC"
-    )
+    backend_return_timezone = resolve_kerykeion_timezone_name(return_timezone) or "UTC"
     factory = PlanetaryReturnFactory(
         natal_subject,
         lng=return_longitude,
@@ -1139,14 +1144,12 @@ def build_return_payload(
         tz_str=backend_return_timezone,
         online=False,
     )
-    solar_return = factory.next_return_from_year(analysis_datetime.year, "Solar")
-    lunar_return = factory.next_return_from_month_and_year(
-        analysis_datetime.year,
-        analysis_datetime.month,
-        "Lunar",
-    )
-    return {
-        "solar_return": {
+    included = set(include or ["solar_return", "lunar_return"])
+    payload: Dict[str, Any] = {}
+
+    if "solar_return" in included:
+        solar_return = factory.next_return_from_year(analysis_datetime.year, "Solar")
+        payload["solar_return"] = {
             "return_datetime": solar_return.iso_formatted_local_datetime,
             "sun": point_to_dict("Sun", solar_return.sun),
             "moon": point_to_dict("Moon", solar_return.moon),
@@ -1155,8 +1158,15 @@ def build_return_payload(
                 "Medium_Coeli",
                 solar_return.medium_coeli,
             ),
-        },
-        "lunar_return": {
+        }
+
+    if "lunar_return" in included:
+        lunar_return = factory.next_return_from_month_and_year(
+            analysis_datetime.year,
+            analysis_datetime.month,
+            "Lunar",
+        )
+        payload["lunar_return"] = {
             "return_datetime": lunar_return.iso_formatted_local_datetime,
             "sun": point_to_dict("Sun", lunar_return.sun),
             "moon": point_to_dict("Moon", lunar_return.moon),
@@ -1165,8 +1175,9 @@ def build_return_payload(
                 "Medium_Coeli",
                 lunar_return.medium_coeli,
             ),
-        },
-    }
+        }
+
+    return payload
 
 
 def build_secondary_progression_payload(
@@ -1179,7 +1190,9 @@ def build_secondary_progression_payload(
 ) -> Dict[str, Any]:
     age_years = calculate_age_years(birth_info, analysis_datetime)
     progressed_utc = birth_info.utc_datetime + timedelta(days=age_years)
-    progressed_local = progressed_utc.astimezone(parse_timezone_name(birth_info.timezone))
+    progressed_local = progressed_utc.astimezone(
+        parse_timezone_name(birth_info.timezone)
+    )
     progressed_subject = build_subject(
         name=f"{birth_info.name}-progressed",
         local_datetime=progressed_local,
@@ -1233,7 +1246,9 @@ def build_transit_payload(
     transit_reference = extract_named_points(transit_subject, TRANSIT_POINT_NAMES)
     natal_reference = extract_named_points(natal_subject, TRANSIT_POINT_NAMES)
     hits = collect_aspect_hits(
-        source_longitudes=extract_named_longitudes(transit_subject, TRANSIT_POINT_NAMES),
+        source_longitudes=extract_named_longitudes(
+            transit_subject, TRANSIT_POINT_NAMES
+        ),
         target_longitudes=extract_named_longitudes(natal_subject, TRANSIT_POINT_NAMES),
         orb_limit=orb_limit,
     )
@@ -1248,7 +1263,9 @@ def build_transit_payload(
             "house_label": f"第{house}宫",
             "count": count,
         }
-        for house, count in sorted(house_counter.items(), key=lambda item: (-item[1], item[0]))
+        for house, count in sorted(
+            house_counter.items(), key=lambda item: (-item[1], item[0])
+        )
     ]
     exact_hits = [item for item in hits if float(item.get("orb", 99.0)) <= 0.3][:12]
     return {
@@ -1345,11 +1362,15 @@ def primary_direction_time_key_rate(time_key: str) -> float:
 def primary_direction_coordinate_meta(
     pd_method: str,
 ) -> tuple[str, str]:
-    if pd_method in {
-        "legacy_reference",
-        "legacy_equatorial",
-        "fatebridge_mundane_semiarc",
-    } and swe is None:
+    if (
+        pd_method
+        in {
+            "legacy_reference",
+            "legacy_equatorial",
+            "fatebridge_mundane_semiarc",
+        }
+        and swe is None
+    ):
         return PRIMARY_DIRECTION_METHOD_COORDINATES["astroapp_alchabitius"]
     return PRIMARY_DIRECTION_METHOD_COORDINATES.get(
         pd_method,
@@ -1572,9 +1593,7 @@ def hour_angle_from_mundane_coordinate(
         return clamped_semiarc + (
             ((normalized_coordinate - 180.0) / 90.0) * nocturnal_semiarc
         )
-    return -180.0 + (
-        ((normalized_coordinate - 270.0) / 90.0) * nocturnal_semiarc
-    )
+    return -180.0 + (((normalized_coordinate - 270.0) / 90.0) * nocturnal_semiarc)
 
 
 def build_reprojected_mundane_primary_direction_chart_layers(
@@ -1808,10 +1827,12 @@ def build_primary_direction_hit_coordinate_context(
     )
     current_orb = min(
         normalize_angle(
-            promissor_current["coordinate_degrees"] - aspect_target["coordinate_degrees"]
+            promissor_current["coordinate_degrees"]
+            - aspect_target["coordinate_degrees"]
         ),
         normalize_angle(
-            aspect_target["coordinate_degrees"] - promissor_current["coordinate_degrees"]
+            aspect_target["coordinate_degrees"]
+            - promissor_current["coordinate_degrees"]
         ),
     )
     return {
@@ -1941,8 +1962,8 @@ def extract_primary_direction_coordinate_payload(
     pd_method: str,
 ) -> Dict[str, Any]:
     coordinate_system, _coordinate_label = primary_direction_coordinate_meta(pd_method)
-    coordinate_precision, coordinate_backend = primary_direction_coordinate_runtime_meta(
-        pd_method
+    coordinate_precision, coordinate_backend = (
+        primary_direction_coordinate_runtime_meta(pd_method)
     )
     coordinate_map = extract_reference_longitudes(natal_subject)
     lot_payloads = build_lot_payloads(natal_subject)
@@ -2617,9 +2638,8 @@ def build_annual_profection_payload(
     else:
         last_birthday = birthday_this_year
 
-    months_since_birthday = (
-        (analysis_datetime.year - last_birthday.year) * 12
-        + (analysis_datetime.month - last_birthday.month)
+    months_since_birthday = (analysis_datetime.year - last_birthday.year) * 12 + (
+        analysis_datetime.month - last_birthday.month
     )
     if analysis_datetime.day < last_birthday.day:
         months_since_birthday -= 1
@@ -2784,13 +2804,15 @@ def build_firdaria_payload(
 
             if "Node" not in planet:
                 order = (
-                    sub_planet_order[sub_planet_order.index(planet):]
+                    sub_planet_order[sub_planet_order.index(planet) :]
                     + sub_planet_order[: sub_planet_order.index(planet)]
                 )
                 sub_years = years / 7.0
                 sub_cursor = start
                 for sub_planet in order:
-                    sub_end = sub_cursor + timedelta(days=sub_years * TROPICAL_YEAR_DAYS)
+                    sub_end = sub_cursor + timedelta(
+                        days=sub_years * TROPICAL_YEAR_DAYS
+                    )
                     sub_period = {
                         "planet": sub_planet,
                         "planet_label": planet_label(sub_planet),
@@ -2845,7 +2867,9 @@ def resolve_decennial_start_planet(subject: Any, start_mode: Optional[str]) -> s
     return "Sun" if determine_sect(subject) == "day" else "Moon"
 
 
-def get_decennial_order(subject: Any, start_planet: str, order_type: Optional[str]) -> List[str]:
+def get_decennial_order(
+    subject: Any, start_planet: str, order_type: Optional[str]
+) -> List[str]:
     if order_type == DECENNIAL_ORDER_CHALDEAN:
         base = list(DECENNIAL_TRADITIONAL_PLANETS)
     else:
@@ -2935,7 +2959,9 @@ def _scale_nominal_segments(
 
     unit = round_unit if round_unit > 0 else 1
     total_nominal = sum(max(0.0, float(item["value"] or 0)) for item in segments)
-    total_scaled = round(_scale_nominal_minutes(total_nominal, calendar_type) / unit) * unit
+    total_scaled = (
+        round(_scale_nominal_minutes(total_nominal, calendar_type) / unit) * unit
+    )
     scaled = []
     consumed = 0
     cumulative_exact = 0.0
@@ -2988,7 +3014,9 @@ def _format_nominal_offset(total_minutes: int, level: int) -> str:
     return "".join(parts)
 
 
-def _format_nominal_range(start_offset_minutes: int, end_offset_minutes: int, level: int) -> str:
+def _format_nominal_range(
+    start_offset_minutes: int, end_offset_minutes: int, level: int
+) -> str:
     return (
         f"{_format_nominal_offset(start_offset_minutes, level)} - "
         f"{_format_nominal_offset(end_offset_minutes, level)}"
@@ -3015,7 +3043,9 @@ def _build_decennial_node(
         "date": (
             f"{start_moment.strftime('%Y-%m-%d')} - {end_moment.strftime('%Y-%m-%d')}"
         ),
-        "nominal": _format_nominal_range(start_offset_minutes, end_offset_minutes, level),
+        "nominal": _format_nominal_range(
+            start_offset_minutes, end_offset_minutes, level
+        ),
         "start": start_moment.isoformat(),
         "end": end_moment.isoformat(),
         "active": active,
@@ -3032,7 +3062,9 @@ def _build_decennial_level_four(
     calendar_type: Optional[str],
 ) -> List[Dict[str, Any]]:
     order = _rotate_items(base_order, level_three_node["planet"])
-    nominal_segments = _minutes_from_level_four(level_three_node["nominal_minutes"], order)
+    nominal_segments = _minutes_from_level_four(
+        level_three_node["nominal_minutes"], order
+    )
     actual_segments = _scale_nominal_segments(nominal_segments, calendar_type, 1)
     data = []
     cursor = level_three_node["start_moment"]
@@ -3261,6 +3293,383 @@ def build_decennials_payload(
     }
 
 
+def _resolve_western_timing_return_location(
+    birth_info: AstroBirthInfo,
+    *,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+) -> Dict[str, Any]:
+    return {
+        "longitude": (
+            birth_info.longitude if return_longitude is None else return_longitude
+        ),
+        "latitude": birth_info.latitude if return_latitude is None else return_latitude,
+        "timezone": return_timezone or birth_info.timezone,
+    }
+
+
+def _build_western_timing_natal_reference(natal_subject: Any) -> Dict[str, Any]:
+    natal_reference = extract_reference_points(natal_subject)
+    sect = determine_sect(natal_subject)
+    natal_reference["sect"] = {"key": sect, "label": sect_label(sect)}
+    natal_reference["lots"] = build_lot_payloads(natal_subject)
+    return natal_reference
+
+
+def _build_western_timing_analysis_context(
+    birth_info: AstroBirthInfo,
+    *,
+    analysis_datetime: datetime,
+    house_system: str,
+    zodiac_type: str,
+    return_location: Dict[str, Any],
+) -> Dict[str, Any]:
+    age_years = calculate_age_years(birth_info, analysis_datetime)
+    return {
+        "name": birth_info.name,
+        "birth_place": birth_info.birth_place,
+        "birth_datetime": birth_info.local_datetime.isoformat(),
+        "analysis_datetime": analysis_datetime.isoformat(),
+        "age_years": round(age_years, 4),
+        "house_system": house_system,
+        "zodiac_type": zodiac_type,
+        "return_location": return_location,
+    }
+
+
+def _build_western_timing_module_summary(
+    technique: str,
+    payload: Dict[str, Any],
+    *,
+    analysis_datetime: datetime,
+) -> str:
+    prefix = analysis_datetime.strftime("%Y-%m-%d")
+
+    if technique == "solarreturn":
+        return f"{prefix} 西占太阳返照：返照发生于 {payload['return_datetime']}。"
+
+    if technique == "lunarreturn":
+        return f"{prefix} 西占月亮返照：返照发生于 {payload['return_datetime']}。"
+
+    if technique == "transit":
+        top_hit = payload["hits"][0] if payload.get("hits") else None
+        summary = f"{prefix} 西占行运：行运太阳 {payload['sun']['sign_label']}"
+        if top_hit:
+            summary += (
+                f"，最紧密命中 "
+                f"{top_hit['source_label']}{top_hit['aspect_label']}{top_hit['target_label']}"
+            )
+        return summary + "。"
+
+    if technique == "solararc":
+        return f"{prefix} 西占太阳弧：当前太阳弧 {payload['arc_degrees']:.2f}°。"
+
+    if technique == "givenyear":
+        annual_profection = payload.get("annual_profection", {})
+        return (
+            f"{prefix} 西占指定年盘：上升 {payload['ascendant']['sign_label']}，"
+            f"年小限落第{annual_profection.get('activated_house')}宫"
+            f"{annual_profection.get('activated_sign_label')}。"
+        )
+
+    if technique == "profection":
+        return (
+            f"{prefix} 西占年小限：落第{payload['activated_house']}宫"
+            f"{payload['activated_sign_label']}，主星 {payload['lord_label']}。"
+        )
+
+    if technique == "primarydirect":
+        return (
+            f"{prefix} 西占主限：{payload['direction_mode_label']} "
+            f"{payload['time_key_label']} {payload['coordinate_label']} "
+            f"{payload['current_arc_degrees']:.2f}°。"
+        )
+
+    if technique == "primarydirchart":
+        return (
+            f"{prefix} 西占主限法盘：{payload['direction_mode_label']} "
+            f"{payload['time_key_label']} {payload['coordinate_label']} "
+            f"{payload['current_arc_degrees']:.2f}°。"
+        )
+
+    if technique in {"zodialrelease", "zodiacal_releasing"}:
+        spirit_level_1 = payload["spirit"].get("current_level_1") or {}
+        return (
+            f"{prefix} 西占黄道释放：Spirit L1 "
+            f"{spirit_level_1.get('sign_label', '未知')}。"
+        )
+
+    if technique == "firdaria":
+        current_major = payload.get("current_major") or {}
+        current_sub = payload.get("current_sub") or {}
+        return (
+            f"{prefix} 西占法达星限："
+            f"{current_major.get('planet_label', '未知')}/"
+            f"{current_sub.get('planet_label', '未知')}。"
+        )
+
+    if technique == "decennials":
+        current_level_1 = payload.get("current_level_1") or {}
+        current_level_2 = payload.get("current_level_2") or {}
+        summary = (
+            f"{prefix} 西占十年星限：L1 "
+            f"{current_level_1.get('planet_label', '未知')}"
+        )
+        if current_level_2:
+            summary += f"，L2 {current_level_2.get('planet_label', '未知')}"
+        return summary + "。"
+
+    raise ValueError(f"Unsupported western timing technique: {technique}")
+
+
+def build_western_timing_module_payload(
+    birth_info: AstroBirthInfo,
+    *,
+    technique: str,
+    analysis_datetime: datetime,
+    return_longitude: Optional[float] = None,
+    return_latitude: Optional[float] = None,
+    return_timezone: Optional[str] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    pd_method: str = "astroapp_alchabitius",
+    pd_time_key: str = "Ptolemy",
+    pd_type: int = 0,
+    pd_aspects: Optional[List[int]] = None,
+    show_pd_bounds: bool = True,
+) -> Dict[str, Any]:
+    natal_subject = build_natal_subject(
+        birth_info,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+    )
+    natal_reference = _build_western_timing_natal_reference(natal_subject)
+    return_location = _resolve_western_timing_return_location(
+        birth_info,
+        return_longitude=return_longitude,
+        return_latitude=return_latitude,
+        return_timezone=return_timezone,
+    )
+    analysis_context = _build_western_timing_analysis_context(
+        birth_info,
+        analysis_datetime=analysis_datetime,
+        house_system=house_system,
+        zodiac_type=zodiac_type,
+        return_location=return_location,
+    )
+
+    result: Dict[str, Any] = {
+        "analysis_type": "西占推运与返照分析",
+        "analysis_context": analysis_context,
+        "natal_reference": natal_reference,
+    }
+
+    if technique in {"solarreturn", "lunarreturn"}:
+        return_key = "solar_return" if technique == "solarreturn" else "lunar_return"
+        returns_payload = build_return_payload(
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            return_longitude=return_location["longitude"],
+            return_latitude=return_location["latitude"],
+            return_timezone=return_location["timezone"],
+            include=[return_key],
+        )
+        result["returns"] = returns_payload
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            returns_payload[return_key],
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "transit":
+        transit_payload = build_transit_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            transit_longitude=return_location["longitude"],
+            transit_latitude=return_location["latitude"],
+            transit_timezone=return_location["timezone"],
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        result["transits"] = {"current_transit": transit_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            transit_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "solararc":
+        progression_payload = build_secondary_progression_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        solar_arc_payload = build_solar_arc_payload(
+            natal_subject,
+            progression_payload["subject"],
+        )
+        result["directions"] = {"solar_arc": solar_arc_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            solar_arc_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "primarydirect":
+        primary_directions_payload = build_primary_directions_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            pd_method=pd_method,
+            pd_time_key=pd_time_key,
+            pd_type=pd_type,
+            pd_aspects=pd_aspects,
+        )
+        result["directions"] = {"primary_directions": primary_directions_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            primary_directions_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "primarydirchart":
+        primary_directions_payload = build_primary_directions_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            pd_method=pd_method,
+            pd_time_key=pd_time_key,
+            pd_type=pd_type,
+            pd_aspects=pd_aspects,
+        )
+        primary_direction_chart_payload = build_primary_direction_chart_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            pd_method=pd_method,
+            pd_time_key=pd_time_key,
+            pd_type=pd_type,
+            coordinate_system=primary_directions_payload["coordinate_system"],
+            coordinate_label=primary_directions_payload["coordinate_label"],
+            approximation=primary_directions_payload["approximation"],
+            approximation_label=primary_directions_payload["approximation_label"],
+            coordinate_precision=primary_directions_payload["coordinate_precision"],
+            coordinate_backend=primary_directions_payload["coordinate_backend"],
+            coordinate_diagnostics=primary_directions_payload["coordinate_diagnostics"],
+            coordinate_points=primary_directions_payload["coordinate_points"],
+            coordinate_lots=primary_directions_payload["coordinate_lots"],
+            current_coordinate_points=primary_directions_payload[
+                "current_coordinate_points"
+            ],
+            current_coordinate_lots=primary_directions_payload[
+                "current_coordinate_lots"
+            ],
+            current_arc_degrees=primary_directions_payload["current_arc_degrees"],
+            current_hits=primary_directions_payload["current_window"],
+            show_pd_bounds=show_pd_bounds,
+        )
+        result["directions"] = {
+            "primary_direction_chart": primary_direction_chart_payload
+        }
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            primary_direction_chart_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "profection":
+        profection_payload = build_annual_profection_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+        )
+        result["time_lords"] = {"annual_profection": profection_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            profection_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "givenyear":
+        profection_payload = build_annual_profection_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+        )
+        given_year_payload = build_given_year_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            annual_profection=profection_payload,
+            return_longitude=return_location["longitude"],
+            return_latitude=return_location["latitude"],
+            return_timezone=return_location["timezone"],
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        result["directions"] = {"given_year": given_year_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            given_year_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique in {"zodialrelease", "zodiacal_releasing"}:
+        zodiacal_releasing_payload = build_zodiacal_releasing_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+        )
+        result["time_lords"] = {"zodiacal_releasing": zodiacal_releasing_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            zodiacal_releasing_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "firdaria":
+        firdaria_payload = build_firdaria_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+        )
+        result["time_lords"] = {"firdaria": firdaria_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            firdaria_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    if technique == "decennials":
+        decennials_payload = build_decennials_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+        )
+        result["time_lords"] = {"decennials": decennials_payload}
+        result["summary"] = _build_western_timing_module_summary(
+            technique,
+            decennials_payload,
+            analysis_datetime=analysis_datetime,
+        )
+        return result
+
+    raise ValueError(f"Unsupported western timing technique: {technique}")
+
+
 def build_western_timing_payload(
     birth_info: AstroBirthInfo,
     *,
@@ -3335,7 +3744,9 @@ def build_western_timing_payload(
         coordinate_diagnostics=primary_directions_payload["coordinate_diagnostics"],
         coordinate_points=primary_directions_payload["coordinate_points"],
         coordinate_lots=primary_directions_payload["coordinate_lots"],
-        current_coordinate_points=primary_directions_payload["current_coordinate_points"],
+        current_coordinate_points=primary_directions_payload[
+            "current_coordinate_points"
+        ],
         current_coordinate_lots=primary_directions_payload["current_coordinate_lots"],
         current_arc_degrees=primary_directions_payload["current_arc_degrees"],
         current_hits=primary_directions_payload["current_window"],

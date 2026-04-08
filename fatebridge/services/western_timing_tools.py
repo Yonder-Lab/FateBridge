@@ -8,7 +8,9 @@ import json
 from typing import Any, Dict, Optional
 
 from fatebridge.core.export_parser import parse_export_content
-from fatebridge.services.western_timing import calculate_western_timing_analysis
+from fatebridge.services.western_timing import (
+    calculate_western_timing_module_analysis,
+)
 from fatebridge.utils.helpers import handle_calculation_error
 
 
@@ -121,7 +123,9 @@ def _build_context(result: Dict[str, Any], label: str) -> Dict[str, Any]:
     }
 
 
-def _build_aspect_summary(label: str, result: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
+def _build_aspect_summary(
+    label: str, result: Dict[str, Any], payload: Dict[str, Any]
+) -> Dict[str, Any]:
     summary: Dict[str, Any] = {
         "label": label,
         "summary": result.get("summary"),
@@ -300,7 +304,9 @@ def _build_sections(
                 _json_block(
                     {
                         "resolved_start_planet": payload.get("resolved_start_planet"),
-                        "resolved_start_planet_label": payload.get("resolved_start_planet_label"),
+                        "resolved_start_planet_label": payload.get(
+                            "resolved_start_planet_label"
+                        ),
                         "base_order": payload.get("base_order"),
                     }
                 ),
@@ -329,7 +335,10 @@ def _calculate_tool(
 ) -> Dict[str, Any]:
     spec = TOOL_SPECS[tool_name]
     try:
-        result = calculate_western_timing_analysis(**kwargs)
+        result = calculate_western_timing_module_analysis(
+            technique=spec["technique"],
+            **kwargs,
+        )
         if "error" in result:
             return result
 
@@ -361,45 +370,67 @@ def _calculate_tool(
         return handle_calculation_error(exc, spec["analysis_type"])
 
 
-def calculate_solarreturn(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_solarreturn(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("solarreturn", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_lunarreturn(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_lunarreturn(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("lunarreturn", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_transit(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_transit(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("transit", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_solararc(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_solararc(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("solararc", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_givenyear(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_givenyear(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("givenyear", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_profection(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_profection(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("profection", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_pd(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_pd(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("pd", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_pdchart(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_pdchart(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("pdchart", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_zr(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_zr(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("zr", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_firdaria(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_firdaria(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("firdaria", selected_sections=selected_sections, **kwargs)
 
 
-def calculate_decennials(*, selected_sections: Optional[list[str]] = None, **kwargs: Any) -> Dict[str, Any]:
+def calculate_decennials(
+    *, selected_sections: Optional[list[str]] = None, **kwargs: Any
+) -> Dict[str, Any]:
     return _calculate_tool("decennials", selected_sections=selected_sections, **kwargs)

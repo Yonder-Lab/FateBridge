@@ -19,6 +19,7 @@ from fastmcp_server import (
     transit,
     zr,
 )
+from fatebridge.core import astrology_predictive
 from fatebridge.services.western_timing_tools import (
     calculate_decennials,
     calculate_firdaria,
@@ -110,7 +111,10 @@ def test_western_return_and_direction_tools_generate_snapshots():
         "2025-05-20T15:30:00+08:00"
     )
     assert transit_result["transit"]["location"]["timezone"] == "Asia/Shanghai"
-    assert transit_result["transit"]["transit_reference"]["uranus"]["point_label"] == "天王星"
+    assert (
+        transit_result["transit"]["transit_reference"]["uranus"]["point_label"]
+        == "天王星"
+    )
     assert transit_result["snapshot_export"]["technique"]["key"] == "transit"
     assert transit_result["snapshot_export"]["selected_sections"] == [
         "起盘信息",
@@ -121,7 +125,9 @@ def test_western_return_and_direction_tools_generate_snapshots():
     assert "[星盘信息]" not in transit_result["snapshot_export"]["export_text"]
 
     assert solararc_result["analysis_type"] == "西占太阳弧"
-    assert solararc_result["solararc"]["arc_degrees"] == pytest.approx(33.5458, abs=0.01)
+    assert solararc_result["solararc"]["arc_degrees"] == pytest.approx(
+        33.5458, abs=0.01
+    )
     assert solararc_result["snapshot_export"]["technique"]["key"] == "solararc"
 
     assert givenyear_result["analysis_type"] == "西占指定年盘"
@@ -133,6 +139,35 @@ def test_western_return_and_direction_tools_generate_snapshots():
     assert profection_result["profection"]["activated_house"] == 12
     assert profection_result["profection"]["activated_sign"] == "Virgo"
     assert profection_result["snapshot_export"]["technique"]["key"] == "profection"
+
+
+def test_solarreturn_skips_unrelated_predictive_modules(monkeypatch):
+    def _unexpected_transit(*args, **kwargs):
+        raise AssertionError("build_transit_payload should not run for solarreturn")
+
+    def _unexpected_primary_directions(*args, **kwargs):
+        raise AssertionError(
+            "build_primary_directions_payload should not run for solarreturn"
+        )
+
+    monkeypatch.setattr(
+        astrology_predictive,
+        "build_transit_payload",
+        _unexpected_transit,
+    )
+    monkeypatch.setattr(
+        astrology_predictive,
+        "build_primary_directions_payload",
+        _unexpected_primary_directions,
+    )
+
+    result = calculate_solarreturn(**_build_kwargs())
+
+    assert "error" not in result
+    assert result["analysis_type"] == "西占太阳返照"
+    assert result["solarreturn"]["return_datetime"].startswith(
+        "2025-05-17T01:47:24+08:00"
+    )
 
 
 def test_primary_direction_and_time_lord_tools_support_selected_sections():

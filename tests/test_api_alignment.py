@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import api as api_module
 from api import (
     AstroChartRequest,
     AstroRelativePartyRequest,
@@ -13,10 +14,14 @@ from api import (
     LiunianAnalysisRequest,
     TimingAnalysisRequest,
     TwoPersonCompatibilityRequest,
+    WesternTimingModuleRequest,
+    WesternTimingRequest,
     calculate_astro_chart,
     calculate_dayun,
     calculate_liunian,
     calculate_relative_chart,
+    calculate_solarreturn_module,
+    calculate_western_timing,
     calculate_timing_analysis,
     calculate_two_person_compatibility,
 )
@@ -251,3 +256,166 @@ def test_liunian_analysis_api_matches_fastmcp_tool_output():
     mcp_result = json.loads(liunian_analysis.fn(**request.model_dump()))
 
     assert api_result == mcp_result
+
+
+def test_western_timing_api_offloads_calculation_to_threadpool(monkeypatch):
+    expected = {"analysis_type": "西占推运与返照分析", "summary": "ok"}
+    captured = {}
+
+    async def fake_run_in_threadpool(func, *args, **kwargs):
+        captured["func"] = func
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        return expected
+
+    monkeypatch.setattr(
+        api_module,
+        "run_in_threadpool",
+        fake_run_in_threadpool,
+        raising=False,
+    )
+
+    request = WesternTimingRequest(
+        name="张三",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        birth_place="上海",
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+    )
+
+    result = asyncio.run(calculate_western_timing(request))
+
+    assert result == expected
+    assert captured["func"] is api_module.calculate_western_timing_analysis
+    assert captured["args"] == ()
+    assert captured["kwargs"]["analysis_year"] == 2028
+    assert captured["kwargs"]["birth_latitude"] == 31.2304
+
+
+def test_western_timing_module_api_offloads_calculation_to_threadpool(monkeypatch):
+    expected = {"analysis_type": "西占太阳返照", "summary": "ok"}
+    captured = {}
+
+    async def fake_run_in_threadpool(func, *args, **kwargs):
+        captured["func"] = func
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        return expected
+
+    monkeypatch.setattr(
+        api_module,
+        "run_in_threadpool",
+        fake_run_in_threadpool,
+        raising=False,
+    )
+
+    request = WesternTimingModuleRequest(
+        name="张三",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        birth_place="上海",
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+        selected_sections=["起盘信息"],
+    )
+
+    result = asyncio.run(calculate_solarreturn_module(request))
+
+    assert result == expected
+    assert captured["func"] is api_module.calculate_solarreturn
+    assert captured["args"] == ()
+    assert captured["kwargs"]["selected_sections"] == ["起盘信息"]
+    assert captured["kwargs"]["analysis_day"] == 6
+
+
+def test_astro_chart_api_offloads_calculation_to_threadpool(monkeypatch):
+    expected = {"analysis_type": "西洋占星本命盘", "summary": "ok"}
+    captured = {}
+
+    async def fake_run_in_threadpool(func, *args, **kwargs):
+        captured["func"] = func
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        return expected
+
+    monkeypatch.setattr(
+        api_module,
+        "run_in_threadpool",
+        fake_run_in_threadpool,
+        raising=False,
+    )
+
+    request = AstroChartRequest(
+        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
+        birth_latitude=31.2304,
+    )
+
+    result = asyncio.run(calculate_astro_chart(request))
+
+    assert result == expected
+    assert captured["func"] is api_module.calculate_core_chart_analysis
+    assert captured["kwargs"]["chart_variant"] == "chart"
+    assert captured["kwargs"]["birth_latitude"] == 31.2304
+
+
+def test_astro_relative_api_offloads_calculation_to_threadpool(monkeypatch):
+    expected = {"analysis_type": "关系盘", "summary": "ok"}
+    captured = {}
+
+    async def fake_run_in_threadpool(func, *args, **kwargs):
+        captured["func"] = func
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        return expected
+
+    monkeypatch.setattr(
+        api_module,
+        "run_in_threadpool",
+        fake_run_in_threadpool,
+        raising=False,
+    )
+
+    request = AstroRelativeRequest(
+        inner=AstroRelativePartyRequest(
+            **_build_birth_payload(name="甲", gender="男", birth_place="上海"),
+            birth_latitude=31.2304,
+        ),
+        outer=AstroRelativePartyRequest(
+            **{
+                **_build_birth_payload(name="乙", gender="女", birth_place="北京"),
+                "birth_year": 1992,
+                "birth_month": 3,
+                "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+                "birth_longitude": 116.4074,
+                "birth_latitude": 39.9042,
+            }
+        ),
+        relative_mode="Composite",
+        hsys=0,
+        zodiacal=0,
+    )
+
+    result = asyncio.run(calculate_relative_chart(request))
+
+    assert result == expected
+    assert captured["func"] is api_module.calculate_relative_chart_analysis
+    assert captured["kwargs"]["inner_payload"]["birth_latitude"] == 31.2304
+    assert captured["kwargs"]["outer_payload"]["birth_longitude"] == 116.4074
+    assert captured["kwargs"]["relative_mode"] == "Composite"

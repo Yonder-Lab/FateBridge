@@ -11,6 +11,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+from starlette.concurrency import run_in_threadpool
 
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
@@ -96,8 +97,8 @@ app = FastAPI(
 
 # Get allowed origins from environment variable, default to localhost for development
 ALLOWED_ORIGINS = [
-    origin.strip() for origin in
-    os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 ]
 
 app.add_middleware(
@@ -124,7 +125,9 @@ class FateBridgeRequest(BaseModel):
     birth_day: int = Field(ge=1, le=31, description="Birth day (1-31)")
     birth_hour: int = Field(ge=0, le=23, description="Birth hour (0-23)")
     birth_minute: int = Field(default=0, ge=0, le=59, description="Birth minute (0-59)")
-    birth_place: Optional[str] = Field(default="未提供", description="Birth place (optional)")
+    birth_place: Optional[str] = Field(
+        default="未提供", description="Birth place (optional)"
+    )
     birth_timezone: Optional[str] = Field(
         default=None, description="Birth timezone (IANA name or UTC offset)"
     )
@@ -161,7 +164,9 @@ class TwoPersonCompatibilityRequest(BaseModel):
 
     person1_name: str = Field(description="First person name")
     person1_birth_year: int = Field(description="First person birth year, e.g., 1990")
-    person1_birth_month: int = Field(ge=1, le=12, description="First person birth month")
+    person1_birth_month: int = Field(
+        ge=1, le=12, description="First person birth month"
+    )
     person1_birth_day: int = Field(ge=1, le=31, description="First person birth day")
     person1_birth_hour: int = Field(ge=0, le=23, description="First person birth hour")
     person1_gender: str = Field(default="未知", description="First person gender")
@@ -181,9 +186,7 @@ class TwoPersonCompatibilityRequest(BaseModel):
         default=False, description="Enable true solar time for first person"
     )
     person2_name: str = Field(description="Second person name")
-    person2_birth_year: int = Field(
-        description="Second person birth year, e.g., 1992"
-    )
+    person2_birth_year: int = Field(description="Second person birth year, e.g., 1992")
     person2_birth_month: int = Field(
         ge=1, le=12, description="Second person birth month"
     )
@@ -351,9 +354,15 @@ class JieqiYearRequest(BaseModel):
     zone: Optional[str] = Field(default="Asia/Shanghai", description="Timezone spec")
     lat: Optional[str] = Field(default=None, description="Latitude text hint")
     lon: Optional[str] = Field(default=None, description="Longitude text hint")
-    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
-    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
-    jieqis: List[str] = Field(default_factory=list, description="Optional focused jieqi names")
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    jieqis: List[str] = Field(
+        default_factory=list, description="Optional focused jieqi names"
+    )
     selected_sections: List[str] = Field(
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
@@ -370,10 +379,20 @@ class NongliTimeRequest(BaseModel):
     zone: Optional[str] = Field(default="Asia/Shanghai", description="Timezone spec")
     lat: Optional[str] = Field(default=None, description="Latitude text hint")
     lon: Optional[str] = Field(default=None, description="Longitude text hint")
-    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
-    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
-    gender: Optional[bool] = Field(default=None, description="Optional gender flag passthrough")
-    after23_new_day: bool = Field(default=False, alias="after23NewDay", description="Whether 23:00 counts as next day")
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    gender: Optional[bool] = Field(
+        default=None, description="Optional gender flag passthrough"
+    )
+    after23_new_day: bool = Field(
+        default=False,
+        alias="after23NewDay",
+        description="Whether 23:00 counts as next day",
+    )
     time_alg: int = Field(
         default=0,
         alias="timeAlg",
@@ -455,7 +474,9 @@ class KnowledgeReadRequest(BaseModel):
     object_a: Optional[str] = Field(default=None, description="First astro object")
     object_b: Optional[str] = Field(default=None, description="Second astro object")
     jiang_name: Optional[str] = Field(default=None, description="Liureng general name")
-    tian_branch: Optional[str] = Field(default=None, description="Liureng heaven branch")
+    tian_branch: Optional[str] = Field(
+        default=None, description="Liureng heaven branch"
+    )
     di_branch: Optional[str] = Field(default=None, description="Liureng earth branch")
 
 
@@ -486,13 +507,23 @@ class SixYaoRequest(BaseModel):
     time: str = Field(description="Time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
     lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
-    lon: Optional[str] = Field(default="121e28", description="Longitude text or decimal")
-    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
-    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
     question: Optional[str] = Field(default=None, description="Question or topic")
     gua_code: Optional[str] = Field(default=None, description="Current hexagram code")
-    changed_code: Optional[str] = Field(default=None, description="Changed hexagram code")
-    lines: List[SixYaoLineRequest] = Field(default_factory=list, description="Optional six lines")
+    changed_code: Optional[str] = Field(
+        default=None, description="Changed hexagram code"
+    )
+    lines: List[SixYaoLineRequest] = Field(
+        default_factory=list, description="Optional six lines"
+    )
 
 
 class SuZhanRequest(BaseModel):
@@ -504,13 +535,25 @@ class SuZhanRequest(BaseModel):
     time: str = Field(description="Time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
     lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
-    lon: Optional[str] = Field(default="121e28", description="Longitude text or decimal")
-    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
-    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
     szchart: int = Field(default=0, description="Chart mode flag")
     szshape: int = Field(default=0, description="Chart shape flag")
-    house_start_mode: int = Field(default=1, alias="houseStartMode", description="House start mode")
-    doubing_su28: bool = Field(default=True, alias="doubingSu28", description="Whether to double-check su28 labels")
+    house_start_mode: int = Field(
+        default=1, alias="houseStartMode", description="House start mode"
+    )
+    doubing_su28: bool = Field(
+        default=True,
+        alias="doubingSu28",
+        description="Whether to double-check su28 labels",
+    )
     hsys: int = Field(
         default=8,
         description="Offline house system selector; standard suzhan supports 0..8 with the same FateBridge local house semantics as core chart",
@@ -530,10 +573,18 @@ class OtherBuRequest(BaseModel):
     time: str = Field(description="Time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
     lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
-    lon: Optional[str] = Field(default="121e28", description="Longitude text or decimal")
-    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
-    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
-    tradition: bool = Field(default=False, description="Traditional mode without outer planets")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    tradition: bool = Field(
+        default=False, description="Traditional mode without outer planets"
+    )
     sign: Optional[str] = Field(default="Aries", description="Dice sign")
     house: int = Field(default=0, ge=0, le=11, description="Dice house index (0-11)")
     planet: Optional[str] = Field(default="Sun", description="Dice planet")
@@ -557,17 +608,39 @@ class SanShiUnitedRequest(BaseModel):
     time: str = Field(description="Time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
     lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
-    lon: Optional[str] = Field(default="121e28", description="Longitude text or decimal")
-    gps_lat: Optional[float] = Field(default=None, alias="gpsLat", description="GPS latitude")
-    gps_lon: Optional[float] = Field(default=None, alias="gpsLon", description="GPS longitude")
-    qimen_options: Dict[str, Any] = Field(default_factory=dict, alias="qimen_options", description="Optional qimen settings")
-    taiyi_options: Dict[str, Any] = Field(default_factory=dict, alias="taiyi_options", description="Optional taiyi settings")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    qimen_options: Dict[str, Any] = Field(
+        default_factory=dict,
+        alias="qimen_options",
+        description="Optional qimen settings",
+    )
+    taiyi_options: Dict[str, Any] = Field(
+        default_factory=dict,
+        alias="taiyi_options",
+        description="Optional taiyi settings",
+    )
     selected_sections: List[str] = Field(
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
-    liureng_yue: Optional[str] = Field(default=None, alias="liureng_yue", description="Optional liureng month-general override")
-    liureng_is_diurnal: Optional[bool] = Field(default=None, alias="liureng_isDiurnal", description="Optional liureng day/night override")
+    liureng_yue: Optional[str] = Field(
+        default=None,
+        alias="liureng_yue",
+        description="Optional liureng month-general override",
+    )
+    liureng_is_diurnal: Optional[bool] = Field(
+        default=None,
+        alias="liureng_isDiurnal",
+        description="Optional liureng day/night override",
+    )
     use_true_solar_time: bool = Field(
         default=False,
         description="Enable local true solar time correction before sanshi aggregation",
@@ -964,7 +1037,9 @@ async def calculate_bazi_birth_chart(request: BaziBirthRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during bazi birth analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during bazi birth analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1007,7 +1082,9 @@ async def calculate_bazi_direct_chart(request: BaziDirectRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during bazi direct analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during bazi direct analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1525,7 +1602,9 @@ async def calculate_meihua(request: MeihuaAnalysisRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during meihua analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during meihua analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1553,7 +1632,9 @@ async def calculate_tongshefa(request: TongSheFaRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during tongshefa analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during tongshefa analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1588,7 +1669,9 @@ async def calculate_sixyao(request: SixYaoRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during sixyao analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during sixyao analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1625,7 +1708,9 @@ async def calculate_suzhan(request: SuZhanRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during suzhan analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during suzhan analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1663,7 +1748,9 @@ async def calculate_otherbu(request: OtherBuRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during otherbu analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during otherbu analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1671,7 +1758,9 @@ async def calculate_otherbu(request: OtherBuRequest) -> dict:
 async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
     """Calculate local sanshiunited analysis with stable qimen content metadata and export-ready snapshot sections."""
     try:
-        logger.info("Processing sanshiunited request for %s %s", request.date, request.time)
+        logger.info(
+            "Processing sanshiunited request for %s %s", request.date, request.time
+        )
         result = calculate_sanshiunited_analysis(
             date=request.date,
             time=request.time,
@@ -1700,7 +1789,9 @@ async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during sanshiunited analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during sanshiunited analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1743,7 +1834,9 @@ async def calculate_ziwei_birth_chart(request: ZiweiBirthRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during ziwei birth analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during ziwei birth analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1769,7 +1862,9 @@ async def get_ziwei_rules(request: ZiweiRulesRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during ziwei rule lookup: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during ziwei rule lookup: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1803,7 +1898,9 @@ async def get_liureng_gods(request: LiuRengGodsRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during LiuReng gods analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during LiuReng gods analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1850,7 +1947,9 @@ async def get_liureng_runyear(request: LiuRengRunyearRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during LiuReng runyear analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during LiuReng runyear analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1953,12 +2052,17 @@ async def get_jinkou_analysis(request: JinkouAnalysisRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during jinkou analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during jinkou analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
-def _run_astro_chart_variant(request: AstroChartRequest, chart_variant: str) -> dict:
-    result = calculate_core_chart_analysis(
+async def _run_astro_chart_variant(
+    request: AstroChartRequest, chart_variant: str
+) -> dict:
+    result = await run_in_threadpool(
+        calculate_core_chart_analysis,
         chart_variant=chart_variant,
         **request.model_dump(),
     )
@@ -1972,11 +2076,13 @@ async def calculate_astro_chart(request: AstroChartRequest) -> dict:
     """Generate a core offline astrology chart with local ephemeris preference."""
     try:
         logger.info("Processing astrology chart request for %s", request.name)
-        return _run_astro_chart_variant(request, "chart")
+        return await _run_astro_chart_variant(request, "chart")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Unexpected error during chart calculation: %s", str(e), exc_info=True)
+        logger.error(
+            "Unexpected error during chart calculation: %s", str(e), exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1985,11 +2091,13 @@ async def calculate_astro_chart13(request: AstroChartRequest) -> dict:
     """Generate an experimental 13-sector chart overlay."""
     try:
         logger.info("Processing chart13 request for %s", request.name)
-        return _run_astro_chart_variant(request, "chart13")
+        return await _run_astro_chart_variant(request, "chart13")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Unexpected error during chart13 calculation: %s", str(e), exc_info=True)
+        logger.error(
+            "Unexpected error during chart13 calculation: %s", str(e), exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -1998,11 +2106,15 @@ async def calculate_hellen_chart(request: AstroChartRequest) -> dict:
     """Generate a Hellenistic-leaning whole-sign chart."""
     try:
         logger.info("Processing hellen chart request for %s", request.name)
-        return _run_astro_chart_variant(request, "hellen_chart")
+        return await _run_astro_chart_variant(request, "hellen_chart")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Unexpected error during hellen chart calculation: %s", str(e), exc_info=True)
+        logger.error(
+            "Unexpected error during hellen chart calculation: %s",
+            str(e),
+            exc_info=True,
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -2011,11 +2123,15 @@ async def calculate_guolao_chart(request: AstroChartRequest) -> dict:
     """Generate a Guolao/Qizheng-Siyu inspired chart view."""
     try:
         logger.info("Processing guolao chart request for %s", request.name)
-        return _run_astro_chart_variant(request, "guolao_chart")
+        return await _run_astro_chart_variant(request, "guolao_chart")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Unexpected error during guolao chart calculation: %s", str(e), exc_info=True)
+        logger.error(
+            "Unexpected error during guolao chart calculation: %s",
+            str(e),
+            exc_info=True,
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -2024,11 +2140,13 @@ async def calculate_india_chart(request: AstroChartRequest) -> dict:
     """Generate a sidereal / India-style chart view."""
     try:
         logger.info("Processing india chart request for %s", request.name)
-        return _run_astro_chart_variant(request, "india_chart")
+        return await _run_astro_chart_variant(request, "india_chart")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Unexpected error during india chart calculation: %s", str(e), exc_info=True)
+        logger.error(
+            "Unexpected error during india chart calculation: %s", str(e), exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -2037,14 +2155,21 @@ async def calculate_germany_chart(request: AstroChartRequest) -> dict:
     """Generate midpoint / germany style analysis."""
     try:
         logger.info("Processing germany chart request for %s", request.name)
-        result = calculate_germany_chart_analysis(**request.model_dump())
+        result = await run_in_threadpool(
+            calculate_germany_chart_analysis,
+            **request.model_dump(),
+        )
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])
         return result
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Unexpected error during germany chart calculation: %s", str(e), exc_info=True)
+        logger.error(
+            "Unexpected error during germany chart calculation: %s",
+            str(e),
+            exc_info=True,
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -2057,7 +2182,8 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
             request.inner.name,
             request.outer.name,
         )
-        result = calculate_relative_chart_analysis(
+        result = await run_in_threadpool(
+            calculate_relative_chart_analysis,
             inner_payload=request.inner.model_dump(),
             outer_payload=request.outer.model_dump(),
             relative_mode=request.relative_mode,
@@ -2072,7 +2198,11 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Unexpected error during relative chart calculation: %s", str(e), exc_info=True)
+        logger.error(
+            "Unexpected error during relative chart calculation: %s",
+            str(e),
+            exc_info=True,
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
@@ -2081,7 +2211,10 @@ async def calculate_western_timing(request: WesternTimingRequest) -> dict:
     """Generate western predictive timing output for a target analysis date."""
     try:
         logger.info("Processing western timing request for %s", request.name)
-        result = calculate_western_timing_analysis(**request.model_dump())
+        result = await run_in_threadpool(
+            calculate_western_timing_analysis,
+            **request.model_dump(),
+        )
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])
         return result
@@ -2096,7 +2229,7 @@ async def calculate_western_timing(request: WesternTimingRequest) -> dict:
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
-def _run_western_timing_module_request(
+async def _run_western_timing_module_request(
     *,
     request: WesternTimingModuleRequest,
     runner,
@@ -2104,7 +2237,10 @@ def _run_western_timing_module_request(
 ) -> dict:
     try:
         logger.info("Processing %s request for %s", label, request.name)
-        result = runner(**request.model_dump())
+        result = await run_in_threadpool(
+            runner,
+            **request.model_dump(),
+        )
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])
         return result
@@ -2123,7 +2259,7 @@ def _run_western_timing_module_request(
 @app.post("/api/astro/timing/solarreturn")
 async def calculate_solarreturn_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone solar return output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_solarreturn,
         label="solarreturn",
@@ -2133,7 +2269,7 @@ async def calculate_solarreturn_module(request: WesternTimingModuleRequest) -> d
 @app.post("/api/astro/timing/lunarreturn")
 async def calculate_lunarreturn_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone lunar return output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_lunarreturn,
         label="lunarreturn",
@@ -2143,7 +2279,7 @@ async def calculate_lunarreturn_module(request: WesternTimingModuleRequest) -> d
 @app.post("/api/astro/timing/transit")
 async def calculate_transit_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone transit chart output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_transit,
         label="transit",
@@ -2153,7 +2289,7 @@ async def calculate_transit_module(request: WesternTimingModuleRequest) -> dict:
 @app.post("/api/astro/timing/solararc")
 async def calculate_solararc_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone solar arc output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_solararc,
         label="solararc",
@@ -2163,7 +2299,7 @@ async def calculate_solararc_module(request: WesternTimingModuleRequest) -> dict
 @app.post("/api/astro/timing/givenyear")
 async def calculate_givenyear_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone given-year chart output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_givenyear,
         label="givenyear",
@@ -2173,7 +2309,7 @@ async def calculate_givenyear_module(request: WesternTimingModuleRequest) -> dic
 @app.post("/api/astro/timing/profection")
 async def calculate_profection_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone annual profection output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_profection,
         label="profection",
@@ -2183,7 +2319,7 @@ async def calculate_profection_module(request: WesternTimingModuleRequest) -> di
 @app.post("/api/astro/timing/pd")
 async def calculate_pd_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone primary-directions output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_pd,
         label="pd",
@@ -2193,7 +2329,7 @@ async def calculate_pd_module(request: WesternTimingModuleRequest) -> dict:
 @app.post("/api/astro/timing/pdchart")
 async def calculate_pdchart_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone primary-direction-chart output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_pdchart,
         label="pdchart",
@@ -2203,7 +2339,7 @@ async def calculate_pdchart_module(request: WesternTimingModuleRequest) -> dict:
 @app.post("/api/astro/timing/zr")
 async def calculate_zr_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone zodiacal releasing output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_zr,
         label="zr",
@@ -2213,7 +2349,7 @@ async def calculate_zr_module(request: WesternTimingModuleRequest) -> dict:
 @app.post("/api/astro/timing/firdaria")
 async def calculate_firdaria_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone firdaria output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_firdaria,
         label="firdaria",
@@ -2223,7 +2359,7 @@ async def calculate_firdaria_module(request: WesternTimingModuleRequest) -> dict
 @app.post("/api/astro/timing/decennials")
 async def calculate_decennials_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone decennials output."""
-    return _run_western_timing_module_request(
+    return await _run_western_timing_module_request(
         request=request,
         runner=calculate_decennials,
         label="decennials",
@@ -2274,7 +2410,9 @@ async def calculate_liuyue(request: LiuyueAnalysisRequest) -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during liuyue analysis: {str(e)}", exc_info=True)
+        logger.error(
+            f"Unexpected error during liuyue analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
