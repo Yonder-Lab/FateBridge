@@ -1,0 +1,374 @@
+import asyncio
+import json
+import os
+import sys
+from pathlib import Path
+
+import pytest
+from fastapi import HTTPException
+from fastapi.testclient import TestClient
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import api as api_module
+import fastmcp_server
+from api import (
+    FateBridgeRequest,
+    WesternTimingRequest,
+    calculate_destiny,
+    calculate_western_timing,
+)
+from fatebridge.utils.helpers import format_error_response, handle_calculation_error
+from fatebridge.utils.runtime import (
+    load_runtime_env,
+    parse_allowed_origins,
+    parse_api_keys,
+)
+
+
+def _build_birth_payload() -> dict:
+    return {
+        "name": "测试者",
+        "birth_year": 1990,
+        "birth_month": 4,
+        "birth_day": 6,
+        "birth_hour": 9,
+        "birth_minute": 33,
+        "birth_timezone": "Asia/Shanghai",
+        "birth_longitude": 121.4667,
+        "birth_latitude": 31.2167,
+        "birth_place": "上海",
+    }
+
+
+def test_load_runtime_env_reads_local_env_without_overriding_existing_values(
+    tmp_path, monkeypatch
+):
+    env_path = tmp_path / ".env"
+    env_path.write_text(
+        "API_PORT=9000\nLOG_LEVEL=debug\nALLOWED_ORIGINS=http://a.test, http://b.test\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.delenv("API_PORT", raising=False)
+    monkeypatch.setenv("LOG_LEVEL", "WARNING")
+
+    loaded = load_runtime_env(env_path)
+
+    assert loaded["API_PORT"] == "9000"
+    assert os.environ["API_PORT"] == "9000"
+    assert os.environ["LOG_LEVEL"] == "WARNING"
+
+
+def test_parse_allowed_origins_filters_blank_entries(monkeypatch):
+    monkeypatch.setenv(
+        "ALLOWED_ORIGINS", "http://a.test, http://b.test,  ,http://c.test"
+    )
+
+    assert parse_allowed_origins() == [
+        "http://a.test",
+        "http://b.test",
+        "http://c.test",
+    ]
+
+
+def test_parse_api_keys_supports_named_and_unnamed_entries(monkeypatch):
+    monkeypatch.setenv("FATEBRIDGE_API_KEYS", "agent:secret-a, secret-b")
+
+    assert parse_api_keys() == {
+        "agent": "secret-a",
+        "key2": "secret-b",
+    }
+
+
+def test_handle_calculation_error_returns_structured_validation_payload():
+    payload = handle_calculation_error(ValueError("出生日期无效"), "命理分析计算")
+
+    assert payload["error"] == "出生日期无效"
+    assert payload["error_code"] == "validation_error"
+    assert payload["status_code"] == 400
+    assert payload["retryable"] is False
+
+
+def test_format_error_response_preserves_structured_error_metadata():
+    payload = {
+        "error": "运行依赖缺失",
+        "error_code": "dependency_missing",
+        "status_code": 503,
+        "retryable": False,
+    }
+
+    rendered = json.loads(format_error_response(payload, "西占时运分析"))
+
+    assert rendered == {
+        "error": "运行依赖缺失",
+        "error_code": "dependency_missing",
+        "status_code": 503,
+        "retryable": False,
+        "operation": "西占时运分析",
+    }
+
+
+def test_cli_entrypoints_are_callable():
+    assert callable(api_module.main)
+    assert callable(fastmcp_server.main)
+
+
+def test_calculate_destiny_route_executes_service_via_threadpool(monkeypatch):
+    captured = {}
+
+    async def fake_run_in_threadpool(func, *args, **kwargs):
+        captured["func"] = func
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        return {"status": "ok"}
+
+    monkeypatch.setattr(api_module, "run_in_threadpool", fake_run_in_threadpool)
+
+    request = FateBridgeRequest(
+        name="张三",
+        gender="男",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_place="上海",
+    )
+
+    result = asyncio.run(calculate_destiny(request))
+
+    assert result == {"status": "ok"}
+    assert captured["func"] is api_module.calculate_destiny_analysis
+    assert captured["args"][0].name == "张三"
+
+
+def test_western_timing_route_uses_structured_service_error_status(monkeypatch):
+    async def fake_run_in_threadpool(func, *args, **kwargs):
+        return {
+            "error": "运行依赖缺失",
+            "error_code": "dependency_missing",
+            "status_code": 503,
+            "retryable": False,
+        }
+
+    monkeypatch.setattr(api_module, "run_in_threadpool", fake_run_in_threadpool)
+
+    request = WesternTimingRequest(**_build_birth_payload())
+
+    with pytest.raises(HTTPException) as exc_info:
+        asyncio.run(calculate_western_timing(request))
+
+    assert exc_info.value.status_code == 503
+    assert exc_info.value.detail == {
+        "error": "运行依赖缺失",
+        "error_code": "dependency_missing",
+        "retryable": False,
+    }
+
+
+def test_ready_endpoint_reports_required_and_optional_checks(monkeypatch):
+    api_module._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api_module,
+        "REQUEST_RATE_LIMITER",
+        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
+    )
+
+    client = TestClient(api_module.app)
+
+    response = client.get("/ready")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ready"
+    assert payload["checks"]["core_api"]["ok"] is True
+    assert payload["checks"]["offline_astrology"]["required"] is True
+    assert payload["checks"]["western_predictive_runtime"]["required"] is False
+    assert payload["checks"]["api_key_auth"]["enabled"] is False
+    assert payload["checks"]["api_key_quota"]["enabled"] is False
+    assert isinstance(payload["checks"]["western_predictive_runtime"]["ok"], bool)
+
+
+def test_metrics_endpoint_exposes_request_counters(monkeypatch):
+    api_module._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api_module,
+        "REQUEST_RATE_LIMITER",
+        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
+    )
+
+    client = TestClient(api_module.app)
+    client.get("/health")
+    client.get("/ready")
+
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/plain")
+    assert (
+        'fatebridge_http_requests_total{method="GET",path="/health",status="200"} 1'
+        in response.text
+    )
+    assert (
+        'fatebridge_http_requests_total{method="GET",path="/ready",status="200"} 1'
+        in response.text
+    )
+    assert (
+        'fatebridge_http_request_duration_seconds_sum{method="GET",path="/health"} '
+        in response.text
+    )
+    assert 'fatebridge_readiness_state{status="ready"} 1' in response.text
+    assert "fatebridge_api_key_auth_enabled 0" in response.text
+    assert "fatebridge_api_keys_configured_total 0" in response.text
+    assert "fatebridge_api_key_daily_quota 0" in response.text
+
+
+def test_rate_limit_returns_429_when_window_exceeded(monkeypatch):
+    api_module._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api_module,
+        "REQUEST_RATE_LIMITER",
+        api_module.RequestRateLimiter(max_requests=1, window_seconds=60),
+    )
+
+    client = TestClient(api_module.app)
+
+    first = client.post("/api/divination/gua", json={"query": "乾"})
+    second = client.post("/api/divination/gua", json={"query": "乾"})
+
+    assert first.status_code == 200
+    assert second.status_code == 429
+    assert second.headers["retry-after"] == "60"
+    assert second.json()["detail"] == {
+        "error": "请求过于频繁，请稍后重试",
+        "error_code": "rate_limited",
+        "retryable": True,
+    }
+
+
+def test_api_key_auth_rejects_missing_key_when_configured(monkeypatch):
+    api_module._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_AUTHENTICATOR",
+        api_module.ApiKeyAuthenticator(
+            header_name="X-API-Key",
+            api_keys={"agent": "secret-key"},
+        ),
+    )
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_QUOTA_TRACKER",
+        api_module.ApiKeyQuotaTracker(daily_quota=0),
+    )
+    monkeypatch.setattr(
+        api_module,
+        "REQUEST_RATE_LIMITER",
+        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
+    )
+
+    client = TestClient(api_module.app)
+    response = client.post("/api/divination/gua", json={"query": "乾"})
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == {
+        "error": "缺少或无效的 API key",
+        "error_code": "authentication_required",
+        "retryable": False,
+    }
+
+
+def test_api_key_auth_accepts_valid_key_when_configured(monkeypatch):
+    api_module._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_AUTHENTICATOR",
+        api_module.ApiKeyAuthenticator(
+            header_name="X-API-Key",
+            api_keys={"agent": "secret-key"},
+        ),
+    )
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_QUOTA_TRACKER",
+        api_module.ApiKeyQuotaTracker(daily_quota=0),
+    )
+    monkeypatch.setattr(
+        api_module,
+        "REQUEST_RATE_LIMITER",
+        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
+    )
+
+    client = TestClient(api_module.app)
+    response = client.post(
+        "/api/divination/gua",
+        json={"query": "乾"},
+        headers={"X-API-Key": "secret-key"},
+    )
+
+    assert response.status_code == 200
+
+
+def test_api_key_auth_keeps_ready_endpoint_public(monkeypatch):
+    api_module._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_AUTHENTICATOR",
+        api_module.ApiKeyAuthenticator(
+            header_name="X-API-Key",
+            api_keys={"agent": "secret-key"},
+        ),
+    )
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_QUOTA_TRACKER",
+        api_module.ApiKeyQuotaTracker(daily_quota=1),
+    )
+
+    client = TestClient(api_module.app)
+    response = client.get("/ready")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ready"
+
+
+def test_api_key_quota_returns_429_when_daily_limit_exceeded(monkeypatch):
+    api_module._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_AUTHENTICATOR",
+        api_module.ApiKeyAuthenticator(
+            header_name="X-API-Key",
+            api_keys={"agent": "secret-key"},
+        ),
+    )
+    monkeypatch.setattr(
+        api_module,
+        "API_KEY_QUOTA_TRACKER",
+        api_module.ApiKeyQuotaTracker(daily_quota=1),
+    )
+    monkeypatch.setattr(
+        api_module,
+        "REQUEST_RATE_LIMITER",
+        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
+    )
+
+    client = TestClient(api_module.app)
+    headers = {"X-API-Key": "secret-key"}
+
+    first = client.post("/api/divination/gua", json={"query": "乾"}, headers=headers)
+    second = client.post("/api/divination/gua", json={"query": "乾"}, headers=headers)
+
+    assert first.status_code == 200
+    assert second.status_code == 429
+    assert int(second.headers["retry-after"]) > 0
+    assert second.json()["detail"] == {
+        "error": "API key 当日配额已用尽，请明日再试",
+        "error_code": "quota_exceeded",
+        "retryable": True,
+        "quota_limit": 1,
+        "reset_scope": "utc_day",
+    }

@@ -1,11 +1,12 @@
-from pathlib import Path
+import json
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api import (
-    GuaMeiyiRequest,
     GuaLookupRequest,
+    GuaMeiyiRequest,
     MeihuaAnalysisRequest,
     OtherBuRequest,
     SanShiUnitedRequest,
@@ -14,8 +15,9 @@ from api import (
     TongSheFaRequest,
 )
 from fastmcp_server import (
-    gua_meiyi,
+    export_registry,
     gua_lookup,
+    gua_meiyi,
     meihua_analysis,
     otherbu,
     sanshiunited,
@@ -100,7 +102,9 @@ def _phase2_golden_projection():
         liureng_is_diurnal=False,
     )
     otherbu_sun = next(
-        item for item in otherbu_result["diceChart"]["chart"]["objects"] if item["id"] == "Sun"
+        item
+        for item in otherbu_result["diceChart"]["chart"]["objects"]
+        if item["id"] == "Sun"
     )
 
     return {
@@ -121,14 +125,20 @@ def _phase2_golden_projection():
             "chartVariant": suzhan_result["params"]["chartVariant"],
             "houseOrientation": suzhan_result["params"]["houseOrientation"],
             "house1": suzhan_result["chart"]["houses"][0],
-            "hasUranus": any(item["id"] == "Uranus" for item in suzhan_result["chart"]["objects"]),
-            "su28Count": sum(1 for item in suzhan_result["chart"]["objects"] if "su28" in item),
+            "hasUranus": any(
+                item["id"] == "Uranus" for item in suzhan_result["chart"]["objects"]
+            ),
+            "su28Count": sum(
+                1 for item in suzhan_result["chart"]["objects"] if "su28" in item
+            ),
         },
         "otherbu": {
             "planet": otherbu_result["planet"],
             "sign": otherbu_result["sign"],
             "house": otherbu_result["house"],
-            "diceHouse1Longitude": otherbu_result["diceChart"]["params"]["diceHouse1Longitude"],
+            "diceHouse1Longitude": otherbu_result["diceChart"]["params"][
+                "diceHouse1Longitude"
+            ],
             "sun": otherbu_sun,
         },
         "sanshiunited": {
@@ -141,7 +151,9 @@ def _phase2_golden_projection():
                 "reference": sanshi_result["qimen"].get("reference"),
             },
             "taiyi": {
-                "main_calculation": sanshi_result["taiyi"]["core_board"]["main_calculation"],
+                "main_calculation": sanshi_result["taiyi"]["core_board"][
+                    "main_calculation"
+                ],
                 "taiyi_palace": sanshi_result["taiyi"]["taiyi_palace"],
                 "big_pattern": sanshi_result["taiyi"].get("big_pattern"),
                 "small_pattern": sanshi_result["taiyi"].get("small_pattern"),
@@ -275,7 +287,9 @@ def test_calculate_gua_lookup_supports_hexagram_and_trigram_queries():
     assert hexagram_result["result"]["lookup_type"] == "hexagram"
     assert hexagram_result["result"]["name"] == "乾为天"
     assert hexagram_result["result"]["theme"] == "开创与自强"
-    assert hexagram_result["result"]["judgement"] == "局势昂扬，宜先定大方向再强力推进。"
+    assert (
+        hexagram_result["result"]["judgement"] == "局势昂扬，宜先定大方向再强力推进。"
+    )
     assert "六阳纯健" in hexagram_result["result"]["image"]
     assert "立战略" in hexagram_result["result"]["favorable"]
     assert "刚愎" in hexagram_result["result"]["caution"]
@@ -285,7 +299,10 @@ def test_calculate_gua_lookup_supports_hexagram_and_trigram_queries():
     assert "[卦象结构]" in hexagram_result["snapshot_text"]
     assert "[义理摘要]" in hexagram_result["snapshot_text"]
     assert "[来源]" in hexagram_result["snapshot_text"]
-    assert hexagram_result["snapshot_export"]["export_text"] == hexagram_result["snapshot_text"]
+    assert (
+        hexagram_result["snapshot_export"]["export_text"]
+        == hexagram_result["snapshot_text"]
+    )
 
     assert trigram_result["result"]["lookup_type"] == "trigram"
     assert trigram_result["result"]["name"] == "乾"
@@ -332,6 +349,44 @@ def test_calculate_gua_meiyi_supports_selected_export_sections():
     assert "[批量结果]" in result["snapshot_export"]["export_text"]
     assert "[查询概览]" not in result["snapshot_export"]["export_text"]
     assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
+def test_fastmcp_divination_tools_expose_compact_controls():
+    for tool in (
+        export_registry,
+        gua_lookup,
+        gua_meiyi,
+        meihua_analysis,
+        sanshiunited,
+        sixyao,
+        suzhan,
+        otherbu,
+    ):
+        properties = tool.parameters["properties"]
+        assert "compact" in properties
+        assert "include_snapshot_text" in properties
+
+
+def test_fastmcp_sanshiunited_compact_mode_can_drop_snapshot_text():
+    rendered = sanshiunited.fn(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lat="31n13",
+        lon="121e28",
+        qimen_options={"layout": "fly"},
+        taiyi_options={"accNum": 1},
+        liureng_yue="申",
+        liureng_is_diurnal=False,
+        compact=True,
+        include_snapshot_text=False,
+    )
+
+    payload = json.loads(rendered)
+
+    assert "snapshot_text" not in payload
+    assert "snapshot_export" in payload
+    assert "\n" not in rendered
 
 
 def test_calculate_meihua_analysis_returns_expected_hexagram_chain():
@@ -382,9 +437,14 @@ def test_calculate_meihua_analysis_returns_expected_hexagram_chain():
     assert "主动掌控" in interpretation["body_use_reading"]
     assert "火天大有" in interpretation["base_reading"]
     assert "火风鼎" in interpretation["changed_reading"]
-    assert interpretation["base_oracle"]["judgement"] == "资源在手，宜放大优势并守住尺度。"
+    assert (
+        interpretation["base_oracle"]["judgement"] == "资源在手，宜放大优势并守住尺度。"
+    )
     assert "扩成果" in interpretation["base_oracle"]["favorable"]
-    assert interpretation["changed_oracle"]["judgement"] == "重整器局可成新局，关键在结构升级。"
+    assert (
+        interpretation["changed_oracle"]["judgement"]
+        == "重整器局可成新局，关键在结构升级。"
+    )
     assert "重组团队" in interpretation["changed_oracle"]["favorable"]
     assert "扩成果" in interpretation["action_hint"]
     assert "试探、起步" in interpretation["action_hint"]
@@ -566,9 +626,17 @@ def test_calculate_suzhan_analysis_applies_chart_modes_to_offline_output():
     )
 
     assert any(item["id"] == "Uranus" for item in default_result["chart"]["objects"])
-    assert not any(item["id"] == "Uranus" for item in adjusted_result["chart"]["objects"])
-    assert default_result["chart"]["houses"][0]["lon"] != adjusted_result["chart"]["houses"][0]["lon"]
-    assert default_result["chart"]["houses"][1]["lon"] != adjusted_result["chart"]["houses"][1]["lon"]
+    assert not any(
+        item["id"] == "Uranus" for item in adjusted_result["chart"]["objects"]
+    )
+    assert (
+        default_result["chart"]["houses"][0]["lon"]
+        != adjusted_result["chart"]["houses"][0]["lon"]
+    )
+    assert (
+        default_result["chart"]["houses"][1]["lon"]
+        != adjusted_result["chart"]["houses"][1]["lon"]
+    )
     assert any("su28" in item for item in default_result["chart"]["objects"])
     assert all("su28" not in item for item in adjusted_result["chart"]["objects"])
     assert default_result["snapshot_text"] != adjusted_result["snapshot_text"]
@@ -597,10 +665,14 @@ def test_calculate_suzhan_analysis_supports_offline_house_system_and_zodiacal_mo
     )
 
     tropical_sun = next(
-        item for item in tropical_equal_result["chart"]["objects"] if item["id"] == "Sun"
+        item
+        for item in tropical_equal_result["chart"]["objects"]
+        if item["id"] == "Sun"
     )
     sidereal_sun = next(
-        item for item in sidereal_whole_result["chart"]["objects"] if item["id"] == "Sun"
+        item
+        for item in sidereal_whole_result["chart"]["objects"]
+        if item["id"] == "Sun"
     )
 
     assert tropical_equal_result["params"]["houseSystemResolved"] == "equal"
@@ -609,7 +681,10 @@ def test_calculate_suzhan_analysis_supports_offline_house_system_and_zodiacal_mo
     assert sidereal_whole_result["params"]["zodiacMode"] == "sidereal"
     assert sidereal_whole_result["params"]["zodiacLabelZh"] == "恒星黄道，岁差:Lahiri"
     assert sidereal_whole_result["params"]["ayanamsha"] > 0
-    assert tropical_equal_result["chart"]["houses"][0]["lon"] != sidereal_whole_result["chart"]["houses"][0]["lon"]
+    assert (
+        tropical_equal_result["chart"]["houses"][0]["lon"]
+        != sidereal_whole_result["chart"]["houses"][0]["lon"]
+    )
     assert tropical_sun["lon"] != sidereal_sun["lon"]
     assert tropical_sun["sign"] != sidereal_sun["sign"]
 
@@ -657,8 +732,14 @@ def test_calculate_suzhan_analysis_supports_extended_offline_house_systems():
     assert sripati_result["params"]["houseSystemResolved"] == "sripati"
     assert any(span != 30.0 for span in placidus_spans)
     assert any(span != 30.0 for span in sripati_spans)
-    assert _house_id_for_longitude(placidus_houses, placidus_sun["lon"]) == placidus_sun["house"]
-    assert _house_id_for_longitude(sripati_houses, sripati_sun["lon"]) == sripati_sun["house"]
+    assert (
+        _house_id_for_longitude(placidus_houses, placidus_sun["lon"])
+        == placidus_sun["house"]
+    )
+    assert (
+        _house_id_for_longitude(sripati_houses, sripati_sun["lon"])
+        == sripati_sun["house"]
+    )
     assert placidus_houses[0]["lon"] != sripati_houses[0]["lon"]
 
 
@@ -680,8 +761,18 @@ def test_calculate_suzhan_analysis_rejects_unsupported_offline_modes():
         zodiacal=2,
     )
 
-    assert invalid_hsys_result == {"error": "宿占分析失败，请重试"}
-    assert invalid_zodiac_result == {"error": "宿占分析失败，请重试"}
+    assert invalid_hsys_result == {
+        "error": "核心星盘离线模式暂仅支持 hsys=0..8（整宫制、Alcabitus、Regiomontanus、Placidus、Koch、Vehlow Equal、Polich Page、Sripati、天顶为10宫中点等宫制）。",
+        "error_code": "validation_error",
+        "status_code": 400,
+        "retryable": False,
+    }
+    assert invalid_zodiac_result == {
+        "error": "核心星盘离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。",
+        "error_code": "validation_error",
+        "status_code": 400,
+        "retryable": False,
+    }
 
 
 def test_calculate_otherbu_analysis_supports_traditional_mode():
@@ -743,19 +834,31 @@ def test_calculate_otherbu_analysis_supports_offline_house_system_and_zodiacal_m
     )
 
     tropical_sun = next(
-        item for item in tropical_equal_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+        item
+        for item in tropical_equal_result["chart"]["chart"]["objects"]
+        if item["id"] == "Sun"
     )
     sidereal_sun = next(
-        item for item in sidereal_whole_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+        item
+        for item in sidereal_whole_result["chart"]["chart"]["objects"]
+        if item["id"] == "Sun"
     )
 
     assert tropical_equal_result["chart"]["params"]["houseSystemResolved"] == "equal"
     assert tropical_equal_result["chart"]["params"]["zodiacMode"] == "tropical"
-    assert sidereal_whole_result["chart"]["params"]["houseSystemResolved"] == "whole_sign"
+    assert (
+        sidereal_whole_result["chart"]["params"]["houseSystemResolved"] == "whole_sign"
+    )
     assert sidereal_whole_result["chart"]["params"]["zodiacMode"] == "sidereal"
-    assert sidereal_whole_result["chart"]["params"]["zodiacLabelZh"] == "恒星黄道，岁差:Lahiri"
+    assert (
+        sidereal_whole_result["chart"]["params"]["zodiacLabelZh"]
+        == "恒星黄道，岁差:Lahiri"
+    )
     assert sidereal_whole_result["chart"]["params"]["ayanamsha"] > 0
-    assert tropical_equal_result["chart"]["chart"]["houses"][0]["lon"] != sidereal_whole_result["chart"]["chart"]["houses"][0]["lon"]
+    assert (
+        tropical_equal_result["chart"]["chart"]["houses"][0]["lon"]
+        != sidereal_whole_result["chart"]["chart"]["houses"][0]["lon"]
+    )
     assert tropical_sun["lon"] != sidereal_sun["lon"]
     assert tropical_sun["sign"] != sidereal_sun["sign"]
 
@@ -806,10 +909,14 @@ def test_calculate_otherbu_analysis_supports_extended_offline_house_systems():
     )
 
     placidus_sun = next(
-        item for item in placidus_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+        item
+        for item in placidus_result["chart"]["chart"]["objects"]
+        if item["id"] == "Sun"
     )
     sripati_sun = next(
-        item for item in sripati_result["chart"]["chart"]["objects"] if item["id"] == "Sun"
+        item
+        for item in sripati_result["chart"]["chart"]["objects"]
+        if item["id"] == "Sun"
     )
     placidus_houses = placidus_result["chart"]["chart"]["houses"]
     sripati_houses = sripati_result["chart"]["chart"]["houses"]
@@ -826,8 +933,14 @@ def test_calculate_otherbu_analysis_supports_extended_offline_house_systems():
     assert sripati_result["chart"]["params"]["houseSystemResolved"] == "sripati"
     assert any(span != 30.0 for span in placidus_spans)
     assert any(span != 30.0 for span in sripati_spans)
-    assert _house_id_for_longitude(placidus_houses, placidus_sun["lon"]) == placidus_sun["house"]
-    assert _house_id_for_longitude(sripati_houses, sripati_sun["lon"]) == sripati_sun["house"]
+    assert (
+        _house_id_for_longitude(placidus_houses, placidus_sun["lon"])
+        == placidus_sun["house"]
+    )
+    assert (
+        _house_id_for_longitude(sripati_houses, sripati_sun["lon"])
+        == sripati_sun["house"]
+    )
     assert placidus_houses[0]["lon"] != sripati_houses[0]["lon"]
 
 
@@ -849,8 +962,18 @@ def test_calculate_otherbu_analysis_rejects_unsupported_offline_modes():
         zodiacal=2,
     )
 
-    assert invalid_hsys_result == {"error": "占星骰子分析失败，请重试"}
-    assert invalid_zodiac_result == {"error": "占星骰子分析失败，请重试"}
+    assert invalid_hsys_result == {
+        "error": "核心星盘离线模式暂仅支持 hsys=0..8（整宫制、Alcabitus、Regiomontanus、Placidus、Koch、Vehlow Equal、Polich Page、Sripati、天顶为10宫中点等宫制）。",
+        "error_code": "validation_error",
+        "status_code": 400,
+        "retryable": False,
+    }
+    assert invalid_zodiac_result == {
+        "error": "核心星盘离线模式暂仅支持 zodiacal=0(回归黄道) 或 zodiacal=1(恒星黄道/Lahiri)。",
+        "error_code": "validation_error",
+        "status_code": 400,
+        "retryable": False,
+    }
 
 
 def test_calculate_otherbu_analysis_keeps_dice_chart_house_geometry_consistent():
@@ -868,7 +991,9 @@ def test_calculate_otherbu_analysis_keeps_dice_chart_house_geometry_consistent()
     dice_sun = next(
         item for item in result["diceChart"]["chart"]["objects"] if item["id"] == "Sun"
     )
-    actual_house = _house_id_for_longitude(result["diceChart"]["chart"]["houses"], dice_sun["lon"])
+    actual_house = _house_id_for_longitude(
+        result["diceChart"]["chart"]["houses"], dice_sun["lon"]
+    )
 
     assert dice_sun["house"] == "House7"
     assert actual_house == "House7"
@@ -955,12 +1080,18 @@ def test_calculate_sanshiunited_analysis_applies_qimen_and_taiyi_options():
     assert optioned_result["qimen"] != default_result["qimen"]
     assert optioned_result["qimen"]["palaces"] != default_result["qimen"]["palaces"]
     assert optioned_result["taiyi"] != default_result["taiyi"]
-    assert optioned_result["taiyi"]["taiyi_palace"] != default_result["taiyi"]["taiyi_palace"]
+    assert (
+        optioned_result["taiyi"]["taiyi_palace"]
+        != default_result["taiyi"]["taiyi_palace"]
+    )
     assert optioned_result["subresults"]["qimen"]["pan"] == optioned_result["qimen"]
     assert optioned_result["subresults"]["taiyi"]["pan"] == optioned_result["taiyi"]
     assert optioned_result["snapshot_text"] != default_result["snapshot_text"]
     assert "内容来源：" in optioned_result["snapshot_text"]
-    assert "坎一宫：天盘干：丁；地盘干：己；八神：螣蛇；九星：天冲；八门：惊门；内容来源：兑七宫 / 兑" in optioned_result["snapshot_text"]
+    assert (
+        "坎一宫：天盘干：丁；地盘干：己；八神：螣蛇；九星：天冲；八门：惊门；内容来源：兑七宫 / 兑"
+        in optioned_result["snapshot_text"]
+    )
     optioned_zhifu_palace = next(
         palace
         for palace in optioned_result["qimen"]["palaces"]
@@ -972,14 +1103,31 @@ def test_calculate_sanshiunited_analysis_applies_qimen_and_taiyi_options():
         if palace["name"] == optioned_result["qimen"]["zhishi"]["palace"]
     )
     assert optioned_result["qimen"]["zhifu"]["star"] == optioned_zhifu_palace["star"]
-    assert optioned_result["qimen"]["zhifu"]["trigram"] == optioned_zhifu_palace["trigram"]
-    assert optioned_result["qimen"]["zhifu"]["content_palace"] == optioned_zhifu_palace["content_palace"]
-    assert optioned_result["qimen"]["zhifu"]["content_trigram"] == optioned_zhifu_palace["content_trigram"]
+    assert (
+        optioned_result["qimen"]["zhifu"]["trigram"] == optioned_zhifu_palace["trigram"]
+    )
+    assert (
+        optioned_result["qimen"]["zhifu"]["content_palace"]
+        == optioned_zhifu_palace["content_palace"]
+    )
+    assert (
+        optioned_result["qimen"]["zhifu"]["content_trigram"]
+        == optioned_zhifu_palace["content_trigram"]
+    )
     assert optioned_result["qimen"]["zhifu"]["code"]
     assert optioned_result["qimen"]["zhishi"]["door"] == optioned_zhishi_palace["door"]
-    assert optioned_result["qimen"]["zhishi"]["trigram"] == optioned_zhishi_palace["trigram"]
-    assert optioned_result["qimen"]["zhishi"]["content_palace"] == optioned_zhishi_palace["content_palace"]
-    assert optioned_result["qimen"]["zhishi"]["content_trigram"] == optioned_zhishi_palace["content_trigram"]
+    assert (
+        optioned_result["qimen"]["zhishi"]["trigram"]
+        == optioned_zhishi_palace["trigram"]
+    )
+    assert (
+        optioned_result["qimen"]["zhishi"]["content_palace"]
+        == optioned_zhishi_palace["content_palace"]
+    )
+    assert (
+        optioned_result["qimen"]["zhishi"]["content_trigram"]
+        == optioned_zhishi_palace["content_trigram"]
+    )
     assert optioned_result["qimen"]["zhishi"]["code"]
     assert optioned_zhifu_palace["content_palace"]
     assert optioned_zhifu_palace["content_trigram"]
@@ -1001,7 +1149,11 @@ def test_calculate_sanshiunited_analysis_supports_selected_export_sections():
         selected_sections=["起盘信息", "太乙", "正南离宫"],
     )
 
-    assert result["snapshot_export"]["selected_sections"] == ["起盘信息", "太乙", "离九宫"]
+    assert result["snapshot_export"]["selected_sections"] == [
+        "起盘信息",
+        "太乙",
+        "离九宫",
+    ]
     assert "[起盘信息]" in result["snapshot_export"]["export_text"]
     assert "[太乙]" in result["snapshot_export"]["export_text"]
     assert "[离九宫]" in result["snapshot_export"]["export_text"]

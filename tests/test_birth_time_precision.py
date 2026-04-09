@@ -1,6 +1,6 @@
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-import sys
 
 import pytest
 
@@ -25,6 +25,7 @@ from fastmcp_server import (
     timing_analysis,
     two_person_compatibility,
 )
+from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,
@@ -34,7 +35,6 @@ from fatebridge.services.timing import (
     calculate_liuri_analysis,
     calculate_liuyue_analysis,
 )
-from fatebridge.core.timing import TimingAnalysis
 from fatebridge.utils.helpers import create_person_info, normalize_birth_time
 
 
@@ -328,7 +328,9 @@ def test_calculate_destiny_analysis_uses_corrected_solar_time_for_hour_pillar():
     result = calculate_destiny_analysis(person)
 
     assert result["person_info"]["birth_datetime"] == "2020年01月01日 00时30分"
-    assert result["person_info"]["normalized_birth_datetime"] == "2019年12月31日 22时16分"
+    assert (
+        result["person_info"]["normalized_birth_datetime"] == "2019年12月31日 22时16分"
+    )
     assert result["person_info"]["time_adjustment"]["applied"] is True
     assert result["person_info"]["time_adjustment"]["timezone"] == "Asia/Shanghai"
     assert result["person_info"]["time_adjustment"]["longitude_source"] == "birth_place"
@@ -388,7 +390,10 @@ def test_calculate_comprehensive_timing_supports_snapshot_export_and_age_overrid
     assert result["personal_info"]["current_age"] == 42
     assert result["personal_info"]["analysis_date"] == "2028-04-06"
     assert result["personal_info"]["analysis_datetime"] == "2028-04-06 21:55"
-    assert result["dayun_analysis"]["current_dayun"] == dayun_result["dayun_info"]["current_dayun"]
+    assert (
+        result["dayun_analysis"]["current_dayun"]
+        == dayun_result["dayun_info"]["current_dayun"]
+    )
     assert "[查询信息]" in result["snapshot_text"]
     assert "[大运摘要]" in result["snapshot_text"]
     assert "[流年流月流日]" in result["snapshot_text"]
@@ -433,12 +438,28 @@ def test_calculate_comprehensive_timing_supports_analysis_day_boundaries():
     )
 
     assert timing_result["personal_info"]["analysis_date"] == "2028-04-06"
-    assert timing_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
-    assert timing_result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"] == "谷雨"
+    assert (
+        timing_result["analysis_calendar"]["analysis_date_context"][
+            "current_solar_term"
+        ]["name"]
+        == "清明"
+    )
+    assert (
+        timing_result["analysis_calendar"]["analysis_date_context"]["next_solar_term"][
+            "name"
+        ]
+        == "谷雨"
+    )
     assert timing_result["liuyue_analysis"]["pillar"] == "丙辰"
     assert timing_result["liuri_analysis"]["pillar"] == "辛酉"
-    assert timing_result["liuyue_analysis"]["pillar"] == liuyue_result["liuyue_info"]["pillar"]
-    assert timing_result["liuri_analysis"]["pillar"] == liuri_result["liuri_info"]["pillar"]
+    assert (
+        timing_result["liuyue_analysis"]["pillar"]
+        == liuyue_result["liuyue_info"]["pillar"]
+    )
+    assert (
+        timing_result["liuri_analysis"]["pillar"]
+        == liuri_result["liuri_info"]["pillar"]
+    )
 
 
 def test_time_precision_changes_liuyue_across_qingming_boundary():
@@ -476,10 +497,25 @@ def test_time_precision_changes_liuyue_across_qingming_boundary():
     )
 
     assert before_result["liuyue_info"]["pillar"] == "乙卯"
-    assert before_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
+    assert (
+        before_result["analysis_calendar"]["analysis_date_context"][
+            "current_solar_term"
+        ]["name"]
+        == "春分"
+    )
     assert boundary_result["liuyue_info"]["pillar"] == qingming_node["liuyue"]["pillar"]
-    assert boundary_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
-    assert boundary_result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"] == "谷雨"
+    assert (
+        boundary_result["analysis_calendar"]["analysis_date_context"][
+            "current_solar_term"
+        ]["name"]
+        == "清明"
+    )
+    assert (
+        boundary_result["analysis_calendar"]["analysis_date_context"][
+            "next_solar_term"
+        ]["name"]
+        == "谷雨"
+    )
 
 
 def test_time_precision_aligns_liuri_and_timing_with_jieqi_anchor():
@@ -519,11 +555,23 @@ def test_time_precision_aligns_liuri_and_timing_with_jieqi_anchor():
     )
 
     assert liuri_result["liuri_info"]["pillar"] == qingming_node["liuri"]["pillar"]
-    assert liuri_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
+    assert (
+        liuri_result["analysis_calendar"]["analysis_date_context"][
+            "current_solar_term"
+        ]["name"]
+        == "清明"
+    )
     assert timing_result["personal_info"]["analysis_datetime"] == "2028-04-04 21:55"
-    assert timing_result["liuyue_analysis"]["pillar"] == qingming_node["liuyue"]["pillar"]
+    assert (
+        timing_result["liuyue_analysis"]["pillar"] == qingming_node["liuyue"]["pillar"]
+    )
     assert timing_result["liuri_analysis"]["pillar"] == qingming_node["liuri"]["pillar"]
-    assert timing_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "清明"
+    assert (
+        timing_result["analysis_calendar"]["analysis_date_context"][
+            "current_solar_term"
+        ]["name"]
+        == "清明"
+    )
 
 
 def test_calculate_dayun_analysis_supports_snapshot_export():
@@ -590,7 +638,12 @@ def test_calculate_liuri_analysis_returns_expected_pillar():
     )
 
     assert result["liuri_info"]["pillar"] == "丙辰"
-    assert result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
+    assert (
+        result["analysis_calendar"]["analysis_date_context"]["current_solar_term"][
+            "name"
+        ]
+        == "春分"
+    )
     assert "[查询信息]" in result["snapshot_text"]
     assert "[流日信息]" in result["snapshot_text"]
     assert "[影响摘要]" in result["snapshot_text"]
@@ -693,8 +746,16 @@ def test_calculate_liuyue_analysis_returns_expected_pillar():
 
     assert result["liuyue_info"]["pillar"] == "乙卯"
     assert result["liuyue_info"]["solar_term_window"]["start_term"]["name"] == "惊蛰"
-    assert result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"] == "春分"
-    assert result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"] == "清明"
+    assert (
+        result["analysis_calendar"]["analysis_date_context"]["current_solar_term"][
+            "name"
+        ]
+        == "春分"
+    )
+    assert (
+        result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"]
+        == "清明"
+    )
     assert result["liunian_info"]["pillar"] == "戊申"
     assert "[查询信息]" in result["snapshot_text"]
     assert "[流月信息]" in result["snapshot_text"]
@@ -824,7 +885,8 @@ def test_liuyue_timeline_anchor_is_minute_safe_and_replayable():
     assert qingming_month["analysis_anchor"] == "2028-04-04 21:55:00"
     assert liuyue_result["liuyue_info"]["pillar"] == qingming_month["liuyue"]["pillar"]
     assert (
-        liuyue_result["liuyue_info"]["solar_term_window"]["start_term"]["name"] == "清明"
+        liuyue_result["liuyue_info"]["solar_term_window"]["start_term"]["name"]
+        == "清明"
     )
 
 
@@ -919,12 +981,30 @@ def test_comprehensive_timing_matches_specialized_timing_tools():
         analysis_day=6,
     )
 
-    assert timing_result["dayun_analysis"]["current_dayun"] == dayun_result["dayun_info"]["current_dayun"]
-    assert timing_result["dayun_analysis"]["start_age"] == dayun_result["dayun_info"]["start_age"]
-    assert timing_result["dayun_analysis"]["dayun_age"] == dayun_result["dayun_info"]["dayun_age"]
-    assert timing_result["liunian_analysis"]["pillar"] == liunian_result["liunian_info"]["pillar"]
-    assert timing_result["liuyue_analysis"]["pillar"] == liuyue_result["liuyue_info"]["pillar"]
-    assert timing_result["liuri_analysis"]["pillar"] == liuri_result["liuri_info"]["pillar"]
+    assert (
+        timing_result["dayun_analysis"]["current_dayun"]
+        == dayun_result["dayun_info"]["current_dayun"]
+    )
+    assert (
+        timing_result["dayun_analysis"]["start_age"]
+        == dayun_result["dayun_info"]["start_age"]
+    )
+    assert (
+        timing_result["dayun_analysis"]["dayun_age"]
+        == dayun_result["dayun_info"]["dayun_age"]
+    )
+    assert (
+        timing_result["liunian_analysis"]["pillar"]
+        == liunian_result["liunian_info"]["pillar"]
+    )
+    assert (
+        timing_result["liuyue_analysis"]["pillar"]
+        == liuyue_result["liuyue_info"]["pillar"]
+    )
+    assert (
+        timing_result["liuri_analysis"]["pillar"]
+        == liuri_result["liuri_info"]["pillar"]
+    )
 
 
 def test_fastmcp_tools_expose_birth_time_precision_arguments():

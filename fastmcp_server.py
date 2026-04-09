@@ -33,7 +33,7 @@ Provides Chinese metaphysics and offline astrology functionality via FastMCP:
 """
 
 import logging
-from typing import Optional
+from typing import Any, Callable, Dict, Optional
 
 from fastmcp import FastMCP
 
@@ -44,28 +44,12 @@ from fatebridge.services.astrology import (
 )
 from fatebridge.services.bazi import (
     calculate_bazi_birth as calculate_bazi_birth_service,
+)
+from fatebridge.services.bazi import (
     calculate_bazi_direct as calculate_bazi_direct_service,
 )
-from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.services.western_timing_tools import (
-    calculate_decennials as calculate_decennials_service,
-    calculate_firdaria as calculate_firdaria_service,
-    calculate_givenyear as calculate_givenyear_service,
-    calculate_lunarreturn as calculate_lunarreturn_service,
-    calculate_pd as calculate_pd_service,
-    calculate_pdchart as calculate_pdchart_service,
-    calculate_profection as calculate_profection_service,
-    calculate_solararc as calculate_solararc_service,
-    calculate_solarreturn as calculate_solarreturn_service,
-    calculate_transit as calculate_transit_service,
-    calculate_zr as calculate_zr_service,
-)
-from fatebridge.utils.helpers import (
-    create_person_info,
-    format_json_response,
-    format_error_response,
-)
 from fatebridge.services.calculation import calculate_destiny_analysis
+from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.divination import (
     calculate_gua_lookup,
     calculate_gua_meiyi,
@@ -86,31 +70,84 @@ from fatebridge.services.knowledge import (
 )
 from fatebridge.services.metaphysics import (
     calculate_jinkou_analysis as calculate_jinkou_analysis_service,
+)
+from fatebridge.services.metaphysics import (
     calculate_liureng_gods as calculate_liureng_gods_service,
+)
+from fatebridge.services.metaphysics import (
     calculate_liureng_runyear as calculate_liureng_runyear_service,
+)
+from fatebridge.services.metaphysics import (
     calculate_qimen_analysis as calculate_qimen_analysis_service,
+)
+from fatebridge.services.metaphysics import (
     calculate_taiyi_analysis as calculate_taiyi_analysis_service,
+)
+from fatebridge.services.metaphysics import (
     calculate_ziwei_birth as calculate_ziwei_birth_service,
+)
+from fatebridge.services.metaphysics import (
     calculate_ziwei_rules as calculate_ziwei_rules_service,
 )
-from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,
     calculate_dayun_analysis,
-    calculate_jieqi_year,
     calculate_jieqi_timeline_analysis,
-    calculate_liuyue_analysis,
+    calculate_jieqi_year,
     calculate_liunian_analysis,
     calculate_liuri_analysis,
+    calculate_liuyue_analysis,
     calculate_nongli_time,
 )
+from fatebridge.services.western_timing import calculate_western_timing_analysis
+from fatebridge.services.western_timing_tools import (
+    calculate_decennials as calculate_decennials_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_firdaria as calculate_firdaria_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_givenyear as calculate_givenyear_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_lunarreturn as calculate_lunarreturn_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_pd as calculate_pd_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_pdchart as calculate_pdchart_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_profection as calculate_profection_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_solararc as calculate_solararc_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_solarreturn as calculate_solarreturn_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_transit as calculate_transit_service,
+)
+from fatebridge.services.western_timing_tools import (
+    calculate_zr as calculate_zr_service,
+)
+from fatebridge.utils.helpers import (
+    create_person_info,
+    format_error_response,
+    format_json_response,
+)
+from fatebridge.utils.runtime import get_log_level, load_runtime_env
 
 # ============================================================================
 # Logging Setup
 # ============================================================================
 
+load_runtime_env()
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, get_log_level(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -125,6 +162,28 @@ app = FastMCP(
     instructions="中国传统八字、时运、节气/农历 helper、FateBridge 导出协议/悬浮知识 helper 与离线星盘测算工具（优先本地高精度 ephemeris，缺失时回退近似模型），提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。",
     version="2.4.0",
 )
+
+
+def _render_tool_response(
+    data: Dict[str, Any],
+    *,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
+) -> str:
+    return format_json_response(
+        data,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
+
+
+def _render_tool_error(
+    data: Dict[str, Any],
+    operation: str,
+    *,
+    compact: bool = True,
+) -> str:
+    return format_error_response(data, operation, compact=compact)
 
 
 @app.tool
@@ -206,6 +265,8 @@ def bazi_birth(
     analysis_day: Optional[int] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     八字命盘工具
@@ -235,9 +296,13 @@ def bazi_birth(
     )
 
     if "error" in result:
-        return format_error_response(result, "八字命盘")
+        return _render_tool_error(result, "八字命盘", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -258,6 +323,8 @@ def bazi_direct(
     analysis_day: Optional[int] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     八字直断工具
@@ -287,9 +354,13 @@ def bazi_direct(
     )
 
     if "error" in result:
-        return format_error_response(result, "八字直断")
+        return _render_tool_error(result, "八字直断", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -416,6 +487,8 @@ def timing_analysis(
     birth_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     时运分析工具 - 分析大运、流年、流月对命局的影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -472,9 +545,13 @@ def timing_analysis(
     )
 
     if "error" in result:
-        return format_error_response(result, "时运分析")
+        return _render_tool_error(result, "时运分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -493,6 +570,8 @@ def dayun_analysis(
     birth_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     大运分析工具 - 专门分析指定年龄的大运情况，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -534,12 +613,16 @@ def dayun_analysis(
         analysis_age,
         selected_sections=selected_sections,
     )
-    
-    if "error" in result and result.get("analysis_type") is None:
-         # Only treat as error response if it's not a partial error inside the result
-         return format_error_response(result, "大运分析")
 
-    return format_json_response(result)
+    if "error" in result and result.get("analysis_type") is None:
+        # Only treat as error response if it's not a partial error inside the result
+        return _render_tool_error(result, "大运分析", compact=compact)
+
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -558,6 +641,8 @@ def liunian_analysis(
     birth_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     流年分析工具 - 专门分析指定年份的流年影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -598,11 +683,15 @@ def liunian_analysis(
         target_year,
         selected_sections=selected_sections,
     )
-    
-    if "error" in result:
-        return format_error_response(result, "流年分析")
 
-    return format_json_response(result)
+    if "error" in result:
+        return _render_tool_error(result, "流年分析", compact=compact)
+
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -625,6 +714,8 @@ def liuyue_analysis(
     birth_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     流月分析工具 - 专门分析指定日期所在节令月的影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -675,16 +766,30 @@ def liuyue_analysis(
     )
 
     if "error" in result:
-        return format_error_response(result, "流月分析")
+        return _render_tool_error(result, "流月分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
-def _run_astro_chart_tool(chart_variant: str, **payload) -> str:
+def _run_astro_chart_tool(
+    chart_variant: str,
+    *,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
+    **payload: Any,
+) -> str:
     result = calculate_core_chart_analysis(chart_variant=chart_variant, **payload)
     if "error" in result:
-        return format_error_response(result, f"{chart_variant} 星盘")
-    return format_json_response(result)
+        return _render_tool_error(result, f"{chart_variant} 星盘", compact=compact)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -702,6 +807,8 @@ def astro_chart13(
     birth_timezone: Optional[str] = "UTC",
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     13宫扩展盘工具 - 生成 13 扇区覆盖层
@@ -723,6 +830,8 @@ def astro_chart13(
         birth_place=birth_place,
         hsys=hsys,
         zodiacal=zodiacal,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -741,6 +850,8 @@ def astro_hellen_chart(
     birth_timezone: Optional[str] = "UTC",
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     希腊星盘工具 - 生成 whole-sign + sect + fortune lot 输出
@@ -762,6 +873,8 @@ def astro_hellen_chart(
         birth_place=birth_place,
         hsys=hsys,
         zodiacal=zodiacal,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -780,6 +893,8 @@ def astro_guolao_chart(
     birth_timezone: Optional[str] = "UTC",
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     果老/七政四余风格星盘工具 - 生成二十八宿辅助输出
@@ -801,6 +916,8 @@ def astro_guolao_chart(
         birth_place=birth_place,
         hsys=hsys,
         zodiacal=zodiacal,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -819,6 +936,8 @@ def astro_india_chart(
     birth_timezone: Optional[str] = "UTC",
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     印度盘工具 - 生成 sidereal + nakshatra 输出
@@ -840,6 +959,8 @@ def astro_india_chart(
         birth_place=birth_place,
         hsys=hsys,
         zodiacal=zodiacal,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -858,6 +979,8 @@ def astro_germany_chart(
     birth_timezone: Optional[str] = "UTC",
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     量化盘/中点盘工具 - 输出传统七曜中点与相位
@@ -880,13 +1003,20 @@ def astro_germany_chart(
         zodiacal=zodiacal,
     )
     if "error" in result:
-        return format_error_response(result, "germany 中点盘")
-    return format_json_response(result)
+        return _render_tool_error(result, "germany 中点盘", compact=compact)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
 def export_registry(
     technique: Optional[str] = None,
+    *,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     AI 导出协议注册表工具 - 返回 FateBridge 的导出设置目录。
@@ -894,9 +1024,13 @@ def export_registry(
     result = calculate_export_registry(technique=technique)
 
     if "error" in result:
-        return format_error_response(result, "导出注册表")
+        return _render_tool_error(result, "导出注册表", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -907,6 +1041,8 @@ def export_parse(
     selected_sections: Optional[list[str]] = None,
     planet_info: Optional[dict] = None,
     astro_meaning: Optional[dict] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     AI 导出正文解析工具 - 将快照文本拆分为可筛选的结构化分段。
@@ -920,9 +1056,13 @@ def export_parse(
     )
 
     if "error" in result:
-        return format_error_response(result, "导出解析")
+        return _render_tool_error(result, "导出解析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -930,6 +1070,8 @@ def knowledge_registry(
     domain: Optional[str] = None,
     *,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     悬浮知识目录工具 - 列出 astrology / 六壬 / 奇门的本地知识分类，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
@@ -940,9 +1082,13 @@ def knowledge_registry(
     )
 
     if "error" in result:
-        return format_error_response(result, "知识目录")
+        return _render_tool_error(result, "知识目录", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -958,6 +1104,8 @@ def knowledge_read(
     jiang_name: Optional[str] = None,
     tian_branch: Optional[str] = None,
     di_branch: Optional[str] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     悬浮知识读取工具 - 按 domain/category/key 读取单条本地知识，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
@@ -976,9 +1124,13 @@ def knowledge_read(
     )
 
     if "error" in result:
-        return format_error_response(result, "知识读取")
+        return _render_tool_error(result, "知识读取", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -992,6 +1144,8 @@ def jieqi_year(
     gps_lon: Optional[float] = None,
     jieqis: Optional[list[str]] = None,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     全年节气盘辅助工具 - 输出全年 24 节气节点，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
@@ -1008,9 +1162,13 @@ def jieqi_year(
     )
 
     if "error" in result:
-        return format_error_response(result, "全年节气盘")
+        return _render_tool_error(result, "全年节气盘", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1028,6 +1186,8 @@ def nongli_time(
     time_alg: int = 0,
     ad: int = 1,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     农历换算辅助工具 - 输出农历日期、节气与四柱上下文，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
@@ -1048,9 +1208,13 @@ def nongli_time(
     )
 
     if "error" in result:
-        return format_error_response(result, "农历换算")
+        return _render_tool_error(result, "农历换算", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1058,6 +1222,8 @@ def gua_meiyi(
     name: list[str],
     *,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     梅易卦义辅助工具 - 批量返回偏梅花易数语境的卦义摘要，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
@@ -1065,9 +1231,13 @@ def gua_meiyi(
     result = calculate_gua_meiyi(name=name, selected_sections=selected_sections)
 
     if "error" in result:
-        return format_error_response(result, "梅易卦义")
+        return _render_tool_error(result, "梅易卦义", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1076,6 +1246,8 @@ def gua_lookup(
     lookup_mode: str = "auto",
     *,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     卦义检索工具 - 查询六十四卦或八卦的离线义理说明，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -1094,9 +1266,13 @@ def gua_lookup(
     )
 
     if "error" in result:
-        return format_error_response(result, "卦义检索")
+        return _render_tool_error(result, "卦义检索", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1109,6 +1285,8 @@ def meihua_analysis(
     *,
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     梅花时卦分析工具 - 根据指定时刻起本卦、变卦、互卦、综卦与体用关系
@@ -1136,9 +1314,13 @@ def meihua_analysis(
     )
 
     if "error" in result:
-        return format_error_response(result, "梅花时卦分析")
+        return _render_tool_error(result, "梅花时卦分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1147,6 +1329,9 @@ def tongshefa(
     taiyang: Optional[str] = "坤",
     shaoyang: Optional[str] = "震",
     shaoyin: Optional[str] = "震",
+    *,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     统摄法工具 - 本地生成左右本卦、潜藏与亲和关系
@@ -1159,9 +1344,13 @@ def tongshefa(
     )
 
     if "error" in result:
-        return format_error_response(result, "统摄法分析")
+        return _render_tool_error(result, "统摄法分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1178,6 +1367,8 @@ def sixyao(
     gps_lat: Optional[float] = None,
     gps_lon: Optional[float] = None,
     lines: Optional[list] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     六爻 / 易卦工具 - 本地生成本卦、之卦、爻变与卦辞摘要
@@ -1197,9 +1388,13 @@ def sixyao(
     )
 
     if "error" in result:
-        return format_error_response(result, "六爻分析")
+        return _render_tool_error(result, "六爻分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1218,6 +1413,8 @@ def suzhan(
     doubing_su28: bool = True,
     hsys: int = 8,
     zodiacal: int = 0,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     宿占 / 宿盘工具 - 本地生成二十八宿与宫位分布
@@ -1239,9 +1436,13 @@ def suzhan(
     )
 
     if "error" in result:
-        return format_error_response(result, "宿占分析")
+        return _render_tool_error(result, "宿占分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1261,6 +1462,8 @@ def otherbu(
     planet: Optional[str] = "Sun",
     hsys: int = 8,
     zodiacal: int = 0,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     西洋游戏 / 占星骰子工具 - 本地生成骰面与对应解释
@@ -1283,9 +1486,13 @@ def otherbu(
     )
 
     if "error" in result:
-        return format_error_response(result, "占星骰子分析")
+        return _render_tool_error(result, "占星骰子分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1304,6 +1511,8 @@ def sanshiunited(
     liureng_yue: Optional[str] = None,
     liureng_is_diurnal: Optional[bool] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     三式合一工具 - 本地聚合奇门、太乙与六壬摘要，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -1325,9 +1534,13 @@ def sanshiunited(
     )
 
     if "error" in result:
-        return format_error_response(result, "三式合一分析")
+        return _render_tool_error(result, "三式合一分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1345,6 +1558,8 @@ def ziwei_birth(
     birth_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     紫微斗数命盘工具
@@ -1370,9 +1585,13 @@ def ziwei_birth(
         selected_sections=selected_sections,
     )
     if "error" in result:
-        return format_error_response(result, "紫微斗数命盘")
+        return _render_tool_error(result, "紫微斗数命盘", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1380,6 +1599,8 @@ def ziwei_rules(
     year_stem: Optional[str] = None,
     *,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     紫微规则库工具
@@ -1391,9 +1612,13 @@ def ziwei_rules(
         selected_sections=selected_sections,
     )
     if "error" in result:
-        return format_error_response(result, "紫微规则库")
+        return _render_tool_error(result, "紫微规则库", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1409,6 +1634,8 @@ def liureng_gods(
     analysis_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     大六壬起课工具
@@ -1429,9 +1656,13 @@ def liureng_gods(
     )
 
     if "error" in result:
-        return format_error_response(result, "大六壬起课")
+        return _render_tool_error(result, "大六壬起课", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1456,6 +1687,8 @@ def liureng_runyear(
     analysis_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     大六壬行年工具
@@ -1490,9 +1723,13 @@ def liureng_runyear(
     )
 
     if "error" in result:
-        return format_error_response(result, "大六壬行年")
+        return _render_tool_error(result, "大六壬行年", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1508,6 +1745,8 @@ def qimen(
     qimen_options: Optional[dict] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     奇门遁甲工具
@@ -1528,9 +1767,13 @@ def qimen(
     )
 
     if "error" in result:
-        return format_error_response(result, "奇门遁甲")
+        return _render_tool_error(result, "奇门遁甲", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1546,6 +1789,8 @@ def taiyi(
     analysis_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     太乙神数工具
@@ -1566,9 +1811,13 @@ def taiyi(
     )
 
     if "error" in result:
-        return format_error_response(result, "太乙神数")
+        return _render_tool_error(result, "太乙神数", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1585,6 +1834,8 @@ def jinkou(
     analysis_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     金口诀工具
@@ -1606,9 +1857,13 @@ def jinkou(
     )
 
     if "error" in result:
-        return format_error_response(result, "金口诀")
+        return _render_tool_error(result, "金口诀", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1631,6 +1886,8 @@ def liuri_analysis(
     birth_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     流日分析工具 - 专门分析指定日期的流日影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -1660,9 +1917,13 @@ def liuri_analysis(
     )
 
     if "error" in result:
-        return format_error_response(result, "流日分析")
+        return _render_tool_error(result, "流日分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1681,6 +1942,8 @@ def jieqi_timeline_analysis(
     birth_longitude: Optional[float] = None,
     selected_sections: Optional[list[str]] = None,
     use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     节气节点时间轴分析工具 - 输出全年 24 节气节点的流月/流日切换信息，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
@@ -1706,9 +1969,13 @@ def jieqi_timeline_analysis(
     )
 
     if "error" in result:
-        return format_error_response(result, "节气时间轴分析")
+        return _render_tool_error(result, "节气时间轴分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1727,6 +1994,8 @@ def astro_chart(
     birth_timezone: Optional[str] = "UTC",
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     离线星盘工具
@@ -1736,7 +2005,7 @@ def astro_chart(
     未显式传入时，会沿用各盘型原本的默认宫制与黄道类型；显式传入 `hsys` /
     `zodiacal` 时，会走 FateBridge 离线宫制与黄道覆盖逻辑。
     """
-    payload = {
+    payload: Dict[str, Any] = {
         "birth_year": birth_year,
         "birth_month": birth_month,
         "birth_day": birth_day,
@@ -1760,9 +2029,13 @@ def astro_chart(
         )
 
     if "error" in result:
-        return format_error_response(result, "星盘分析")
+        return _render_tool_error(result, "星盘分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1792,6 +2065,8 @@ def astro_relative_chart(
     outer_birth_timezone: Optional[str] = "UTC",
     hsys: int = 0,
     zodiacal: int = 0,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     离线关系盘工具
@@ -1833,9 +2108,13 @@ def astro_relative_chart(
     )
 
     if "error" in result:
-        return format_error_response(result, "关系星盘分析")
+        return _render_tool_error(result, "关系星盘分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1864,6 +2143,8 @@ def western_timing_analysis(
     pd_type: int = 0,
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """
     西占时运分析工具
@@ -1898,14 +2179,18 @@ def western_timing_analysis(
     )
 
     if "error" in result:
-        return format_error_response(result, "西占时运分析")
+        return _render_tool_error(result, "西占时运分析", compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 def _run_western_timing_module_tool(
     label: str,
-    runner,
+    runner: Callable[..., Dict[str, Any]],
     *,
     birth_year: int,
     birth_month: int,
@@ -1931,6 +2216,8 @@ def _run_western_timing_module_tool(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     result = runner(
         birth_year=birth_year,
@@ -1960,9 +2247,13 @@ def _run_western_timing_module_tool(
     )
 
     if "error" in result:
-        return format_error_response(result, label)
+        return _render_tool_error(result, label, compact=compact)
 
-    return format_json_response(result)
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+    )
 
 
 @app.tool
@@ -1992,6 +2283,8 @@ def solarreturn(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占太阳返照独立工具。"""
     return _run_western_timing_module_tool(
@@ -2021,6 +2314,8 @@ def solarreturn(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2051,6 +2346,8 @@ def lunarreturn(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占月亮返照独立工具。"""
     return _run_western_timing_module_tool(
@@ -2080,6 +2377,8 @@ def lunarreturn(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2110,6 +2409,8 @@ def transit(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占行运盘独立工具。"""
     return _run_western_timing_module_tool(
@@ -2139,6 +2440,8 @@ def transit(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2169,6 +2472,8 @@ def solararc(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占太阳弧独立工具。"""
     return _run_western_timing_module_tool(
@@ -2198,6 +2503,8 @@ def solararc(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2228,6 +2535,8 @@ def givenyear(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占指定年盘独立工具。"""
     return _run_western_timing_module_tool(
@@ -2257,6 +2566,8 @@ def givenyear(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2287,6 +2598,8 @@ def profection(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占年小限独立工具。"""
     return _run_western_timing_module_tool(
@@ -2316,6 +2629,8 @@ def profection(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2346,6 +2661,8 @@ def pd(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占主限独立工具。"""
     return _run_western_timing_module_tool(
@@ -2375,6 +2692,8 @@ def pd(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2405,6 +2724,8 @@ def pdchart(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占主限法盘独立工具。"""
     return _run_western_timing_module_tool(
@@ -2434,6 +2755,8 @@ def pdchart(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2464,6 +2787,8 @@ def zr(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占黄道释放独立工具。"""
     return _run_western_timing_module_tool(
@@ -2493,6 +2818,8 @@ def zr(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2523,6 +2850,8 @@ def firdaria(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占法达星限独立工具。"""
     return _run_western_timing_module_tool(
@@ -2552,6 +2881,8 @@ def firdaria(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2582,6 +2913,8 @@ def decennials(
     pd_aspects: Optional[list[int]] = None,
     show_pd_bounds: bool = True,
     selected_sections: Optional[list[str]] = None,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
 ) -> str:
     """西占十年星限独立工具。"""
     return _run_western_timing_module_tool(
@@ -2611,8 +2944,14 @@ def decennials(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
     app.run()
+
+
+if __name__ == "__main__":
+    main()

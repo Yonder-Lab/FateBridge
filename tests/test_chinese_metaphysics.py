@@ -1,5 +1,6 @@
-from pathlib import Path
+import json
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -134,11 +135,17 @@ def test_cn_analysis_request_models_accept_fields():
     assert taiyi_request.model_dump()["gender"] == "男"
     assert taiyi_request.model_dump()["selected_sections"] == ["起盘信息", "十六宫标记"]
     assert jinkou_request.model_dump()["di_fen"] == "酉"
-    assert jinkou_request.model_dump()["selected_sections"] == ["起盘信息", "金口诀四位"]
+    assert jinkou_request.model_dump()["selected_sections"] == [
+        "起盘信息",
+        "金口诀四位",
+    ]
     assert runyear_request.model_dump()["birth_year"] == 1994
     assert runyear_request.model_dump()["selected_sections"] == ["起盘信息", "行年"]
     assert rules_request.model_dump()["year_stem"] == "甲"
-    assert rules_request.model_dump()["selected_sections"] == ["规则概览", "当前天干四化"]
+    assert rules_request.model_dump()["selected_sections"] == [
+        "规则概览",
+        "当前天干四化",
+    ]
 
 
 def test_calculate_ziwei_birth_returns_twelve_palaces():
@@ -162,8 +169,16 @@ def test_calculate_ziwei_birth_returns_twelve_palaces():
     assert len(result["ziwei_birth"]["palaces"]) == 12
     assert result["ziwei_birth"]["ming_gong"]["name"] == "命宫"
     assert result["ziwei_birth"]["shen_gong"]["name"] == "身宫"
-    assert set(result["ziwei_birth"]["sihua"].keys()) == {"化禄", "化权", "化科", "化忌"}
-    assert any("紫微" in "、".join(palace["stars"]) for palace in result["ziwei_birth"]["palaces"])
+    assert set(result["ziwei_birth"]["sihua"].keys()) == {
+        "化禄",
+        "化权",
+        "化科",
+        "化忌",
+    }
+    assert any(
+        "紫微" in "、".join(palace["stars"])
+        for palace in result["ziwei_birth"]["palaces"]
+    )
     assert "[起盘信息]" in result["snapshot_text"]
     assert "[宫位总览]" in result["snapshot_text"]
     assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
@@ -199,7 +214,12 @@ def test_calculate_ziwei_rules_supports_year_stem_filter():
     assert result["engine"] == "fatebridge-offline"
     assert result["requested_year_stem"] == "甲"
     assert result["focused_rules"]["year_stem"] == "甲"
-    assert set(result["focused_rules"]["sihua"].keys()) == {"化禄", "化权", "化科", "化忌"}
+    assert set(result["focused_rules"]["sihua"].keys()) == {
+        "化禄",
+        "化权",
+        "化科",
+        "化忌",
+    }
     assert "palace_sequence" in result["rule_catalogue"]
     assert "[规则概览]" in result["snapshot_text"]
     assert "[四化总表]" in result["snapshot_text"]
@@ -213,10 +233,50 @@ def test_calculate_ziwei_rules_supports_selected_export_sections():
         selected_sections=["规则概览", "当前天干四化"],
     )
 
-    assert result["snapshot_export"]["selected_sections"] == ["规则概览", "当前天干四化"]
+    assert result["snapshot_export"]["selected_sections"] == [
+        "规则概览",
+        "当前天干四化",
+    ]
     assert "[规则概览]" in result["snapshot_export"]["export_text"]
     assert "[当前天干四化]" in result["snapshot_export"]["export_text"]
     assert "[四化总表]" not in result["snapshot_export"]["export_text"]
+
+
+def test_fastmcp_metaphysics_tools_expose_compact_controls():
+    for tool in (
+        ziwei_birth,
+        ziwei_rules,
+        liureng_gods,
+        liureng_runyear,
+        qimen,
+        taiyi,
+        jinkou,
+    ):
+        properties = tool.parameters["properties"]
+        assert "compact" in properties
+        assert "include_snapshot_text" in properties
+
+
+def test_fastmcp_ziwei_birth_compact_mode_can_drop_snapshot_text():
+    rendered = ziwei_birth.fn(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        name="张三",
+        gender="男",
+        birth_place="上海",
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        compact=True,
+        include_snapshot_text=False,
+    )
+
+    payload = json.loads(rendered)
+
+    assert "snapshot_text" not in payload
+    assert "snapshot_export" in payload
+    assert "\n" not in rendered
 
 
 def test_calculate_liureng_gods_returns_core_sections():
@@ -292,8 +352,12 @@ def test_calculate_liureng_gods_distinguishes_liuhe_style():
     )
 
     assert result["liureng"]["board_style"] == "六合"
-    assert result["liureng"]["four_lessons"][0]["relations"]["with_day_branch"] == "六合"
-    assert result["liureng"]["four_lessons"][0]["relations"]["with_lower_branch"] == "六合"
+    assert (
+        result["liureng"]["four_lessons"][0]["relations"]["with_day_branch"] == "六合"
+    )
+    assert (
+        result["liureng"]["four_lessons"][0]["relations"]["with_lower_branch"] == "六合"
+    )
     assert any(pattern["name"] == "六合课" for pattern in result["liureng"]["patterns"])
 
 
@@ -477,8 +541,14 @@ def test_calculate_qimen_analysis_returns_nine_palaces():
     assert result["qimen"]["zhifu"]["star"]
     assert result["qimen"]["zhishi"]["door"]
     assert result["qimen"]["palaces"][0]["door_hexagram"]["name"]
-    assert result["qimen"]["palaces"][0]["content_palace"] == result["qimen"]["palaces"][0]["name"]
-    assert result["qimen"]["palaces"][0]["content_trigram"] == result["qimen"]["palaces"][0]["trigram"]
+    assert (
+        result["qimen"]["palaces"][0]["content_palace"]
+        == result["qimen"]["palaces"][0]["name"]
+    )
+    assert (
+        result["qimen"]["palaces"][0]["content_trigram"]
+        == result["qimen"]["palaces"][0]["trigram"]
+    )
     assert "[八宫详解]" in result["snapshot_text"]
     assert "[九宫方盘]" in result["snapshot_text"]
     assert "[奇门演卦]" in result["snapshot_text"]
@@ -583,10 +653,22 @@ def test_calculate_qimen_analysis_applies_qimen_options_and_snapshot_text():
         for palace in optioned_result["qimen"]["palaces"]
         if palace["name"] == optioned_result["qimen"]["zhishi"]["palace"]
     )
-    assert optioned_result["qimen"]["zhifu"]["content_palace"] == optioned_zhifu_palace["content_palace"]
-    assert optioned_result["qimen"]["zhifu"]["content_trigram"] == optioned_zhifu_palace["content_trigram"]
-    assert optioned_result["qimen"]["zhishi"]["content_palace"] == optioned_zhishi_palace["content_palace"]
-    assert optioned_result["qimen"]["zhishi"]["content_trigram"] == optioned_zhishi_palace["content_trigram"]
+    assert (
+        optioned_result["qimen"]["zhifu"]["content_palace"]
+        == optioned_zhifu_palace["content_palace"]
+    )
+    assert (
+        optioned_result["qimen"]["zhifu"]["content_trigram"]
+        == optioned_zhifu_palace["content_trigram"]
+    )
+    assert (
+        optioned_result["qimen"]["zhishi"]["content_palace"]
+        == optioned_zhishi_palace["content_palace"]
+    )
+    assert (
+        optioned_result["qimen"]["zhishi"]["content_trigram"]
+        == optioned_zhishi_palace["content_trigram"]
+    )
 
 
 def test_calculate_qimen_analysis_supports_selected_export_sections():
@@ -602,7 +684,11 @@ def test_calculate_qimen_analysis_supports_selected_export_sections():
     )
 
     assert "[八宫详解]" in result["snapshot_text"]
-    assert result["snapshot_export"]["selected_sections"] == ["起盘信息", "九宫方盘", "离九宫"]
+    assert result["snapshot_export"]["selected_sections"] == [
+        "起盘信息",
+        "九宫方盘",
+        "离九宫",
+    ]
     assert "[起盘信息]" in result["snapshot_export"]["export_text"]
     assert "[九宫方盘]" in result["snapshot_export"]["export_text"]
     assert "[离九宫]" in result["snapshot_export"]["export_text"]
@@ -646,7 +732,11 @@ def test_calculate_liureng_gods_supports_selected_export_sections():
         selected_sections=["起盘信息", "三传", "概览"],
     )
 
-    assert result["snapshot_export"]["selected_sections"] == ["起盘信息", "三传", "概览"]
+    assert result["snapshot_export"]["selected_sections"] == [
+        "起盘信息",
+        "三传",
+        "概览",
+    ]
     assert "[起盘信息]" in result["snapshot_export"]["export_text"]
     assert "[三传]" in result["snapshot_export"]["export_text"]
     assert "[概览]" in result["snapshot_export"]["export_text"]
@@ -693,7 +783,9 @@ def test_calculate_jinkou_analysis_returns_four_positions():
     assert result["jinkou"]["overview"]["di_fen"] == "酉"
     assert result["jinkou"]["overview"]["yuejiang"]["branch"] == "申"
     assert result["jinkou"]["overview"]["guishen"]["name"] == "太阴"
-    assert result["jinkou"]["overview"]["board_style"] == result["liureng"]["board_style"]
+    assert (
+        result["jinkou"]["overview"]["board_style"] == result["liureng"]["board_style"]
+    )
     assert result["jinkou"]["overview"]["use_position"] == "将神"
     assert len(result["jinkou"]["rows"]) == 4
     assert result["jinkou"]["overview"]["yuejiang"]["name"]

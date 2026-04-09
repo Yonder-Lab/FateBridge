@@ -1,6 +1,6 @@
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -141,7 +141,10 @@ def test_calculate_nongli_time_supports_selected_export_sections():
         selected_sections=["农历上下文", "四柱上下文"],
     )
 
-    assert result["snapshot_export"]["selected_sections"] == ["农历上下文", "四柱上下文"]
+    assert result["snapshot_export"]["selected_sections"] == [
+        "农历上下文",
+        "四柱上下文",
+    ]
     assert "[农历上下文]" in result["snapshot_export"]["export_text"]
     assert "[四柱上下文]" in result["snapshot_export"]["export_text"]
     assert "[查询信息]" not in result["snapshot_export"]["export_text"]
@@ -215,7 +218,12 @@ def test_calculate_nongli_time_rejects_dates_after_offline_lunar_range():
         time_alg=1,
     )
 
-    assert result == {"error": "农历换算失败，请重试"}
+    assert result == {
+        "error": "离线农历换算仅支持公历 1900-01-31 至 2100-02-08。",
+        "error_code": "validation_error",
+        "status_code": 400,
+        "retryable": False,
+    }
 
 
 def test_calculate_nongli_time_rejects_non_ce_ad_flag():
@@ -227,7 +235,12 @@ def test_calculate_nongli_time_rejects_non_ce_ad_flag():
         ad=0,
     )
 
-    assert result == {"error": "农历换算失败，请重试"}
+    assert result == {
+        "error": "离线农历换算当前仅支持公元日期（ad=1）。",
+        "error_code": "validation_error",
+        "status_code": 400,
+        "retryable": False,
+    }
 
 
 def test_calculate_gua_meiyi_returns_batch_meiyi_explanations():
@@ -272,7 +285,10 @@ def test_helper_mcp_tools_return_formatted_json_strings():
 
     assert jieqi_result["analysis_type"] == "全年节气盘"
     assert jieqi_result["selected_jieqi"][0]["name"] == "春分"
-    assert jieqi_result["snapshot_export"]["selected_sections"] == ["查询信息", "重点节气"]
+    assert jieqi_result["snapshot_export"]["selected_sections"] == [
+        "查询信息",
+        "重点节气",
+    ]
     assert nongli_result["analysis_type"] == "农历换算"
     assert nongli_result["lunar_calendar"]["display"] == "三月初七"
     assert nongli_result["snapshot_export"]["selected_sections"] == ["农历上下文"]

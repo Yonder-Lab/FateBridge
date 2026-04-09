@@ -1,6 +1,6 @@
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-import sys
 
 import pytest
 
@@ -12,17 +12,17 @@ from fatebridge.core import astrology as astrology_core
 from fatebridge.core.astrology_predictive import (
     build_lot_payloads,
     build_natal_subject,
-    build_primary_direction_equatorial_context,
-    calculate_age_years_int,
     build_predictive_birth_info,
+    build_primary_direction_equatorial_context,
     build_releasing_level_within_interval,
     build_western_timing_payload,
+    calculate_age_years_int,
     normalize_angle,
     point_equatorial_position,
     project_absolute_degree_to_equatorial,
     semiarc_degrees_for_declination,
-    swe as predictive_swe,
 )
+from fatebridge.core.astrology_predictive import swe as predictive_swe
 from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis
 from fatebridge.utils.helpers import parse_timezone_name
@@ -148,9 +148,7 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert primary_directions["coordinate_system"] == "ecliptic_longitude"
     assert primary_directions["coordinate_label"] == "Arc"
     assert primary_directions["aspects"] == [0, 90, 180]
-    assert primary_directions["current_arc_degrees"] == pytest.approx(
-        34.5072, abs=0.01
-    )
+    assert primary_directions["current_arc_degrees"] == pytest.approx(34.5072, abs=0.01)
     assert len(primary_directions["current_window"]) > 0
     assert len(primary_directions["past_window"]) > 0
     assert len(primary_directions["future_window"]) > 0
@@ -171,22 +169,20 @@ def test_calculate_western_timing_analysis_returns_predictive_sections():
     assert "exact_hits" in primary_direction_chart
     assert primary_direction_chart["bounds_overlay"]["system"] == "egyptian_bounds"
     assert primary_direction_chart["bounds_overlay"]["enabled"] is True
-    assert primary_direction_chart["bounds_overlay"]["points"]["Sun"]["sign"] == "Cancer"
+    assert (
+        primary_direction_chart["bounds_overlay"]["points"]["Sun"]["sign"] == "Cancer"
+    )
     assert (
         primary_direction_chart["bounds_overlay"]["points"]["Sun"]["bound_lord"]
         == "Mars"
     )
     assert (
-        primary_direction_chart["bounds_overlay"]["points"]["Sun"][
-            "bound_lord_label"
-        ]
+        primary_direction_chart["bounds_overlay"]["points"]["Sun"]["bound_lord_label"]
         == "火星"
     )
     assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Cancer"
     assert primary_direction_chart["directed_points"]["Moon"]["sign"] == "Pisces"
-    assert (
-        primary_direction_chart["directed_lots"]["lot_of_fortune"]["sign"] == "Leo"
-    )
+    assert primary_direction_chart["directed_lots"]["lot_of_fortune"]["sign"] == "Leo"
     sun_sign_change = next(
         item
         for item in primary_direction_chart["sign_changes"]
@@ -477,12 +473,11 @@ def test_primary_directions_support_converse_mode():
     natal_promissor_coordinate = primary_directions["coordinate_points"][
         first_timeline["promissor"]
     ]["coordinate_degrees"]
-    assert (
-        first_timeline["coordinate_context"]["promissor_current"]["coordinate_degrees"]
-        == pytest.approx(
-            (natal_promissor_coordinate - first_timeline["arc_degrees"]) % 360.0,
-            abs=0.01,
-        )
+    assert first_timeline["coordinate_context"]["promissor_current"][
+        "coordinate_degrees"
+    ] == pytest.approx(
+        (natal_promissor_coordinate - first_timeline["arc_degrees"]) % 360.0,
+        abs=0.01,
     )
     assert first_timeline["arc_applied_degrees"] == pytest.approx(
         -first_timeline["arc_degrees"],
@@ -707,15 +702,16 @@ def test_legacy_reference_primary_direction_chart_reconstructs_ecliptic_position
     )
 
     primary_direction_chart = result["directions"]["primary_direction_chart"]
-    assert primary_direction_chart["directed_points"]["Sun"]["absolute_degree"] == pytest.approx(
+    assert primary_direction_chart["directed_points"]["Sun"][
+        "absolute_degree"
+    ] == pytest.approx(
         normalize_angle(expected_sun_longitude),
         abs=0.01,
     )
     assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Gemini"
-    assert (
-        primary_direction_chart["directed_lots"]["lot_of_fortune"]["absolute_degree"]
-        == pytest.approx(normalize_angle(expected_fortune_longitude), abs=0.01)
-    )
+    assert primary_direction_chart["directed_lots"]["lot_of_fortune"][
+        "absolute_degree"
+    ] == pytest.approx(normalize_angle(expected_fortune_longitude), abs=0.01)
     sun_sign_change = next(
         item
         for item in primary_direction_chart["sign_changes"]
@@ -765,7 +761,9 @@ def test_mundane_semiarc_primary_direction_chart_reconstructs_projection_from_mu
     arc_degrees = result["directions"]["primary_direction_chart"]["current_arc_degrees"]
     primary_directions = result["directions"]["primary_directions"]
 
-    def inverse_mundane_hour_angle(coordinate_degrees: float, semiarc_degrees: float) -> float:
+    def inverse_mundane_hour_angle(
+        coordinate_degrees: float, semiarc_degrees: float
+    ) -> float:
         normalized_coordinate = normalize_angle(coordinate_degrees)
         clamped_semiarc = min(max(semiarc_degrees, 1e-6), 179.999999)
         nocturnal_semiarc = max(180.0 - clamped_semiarc, 1e-6)
@@ -777,9 +775,7 @@ def test_mundane_semiarc_primary_direction_chart_reconstructs_projection_from_mu
             return clamped_semiarc + (
                 ((normalized_coordinate - 180.0) / 90.0) * nocturnal_semiarc
             )
-        return -180.0 + (
-            ((normalized_coordinate - 270.0) / 90.0) * nocturnal_semiarc
-        )
+        return -180.0 + (((normalized_coordinate - 270.0) / 90.0) * nocturnal_semiarc)
 
     sun_ra, sun_declination = point_equatorial_position(
         "Sun",
@@ -793,7 +789,8 @@ def test_mundane_semiarc_primary_direction_chart_reconstructs_projection_from_mu
         sun_declination,
     )
     sun_target_coordinate = normalize_angle(
-        primary_directions["coordinate_points"]["Sun"]["coordinate_degrees"] + arc_degrees
+        primary_directions["coordinate_points"]["Sun"]["coordinate_degrees"]
+        + arc_degrees
     )
     sun_hour_angle = inverse_mundane_hour_angle(sun_target_coordinate, sun_semiarc)
     directed_sun_ra = normalize_angle(equatorial_context["armc"] - sun_hour_angle)
@@ -828,16 +825,19 @@ def test_mundane_semiarc_primary_direction_chart_reconstructs_projection_from_mu
     )
 
     primary_direction_chart = result["directions"]["primary_direction_chart"]
-    assert primary_direction_chart["directed_points"]["Sun"]["absolute_degree"] == pytest.approx(
+    assert primary_direction_chart["directed_points"]["Sun"][
+        "absolute_degree"
+    ] == pytest.approx(
         normalize_angle(expected_sun_longitude),
         abs=0.01,
     )
     assert primary_direction_chart["directed_points"]["Sun"]["sign"] == "Aries"
+    assert primary_direction_chart["directed_lots"]["lot_of_fortune"][
+        "absolute_degree"
+    ] == pytest.approx(normalize_angle(expected_fortune_longitude), abs=0.01)
     assert (
-        primary_direction_chart["directed_lots"]["lot_of_fortune"]["absolute_degree"]
-        == pytest.approx(normalize_angle(expected_fortune_longitude), abs=0.01)
+        primary_direction_chart["directed_lots"]["lot_of_fortune"]["sign"] == "Taurus"
     )
-    assert primary_direction_chart["directed_lots"]["lot_of_fortune"]["sign"] == "Taurus"
 
 
 def test_legacy_equatorial_alias_matches_legacy_reference_coordinate_branch():
@@ -910,17 +910,19 @@ def test_fatebridge_mundane_semiarc_method_exposes_mundane_projection():
     assert primary_directions["coordinate_system"] == "mundane_semiarc"
     assert primary_directions["coordinate_label"] == "SemiArc"
     assert primary_directions["approximation"] == "mundane_semiarc_static_key"
-    assert primary_directions["current_window"][0]["coordinate_system"] == "mundane_semiarc"
+    assert (
+        primary_directions["current_window"][0]["coordinate_system"]
+        == "mundane_semiarc"
+    )
     first_timeline = primary_directions["timeline"][0]
     natal_promissor_coordinate = primary_directions["coordinate_points"][
         first_timeline["promissor"]
     ]["coordinate_degrees"]
-    assert (
-        first_timeline["coordinate_context"]["promissor_current"]["coordinate_degrees"]
-        == pytest.approx(
-            (natal_promissor_coordinate + first_timeline["arc_degrees"]) % 360.0,
-            abs=0.01,
-        )
+    assert first_timeline["coordinate_context"]["promissor_current"][
+        "coordinate_degrees"
+    ] == pytest.approx(
+        (natal_promissor_coordinate + first_timeline["arc_degrees"]) % 360.0,
+        abs=0.01,
     )
     assert first_timeline["arc_applied_degrees"] == pytest.approx(
         first_timeline["arc_degrees"],
@@ -932,15 +934,12 @@ def test_fatebridge_mundane_semiarc_method_exposes_mundane_projection():
         0.0,
         abs=0.01,
     )
-    assert (
-        first_timeline["coordinate_context"]["promissor_current"]["quadrant"]
-        in {
-            "above_east",
-            "above_west",
-            "below_west",
-            "below_east",
-        }
-    )
+    assert first_timeline["coordinate_context"]["promissor_current"]["quadrant"] in {
+        "above_east",
+        "above_west",
+        "below_west",
+        "below_east",
+    }
     assert (
         primary_directions["current_window"][0]["arc_degrees"]
         != baseline_result["directions"]["primary_directions"]["current_window"][0][
@@ -952,31 +951,20 @@ def test_fatebridge_mundane_semiarc_method_exposes_mundane_projection():
     assert primary_direction_chart["coordinate_system"] == "mundane_semiarc"
     assert primary_direction_chart["coordinate_label"] == "SemiArc"
     assert primary_direction_chart["approximation"] == "mundane_semiarc_static_key"
-    assert (
-        primary_direction_chart["natal_coordinate_points"]["Ascendant"][
-            "coordinate_degrees"
-        ]
-        == pytest.approx(0.0, abs=0.01)
+    assert primary_direction_chart["natal_coordinate_points"]["Ascendant"][
+        "coordinate_degrees"
+    ] == pytest.approx(0.0, abs=0.01)
+    assert primary_direction_chart["directed_coordinate_points"]["Ascendant"][
+        "coordinate_degrees"
+    ] == pytest.approx(primary_direction_chart["current_arc_degrees"], abs=0.01)
+    assert primary_direction_chart["directed_coordinate_points"]["Medium_Coeli"][
+        "coordinate_degrees"
+    ] == pytest.approx(
+        (90.0 + primary_direction_chart["current_arc_degrees"]) % 360.0,
+        abs=0.01,
     )
     assert (
-        primary_direction_chart["directed_coordinate_points"]["Ascendant"][
-            "coordinate_degrees"
-        ]
-        == pytest.approx(primary_direction_chart["current_arc_degrees"], abs=0.01)
-    )
-    assert (
-        primary_direction_chart["directed_coordinate_points"]["Medium_Coeli"][
-            "coordinate_degrees"
-        ]
-        == pytest.approx(
-            (90.0 + primary_direction_chart["current_arc_degrees"]) % 360.0,
-            abs=0.01,
-        )
-    )
-    assert (
-        primary_direction_chart["directed_coordinate_points"]["Ascendant"][
-            "quadrant"
-        ]
+        primary_direction_chart["directed_coordinate_points"]["Ascendant"]["quadrant"]
         == "above_east"
     )
     first_hit = primary_direction_chart["hits"][0]
@@ -990,24 +978,20 @@ def test_fatebridge_mundane_semiarc_method_exposes_mundane_projection():
         ]
     assert (
         first_hit["coordinate_context"]["promissor_current"]["coordinate_degrees"]
-        == primary_direction_chart["directed_coordinate_points"][first_hit["promissor"]][
-            "coordinate_degrees"
-        ]
+        == primary_direction_chart["directed_coordinate_points"][
+            first_hit["promissor"]
+        ]["coordinate_degrees"]
     )
     assert (
         first_hit["coordinate_context"]["significator_natal"]["coordinate_degrees"]
         == significator_entry["coordinate_degrees"]
     )
-    assert (
-        first_hit["coordinate_context"]["aspect_target"]["coordinate_degrees"]
-        == pytest.approx(
-            (
-                significator_entry["coordinate_degrees"]
-                + first_hit["aspect_variant_degrees"]
-            )
-            % 360.0,
-            abs=0.01,
-        )
+    assert first_hit["coordinate_context"]["aspect_target"][
+        "coordinate_degrees"
+    ] == pytest.approx(
+        (significator_entry["coordinate_degrees"] + first_hit["aspect_variant_degrees"])
+        % 360.0,
+        abs=0.01,
     )
     assert first_hit["coordinate_context"]["current_orb_degrees"] >= 0
     assert (
@@ -1016,18 +1000,12 @@ def test_fatebridge_mundane_semiarc_method_exposes_mundane_projection():
         ]["coordinate_degrees"]
         == first_hit["coordinate_context"]["promissor_current"]["coordinate_degrees"]
     )
-    assert (
-        primary_direction_chart["coordinate_diagnostics"]["Ascendant"][
-            "mundane_position_degrees"
-        ]
-        == pytest.approx(0.0, abs=0.01)
-    )
-    assert (
-        primary_direction_chart["coordinate_diagnostics"]["Medium_Coeli"][
-            "mundane_position_degrees"
-        ]
-        == pytest.approx(90.0, abs=0.01)
-    )
+    assert primary_direction_chart["coordinate_diagnostics"]["Ascendant"][
+        "mundane_position_degrees"
+    ] == pytest.approx(0.0, abs=0.01)
+    assert primary_direction_chart["coordinate_diagnostics"]["Medium_Coeli"][
+        "mundane_position_degrees"
+    ] == pytest.approx(90.0, abs=0.01)
     assert (
         primary_direction_chart["coordinate_diagnostics"]["Sun"]["semiarc_degrees"] > 0
     )

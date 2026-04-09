@@ -1,7 +1,7 @@
 import asyncio
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -21,9 +21,9 @@ from api import (
     calculate_liunian,
     calculate_relative_chart,
     calculate_solarreturn_module,
-    calculate_western_timing,
     calculate_timing_analysis,
     calculate_two_person_compatibility,
+    calculate_western_timing,
 )
 from fastmcp_server import (
     astro_chart,

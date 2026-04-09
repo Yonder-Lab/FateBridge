@@ -1,6 +1,6 @@
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -83,7 +83,11 @@ def test_calculate_export_registry_includes_knowledge_and_ziwei_rules():
     assert "knowledge" in technique_keys
     assert "knowledge_registry" in technique_keys
     assert "ziwei_rules" in technique_keys
-    assert selected["selected_technique"]["preset_sections"] == ["查询信息", "知识正文", "来源"]
+    assert selected["selected_technique"]["preset_sections"] == [
+        "查询信息",
+        "知识正文",
+        "来源",
+    ]
     assert registry_selected["selected_technique"]["preset_sections"] == [
         "目录概览",
         "astro",
@@ -116,12 +120,21 @@ def test_calculate_export_parse_normalizes_legacy_titles_and_filters_forbidden_s
         selected_sections=["起盘信息", "八宫详解", "奇门演卦"],
     )
 
-    assert result["section_titles_detected"] == ["起盘信息", "盘面要素", "八宫详解", "奇门演卦"]
+    assert result["section_titles_detected"] == [
+        "起盘信息",
+        "盘面要素",
+        "八宫详解",
+        "奇门演卦",
+    ]
     assert result["selected_sections"] == ["起盘信息", "八宫详解", "奇门演卦"]
     assert "这里不该进入最终导出" not in result["export_text"]
     assert "这里是八宫详解内容" in result["export_text"]
     assert "这里是奇门演卦内容" in result["export_text"]
-    assert result["settings_used"]["sections"]["qimen"] == ["起盘信息", "八宫详解", "奇门演卦"]
+    assert result["settings_used"]["sections"]["qimen"] == [
+        "起盘信息",
+        "八宫详解",
+        "奇门演卦",
+    ]
 
 
 def test_calculate_knowledge_registry_and_read_match_reference_samples():
@@ -137,7 +150,10 @@ def test_calculate_knowledge_registry_and_read_match_reference_samples():
     )
 
     assert registry["domains"][0]["domain"] == "astro"
-    assert any(category["name"] == "planet" for category in registry["domains"][0]["categories"])
+    assert any(
+        category["name"] == "planet"
+        for category in registry["domains"][0]["categories"]
+    )
     assert "[目录概览]" in registry["snapshot_text"]
     assert "[astro]" in registry["snapshot_text"]
     assert "[来源]" in registry["snapshot_text"]
@@ -184,7 +200,11 @@ def test_calculate_knowledge_registry_supports_selected_export_sections():
 def test_knowledge_registry_full_domain_order_matches_reference_order():
     registry = calculate_knowledge_registry()
 
-    assert [item["domain"] for item in registry["domains"]] == ["astro", "liureng", "qimen"]
+    assert [item["domain"] for item in registry["domains"]] == [
+        "astro",
+        "liureng",
+        "qimen",
+    ]
 
 
 def test_export_and_knowledge_mcp_tools_return_json_strings():
@@ -228,7 +248,10 @@ def test_export_and_knowledge_mcp_tools_return_json_strings():
     assert "奇门演卦" in export_registry_result["selected_technique"]["preset_sections"]
     assert "这里是奇门演卦内容" in export_parse_result["export_text"]
     assert knowledge_registry_result["domains"][0]["domain"] == "astro"
-    assert knowledge_registry_result["snapshot_export"]["selected_sections"] == ["目录概览", "astro"]
+    assert knowledge_registry_result["snapshot_export"]["selected_sections"] == [
+        "目录概览",
+        "astro",
+    ]
     assert "[astro]" in knowledge_registry_result["snapshot_export"]["export_text"]
     assert knowledge_read_result["key"] == "休门"
     assert "休养" in knowledge_read_result["rendered_text"]

@@ -8,16 +8,33 @@ import logging
 import math
 import re
 import unicodedata
+from builtins import TimeoutError as BuiltinTimeoutError
 from calendar import monthrange
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, Tuple
+from datetime import datetime, timedelta, tzinfo
+from typing import Any, Dict, Optional, Tuple, cast
 
 from dateutil import tz
-
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 logger = logging.getLogger(__name__)
+
+DEPENDENCY_ERROR_CODE = "dependency_missing"
+INTERNAL_ERROR_CODE = "internal_error"
+TIMEOUT_ERROR_CODE = "timeout"
+VALIDATION_ERROR_CODE = "validation_error"
+
+DEPENDENCY_ERROR_HINTS = (
+    "no module named",
+    "module not found",
+    "missing dependency",
+    "dependency missing",
+    "swisseph",
+    "ephemeris",
+    "kerykeion",
+    "依赖缺失",
+    "未安装",
+)
 
 
 DEFAULT_BIRTH_TIMEZONE = "Asia/Shanghai"
@@ -199,12 +216,26 @@ KNOWN_BIRTH_PLACE_ENTRIES = (
     make_birth_place_entry("陕西", 108.9398, level="province", aliases=("陕西省",)),
     make_birth_place_entry("甘肃", 103.8343, level="province", aliases=("甘肃省",)),
     make_birth_place_entry("青海", 101.7782, level="province", aliases=("青海省",)),
-    make_birth_place_entry("台湾", 121.5654, timezone="Asia/Taipei", level="province", aliases=("台湾省", "臺灣", "臺灣省")),
-    make_birth_place_entry("内蒙古", 111.6708, level="province", aliases=("内蒙古自治区",)),
-    make_birth_place_entry("广西", 108.3200, level="province", aliases=("广西", "广西壮族自治区")),
+    make_birth_place_entry(
+        "台湾",
+        121.5654,
+        timezone="Asia/Taipei",
+        level="province",
+        aliases=("台湾省", "臺灣", "臺灣省"),
+    ),
+    make_birth_place_entry(
+        "内蒙古", 111.6708, level="province", aliases=("内蒙古自治区",)
+    ),
+    make_birth_place_entry(
+        "广西", 108.3200, level="province", aliases=("广西", "广西壮族自治区")
+    ),
     make_birth_place_entry("西藏", 91.1322, level="province", aliases=("西藏自治区",)),
-    make_birth_place_entry("宁夏", 106.2782, level="province", aliases=("宁夏回族自治区",)),
-    make_birth_place_entry("新疆", 87.6168, level="province", aliases=("新疆", "新疆维吾尔自治区")),
+    make_birth_place_entry(
+        "宁夏", 106.2782, level="province", aliases=("宁夏回族自治区",)
+    ),
+    make_birth_place_entry(
+        "新疆", 87.6168, level="province", aliases=("新疆", "新疆维吾尔自治区")
+    ),
     # Broader city coverage
     make_birth_place_entry("广州", 113.2644, aliases=("广州市",)),
     make_birth_place_entry("深圳", 114.0579, aliases=("深圳市",)),
@@ -236,10 +267,16 @@ KNOWN_BIRTH_PLACE_ENTRIES = (
     make_birth_place_entry("拉萨", 91.1322, aliases=("拉萨市",)),
     make_birth_place_entry("喀什", 75.9898, aliases=("喀什地区", "喀什市")),
     # International cities retained from the previous version
-    make_birth_place_entry("纽约", -74.0060, timezone="America/New_York", aliases=("纽约市",)),
+    make_birth_place_entry(
+        "纽约", -74.0060, timezone="America/New_York", aliases=("纽约市",)
+    ),
     make_birth_place_entry("伦敦", -0.1278, timezone="Europe/London"),
-    make_birth_place_entry("东京", 139.6917, timezone="Asia/Tokyo", aliases=("东京都",)),
-    make_birth_place_entry("悉尼", 151.2093, timezone="Australia/Sydney", aliases=("悉尼市",)),
+    make_birth_place_entry(
+        "东京", 139.6917, timezone="Asia/Tokyo", aliases=("东京都",)
+    ),
+    make_birth_place_entry(
+        "悉尼", 151.2093, timezone="Australia/Sydney", aliases=("悉尼市",)
+    ),
 )
 
 
@@ -279,9 +316,7 @@ class NormalizedBirthTime:
             "longitude_source": self.longitude_source,
             "resolved_place": self.resolved_place,
             "resolution_level": self.resolution_level,
-            "longitude_correction_minutes": round(
-                self.longitude_correction_minutes, 2
-            ),
+            "longitude_correction_minutes": round(self.longitude_correction_minutes, 2),
             "equation_of_time_minutes": round(self.equation_of_time_minutes, 2),
             "total_correction_minutes": round(self.total_correction_minutes, 2),
         }
@@ -309,23 +344,20 @@ class PersonInfo(BaseModel):
     birth_longitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description="出生地经度（可选）"
     )
-    use_true_solar_time: bool = Field(
-        default=False, description="是否启用真太阳时修正"
-    )
+    use_true_solar_time: bool = Field(default=False, description="是否启用真太阳时修正")
 
-    @field_validator('birth_day')
+    @field_validator("birth_day")
     @classmethod
-    def validate_birth_day(cls, v: int, info) -> int:
+    def validate_birth_day(cls, v: int, info: ValidationInfo) -> int:
         """验证日期是否有效"""
-        month = info.data.get('birth_month')
-        year = info.data.get('birth_year')
+        month = info.data.get("birth_month")
+        year = info.data.get("birth_year")
 
         if month and year:
             max_day = monthrange(year, month)[1]
             if v > max_day:
                 raise ValueError(
-                    f"无效的日期: {year}年{month}月{v}日 "
-                    f"(该月只有{max_day}天)"
+                    f"无效的日期: {year}年{month}月{v}日 " f"(该月只有{max_day}天)"
                 )
         return v
 
@@ -405,9 +437,7 @@ def create_birth_datetime(
         ValueError: 如果日期无效
     """
     try:
-        return datetime(
-            birth_year, birth_month, birth_day, birth_hour, birth_minute
-        )
+        return datetime(birth_year, birth_month, birth_day, birth_hour, birth_minute)
     except ValueError as e:
         error_msg = (
             "Invalid birth date: "
@@ -427,7 +457,7 @@ def resolve_birth_place_context(
 
     normalized_place = normalize_birth_place_text(birth_place)
 
-    best_match: Optional[Tuple[int, int, int, Dict[str, Any]]] = None
+    best_match: Optional[Tuple[int, int, int, int, Dict[str, Any]]] = None
     for entry in KNOWN_BIRTH_PLACE_ENTRIES:
         for alias in entry["normalized_aliases"]:
             if alias and alias in normalized_place:
@@ -453,18 +483,18 @@ def resolve_birth_place_context(
     )
 
 
-def parse_timezone_name(timezone_name: str):
+def parse_timezone_name(timezone_name: str) -> tzinfo:
     """Parse IANA names or UTC±HH[:MM] offsets into a tzinfo."""
     timezone_name = timezone_name.strip()
     timezone_info = tz.gettz(timezone_name)
     if timezone_info is not None:
-        return timezone_info
+        return cast(tzinfo, timezone_info)
 
     normalized_name = timezone_name.upper().replace("GMT", "UTC")
     if normalized_name.startswith(("+", "-")):
         normalized_name = f"UTC{normalized_name}"
     if normalized_name == "UTC":
-        return tz.tzutc()
+        return cast(tzinfo, tz.tzutc())
 
     if not normalized_name.startswith("UTC") or len(normalized_name) < 5:
         raise ValueError(f"Invalid birth timezone: {timezone_name}")
@@ -487,7 +517,7 @@ def parse_timezone_name(timezone_name: str):
 
     direction = 1 if sign == "+" else -1
     offset_seconds = direction * ((hours * 60 + minutes) * 60)
-    return tz.tzoffset(timezone_name, offset_seconds)
+    return cast(tzinfo, tz.tzoffset(timezone_name, offset_seconds))
 
 
 def calculate_equation_of_time_minutes(target_datetime: datetime) -> float:
@@ -621,7 +651,7 @@ def format_birth_datetime_display(
     return birth_datetime.strftime("%Y年%m月%d日 %H时")
 
 
-def handle_calculation_error(error: Exception, operation: str) -> Dict[str, str]:
+def handle_calculation_error(error: Exception, operation: str) -> Dict[str, Any]:
     """统一的错误处理函数
 
     Logs full error server-side but returns generic message to client
@@ -635,10 +665,46 @@ def handle_calculation_error(error: Exception, operation: str) -> Dict[str, str]
         包含错误信息的字典（不暴露内部细节）
     """
     logger.error(f"{operation} failed: {str(error)}", exc_info=True)
-    return {"error": f"{operation}失败，请重试"}
+    error_text = str(error).strip()
+    normalized = error_text.casefold()
+
+    if isinstance(error, (ImportError, ModuleNotFoundError)) or any(
+        hint in normalized for hint in DEPENDENCY_ERROR_HINTS
+    ):
+        return {
+            "error": f"{operation}所需依赖缺失，请检查运行环境",
+            "error_code": DEPENDENCY_ERROR_CODE,
+            "status_code": 503,
+            "retryable": False,
+        }
+
+    if isinstance(error, (TimeoutError, BuiltinTimeoutError)):
+        return {
+            "error": f"{operation}处理超时，请稍后重试",
+            "error_code": TIMEOUT_ERROR_CODE,
+            "status_code": 504,
+            "retryable": True,
+        }
+
+    if isinstance(error, ValueError):
+        return {
+            "error": error_text or f"{operation}输入无效",
+            "error_code": VALIDATION_ERROR_CODE,
+            "status_code": 400,
+            "retryable": False,
+        }
+
+    return {
+        "error": f"{operation}暂时不可用，请稍后重试",
+        "error_code": INTERNAL_ERROR_CODE,
+        "status_code": 500,
+        "retryable": True,
+    }
 
 
-def create_pillar_dict(pillars: Dict[str, Tuple[str, str]]) -> Dict[str, Dict[str, str]]:
+def create_pillar_dict(
+    pillars: Dict[str, Tuple[str, str]],
+) -> Dict[str, Dict[str, str]]:
     """创建标准化的四柱字典格式
 
     Args:
@@ -655,16 +721,42 @@ def create_pillar_dict(pillars: Dict[str, Tuple[str, str]]) -> Dict[str, Dict[st
     }
 
 
-def format_json_response(data: Dict[str, Any]) -> str:
+def _prepare_json_response_payload(
+    data: Dict[str, Any],
+    *,
+    include_snapshot_text: bool,
+) -> Dict[str, Any]:
+    if include_snapshot_text or "snapshot_text" not in data:
+        return data
+
+    payload = dict(data)
+    payload.pop("snapshot_text", None)
+    return payload
+
+
+def format_json_response(
+    data: Dict[str, Any],
+    *,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
+) -> str:
     """统一的JSON格式化函数
 
     Args:
         data: 要格式化的数据字典
+        compact: 是否输出紧凑 JSON
+        include_snapshot_text: 是否保留 snapshot_text 字段
 
     Returns:
         格式化的JSON字符串
     """
-    return json.dumps(data, ensure_ascii=False, indent=2)
+    payload = _prepare_json_response_payload(
+        data,
+        include_snapshot_text=include_snapshot_text,
+    )
+    if compact:
+        return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    return json.dumps(payload, ensure_ascii=False, indent=2)
 
 
 def get_current_analysis_date(
@@ -689,7 +781,12 @@ def get_current_analysis_date(
     return analysis_year, analysis_month
 
 
-def format_error_response(data: Dict[str, Any], operation: str) -> str:
+def format_error_response(
+    data: Dict[str, Any],
+    operation: str,
+    *,
+    compact: bool = True,
+) -> str:
     """格式化错误响应
 
     Args:
@@ -700,10 +797,16 @@ def format_error_response(data: Dict[str, Any], operation: str) -> str:
         格式化的错误信息字符串
     """
     if "error" in data:
-        return format_json_response({
-            "error": data["error"],
-            "operation": operation
-        })
+        return format_json_response(
+            {
+                "error": data["error"],
+                "error_code": data.get("error_code", INTERNAL_ERROR_CODE),
+                "status_code": data.get("status_code", 500),
+                "retryable": data.get("retryable", False),
+                "operation": operation,
+            },
+            compact=compact,
+        )
     return ""
 
 
@@ -720,7 +823,7 @@ def get_element_relationship(element1: str, element2: str) -> Dict[str, str]:
     Raises:
         ValueError: 如果元素无效
     """
-    from fatebridge.utils.data import Element, GENERATION_CYCLE, DESTRUCTION_CYCLE
+    from fatebridge.utils.data import DESTRUCTION_CYCLE, GENERATION_CYCLE, Element
 
     # 找到对应的Element枚举
     element1_enum = None

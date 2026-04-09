@@ -38,14 +38,23 @@ API_HOST=0.0.0.0
 API_PORT=8010
 ALLOWED_ORIGINS=http://localhost:3000
 LOG_LEVEL=INFO
+FATEBRIDGE_API_KEYS=
+API_KEY_HEADER_NAME=X-API-Key
+API_KEY_DAILY_QUOTA=0
 ```
 
 如果你只是本地调试，通常不需要修改。
+
+- `FATEBRIDGE_API_KEYS` 为空时，REST API 默认不启用鉴权。
+- 如果设置了 `FATEBRIDGE_API_KEYS=agent:replace-me`，访问业务端点时需要带 `X-API-Key: replace-me`。
+- `API_KEY_DAILY_QUOTA` 按 UTC 日期统计单个 key 的日请求量，`0` 表示关闭。
 
 ## 4. 启动 REST API
 
 ```bash
 python api.py
+# 或
+fatebridge-api
 ```
 
 看到类似输出即可：
@@ -68,6 +77,13 @@ curl http://localhost:8010/health
 {"status":"healthy"}
 ```
 
+### 就绪与指标
+
+```bash
+curl http://localhost:8010/ready
+curl http://localhost:8010/metrics
+```
+
 ### 打开交互文档
 
 浏览器访问：
@@ -80,6 +96,7 @@ curl http://localhost:8010/health
 ```bash
 curl -X POST http://localhost:8010/api/calculate \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: replace-me" \
   -d '{
     "name": "张三",
     "gender": "男",
@@ -93,6 +110,8 @@ curl -X POST http://localhost:8010/api/calculate \
     "use_true_solar_time": true
   }'
 ```
+
+如果你没有配置 `FATEBRIDGE_API_KEYS`，可以去掉 `X-API-Key` 这一行。
 
 你会看到类似下面的字段：
 

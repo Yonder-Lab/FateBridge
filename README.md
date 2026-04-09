@@ -49,12 +49,21 @@ API_HOST=0.0.0.0
 API_PORT=8010
 ALLOWED_ORIGINS=http://localhost:3000
 LOG_LEVEL=INFO
+
+# 可选：启用 REST API key 鉴权
+FATEBRIDGE_API_KEYS=agent:replace-me
+API_KEY_HEADER_NAME=X-API-Key
+
+# 可选：单个 API key 的 UTC 日配额，0 表示关闭
+API_KEY_DAILY_QUOTA=0
 ```
 
 ### 3. 启动 REST API
 
 ```bash
 python api.py
+# 或
+fatebridge-api
 ```
 
 可访问：
@@ -62,11 +71,15 @@ python api.py
 - Swagger UI: `http://localhost:8010/docs`
 - ReDoc: `http://localhost:8010/redoc`
 - 健康检查: `http://localhost:8010/health`
+- 就绪检查: `http://localhost:8010/ready`
+- 指标: `http://localhost:8010/metrics`
 
 ### 4. 启动 FastMCP
 
 ```bash
 python fastmcp_server.py
+# 或
+fatebridge-mcp
 ```
 
 FastMCP 适合给 Claude、ChatGPT、Cursor、Codex 等 Agent 宿主作为工具面接入。
@@ -76,6 +89,7 @@ FastMCP 适合给 Claude、ChatGPT、Cursor、Codex 等 Agent 宿主作为工具
 ```bash
 curl -X POST http://localhost:8010/api/calculate \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: replace-me" \
   -d '{
     "name": "张三",
     "gender": "男",
@@ -89,6 +103,8 @@ curl -X POST http://localhost:8010/api/calculate \
     "birth_place": "北京"
   }'
 ```
+
+如果没有配置 `FATEBRIDGE_API_KEYS`，可以省略 `X-API-Key` 请求头；一旦配置了，除 `/health`、`/ready`、`/metrics` 和文档页外，其他 REST 端点都需要带上 API key。
 
 ## 你会拿到什么
 
@@ -182,9 +198,9 @@ FateBridge/
 pytest -q
 pytest tests/test_api_alignment.py -q
 
-black --check fatebridge/ api.py fastmcp_server.py
-isort --check-only fatebridge/ api.py fastmcp_server.py
-mypy fatebridge/ api.py
+black --check api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py tests
+isort --check-only api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py tests
+mypy --follow-imports=silent api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py
 ```
 
 更细的开发说明见 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)。

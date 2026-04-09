@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -15,7 +15,14 @@ from fatebridge.services.divination import calculate_sanshiunited_analysis
 from fatebridge.services.metaphysics import calculate_qimen_analysis
 
 
-def _make_seed(*, day_ganzhi: str, time_ganzhi: str, current_term: str, days_since_current: float, term_day_ganzhi: str | None = None) -> MetaphysicsSeed:
+def _make_seed(
+    *,
+    day_ganzhi: str,
+    time_ganzhi: str,
+    current_term: str,
+    days_since_current: float,
+    term_day_ganzhi: str | None = None,
+) -> MetaphysicsSeed:
     return MetaphysicsSeed(
         input_datetime=datetime(2028, 4, 6, 9, 33, 0),
         corrected_datetime=datetime(2028, 4, 6, 9, 33, 0),

@@ -4,35 +4,31 @@ Provides HTTP endpoints for birth analysis, timing, and divination calculations.
 """
 
 import logging
+import math
 import os
-from typing import Any, Dict, List, Optional
+import time
+from collections import defaultdict, deque
+from datetime import datetime, timedelta, timezone
+from threading import Lock
+from typing import Any, Callable, Deque, Dict, List, Optional, Tuple
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 from starlette.concurrency import run_in_threadpool
+from starlette.middleware.base import RequestResponseEndpoint
+from starlette.responses import Response
 
+from fatebridge.core import astrology as astrology_core
+from fatebridge.core import astrology_predictive as astrology_predictive_core
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
     calculate_germany_chart_analysis,
     calculate_relative_chart_analysis,
 )
 from fatebridge.services.bazi import calculate_bazi_birth, calculate_bazi_direct
-from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.services.western_timing_tools import (
-    calculate_decennials,
-    calculate_firdaria,
-    calculate_givenyear,
-    calculate_lunarreturn,
-    calculate_pd,
-    calculate_pdchart,
-    calculate_profection,
-    calculate_solararc,
-    calculate_solarreturn,
-    calculate_transit,
-    calculate_zr,
-)
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.divination import (
@@ -65,22 +61,46 @@ from fatebridge.services.metaphysics import (
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,
     calculate_dayun_analysis,
-    calculate_jieqi_year,
     calculate_jieqi_timeline_analysis,
+    calculate_jieqi_year,
     calculate_liunian_analysis,
-    calculate_liuyue_analysis,
     calculate_liuri_analysis,
+    calculate_liuyue_analysis,
     calculate_nongli_time,
 )
+from fatebridge.services.western_timing import calculate_western_timing_analysis
+from fatebridge.services.western_timing_tools import (
+    calculate_decennials,
+    calculate_firdaria,
+    calculate_givenyear,
+    calculate_lunarreturn,
+    calculate_pd,
+    calculate_pdchart,
+    calculate_profection,
+    calculate_solararc,
+    calculate_solarreturn,
+    calculate_transit,
+    calculate_zr,
+)
 from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.runtime import (
+    get_api_key_header_name,
+    get_log_level,
+    load_runtime_env,
+    parse_allowed_origins,
+    parse_api_keys,
+    summarize_request_context,
+)
 
 # ============================================================================
 # Setup
 # ============================================================================
 
+load_runtime_env()
+
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, get_log_level(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -96,18 +116,482 @@ app = FastAPI(
 # ============================================================================
 
 # Get allowed origins from environment variable, default to localhost for development
-ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
-]
+ALLOWED_ORIGINS = parse_allowed_origins()
+API_KEY_HEADER_NAME = get_api_key_header_name()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,  # FIXED: Changed from True (security issue)
     allow_methods=["POST", "GET", "OPTIONS"],
-    allow_headers=["Content-Type", "Accept"],
+    allow_headers=["Content-Type", "Accept", API_KEY_HEADER_NAME],
 )
+
+
+def _get_env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, str(default)))
+    except ValueError:
+        logger.warning("Invalid integer for %s, falling back to %s", name, default)
+        return default
+
+
+def _prometheus_escape(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"')
+
+
+class RequestRateLimiter:
+    def __init__(self, *, max_requests: int, window_seconds: int) -> None:
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self._events: Dict[Tuple[str, str], Deque[float]] = defaultdict(deque)
+        self._lock = Lock()
+
+    def check(
+        self,
+        *,
+        client_id: str,
+        path: str,
+        now: Optional[float] = None,
+    ) -> Tuple[bool, Optional[int]]:
+        if self.max_requests <= 0 or self.window_seconds <= 0:
+            return True, None
+
+        current_time = now if now is not None else time.monotonic()
+        key = (client_id, path)
+        cutoff = current_time - self.window_seconds
+
+        with self._lock:
+            bucket = self._events[key]
+            while bucket and bucket[0] <= cutoff:
+                bucket.popleft()
+
+            if len(bucket) >= self.max_requests:
+                retry_after = max(
+                    1,
+                    math.ceil(self.window_seconds - (current_time - bucket[0])),
+                )
+                return False, retry_after
+
+            bucket.append(current_time)
+            return True, None
+
+    def reset(self) -> None:
+        with self._lock:
+            self._events.clear()
+
+
+class RuntimeMetrics:
+    def __init__(self) -> None:
+        self._request_counts: Dict[Tuple[str, str, str], float] = defaultdict(float)
+        self._duration_sums: Dict[Tuple[str, str], float] = defaultdict(float)
+        self._duration_counts: Dict[Tuple[str, str], float] = defaultdict(float)
+        self._lock = Lock()
+
+    def observe(
+        self,
+        *,
+        method: str,
+        path: str,
+        status_code: int,
+        duration_seconds: float,
+    ) -> None:
+        status = str(status_code)
+        with self._lock:
+            self._request_counts[(method, path, status)] += 1.0
+            self._duration_sums[(method, path)] += duration_seconds
+            self._duration_counts[(method, path)] += 1.0
+
+    def render_prometheus(
+        self,
+        *,
+        readiness_status: str,
+        api_key_auth_enabled: bool,
+        configured_api_keys: int,
+        api_key_daily_quota: int,
+    ) -> str:
+        with self._lock:
+            request_counts = dict(self._request_counts)
+            duration_sums = dict(self._duration_sums)
+            duration_counts = dict(self._duration_counts)
+
+        lines = [
+            "# HELP fatebridge_http_requests_total Total HTTP requests handled by FateBridge.",
+            "# TYPE fatebridge_http_requests_total counter",
+        ]
+        for (method, path, status), count in sorted(request_counts.items()):
+            lines.append(
+                'fatebridge_http_requests_total{method="%s",path="%s",status="%s"} %.1f'
+                % (
+                    _prometheus_escape(method),
+                    _prometheus_escape(path),
+                    _prometheus_escape(status),
+                    count,
+                )
+            )
+
+        lines.extend(
+            [
+                "# HELP fatebridge_http_request_duration_seconds_sum Total request duration in seconds grouped by method and path.",
+                "# TYPE fatebridge_http_request_duration_seconds_sum counter",
+            ]
+        )
+        for (method, path), duration_sum in sorted(duration_sums.items()):
+            lines.append(
+                'fatebridge_http_request_duration_seconds_sum{method="%s",path="%s"} %.6f'
+                % (
+                    _prometheus_escape(method),
+                    _prometheus_escape(path),
+                    duration_sum,
+                )
+            )
+
+        lines.extend(
+            [
+                "# HELP fatebridge_http_request_duration_seconds_count Number of observed requests grouped by method and path.",
+                "# TYPE fatebridge_http_request_duration_seconds_count counter",
+            ]
+        )
+        for (method, path), count in sorted(duration_counts.items()):
+            lines.append(
+                'fatebridge_http_request_duration_seconds_count{method="%s",path="%s"} %.1f'
+                % (
+                    _prometheus_escape(method),
+                    _prometheus_escape(path),
+                    count,
+                )
+            )
+
+        lines.extend(
+            [
+                "# HELP fatebridge_readiness_state Current readiness state of the API.",
+                "# TYPE fatebridge_readiness_state gauge",
+                'fatebridge_readiness_state{status="%s"} 1'
+                % _prometheus_escape(readiness_status),
+                "# HELP fatebridge_api_key_auth_enabled Whether API key authentication is enabled.",
+                "# TYPE fatebridge_api_key_auth_enabled gauge",
+                f"fatebridge_api_key_auth_enabled {1 if api_key_auth_enabled else 0}",
+                "# HELP fatebridge_api_keys_configured_total Number of configured API keys.",
+                "# TYPE fatebridge_api_keys_configured_total gauge",
+                f"fatebridge_api_keys_configured_total {configured_api_keys}",
+                "# HELP fatebridge_api_key_daily_quota Configured daily quota per API key. Zero means disabled.",
+                "# TYPE fatebridge_api_key_daily_quota gauge",
+                f"fatebridge_api_key_daily_quota {api_key_daily_quota}",
+            ]
+        )
+        return "\n".join(lines) + "\n"
+
+    def reset(self) -> None:
+        with self._lock:
+            self._request_counts.clear()
+            self._duration_sums.clear()
+            self._duration_counts.clear()
+
+
+class ApiKeyAuthenticator:
+    def __init__(self, *, header_name: str, api_keys: Dict[str, str]) -> None:
+        self.header_name = header_name
+        self.api_keys = dict(api_keys)
+        self._secret_to_id = {
+            secret: key_id for key_id, secret in self.api_keys.items()
+        }
+
+    @property
+    def enabled(self) -> bool:
+        return bool(self._secret_to_id)
+
+    def authenticate(self, request: Request) -> Optional[str]:
+        if not self.enabled:
+            return None
+
+        secret = request.headers.get(self.header_name)
+        if not secret:
+            return None
+
+        return self._secret_to_id.get(secret)
+
+
+def _utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+class ApiKeyQuotaTracker:
+    def __init__(self, *, daily_quota: int) -> None:
+        self.daily_quota = daily_quota
+        self._usage: Dict[Tuple[str, str], int] = {}
+        self._lock = Lock()
+
+    @property
+    def enabled(self) -> bool:
+        return self.daily_quota > 0
+
+    def check_and_consume(
+        self,
+        *,
+        key_id: str,
+        now: Optional[datetime] = None,
+    ) -> Tuple[bool, Optional[int], Optional[int]]:
+        if not self.enabled:
+            return True, None, None
+
+        current_time = now if now is not None else _utc_now()
+        current_day = current_time.date().isoformat()
+        usage_key = (current_day, key_id)
+
+        with self._lock:
+            stale_keys = [item for item in self._usage if item[0] != current_day]
+            for stale_key in stale_keys:
+                self._usage.pop(stale_key, None)
+
+            used = self._usage.get(usage_key, 0)
+            if used >= self.daily_quota:
+                return False, 0, self.seconds_until_reset(current_time)
+
+            used += 1
+            self._usage[usage_key] = used
+            return True, self.daily_quota - used, self.seconds_until_reset(current_time)
+
+    def seconds_until_reset(self, now: Optional[datetime] = None) -> int:
+        current_time = now if now is not None else _utc_now()
+        next_midnight = current_time.replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) + timedelta(days=1)
+        return max(1, int((next_midnight - current_time).total_seconds()))
+
+    def reset(self) -> None:
+        with self._lock:
+            self._usage.clear()
+
+
+RATE_LIMIT_MAX_REQUESTS = _get_env_int("RATE_LIMIT_MAX_REQUESTS", 120)
+RATE_LIMIT_WINDOW_SECONDS = _get_env_int("RATE_LIMIT_WINDOW_SECONDS", 60)
+RATE_LIMIT_EXEMPT_PATHS = frozenset(
+    {
+        "/health",
+        "/ready",
+        "/metrics",
+        "/docs",
+        "/redoc",
+        "/openapi.json",
+    }
+)
+API_KEY_EXEMPT_PATHS = RATE_LIMIT_EXEMPT_PATHS
+API_KEY_AUTHENTICATOR = ApiKeyAuthenticator(
+    header_name=API_KEY_HEADER_NAME,
+    api_keys=parse_api_keys(),
+)
+API_KEY_DAILY_QUOTA = _get_env_int("API_KEY_DAILY_QUOTA", 0)
+API_KEY_QUOTA_TRACKER = ApiKeyQuotaTracker(daily_quota=API_KEY_DAILY_QUOTA)
+REQUEST_RATE_LIMITER = RequestRateLimiter(
+    max_requests=RATE_LIMIT_MAX_REQUESTS,
+    window_seconds=RATE_LIMIT_WINDOW_SECONDS,
+)
+REQUEST_METRICS = RuntimeMetrics()
+
+
+def _build_readiness_payload() -> Dict[str, Any]:
+    western_kerykeion_available = (
+        astrology_predictive_core.AstrologicalSubjectFactory is not None
+        and astrology_predictive_core.PlanetaryReturnFactory is not None
+    )
+    checks: Dict[str, Dict[str, Any]] = {
+        "core_api": {
+            "ok": True,
+            "required": True,
+            "detail": "FastAPI app initialized",
+        },
+        "offline_astrology": {
+            "ok": True,
+            "required": True,
+            "swisseph_available": astrology_core.swe is not None,
+            "fallback_available": True,
+        },
+        "western_predictive_runtime": {
+            "ok": western_kerykeion_available
+            and astrology_predictive_core.swe is not None,
+            "required": False,
+            "swisseph_available": astrology_predictive_core.swe is not None,
+            "kerykeion_available": western_kerykeion_available,
+        },
+        "api_key_auth": {
+            "ok": True,
+            "required": False,
+            "enabled": API_KEY_AUTHENTICATOR.enabled,
+            "header_name": API_KEY_AUTHENTICATOR.header_name,
+            "configured_keys": len(API_KEY_AUTHENTICATOR.api_keys),
+        },
+        "api_key_quota": {
+            "ok": (not API_KEY_QUOTA_TRACKER.enabled) or API_KEY_AUTHENTICATOR.enabled,
+            "required": False,
+            "enabled": API_KEY_QUOTA_TRACKER.enabled,
+            "daily_quota": API_KEY_QUOTA_TRACKER.daily_quota,
+        },
+    }
+    required_checks_ok = all(
+        item["ok"] for item in checks.values() if item.get("required")
+    )
+    return {
+        "status": "ready" if required_checks_ok else "not_ready",
+        "checks": checks,
+    }
+
+
+def _build_rate_limit_detail() -> Dict[str, Any]:
+    return {
+        "error": "请求过于频繁，请稍后重试",
+        "error_code": "rate_limited",
+        "retryable": True,
+    }
+
+
+def _build_authentication_detail() -> Dict[str, Any]:
+    return {
+        "error": "缺少或无效的 API key",
+        "error_code": "authentication_required",
+        "retryable": False,
+    }
+
+
+def _build_quota_detail(quota_limit: int) -> Dict[str, Any]:
+    return {
+        "error": "API key 当日配额已用尽，请明日再试",
+        "error_code": "quota_exceeded",
+        "retryable": True,
+        "quota_limit": quota_limit,
+        "reset_scope": "utc_day",
+    }
+
+
+def _request_client_id(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    if forwarded_for:
+        return forwarded_for.split(",", 1)[0].strip() or "forwarded-unknown"
+    client = request.client
+    return client.host if client and client.host else "unknown"
+
+
+def _reset_runtime_state_for_tests() -> None:
+    REQUEST_METRICS.reset()
+    REQUEST_RATE_LIMITER.reset()
+    API_KEY_QUOTA_TRACKER.reset()
+
+
+@app.middleware("http")
+async def instrument_request_lifecycle(
+    request: Request,
+    call_next: RequestResponseEndpoint,
+) -> Response:
+    path = request.url.path
+    method = request.method.upper()
+    authenticated_key_id: Optional[str] = None
+
+    if method != "OPTIONS" and path not in API_KEY_EXEMPT_PATHS:
+        if API_KEY_AUTHENTICATOR.enabled:
+            authenticated_key_id = API_KEY_AUTHENTICATOR.authenticate(request)
+            if authenticated_key_id is None:
+                auth_response = JSONResponse(
+                    status_code=401,
+                    content={"detail": _build_authentication_detail()},
+                )
+                REQUEST_METRICS.observe(
+                    method=method,
+                    path=path,
+                    status_code=401,
+                    duration_seconds=0.0,
+                )
+                return auth_response
+
+            request.state.api_key_id = authenticated_key_id
+
+        if API_KEY_QUOTA_TRACKER.enabled and authenticated_key_id is not None:
+            allowed, remaining, retry_after = API_KEY_QUOTA_TRACKER.check_and_consume(
+                key_id=authenticated_key_id,
+            )
+            request.state.api_key_remaining = remaining
+            if not allowed:
+                quota_response = JSONResponse(
+                    status_code=429,
+                    content={
+                        "detail": _build_quota_detail(API_KEY_QUOTA_TRACKER.daily_quota)
+                    },
+                )
+                if retry_after is not None:
+                    quota_response.headers["Retry-After"] = str(retry_after)
+                REQUEST_METRICS.observe(
+                    method=method,
+                    path=path,
+                    status_code=429,
+                    duration_seconds=0.0,
+                )
+                return quota_response
+
+    if method != "OPTIONS" and path not in RATE_LIMIT_EXEMPT_PATHS:
+        allowed, retry_after = REQUEST_RATE_LIMITER.check(
+            client_id=authenticated_key_id or _request_client_id(request),
+            path=path,
+        )
+        if not allowed:
+            detail = _build_rate_limit_detail()
+            rate_limit_response = JSONResponse(
+                status_code=429, content={"detail": detail}
+            )
+            if retry_after is not None:
+                rate_limit_response.headers["Retry-After"] = str(retry_after)
+            REQUEST_METRICS.observe(
+                method=method,
+                path=path,
+                status_code=429,
+                duration_seconds=0.0,
+            )
+            return rate_limit_response
+
+    started_at = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        REQUEST_METRICS.observe(
+            method=method,
+            path=path,
+            status_code=500,
+            duration_seconds=time.perf_counter() - started_at,
+        )
+        raise
+
+    REQUEST_METRICS.observe(
+        method=method,
+        path=path,
+        status_code=response.status_code,
+        duration_seconds=time.perf_counter() - started_at,
+    )
+    return response
+
+
+def _build_error_detail(result: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "error": result["error"],
+        "error_code": result.get("error_code", "internal_error"),
+        "retryable": result.get("retryable", False),
+    }
+
+
+def _raise_service_http_error(result: Dict[str, Any]) -> None:
+    raise HTTPException(
+        status_code=int(result.get("status_code", 500)),
+        detail=_build_error_detail(result),
+    )
+
+
+async def _execute_service(
+    service: Callable[..., Dict[str, Any]],
+    *args: Any,
+    error_is_fatal: Optional[Callable[[Dict[str, Any]], bool]] = None,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    result = await run_in_threadpool(service, *args, **kwargs)
+    fatal_error = error_is_fatal(result) if error_is_fatal else "error" in result
+    if fatal_error:
+        _raise_service_http_error(result)
+    return result
 
 
 # ============================================================================
@@ -778,7 +1262,7 @@ class AstroBirthRequest(BaseModel):
 class AstroChartRequest(AstroBirthRequest):
     """Request model for offline astrology chart generation."""
 
-    birth_longitude: Optional[float] = Field(
+    birth_longitude: Optional[float] = Field(  # type: ignore[assignment]
         default=None,
         ge=-180,
         le=180,
@@ -787,7 +1271,7 @@ class AstroChartRequest(AstroBirthRequest):
             "infer it from a supported birth_place."
         ),
     )
-    birth_latitude: Optional[float] = Field(
+    birth_latitude: Optional[float] = Field(  # type: ignore[assignment]
         default=None,
         ge=-90,
         le=90,
@@ -864,7 +1348,7 @@ class AstroRelativeRequest(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _sync_relative_mode_aliases(cls, payload: Any):
+    def _sync_relative_mode_aliases(cls, payload: Any) -> Any:
         if not isinstance(payload, dict):
             return payload
         relative_mode = payload.get("relative_mode")
@@ -960,7 +1444,10 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
         HTTPException: On invalid input (400) or server error (500)
     """
     try:
-        logger.info(f"Processing calculation request for {request.name}")
+        logger.info(
+            "Processing calculation request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         # Validate and create person info
         person = create_person_info(
@@ -977,19 +1464,13 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        # Perform calculation
-        result = calculate_destiny_analysis(person)
+        result = await _execute_service(calculate_destiny_analysis, person)
 
-        # Check for errors in result
-        if "error" in result:
-            logger.warning(f"Calculation failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
-
-        logger.info(f"Calculation successful for {request.name}")
+        logger.info("Calculation successful")
         return result
 
-    except ValueError as e:
-        logger.warning(f"Invalid input received: {type(e).__name__}")
+    except ValueError:
+        logger.warning("Invalid input received for calculation route")
         raise HTTPException(status_code=400, detail="无效的输入参数，请检查日期有效性")
     except HTTPException:
         raise
@@ -1004,6 +1485,10 @@ async def calculate_bazi_birth_chart(request: BaziBirthRequest) -> dict:
     Calculate a standalone BaZi birth chart with export-ready snapshot sections.
     """
     try:
+        logger.info(
+            "Processing bazi birth request (%s)",
+            summarize_request_context(name=request.name),
+        )
         person = create_person_info(
             birth_year=request.birth_year,
             birth_month=request.birth_month,
@@ -1018,17 +1503,14 @@ async def calculate_bazi_birth_chart(request: BaziBirthRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_bazi_birth(
+        result = await _execute_service(
+            calculate_bazi_birth,
             person,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
             selected_sections=request.selected_sections or None,
         )
-
-        if "error" in result:
-            logger.warning(f"BaZi birth calculation failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -1049,6 +1531,10 @@ async def calculate_bazi_direct_chart(request: BaziDirectRequest) -> dict:
     Calculate standalone BaZi direct timing output with export-ready snapshot sections.
     """
     try:
+        logger.info(
+            "Processing bazi direct request (%s)",
+            summarize_request_context(name=request.name),
+        )
         person = create_person_info(
             birth_year=request.birth_year,
             birth_month=request.birth_month,
@@ -1063,17 +1549,14 @@ async def calculate_bazi_direct_chart(request: BaziDirectRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_bazi_direct(
+        result = await _execute_service(
+            calculate_bazi_direct,
             person,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
             selected_sections=request.selected_sections or None,
         )
-
-        if "error" in result:
-            logger.warning(f"BaZi direct calculation failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -1097,9 +1580,10 @@ async def calculate_two_person_compatibility(
     """
     try:
         logger.info(
-            "Processing compatibility request for %s and %s",
-            request.person1_name,
-            request.person2_name,
+            "Processing compatibility request (%s)",
+            summarize_request_context(
+                identifiers=[request.person1_name, request.person2_name]
+            ),
         )
 
         person1 = create_person_info(
@@ -1129,13 +1613,12 @@ async def calculate_two_person_compatibility(
             use_true_solar_time=request.person2_use_true_solar_time,
         )
 
-        result = calculate_compatibility_analysis(
-            person1, person2, request.relationship_type
+        result = await _execute_service(
+            calculate_compatibility_analysis,
+            person1,
+            person2,
+            request.relationship_type,
         )
-
-        if "error" in result:
-            logger.warning(f"Compatibility analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Compatibility analysis successful")
         return result
@@ -1158,7 +1641,10 @@ async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
     Calculate comprehensive timing analysis using FateBridge's offline timing engine.
     """
     try:
-        logger.info("Processing comprehensive timing request for %s", request.name)
+        logger.info(
+            "Processing comprehensive timing request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         person = create_person_info(
             birth_year=request.birth_year,
@@ -1174,7 +1660,8 @@ async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_comprehensive_timing(
+        result = await _execute_service(
+            calculate_comprehensive_timing,
             person,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
@@ -1184,10 +1671,6 @@ async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
             analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
         )
-
-        if "error" in result:
-            logger.warning(f"Comprehensive timing analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Comprehensive timing analysis successful")
         return result
@@ -1210,7 +1693,10 @@ async def calculate_dayun(request: DayunAnalysisRequest) -> dict:
     Calculate dayun analysis using FateBridge's offline timing engine.
     """
     try:
-        logger.info("Processing dayun analysis request for %s", request.name)
+        logger.info(
+            "Processing dayun analysis request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         person = create_person_info(
             birth_year=request.birth_year,
@@ -1226,15 +1712,14 @@ async def calculate_dayun(request: DayunAnalysisRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_dayun_analysis(
+        result = await _execute_service(
+            calculate_dayun_analysis,
             person,
             request.analysis_age,
             selected_sections=request.selected_sections or None,
+            error_is_fatal=lambda payload: "error" in payload
+            and payload.get("analysis_type") is None,
         )
-
-        if "error" in result and result.get("analysis_type") is None:
-            logger.warning(f"Dayun analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Dayun analysis successful")
         return result
@@ -1254,7 +1739,10 @@ async def calculate_liunian(request: LiunianAnalysisRequest) -> dict:
     Calculate liunian analysis using FateBridge's offline timing engine.
     """
     try:
-        logger.info("Processing liunian analysis request for %s", request.name)
+        logger.info(
+            "Processing liunian analysis request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         person = create_person_info(
             birth_year=request.birth_year,
@@ -1270,15 +1758,12 @@ async def calculate_liunian(request: LiunianAnalysisRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_liunian_analysis(
+        result = await _execute_service(
+            calculate_liunian_analysis,
             person,
             request.target_year,
             selected_sections=request.selected_sections or None,
         )
-
-        if "error" in result:
-            logger.warning(f"Liunian analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Liunian analysis successful")
         return result
@@ -1301,23 +1786,43 @@ async def health_check() -> dict:
     return {"status": "healthy"}
 
 
+@app.get("/ready")
+async def readiness_check() -> JSONResponse:
+    """Readiness endpoint that reports required and optional runtime checks."""
+    payload = _build_readiness_payload()
+    status_code = 200 if payload["status"] == "ready" else 503
+    return JSONResponse(status_code=status_code, content=payload)
+
+
+@app.get("/metrics")
+async def metrics_endpoint() -> PlainTextResponse:
+    """Prometheus-style text metrics for request volume and readiness state."""
+    readiness_status = _build_readiness_payload()["status"]
+    return PlainTextResponse(
+        REQUEST_METRICS.render_prometheus(
+            readiness_status=readiness_status,
+            api_key_auth_enabled=API_KEY_AUTHENTICATOR.enabled,
+            configured_api_keys=len(API_KEY_AUTHENTICATOR.api_keys),
+            api_key_daily_quota=API_KEY_QUOTA_TRACKER.daily_quota,
+        ),
+        media_type="text/plain; version=0.0.4",
+    )
+
+
 @app.post("/api/divination/gua")
 async def calculate_gua_description(request: GuaLookupRequest) -> dict:
     """
     Look up offline trigram/hexagram meanings by name or binary code.
     """
     try:
-        logger.info("Processing gua lookup request for %s", request.query)
+        logger.info("Processing gua lookup request")
 
-        result = calculate_gua_lookup(
+        result = await _execute_service(
+            calculate_gua_lookup,
             query=request.query,
             lookup_mode=request.lookup_mode,
             selected_sections=request.selected_sections or None,
         )
-
-        if "error" in result:
-            logger.warning(f"Gua lookup failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Gua lookup successful")
         return result
@@ -1337,13 +1842,9 @@ async def calculate_jieqi_year_helper(request: JieqiYearRequest) -> dict:
     Generate annual jieqi helper output.
     """
     try:
-        logger.info("Processing jieqi year helper request for %s", request.year)
+        logger.info("Processing jieqi year helper request")
 
-        result = calculate_jieqi_year(**request.model_dump())
-
-        if "error" in result:
-            logger.warning(f"Jieqi year helper failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
+        result = await _execute_service(calculate_jieqi_year, **request.model_dump())
 
         logger.info("Jieqi year helper successful")
         return result
@@ -1366,17 +1867,9 @@ async def calculate_nongli_time_helper(request: NongliTimeRequest) -> dict:
     Convert a solar datetime into lunar calendar and ganzhi context.
     """
     try:
-        logger.info(
-            "Processing nongli time helper request for %s %s",
-            request.date,
-            request.time,
-        )
+        logger.info("Processing nongli time helper request")
 
-        result = calculate_nongli_time(**request.model_dump())
-
-        if "error" in result:
-            logger.warning(f"Nongli time helper failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
+        result = await _execute_service(calculate_nongli_time, **request.model_dump())
 
         logger.info("Nongli time helper successful")
         return result
@@ -1399,17 +1892,14 @@ async def calculate_gua_meiyi_helper(request: GuaMeiyiRequest) -> dict:
     Return batch Meiyi-oriented gua explanations.
     """
     try:
-        logger.info("Processing gua meiyi helper request for %s", request.name)
+        logger.info("Processing gua meiyi helper request")
 
         payload = request.model_dump()
-        result = calculate_gua_meiyi(
+        result = await _execute_service(
+            calculate_gua_meiyi,
             name=payload["name"],
             selected_sections=payload.get("selected_sections") or None,
         )
-
-        if "error" in result:
-            logger.warning(f"Gua meiyi helper failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Gua meiyi helper successful")
         return result
@@ -1432,13 +1922,11 @@ async def export_registry_helper(request: ExportRegistryRequest) -> dict:
     Return the local AI export registry in FateBridge format.
     """
     try:
-        logger.info("Processing export registry request for %s", request.technique)
+        logger.info("Processing export registry request")
 
-        result = calculate_export_registry(**request.model_dump())
-
-        if "error" in result:
-            logger.warning(f"Export registry failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
+        result = await _execute_service(
+            calculate_export_registry, **request.model_dump()
+        )
 
         logger.info("Export registry successful")
         return result
@@ -1461,20 +1949,17 @@ async def export_parse_helper(request: ExportParseRequest) -> dict:
     Parse snapshot text into FateBridge export sections.
     """
     try:
-        logger.info("Processing export parse request for %s", request.technique)
+        logger.info("Processing export parse request")
 
         payload = request.model_dump(by_alias=True)
-        result = calculate_export_parse(
+        result = await _execute_service(
+            calculate_export_parse,
             technique=payload["technique"],
             content=payload["content"],
             selected_sections=payload.get("selected_sections") or None,
             planet_info=payload.get("planetInfo"),
             astro_meaning=payload.get("astroMeaning"),
         )
-
-        if "error" in result:
-            logger.warning(f"Export parse failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Export parse successful")
         return result
@@ -1497,19 +1982,16 @@ async def knowledge_registry_helper(request: KnowledgeRegistryRequest) -> dict:
     List bundled knowledge domains and categories with optional section export.
     """
     try:
-        logger.info("Processing knowledge registry request for %s", request.domain)
+        logger.info("Processing knowledge registry request")
 
         payload = request.model_dump()
-        result = calculate_knowledge_registry(
+        result = await _execute_service(
+            calculate_knowledge_registry,
             **{
                 **payload,
                 "selected_sections": payload.get("selected_sections") or None,
-            }
+            },
         )
-
-        if "error" in result:
-            logger.warning(f"Knowledge registry failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Knowledge registry successful")
         return result
@@ -1532,23 +2014,16 @@ async def knowledge_read_helper(request: KnowledgeReadRequest) -> dict:
     Read one bundled knowledge entry by domain/category/key with optional section export.
     """
     try:
-        logger.info(
-            "Processing knowledge read request for %s/%s",
-            request.domain,
-            request.category,
-        )
+        logger.info("Processing knowledge read request")
 
         payload = request.model_dump()
-        result = calculate_knowledge_read(
+        result = await _execute_service(
+            calculate_knowledge_read,
             **{
                 **payload,
                 "selected_sections": payload.get("selected_sections") or None,
-            }
+            },
         )
-
-        if "error" in result:
-            logger.warning(f"Knowledge read failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Knowledge read successful")
         return result
@@ -1571,16 +2046,10 @@ async def calculate_meihua(request: MeihuaAnalysisRequest) -> dict:
     Calculate a Mei Hua Yi Shu time-seeded hexagram for the specified moment.
     """
     try:
-        logger.info(
-            "Processing meihua analysis request for %s-%s-%s %s:%s",
-            request.analysis_year,
-            request.analysis_month,
-            request.analysis_day,
-            request.analysis_hour,
-            request.analysis_minute,
-        )
+        logger.info("Processing meihua analysis request")
 
-        result = calculate_meihua_analysis(
+        result = await _execute_service(
+            calculate_meihua_analysis,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
@@ -1589,10 +2058,6 @@ async def calculate_meihua(request: MeihuaAnalysisRequest) -> dict:
             analysis_timezone=request.analysis_timezone,
             question=request.question,
         )
-
-        if "error" in result:
-            logger.warning(f"Meihua analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Meihua analysis successful")
         return result
@@ -1613,16 +2078,13 @@ async def calculate_tongshefa(request: TongSheFaRequest) -> dict:
     """Calculate local tongshefa analysis."""
     try:
         logger.info("Processing tongshefa request")
-        result = calculate_tongshefa_analysis(
+        result = await _execute_service(
+            calculate_tongshefa_analysis,
             taiyin=request.taiyin,
             taiyang=request.taiyang,
             shaoyang=request.shaoyang,
             shaoyin=request.shaoyin,
         )
-
-        if "error" in result:
-            logger.warning(f"Tongshefa analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Tongshefa analysis successful")
         return result
@@ -1642,8 +2104,9 @@ async def calculate_tongshefa(request: TongSheFaRequest) -> dict:
 async def calculate_sixyao(request: SixYaoRequest) -> dict:
     """Calculate local sixyao analysis."""
     try:
-        logger.info("Processing sixyao request for %s %s", request.date, request.time)
-        result = calculate_sixyao_analysis(
+        logger.info("Processing sixyao request")
+        result = await _execute_service(
+            calculate_sixyao_analysis,
             date=request.date,
             time=request.time,
             zone=request.zone,
@@ -1656,10 +2119,6 @@ async def calculate_sixyao(request: SixYaoRequest) -> dict:
             changed_code=request.changed_code,
             lines=[line.model_dump() for line in request.lines],
         )
-
-        if "error" in result:
-            logger.warning(f"Sixyao analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Sixyao analysis successful")
         return result
@@ -1679,8 +2138,9 @@ async def calculate_sixyao(request: SixYaoRequest) -> dict:
 async def calculate_suzhan(request: SuZhanRequest) -> dict:
     """Calculate local suzhan analysis."""
     try:
-        logger.info("Processing suzhan request for %s %s", request.date, request.time)
-        result = calculate_suzhan_analysis(
+        logger.info("Processing suzhan request")
+        result = await _execute_service(
+            calculate_suzhan_analysis,
             date=request.date,
             time=request.time,
             zone=request.zone,
@@ -1695,10 +2155,6 @@ async def calculate_suzhan(request: SuZhanRequest) -> dict:
             hsys=request.hsys,
             zodiacal=request.zodiacal,
         )
-
-        if "error" in result:
-            logger.warning(f"Suzhan analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Suzhan analysis successful")
         return result
@@ -1718,8 +2174,9 @@ async def calculate_suzhan(request: SuZhanRequest) -> dict:
 async def calculate_otherbu(request: OtherBuRequest) -> dict:
     """Calculate local otherbu analysis."""
     try:
-        logger.info("Processing otherbu request for %s %s", request.date, request.time)
-        result = calculate_otherbu_analysis(
+        logger.info("Processing otherbu request")
+        result = await _execute_service(
+            calculate_otherbu_analysis,
             date=request.date,
             time=request.time,
             zone=request.zone,
@@ -1735,10 +2192,6 @@ async def calculate_otherbu(request: OtherBuRequest) -> dict:
             zodiacal=request.zodiacal,
             question=request.question,
         )
-
-        if "error" in result:
-            logger.warning(f"Otherbu analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Otherbu analysis successful")
         return result
@@ -1758,10 +2211,9 @@ async def calculate_otherbu(request: OtherBuRequest) -> dict:
 async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
     """Calculate local sanshiunited analysis with stable qimen content metadata and export-ready snapshot sections."""
     try:
-        logger.info(
-            "Processing sanshiunited request for %s %s", request.date, request.time
-        )
-        result = calculate_sanshiunited_analysis(
+        logger.info("Processing sanshiunited request")
+        result = await _execute_service(
+            calculate_sanshiunited_analysis,
             date=request.date,
             time=request.time,
             zone=request.zone,
@@ -1776,10 +2228,6 @@ async def calculate_sanshiunited(request: SanShiUnitedRequest) -> dict:
             liureng_is_diurnal=request.liureng_is_diurnal,
             use_true_solar_time=request.use_true_solar_time,
         )
-
-        if "error" in result:
-            logger.warning(f"Sanshiunited analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         logger.info("Sanshiunited analysis successful")
         return result
@@ -1801,7 +2249,10 @@ async def calculate_ziwei_birth_chart(request: ZiweiBirthRequest) -> dict:
     Calculate a Zi Wei birth chart with offline snapshot text and export sections.
     """
     try:
-        logger.info("Processing ziwei birth request for %s", request.name)
+        logger.info(
+            "Processing ziwei birth request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         person = create_person_info(
             birth_year=request.birth_year,
@@ -1817,16 +2268,13 @@ async def calculate_ziwei_birth_chart(request: ZiweiBirthRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_ziwei_birth(
+        result = await _execute_service(
+            calculate_ziwei_birth,
             person,
             selected_sections=request.selected_sections or None,
         )
 
-        if "error" in result:
-            logger.warning(f"Ziwei birth calculation failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
-
-        logger.info("Ziwei birth calculation successful for %s", request.name)
+        logger.info("Ziwei birth calculation successful")
         return result
 
     except ValueError:
@@ -1846,14 +2294,12 @@ async def get_ziwei_rules(request: ZiweiRulesRequest) -> dict:
     Return the Zi Wei rule catalogue, optionally filtered by year stem and export sections.
     """
     try:
-        result = calculate_ziwei_rules(
+        logger.info("Processing ziwei rules request")
+        result = await _execute_service(
+            calculate_ziwei_rules,
             year_stem=request.year_stem,
             selected_sections=request.selected_sections or None,
         )
-
-        if "error" in result:
-            logger.warning(f"Ziwei rule lookup failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -1874,7 +2320,9 @@ async def get_liureng_gods(request: LiuRengGodsRequest) -> dict:
     Calculate a Liu Ren divination board with offline snapshot text and export sections.
     """
     try:
-        result = calculate_liureng_gods(
+        logger.info("Processing liureng gods request")
+        result = await _execute_service(
+            calculate_liureng_gods,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
@@ -1886,10 +2334,6 @@ async def get_liureng_gods(request: LiuRengGodsRequest) -> dict:
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
-
-        if "error" in result:
-            logger.warning(f"LiuReng gods analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -1910,6 +2354,10 @@ async def get_liureng_runyear(request: LiuRengRunyearRequest) -> dict:
     Calculate a Liu Ren runyear analysis using birth context, with offline snapshot export support.
     """
     try:
+        logger.info(
+            "Processing liureng runyear request (%s)",
+            summarize_request_context(name=request.name),
+        )
         person = create_person_info(
             birth_year=request.birth_year,
             birth_month=request.birth_month,
@@ -1923,7 +2371,8 @@ async def get_liureng_runyear(request: LiuRengRunyearRequest) -> dict:
             birth_longitude=request.birth_longitude,
             use_true_solar_time=request.use_true_solar_time,
         )
-        result = calculate_liureng_runyear(
+        result = await _execute_service(
+            calculate_liureng_runyear,
             person,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
@@ -1935,10 +2384,6 @@ async def get_liureng_runyear(request: LiuRengRunyearRequest) -> dict:
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
-
-        if "error" in result:
-            logger.warning(f"LiuReng runyear analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -1959,7 +2404,9 @@ async def get_qimen_analysis(request: QimenAnalysisRequest) -> dict:
     Calculate a Qi Men Dun Jia board with offline snapshot text, export sections, and optional local layout transforms.
     """
     try:
-        result = calculate_qimen_analysis(
+        logger.info("Processing qimen request")
+        result = await _execute_service(
+            calculate_qimen_analysis,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
@@ -1971,10 +2418,6 @@ async def get_qimen_analysis(request: QimenAnalysisRequest) -> dict:
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
-
-        if "error" in result:
-            logger.warning(f"Qimen analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -1993,7 +2436,9 @@ async def get_taiyi_analysis(request: TaiyiAnalysisRequest) -> dict:
     Calculate a Taiyi board with offline snapshot text and export sections.
     """
     try:
-        result = calculate_taiyi_analysis(
+        logger.info("Processing taiyi request")
+        result = await _execute_service(
+            calculate_taiyi_analysis,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
@@ -2005,10 +2450,6 @@ async def get_taiyi_analysis(request: TaiyiAnalysisRequest) -> dict:
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
-
-        if "error" in result:
-            logger.warning(f"Taiyi analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -2027,7 +2468,9 @@ async def get_jinkou_analysis(request: JinkouAnalysisRequest) -> dict:
     Calculate a Jin Kou board with offline snapshot text and export sections.
     """
     try:
-        result = calculate_jinkou_analysis(
+        logger.info("Processing jinkou request")
+        result = await _execute_service(
+            calculate_jinkou_analysis,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
@@ -2040,10 +2483,6 @@ async def get_jinkou_analysis(request: JinkouAnalysisRequest) -> dict:
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
         )
-
-        if "error" in result:
-            logger.warning(f"Jinkou analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
 
         return result
 
@@ -2061,21 +2500,21 @@ async def get_jinkou_analysis(request: JinkouAnalysisRequest) -> dict:
 async def _run_astro_chart_variant(
     request: AstroChartRequest, chart_variant: str
 ) -> dict:
-    result = await run_in_threadpool(
+    return await _execute_service(
         calculate_core_chart_analysis,
         chart_variant=chart_variant,
         **request.model_dump(),
     )
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return result
 
 
 @app.post("/api/astro/chart")
 async def calculate_astro_chart(request: AstroChartRequest) -> dict:
     """Generate a core offline astrology chart with local ephemeris preference."""
     try:
-        logger.info("Processing astrology chart request for %s", request.name)
+        logger.info(
+            "Processing astrology chart request (%s)",
+            summarize_request_context(name=request.name),
+        )
         return await _run_astro_chart_variant(request, "chart")
     except HTTPException:
         raise
@@ -2090,7 +2529,10 @@ async def calculate_astro_chart(request: AstroChartRequest) -> dict:
 async def calculate_astro_chart13(request: AstroChartRequest) -> dict:
     """Generate an experimental 13-sector chart overlay."""
     try:
-        logger.info("Processing chart13 request for %s", request.name)
+        logger.info(
+            "Processing chart13 request (%s)",
+            summarize_request_context(name=request.name),
+        )
         return await _run_astro_chart_variant(request, "chart13")
     except HTTPException:
         raise
@@ -2105,7 +2547,10 @@ async def calculate_astro_chart13(request: AstroChartRequest) -> dict:
 async def calculate_hellen_chart(request: AstroChartRequest) -> dict:
     """Generate a Hellenistic-leaning whole-sign chart."""
     try:
-        logger.info("Processing hellen chart request for %s", request.name)
+        logger.info(
+            "Processing hellen chart request (%s)",
+            summarize_request_context(name=request.name),
+        )
         return await _run_astro_chart_variant(request, "hellen_chart")
     except HTTPException:
         raise
@@ -2122,7 +2567,10 @@ async def calculate_hellen_chart(request: AstroChartRequest) -> dict:
 async def calculate_guolao_chart(request: AstroChartRequest) -> dict:
     """Generate a Guolao/Qizheng-Siyu inspired chart view."""
     try:
-        logger.info("Processing guolao chart request for %s", request.name)
+        logger.info(
+            "Processing guolao chart request (%s)",
+            summarize_request_context(name=request.name),
+        )
         return await _run_astro_chart_variant(request, "guolao_chart")
     except HTTPException:
         raise
@@ -2139,7 +2587,10 @@ async def calculate_guolao_chart(request: AstroChartRequest) -> dict:
 async def calculate_india_chart(request: AstroChartRequest) -> dict:
     """Generate a sidereal / India-style chart view."""
     try:
-        logger.info("Processing india chart request for %s", request.name)
+        logger.info(
+            "Processing india chart request (%s)",
+            summarize_request_context(name=request.name),
+        )
         return await _run_astro_chart_variant(request, "india_chart")
     except HTTPException:
         raise
@@ -2154,14 +2605,14 @@ async def calculate_india_chart(request: AstroChartRequest) -> dict:
 async def calculate_germany_chart(request: AstroChartRequest) -> dict:
     """Generate midpoint / germany style analysis."""
     try:
-        logger.info("Processing germany chart request for %s", request.name)
-        result = await run_in_threadpool(
+        logger.info(
+            "Processing germany chart request (%s)",
+            summarize_request_context(name=request.name),
+        )
+        return await _execute_service(
             calculate_germany_chart_analysis,
             **request.model_dump(),
         )
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -2178,11 +2629,13 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
     """Generate synastry / relative chart output for two people."""
     try:
         logger.info(
-            "Processing relative chart request for %s and %s",
-            request.inner.name,
-            request.outer.name,
+            "Processing relative chart request (%s)",
+            summarize_request_context(
+                name=request.inner.name,
+                identifiers=[request.relative_mode, request.relationship_mode],
+            ),
         )
-        result = await run_in_threadpool(
+        return await _execute_service(
             calculate_relative_chart_analysis,
             inner_payload=request.inner.model_dump(),
             outer_payload=request.outer.model_dump(),
@@ -2192,9 +2645,6 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
             hsys=request.hsys,
             zodiacal=request.zodiacal,
         )
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -2210,14 +2660,14 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
 async def calculate_western_timing(request: WesternTimingRequest) -> dict:
     """Generate western predictive timing output for a target analysis date."""
     try:
-        logger.info("Processing western timing request for %s", request.name)
-        result = await run_in_threadpool(
+        logger.info(
+            "Processing western timing request (%s)",
+            summarize_request_context(name=request.name),
+        )
+        return await _execute_service(
             calculate_western_timing_analysis,
             **request.model_dump(),
         )
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -2232,18 +2682,19 @@ async def calculate_western_timing(request: WesternTimingRequest) -> dict:
 async def _run_western_timing_module_request(
     *,
     request: WesternTimingModuleRequest,
-    runner,
+    runner: Callable[..., Dict[str, Any]],
     label: str,
 ) -> dict:
     try:
-        logger.info("Processing %s request for %s", label, request.name)
-        result = await run_in_threadpool(
+        logger.info(
+            "Processing %s request (%s)",
+            label,
+            summarize_request_context(name=request.name),
+        )
+        return await _execute_service(
             runner,
             **request.model_dump(),
         )
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -2372,7 +2823,10 @@ async def calculate_liuyue(request: LiuyueAnalysisRequest) -> dict:
     Calculate liuyue analysis for the jieqi month containing the analysis date.
     """
     try:
-        logger.info(f"Processing liuyue analysis request for {request.name}")
+        logger.info(
+            "Processing liuyue analysis request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         person = create_person_info(
             birth_year=request.birth_year,
@@ -2388,7 +2842,8 @@ async def calculate_liuyue(request: LiuyueAnalysisRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_liuyue_analysis(
+        result = await _execute_service(
+            calculate_liuyue_analysis,
             person,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
@@ -2398,11 +2853,7 @@ async def calculate_liuyue(request: LiuyueAnalysisRequest) -> dict:
             selected_sections=request.selected_sections or None,
         )
 
-        if "error" in result:
-            logger.warning(f"Liuyue analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
-
-        logger.info(f"Liuyue analysis successful for {request.name}")
+        logger.info("Liuyue analysis successful")
         return result
 
     except ValueError:
@@ -2422,7 +2873,10 @@ async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
     Calculate liuri analysis for a specific analysis date.
     """
     try:
-        logger.info(f"Processing liuri analysis request for {request.name}")
+        logger.info(
+            "Processing liuri analysis request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         person = create_person_info(
             birth_year=request.birth_year,
@@ -2438,7 +2892,8 @@ async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_liuri_analysis(
+        result = await _execute_service(
+            calculate_liuri_analysis,
             person,
             analysis_year=request.analysis_year,
             analysis_month=request.analysis_month,
@@ -2448,11 +2903,7 @@ async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
             selected_sections=request.selected_sections or None,
         )
 
-        if "error" in result:
-            logger.warning(f"Liuri analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
-
-        logger.info(f"Liuri analysis successful for {request.name}")
+        logger.info("Liuri analysis successful")
         return result
 
     except ValueError:
@@ -2470,7 +2921,10 @@ async def calculate_jieqi_timeline(request: JieqiTimelineRequest) -> dict:
     Calculate yearly jieqi timeline analysis.
     """
     try:
-        logger.info(f"Processing jieqi timeline request for {request.name}")
+        logger.info(
+            "Processing jieqi timeline request (%s)",
+            summarize_request_context(name=request.name),
+        )
 
         person = create_person_info(
             birth_year=request.birth_year,
@@ -2486,17 +2940,14 @@ async def calculate_jieqi_timeline(request: JieqiTimelineRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = calculate_jieqi_timeline_analysis(
+        result = await _execute_service(
+            calculate_jieqi_timeline_analysis,
             person,
             target_year=request.target_year,
             selected_sections=request.selected_sections or None,
         )
 
-        if "error" in result:
-            logger.warning(f"Jieqi timeline analysis failed: {result['error']}")
-            raise HTTPException(status_code=400, detail=result["error"])
-
-        logger.info(f"Jieqi timeline analysis successful for {request.name}")
+        logger.info("Jieqi timeline analysis successful")
         return result
 
     except ValueError:
@@ -2516,10 +2967,14 @@ async def calculate_jieqi_timeline(request: JieqiTimelineRequest) -> dict:
 # ============================================================================
 
 
-if __name__ == "__main__":
+def main() -> None:
     uvicorn.run(
         app,
         host=os.getenv("API_HOST", "0.0.0.0"),
         port=int(os.getenv("API_PORT", "8010")),
-        log_level="info",
+        log_level=get_log_level().lower(),
     )
+
+
+if __name__ == "__main__":
+    main()

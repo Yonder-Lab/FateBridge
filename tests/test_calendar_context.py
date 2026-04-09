@@ -1,6 +1,6 @@
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-import sys
 
 import pytest
 
@@ -21,8 +21,7 @@ from fatebridge.utils.helpers import create_person_info
 
 def test_lichun_boundary_updates_bazi_year_and_month():
     terms = {
-        term.name: term
-        for term in get_solar_terms_for_year(2024, "Asia/Shanghai")
+        term.name: term for term in get_solar_terms_for_year(2024, "Asia/Shanghai")
     }
     li_chun = terms["立春"].moment
 
@@ -32,9 +31,7 @@ def test_lichun_boundary_updates_bazi_year_and_month():
     before_pillars = BaZiCalendar.get_four_pillars(
         before, timezone_name="Asia/Shanghai"
     )
-    after_pillars = BaZiCalendar.get_four_pillars(
-        after, timezone_name="Asia/Shanghai"
-    )
+    after_pillars = BaZiCalendar.get_four_pillars(after, timezone_name="Asia/Shanghai")
 
     assert before_pillars["year"] == ("癸", "卯")
     assert before_pillars["month"] == ("乙", "丑")
@@ -116,9 +113,7 @@ def test_comprehensive_timing_returns_jieqi_grid_and_analysis_calendar():
     )
 
     assert (
-        result["calendar_context"]["lunar_calendar"]["meihua"]["base_hexagram"][
-            "name"
-        ]
+        result["calendar_context"]["lunar_calendar"]["meihua"]["base_hexagram"]["name"]
         == "地水师"
     )
     assert (
@@ -136,8 +131,13 @@ def test_comprehensive_timing_returns_jieqi_grid_and_analysis_calendar():
     assert len(result["analysis_calendar"]["analysis_year_jieqi"]) == 24
     assert result["analysis_calendar"]["analysis_year_jieqi"][0]["name"] == "小寒"
     assert len(result["analysis_calendar"]["liuyue_timeline"]) == 12
-    assert result["analysis_calendar"]["liuyue_timeline"][1]["start_term"]["name"] == "立春"
-    assert result["analysis_calendar"]["liuyue_timeline"][1]["liuyue"]["pillar"] == "甲寅"
+    assert (
+        result["analysis_calendar"]["liuyue_timeline"][1]["start_term"]["name"]
+        == "立春"
+    )
+    assert (
+        result["analysis_calendar"]["liuyue_timeline"][1]["liuyue"]["pillar"] == "甲寅"
+    )
     assert len(result["analysis_calendar"]["jieqi_timeline"]) == 24
     qingming_node = next(
         item

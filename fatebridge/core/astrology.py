@@ -1490,6 +1490,11 @@ def _normalize_relative_mode(
                 resolution = "fallback_alias_casefold"
 
     if normalized is None:
+        if raw_value not in (None, "", 0, "0"):
+            raise ValueError(
+                "relative_mode 无效，请使用 Compare、Synastry、Composite，"
+                "或使用 0/1/2 数值别名。"
+            )
         normalized = "compare"
         resolution = "default_compare_fallback"
 

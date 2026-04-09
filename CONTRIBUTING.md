@@ -168,7 +168,7 @@ POST /api/batch-calculate
 
 ### 实现思路
 - 创建新的端点处理
-- 复用现有的 calculate_fatebridge 函数
+- 复用现有的 `calculate_destiny_analysis` 服务编排
 - 返回结果数组
 - 添加错误处理
 ```
@@ -212,7 +212,7 @@ POST /api/batch-calculate
 - [ ] 代码遵循项目编码规范
 - [ ] 已运行测试：`pytest tests/`
 - [ ] 代码已格式化：`black` 和 `isort`
-- [ ] 类型检查通过：`mypy`
+- [ ] 类型检查通过：`mypy --follow-imports=silent api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py`
 - [ ] 添加了新功能的测试
 - [ ] 更新了相关文档
 - [ ] 提交信息清晰和有描述性
