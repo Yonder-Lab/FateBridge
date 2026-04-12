@@ -26,7 +26,6 @@ from fatebridge.utils.data import (
 )
 from fatebridge.utils.helpers import (
     PersonInfo,
-    create_pillar_dict,
     format_birth_datetime_display,
     handle_calculation_error,
     normalize_birth_time,
@@ -536,6 +535,7 @@ def calculate_bazi_birth(
                 "day_master": base_analysis["day_master"],
                 "element_distribution": base_analysis["element_distribution"],
                 "favorable_elements": base_analysis["favorable_elements"],
+                "structure_profile": base_analysis["structure_profile"],
                 "ten_gods": base_analysis["ten_gods"],
                 "patterns": base_analysis["patterns"],
                 "calendar_context": base_analysis["calendar_context"],
@@ -582,6 +582,7 @@ def calculate_bazi_direct(
                 "timing_overview": payload["timing_overview"],
                 "shensha": payload["shensha_entries"],
                 "calendar_context": base_analysis["calendar_context"],
+                "structure_profile": base_analysis["structure_profile"],
                 "patterns": base_analysis["patterns"],
             },
             "snapshot_text": snapshot_text,

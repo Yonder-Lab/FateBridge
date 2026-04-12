@@ -116,8 +116,11 @@ curl -X POST http://localhost:8010/api/calculate \
 - `four_pillars`
 - `day_master`
 - `element_distribution`
+- `structure_profile`
 - `patterns`
 - `calendar_context`
+
+其中八字类结果新增 `structure_profile`，会把当前主格局、次级格局、最终喜用五行、可用十神与合冲事件对格局流通的影响结构化返回；`/api/compatibility` 的 `detailed_analysis` 也会补充 `score_basis`、`supportive_patterns`、`tension_patterns`、`risk_patterns` / `risk_reasons` 等解释字段，用于区分“和合支持”“高张力吸引”和“明显风险”。
 
 ### 快照类结果
 

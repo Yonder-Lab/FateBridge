@@ -9,7 +9,14 @@
 from typing import Dict, List, Any
 from enum import Enum
 from ..core.rules import BaZiRules
-from ..utils.data import Element, TenGod, GENERATION_CYCLE, DESTRUCTION_CYCLE
+from ..utils.data import (
+    Element,
+    TenGod,
+    BRANCH_HIDDEN_STEMS,
+    GENERATION_CYCLE,
+    DESTRUCTION_CYCLE,
+    get_ten_god,
+)
 
 
 class RelationshipType(Enum):
@@ -240,180 +247,100 @@ class AdvancedCompatibility:
     ) -> Dict[str, Any]:
         """分析五行平衡互补，返回0-100分"""
         analysis = {
-            "score": 65.0,  # 基础分65分，正常情况下应该有基本的兼容性
+            "score": 65.0,
             "details": [],
             "balance_type": "",
             "mutual_support": [],
         }
 
-        # 获取两人的五行强弱分布
-        person1_elements = analysis1.get("element_analysis", {}).get(
-            "element_percentages", {}
-        )
-        person2_elements = analysis2.get("element_analysis", {}).get(
-            "element_percentages", {}
-        )
+        person1_elements = analysis1.get("element_distribution", {})
+        person2_elements = analysis2.get("element_distribution", {})
+        person1_day_master = analysis1.get("day_master", {}) or {}
+        person2_day_master = analysis2.get("day_master", {}) or {}
+        person1_strength = person1_day_master.get("strength", "中和")
+        person2_strength = person2_day_master.get("strength", "中和")
+        person1_element = person1_day_master.get("element", "")
+        person2_element = person2_day_master.get("element", "")
 
-        # 获取日主强弱
-        person1_strength = (
-            analysis1.get("element_analysis", {})
-            .get("day_master_strength", {})
-            .get("strength", "中等")
-        )
-        person2_strength = (
-            analysis2.get("element_analysis", {})
-            .get("day_master_strength", {})
-            .get("strength", "中等")
-        )
-
-        # 从day_master字典获取天干和五行
-        person1_day_master_dict = analysis1.get("day_master", {})
-        person2_day_master_dict = analysis2.get("day_master", {})
-
-        # 正确提取天干
-        person1_day_master = (
-            person1_day_master_dict.get("stem", "")
-            if isinstance(person1_day_master_dict, dict)
-            else ""
-        )
-        person2_day_master = (
-            person2_day_master_dict.get("stem", "")
-            if isinstance(person2_day_master_dict, dict)
-            else ""
-        )
-
-        # 直接从day_master字典获取五行，更可靠
-        person1_element = (
-            person1_day_master_dict.get("element", "")
-            if isinstance(person1_day_master_dict, dict)
-            else ""
-        )
-        person2_element = (
-            person2_day_master_dict.get("element", "")
-            if isinstance(person2_day_master_dict, dict)
-            else ""
-        )
-
-        # 分析日主五行关系 (权重40%)
         if person1_element and person2_element:
+            person1_element_enum = next(
+                (element_enum for element_enum in Element if element_enum.value == person1_element),
+                None,
+            )
+            person2_element_enum = next(
+                (element_enum for element_enum in Element if element_enum.value == person2_element),
+                None,
+            )
+
             if person1_element == person2_element:
-                analysis["details"].append(
-                    f"两人日主同为{person1_element}，容易理解对方"
-                )
-                analysis["score"] += 15  # +15分
+                analysis["details"].append(f"两人日主同为{person1_element}，更容易理解彼此的表达方式")
+                analysis["score"] += 12
                 analysis["balance_type"] = "同类互助"
-            else:
-                # 检查生克关系
-                person1_element_enum = next(
-                    (
-                        element_enum
-                        for element_enum in Element
-                        if element_enum.value == person1_element
-                    ),
-                    None,
-                )
-                person2_element_enum = next(
-                    (
-                        element_enum
-                        for element_enum in Element
-                        if element_enum.value == person2_element
-                    ),
-                    None,
-                )
-
-                if person1_element_enum and person2_element_enum:
-                    if (
-                        person1_element_enum in GENERATION_CYCLE
-                        and GENERATION_CYCLE[person1_element_enum]
-                        == person2_element_enum
-                    ):
-                        analysis["details"].append(
-                            f"{person1_element}生{person2_element}，{person1_element}方能助{person2_element}方"
-                        )
-                        analysis["score"] += 25  # +25分
-                        analysis["balance_type"] = "相生互助"
-                        analysis["mutual_support"].append(
-                            f"{person1_element}→{person2_element}"
-                        )
-                    elif (
-                        person2_element_enum in GENERATION_CYCLE
-                        and GENERATION_CYCLE[person2_element_enum]
-                        == person1_element_enum
-                    ):
-                        analysis["details"].append(
-                            f"{person2_element}生{person1_element}，{person2_element}方能助{person1_element}方"
-                        )
-                        analysis["score"] += 25  # +25分
-                        analysis["balance_type"] = "相生互助"
-                        analysis["mutual_support"].append(
-                            f"{person2_element}→{person1_element}"
-                        )
-                    elif (
-                        person1_element_enum in DESTRUCTION_CYCLE
-                        and DESTRUCTION_CYCLE[person1_element_enum]
-                        == person2_element_enum
-                    ):
-                        analysis["details"].append(
-                            f"{person1_element}克{person2_element}，可能存在压制关系"
-                        )
-                        analysis["score"] -= 15  # -15分
-                        analysis["balance_type"] = "相克制约"
-                    elif (
-                        person2_element_enum in DESTRUCTION_CYCLE
-                        and DESTRUCTION_CYCLE[person2_element_enum]
-                        == person1_element_enum
-                    ):
-                        analysis["details"].append(
-                            f"{person2_element}克{person1_element}，可能存在压制关系"
-                        )
-                        analysis["score"] -= 15  # -15分
-                        analysis["balance_type"] = "相克制约"
-                    else:
-                        analysis["details"].append(
-                            f"{person1_element}与{person2_element}关系平和"
-                        )
-                        analysis["score"] += 10  # +10分
-                        analysis["balance_type"] = "平和相处"
-
-        # 分析强弱互补 (权重30%)
-        if person1_strength and person2_strength:
-            if (person1_strength == "强" and person2_strength == "弱") or (
-                person1_strength == "弱" and person2_strength == "强"
+            elif (
+                person1_element_enum
+                and person2_element_enum
+                and GENERATION_CYCLE[person1_element_enum] == person2_element_enum
             ):
-                analysis["details"].append("两人强弱互补，能够相互平衡")
-                analysis["score"] += 20  # +20分
-            elif person1_strength == person2_strength:
-                if person1_strength == "中":
-                    analysis["details"].append("两人都较为平衡，关系稳定")
-                    analysis["score"] += 10  # +10分
-                else:
-                    analysis["details"].append(
-                        f"两人都偏{person1_strength}，可能缺乏平衡"
-                    )
-                    analysis["score"] -= 10  # -10分
+                analysis["details"].append(f"{person1_element}生{person2_element}，第一人更容易助推第二人的状态")
+                analysis["score"] += 18
+                analysis["balance_type"] = "相生互助"
+                analysis["mutual_support"].append(f"{person1_element}→{person2_element}")
+            elif (
+                person1_element_enum
+                and person2_element_enum
+                and GENERATION_CYCLE[person2_element_enum] == person1_element_enum
+            ):
+                analysis["details"].append(f"{person2_element}生{person1_element}，第二人更容易助推第一人的状态")
+                analysis["score"] += 18
+                analysis["balance_type"] = "相生互助"
+                analysis["mutual_support"].append(f"{person2_element}→{person1_element}")
+            elif (
+                person1_element_enum
+                and person2_element_enum
+                and DESTRUCTION_CYCLE[person1_element_enum] == person2_element_enum
+            ):
+                analysis["details"].append(f"{person1_element}克{person2_element}，互动中容易出现压制感")
+                analysis["score"] -= 8
+                analysis["balance_type"] = "相克制约"
+            elif (
+                person1_element_enum
+                and person2_element_enum
+                and DESTRUCTION_CYCLE[person2_element_enum] == person1_element_enum
+            ):
+                analysis["details"].append(f"{person2_element}克{person1_element}，互动中容易出现压制感")
+                analysis["score"] -= 8
+                analysis["balance_type"] = "相克制约"
+            else:
+                analysis["details"].append(f"{person1_element}与{person2_element}关系平和，更多看后续格局流通")
+                analysis["score"] += 6
+                analysis["balance_type"] = "平和相处"
 
-        # 分析五行分布互补 (权重30%)
+        if (person1_strength == "强" and person2_strength == "弱") or (
+            person1_strength == "弱" and person2_strength == "强"
+        ):
+            analysis["details"].append("两人强弱互补，关系中更容易形成制衡")
+            analysis["score"] += 12
+        elif person1_strength == person2_strength == "中和":
+            analysis["details"].append("两人都较为中和，基础相处面更稳定")
+            analysis["score"] += 8
+        elif person1_strength == person2_strength and person1_strength in {"强", "弱"}:
+            analysis["details"].append(f"两人都偏{person1_strength}，需要额外关注平衡问题")
+            analysis["score"] -= 4
+
         if person1_elements and person2_elements:
             complement_score = 0
             for element in ["木", "火", "土", "金", "水"]:
-                person1_element_count = person1_elements.get(element, 0)
-                person2_element_count = person2_elements.get(element, 0)
-
-                # 如果一方缺乏某五行，另一方较强，则互补性好
-                if person1_element_count == 0 and person2_element_count >= 2:
-                    complement_score += 3
-                    analysis["details"].append(
-                        f"甲方缺{element}，乙方{element}较强，形成互补"
-                    )
-                elif person2_element_count == 0 and person1_element_count >= 2:
-                    complement_score += 3
-                    analysis["details"].append(
-                        f"乙方缺{element}，甲方{element}较强，形成互补"
-                    )
-                elif abs(person1_element_count - person2_element_count) <= 1:
-                    complement_score += 1  # 平衡也是好的
-
-            analysis["score"] += min(15, complement_score * 2)  # 最多+15分
+                person1_share = person1_elements.get(element, 0.0)
+                person2_share = person2_elements.get(element, 0.0)
+                if person1_share < 8 and person2_share >= 22:
+                    complement_score += 2
+                    analysis["details"].append(f"第一人在{element}上偏弱，第二人在{element}上能形成补位")
+                elif person2_share < 8 and person1_share >= 22:
+                    complement_score += 2
+                    analysis["details"].append(f"第二人在{element}上偏弱，第一人在{element}上能形成补位")
+                elif abs(person1_share - person2_share) <= 8:
+                    complement_score += 1
+            analysis["score"] += min(12, complement_score)
 
         # 确保分数在0-100范围内
         analysis["score"] = min(100.0, max(0.0, analysis["score"]))
@@ -426,162 +353,108 @@ class AdvancedCompatibility:
     ) -> Dict[str, Any]:
         """分析喜用神互助，返回0-100分"""
         analysis = {
-            "score": 60.0,  # 基础分60分，即使没有明显互助也应该有基本分数
+            "score": 60.0,
             "details": [],
             "mutual_help": [],
             "synergy_level": "",
+            "score_basis": [],
+            "useful_ten_gods_support": [],
+            "supportive_patterns": [],
+            "tension_patterns": [],
+            "risk_reasons": [],
         }
 
-        # 安全处理favorable_elements，避免unhashable type错误
-        person1_favorable_list = analysis1.get("favorable_elements", [])
-        person2_favorable_list = analysis2.get("favorable_elements", [])
+        profile1 = analysis1.get("structure_profile", {}) or {}
+        profile2 = analysis2.get("structure_profile", {}) or {}
+        person1_favorable_elements = set(profile1.get("useful_elements", analysis1.get("favorable_elements", [])))
+        person2_favorable_elements = set(profile2.get("useful_elements", analysis2.get("favorable_elements", [])))
+        person1_avoid_elements = set(profile1.get("avoid_elements", []))
+        person2_avoid_elements = set(profile2.get("avoid_elements", []))
+        person1_distribution = analysis1.get("element_distribution", {})
+        person2_distribution = analysis2.get("element_distribution", {})
 
-        # 确保是字符串列表后再转换为集合
-        if isinstance(person1_favorable_list, list) and all(
-            isinstance(x, str) for x in person1_favorable_list
-        ):
-            person1_favorable_elements = set(person1_favorable_list)
-        else:
-            person1_favorable_elements = set()
+        def _support_from_distribution(
+            source_label: str,
+            target_label: str,
+            wanted_elements: set[str],
+            source_distribution: Dict[str, float],
+        ) -> None:
+            for element in sorted(wanted_elements):
+                share = source_distribution.get(element, 0.0)
+                if share >= 24:
+                    delta = 10
+                    description = f"{source_label}{element}占比高，能明显补到{target_label}的可用之气"
+                elif share >= 16:
+                    delta = 7
+                    description = f"{source_label}{element}较旺，对{target_label}有稳定补益"
+                elif share >= 10:
+                    delta = 4
+                    description = f"{source_label}{element}具备一定承接力，对{target_label}略有帮助"
+                else:
+                    continue
 
-        if isinstance(person2_favorable_list, list) and all(
-            isinstance(x, str) for x in person2_favorable_list
-        ):
-            person2_favorable_elements = set(person2_favorable_list)
-        else:
-            person2_favorable_elements = set()
+                analysis["score"] += delta
+                analysis["mutual_help"].append(description)
+                analysis["details"].append(description)
+                analysis["score_basis"].append(f"{description}(+{delta})")
+                analysis["supportive_patterns"].append(
+                    {
+                        "element": element,
+                        "source": source_label,
+                        "target": target_label,
+                        "description": description,
+                    }
+                )
 
-        # 获取两人的五行分布
-        person1_element_distribution = analysis1.get("element_analysis", {}).get(
-            "element_distribution", {}
-        )
-        person2_element_distribution = analysis2.get("element_analysis", {}).get(
-            "element_distribution", {}
-        )
+        _support_from_distribution("第二人", "第一人", person1_favorable_elements, person2_distribution)
+        _support_from_distribution("第一人", "第二人", person2_favorable_elements, person1_distribution)
 
-        # 分析互助情况 (权重50%)
-        mutual_help_count = 0
-        mutual_help_strength = 0
-
-        # 检查第一人的喜用神是否在第二人命理分析中较强
-        for favorable_element in person1_favorable_elements:
-            if favorable_element in person2_element_distribution:
-                element_count = person2_element_distribution[favorable_element]
-                if element_count >= 3:
-                    analysis["mutual_help"].append(
-                        f"第二人命理分析中{favorable_element}很强，大助第一人"
-                    )
-                    mutual_help_count += 1
-                    mutual_help_strength += 3
-                elif element_count >= 2:
-                    analysis["mutual_help"].append(
-                        f"第二人命理分析中{favorable_element}较强，有助第一人"
-                    )
-                    mutual_help_count += 1
-                    mutual_help_strength += 2
-                elif element_count == 1:
-                    analysis["mutual_help"].append(
-                        f"第二人命理分析中{favorable_element}一般，略助第一人"
-                    )
-                    mutual_help_strength += 1
-
-        # 检查第二人的喜用神是否在第一人命理分析中较强
-        for favorable_element in person2_favorable_elements:
-            if favorable_element in person1_element_distribution:
-                element_count = person1_element_distribution[favorable_element]
-                if element_count >= 3:
-                    analysis["mutual_help"].append(
-                        f"第一人命理分析中{favorable_element}很强，大助第二人"
-                    )
-                    mutual_help_count += 1
-                    mutual_help_strength += 3
-                elif element_count >= 2:
-                    analysis["mutual_help"].append(
-                        f"第一人命理分析中{favorable_element}较强，有助第二人"
-                    )
-                    mutual_help_count += 1
-                    mutual_help_strength += 2
-                elif element_count == 1:
-                    analysis["mutual_help"].append(
-                        f"第一人命理分析中{favorable_element}一般，略助第二人"
-                    )
-                    mutual_help_strength += 1
-
-        # 根据互助情况计算得分
-        if mutual_help_count >= 3:
-            analysis["score"] += 30  # +30分
-            analysis["synergy_level"] = "强力互助"
-            analysis["details"].append("两人能够强力相互补益，关系非常和谐")
-        elif mutual_help_count == 2:
-            analysis["score"] += 25  # +25分
-            analysis["synergy_level"] = "双向互助"
-            analysis["details"].append("两人能够相互补益，关系和谐")
-        elif mutual_help_count == 1:
-            analysis["score"] += 15  # +15分
-            analysis["synergy_level"] = "单向互助"
-            analysis["details"].append("一方能够帮助另一方")
-        else:
-            analysis["score"] -= 10  # -10分
-            analysis["synergy_level"] = "无明显互助"
-            analysis["details"].append("在喜用神方面无明显互助关系")
-
-        # 根据互助强度额外加分
-        analysis["score"] += min(20, mutual_help_strength * 2)  # 最多+20分
-
-        # 检查共同喜用神 (权重30%)
-        common_favorable_elements = (
-            person1_favorable_elements & person2_favorable_elements
-        )
+        common_favorable_elements = person1_favorable_elements & person2_favorable_elements
         if common_favorable_elements:
-            common_favorable_score = (
-                len(common_favorable_elements) * 8
-            )  # 每个共同喜用神+8分
-            analysis["details"].append(
-                f"共同喜用神：{', '.join(common_favorable_elements)}，目标一致"
+            delta = min(12, len(common_favorable_elements) * 4)
+            common_text = f"共同喜用五行：{', '.join(sorted(common_favorable_elements))}，目标更容易同频"
+            analysis["score"] += delta
+            analysis["details"].append(common_text)
+            analysis["score_basis"].append(f"{common_text}(+{delta})")
+
+        common_useful_ten_gods = set(profile1.get("useful_ten_gods", [])) & set(
+            profile2.get("useful_ten_gods", [])
+        )
+        if common_useful_ten_gods:
+            analysis["useful_ten_gods_support"].append(
+                {
+                    "common_ten_gods": sorted(common_useful_ten_gods),
+                    "description": "双方在可用十神上存在交集，格局取向更容易对齐。",
+                }
             )
-            analysis["score"] += min(20, common_favorable_score)  # 最多+20分
+            analysis["score"] += min(8, len(common_useful_ten_gods) * 3)
 
-        # 检查喜用神冲突 (权重20%)
-        # 安全处理unfavorable_elements，避免unhashable type错误
-        person1_unfavorable_list = analysis1.get("unfavorable_elements", [])
-        person2_unfavorable_list = analysis2.get("unfavorable_elements", [])
+        forward_conflict = person1_favorable_elements & person2_avoid_elements
+        reverse_conflict = person2_favorable_elements & person1_avoid_elements
+        if forward_conflict:
+            text = f"第一人的可用五行{', '.join(sorted(forward_conflict))}落在第二人的回避区间"
+            analysis["risk_reasons"].append(text)
+            analysis["score_basis"].append(f"{text}(-8)")
+            analysis["score"] -= len(forward_conflict) * 8
+        if reverse_conflict:
+            text = f"第二人的可用五行{', '.join(sorted(reverse_conflict))}落在第一人的回避区间"
+            analysis["risk_reasons"].append(text)
+            analysis["score_basis"].append(f"{text}(-8)")
+            analysis["score"] -= len(reverse_conflict) * 8
 
-        if isinstance(person1_unfavorable_list, list) and all(
-            isinstance(x, str) for x in person1_unfavorable_list
-        ):
-            person1_unfavorable_elements = set(person1_unfavorable_list)
+        if not analysis["supportive_patterns"]:
+            analysis["details"].append("在可用五行承接上没有形成明显双向互助")
+        if not analysis["risk_reasons"]:
+            analysis["risk_reasons"].append("未见明显的喜用-回避五行正面冲突")
+
+        if analysis["score"] >= 82:
+            analysis["synergy_level"] = "强力互助"
+        elif analysis["score"] >= 70:
+            analysis["synergy_level"] = "双向互助"
+        elif analysis["score"] >= 58:
+            analysis["synergy_level"] = "可形成互助"
         else:
-            person1_unfavorable_elements = set()
-
-        if isinstance(person2_unfavorable_list, list) and all(
-            isinstance(x, str) for x in person2_unfavorable_list
-        ):
-            person2_unfavorable_elements = set(person2_unfavorable_list)
-        else:
-            person2_unfavorable_elements = set()
-
-        # 如果一方的喜用神是另一方的忌神，扣分
-        conflict_count = 0
-        if person1_favorable_elements & person2_unfavorable_elements:
-            conflict_elements = (
-                person1_favorable_elements & person2_unfavorable_elements
-            )
-            analysis["details"].append(
-                f"第一人喜用神{', '.join(conflict_elements)}与第二人忌神冲突"
-            )
-            conflict_count += len(conflict_elements)
-
-        if person2_favorable_elements & person1_unfavorable_elements:
-            conflict_elements = (
-                person2_favorable_elements & person1_unfavorable_elements
-            )
-            analysis["details"].append(
-                f"第二人喜用神{', '.join(conflict_elements)}与第一人忌神冲突"
-            )
-            conflict_count += len(conflict_elements)
-
-        if conflict_count > 0:
-            analysis["score"] -= conflict_count * 10  # 每个冲突-10分
+            analysis["synergy_level"] = "互助有限"
 
         # 确保分数在0-100范围内
         analysis["score"] = min(100.0, max(0.0, analysis["score"]))
@@ -594,19 +467,22 @@ class AdvancedCompatibility:
         analysis2: Dict[str, Any],
         relationship_type: RelationshipType,
     ) -> Dict[str, Any]:
-        """分析十神关系 - 基于各自日主计算十神关系"""
+        """分析十神关系，重点看对方是否提供本命格局所需十神。"""
         analysis = {
-            "score": 65.0,  # 基础分65分，正常的十神关系应该有基本的兼容性
+            "score": 65.0,
             "details": [],
             "relationship_dynamics": [],
             "compatibility_aspects": [],
+            "score_basis": [],
+            "useful_ten_gods_support": [],
+            "supportive_patterns": [],
+            "tension_patterns": [],
+            "risk_reasons": [],
         }
 
-        # 获取两人的日主天干（十神计算需要天干，不是五行）
         day_master1_dict = analysis1.get("day_master")
         day_master2_dict = analysis2.get("day_master")
 
-        # 处理不同的日主格式，获取天干
         if isinstance(day_master1_dict, dict):
             day_master1 = day_master1_dict.get("stem", "")
         else:
@@ -621,39 +497,123 @@ class AdvancedCompatibility:
             analysis["details"].append("无法获取日主信息，无法分析十神关系")
             return analysis
 
-        # 分析A的命理分析对B日主的十神影响
         person1_to_person2_gods = AdvancedCompatibility._calculate_cross_ten_gods(
             analysis1, day_master2, "第一人对第二人"
         )
-
-        # 分析B的命理分析对A日主的十神影响
         person2_to_person1_gods = AdvancedCompatibility._calculate_cross_ten_gods(
             analysis2, day_master1, "第二人对第一人"
         )
 
-        # 合并分析结果 - 使用不同的键来避免覆盖
-        all_cross_gods = {
-            "person1_to_person2": person1_to_person2_gods,
-            "person2_to_person1": person2_to_person1_gods,
+        profile1 = analysis1.get("structure_profile", {}) or {}
+        profile2 = analysis2.get("structure_profile", {}) or {}
+        useful_ten_gods1 = set(profile1.get("useful_ten_gods", []))
+        useful_ten_gods2 = set(profile2.get("useful_ten_gods", []))
+
+        relationship_bias = {
+            RelationshipType.MARRIAGE: {"正财": 2, "偏财": 1, "正官": 2, "七杀": 1},
+            RelationshipType.BUSINESS: {"正财": 3, "偏财": 3, "食神": 2, "伤官": 2, "正官": 2},
+            RelationshipType.FRIENDSHIP: {"比肩": 2, "食神": 2, "正印": 2},
+            RelationshipType.FAMILY: {"正印": 2, "正官": 1, "比肩": 1},
+            RelationshipType.GENERAL: {},
         }
 
-        # 根据关系类型分析十神配合
-        if relationship_type == RelationshipType.MARRIAGE:
-            analysis = AdvancedCompatibility._analyze_marriage_cross_ten_gods(
-                all_cross_gods, analysis
-            )
-        elif relationship_type == RelationshipType.BUSINESS:
-            analysis = AdvancedCompatibility._analyze_business_cross_ten_gods(
-                all_cross_gods, analysis
-            )
-        elif relationship_type == RelationshipType.FRIENDSHIP:
-            analysis = AdvancedCompatibility._analyze_friendship_cross_ten_gods(
-                all_cross_gods, analysis
-            )
-        else:
-            analysis = AdvancedCompatibility._analyze_general_cross_ten_gods(
-                all_cross_gods, analysis
-            )
+        def _apply_cross_support(
+            *,
+            provider_label: str,
+            target_label: str,
+            cross_gods: Dict[str, Any],
+            target_useful_ten_gods: set[str],
+        ) -> None:
+            for ten_god, raw_count in cross_gods.get("ten_gods_count", {}).items():
+                count = float(raw_count)
+                if count <= 0:
+                    continue
+
+                if ten_god in target_useful_ten_gods:
+                    delta = int(min(12, round(count * 5))) + relationship_bias[relationship_type].get(ten_god, 0)
+                    description = f"{provider_label}命局提供{ten_god}，正好契合{target_label}当前格局所需"
+                    analysis["score"] += delta
+                    analysis["details"].append(description)
+                    analysis["score_basis"].append(f"{description}(+{delta})")
+                    analysis["useful_ten_gods_support"].append(
+                        {
+                            "provider": provider_label,
+                            "target": target_label,
+                            "ten_god": ten_god,
+                            "weight": round(count, 2),
+                            "description": description,
+                        }
+                    )
+                    analysis["supportive_patterns"].append(
+                        {
+                            "label": f"{ten_god}可用承接",
+                            "description": description,
+                            "provider": provider_label,
+                            "target": target_label,
+                        }
+                    )
+                    continue
+
+                if ten_god in {TenGod.POSITIVE_OFFICER.value, TenGod.SEVEN_KILLER.value}:
+                    description = f"{provider_label}带来{ten_god}之气，对{target_label}属于张力型输入"
+                    if {TenGod.POSITIVE_OFFICER.value, TenGod.SEVEN_KILLER.value} & target_useful_ten_gods:
+                        analysis["score"] += 4
+                        analysis["score_basis"].append(f"{description}(+4)")
+                    else:
+                        analysis["score"] -= 2
+                        analysis["score_basis"].append(f"{description}(-2)")
+                    analysis["tension_patterns"].append(
+                        {
+                            "label": f"{ten_god}张力",
+                            "description": description,
+                            "provider": provider_label,
+                            "target": target_label,
+                        }
+                    )
+                    continue
+
+                if ten_god == TenGod.HURT_OFFICER.value and (
+                    TenGod.POSITIVE_OFFICER.value in target_useful_ten_gods
+                    or TenGod.SEVEN_KILLER.value in target_useful_ten_gods
+                ):
+                    description = f"{provider_label}的伤官之气会冲击{target_label}正在调用的官杀体系"
+                    analysis["score"] -= 6
+                    analysis["score_basis"].append(f"{description}(-6)")
+                    analysis["risk_reasons"].append(description)
+                    continue
+
+                if ten_god == TenGod.ROB_WEALTH.value and relationship_type == RelationshipType.BUSINESS:
+                    description = f"{provider_label}的劫财之气在商业合作里更容易放大利益分配压力"
+                    analysis["score"] -= 5
+                    analysis["score_basis"].append(f"{description}(-5)")
+                    analysis["risk_reasons"].append(description)
+
+        _apply_cross_support(
+            provider_label="第一人",
+            target_label="第二人",
+            cross_gods=person1_to_person2_gods,
+            target_useful_ten_gods=useful_ten_gods2,
+        )
+        _apply_cross_support(
+            provider_label="第二人",
+            target_label="第一人",
+            cross_gods=person2_to_person1_gods,
+            target_useful_ten_gods=useful_ten_gods1,
+        )
+
+        common_useful_ten_gods = useful_ten_gods1 & useful_ten_gods2
+        if common_useful_ten_gods:
+            description = f"双方共同认可能用的十神为：{', '.join(sorted(common_useful_ten_gods))}"
+            analysis["relationship_dynamics"].append(description)
+            analysis["compatibility_aspects"].append("共同取用一致")
+            analysis["score"] += min(10, len(common_useful_ten_gods) * 3)
+
+        if not analysis["details"]:
+            analysis["details"].append("跨人十神没有形成特别鲜明的格局承接，更多看五行与合盘事件")
+        if not analysis["risk_reasons"]:
+            analysis["risk_reasons"].append("未见明显的十神级高风险冲突")
+
+        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
 
         return analysis
 
@@ -661,20 +621,15 @@ class AdvancedCompatibility:
     def _calculate_cross_ten_gods(
         analysis: Dict[str, Any], target_day_master: str, description: str
     ) -> Dict[str, Any]:
-        """计算一个人的命理分析对另一个人日主的十神影响 - 基于天干计算"""
-        from ..utils.data import get_ten_god
-
+        """计算一个人的命局对另一个人日主形成的十神输入。"""
         cross_gods = {
             "description": description,
             "ten_gods_count": {},
             "strong_influences": [],
-            "element_influences": {},
+            "source_breakdown": [],
         }
 
-        # 获取目标日主的天干
         target_day_master_stem = target_day_master
-
-        # 如果target_day_master是元素而不是天干，转换为天干
         if target_day_master in ["木", "火", "土", "金", "水"]:
             element_to_stem = {
                 "木": "甲",
@@ -688,57 +643,52 @@ class AdvancedCompatibility:
         if not target_day_master_stem:
             return cross_gods
 
-        # 获取四柱信息
         four_pillars = analysis.get("four_pillars", {})
+        hidden_weights = [0.5, 0.3, 0.2]
+        ten_gods_count: Dict[str, float] = {}
 
-        # 遍历四柱的天干，计算对目标日主的十神关系
         pillar_names = ["year", "month", "day", "hour"]
         for pillar_name in pillar_names:
             if pillar_name in four_pillars:
                 pillar = four_pillars[pillar_name]
                 stem = pillar.get("stem")
+                branch = pillar.get("branch")
 
                 if stem:
-                    # 使用正确的get_ten_god函数计算十神关系
-                    ten_god = get_ten_god(target_day_master_stem, stem)
-
-                    # 统计十神数量（每个天干权重为25%）
-                    weight = 25.0
-                    if ten_god in cross_gods["ten_gods_count"]:
-                        cross_gods["ten_gods_count"][ten_god] += weight
-                    else:
-                        cross_gods["ten_gods_count"][ten_god] = weight
-
-                    # 记录强影响
-                    cross_gods["strong_influences"].append(
-                        f"{stem}({ten_god})×{weight}"
+                    ten_god = get_ten_god(target_day_master_stem, stem).value
+                    ten_gods_count[ten_god] = ten_gods_count.get(ten_god, 0.0) + 1.0
+                    cross_gods["source_breakdown"].append(
+                        {
+                            "pillar": pillar_name,
+                            "source_type": "stem",
+                            "stem": stem,
+                            "ten_god": ten_god,
+                            "weight": 1.0,
+                        }
                     )
 
-        # 计算元素影响（为了保持兼容性）
-        element_distribution = analysis.get("element_distribution", {})
-        for element_str, percentage in element_distribution.items():
-            if percentage > 0:
-                # 找到该元素对应的主要十神
-                element_to_stem = {
-                    "木": "甲",
-                    "火": "丙",
-                    "土": "戊",
-                    "金": "庚",
-                    "水": "壬",
-                }
-                element_stem = element_to_stem.get(element_str)
-                if element_stem:
-                    ten_god = get_ten_god(target_day_master_stem, element_stem)
-                    cross_gods["element_influences"][element_str] = {
-                        "ten_god": ten_god,
-                        "count": percentage,
-                        "strength": (
-                            "强"
-                            if percentage >= 30
-                            else "中" if percentage >= 15 else "弱"
-                        ),
-                    }
+                for index, hidden_stem in enumerate(BRANCH_HIDDEN_STEMS.get(branch, [])):
+                    ten_god = get_ten_god(target_day_master_stem, hidden_stem).value
+                    weight = hidden_weights[index] if index < len(hidden_weights) else 0.2
+                    ten_gods_count[ten_god] = ten_gods_count.get(ten_god, 0.0) + weight
+                    cross_gods["source_breakdown"].append(
+                        {
+                            "pillar": pillar_name,
+                            "source_type": "hidden_stem",
+                            "stem": hidden_stem,
+                            "ten_god": ten_god,
+                            "weight": weight,
+                        }
+                    )
 
+        cross_gods["ten_gods_count"] = {
+            key: round(value, 2) for key, value in ten_gods_count.items()
+        }
+        cross_gods["strong_influences"] = [
+            f"{item['pillar']}:{item['stem']}({item['ten_god']})×{item['weight']}"
+            for item in cross_gods["source_breakdown"]
+            if item["weight"] >= 0.5
+        ]
         return cross_gods
 
     @staticmethod
@@ -825,99 +775,67 @@ class AdvancedCompatibility:
     def _analyze_business_cross_ten_gods(
         cross_gods: Dict[str, Any], analysis: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """分析商业关系的跨人十神配合"""
+        """分析商业关系的跨人十神配合。"""
 
-        # 提取所有十神统计
-        all_ten_gods = {}
-        for key, gods_data in cross_gods.items():
+        all_ten_gods: Dict[str, float] = {}
+        for gods_data in cross_gods.values():
             if isinstance(gods_data, dict) and "ten_gods_count" in gods_data:
                 for ten_god, count in gods_data["ten_gods_count"].items():
-                    all_ten_gods[ten_god] = all_ten_gods.get(ten_god, 0) + count
+                    all_ten_gods[ten_god] = all_ten_gods.get(ten_god, 0.0) + float(count)
 
-        # 商业中有利的十神影响
         favorable_gods = {
-            "正财": 15,  # 正财代表稳定收入
-            "偏财": 12,  # 偏财代表投资机会
-            "食神": 10,  # 食神代表创意才华
-            "伤官": 8,  # 伤官代表技术能力
-            "正官": 8,  # 正官代表管理能力
+            "正财": 15,
+            "偏财": 12,
+            "食神": 10,
+            "伤官": 8,
+            "正官": 8,
         }
-
-        # 商业中不利的十神影响
         unfavorable_gods = {
-            "劫财": -8,  # 劫财易破财
-            "偏印": -6,  # 偏印易孤立
-            "七杀": -4,  # 七杀过多易冲突
+            "劫财": -8,
+            "偏印": -6,
+            "七杀": -4,
         }
 
-        # 计算十神影响得分
         for ten_god, count in all_ten_gods.items():
+            limited_count = min(count, 2.0)
             if ten_god in favorable_gods:
-                bonus = favorable_gods[ten_god] * min(count, 2)
+                bonus = round(favorable_gods[ten_god] * limited_count)
                 analysis["score"] += bonus
                 analysis["details"].append(
-                    f"跨人{ten_god}影响×{count}，有利商业合作(+{bonus}分)"
+                    f"跨人{ten_god}影响约{count:.1f}，有利商业协作(+{bonus}分)"
                 )
                 analysis["compatibility_aspects"].append(f"{ten_god}助力")
             elif ten_god in unfavorable_gods:
-                penalty = unfavorable_gods[ten_god] * min(count, 2)
+                penalty = round(unfavorable_gods[ten_god] * limited_count)
                 analysis["score"] += penalty
                 analysis["details"].append(
-                    f"跨人{ten_god}影响×{count}，需要注意({penalty}分)"
+                    f"跨人{ten_god}影响约{count:.1f}，合作中需额外留意({penalty}分)"
                 )
 
-        # 分析商业互补性
-        business_pairs = [
-            ("正财", "食神"),  # 创意变现
-            ("偏财", "伤官"),  # 技能变现
-            ("正官", "正印", 14),  # 官印相生，管理有序 +14分
-            ("七杀", "食神", 15),  # 七杀配食神，执行力强 +15分
-            ("比肩", "劫财", 10),  # 比劫合作，资源整合 +10分
-            ("偏印", "伤官", 12),  # 偏印伤官，技术创新 +12分
+        business_combinations = [
+            ("正财", "食神", 12, "创意与变现衔接顺畅"),
+            ("偏财", "伤官", 10, "市场嗅觉与技术输出形成配合"),
+            ("正官", "正印", 14, "管理与制度支持形成正循环"),
+            ("七杀", "食神", 15, "执行推动力强，适合高压项目"),
         ]
-
-        # 检查商业组合
-        for god1, god2, score_bonus in business_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(f"一方{god1}配另一方{god2}，有利商业合作")
+        for god1, god2, score_bonus, description in business_combinations:
+            if all_ten_gods.get(god1, 0.0) > 0 and all_ten_gods.get(god2, 0.0) > 0:
                 analysis["score"] += score_bonus
+                analysis["details"].append(description)
+                analysis["relationship_dynamics"].append(description)
                 analysis["compatibility_aspects"].append(f"{god1}-{god2}商业配合")
-            elif gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0:
-                analysis["details"].append(f"一方{god2}配另一方{god1}，有利商业合作")
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god2}-{god1}商业配合")
 
-        # 分析商业角色互补 (权重30%)
-        role_complements = [
-            ("正官", "偏财", "一方善管理（正官），一方善经营（偏财）", 12),
-            ("正印", "伤官", "一方深策略（正印），一方深执行（伤官）", 10),
-            ("七杀", "正印", "一方决断力强（七杀），一方深思熟虑（正印）", 11),
-            ("食神", "比肩", "一方创意丰富（食神），一方执行稳定（比肩）", 9),
-        ]
-
-        for god1, god2, desc, score_bonus in role_complements:
-            if (gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0) or (
-                gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0
-            ):
-                analysis["relationship_dynamics"].append(desc)
-                analysis["score"] += score_bonus
-
-        # 检查商业风险组合 (权重20%)
         risk_combinations = [
-            ("劫财", "偏财", "劫财夺财，利益冲突风险", -18),
-            ("七杀", "七杀", "双方都过于强势，决策冲突", -15),
-            ("伤官", "正官", "伤官见官，管理混乱", -12),
-            ("比肩", "比肩", "过于相似，缺乏互补", -8),
+            ("劫财", "偏财", -18, "劫财与偏财同旺，利益分配压力增大"),
+            ("七杀", "七杀", -15, "双方都过强势时，决策摩擦会明显上升"),
+            ("伤官", "正官", -12, "伤官见官，容易出现流程与管理冲突"),
         ]
-
-        for god1, god2, desc, score_penalty in risk_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(desc)
+        for god1, god2, score_penalty, description in risk_combinations:
+            if all_ten_gods.get(god1, 0.0) > 0 and all_ten_gods.get(god2, 0.0) > 0:
                 analysis["score"] += score_penalty
+                analysis["details"].append(description)
 
-        # 确保分数在0-100范围内
         analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-
         return analysis
 
     @staticmethod
@@ -1284,109 +1202,102 @@ class AdvancedCompatibility:
     ) -> Dict[str, Any]:
         """分析格局配合，返回0-100分"""
         analysis = {
-            "score": 70.0,  # 格局协同基础分70分，不同格局之间通常有基本的兼容性
+            "score": 68.0,
             "details": [],
             "pattern_combination": "",
             "synergy_effects": [],
+            "score_basis": [],
+            "supportive_patterns": [],
+            "tension_patterns": [],
+            "risk_patterns": [],
         }
 
-        # 获取两人的格局信息
-        patterns1 = analysis1.get("patterns", {})
-        patterns2 = analysis2.get("patterns", {})
+        profile1 = analysis1.get("structure_profile", {}) or {}
+        profile2 = analysis2.get("structure_profile", {}) or {}
+        pillars1 = {
+            key: (value["stem"], value["branch"])
+            for key, value in analysis1.get("four_pillars", {}).items()
+        }
+        pillars2 = {
+            key: (value["stem"], value["branch"])
+            for key, value in analysis2.get("four_pillars", {}).items()
+        }
 
-        # 分析三合六合配合 (权重40%)
-        harmony1 = patterns1.get("harmony", {})
-        harmony2 = patterns2.get("harmony", {})
+        merged_events = BaZiRules.analyze_combined_chart_events(
+            pillars1,
+            pillars2,
+            structure_profile1=profile1,
+            structure_profile2=profile2,
+        )
 
-        # 三合局检查 (包括全三合和半三合)
-        has_three1 = bool(harmony1.get("three_harmony"))
-        has_half1 = bool(harmony1.get("half_harmony"))
-        has_three2 = bool(harmony2.get("three_harmony"))
-        has_half2 = bool(harmony2.get("half_harmony"))
+        analysis["supportive_patterns"] = merged_events["supportive_patterns"]
+        analysis["tension_patterns"] = merged_events["tension_patterns"]
+        analysis["risk_patterns"] = merged_events["risk_patterns"]
 
-        if has_three1 and has_three2:
-            analysis["details"].append("两人都有三合局，格局高度相配")
-            analysis["score"] += 25
-            analysis["pattern_combination"] = "双三合"
-            analysis["synergy_effects"].append("三合局互相呼应，能量倍增")
-        elif (has_three1 and has_half2) or (has_half1 and has_three2):
-            analysis["details"].append("三合配合半合，能量互补")
-            analysis["score"] += 20
-            analysis["pattern_combination"] = "三合配半合"
-            analysis["synergy_effects"].append("强弱搭配，互为助力")
-        elif has_half1 and has_half2:
-            analysis["details"].append("两人都有半合局，气场相投")
-            analysis["score"] += 15
-            analysis["pattern_combination"] = "双半合"
-            analysis["synergy_effects"].append("半合共鸣，潜移默化")
-        elif has_three1 or has_three2:
-            analysis["details"].append("一方有三合局，带动整体格局")
-            analysis["score"] += 15
-            if not analysis["pattern_combination"]:
-                analysis["pattern_combination"] = "单三合"
-        elif has_half1 or has_half2:
-            analysis["details"].append("一方有半合局，增加格局灵活性")
-            analysis["score"] += 10
-            if not analysis["pattern_combination"]:
-                analysis["pattern_combination"] = "单半合"
-
-        if harmony1.get("six_harmony") and harmony2.get("six_harmony"):
-            analysis["details"].append("两人都有六合，关系和谐稳定")
-            analysis["score"] += 20
-            if analysis["pattern_combination"]:
-                analysis["pattern_combination"] += "+双六合"
+        supportive_harmony_labels: List[str] = []
+        for pattern in analysis["supportive_patterns"]:
+            if pattern["type"] == "three_harmony":
+                delta = 16
+            elif pattern["type"] == "six_harmony":
+                delta = 10
+            elif pattern["type"] == "half_harmony":
+                delta = 6
             else:
-                analysis["pattern_combination"] = "双六合"
-            analysis["synergy_effects"].append("六合配合，关系融洽")
-        elif harmony1.get("six_harmony") or harmony2.get("six_harmony"):
-            analysis["details"].append("一方有六合，增进关系和谐")
-            analysis["score"] += 12
-            if analysis["pattern_combination"]:
-                analysis["pattern_combination"] += "+单六合"
+                delta = 5
+            analysis["score"] += delta
+            analysis["details"].append(pattern["description"])
+            analysis["score_basis"].append(f"{pattern['label']}：{pattern['description']}(+{delta})")
+            supportive_harmony_labels.append(pattern["label"])
+
+        for pattern in analysis["tension_patterns"]:
+            if pattern["label"] == "天克地冲":
+                delta = 2
+                analysis["synergy_effects"].append("天克地冲带来高吸引与高摩擦并存的张力")
             else:
-                analysis["pattern_combination"] = "单六合"
+                delta = -4
+            analysis["score"] += delta
+            analysis["details"].append(pattern["description"])
+            analysis["score_basis"].append(f"{pattern['label']}：{pattern['description']}({delta:+d})")
 
-        # 分析特殊格局配合 (权重35%)
-        special1 = patterns1.get("special", {})
-        special2 = patterns2.get("special", {})
-
-        # 检查是否有相同的特殊格局
-        if special1 and special2:
-            common_patterns = set(special1.keys()) & set(special2.keys())
-            if common_patterns:
-                analysis["details"].append(
-                    f"两人都有{list(common_patterns)}格局，志同道合"
-                )
-                analysis["score"] += 18
-                analysis["synergy_effects"].append("特殊格局共鸣，理解深刻")
+        for pattern in analysis["risk_patterns"]:
+            if pattern["type"] in {"six_clash", "six_harm", "three_punishment"}:
+                delta = -12
             else:
-                analysis["details"].append("两人都有特殊格局，各有所长")
-                analysis["score"] += 12
-                analysis["synergy_effects"].append("特殊格局互补，各展所长")
-        elif special1 or special2:
-            analysis["details"].append("一方有特殊格局，带来独特优势")
-            analysis["score"] += 8
+                delta = -10
+            analysis["score"] += delta
+            analysis["details"].append(pattern["description"])
+            analysis["score_basis"].append(f"{pattern['label']}：{pattern['description']}({delta})")
 
-        # 分析格局强弱配合 (权重25%)
-        strength1 = patterns1.get("strength", "medium")
-        strength2 = patterns2.get("strength", "medium")
+        recognized1 = {
+            item.get("label")
+            for item in profile1.get("recognized_structures", [])
+            if item.get("label")
+        }
+        recognized2 = {
+            item.get("label")
+            for item in profile2.get("recognized_structures", [])
+            if item.get("label")
+        }
+        common_structures = sorted(recognized1 & recognized2)
+        if common_structures:
+            delta = min(12, len(common_structures) * 6)
+            text = f"双方都识别出{', '.join(common_structures)}，在格局语言上更容易互相理解"
+            analysis["score"] += delta
+            analysis["details"].append(text)
+            analysis["score_basis"].append(f"{text}(+{delta})")
+            analysis["synergy_effects"].append("格局识别存在共鸣")
 
-        if strength1 == "strong" and strength2 == "strong":
-            analysis["details"].append("两人格局都很强，需要协调配合")
-            analysis["score"] += 10
-            analysis["synergy_effects"].append("双强格局，需要平衡发展")
-        elif strength1 == "strong" or strength2 == "strong":
-            analysis["details"].append("一强一弱，可以互相扶持")
-            analysis["score"] += 15
-            analysis["synergy_effects"].append("强弱配合，相得益彰")
-        elif strength1 == "medium" and strength2 == "medium":
-            analysis["details"].append("两人格局平衡，发展稳定")
-            analysis["score"] += 12
+        if supportive_harmony_labels:
+            analysis["pattern_combination"] = "+".join(supportive_harmony_labels[:3])
+        elif analysis["tension_patterns"]:
+            analysis["pattern_combination"] = analysis["tension_patterns"][0]["label"]
+        else:
+            analysis["pattern_combination"] = "中性格局"
 
-        # 检查格局冲突
-        if patterns1.get("conflicts") or patterns2.get("conflicts"):
-            analysis["details"].append("存在格局冲突，需要化解")
-            analysis["score"] -= 10
+        if not analysis["details"]:
+            analysis["details"].append("未见明显的合盘成局或冲局事件，格局影响相对平缓")
+        if not analysis["synergy_effects"]:
+            analysis["synergy_effects"].append("格局层面以中性互动为主")
 
         # 确保分数在0-100范围内
         analysis["score"] = min(100.0, max(0.0, analysis["score"]))
@@ -1433,23 +1344,21 @@ class AdvancedCompatibility:
         """生成综合评价"""
         overall_score = result["overall_score"]
 
-        # 收集优势和挑战
         for analysis_type, analysis_data in result["detailed_analysis"].items():
-            if analysis_data.get("score", 0) > 3:
+            if analysis_data.get("score", 0) >= 68:
                 if analysis_data.get("details"):
-                    result["strengths"].extend(analysis_data["details"][:2])  # 取前两个
-            elif analysis_data.get("score", 0) < 0:
+                    result["strengths"].extend(analysis_data["details"][:2])
+            elif analysis_data.get("score", 0) <= 46:
                 if analysis_data.get("details"):
                     result["challenges"].extend(analysis_data["details"][:2])
 
-        # 生成总结
-        if overall_score >= 15:
+        if overall_score >= 82:
             result["summary"] = "非常匹配，各方面都很协调，是理想的组合"
-        elif overall_score >= 10:
+        elif overall_score >= 70:
             result["summary"] = "比较匹配，大部分方面都很好，小部分需要磨合"
-        elif overall_score >= 5:
+        elif overall_score >= 58:
             result["summary"] = "一般匹配，有优势也有挑战，需要相互理解"
-        elif overall_score >= 0:
+        elif overall_score >= 45:
             result["summary"] = "需要努力，存在一些挑战，但通过努力可以改善"
         else:
             result["summary"] = "匹配度较低，需要慎重考虑或寻求专业指导"

@@ -148,6 +148,46 @@ def test_two_person_compatibility_api_matches_fastmcp_tool_output():
     assert api_result == mcp_result
 
 
+def test_two_person_compatibility_exposes_structured_pattern_fields():
+    request = TwoPersonCompatibilityRequest(
+        person1_name="甲",
+        person1_birth_year=1990,
+        person1_birth_month=5,
+        person1_birth_day=15,
+        person1_birth_hour=10,
+        person1_gender="男",
+        person1_birth_place="上海",
+        person1_birth_minute=30,
+        person1_birth_timezone="Asia/Shanghai",
+        person1_birth_longitude=121.4737,
+        person2_name="乙",
+        person2_birth_year=1992,
+        person2_birth_month=3,
+        person2_birth_day=2,
+        person2_birth_hour=8,
+        person2_gender="女",
+        person2_birth_place="北京",
+        person2_birth_minute=18,
+        person2_birth_timezone="Asia/Shanghai",
+        person2_birth_longitude=116.4074,
+        relationship_type="marriage",
+    )
+
+    api_result = asyncio.run(calculate_two_person_compatibility(request))
+    pattern_synergy = api_result["detailed_analysis"]["pattern_synergy"]
+    favorable_synergy = api_result["detailed_analysis"]["favorable_synergy"]
+    ten_gods_relationship = api_result["detailed_analysis"]["ten_gods_relationship"]
+
+    assert "supportive_patterns" in pattern_synergy
+    assert "tension_patterns" in pattern_synergy
+    assert "risk_patterns" in pattern_synergy
+    assert "score_basis" in pattern_synergy
+    assert "score_basis" in favorable_synergy
+    assert "useful_ten_gods_support" in favorable_synergy
+    assert "useful_ten_gods_support" in ten_gods_relationship
+    assert "risk_reasons" in ten_gods_relationship
+
+
 def test_astro_chart_api_matches_fastmcp_tool_output():
     request = AstroChartRequest(
         **_build_birth_payload(name="张三", gender="男", birth_place="上海"),

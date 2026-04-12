@@ -68,21 +68,6 @@ def calculate_compatibility_analysis(
         element2 = analysis2["day_master"]["element"]
         element_relationship = get_element_relationship(element1, element2)
 
-        # 喜用神对比 - 安全处理，避免unhashable type错误
-        favorable1 = analysis1.get("favorable_elements", [])
-        favorable2 = analysis2.get("favorable_elements", [])
-
-        # 确保favorable_elements是字符串列表
-        if isinstance(favorable1, list) and all(isinstance(x, str) for x in favorable1):
-            favorable1_set = set(favorable1)
-        else:
-            favorable1_set = set()
-
-        if isinstance(favorable2, list) and all(isinstance(x, str) for x in favorable2):
-            favorable2_set = set(favorable2)
-        else:
-            favorable2_set = set()
-
         # 优化的JSON输出格式
         return {
             "summary": {
@@ -91,45 +76,23 @@ def calculate_compatibility_analysis(
                 "relationship_type": relationship_type,
             },
             "detailed_analysis": {
-                "element_balance": {
-                    "score": advanced_analysis["detailed_analysis"]["element_balance"][
-                        "score"
-                    ],
-                    "details": advanced_analysis["detailed_analysis"][
-                        "element_balance"
-                    ]["details"],
-                },
-                "favorable_synergy": {
-                    "score": advanced_analysis["detailed_analysis"][
-                        "favorable_synergy"
-                    ]["score"],
-                    "details": advanced_analysis["detailed_analysis"][
-                        "favorable_synergy"
-                    ]["details"],
-                },
-                "ten_gods_relationship": {
-                    "score": advanced_analysis["detailed_analysis"][
-                        "ten_gods_relationship"
-                    ]["score"],
-                    "details": advanced_analysis["detailed_analysis"][
-                        "ten_gods_relationship"
-                    ]["details"],
-                },
-                "pattern_synergy": {
-                    "score": advanced_analysis["detailed_analysis"]["pattern_synergy"][
-                        "score"
-                    ],
-                    "details": advanced_analysis["detailed_analysis"][
-                        "pattern_synergy"
-                    ]["details"],
-                },
+                "element_balance": advanced_analysis["detailed_analysis"][
+                    "element_balance"
+                ],
+                "favorable_synergy": advanced_analysis["detailed_analysis"][
+                    "favorable_synergy"
+                ],
+                "ten_gods_relationship": advanced_analysis["detailed_analysis"][
+                    "ten_gods_relationship"
+                ],
+                "pattern_synergy": advanced_analysis["detailed_analysis"][
+                    "pattern_synergy"
+                ],
                 "traditional_analysis": {
+                    **advanced_analysis["detailed_analysis"]["traditional_analysis"],
                     "score": advanced_analysis["detailed_analysis"][
                         "traditional_analysis"
                     ]["normalized_score"],
-                    "details": advanced_analysis["detailed_analysis"][
-                        "traditional_analysis"
-                    ]["details"],
                 },
             },
             "strengths": advanced_analysis["strengths"],

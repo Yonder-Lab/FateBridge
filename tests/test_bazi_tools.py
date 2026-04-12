@@ -81,6 +81,8 @@ def test_calculate_bazi_birth_returns_snapshot_sections():
         "minggong",
         "shengong",
     }
+    assert "structure_profile" in result["bazi_birth"]
+    assert "dominant_structure" in result["bazi_birth"]["structure_profile"]
     assert result["bazi_birth"]["timing_overview"]["liunian"]["pillar"] == "戊申"
     assert "[起盘信息]" in result["snapshot_text"]
     assert "[四柱与三元]" in result["snapshot_text"]
@@ -103,6 +105,7 @@ def test_calculate_bazi_direct_supports_selected_export_sections():
     assert result["bazi_direct"]["analysis_date"] == "2028-04-01"
     assert result["bazi_direct"]["timing_overview"]["liuyue"]["pillar"] == "乙卯"
     assert result["bazi_direct"]["timing_overview"]["liuri"]["pillar"] == "丙辰"
+    assert "structure_profile" in result["bazi_direct"]
     assert result["snapshot_export"]["selected_sections"] == [
         "起盘信息",
         "流年行运概略",

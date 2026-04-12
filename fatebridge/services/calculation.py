@@ -51,9 +51,21 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
         hidden_patterns = BaZiRules.check_hidden_patterns(pillars)
         pillar_patterns = BaZiRules.check_pillar_patterns(pillars)
         fu_yin_fan_yin = BaZiRules.check_fu_yin_fan_yin(pillars)
-        special_patterns = BaZiRules.analyze_special_patterns(
+        special_pattern_metadata = BaZiRules.analyze_special_patterns(
             pillars, corrected_birth_datetime.hour
         )
+        structure_profile = BaZiRules.build_structure_profile(
+            pillars=pillars,
+            element_analysis=element_analysis,
+            harmony_patterns=harmony_patterns,
+            clash_patterns=clash_patterns,
+            special_patterns=special_pattern_metadata,
+        )
+        special_patterns = {
+            **special_pattern_metadata,
+            "recognized_structures": structure_profile["recognized_structures"],
+            "metadata": special_pattern_metadata,
+        }
 
         return {
             "person_info": {
@@ -80,8 +92,9 @@ def calculate_destiny_analysis(person: PersonInfo) -> Dict:
             "element_distribution": element_analysis["day_master"][
                 "element_distribution"
             ],
-            "favorable_elements": element_analysis.get("favorable_elements", []),
+            "favorable_elements": structure_profile.get("useful_elements", []),
             "ten_gods": element_analysis["ten_gods"],
+            "structure_profile": structure_profile,
             "patterns": {
                 "harmony": harmony_patterns,
                 "clash": clash_patterns,

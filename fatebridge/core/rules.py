@@ -2,12 +2,57 @@
 BaZi rules and pattern analysis.
 """
 
-from typing import Dict, List, Tuple, Any
-from ..utils.data import HEAVENLY_STEMS, EARTHLY_BRANCHES
+from collections import defaultdict
+from typing import Dict, List, Tuple, Any, Optional
+from ..utils.data import (
+    HEAVENLY_STEMS,
+    EARTHLY_BRANCHES,
+    Element,
+    TenGod,
+    STEM_ELEMENTS,
+    BRANCH_ELEMENTS,
+    BRANCH_HIDDEN_STEMS,
+    GENERATION_CYCLE,
+    DESTRUCTION_CYCLE,
+    get_ten_god,
+)
 
 
 class BaZiRules:
     """Analyzes special patterns and rules in BaZi charts."""
+
+    TRIPLE_HARMONY_ELEMENTS = {
+        ("申", "子", "辰"): Element.WATER,
+        ("亥", "卯", "未"): Element.WOOD,
+        ("寅", "午", "戌"): Element.FIRE,
+        ("巳", "酉", "丑"): Element.METAL,
+    }
+
+    SIX_HARMONY_ELEMENTS = {
+        frozenset(("子", "丑")): Element.EARTH,
+        frozenset(("寅", "亥")): Element.WOOD,
+        frozenset(("卯", "戌")): Element.FIRE,
+        frozenset(("辰", "酉")): Element.METAL,
+        frozenset(("巳", "申")): Element.WATER,
+        frozenset(("午", "未")): Element.EARTH,
+    }
+
+    YANG_BLADE_BRANCHES = {
+        "甲": "卯",
+        "丙": "午",
+        "戊": "午",
+        "庚": "酉",
+        "壬": "子",
+    }
+
+    STRUCTURE_PRIORITIES = {
+        "yang_ren_jia_sha": 100,
+        "shi_shen_zhi_sha": 92,
+        "sha_yin_xiang_sheng": 86,
+        "shang_guan_pei_yin": 78,
+        "shang_guan_jian_guan": 68,
+        "default_support": 10,
+    }
 
     # 地支三合 (Triple Harmony)
     TRIPLE_HARMONY = [
@@ -594,6 +639,874 @@ class BaZiRules:
         return patterns
 
     @staticmethod
+    def _ordered_unique(items: List[str]) -> List[str]:
+        seen = set()
+        result: List[str] = []
+        for item in items:
+            if item and item not in seen:
+                seen.add(item)
+                result.append(item)
+        return result
+
+    @staticmethod
+    def _get_element_enum_by_value(element_value: str) -> Optional[Element]:
+        for element_enum in Element:
+            if element_enum.value == element_value:
+                return element_enum
+        return None
+
+    @staticmethod
+    def _get_generating_element(target: Element) -> Optional[Element]:
+        for element_enum, generated in GENERATION_CYCLE.items():
+            if generated == target:
+                return element_enum
+        return None
+
+    @staticmethod
+    def _get_destroying_element(target: Element) -> Optional[Element]:
+        for element_enum, destroyed in DESTRUCTION_CYCLE.items():
+            if destroyed == target:
+                return element_enum
+        return None
+
+    @staticmethod
+    def _element_for_ten_god(day_stem: str, ten_god: str) -> Optional[str]:
+        day_element = STEM_ELEMENTS[day_stem][0]
+        if ten_god in {TenGod.COMPARE.value, TenGod.ROB_WEALTH.value}:
+            return day_element.value
+        if ten_god in {TenGod.FOOD_GOD.value, TenGod.HURT_OFFICER.value}:
+            return GENERATION_CYCLE[day_element].value
+        if ten_god in {TenGod.POSITIVE_WEALTH.value, TenGod.PARTIAL_WEALTH.value}:
+            return DESTRUCTION_CYCLE[day_element].value
+        if ten_god in {TenGod.POSITIVE_OFFICER.value, TenGod.SEVEN_KILLER.value}:
+            destroying = BaZiRules._get_destroying_element(day_element)
+            return destroying.value if destroying else None
+        if ten_god in {TenGod.POSITIVE_SEAL.value, TenGod.PARTIAL_SEAL.value}:
+            generating = BaZiRules._get_generating_element(day_element)
+            return generating.value if generating else None
+        return None
+
+    @staticmethod
+    def _derive_ten_gods_from_elements(day_stem: str, elements: List[str]) -> List[str]:
+        ten_gods: List[str] = []
+        day_element = STEM_ELEMENTS[day_stem][0]
+        for element_value in elements:
+            element_enum = BaZiRules._get_element_enum_by_value(element_value)
+            if element_enum is None:
+                continue
+
+            if element_enum == day_element:
+                ten_gods.extend([TenGod.COMPARE.value, TenGod.ROB_WEALTH.value])
+            elif GENERATION_CYCLE[day_element] == element_enum:
+                ten_gods.extend([TenGod.FOOD_GOD.value, TenGod.HURT_OFFICER.value])
+            elif DESTRUCTION_CYCLE[day_element] == element_enum:
+                ten_gods.extend([TenGod.PARTIAL_WEALTH.value, TenGod.POSITIVE_WEALTH.value])
+            elif DESTRUCTION_CYCLE[element_enum] == day_element:
+                ten_gods.extend([TenGod.SEVEN_KILLER.value, TenGod.POSITIVE_OFFICER.value])
+            elif GENERATION_CYCLE[element_enum] == day_element:
+                ten_gods.extend([TenGod.PARTIAL_SEAL.value, TenGod.POSITIVE_SEAL.value])
+
+        return BaZiRules._ordered_unique(ten_gods)
+
+    @staticmethod
+    def _collect_chart_stems(
+        pillars: Dict[str, Tuple[str, str]],
+    ) -> List[Dict[str, Any]]:
+        hidden_weights = [0.5, 0.3, 0.2]
+        entries: List[Dict[str, Any]] = []
+        for pillar_name, (stem, branch) in pillars.items():
+            entries.append(
+                {
+                    "stem": stem,
+                    "pillar": pillar_name,
+                    "source_type": "stem",
+                    "weight": 1.0,
+                }
+            )
+            for index, hidden_stem in enumerate(BRANCH_HIDDEN_STEMS.get(branch, [])):
+                entries.append(
+                    {
+                        "stem": hidden_stem,
+                        "pillar": pillar_name,
+                        "source_type": "hidden_stem",
+                        "weight": hidden_weights[index]
+                        if index < len(hidden_weights)
+                        else 0.2,
+                    }
+                )
+        return entries
+
+    @staticmethod
+    def _count_ten_gods_for_chart(
+        pillars: Dict[str, Tuple[str, str]],
+        day_stem: str,
+    ) -> Dict[str, float]:
+        counts: Dict[str, float] = defaultdict(float)
+        for entry in BaZiRules._collect_chart_stems(pillars):
+            if (
+                entry["pillar"] == "day"
+                and entry["source_type"] == "stem"
+                and entry["stem"] == day_stem
+            ):
+                continue
+            ten_god = get_ten_god(day_stem, entry["stem"]).value
+            counts[ten_god] += entry["weight"]
+        return dict(counts)
+
+    @staticmethod
+    def _build_structure_candidates(
+        pillars: Dict[str, Tuple[str, str]],
+        day_stem: str,
+    ) -> List[Dict[str, Any]]:
+        branches = [branch for _, branch in pillars.values()]
+        ten_god_counts = BaZiRules._count_ten_gods_for_chart(pillars, day_stem)
+
+        killer_element = BaZiRules._element_for_ten_god(day_stem, TenGod.SEVEN_KILLER.value)
+        seal_element = BaZiRules._element_for_ten_god(day_stem, TenGod.POSITIVE_SEAL.value)
+        food_element = BaZiRules._element_for_ten_god(day_stem, TenGod.FOOD_GOD.value)
+        hurt_element = BaZiRules._element_for_ten_god(day_stem, TenGod.HURT_OFFICER.value)
+
+        candidates: List[Dict[str, Any]] = []
+
+        blade_branch = BaZiRules.YANG_BLADE_BRANCHES.get(day_stem)
+        if blade_branch and blade_branch in branches and ten_god_counts.get(TenGod.SEVEN_KILLER.value, 0) > 0:
+            candidates.append(
+                {
+                    "key": "yang_ren_jia_sha",
+                    "label": "羊刃驾杀",
+                    "priority": BaZiRules.STRUCTURE_PRIORITIES["yang_ren_jia_sha"],
+                    "reason": f"{day_stem}日主临羊刃{blade_branch}，命局同时见七杀，格局判断优先看驭杀之力。",
+                    "useful_elements": BaZiRules._ordered_unique(
+                        [killer_element, seal_element]
+                    ),
+                    "avoid_elements": BaZiRules._ordered_unique(
+                        [food_element] if food_element else []
+                    ),
+                    "useful_ten_gods": [
+                        TenGod.SEVEN_KILLER.value,
+                        TenGod.POSITIVE_OFFICER.value,
+                        TenGod.POSITIVE_SEAL.value,
+                        TenGod.PARTIAL_SEAL.value,
+                    ],
+                }
+            )
+
+        if (
+            ten_god_counts.get(TenGod.SEVEN_KILLER.value, 0) > 0
+            and (
+                ten_god_counts.get(TenGod.POSITIVE_SEAL.value, 0) > 0
+                or ten_god_counts.get(TenGod.PARTIAL_SEAL.value, 0) > 0
+            )
+        ):
+            candidates.append(
+                {
+                    "key": "sha_yin_xiang_sheng",
+                    "label": "杀印相生",
+                    "priority": BaZiRules.STRUCTURE_PRIORITIES["sha_yin_xiang_sheng"],
+                    "reason": "命局杀星与印星并见，格局更看杀印流通，而非单纯以官杀为压制。",
+                    "useful_elements": BaZiRules._ordered_unique(
+                        [killer_element, seal_element]
+                    ),
+                    "avoid_elements": [],
+                    "useful_ten_gods": [
+                        TenGod.SEVEN_KILLER.value,
+                        TenGod.POSITIVE_OFFICER.value,
+                        TenGod.POSITIVE_SEAL.value,
+                        TenGod.PARTIAL_SEAL.value,
+                    ],
+                }
+            )
+
+        if (
+            ten_god_counts.get(TenGod.SEVEN_KILLER.value, 0) > 0
+            and ten_god_counts.get(TenGod.FOOD_GOD.value, 0) > 0
+        ):
+            candidates.append(
+                {
+                    "key": "shi_shen_zhi_sha",
+                    "label": "食神制杀",
+                    "priority": BaZiRules.STRUCTURE_PRIORITIES["shi_shen_zhi_sha"],
+                    "reason": "命局食神与七杀同见，取食神制杀之路，比单纯官杀压制更关键。",
+                    "useful_elements": BaZiRules._ordered_unique(
+                        [food_element, killer_element]
+                    ),
+                    "avoid_elements": [],
+                    "useful_ten_gods": [
+                        TenGod.FOOD_GOD.value,
+                        TenGod.SEVEN_KILLER.value,
+                    ],
+                }
+            )
+
+        if (
+            ten_god_counts.get(TenGod.HURT_OFFICER.value, 0) > 0
+            and (
+                ten_god_counts.get(TenGod.POSITIVE_SEAL.value, 0) > 0
+                or ten_god_counts.get(TenGod.PARTIAL_SEAL.value, 0) > 0
+            )
+        ):
+            candidates.append(
+                {
+                    "key": "shang_guan_pei_yin",
+                    "label": "伤官配印",
+                    "priority": BaZiRules.STRUCTURE_PRIORITIES["shang_guan_pei_yin"],
+                    "reason": "命局伤官配印，宜看印星承接才气，而不宜只把伤官视为纯负项。",
+                    "useful_elements": BaZiRules._ordered_unique(
+                        [hurt_element, seal_element]
+                    ),
+                    "avoid_elements": [],
+                    "useful_ten_gods": [
+                        TenGod.HURT_OFFICER.value,
+                        TenGod.POSITIVE_SEAL.value,
+                        TenGod.PARTIAL_SEAL.value,
+                    ],
+                }
+            )
+
+        if (
+            ten_god_counts.get(TenGod.HURT_OFFICER.value, 0) > 0
+            and ten_god_counts.get(TenGod.POSITIVE_OFFICER.value, 0) > 0
+        ):
+            candidates.append(
+                {
+                    "key": "shang_guan_jian_guan",
+                    "label": "伤官见官",
+                    "priority": BaZiRules.STRUCTURE_PRIORITIES["shang_guan_jian_guan"],
+                    "reason": "命局伤官与正官并见，先看张力与化解条件，不能只做简单吉凶判定。",
+                    "useful_elements": BaZiRules._ordered_unique(
+                        [seal_element] if seal_element else []
+                    ),
+                    "avoid_elements": BaZiRules._ordered_unique(
+                        [killer_element, hurt_element]
+                    ),
+                    "useful_ten_gods": [
+                        TenGod.POSITIVE_SEAL.value,
+                        TenGod.PARTIAL_SEAL.value,
+                    ],
+                }
+            )
+
+        candidates.sort(key=lambda item: item["priority"], reverse=True)
+        return candidates
+
+    @staticmethod
+    def _describe_day_master_impact(
+        day_element_value: str,
+        result_element_value: Optional[str],
+    ) -> str:
+        if not result_element_value:
+            return "主要体现为气机扰动，需要结合被触动的五行再看。"
+
+        day_element = BaZiRules._get_element_enum_by_value(day_element_value)
+        result_element = BaZiRules._get_element_enum_by_value(result_element_value)
+        if day_element is None or result_element is None:
+            return "对日主影响需要结合五行关系进一步判断。"
+
+        if day_element == result_element:
+            return f"{result_element_value}与日主同气，助身增势。"
+        if GENERATION_CYCLE[result_element] == day_element:
+            return f"{result_element_value}生日主，对日主有补益作用。"
+        if GENERATION_CYCLE[day_element] == result_element:
+            return f"日主之气流向{result_element_value}，更偏向泄秀或输出。"
+        if DESTRUCTION_CYCLE[result_element] == day_element:
+            return f"{result_element_value}克日主，带来约束与压力。"
+        if DESTRUCTION_CYCLE[day_element] == result_element:
+            return f"日主可制{result_element_value}，更利于驾驭资源或对象。"
+        return "与日主关系中性，需要结合全局判断。"
+
+    @staticmethod
+    def _describe_structure_impact(
+        result_element_value: Optional[str],
+        structure_profile: Dict[str, Any],
+        affected_elements: Optional[List[str]] = None,
+    ) -> str:
+        dominant = structure_profile.get("dominant_structure", {}) or {}
+        structure_label = dominant.get("label", "当前格局")
+        useful_elements = set(structure_profile.get("useful_elements", []))
+        avoid_elements = set(structure_profile.get("avoid_elements", []))
+
+        if result_element_value:
+            if result_element_value in useful_elements:
+                return f"{result_element_value}属于{structure_label}可用之气，对格局流通有支持。"
+            if result_element_value in avoid_elements:
+                return f"{result_element_value}属于{structure_label}需回避之气，对格局流通有干扰。"
+            return f"{result_element_value}对{structure_label}影响中性，需结合全局衡量。"
+
+        affected = set(affected_elements or [])
+        if useful_elements & affected:
+            return f"事件触动了{structure_label}的可用五行，格局稳定性需要重点观察。"
+        if avoid_elements & affected:
+            return f"事件触动了{structure_label}的忌避五行，既可能化解也可能放大张力。"
+        return f"事件对{structure_label}形成扰动，偏向张力型影响。"
+
+    @staticmethod
+    def build_structure_profile(
+        pillars: Dict[str, Tuple[str, str]],
+        element_analysis: Dict[str, Any],
+        harmony_patterns: Optional[Dict[str, Any]] = None,
+        clash_patterns: Optional[Dict[str, Any]] = None,
+        special_patterns: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        day_stem = pillars["day"][0]
+        day_strength = element_analysis["day_master"]["strength_level"]
+        baseline_useful = list(element_analysis.get("favorable_elements", []))
+        baseline_useful_ten_gods = BaZiRules._derive_ten_gods_from_elements(
+            day_stem, baseline_useful
+        )
+        recognized_structures = BaZiRules._build_structure_candidates(pillars, day_stem)
+
+        if recognized_structures:
+            dominant_structure = recognized_structures[0]
+            secondary_structures = recognized_structures[1:]
+            useful_elements = BaZiRules._ordered_unique(
+                dominant_structure.get("useful_elements", []) + baseline_useful
+            )
+            useful_ten_gods = BaZiRules._ordered_unique(
+                dominant_structure.get("useful_ten_gods", []) + baseline_useful_ten_gods
+            )
+            avoid_elements = BaZiRules._ordered_unique(
+                dominant_structure.get("avoid_elements", [])
+                + [element.value for element in Element if element.value not in useful_elements]
+            )
+            decision_basis = [
+                f"识别到高影响格局：{dominant_structure['label']}。",
+                dominant_structure["reason"],
+                f"基础扶抑判断显示日主为{day_strength}，但本次以格局优先修正喜用。",
+            ]
+        else:
+            dominant_structure = {
+                "key": "default_support",
+                "label": "扶抑调候",
+                "priority": BaZiRules.STRUCTURE_PRIORITIES["default_support"],
+                "reason": "未识别高影响白名单格局，按日主强弱与五行扶抑作为主判断。",
+                "useful_elements": baseline_useful,
+                "avoid_elements": [],
+                "useful_ten_gods": baseline_useful_ten_gods,
+            }
+            secondary_structures = []
+            useful_elements = baseline_useful
+            useful_ten_gods = baseline_useful_ten_gods
+            avoid_elements = [
+                element.value for element in Element if element.value not in useful_elements
+            ]
+            decision_basis = [
+                f"未识别高影响白名单格局，当前按日主{day_strength}做扶抑调候。",
+            ]
+
+        structure_profile = {
+            "dominant_structure": dominant_structure,
+            "secondary_structures": secondary_structures,
+            "recognized_structures": recognized_structures,
+            "useful_elements": useful_elements,
+            "avoid_elements": avoid_elements,
+            "useful_ten_gods": useful_ten_gods,
+            "decision_basis": decision_basis,
+            "harmony_effects": [],
+            "metadata": {
+                "baseline_useful_elements": baseline_useful,
+                "baseline_useful_ten_gods": baseline_useful_ten_gods,
+                "day_master_strength": day_strength,
+                "harmony_patterns": harmony_patterns or {},
+                "clash_patterns": clash_patterns or {},
+                "special_patterns": special_patterns or {},
+            },
+        }
+
+        structure_profile["harmony_effects"] = BaZiRules.analyze_harmony_effects(
+            pillars, structure_profile
+        )
+
+        for event in structure_profile["harmony_effects"]:
+            if event.get("classification") == "supportive":
+                decision_basis.append(f"{event['label']}：{event['impact_on_structure']}")
+            elif event.get("classification") == "risk":
+                decision_basis.append(f"{event['label']}：{event['impact_on_structure']}")
+
+        structure_profile["decision_basis"] = BaZiRules._ordered_unique(decision_basis)
+        return structure_profile
+
+    @staticmethod
+    def analyze_harmony_effects(
+        pillars: Dict[str, Tuple[str, str]],
+        structure_profile: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        harmony_patterns = BaZiRules.check_harmony_patterns(pillars)
+        clash_patterns = BaZiRules.check_clash_patterns(pillars)
+
+        day_stem = pillars["day"][0]
+        day_element = STEM_ELEMENTS[day_stem][0].value
+        useful_elements = set(structure_profile.get("useful_elements", []))
+        avoid_elements = set(structure_profile.get("avoid_elements", []))
+        events: List[Dict[str, Any]] = []
+
+        for item in harmony_patterns.get("three_harmony", []):
+            branches = item["branches"]
+            result_element = next(
+                (
+                    element.value
+                    for combo, element in BaZiRules.TRIPLE_HARMONY_ELEMENTS.items()
+                    if all(branch in combo for branch in branches)
+                ),
+                None,
+            )
+            source_elements = BaZiRules._ordered_unique(
+                [BRANCH_ELEMENTS[branch][0].value for branch in branches]
+            )
+            classification = (
+                "supportive"
+                if result_element in useful_elements
+                else "risk"
+                if result_element in avoid_elements
+                else "neutral"
+            )
+            events.append(
+                {
+                    "type": "three_harmony",
+                    "label": f"{''.join(branches)}三合{result_element}局",
+                    "branches": branches,
+                    "result_element": result_element,
+                    "strengthens": [result_element] if result_element else [],
+                    "consumes": [element for element in source_elements if element != result_element],
+                    "impact_on_day_master": BaZiRules._describe_day_master_impact(
+                        day_element, result_element
+                    ),
+                    "impact_on_structure": BaZiRules._describe_structure_impact(
+                        result_element, structure_profile
+                    ),
+                    "classification": classification,
+                }
+            )
+
+        for item in harmony_patterns.get("half_harmony", []):
+            branches = item["branches"]
+            result_element = next(
+                (
+                    element.value
+                    for combo, element in BaZiRules.TRIPLE_HARMONY_ELEMENTS.items()
+                    if all(branch in combo for branch in branches)
+                ),
+                None,
+            )
+            source_elements = BaZiRules._ordered_unique(
+                [BRANCH_ELEMENTS[branch][0].value for branch in branches]
+            )
+            classification = (
+                "supportive"
+                if result_element in useful_elements
+                else "risk"
+                if result_element in avoid_elements
+                else "neutral"
+            )
+            events.append(
+                {
+                    "type": "half_harmony",
+                    "label": f"{''.join(branches)}半合{result_element}局",
+                    "branches": branches,
+                    "result_element": result_element,
+                    "strengthens": [result_element] if result_element else [],
+                    "consumes": [element for element in source_elements if element != result_element],
+                    "impact_on_day_master": BaZiRules._describe_day_master_impact(
+                        day_element, result_element
+                    ),
+                    "impact_on_structure": BaZiRules._describe_structure_impact(
+                        result_element, structure_profile
+                    ),
+                    "classification": classification,
+                }
+            )
+
+        for pair in harmony_patterns.get("six_harmony", []):
+            result_element_enum = BaZiRules.SIX_HARMONY_ELEMENTS.get(frozenset(pair))
+            result_element = result_element_enum.value if result_element_enum else None
+            source_elements = BaZiRules._ordered_unique(
+                [BRANCH_ELEMENTS[branch][0].value for branch in pair]
+            )
+            classification = (
+                "supportive"
+                if result_element in useful_elements
+                else "risk"
+                if result_element in avoid_elements
+                else "neutral"
+            )
+            events.append(
+                {
+                    "type": "six_harmony",
+                    "label": f"{''.join(pair)}六合",
+                    "branches": pair,
+                    "result_element": result_element,
+                    "strengthens": [result_element] if result_element else [],
+                    "consumes": [element for element in source_elements if element != result_element],
+                    "impact_on_day_master": BaZiRules._describe_day_master_impact(
+                        day_element, result_element
+                    ),
+                    "impact_on_structure": BaZiRules._describe_structure_impact(
+                        result_element, structure_profile
+                    ),
+                    "classification": classification,
+                }
+            )
+
+        conflict_groups = [
+            ("six_clash", "六冲"),
+            ("six_harm", "六害"),
+        ]
+        for group_key, group_label in conflict_groups:
+            for pair in clash_patterns.get(group_key, []):
+                affected_elements = BaZiRules._ordered_unique(
+                    [BRANCH_ELEMENTS[branch][0].value for branch in pair]
+                )
+                classification = (
+                    "risk"
+                    if useful_elements & set(affected_elements)
+                    else "tension"
+                )
+                events.append(
+                    {
+                        "type": group_key,
+                        "label": f"{''.join(pair)}{group_label}",
+                        "branches": pair,
+                        "result_element": None,
+                        "strengthens": [],
+                        "consumes": affected_elements,
+                        "impact_on_day_master": BaZiRules._describe_day_master_impact(
+                            day_element, None
+                        ),
+                        "impact_on_structure": BaZiRules._describe_structure_impact(
+                            None, structure_profile, affected_elements
+                        ),
+                        "classification": classification,
+                    }
+                )
+
+        for punishment in clash_patterns.get("punishments", []):
+            affected_elements = BaZiRules._ordered_unique(
+                [
+                    BRANCH_ELEMENTS[branch][0].value
+                    for branch in punishment.get("branches", [])
+                ]
+            )
+            classification = (
+                "risk" if useful_elements & set(affected_elements) else "tension"
+            )
+            events.append(
+                {
+                    "type": punishment["type"],
+                    "label": punishment["name"],
+                    "branches": punishment.get("branches", []),
+                    "result_element": None,
+                    "strengthens": [],
+                    "consumes": affected_elements,
+                    "impact_on_day_master": BaZiRules._describe_day_master_impact(
+                        day_element, None
+                    ),
+                    "impact_on_structure": BaZiRules._describe_structure_impact(
+                        None, structure_profile, affected_elements
+                    ),
+                    "classification": classification,
+                }
+            )
+
+        return events
+
+    @staticmethod
+    def _classify_combined_event(
+        *,
+        event_type: str,
+        result_element: Optional[str],
+        affected_elements: List[str],
+        structure_profile1: Optional[Dict[str, Any]],
+        structure_profile2: Optional[Dict[str, Any]],
+    ) -> Tuple[str, str]:
+        profiles = [structure_profile1 or {}, structure_profile2 or {}]
+        useful_hits = 0
+        avoid_hits = 0
+
+        for profile in profiles:
+            useful_elements = set(profile.get("useful_elements", []))
+            avoid_elements = set(profile.get("avoid_elements", []))
+
+            if result_element:
+                if result_element in useful_elements:
+                    useful_hits += 1
+                if result_element in avoid_elements:
+                    avoid_hits += 1
+            else:
+                if useful_elements & set(affected_elements):
+                    avoid_hits += 1
+                elif avoid_elements & set(affected_elements):
+                    useful_hits += 1
+
+        if event_type in {"three_harmony", "half_harmony", "six_harmony"}:
+            if avoid_hits >= 2:
+                return "risk", "对双方格局都形成明显干扰。"
+            if useful_hits >= 2:
+                return "supportive", "对双方格局都形成支持。"
+            if useful_hits or avoid_hits:
+                return "tension", "一方受益而另一方承压，属于拉扯型事件。"
+            return "supportive", "整体偏和合，可作为合盘支持因素。"
+
+        if avoid_hits >= 2:
+            return "risk", "冲击双方可用之气，风险较高。"
+        return "tension", "事件带来明显张力，需要结合格局取用判断。"
+
+    @staticmethod
+    def analyze_combined_chart_events(
+        pillars1: Dict[str, Tuple[str, str]],
+        pillars2: Dict[str, Tuple[str, str]],
+        structure_profile1: Optional[Dict[str, Any]] = None,
+        structure_profile2: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        combined_entries: List[Dict[str, Any]] = []
+        for person_label, pillars in (("person1", pillars1), ("person2", pillars2)):
+            for pillar_name, (stem, branch) in pillars.items():
+                combined_entries.append(
+                    {
+                        "person": person_label,
+                        "pillar": pillar_name,
+                        "stem": stem,
+                        "branch": branch,
+                    }
+                )
+
+        branch_sources: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+        for entry in combined_entries:
+            branch_sources[entry["branch"]].append(
+                {
+                    "person": entry["person"],
+                    "pillar": entry["pillar"],
+                    "stem": entry["stem"],
+                }
+            )
+
+        events: List[Dict[str, Any]] = []
+        supportive_patterns: List[Dict[str, Any]] = []
+        tension_patterns: List[Dict[str, Any]] = []
+        risk_patterns: List[Dict[str, Any]] = []
+
+        def _append_event(event: Dict[str, Any]) -> None:
+            events.append(event)
+            summary = {
+                "label": event["label"],
+                "type": event["type"],
+                "description": event["description"],
+                "result_element": event.get("result_element"),
+                "source_scope": event.get("source_scope"),
+                "source_map": event.get("source_map", {}),
+            }
+            if event["classification"] == "supportive":
+                supportive_patterns.append(summary)
+            elif event["classification"] == "risk":
+                risk_patterns.append(summary)
+            else:
+                tension_patterns.append(summary)
+
+        for combo, element in BaZiRules.TRIPLE_HARMONY_ELEMENTS.items():
+            present_branches = [branch for branch in combo if branch_sources.get(branch)]
+            if len(present_branches) == 3:
+                source_scope = (
+                    "cross_person"
+                    if len({source["person"] for branch in combo for source in branch_sources[branch]}) > 1
+                    else branch_sources[combo[0]][0]["person"]
+                )
+                classification, description = BaZiRules._classify_combined_event(
+                    event_type="three_harmony",
+                    result_element=element.value,
+                    affected_elements=[
+                        BRANCH_ELEMENTS[branch][0].value for branch in combo
+                    ],
+                    structure_profile1=structure_profile1,
+                    structure_profile2=structure_profile2,
+                )
+                _append_event(
+                    {
+                        "type": "three_harmony",
+                        "label": f"{''.join(combo)}三合{element.value}局",
+                        "branches": list(combo),
+                        "result_element": element.value,
+                        "source_map": {branch: branch_sources[branch] for branch in combo},
+                        "source_scope": source_scope,
+                        "classification": classification,
+                        "description": description,
+                    }
+                )
+            elif len(present_branches) == 2:
+                classification, description = BaZiRules._classify_combined_event(
+                    event_type="half_harmony",
+                    result_element=element.value,
+                    affected_elements=[
+                        BRANCH_ELEMENTS[branch][0].value for branch in present_branches
+                    ],
+                    structure_profile1=structure_profile1,
+                    structure_profile2=structure_profile2,
+                )
+                _append_event(
+                    {
+                        "type": "half_harmony",
+                        "label": f"{''.join(present_branches)}半合{element.value}局",
+                        "branches": present_branches,
+                        "result_element": element.value,
+                        "source_map": {
+                            branch: branch_sources[branch] for branch in present_branches
+                        },
+                        "source_scope": "cross_person"
+                        if len({source["person"] for branch in present_branches for source in branch_sources[branch]}) > 1
+                        else branch_sources[present_branches[0]][0]["person"],
+                        "classification": classification,
+                        "description": description,
+                    }
+                )
+
+        for pair in BaZiRules.SIX_HARMONY:
+            if branch_sources.get(pair[0]) and branch_sources.get(pair[1]):
+                result_element = BaZiRules.SIX_HARMONY_ELEMENTS[frozenset(pair)].value
+                classification, description = BaZiRules._classify_combined_event(
+                    event_type="six_harmony",
+                    result_element=result_element,
+                    affected_elements=[
+                        BRANCH_ELEMENTS[pair[0]][0].value,
+                        BRANCH_ELEMENTS[pair[1]][0].value,
+                    ],
+                    structure_profile1=structure_profile1,
+                    structure_profile2=structure_profile2,
+                )
+                _append_event(
+                    {
+                        "type": "six_harmony",
+                        "label": f"{pair[0]}{pair[1]}六合",
+                        "branches": list(pair),
+                        "result_element": result_element,
+                        "source_map": {
+                            pair[0]: branch_sources[pair[0]],
+                            pair[1]: branch_sources[pair[1]],
+                        },
+                        "source_scope": "cross_person"
+                        if len({source["person"] for branch in pair for source in branch_sources[branch]}) > 1
+                        else branch_sources[pair[0]][0]["person"],
+                        "classification": classification,
+                        "description": description,
+                    }
+                )
+
+        conflict_pairs = [
+            ("six_clash", BaZiRules.SIX_CLASH, "六冲"),
+            ("six_harm", BaZiRules.SIX_HARM, "六害"),
+        ]
+        for event_type, pair_list, label_suffix in conflict_pairs:
+            for pair in pair_list:
+                if branch_sources.get(pair[0]) and branch_sources.get(pair[1]):
+                    affected_elements = [
+                        BRANCH_ELEMENTS[pair[0]][0].value,
+                        BRANCH_ELEMENTS[pair[1]][0].value,
+                    ]
+                    classification, description = BaZiRules._classify_combined_event(
+                        event_type=event_type,
+                        result_element=None,
+                        affected_elements=affected_elements,
+                        structure_profile1=structure_profile1,
+                        structure_profile2=structure_profile2,
+                    )
+                    _append_event(
+                        {
+                            "type": event_type,
+                            "label": f"{pair[0]}{pair[1]}{label_suffix}",
+                            "branches": list(pair),
+                            "result_element": None,
+                            "source_map": {
+                                pair[0]: branch_sources[pair[0]],
+                                pair[1]: branch_sources[pair[1]],
+                            },
+                            "source_scope": "cross_person"
+                            if len({source["person"] for branch in pair for source in branch_sources[branch]}) > 1
+                            else branch_sources[pair[0]][0]["person"],
+                            "classification": classification,
+                            "description": description,
+                        }
+                    )
+
+        combined_branches = [entry["branch"] for entry in combined_entries]
+        for punishment_set in BaZiRules.TRIPLE_PUNISHMENT:
+            if len(punishment_set) == 3 and all(branch in combined_branches for branch in punishment_set):
+                affected_elements = [
+                    BRANCH_ELEMENTS[branch][0].value for branch in punishment_set
+                ]
+                classification, description = BaZiRules._classify_combined_event(
+                    event_type="three_punishment",
+                    result_element=None,
+                    affected_elements=affected_elements,
+                    structure_profile1=structure_profile1,
+                    structure_profile2=structure_profile2,
+                )
+                _append_event(
+                    {
+                        "type": "three_punishment",
+                        "label": f"{''.join(punishment_set)}三刑",
+                        "branches": list(punishment_set),
+                        "result_element": None,
+                        "source_map": {
+                            branch: branch_sources[branch] for branch in punishment_set
+                        },
+                        "source_scope": "cross_person"
+                        if len(
+                            {
+                                source["person"]
+                                for branch in punishment_set
+                                for source in branch_sources[branch]
+                            }
+                        )
+                        > 1
+                        else branch_sources[punishment_set[0]][0]["person"],
+                        "classification": classification,
+                        "description": description,
+                    }
+                )
+
+        day_stem1, day_branch1 = pillars1["day"]
+        day_stem2, day_branch2 = pillars2["day"]
+        day_element1 = STEM_ELEMENTS[day_stem1][0].value
+        day_element2 = STEM_ELEMENTS[day_stem2][0].value
+        day_element_enum1 = STEM_ELEMENTS[day_stem1][0]
+        day_element_enum2 = STEM_ELEMENTS[day_stem2][0]
+        stem_control = (
+            DESTRUCTION_CYCLE[day_element_enum1] == day_element_enum2
+            or DESTRUCTION_CYCLE[day_element_enum2] == day_element_enum1
+        )
+        branch_clash = any(
+            (day_branch1 == left and day_branch2 == right)
+            or (day_branch1 == right and day_branch2 == left)
+            for left, right in BaZiRules.SIX_CLASH
+        )
+        if stem_control and branch_clash:
+            avoid1 = set((structure_profile1 or {}).get("avoid_elements", []))
+            avoid2 = set((structure_profile2 or {}).get("avoid_elements", []))
+            classification = (
+                "risk"
+                if day_element2 in avoid1 and day_element1 in avoid2
+                else "tension"
+            )
+            _append_event(
+                {
+                    "type": "tian_ke_di_chong",
+                    "label": "天克地冲",
+                    "branches": [day_branch1, day_branch2],
+                    "result_element": None,
+                    "source_map": {
+                        day_branch1: [{"person": "person1", "pillar": "day", "stem": day_stem1}],
+                        day_branch2: [{"person": "person2", "pillar": "day", "stem": day_stem2}],
+                    },
+                    "source_scope": "cross_person",
+                    "classification": classification,
+                    "description": "日干存在相克、日支同时六冲，属于高吸引与高摩擦并存的张力型关系。",
+                }
+            )
+
+        return {
+            "events": events,
+            "supportive_patterns": supportive_patterns,
+            "tension_patterns": tension_patterns,
+            "risk_patterns": risk_patterns,
+        }
+
+    @staticmethod
     def calculate_compatibility_score(
         pillars1: Dict[str, Tuple[str, str]], pillars2: Dict[str, Tuple[str, str]]
     ) -> Dict[str, Any]:
@@ -676,7 +1589,6 @@ class BaZiRules:
         }
 
         day_stem = pillars["day"][0]
-        day_branch = pillars["day"][1]
         strength_level = element_analysis["day_master"]["strength_level"]
 
         # Basic personality analysis based on day stem

@@ -285,8 +285,14 @@ curl -X POST http://localhost:8010/api/calculate \
 - `person_info.time_adjustment`
 - `four_pillars`
 - `day_master`
+- `structure_profile`
 - `patterns`
 - `calendar_context`
+
+说明：
+
+- `structure_profile` 会给出 `dominant_structure`、`secondary_structures`、`useful_elements`、`avoid_elements`、`useful_ten_gods` 和 `harmony_effects`
+- `patterns.special` 现在同时包含 `recognized_structures` 与 `metadata`，便于区分“已识别格局”与“辅助元数据”
 
 ### 5.2 核心占星盘
 
@@ -454,9 +460,24 @@ python fastmcp_server.py
 - `day_master`
 - `element_distribution`
 - `favorable_elements`
+- `structure_profile`
 - `ten_gods`
 - `patterns`
 - `calendar_context`
+
+兼容性分析相关字段补充：
+
+- `detailed_analysis.favorable_synergy.score_basis`
+- `detailed_analysis.favorable_synergy.useful_ten_gods_support`
+- `detailed_analysis.ten_gods_relationship.supportive_patterns`
+- `detailed_analysis.ten_gods_relationship.risk_reasons`
+- `detailed_analysis.pattern_synergy.supportive_patterns`
+- `detailed_analysis.pattern_synergy.tension_patterns`
+- `detailed_analysis.pattern_synergy.risk_patterns`
+
+备注：
+
+- `pattern_synergy.tension_patterns` 中的 `天克地冲` 默认视为高吸引/高摩擦并存的张力型组合，不再直接等同于纯负面结论
 
 ### 7.2 占星类
 
