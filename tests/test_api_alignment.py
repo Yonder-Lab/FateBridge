@@ -1,7 +1,11 @@
 import asyncio
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
+
+import pytest
+from fastapi import HTTPException
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -11,7 +15,13 @@ from api import (
     AstroRelativePartyRequest,
     AstroRelativeRequest,
     DayunAnalysisRequest,
+    ExportRegistryRequest,
+    JinkouAnalysisRequest,
+    KnowledgeReadRequest,
+    KnowledgeRegistryRequest,
     LiunianAnalysisRequest,
+    QimenAnalysisRequest,
+    TaiyiAnalysisRequest,
     TimingAnalysisRequest,
     TwoPersonCompatibilityRequest,
     WesternTimingModuleRequest,
@@ -19,20 +29,37 @@ from api import (
     calculate_astro_chart,
     calculate_dayun,
     calculate_liunian,
+    calculate_pdchart_module,
     calculate_relative_chart,
     calculate_solarreturn_module,
     calculate_timing_analysis,
     calculate_two_person_compatibility,
     calculate_western_timing,
+    export_registry_helper,
+    get_jinkou_analysis,
+    get_qimen_analysis,
+    get_taiyi_analysis,
+    knowledge_read_helper,
+    knowledge_registry_helper,
 )
 from fastmcp_server import (
     astro_chart,
     astro_relative_chart,
     dayun_analysis,
+    export_registry,
+    jinkou,
+    knowledge_read,
+    knowledge_registry,
     liunian_analysis,
+    pdchart,
+    qimen,
+    solarreturn,
+    taiyi,
     timing_analysis,
     two_person_compatibility,
 )
+from fatebridge.services.run_metadata import resolve_runtime_engine
+from fatebridge.services.tool_registry import get_tool_descriptor, iter_tool_descriptors
 
 
 def _build_birth_payload(name: str, gender: str, birth_place: str) -> dict:
@@ -49,6 +76,322 @@ def _build_birth_payload(name: str, gender: str, birth_place: str) -> dict:
         "birth_place": birth_place,
         "use_true_solar_time": False,
     }
+
+
+def _build_astro_birth_payload(name: str, gender: str, birth_place: str) -> dict:
+    return {
+        **_build_birth_payload(name, gender, birth_place),
+        "birth_latitude": 31.2304 if birth_place == "上海" else 39.9042,
+    }
+
+
+def _build_western_timing_payload() -> dict:
+    return {
+        "name": "Alice",
+        "birth_year": 1990,
+        "birth_month": 5,
+        "birth_day": 17,
+        "birth_hour": 15,
+        "birth_minute": 30,
+        "birth_place": "上海",
+        "birth_timezone": "Asia/Shanghai",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2025,
+        "analysis_month": 5,
+        "analysis_day": 20,
+        "pd_method": "astroapp_alchabitius",
+        "pd_time_key": "Naibod",
+        "pd_aspects": [0, 90, 180],
+        "show_pd_bounds": True,
+    }
+
+
+def _build_metaphysics_payload() -> dict:
+    return {
+        "analysis_year": 2026,
+        "analysis_month": 4,
+        "analysis_day": 8,
+        "analysis_hour": 9,
+        "analysis_minute": 30,
+        "analysis_timezone": "Asia/Shanghai",
+        "analysis_longitude": 121.4737,
+        "selected_sections": ["起盘信息", "九宫方盘"],
+        "use_true_solar_time": False,
+    }
+
+
+def _payload_without_run_metadata(payload: dict) -> dict:
+    return {key: value for key, value in payload.items() if key != "run_metadata"}
+
+
+def _assert_utc_timestamp(value: str) -> None:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    assert parsed.tzinfo is not None
+
+
+def _assert_run_metadata(payload: dict, *, tool_name: str) -> dict:
+    metadata = payload.get("run_metadata")
+
+    assert isinstance(metadata, dict)
+    assert set(metadata) == {
+        "run_id",
+        "trace_id",
+        "tool_name",
+        "generated_at",
+        "engine",
+    }
+    assert isinstance(metadata["run_id"], str) and metadata["run_id"]
+    assert isinstance(metadata["trace_id"], str) and metadata["trace_id"]
+    assert metadata["tool_name"] == tool_name
+    assert isinstance(metadata["engine"], str) and metadata["engine"]
+    _assert_utc_timestamp(metadata["generated_at"])
+    assert metadata["engine"] == resolve_runtime_engine(
+        _payload_without_run_metadata(payload)
+    )
+
+    return metadata
+
+
+def _assert_transport_parity(api_result: dict, mcp_result: dict, *, tool_name: str) -> None:
+    assert _payload_without_run_metadata(api_result) == _payload_without_run_metadata(
+        mcp_result
+    )
+
+    api_metadata = _assert_run_metadata(api_result, tool_name=tool_name)
+    mcp_metadata = _assert_run_metadata(mcp_result, tool_name=tool_name)
+
+    assert api_metadata["engine"] == mcp_metadata["engine"]
+    assert api_metadata["run_id"] != mcp_metadata["run_id"]
+    assert api_metadata["trace_id"] != mcp_metadata["trace_id"]
+
+
+def _astro_relative_mcp_kwargs(request: AstroRelativeRequest) -> dict:
+    return {
+        "inner_birth_year": request.inner.birth_year,
+        "inner_birth_month": request.inner.birth_month,
+        "inner_birth_day": request.inner.birth_day,
+        "inner_birth_hour": request.inner.birth_hour,
+        "inner_birth_minute": request.inner.birth_minute,
+        "inner_birth_timezone": request.inner.birth_timezone,
+        "inner_birth_longitude": request.inner.birth_longitude,
+        "inner_birth_latitude": request.inner.birth_latitude,
+        "inner_name": request.inner.name,
+        "inner_birth_place": request.inner.birth_place,
+        "outer_birth_year": request.outer.birth_year,
+        "outer_birth_month": request.outer.birth_month,
+        "outer_birth_day": request.outer.birth_day,
+        "outer_birth_hour": request.outer.birth_hour,
+        "outer_birth_minute": request.outer.birth_minute,
+        "outer_birth_timezone": request.outer.birth_timezone,
+        "outer_birth_longitude": request.outer.birth_longitude,
+        "outer_birth_latitude": request.outer.birth_latitude,
+        "outer_name": request.outer.name,
+        "outer_birth_place": request.outer.birth_place,
+        "relationship_mode": request.relationship_mode,
+        "relative_mode": request.relative_mode,
+        "hsys": request.hsys,
+        "zodiacal": request.zodiacal,
+    }
+
+
+def _taiyi_mcp_kwargs(request: TaiyiAnalysisRequest) -> dict:
+    payload = request.model_dump(exclude={"qimen_options"})
+    return payload
+
+
+REGISTRY_PARITY_CASES = [
+    (
+        "export_registry",
+        lambda: ExportRegistryRequest(technique="qimen"),
+        export_registry_helper,
+        export_registry,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "knowledge_registry",
+        lambda: KnowledgeRegistryRequest(
+            domain="astro",
+            selected_sections=["目录概览", "astro"],
+        ),
+        knowledge_registry_helper,
+        knowledge_registry,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "knowledge_read",
+        lambda: KnowledgeReadRequest(
+            domain="qimen",
+            category="door",
+            key="休门",
+            selected_sections=["知识正文"],
+        ),
+        knowledge_read_helper,
+        knowledge_read,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "solarreturn",
+        lambda: WesternTimingModuleRequest(
+            **_build_western_timing_payload(),
+            selected_sections=["起盘信息", "星盘信息"],
+        ),
+        calculate_solarreturn_module,
+        solarreturn,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "pdchart",
+        lambda: WesternTimingModuleRequest(**_build_western_timing_payload()),
+        calculate_pdchart_module,
+        pdchart,
+        lambda request: request.model_dump(),
+    ),
+]
+
+
+NON_REGISTRY_PARITY_CASES = [
+    (
+        "two_person_compatibility",
+        lambda: TwoPersonCompatibilityRequest(
+            person1_name="甲",
+            person1_birth_year=1990,
+            person1_birth_month=5,
+            person1_birth_day=15,
+            person1_birth_hour=10,
+            person1_gender="男",
+            person1_birth_place="上海",
+            person1_birth_minute=30,
+            person1_birth_timezone="Asia/Shanghai",
+            person1_birth_longitude=121.4737,
+            person2_name="乙",
+            person2_birth_year=1992,
+            person2_birth_month=3,
+            person2_birth_day=2,
+            person2_birth_hour=8,
+            person2_gender="女",
+            person2_birth_place="北京",
+            person2_birth_minute=18,
+            person2_birth_timezone="Asia/Shanghai",
+            person2_birth_longitude=116.4074,
+            relationship_type="marriage",
+        ),
+        calculate_two_person_compatibility,
+        two_person_compatibility,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "chart",
+        lambda: AstroChartRequest(
+            **_build_astro_birth_payload("张三", "男", "上海"),
+        ),
+        calculate_astro_chart,
+        astro_chart,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "astro_relative_chart",
+        lambda: AstroRelativeRequest(
+            inner=AstroRelativePartyRequest(
+                **_build_astro_birth_payload("甲", "男", "上海"),
+            ),
+            outer=AstroRelativePartyRequest(
+                **{
+                    **_build_astro_birth_payload("乙", "女", "北京"),
+                    "birth_year": 1992,
+                    "birth_month": 3,
+                    "birth_day": 2,
+                    "birth_hour": 8,
+                    "birth_minute": 18,
+                    "birth_longitude": 116.4074,
+                    "birth_latitude": 39.9042,
+                }
+            ),
+            relative_mode="Composite",
+            hsys=0,
+            zodiacal=0,
+        ),
+        calculate_relative_chart,
+        astro_relative_chart,
+        _astro_relative_mcp_kwargs,
+    ),
+    (
+        "timing_analysis",
+        lambda: TimingAnalysisRequest(
+            **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
+            analysis_year=2028,
+            analysis_month=4,
+            analysis_day=6,
+            analysis_hour=21,
+            analysis_minute=55,
+            analysis_age=38,
+            selected_sections=["查询信息", "综合影响"],
+        ),
+        calculate_timing_analysis,
+        timing_analysis,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "dayun_analysis",
+        lambda: DayunAnalysisRequest(
+            **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
+            analysis_age=38,
+            selected_sections=["查询信息", "大运信息"],
+        ),
+        calculate_dayun,
+        dayun_analysis,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "liunian_analysis",
+        lambda: LiunianAnalysisRequest(
+            **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
+            target_year=2028,
+        ),
+        calculate_liunian,
+        liunian_analysis,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "qimen",
+        lambda: QimenAnalysisRequest(
+            **{
+                **_build_metaphysics_payload(),
+                "qimen_options": {"layout": "rotating"},
+            }
+        ),
+        get_qimen_analysis,
+        qimen,
+        lambda request: request.model_dump(),
+    ),
+    (
+        "taiyi",
+        lambda: TaiyiAnalysisRequest(
+            **{
+                **_build_metaphysics_payload(),
+                "gender": "男",
+                "selected_sections": ["起盘信息", "太乙"],
+            }
+        ),
+        get_taiyi_analysis,
+        taiyi,
+        _taiyi_mcp_kwargs,
+    ),
+    (
+        "jinkou",
+        lambda: JinkouAnalysisRequest(
+            **{
+                **_build_metaphysics_payload(),
+                "gender": "男",
+                "di_fen": "酉",
+                "selected_sections": ["起盘信息", "金口诀四位"],
+            }
+        ),
+        get_jinkou_analysis,
+        jinkou,
+        lambda request: request.model_dump(),
+    ),
+]
 
 
 def test_alignment_request_models_accept_fastmcp_offline_fields():
@@ -117,35 +460,67 @@ def test_alignment_request_models_accept_fastmcp_offline_fields():
     assert liunian_payload["target_year"] == 2028
 
 
-def test_two_person_compatibility_api_matches_fastmcp_tool_output():
-    request = TwoPersonCompatibilityRequest(
-        person1_name="甲",
-        person1_birth_year=1990,
-        person1_birth_month=5,
-        person1_birth_day=15,
-        person1_birth_hour=10,
-        person1_gender="男",
-        person1_birth_place="上海",
-        person1_birth_minute=30,
-        person1_birth_timezone="Asia/Shanghai",
-        person1_birth_longitude=121.4737,
-        person2_name="乙",
-        person2_birth_year=1992,
-        person2_birth_month=3,
-        person2_birth_day=2,
-        person2_birth_hour=8,
-        person2_gender="女",
-        person2_birth_place="北京",
-        person2_birth_minute=18,
-        person2_birth_timezone="Asia/Shanghai",
-        person2_birth_longitude=116.4074,
-        relationship_type="marriage",
-    )
+def test_tool_registry_first_batch_descriptors_cover_expected_families():
+    assert {item.key for item in iter_tool_descriptors(family="export")} == {
+        "export_registry",
+        "export_parse",
+    }
+    assert {item.key for item in iter_tool_descriptors(family="knowledge")} == {
+        "knowledge_registry",
+        "knowledge_read",
+    }
+    assert {item.key for item in iter_tool_descriptors(family="western_timing_tool")} >= {
+        "solarreturn",
+        "pdchart",
+    }
 
-    api_result = asyncio.run(calculate_two_person_compatibility(request))
-    mcp_result = json.loads(two_person_compatibility.fn(**request.model_dump()))
+    for descriptor in iter_tool_descriptors():
+        assert descriptor.mcp_name == descriptor.key
+        assert descriptor.rest_path.startswith("/api/")
+        assert descriptor.request_model_name
+        assert descriptor.summary
 
-    assert api_result == mcp_result
+
+@pytest.mark.parametrize(
+    ("tool_key", "request_factory", "api_handler", "mcp_tool", "mcp_kwargs_builder"),
+    REGISTRY_PARITY_CASES,
+    ids=[case[0] for case in REGISTRY_PARITY_CASES],
+)
+def test_registry_backed_tools_api_match_fastmcp_output(
+    tool_key,
+    request_factory,
+    api_handler,
+    mcp_tool,
+    mcp_kwargs_builder,
+):
+    descriptor = get_tool_descriptor(tool_key)
+    request = request_factory()
+
+    api_result = asyncio.run(api_handler(request))
+    mcp_result = json.loads(mcp_tool.fn(**mcp_kwargs_builder(request)))
+
+    _assert_transport_parity(api_result, mcp_result, tool_name=descriptor.key)
+    assert descriptor.mcp_name == descriptor.key
+
+
+@pytest.mark.parametrize(
+    ("tool_name", "request_factory", "api_handler", "mcp_tool", "mcp_kwargs_builder"),
+    NON_REGISTRY_PARITY_CASES,
+    ids=[case[0] for case in NON_REGISTRY_PARITY_CASES],
+)
+def test_non_registry_tools_api_match_fastmcp_output(
+    tool_name,
+    request_factory,
+    api_handler,
+    mcp_tool,
+    mcp_kwargs_builder,
+):
+    request = request_factory()
+
+    api_result = asyncio.run(api_handler(request))
+    mcp_result = json.loads(mcp_tool.fn(**mcp_kwargs_builder(request)))
+
+    _assert_transport_parity(api_result, mcp_result, tool_name=tool_name)
 
 
 def test_two_person_compatibility_exposes_structured_pattern_fields():
@@ -188,26 +563,14 @@ def test_two_person_compatibility_exposes_structured_pattern_fields():
     assert "risk_reasons" in ten_gods_relationship
 
 
-def test_astro_chart_api_matches_fastmcp_tool_output():
-    request = AstroChartRequest(
-        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
-    )
-
-    api_result = asyncio.run(calculate_astro_chart(request))
-    mcp_result = json.loads(astro_chart.fn(**request.model_dump()))
-
-    assert api_result == mcp_result
-
-
-def test_astro_relative_api_matches_fastmcp_tool_output():
+def test_relative_chart_api_keeps_public_modes_implemented():
     request = AstroRelativeRequest(
         inner=AstroRelativePartyRequest(
-            **_build_birth_payload(name="甲", gender="男", birth_place="上海"),
-            birth_latitude=31.2304,
+            **_build_astro_birth_payload("甲", "男", "上海"),
         ),
         outer=AstroRelativePartyRequest(
             **{
-                **_build_birth_payload(name="乙", gender="女", birth_place="北京"),
+                **_build_astro_birth_payload("乙", "女", "北京"),
                 "birth_year": 1992,
                 "birth_month": 3,
                 "birth_day": 2,
@@ -222,80 +585,60 @@ def test_astro_relative_api_matches_fastmcp_tool_output():
         zodiacal=0,
     )
 
-    api_result = asyncio.run(calculate_relative_chart(request))
-    mcp_result = json.loads(
-        astro_relative_chart.fn(
-            inner_birth_year=request.inner.birth_year,
-            inner_birth_month=request.inner.birth_month,
-            inner_birth_day=request.inner.birth_day,
-            inner_birth_hour=request.inner.birth_hour,
-            inner_birth_minute=request.inner.birth_minute,
-            inner_birth_timezone=request.inner.birth_timezone,
-            inner_birth_longitude=request.inner.birth_longitude,
-            inner_birth_latitude=request.inner.birth_latitude,
-            inner_name=request.inner.name,
-            inner_birth_place=request.inner.birth_place,
-            outer_birth_year=request.outer.birth_year,
-            outer_birth_month=request.outer.birth_month,
-            outer_birth_day=request.outer.birth_day,
-            outer_birth_hour=request.outer.birth_hour,
-            outer_birth_minute=request.outer.birth_minute,
-            outer_birth_timezone=request.outer.birth_timezone,
-            outer_birth_longitude=request.outer.birth_longitude,
-            outer_birth_latitude=request.outer.birth_latitude,
-            outer_name=request.outer.name,
-            outer_birth_place=request.outer.birth_place,
-            relationship_mode=request.relationship_mode,
-            relative_mode=request.relative_mode,
-            hsys=request.hsys,
-            zodiacal=request.zodiacal,
-        )
+    result = asyncio.run(calculate_relative_chart(request))
+
+    assert result["relationship_profile"]["relative_mode_normalized"] == "composite"
+    assert result["relationship_profile"]["mode_status"] == "implemented"
+    _assert_run_metadata(result, tool_name="astro_relative_chart")
+
+
+def test_relative_chart_api_rejects_invalid_relative_mode():
+    request = AstroRelativeRequest(
+        inner=AstroRelativePartyRequest(
+            **_build_astro_birth_payload("甲", "男", "上海"),
+        ),
+        outer=AstroRelativePartyRequest(
+            **{
+                **_build_astro_birth_payload("乙", "女", "北京"),
+                "birth_year": 1992,
+                "birth_month": 3,
+                "birth_day": 2,
+                "birth_hour": 8,
+                "birth_minute": 18,
+                "birth_longitude": 116.4074,
+                "birth_latitude": 39.9042,
+            }
+        ),
+        relative_mode="banana",
+        hsys=0,
+        zodiacal=0,
     )
 
-    assert api_result == mcp_result
+    with pytest.raises(HTTPException) as exc_info:
+        asyncio.run(calculate_relative_chart(request))
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["error_code"] == "validation_error"
+    assert "relative_mode" in exc_info.value.detail["error"]
 
 
-def test_timing_analysis_api_matches_fastmcp_tool_output():
-    request = TimingAnalysisRequest(
-        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
-        analysis_year=2028,
-        analysis_month=4,
-        analysis_day=6,
-        analysis_hour=21,
-        analysis_minute=55,
-        analysis_age=38,
-        selected_sections=["查询信息", "综合影响"],
+def test_selected_sections_only_trim_export_text_not_structured_payload():
+    request = KnowledgeReadRequest(
+        domain="qimen",
+        category="door",
+        key="休门",
+        selected_sections=["知识正文"],
     )
 
-    api_result = asyncio.run(calculate_timing_analysis(request))
-    mcp_result = json.loads(timing_analysis.fn(**request.model_dump()))
+    result = asyncio.run(knowledge_read_helper(request))
 
-    assert api_result == mcp_result
-
-
-def test_dayun_analysis_api_matches_fastmcp_tool_output():
-    request = DayunAnalysisRequest(
-        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
-        analysis_age=38,
-        selected_sections=["查询信息", "大运信息"],
-    )
-
-    api_result = asyncio.run(calculate_dayun(request))
-    mcp_result = json.loads(dayun_analysis.fn(**request.model_dump()))
-
-    assert api_result == mcp_result
-
-
-def test_liunian_analysis_api_matches_fastmcp_tool_output():
-    request = LiunianAnalysisRequest(
-        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
-        target_year=2028,
-    )
-
-    api_result = asyncio.run(calculate_liunian(request))
-    mcp_result = json.loads(liunian_analysis.fn(**request.model_dump()))
-
-    assert api_result == mcp_result
+    assert result["snapshot_export"]["selected_sections"] == ["知识正文"]
+    assert "[知识正文]" in result["snapshot_export"]["export_text"]
+    assert "[查询信息]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
+    assert "[查询信息]" in result["snapshot_text"]
+    assert result["rendered_text"]
+    assert result["key"] == "休门"
 
 
 def test_western_timing_api_offloads_calculation_to_threadpool(monkeypatch):
@@ -315,28 +658,14 @@ def test_western_timing_api_offloads_calculation_to_threadpool(monkeypatch):
         raising=False,
     )
 
-    request = WesternTimingRequest(
-        name="张三",
-        birth_year=1990,
-        birth_month=5,
-        birth_day=15,
-        birth_hour=10,
-        birth_minute=30,
-        birth_timezone="Asia/Shanghai",
-        birth_longitude=121.4737,
-        birth_latitude=31.2304,
-        birth_place="上海",
-        analysis_year=2028,
-        analysis_month=4,
-        analysis_day=6,
-    )
-
+    request = WesternTimingRequest(**_build_western_timing_payload())
     result = asyncio.run(calculate_western_timing(request))
 
-    assert result == expected
+    assert _payload_without_run_metadata(result) == expected
+    _assert_run_metadata(result, tool_name="western_timing_analysis")
     assert captured["func"] is api_module.calculate_western_timing_analysis
     assert captured["args"] == ()
-    assert captured["kwargs"]["analysis_year"] == 2028
+    assert captured["kwargs"]["analysis_year"] == 2025
     assert captured["kwargs"]["birth_latitude"] == 31.2304
 
 
@@ -358,29 +687,17 @@ def test_western_timing_module_api_offloads_calculation_to_threadpool(monkeypatc
     )
 
     request = WesternTimingModuleRequest(
-        name="张三",
-        birth_year=1990,
-        birth_month=5,
-        birth_day=15,
-        birth_hour=10,
-        birth_minute=30,
-        birth_timezone="Asia/Shanghai",
-        birth_longitude=121.4737,
-        birth_latitude=31.2304,
-        birth_place="上海",
-        analysis_year=2028,
-        analysis_month=4,
-        analysis_day=6,
+        **_build_western_timing_payload(),
         selected_sections=["起盘信息"],
     )
-
     result = asyncio.run(calculate_solarreturn_module(request))
 
-    assert result == expected
-    assert captured["func"] is api_module.calculate_solarreturn
+    assert _payload_without_run_metadata(result) == expected
+    _assert_run_metadata(result, tool_name="solarreturn")
+    assert captured["func"] is get_tool_descriptor("solarreturn").service
     assert captured["args"] == ()
     assert captured["kwargs"]["selected_sections"] == ["起盘信息"]
-    assert captured["kwargs"]["analysis_day"] == 6
+    assert captured["kwargs"]["analysis_day"] == 20
 
 
 def test_astro_chart_api_offloads_calculation_to_threadpool(monkeypatch):
@@ -401,13 +718,12 @@ def test_astro_chart_api_offloads_calculation_to_threadpool(monkeypatch):
     )
 
     request = AstroChartRequest(
-        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
-        birth_latitude=31.2304,
+        **_build_astro_birth_payload("张三", "男", "上海"),
     )
-
     result = asyncio.run(calculate_astro_chart(request))
 
-    assert result == expected
+    assert _payload_without_run_metadata(result) == expected
+    _assert_run_metadata(result, tool_name="chart")
     assert captured["func"] is api_module.calculate_core_chart_analysis
     assert captured["kwargs"]["chart_variant"] == "chart"
     assert captured["kwargs"]["birth_latitude"] == 31.2304
@@ -432,12 +748,11 @@ def test_astro_relative_api_offloads_calculation_to_threadpool(monkeypatch):
 
     request = AstroRelativeRequest(
         inner=AstroRelativePartyRequest(
-            **_build_birth_payload(name="甲", gender="男", birth_place="上海"),
-            birth_latitude=31.2304,
+            **_build_astro_birth_payload("甲", "男", "上海"),
         ),
         outer=AstroRelativePartyRequest(
             **{
-                **_build_birth_payload(name="乙", gender="女", birth_place="北京"),
+                **_build_astro_birth_payload("乙", "女", "北京"),
                 "birth_year": 1992,
                 "birth_month": 3,
                 "birth_day": 2,
@@ -451,10 +766,10 @@ def test_astro_relative_api_offloads_calculation_to_threadpool(monkeypatch):
         hsys=0,
         zodiacal=0,
     )
-
     result = asyncio.run(calculate_relative_chart(request))
 
-    assert result == expected
+    assert _payload_without_run_metadata(result) == expected
+    _assert_run_metadata(result, tool_name="astro_relative_chart")
     assert captured["func"] is api_module.calculate_relative_chart_analysis
     assert captured["kwargs"]["inner_payload"]["birth_latitude"] == 31.2304
     assert captured["kwargs"]["outer_payload"]["birth_longitude"] == 116.4074

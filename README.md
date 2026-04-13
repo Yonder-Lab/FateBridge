@@ -11,6 +11,7 @@ FateBridge 是一个面向命理、占术与离线占星场景的 Python 后端�
 - 提供西占推运能力：太阳返照、月返、行运、太阳弧、小限、指定年盘、主限、黄道释放、法达、十年星限
 - 提供可导出的快照协议：大量工具统一返回 `snapshot_text` 和 `snapshot_export`
 - 提供知识与导出 helper：`knowledge_registry` / `knowledge_read` / `export_registry` / `export_parse`
+- 结构化工具响应额外返回 `run_metadata`，统一暴露 `run_id` / `trace_id` / `tool_name` / `generated_at` / `engine`
 
 ## 能力状态
 
@@ -112,6 +113,7 @@ curl -X POST http://localhost:8010/api/calculate \
 
 `/api/calculate`、`/api/compatibility`、`/api/timing/*` 这类端点会返回结构化 JSON，例如：
 
+- `run_metadata`
 - `person_info`
 - `four_pillars`
 - `day_master`
@@ -128,6 +130,13 @@ curl -X POST http://localhost:8010/api/calculate \
 
 ```json
 {
+  "run_metadata": {
+    "run_id": "f5c3...",
+    "trace_id": "5f17...",
+    "tool_name": "qimen",
+    "generated_at": "2026-04-13T08:00:00Z",
+    "engine": "fatebridge-offline"
+  },
   "snapshot_text": "[起盘信息]\n...",
   "snapshot_export": {
     "technique": {

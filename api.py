@@ -41,14 +41,6 @@ from fatebridge.services.divination import (
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
 )
-from fatebridge.services.export_tools import (
-    calculate_export_parse,
-    calculate_export_registry,
-)
-from fatebridge.services.knowledge import (
-    calculate_knowledge_read,
-    calculate_knowledge_registry,
-)
 from fatebridge.services.metaphysics import (
     calculate_jinkou_analysis,
     calculate_liureng_gods,
@@ -68,20 +60,12 @@ from fatebridge.services.timing import (
     calculate_liuyue_analysis,
     calculate_nongli_time,
 )
-from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.services.western_timing_tools import (
-    calculate_decennials,
-    calculate_firdaria,
-    calculate_givenyear,
-    calculate_lunarreturn,
-    calculate_pd,
-    calculate_pdchart,
-    calculate_profection,
-    calculate_solararc,
-    calculate_solarreturn,
-    calculate_transit,
-    calculate_zr,
+from fatebridge.services.run_metadata import (
+    attach_run_metadata,
+    infer_tool_name_from_service,
 )
+from fatebridge.services.tool_registry import get_tool_descriptor
+from fatebridge.services.western_timing import calculate_western_timing_analysis
 from fatebridge.utils.helpers import create_person_info
 from fatebridge.utils.runtime import (
     get_api_key_header_name,
@@ -585,13 +569,31 @@ async def _execute_service(
     service: Callable[..., Dict[str, Any]],
     *args: Any,
     error_is_fatal: Optional[Callable[[Dict[str, Any]], bool]] = None,
+    tool_name: Optional[str] = None,
     **kwargs: Any,
 ) -> Dict[str, Any]:
     result = await run_in_threadpool(service, *args, **kwargs)
     fatal_error = error_is_fatal(result) if error_is_fatal else "error" in result
     if fatal_error:
         _raise_service_http_error(result)
-    return result
+    resolved_tool_name = infer_tool_name_from_service(
+        explicit_tool_name=tool_name,
+        service_name=getattr(service, "__name__", None),
+        kwargs=kwargs,
+    )
+    return attach_run_metadata(result, tool_name=resolved_tool_name)
+
+
+async def _execute_registered_tool(
+    tool_key: str,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    descriptor = get_tool_descriptor(tool_key)
+    return await _execute_service(
+        descriptor.service,
+        tool_name=descriptor.key,
+        **kwargs,
+    )
 
 
 # ============================================================================
@@ -1464,7 +1466,11 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
             use_true_solar_time=request.use_true_solar_time,
         )
 
-        result = await _execute_service(calculate_destiny_analysis, person)
+        result = await _execute_service(
+            calculate_destiny_analysis,
+            person,
+            tool_name="analyze_destiny",
+        )
 
         logger.info("Calculation successful")
         return result
@@ -1510,6 +1516,7 @@ async def calculate_bazi_birth_chart(request: BaziBirthRequest) -> dict:
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
             selected_sections=request.selected_sections or None,
+            tool_name="bazi_birth",
         )
 
         return result
@@ -1556,6 +1563,7 @@ async def calculate_bazi_direct_chart(request: BaziDirectRequest) -> dict:
             analysis_month=request.analysis_month,
             analysis_day=request.analysis_day,
             selected_sections=request.selected_sections or None,
+            tool_name="bazi_direct",
         )
 
         return result
@@ -1618,6 +1626,7 @@ async def calculate_two_person_compatibility(
             person1,
             person2,
             request.relationship_type,
+            tool_name="two_person_compatibility",
         )
 
         logger.info("Compatibility analysis successful")
@@ -1670,6 +1679,7 @@ async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
             analysis_hour=request.analysis_hour,
             analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
+            tool_name="timing_analysis",
         )
 
         logger.info("Comprehensive timing analysis successful")
@@ -1719,6 +1729,7 @@ async def calculate_dayun(request: DayunAnalysisRequest) -> dict:
             selected_sections=request.selected_sections or None,
             error_is_fatal=lambda payload: "error" in payload
             and payload.get("analysis_type") is None,
+            tool_name="dayun_analysis",
         )
 
         logger.info("Dayun analysis successful")
@@ -1763,6 +1774,7 @@ async def calculate_liunian(request: LiunianAnalysisRequest) -> dict:
             person,
             request.target_year,
             selected_sections=request.selected_sections or None,
+            tool_name="liunian_analysis",
         )
 
         logger.info("Liunian analysis successful")
@@ -1924,8 +1936,9 @@ async def export_registry_helper(request: ExportRegistryRequest) -> dict:
     try:
         logger.info("Processing export registry request")
 
-        result = await _execute_service(
-            calculate_export_registry, **request.model_dump()
+        result = await _execute_registered_tool(
+            "export_registry",
+            **request.model_dump(),
         )
 
         logger.info("Export registry successful")
@@ -1952,8 +1965,8 @@ async def export_parse_helper(request: ExportParseRequest) -> dict:
         logger.info("Processing export parse request")
 
         payload = request.model_dump(by_alias=True)
-        result = await _execute_service(
-            calculate_export_parse,
+        result = await _execute_registered_tool(
+            "export_parse",
             technique=payload["technique"],
             content=payload["content"],
             selected_sections=payload.get("selected_sections") or None,
@@ -1985,8 +1998,8 @@ async def knowledge_registry_helper(request: KnowledgeRegistryRequest) -> dict:
         logger.info("Processing knowledge registry request")
 
         payload = request.model_dump()
-        result = await _execute_service(
-            calculate_knowledge_registry,
+        result = await _execute_registered_tool(
+            "knowledge_registry",
             **{
                 **payload,
                 "selected_sections": payload.get("selected_sections") or None,
@@ -2017,8 +2030,8 @@ async def knowledge_read_helper(request: KnowledgeReadRequest) -> dict:
         logger.info("Processing knowledge read request")
 
         payload = request.model_dump()
-        result = await _execute_service(
-            calculate_knowledge_read,
+        result = await _execute_registered_tool(
+            "knowledge_read",
             **{
                 **payload,
                 "selected_sections": payload.get("selected_sections") or None,
@@ -2417,6 +2430,7 @@ async def get_qimen_analysis(request: QimenAnalysisRequest) -> dict:
             qimen_options=request.qimen_options,
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
+            tool_name="qimen",
         )
 
         return result
@@ -2449,6 +2463,7 @@ async def get_taiyi_analysis(request: TaiyiAnalysisRequest) -> dict:
             gender=request.gender or "未知",
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
+            tool_name="taiyi",
         )
 
         return result
@@ -2482,6 +2497,7 @@ async def get_jinkou_analysis(request: JinkouAnalysisRequest) -> dict:
             di_fen=request.di_fen,
             selected_sections=request.selected_sections or None,
             use_true_solar_time=request.use_true_solar_time,
+            tool_name="jinkou",
         )
 
         return result
@@ -2502,6 +2518,11 @@ async def _run_astro_chart_variant(
 ) -> dict:
     return await _execute_service(
         calculate_core_chart_analysis,
+        tool_name=chart_variant if chart_variant in {"chart", "chart13"} else {
+            "hellen_chart": "astro_hellen_chart",
+            "guolao_chart": "astro_guolao_chart",
+            "india_chart": "astro_india_chart",
+        }.get(chart_variant, "astro_chart"),
         chart_variant=chart_variant,
         **request.model_dump(),
     )
@@ -2611,6 +2632,7 @@ async def calculate_germany_chart(request: AstroChartRequest) -> dict:
         )
         return await _execute_service(
             calculate_germany_chart_analysis,
+            tool_name="germany",
             **request.model_dump(),
         )
     except HTTPException:
@@ -2644,6 +2666,7 @@ async def calculate_relative_chart(request: AstroRelativeRequest) -> dict:
             relative_mode_source=request.mode_input_source or "default",
             hsys=request.hsys,
             zodiacal=request.zodiacal,
+            tool_name="astro_relative_chart",
         )
     except HTTPException:
         raise
@@ -2666,6 +2689,7 @@ async def calculate_western_timing(request: WesternTimingRequest) -> dict:
         )
         return await _execute_service(
             calculate_western_timing_analysis,
+            tool_name="western_timing_analysis",
             **request.model_dump(),
         )
     except HTTPException:
@@ -2682,17 +2706,17 @@ async def calculate_western_timing(request: WesternTimingRequest) -> dict:
 async def _run_western_timing_module_request(
     *,
     request: WesternTimingModuleRequest,
-    runner: Callable[..., Dict[str, Any]],
-    label: str,
+    tool_key: str,
 ) -> dict:
     try:
+        descriptor = get_tool_descriptor(tool_key)
         logger.info(
             "Processing %s request (%s)",
-            label,
+            descriptor.key,
             summarize_request_context(name=request.name),
         )
-        return await _execute_service(
-            runner,
+        return await _execute_registered_tool(
+            tool_key,
             **request.model_dump(),
         )
     except HTTPException:
@@ -2700,7 +2724,7 @@ async def _run_western_timing_module_request(
     except Exception as e:
         logger.error(
             "Unexpected error during %s calculation: %s",
-            label,
+            tool_key,
             str(e),
             exc_info=True,
         )
@@ -2712,8 +2736,7 @@ async def calculate_solarreturn_module(request: WesternTimingModuleRequest) -> d
     """Generate standalone solar return output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_solarreturn,
-        label="solarreturn",
+        tool_key="solarreturn",
     )
 
 
@@ -2722,8 +2745,7 @@ async def calculate_lunarreturn_module(request: WesternTimingModuleRequest) -> d
     """Generate standalone lunar return output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_lunarreturn,
-        label="lunarreturn",
+        tool_key="lunarreturn",
     )
 
 
@@ -2732,8 +2754,7 @@ async def calculate_transit_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone transit chart output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_transit,
-        label="transit",
+        tool_key="transit",
     )
 
 
@@ -2742,8 +2763,7 @@ async def calculate_solararc_module(request: WesternTimingModuleRequest) -> dict
     """Generate standalone solar arc output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_solararc,
-        label="solararc",
+        tool_key="solararc",
     )
 
 
@@ -2752,8 +2772,7 @@ async def calculate_givenyear_module(request: WesternTimingModuleRequest) -> dic
     """Generate standalone given-year chart output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_givenyear,
-        label="givenyear",
+        tool_key="givenyear",
     )
 
 
@@ -2762,8 +2781,7 @@ async def calculate_profection_module(request: WesternTimingModuleRequest) -> di
     """Generate standalone annual profection output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_profection,
-        label="profection",
+        tool_key="profection",
     )
 
 
@@ -2772,8 +2790,7 @@ async def calculate_pd_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone primary-directions output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_pd,
-        label="pd",
+        tool_key="pd",
     )
 
 
@@ -2782,8 +2799,7 @@ async def calculate_pdchart_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone primary-direction-chart output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_pdchart,
-        label="pdchart",
+        tool_key="pdchart",
     )
 
 
@@ -2792,8 +2808,7 @@ async def calculate_zr_module(request: WesternTimingModuleRequest) -> dict:
     """Generate standalone zodiacal releasing output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_zr,
-        label="zr",
+        tool_key="zr",
     )
 
 
@@ -2802,8 +2817,7 @@ async def calculate_firdaria_module(request: WesternTimingModuleRequest) -> dict
     """Generate standalone firdaria output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_firdaria,
-        label="firdaria",
+        tool_key="firdaria",
     )
 
 
@@ -2812,8 +2826,7 @@ async def calculate_decennials_module(request: WesternTimingModuleRequest) -> di
     """Generate standalone decennials output."""
     return await _run_western_timing_module_request(
         request=request,
-        runner=calculate_decennials,
-        label="decennials",
+        tool_key="decennials",
     )
 
 

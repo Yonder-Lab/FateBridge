@@ -50,7 +50,7 @@
 | `influence` | Implemented | 影响盘双向主层 |
 | `timespace` | Implemented | 时空中点盘主层 |
 | `marks` | Implemented | 派生关系主层 |
-| 未识别的 `relative_mode` | Placeholder | 会落回 `_build_unimplemented_relative_payload(...)` 的占位兼容输出 |
+| 未识别的 `relative_mode` | Excluded | 当前公开接口会返回 `validation_error`，不把非法 mode 视作受支持能力 |
 
 补充说明：
 

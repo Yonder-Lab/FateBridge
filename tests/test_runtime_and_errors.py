@@ -140,7 +140,12 @@ def test_calculate_destiny_route_executes_service_via_threadpool(monkeypatch):
 
     result = asyncio.run(calculate_destiny(request))
 
-    assert result == {"status": "ok"}
+    assert result["status"] == "ok"
+    assert result["run_metadata"]["tool_name"] == "analyze_destiny"
+    assert result["run_metadata"]["engine"] == "fatebridge-offline"
+    assert result["run_metadata"]["run_id"]
+    assert result["run_metadata"]["trace_id"]
+    assert result["run_metadata"]["generated_at"]
     assert captured["func"] is api_module.calculate_destiny_analysis
     assert captured["args"][0].name == "张三"
 

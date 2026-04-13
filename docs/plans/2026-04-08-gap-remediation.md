@@ -8,6 +8,14 @@
 
 **Tech Stack:** Python 3, FastAPI, FastMCP, Pydantic v2, pytest
 
+## Status Snapshot (2026-04-13)
+
+- Task 1 文档主线已大体完成：当前主文档已经收敛到 backend-only、默认端口 `8010`、并覆盖 knowledge/export helper 与 western timing 独立工具。
+- Task 2 已完成：`docs/ALGORITHM_COVERAGE.md` 已建立并持续维护。
+- Task 3 已完成：独立 western timing tools 已按 technique 选择性计算，不再强制跑完整 predictive bundle。
+- 当前仍然值得继续推进的是 Task 4、Task 5、Task 7：也就是 API/MCP parity 扩展、共享 registry 收敛、以及轻量运行元数据。
+- 原 Task 6 需要重述：公开支持的 `compare` / `composite` / `influence` / `timespace` / `marks` 已有实现；非法 `relative_mode` 当前应视作显式校验错误，而不是“公开 placeholder 能力”。
+
 ---
 
 ## Priority Summary
@@ -108,7 +116,7 @@ For each method, mark one of:
 Clarify important caveats such as:
 - lightweight offline chart approximations in `fatebridge.core.astrology`
 - predictive methods depending on `kerykeion` / Swiss Ephemeris
-- relative-chart modes that still degrade to placeholder output
+- unsupported `relative_mode` values now return explicit validation errors instead of being documented as public supported modes
 
 **Step 4: Verify**
 
@@ -240,26 +248,26 @@ Expected: PASS with no behavior changes
 
 ---
 
-### Task 6: Deepen Relative Chart Coverage
+### Task 6: Recheck Relative Chart Contract Boundaries
 
 **Files:**
 - Modify: `fatebridge/core/astrology.py`
 - Modify: `tests/test_astrology_tools.py`
 - Modify: `docs/ALGORITHM_COVERAGE.md`
 
-**Step 1: Identify placeholder modes**
+**Step 1: Identify any still-reachable internal placeholder branches**
 
-List which `relative` modes still route through `_build_unimplemented_relative_payload(...)`.
+Confirm whether any non-public or legacy-only `relative` branches still route through `_build_unimplemented_relative_payload(...)`.
 
 **Step 2: Write failing tests**
 
-Add tests for the most important currently-placeholder modes to assert:
-- `mode_status != "placeholder"`
-- main `chart` payload is populated when the mode conceptually requires one
+Lock the current public contract:
+- supported modes `compare` / `composite` / `influence` / `timespace` / `marks` continue returning `mode_status="implemented"`
+- invalid `relative_mode` continues returning explicit validation errors
 
 **Step 3: Write minimal implementation**
 
-Promote the highest-value placeholder mode(s) to real computed output using the same current offline approximation philosophy.
+If an internal placeholder branch is still reachable through a public path, either remove that path or upgrade it to real computed output using the current offline approximation philosophy.
 
 **Step 4: Run verification**
 

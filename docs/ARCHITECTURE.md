@@ -26,10 +26,12 @@ flowchart LR
 ### 核心结论
 
 - `api.py` 和 `fastmcp_server.py` 是两层 transport adapter，不承担核心算法
+- 两层 transport 已开始共享 `fatebridge/services/tool_registry.py`，用来收敛部分 tool name / service binding / 描述定义
 - `fatebridge/services` 是服务编排层，负责把 transport 输入转换成核心算法调用
 - `fatebridge/core` 是主要算法层
 - `fatebridge/utils/helpers.py` 是输入归一化和真太阳时修正的关键入口
 - `fatebridge/data/knowledge` 与导出合同共同构成了“结果可消费层”
+- `fatebridge/services/run_metadata.py` 为 REST / MCP 统一补充轻量 `run_metadata`
 
 ## 2. 分层职责
 
@@ -71,6 +73,8 @@ flowchart LR
 | `fatebridge/services/knowledge.py` | 内置知识目录与条目读取 |
 | `fatebridge/services/export_tools.py` | 导出注册表与快照解析 |
 | `fatebridge/services/bazi.py` | 八字命盘与直断的独立快照输出 |
+| `fatebridge/services/tool_registry.py` | 首批共享 tool descriptor registry |
+| `fatebridge/services/run_metadata.py` | 统一生成 `run_id` / `trace_id` / `tool_name` / `generated_at` / `engine` |
 
 ### 3.3 Core
 
@@ -135,7 +139,7 @@ flowchart TD
 
 ### 5.1 双 transport，单核心
 
-FateBridge 没有为 REST 和 MCP 分别维护两套领域逻辑。`api.py` 与 `fastmcp_server.py` 只负责接入层差异，真正算法都下沉到 `services` / `core`。
+FateBridge 没有为 REST 和 MCP 分别维护两套领域逻辑。`api.py` 与 `fastmcp_server.py` 只负责接入层差异，真正算法都下沉到 `services` / `core`。当前首批 transport 定义已经通过共享 registry 收敛在 `fatebridge/services/tool_registry.py`，并继续按工具家族逐步迁移。
 
 好处：
 

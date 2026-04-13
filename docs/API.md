@@ -45,6 +45,13 @@ REST 端通常返回：
 
 ```json
 {
+  "run_metadata": {
+    "run_id": "f5c3...",
+    "trace_id": "5f17...",
+    "tool_name": "qimen",
+    "generated_at": "2026-04-13T08:00:00Z",
+    "engine": "fatebridge-offline"
+  },
   "snapshot_text": "[起盘信息]\n...",
   "snapshot_export": {
     "technique": {
@@ -59,6 +66,11 @@ REST 端通常返回：
 
 要点：
 
+- `run_metadata` 是统一的 transport 元数据层
+- `run_id` / `trace_id` 是本次响应生成的轻量标识
+- `tool_name` 对应当前 REST 入口或 MCP 工具入口
+- `generated_at` 是 UTC ISO 8601 时间戳
+- `engine` 是从当前 payload 推导出的运行引擎标识
 - `snapshot_text` 是完整的人类可读文本
 - `snapshot_export.export_text` 是根据 `selected_sections` 过滤后的导出文本
 - `selected_sections` 只裁剪导出层，不会裁掉完整结构化 payload

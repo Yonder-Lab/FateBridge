@@ -60,14 +60,6 @@ from fatebridge.services.divination import (
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
 )
-from fatebridge.services.export_tools import (
-    calculate_export_parse,
-    calculate_export_registry,
-)
-from fatebridge.services.knowledge import (
-    calculate_knowledge_read,
-    calculate_knowledge_registry,
-)
 from fatebridge.services.metaphysics import (
     calculate_jinkou_analysis as calculate_jinkou_analysis_service,
 )
@@ -99,40 +91,12 @@ from fatebridge.services.timing import (
     calculate_liuyue_analysis,
     calculate_nongli_time,
 )
+from fatebridge.services.run_metadata import (
+    attach_run_metadata,
+    infer_tool_name_from_payload,
+)
+from fatebridge.services.tool_registry import get_tool_descriptor
 from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.services.western_timing_tools import (
-    calculate_decennials as calculate_decennials_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_firdaria as calculate_firdaria_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_givenyear as calculate_givenyear_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_lunarreturn as calculate_lunarreturn_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_pd as calculate_pd_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_pdchart as calculate_pdchart_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_profection as calculate_profection_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_solararc as calculate_solararc_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_solarreturn as calculate_solarreturn_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_transit as calculate_transit_service,
-)
-from fatebridge.services.western_timing_tools import (
-    calculate_zr as calculate_zr_service,
-)
 from fatebridge.utils.helpers import (
     create_person_info,
     format_error_response,
@@ -169,9 +133,12 @@ def _render_tool_response(
     *,
     compact: bool = True,
     include_snapshot_text: bool = True,
+    tool_name: Optional[str] = None,
 ) -> str:
+    resolved_tool_name = tool_name or infer_tool_name_from_payload(data)
+    payload = attach_run_metadata(data, tool_name=resolved_tool_name)
     return format_json_response(
-        data,
+        payload,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
     )
@@ -184,6 +151,27 @@ def _render_tool_error(
     compact: bool = True,
 ) -> str:
     return format_error_response(data, operation, compact=compact)
+
+
+def _run_registry_tool(
+    tool_key: str,
+    *,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
+    **kwargs: Any,
+) -> str:
+    descriptor = get_tool_descriptor(tool_key)
+    result = descriptor.service(**kwargs)
+
+    if "error" in result:
+        return _render_tool_error(result, descriptor.operation_label_zh, compact=compact)
+
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+        tool_name=descriptor.key,
+    )
 
 
 @app.tool
@@ -244,7 +232,7 @@ def analyze_destiny(
     )
 
     data = calculate_destiny_analysis(person)
-    return format_json_response(data)
+    return _render_tool_response(data, tool_name="analyze_destiny")
 
 
 @app.tool
@@ -302,6 +290,7 @@ def bazi_birth(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="qimen",
     )
 
 
@@ -360,6 +349,7 @@ def bazi_direct(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="taiyi",
     )
 
 
@@ -463,7 +453,7 @@ def two_person_compatibility(
     )
 
     data = calculate_compatibility_analysis(person1, person2, relationship_type)
-    return format_json_response(data)
+    return _render_tool_response(data, tool_name="two_person_compatibility")
 
 
 @app.tool
@@ -551,6 +541,7 @@ def timing_analysis(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="timing_analysis",
     )
 
 
@@ -622,6 +613,7 @@ def dayun_analysis(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="dayun_analysis",
     )
 
 
@@ -691,6 +683,7 @@ def liunian_analysis(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="liunian_analysis",
     )
 
 
@@ -772,6 +765,7 @@ def liuyue_analysis(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="liuyue_analysis",
     )
 
 
@@ -789,6 +783,11 @@ def _run_astro_chart_tool(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name=chart_variant if chart_variant in {"chart", "chart13", "germany"} else {
+            "hellen_chart": "astro_hellen_chart",
+            "guolao_chart": "astro_guolao_chart",
+            "india_chart": "astro_india_chart",
+        }.get(chart_variant, "astro_chart"),
     )
 
 
@@ -1008,6 +1007,7 @@ def astro_germany_chart(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="germany",
     )
 
 
@@ -1021,15 +1021,11 @@ def export_registry(
     """
     AI 导出协议注册表工具 - 返回 FateBridge 的导出设置目录。
     """
-    result = calculate_export_registry(technique=technique)
-
-    if "error" in result:
-        return _render_tool_error(result, "导出注册表", compact=compact)
-
-    return _render_tool_response(
-        result,
+    return _run_registry_tool(
+        "export_registry",
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        technique=technique,
     )
 
 
@@ -1047,21 +1043,15 @@ def export_parse(
     """
     AI 导出正文解析工具 - 将快照文本拆分为可筛选的结构化分段。
     """
-    result = calculate_export_parse(
+    return _run_registry_tool(
+        "export_parse",
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
         technique=technique,
         content=content,
         selected_sections=selected_sections,
         planet_info=planet_info,
         astro_meaning=astro_meaning,
-    )
-
-    if "error" in result:
-        return _render_tool_error(result, "导出解析", compact=compact)
-
-    return _render_tool_response(
-        result,
-        compact=compact,
-        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -1076,18 +1066,12 @@ def knowledge_registry(
     """
     悬浮知识目录工具 - 列出 astrology / 六壬 / 奇门的本地知识分类，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
-    result = calculate_knowledge_registry(
-        domain=domain,
-        selected_sections=selected_sections,
-    )
-
-    if "error" in result:
-        return _render_tool_error(result, "知识目录", compact=compact)
-
-    return _render_tool_response(
-        result,
+    return _run_registry_tool(
+        "knowledge_registry",
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        domain=domain,
+        selected_sections=selected_sections,
     )
 
 
@@ -1110,7 +1094,10 @@ def knowledge_read(
     """
     悬浮知识读取工具 - 按 domain/category/key 读取单条本地知识，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export。
     """
-    result = calculate_knowledge_read(
+    return _run_registry_tool(
+        "knowledge_read",
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
         domain=domain,
         category=category,
         key=key,
@@ -1121,15 +1108,6 @@ def knowledge_read(
         jiang_name=jiang_name,
         tian_branch=tian_branch,
         di_branch=di_branch,
-    )
-
-    if "error" in result:
-        return _render_tool_error(result, "知识读取", compact=compact)
-
-    return _render_tool_response(
-        result,
-        compact=compact,
-        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -1168,6 +1146,7 @@ def jieqi_year(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="western_timing_analysis",
     )
 
 
@@ -1214,6 +1193,7 @@ def nongli_time(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="nongli_time",
     )
 
 
@@ -1237,6 +1217,7 @@ def gua_meiyi(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="gua_meiyi",
     )
 
 
@@ -1272,6 +1253,7 @@ def gua_lookup(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name="gua_lookup",
     )
 
 
@@ -2035,6 +2017,12 @@ def astro_chart(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+        tool_name=chart_variant if chart_variant in {"chart", "chart13"} else {
+            "germany": "germany",
+            "hellen_chart": "astro_hellen_chart",
+            "guolao_chart": "astro_guolao_chart",
+            "india_chart": "astro_india_chart",
+        }.get(chart_variant, "astro_chart"),
     )
 
 
@@ -2189,8 +2177,7 @@ def western_timing_analysis(
 
 
 def _run_western_timing_module_tool(
-    label: str,
-    runner: Callable[..., Dict[str, Any]],
+    tool_key: str,
     *,
     birth_year: int,
     birth_month: int,
@@ -2219,7 +2206,10 @@ def _run_western_timing_module_tool(
     compact: bool = True,
     include_snapshot_text: bool = True,
 ) -> str:
-    result = runner(
+    return _run_registry_tool(
+        tool_key,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2244,15 +2234,6 @@ def _run_western_timing_module_tool(
         pd_aspects=pd_aspects,
         show_pd_bounds=show_pd_bounds,
         selected_sections=selected_sections,
-    )
-
-    if "error" in result:
-        return _render_tool_error(result, label, compact=compact)
-
-    return _render_tool_response(
-        result,
-        compact=compact,
-        include_snapshot_text=include_snapshot_text,
     )
 
 
@@ -2288,8 +2269,7 @@ def solarreturn(
 ) -> str:
     """西占太阳返照独立工具。"""
     return _run_western_timing_module_tool(
-        "西占太阳返照",
-        calculate_solarreturn_service,
+        "solarreturn",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2351,8 +2331,7 @@ def lunarreturn(
 ) -> str:
     """西占月亮返照独立工具。"""
     return _run_western_timing_module_tool(
-        "西占月亮返照",
-        calculate_lunarreturn_service,
+        "lunarreturn",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2414,8 +2393,7 @@ def transit(
 ) -> str:
     """西占行运盘独立工具。"""
     return _run_western_timing_module_tool(
-        "西占行运盘",
-        calculate_transit_service,
+        "transit",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2477,8 +2455,7 @@ def solararc(
 ) -> str:
     """西占太阳弧独立工具。"""
     return _run_western_timing_module_tool(
-        "西占太阳弧",
-        calculate_solararc_service,
+        "solararc",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2540,8 +2517,7 @@ def givenyear(
 ) -> str:
     """西占指定年盘独立工具。"""
     return _run_western_timing_module_tool(
-        "西占指定年盘",
-        calculate_givenyear_service,
+        "givenyear",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2603,8 +2579,7 @@ def profection(
 ) -> str:
     """西占年小限独立工具。"""
     return _run_western_timing_module_tool(
-        "西占年小限",
-        calculate_profection_service,
+        "profection",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2666,8 +2641,7 @@ def pd(
 ) -> str:
     """西占主限独立工具。"""
     return _run_western_timing_module_tool(
-        "西占主限",
-        calculate_pd_service,
+        "pd",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2729,8 +2703,7 @@ def pdchart(
 ) -> str:
     """西占主限法盘独立工具。"""
     return _run_western_timing_module_tool(
-        "西占主限法盘",
-        calculate_pdchart_service,
+        "pdchart",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2792,8 +2765,7 @@ def zr(
 ) -> str:
     """西占黄道释放独立工具。"""
     return _run_western_timing_module_tool(
-        "西占黄道释放",
-        calculate_zr_service,
+        "zr",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2855,8 +2827,7 @@ def firdaria(
 ) -> str:
     """西占法达星限独立工具。"""
     return _run_western_timing_module_tool(
-        "西占法达星限",
-        calculate_firdaria_service,
+        "firdaria",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
@@ -2918,8 +2889,7 @@ def decennials(
 ) -> str:
     """西占十年星限独立工具。"""
     return _run_western_timing_module_tool(
-        "西占十年星限",
-        calculate_decennials_service,
+        "decennials",
         birth_year=birth_year,
         birth_month=birth_month,
         birth_day=birth_day,
