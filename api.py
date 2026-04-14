@@ -29,7 +29,6 @@ from fatebridge.services.astrology import (
     calculate_relative_chart_analysis,
 )
 from fatebridge.services.bazi import calculate_bazi_birth, calculate_bazi_direct
-from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.divination import (
     calculate_gua_lookup,
@@ -594,6 +593,37 @@ async def _execute_registered_tool(
         tool_name=descriptor.key,
         **kwargs,
     )
+
+
+def _flatten_bazi_birth_for_legacy_destiny_route(result: Dict[str, Any]) -> Dict[str, Any]:
+    bazi_birth = result.get("bazi_birth")
+    if not isinstance(bazi_birth, dict):
+        return result
+
+    payload = {
+        key: bazi_birth[key]
+        for key in (
+            "person_info",
+            "four_pillars",
+            "day_master",
+            "element_distribution",
+            "favorable_elements",
+            "ten_gods",
+            "structure_profile",
+            "patterns",
+            "calendar_context",
+        )
+        if key in bazi_birth
+    }
+
+    if "snapshot_text" in result:
+        payload["snapshot_text"] = result["snapshot_text"]
+    if "snapshot_export" in result:
+        payload["snapshot_export"] = result["snapshot_export"]
+    if "run_metadata" in result:
+        payload["run_metadata"] = result["run_metadata"]
+
+    return payload
 
 
 # ============================================================================
@@ -1467,13 +1497,13 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
         )
 
         result = await _execute_service(
-            calculate_destiny_analysis,
+            calculate_bazi_birth,
             person,
             tool_name="analyze_destiny",
         )
 
         logger.info("Calculation successful")
-        return result
+        return _flatten_bazi_birth_for_legacy_destiny_route(result)
 
     except ValueError:
         logger.warning("Invalid input received for calculation route")

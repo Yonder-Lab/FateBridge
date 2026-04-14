@@ -146,8 +146,33 @@ def test_calculate_destiny_route_executes_service_via_threadpool(monkeypatch):
     assert result["run_metadata"]["run_id"]
     assert result["run_metadata"]["trace_id"]
     assert result["run_metadata"]["generated_at"]
-    assert captured["func"] is api_module.calculate_destiny_analysis
+    assert captured["func"] is api_module.calculate_bazi_birth
     assert captured["args"][0].name == "张三"
+
+
+def test_calculate_destiny_route_includes_snapshot_contract():
+    request = FateBridgeRequest(
+        name="张三",
+        gender="男",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_place="上海",
+    )
+
+    result = asyncio.run(calculate_destiny(request))
+
+    assert "person_info" in result
+    assert "four_pillars" in result
+    assert "snapshot_text" in result
+    assert "snapshot_export" in result
+    assert "[起盘信息]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+    assert result["run_metadata"]["tool_name"] == "analyze_destiny"
 
 
 def test_western_timing_route_uses_structured_service_error_status(monkeypatch):
