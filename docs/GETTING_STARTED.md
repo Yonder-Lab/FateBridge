@@ -38,6 +38,7 @@ API_HOST=0.0.0.0
 API_PORT=8010
 ALLOWED_ORIGINS=http://localhost:3000
 LOG_LEVEL=INFO
+RATE_LIMIT_EXEMPT_CLIENTS=
 FATEBRIDGE_API_KEYS=
 API_KEY_HEADER_NAME=X-API-Key
 API_KEY_DAILY_QUOTA=0
@@ -48,6 +49,8 @@ API_KEY_DAILY_QUOTA=0
 - `FATEBRIDGE_API_KEYS` 为空时，REST API 默认不启用鉴权。
 - 如果设置了 `FATEBRIDGE_API_KEYS=agent:replace-me`，访问业务端点时需要带 `X-API-Key: replace-me`。
 - `API_KEY_DAILY_QUOTA` 按 UTC 日期统计单个 key 的日请求量，`0` 表示关闭。
+- `RATE_LIMIT_EXEMPT_CLIENTS` 用于为受信任的内部客户端跳过通用请求频率限制；如果 FateBridge 只给同机 HorizonX 使用，推荐设为 `127.0.0.1,::1`。
+- 端口 `8010` 应保持为内部访问端口，不要直接暴露为公网业务入口。
 
 ## 4. 启动 REST API
 

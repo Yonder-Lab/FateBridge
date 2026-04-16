@@ -76,6 +76,7 @@ from fatebridge.utils.runtime import (
     load_runtime_env,
     parse_allowed_origins,
     parse_api_keys,
+    parse_rate_limit_exempt_clients,
     summarize_request_context,
 )
 
@@ -105,6 +106,7 @@ app = FastAPI(
 # Get allowed origins from environment variable, default to localhost for development
 ALLOWED_ORIGINS = parse_allowed_origins()
 API_KEY_HEADER_NAME = get_api_key_header_name()
+RATE_LIMIT_EXEMPT_CLIENTS = frozenset(parse_rate_limit_exempt_clients())
 
 app.add_middleware(
     CORSMiddleware,
@@ -468,8 +470,16 @@ def _request_client_id(request: Request) -> str:
     forwarded_for = request.headers.get("x-forwarded-for", "")
     if forwarded_for:
         return forwarded_for.split(",", 1)[0].strip() or "forwarded-unknown"
+    return _request_client_host(request)
+
+
+def _request_client_host(request: Request) -> str:
     client = request.client
     return client.host if client and client.host else "unknown"
+
+
+def _is_rate_limit_exempt_client(request: Request) -> bool:
+    return _request_client_host(request) in RATE_LIMIT_EXEMPT_CLIENTS
 
 
 def _reset_runtime_state_for_tests() -> None:
@@ -530,7 +540,11 @@ async def instrument_request_lifecycle(
                 )
                 return quota_response
 
-    if method != "OPTIONS" and path not in RATE_LIMIT_EXEMPT_PATHS:
+    if (
+        method != "OPTIONS"
+        and path not in RATE_LIMIT_EXEMPT_PATHS
+        and not _is_rate_limit_exempt_client(request)
+    ):
         allowed, retry_after = REQUEST_RATE_LIMITER.check(
             client_id=authenticated_key_id or _request_client_id(request),
             path=path,
