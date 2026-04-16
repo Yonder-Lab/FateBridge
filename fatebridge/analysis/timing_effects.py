@@ -361,6 +361,46 @@ class TimingEffectsAnalysis:
         }
 
     @staticmethod
+    def analyze_liushi_effects(
+        birth_pillars: Dict,
+        target_datetime: datetime,
+        timezone_name: str = DEFAULT_TIMEZONE,
+        liushi_info: Optional[Dict] = None,
+        original_element_counts: Optional[Dict[Element, float]] = None,
+    ) -> Dict:
+        """
+        分析流时影响。
+        """
+        if liushi_info is None:
+            liushi_info = TimingAnalysis.calculate_liushi(
+                target_datetime, timezone_name=timezone_name
+            )
+        detailed_analysis = TimingAnalysis.analyze_liushi_detailed(
+            birth_pillars,
+            target_datetime,
+            timezone_name=timezone_name,
+            liushi_info=liushi_info,
+        )
+
+        timing_pillars = {
+            "liushi": {"stem": liushi_info["stem"], "branch": liushi_info["branch"]}
+        }
+
+        element_effects = TimingEffectsAnalysis.analyze_element_strength_changes(
+            birth_pillars,
+            timing_pillars,
+            original_element_counts=original_element_counts,
+        )
+
+        return {
+            "liushi_info": liushi_info,
+            "detailed_analysis": detailed_analysis,
+            "element_effects": element_effects,
+            "summary": f"流时{liushi_info['pillar']}，{element_effects['overall_effect']}",
+            "enhanced_summary": detailed_analysis["overall_summary"],
+        }
+
+    @staticmethod
     def analyze_liuyue_comprehensive(
         birth_pillars: Dict,
         target_year: int,
@@ -554,6 +594,7 @@ class TimingEffectsAnalysis:
         current_age: Optional[int] = None,
         liuyue_info: Optional[Dict] = None,
         liuri_info: Optional[Dict] = None,
+        liushi_info: Optional[Dict] = None,
     ) -> Dict:
         """
         综合时运分析
@@ -615,6 +656,14 @@ class TimingEffectsAnalysis:
             original_element_counts=original_element_counts,
         )
 
+        liushi_analysis = TimingEffectsAnalysis.analyze_liushi_effects(
+            birth_pillars,
+            analysis_date,
+            timezone_name=timezone_name,
+            liushi_info=liushi_info,
+            original_element_counts=original_element_counts,
+        )
+
         # 综合分析
         combined_timing_pillars = {}
         if "dayun_info" in dayun_analysis:
@@ -636,6 +685,10 @@ class TimingEffectsAnalysis:
             "stem": liuri_analysis["liuri_info"]["stem"],
             "branch": liuri_analysis["liuri_info"]["branch"],
         }
+        combined_timing_pillars["liushi"] = {
+            "stem": liushi_analysis["liushi_info"]["stem"],
+            "branch": liushi_analysis["liushi_info"]["branch"],
+        }
 
         combined_effects = TimingEffectsAnalysis.analyze_element_strength_changes(
             birth_pillars,
@@ -644,12 +697,13 @@ class TimingEffectsAnalysis:
         )
 
         return {
-            "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+            "analysis_date": analysis_date.strftime("%Y-%m-%d %H:%M"),
             "current_age": current_age,
             "dayun_analysis": dayun_analysis,
             "liunian_analysis": liunian_analysis,
             "liuyue_analysis": liuyue_analysis,
             "liuri_analysis": liuri_analysis,
+            "liushi_analysis": liushi_analysis,
             "combined_effects": combined_effects,
             "comprehensive_summary": TimingEffectsAnalysis._generate_comprehensive_summary(
                 dayun_analysis,
@@ -657,6 +711,7 @@ class TimingEffectsAnalysis:
                 liuyue_analysis,
                 liuri_analysis,
                 combined_effects,
+                liushi_analysis=liushi_analysis,
             ),
         }
 
@@ -667,6 +722,7 @@ class TimingEffectsAnalysis:
         liuyue_analysis: Dict,
         liuri_analysis: Dict,
         combined_effects: Dict,
+        liushi_analysis: Optional[Dict] = None,
     ) -> str:
         """生成综合时运分析总结"""
         summary_parts = []
@@ -682,6 +738,10 @@ class TimingEffectsAnalysis:
         summary_parts.extend(
             [f"流年{liunian_pillar}", f"流月{liuyue_pillar}", f"流日{liuri_pillar}"]
         )
+
+        if liushi_analysis and "liushi_info" in liushi_analysis:
+            liushi_pillar = liushi_analysis["liushi_info"]["pillar"]
+            summary_parts.append(f"流时{liushi_pillar}")
 
         overall_effect = combined_effects["overall_effect"]
 

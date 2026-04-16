@@ -276,6 +276,7 @@ def _build_timing_overview(
     liunian_result = timing_state["liunian_analysis"]
     liuyue_result = timing_state["liuyue_analysis"]
     liuri_result = timing_state["liuri_analysis"]
+    liushi_result = timing_state["liushi_analysis"]
 
     dayun_payload: Dict[str, Any]
     if "dayun_info" in dayun_result:
@@ -294,6 +295,7 @@ def _build_timing_overview(
 
     liuyue_info = liuyue_result["liuyue_info"]
     liuri_info = liuri_result["liuri_info"]
+    liushi_info = liushi_result["liushi_info"]
     return {
         "analysis_date": analysis_date.strftime("%Y-%m-%d"),
         "dayun": dayun_payload,
@@ -311,6 +313,12 @@ def _build_timing_overview(
             "pillar": liuri_info["pillar"],
             "summary": liuri_result.get("summary", ""),
             "weekday": liuri_info["weekday"],
+        },
+        "liushi": {
+            "pillar": liushi_info["pillar"],
+            "summary": liushi_result.get("summary", ""),
+            "hour": liushi_info["hour"],
+            "shichen": liushi_info["shichen"],
         },
         "current_jieqi": liuyue_info["solar_term_window"]["start_term"]["name"],
         "next_jieqi": liuyue_info["solar_term_window"]["next_term"]["name"],
@@ -413,6 +421,12 @@ def _build_snapshot_text(
                         f"流日：{timing_overview['liuri']['pillar']}；"
                         f"星期：{timing_overview['liuri']['weekday']}；"
                         f"{timing_overview['liuri']['summary']}"
+                    ),
+                    (
+                        f"流时：{timing_overview['liushi']['pillar']}；"
+                        f"{timing_overview['liushi']['hour']}时 / "
+                        f"{timing_overview['liushi']['shichen']}时；"
+                        f"{timing_overview['liushi']['summary']}"
                     ),
                     f"当下节气：{timing_overview['current_jieqi']}",
                     f"后续节气：{timing_overview['next_jieqi']}",

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """
 FateBridge FastMCP Server - 命运之桥：连接古典智慧与现代技术的命理工具
 
@@ -19,17 +21,18 @@ Provides Chinese metaphysics and offline astrology functionality via FastMCP:
 14. sanshiunited - Local Sanshi aggregation output
 15. bazi_birth - Standalone BaZi birth chart snapshot
 16. bazi_direct - Standalone BaZi direct timing snapshot
-17. solarreturn - Standalone solar return snapshot
-18. lunarreturn - Standalone lunar return snapshot
-19. transit - Standalone transit snapshot
-20. solararc - Standalone solar arc snapshot
-21. givenyear - Standalone given-year chart snapshot
-22. profection - Standalone annual profection snapshot
-23. pd - Standalone primary-directions snapshot
-24. pdchart - Standalone primary-direction chart snapshot
-25. zr - Standalone zodiacal releasing snapshot
-26. firdaria - Standalone firdaria snapshot
-27. decennials - Standalone decennials snapshot
+17. liushi_analysis - Standalone flow-hour timing snapshot
+18. solarreturn - Standalone solar return snapshot
+19. lunarreturn - Standalone lunar return snapshot
+20. transit - Standalone transit snapshot
+21. solararc - Standalone solar arc snapshot
+22. givenyear - Standalone given-year chart snapshot
+23. profection - Standalone annual profection snapshot
+24. pd - Standalone primary-directions snapshot
+25. pdchart - Standalone primary-direction chart snapshot
+26. zr - Standalone zodiacal releasing snapshot
+27. firdaria - Standalone firdaria snapshot
+28. decennials - Standalone decennials snapshot
 """
 
 import logging
@@ -88,6 +91,7 @@ from fatebridge.services.timing import (
     calculate_jieqi_year,
     calculate_liunian_analysis,
     calculate_liuri_analysis,
+    calculate_liushi_analysis,
     calculate_liuyue_analysis,
     calculate_nongli_time,
 )
@@ -1905,6 +1909,67 @@ def liuri_analysis(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
+    )
+
+
+@app.tool
+def liushi_analysis(
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour: int,
+    name: Optional[str] = "未提供",
+    gender: Optional[str] = "未知",
+    birth_place: Optional[str] = "未提供",
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
+    *,
+    birth_minute: int = 0,
+    birth_timezone: Optional[str] = None,
+    birth_longitude: Optional[float] = None,
+    selected_sections: Optional[list[str]] = None,
+    use_true_solar_time: bool = False,
+    compact: bool = True,
+    include_snapshot_text: bool = True,
+) -> str:
+    """
+    流时分析工具 - 专门分析指定时刻的流时影响，并返回完整 snapshot_text 与可按 selected_sections 过滤的 snapshot_export
+    """
+    person = create_person_info(
+        birth_year,
+        birth_month,
+        birth_day,
+        birth_hour,
+        name,
+        gender,
+        birth_place,
+        birth_minute=birth_minute,
+        birth_timezone=birth_timezone,
+        birth_longitude=birth_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+
+    result = calculate_liushi_analysis(
+        person,
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
+        selected_sections=selected_sections,
+    )
+
+    if "error" in result:
+        return _render_tool_error(result, "流时分析", compact=compact)
+
+    return _render_tool_response(
+        result,
+        compact=compact,
+        include_snapshot_text=include_snapshot_text,
+        tool_name="liushi_analysis",
     )
 
 

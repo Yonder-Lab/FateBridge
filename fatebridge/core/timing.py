@@ -76,6 +76,37 @@ def _calculate_liuyue_cached(
 
 
 @lru_cache(maxsize=4096)
+def _calculate_liushi_cached(
+    target_hour_dt: datetime,
+    timezone_name: str,
+) -> Dict:
+    """Cache deterministic liushi calculations. target_hour_dt must be truncated to the hour."""
+    local_dt = localize_datetime(target_hour_dt, timezone_name)
+    liushi_stem, liushi_branch = BaZiCalendar.calculate_hour_pillar(
+        local_dt.year,
+        local_dt.month,
+        local_dt.day,
+        local_dt.hour,
+    )
+    stem_element, stem_polarity = STEM_ELEMENTS[liushi_stem]
+
+    return {
+        "year": local_dt.year,
+        "month": local_dt.month,
+        "day": local_dt.day,
+        "hour": local_dt.hour,
+        "analysis_datetime": local_dt.strftime("%Y-%m-%d %H:%M:%S"),
+        "stem": liushi_stem,
+        "branch": liushi_branch,
+        "pillar": f"{liushi_stem}{liushi_branch}",
+        "element": stem_element.value,
+        "polarity": stem_polarity.value,
+        "nayin": get_nayin(liushi_stem, liushi_branch),
+        "shichen": liushi_branch,
+    }
+
+
+@lru_cache(maxsize=4096)
 def _calculate_liuri_cached(
     target_date: datetime,
     timezone_name: str,
@@ -420,6 +451,92 @@ class TimingAnalysis:
         计算指定时点的流日干支。
         """
         return deepcopy(_calculate_liuri_cached(target_date, timezone_name))
+
+    @staticmethod
+    def calculate_liushi(
+        target_datetime: datetime,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> Dict:
+        """
+        计算指定时刻的流时干支。
+
+        target_datetime 会被截断到小时粒度以命中缓存；
+        分钟/秒级偏差不影响时柱归属。
+        """
+        hour_dt = target_datetime.replace(minute=0, second=0, microsecond=0)
+        return deepcopy(_calculate_liushi_cached(hour_dt, timezone_name))
+
+    @staticmethod
+    def analyze_liushi_detailed(
+        birth_pillars: Dict,
+        target_datetime: datetime,
+        day_stem: Optional[str] = None,
+        timezone_name: str = DEFAULT_TIMEZONE,
+        liushi_info: Optional[Dict] = None,
+    ) -> Dict:
+        """
+        流时详细分析，包括十神关系、冲合与时级建议。
+        """
+        if liushi_info is None:
+            liushi_info = TimingAnalysis.calculate_liushi(
+                target_datetime, timezone_name=timezone_name
+            )
+
+        if day_stem is None:
+            day_stem = birth_pillars["day"][0]
+
+        stem_shishen = get_shishen(day_stem, liushi_info["stem"])
+        branch_relations = TimingAnalysis._collect_branch_relations(
+            liushi_info["branch"], birth_pillars, "流时"
+        )
+        fortune_analysis = TimingAnalysis._analyze_liuyue_fortune(
+            stem_shishen, branch_relations, liushi_info, scope_label="本时"
+        )
+        suggestions = TimingAnalysis._generate_liuyue_suggestions(
+            stem_shishen, branch_relations, fortune_analysis, scope_label="本时"
+        )
+
+        return {
+            "basic_info": liushi_info,
+            "shishen_analysis": {
+                "stem_relation": stem_shishen,
+                "description": f"流时天干{liushi_info['stem']}对日主{day_stem}为{stem_shishen}",
+            },
+            "branch_relations": branch_relations,
+            "fortune_analysis": fortune_analysis,
+            "suggestions": suggestions,
+            "overall_summary": TimingAnalysis._generate_liushi_summary(
+                liushi_info, stem_shishen, branch_relations, fortune_analysis
+            ),
+        }
+
+    @staticmethod
+    def _generate_liushi_summary(
+        liushi_info: Dict,
+        stem_shishen: str,
+        branch_relations: List[Dict],
+        fortune_analysis: Dict,
+    ) -> str:
+        """生成流时分析总结。"""
+        dt_label = (
+            f"{liushi_info['year']}年{liushi_info['month']}月"
+            f"{liushi_info['day']}日{liushi_info['hour']}时"
+        )
+        pillar = liushi_info["pillar"]
+        nayin = liushi_info["nayin"]
+        overall_fortune = fortune_analysis["overall_fortune"]
+
+        summary_parts = [
+            f"{dt_label}流时{pillar}({nayin})",
+            f"十神{stem_shishen}",
+            f"总体运势{overall_fortune}",
+        ]
+
+        if branch_relations:
+            relation_desc = "、".join([r["type"] for r in branch_relations])
+            summary_parts.append(f"有{relation_desc}关系")
+
+        return "，".join(summary_parts) + "。"
 
     @staticmethod
     def calculate_jieqi_transition_timeline(

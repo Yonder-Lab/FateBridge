@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 FastAPI REST server for FateBridge calculations.
 Provides HTTP endpoints for birth analysis, timing, and divination calculations.
@@ -11,7 +13,7 @@ import time
 from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 from threading import Lock
-from typing import Any, Callable, Deque, Dict, List, Optional, Tuple
+from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, Union
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -57,6 +59,7 @@ from fatebridge.services.timing import (
     calculate_jieqi_year,
     calculate_liunian_analysis,
     calculate_liuri_analysis,
+    calculate_liushi_analysis,
     calculate_liuyue_analysis,
     calculate_nongli_time,
 )
@@ -842,6 +845,28 @@ class LiuriAnalysisRequest(FateBridgeRequest):
     )
 
 
+class LiushiAnalysisRequest(FateBridgeRequest):
+    """Request model for liushi analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+
 class JieqiTimelineRequest(FateBridgeRequest):
     """Request model for jieqi timeline analysis."""
 
@@ -1386,7 +1411,7 @@ class AstroRelativeRequest(BaseModel):
     inner: AstroRelativePartyRequest
     outer: AstroRelativePartyRequest
     _mode_input_source: str = PrivateAttr(default="default")
-    relative_mode: Optional[str | int] = Field(
+    relative_mode: Optional[Union[str, int]] = Field(
         default=None,
         description=(
             "Modern relative mode selector, e.g. 0/1/2/3/4, Comp, Composite, "
@@ -1394,7 +1419,7 @@ class AstroRelativeRequest(BaseModel):
             "Synastry/synastry will resolve to the Horosa-style influence chart"
         ),
     )
-    relationship_mode: Optional[str | int] = Field(
+    relationship_mode: Optional[Union[str, int]] = Field(
         default=None,
         description=(
             "Legacy alias for relative_mode; relationship_mode='synastry' is "
@@ -3009,6 +3034,57 @@ async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
         raise
     except Exception as e:
         logger.error(f"Unexpected error during liuri analysis: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/timing/liushi")
+async def calculate_liushi(request: LiushiAnalysisRequest) -> dict:
+    """
+    Calculate liushi analysis for a specific analysis datetime.
+    """
+    try:
+        logger.info(
+            "Processing liushi analysis request (%s)",
+            summarize_request_context(name=request.name),
+        )
+
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        result = await _execute_service(
+            calculate_liushi_analysis,
+            person,
+            analysis_year=request.analysis_year,
+            analysis_month=request.analysis_month,
+            analysis_day=request.analysis_day,
+            analysis_hour=request.analysis_hour,
+            analysis_minute=request.analysis_minute,
+            selected_sections=request.selected_sections or None,
+            cpu_bound=True,
+        )
+
+        logger.info("Liushi analysis successful")
+        return result
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的输入参数，请检查日期有效性")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during liushi analysis: {str(e)}", exc_info=True
+        )
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 

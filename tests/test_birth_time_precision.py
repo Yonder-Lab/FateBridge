@@ -12,6 +12,7 @@ from api import (
     JieqiTimelineRequest,
     LiunianAnalysisRequest,
     LiuriAnalysisRequest,
+    LiushiAnalysisRequest,
     LiuyueAnalysisRequest,
     TimingAnalysisRequest,
 )
@@ -21,6 +22,7 @@ from fastmcp_server import (
     jieqi_timeline_analysis,
     liunian_analysis,
     liuri_analysis,
+    liushi_analysis,
     liuyue_analysis,
     timing_analysis,
     two_person_compatibility,
@@ -33,6 +35,7 @@ from fatebridge.services.timing import (
     calculate_jieqi_timeline_analysis,
     calculate_liunian_analysis,
     calculate_liuri_analysis,
+    calculate_liushi_analysis,
     calculate_liuyue_analysis,
 )
 from fatebridge.utils.helpers import create_person_info, normalize_birth_time
@@ -115,6 +118,18 @@ def test_timing_request_models_accept_analysis_fields():
         analysis_hour=21,
         analysis_minute=55,
     )
+    liushi_request = LiushiAnalysisRequest(
+        birth_year=1990,
+        birth_month=5,
+        birth_day=15,
+        birth_hour=10,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+        analysis_hour=21,
+        analysis_minute=55,
+        selected_sections=["查询信息", "流时信息"],
+    )
     jieqi_request = JieqiTimelineRequest(
         birth_year=1990,
         birth_month=5,
@@ -129,6 +144,7 @@ def test_timing_request_models_accept_analysis_fields():
     liunian_payload = liunian_request.model_dump()
     liuyue_payload = liuyue_request.model_dump()
     liuri_payload = liuri_request.model_dump()
+    liushi_payload = liushi_request.model_dump()
     jieqi_payload = jieqi_request.model_dump()
 
     assert timing_payload["analysis_year"] == 2028
@@ -154,6 +170,12 @@ def test_timing_request_models_accept_analysis_fields():
     assert liuri_payload["analysis_day"] == 1
     assert liuri_payload["analysis_hour"] == 21
     assert liuri_payload["analysis_minute"] == 55
+    assert liushi_payload["analysis_year"] == 2028
+    assert liushi_payload["analysis_month"] == 4
+    assert liushi_payload["analysis_day"] == 1
+    assert liushi_payload["analysis_hour"] == 21
+    assert liushi_payload["analysis_minute"] == 55
+    assert liushi_payload["selected_sections"] == ["查询信息", "流时信息"]
     assert jieqi_payload["target_year"] == 2028
     assert jieqi_payload["selected_sections"] == ["查询信息", "节点时间轴"]
 
@@ -678,6 +700,76 @@ def test_calculate_liuri_analysis_supports_selected_export_sections():
     assert "[来源]" not in result["snapshot_export"]["export_text"]
 
 
+def test_calculate_liushi_analysis_returns_expected_pillar():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+    analysis_dt = datetime(2028, 4, 1, 21, 55)
+
+    result = calculate_liushi_analysis(
+        person,
+        analysis_year=analysis_dt.year,
+        analysis_month=analysis_dt.month,
+        analysis_day=analysis_dt.day,
+        analysis_hour=analysis_dt.hour,
+        analysis_minute=analysis_dt.minute,
+    )
+    expected_liushi = TimingAnalysis.calculate_liushi(
+        analysis_dt,
+        timezone_name="Asia/Shanghai",
+    )
+
+    assert result["liushi_info"]["pillar"] == expected_liushi["pillar"]
+    assert result["liushi_info"]["hour"] == 21
+    assert (
+        result["analysis_calendar"]["analysis_date_context"]["current_solar_term"][
+            "name"
+        ]
+        == "春分"
+    )
+    assert "[查询信息]" in result["snapshot_text"]
+    assert "[流时信息]" in result["snapshot_text"]
+    assert "[影响摘要]" in result["snapshot_text"]
+    assert "[来源]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_liushi_analysis_supports_selected_export_sections():
+    person = create_person_info(
+        birth_year=2028,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_minute=33,
+        birth_timezone="Asia/Shanghai",
+        name="测试",
+        gender="男",
+    )
+
+    result = calculate_liushi_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=1,
+        analysis_hour=21,
+        analysis_minute=55,
+        selected_sections=["查询信息", "流时信息"],
+    )
+
+    assert result["snapshot_export"]["selected_sections"] == ["查询信息", "流时信息"]
+    assert "[查询信息]" in result["snapshot_export"]["export_text"]
+    assert "[流时信息]" in result["snapshot_export"]["export_text"]
+    assert "[影响摘要]" not in result["snapshot_export"]["export_text"]
+    assert "[来源]" not in result["snapshot_export"]["export_text"]
+
+
 def test_calculate_liunian_analysis_supports_snapshot_export():
     person = create_person_info(
         birth_year=2028,
@@ -980,6 +1072,14 @@ def test_comprehensive_timing_matches_specialized_timing_tools():
         analysis_month=4,
         analysis_day=6,
     )
+    liushi_result = calculate_liushi_analysis(
+        person,
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+        analysis_hour=0,
+        analysis_minute=0,
+    )
 
     assert (
         timing_result["dayun_analysis"]["current_dayun"]
@@ -1005,6 +1105,10 @@ def test_comprehensive_timing_matches_specialized_timing_tools():
         timing_result["liuri_analysis"]["pillar"]
         == liuri_result["liuri_info"]["pillar"]
     )
+    assert (
+        timing_result["liushi_analysis"]["pillar"]
+        == liushi_result["liushi_info"]["pillar"]
+    )
 
 
 def test_fastmcp_tools_expose_birth_time_precision_arguments():
@@ -1015,6 +1119,7 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     liunian_properties = liunian_analysis.parameters["properties"]
     liuyue_properties = liuyue_analysis.parameters["properties"]
     liuri_properties = liuri_analysis.parameters["properties"]
+    liushi_properties = liushi_analysis.parameters["properties"]
     jieqi_properties = jieqi_timeline_analysis.parameters["properties"]
 
     assert "birth_minute" in analyze_properties
@@ -1047,5 +1152,11 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     assert "analysis_hour" in liuri_properties
     assert "analysis_minute" in liuri_properties
     assert "selected_sections" in liuri_properties
+    assert "analysis_year" in liushi_properties
+    assert "analysis_month" in liushi_properties
+    assert "analysis_day" in liushi_properties
+    assert "analysis_hour" in liushi_properties
+    assert "analysis_minute" in liushi_properties
+    assert "selected_sections" in liushi_properties
     assert "target_year" in jieqi_properties
     assert "selected_sections" in jieqi_properties

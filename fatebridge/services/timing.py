@@ -90,6 +90,10 @@ def _build_current_timing_state(
         analysis_date,
         timezone_name=timezone_name,
     )
+    liushi_info = TimingAnalysis.calculate_liushi(
+        analysis_date,
+        timezone_name=timezone_name,
+    )
     dayun_analysis = TimingEffectsAnalysis.analyze_dayun_effects(
         birth_context.birth_pillars,
         birth_context.normalized_birth_time.corrected_datetime,
@@ -120,6 +124,13 @@ def _build_current_timing_state(
         liuri_info=liuri_info,
         original_element_counts=birth_context.original_element_counts,
     )
+    liushi_analysis = TimingEffectsAnalysis.analyze_liushi_effects(
+        birth_context.birth_pillars,
+        analysis_date,
+        timezone_name=timezone_name,
+        liushi_info=liushi_info,
+        original_element_counts=birth_context.original_element_counts,
+    )
 
     combined_timing_pillars: Dict[str, Dict[str, str]] = {}
     if "dayun_info" in dayun_analysis:
@@ -139,6 +150,10 @@ def _build_current_timing_state(
         "stem": liuri_analysis["liuri_info"]["stem"],
         "branch": liuri_analysis["liuri_info"]["branch"],
     }
+    combined_timing_pillars["liushi"] = {
+        "stem": liushi_analysis["liushi_info"]["stem"],
+        "branch": liushi_analysis["liushi_info"]["branch"],
+    }
 
     combined_effects = TimingEffectsAnalysis.analyze_element_strength_changes(
         birth_context.birth_pillars,
@@ -153,6 +168,7 @@ def _build_current_timing_state(
         "liunian_analysis": liunian_analysis,
         "liuyue_analysis": liuyue_analysis,
         "liuri_analysis": liuri_analysis,
+        "liushi_analysis": liushi_analysis,
         "combined_effects": combined_effects,
         "comprehensive_summary": TimingEffectsAnalysis._generate_comprehensive_summary(
             dayun_analysis,
@@ -160,6 +176,7 @@ def _build_current_timing_state(
             liuyue_analysis,
             liuri_analysis,
             combined_effects,
+            liushi_analysis=liushi_analysis,
         ),
     }
 
@@ -640,6 +657,72 @@ def _build_liuri_snapshot_text(
     )
 
 
+def _build_liushi_snapshot_text(
+    *,
+    person_name: str,
+    birth_datetime: datetime,
+    normalized_birth_datetime: datetime,
+    timezone_name: str,
+    analysis_date: datetime,
+    analysis_calendar_context: Dict[str, Any],
+    liushi_info: Dict[str, Any],
+    detailed_analysis: Dict[str, Any],
+    element_effects: Dict[str, Any],
+    summary: str,
+) -> str:
+    current_term = (analysis_calendar_context.get("current_solar_term") or {}).get(
+        "name", "未知"
+    )
+    next_term = (analysis_calendar_context.get("next_solar_term") or {}).get(
+        "name", "未知"
+    )
+    query_lines = [
+        f"姓名：{person_name or '未提供'}",
+        f"分析时刻：{analysis_date.strftime('%Y-%m-%d %H:%M')}",
+        f"出生时间：{birth_datetime.strftime('%Y-%m-%d %H:%M')}",
+        f"归一时间：{normalized_birth_datetime.strftime('%Y-%m-%d %H:%M')}",
+        f"时区：{timezone_name}",
+        f"分析日节气：{current_term} -> {next_term}",
+        f"摘要：{summary}",
+    ]
+    hour_lines = [
+        f"流时：{liushi_info.get('pillar', '未知')}",
+        f"时干支：{liushi_info.get('stem', '未知')}{liushi_info.get('branch', '未知')}",
+        f"五行：{liushi_info.get('element', '未知')}",
+        f"纳音：{liushi_info.get('nayin', '未知')}",
+        f"时刻：{liushi_info.get('analysis_datetime', '未知')}",
+        f"时辰支：{liushi_info.get('shichen', '未知')}",
+    ]
+    effect_lines = [
+        f"总体五行：{element_effects.get('overall_effect', '未知')}",
+        f"十神关系：{detailed_analysis.get('stem_relation', '未知')}",
+    ]
+    fortune_analysis = detailed_analysis.get("fortune_analysis") or {}
+    if fortune_analysis:
+        effect_lines.append(f"运势等级：{fortune_analysis.get('overall_fortune', '未知')}")
+        effect_lines.append(f"运势分数：{fortune_analysis.get('fortune_score', '未知')}")
+        effect_lines.append(f"细断：{fortune_analysis.get('detailed_analysis', '无')}")
+    for relation in detailed_analysis.get("branch_relations") or []:
+        effect_lines.append(
+            f"{relation.get('type', '普通')}：{relation.get('description', '无')}"
+        )
+    for suggestion in detailed_analysis.get("suggestions") or []:
+        effect_lines.append(f"建议：{suggestion}")
+
+    source_lines = [
+        "来源：FateBridge 离线流时分析",
+        "引用：fatebridge.analysis.timing_effects / analyze_liushi_effects",
+    ]
+    return _render_snapshot_text(
+        [
+            ("查询信息", query_lines),
+            ("流时信息", hour_lines),
+            ("影响摘要", effect_lines),
+            ("来源", source_lines),
+        ]
+    )
+
+
 def _build_jieqi_timeline_snapshot_text(
     *,
     person_name: str,
@@ -698,6 +781,7 @@ def _build_comprehensive_timing_snapshot_text(
     liunian_info: Dict[str, Any],
     liuyue_info: Dict[str, Any],
     liuri_info: Dict[str, Any],
+    liushi_info: Dict[str, Any],
     combined_effects: Dict[str, Any],
     summary: str,
 ) -> str:
@@ -734,6 +818,7 @@ def _build_comprehensive_timing_snapshot_text(
         f"流年：{liunian_info.get('pillar', '未知')} / {liunian_info.get('summary', '无')}",
         f"流月：{liuyue_info.get('pillar', '未知')} / {liuyue_info.get('summary', '无')}",
         f"流日：{liuri_info.get('pillar', '未知')} / {liuri_info.get('summary', '无')}",
+        f"流时：{liushi_info.get('pillar', '未知')} / {liushi_info.get('summary', '无')}",
     ]
 
     impact_lines = [
@@ -1073,7 +1158,7 @@ def calculate_comprehensive_timing(
     selected_sections: Optional[List[str]] = None,
 ) -> Dict:
     """
-    计算时运分析，包括大运、流年、流月的影响分析
+    计算时运分析，包括大运、流年、流月、流日、流时的影响分析
     """
     try:
         birth_context = _build_birth_computation_context(person)
@@ -1142,7 +1227,7 @@ def calculate_comprehensive_timing(
                 "jieqi_timeline": jieqi_timeline,
             },
         }
-        
+
         # 大运分析
         dayun_analysis = timing_result["dayun_analysis"]
         if "dayun_info" in dayun_analysis:
@@ -1192,6 +1277,17 @@ def calculate_comprehensive_timing(
             "summary": liuri_analysis["summary"],
         }
 
+        # 流时分析
+        liushi_analysis = timing_result["liushi_analysis"]
+        liushi_info = liushi_analysis["liushi_info"]
+        result["liushi_analysis"] = {
+            "pillar": liushi_info["pillar"],
+            "stem": liushi_info["stem"],
+            "branch": liushi_info["branch"],
+            "hour": liushi_info["hour"],
+            "summary": liushi_analysis["summary"],
+        }
+
         # 综合影响
         combined_effects = timing_result["combined_effects"]
         result["combined_effects"] = _serialize_element_effects(combined_effects)
@@ -1210,6 +1306,7 @@ def calculate_comprehensive_timing(
             liunian_info=result["liunian_analysis"],
             liuyue_info=result["liuyue_analysis"],
             liuri_info=result["liuri_analysis"],
+            liushi_info=result["liushi_analysis"],
             combined_effects=result["combined_effects"],
             summary=result["comprehensive_summary"],
         )
@@ -1636,6 +1733,132 @@ def calculate_liuri_analysis(
 
     except Exception as e:
         return handle_calculation_error(e, "流日分析计算")
+
+
+def calculate_liushi_analysis(
+    person: PersonInfo,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
+    selected_sections: Optional[List[str]] = None,
+) -> Dict:
+    """
+    流时分析工具 - 专门分析指定时刻的流时影响
+    """
+    try:
+        birth_context = _build_birth_computation_context(person)
+        normalized_birth_time = birth_context.normalized_birth_time
+        birth_date = normalized_birth_time.corrected_datetime
+
+        now = datetime.now()
+        if analysis_year is None:
+            analysis_year = now.year
+        if analysis_month is None:
+            analysis_month = now.month
+        if analysis_day is None:
+            analysis_day = now.day
+        if analysis_hour is None:
+            analysis_hour = now.hour
+        if analysis_minute is None:
+            analysis_minute = 0
+
+        analysis_date = datetime(
+            analysis_year,
+            analysis_month,
+            analysis_day,
+            analysis_hour,
+            analysis_minute,
+        )
+        analysis_calendar_context = build_calendar_context(
+            analysis_date,
+            timezone_name=normalized_birth_time.timezone,
+        )
+        liushi_info = TimingAnalysis.calculate_liushi(
+            analysis_date,
+            timezone_name=normalized_birth_time.timezone,
+        )
+
+        liushi_result = TimingEffectsAnalysis.analyze_liushi_effects(
+            birth_context.birth_pillars,
+            analysis_date,
+            timezone_name=normalized_birth_time.timezone,
+            liushi_info=liushi_info,
+            original_element_counts=birth_context.original_element_counts,
+        )
+
+        liushi_info = liushi_result["liushi_info"]
+        detailed_analysis = liushi_result["detailed_analysis"]
+        element_effects = liushi_result["element_effects"]
+        summary = liushi_result["enhanced_summary"]
+        snapshot_text = _build_liushi_snapshot_text(
+            person_name=person.name,
+            birth_datetime=normalized_birth_time.input_datetime,
+            normalized_birth_datetime=birth_date,
+            timezone_name=normalized_birth_time.timezone,
+            analysis_date=analysis_date,
+            analysis_calendar_context=analysis_calendar_context,
+            liushi_info=liushi_info,
+            detailed_analysis={
+                "stem_relation": detailed_analysis["shishen_analysis"][
+                    "stem_relation"
+                ],
+                "branch_relations": detailed_analysis["branch_relations"],
+                "fortune_analysis": detailed_analysis["fortune_analysis"],
+                "suggestions": detailed_analysis["suggestions"],
+            },
+            element_effects=element_effects,
+            summary=summary,
+        )
+        snapshot_export = _build_snapshot_export(
+            technique="liushi_analysis",
+            snapshot_text=snapshot_text,
+            selected_sections=selected_sections,
+        )
+
+        return {
+            "analysis_type": "流时专项分析",
+            "personal_info": {
+                "name": person.name,
+                "birth_datetime": normalized_birth_time.input_datetime.strftime(
+                    "%Y-%m-%d %H:%M"
+                ),
+                "normalized_birth_datetime": birth_date.strftime("%Y-%m-%d %H:%M"),
+                "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+                "analysis_datetime": analysis_date.strftime("%Y-%m-%d %H:%M"),
+                "time_adjustment": normalized_birth_time.as_dict(),
+            },
+            "calendar_context": birth_context.birth_calendar_context,
+            "analysis_calendar": {
+                "analysis_date_context": analysis_calendar_context,
+            },
+            "liushi_info": {
+                "pillar": liushi_info["pillar"],
+                "stem": liushi_info["stem"],
+                "branch": liushi_info["branch"],
+                "element": liushi_info["element"],
+                "nayin": liushi_info["nayin"],
+                "hour": liushi_info["hour"],
+                "analysis_datetime": liushi_info["analysis_datetime"],
+                "shichen": liushi_info["shichen"],
+            },
+            "detailed_analysis": {
+                "stem_relation": detailed_analysis["shishen_analysis"][
+                    "stem_relation"
+                ],
+                "branch_relations": detailed_analysis["branch_relations"],
+                "fortune_analysis": detailed_analysis["fortune_analysis"],
+                "suggestions": detailed_analysis["suggestions"],
+            },
+            "element_effects": _serialize_element_effects(element_effects),
+            "summary": summary,
+            "snapshot_text": snapshot_text,
+            "snapshot_export": snapshot_export,
+        }
+
+    except Exception as e:
+        return handle_calculation_error(e, "流时分析计算")
 
 
 def calculate_jieqi_timeline_analysis(

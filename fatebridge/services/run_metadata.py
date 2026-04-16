@@ -90,6 +90,7 @@ _EXPLICIT_SERVICE_NAME_MAP = {
     "calculate_liunian_analysis": "liunian_analysis",
     "calculate_liuyue_analysis": "liuyue_analysis",
     "calculate_liuri_analysis": "liuri_analysis",
+    "calculate_liushi_analysis": "liushi_analysis",
     "calculate_jieqi_timeline_analysis": "jieqi_timeline_analysis",
     "calculate_core_chart_analysis": None,
     "calculate_relative_chart_analysis": "astro_relative_chart",

@@ -20,6 +20,7 @@ from api import (
     KnowledgeReadRequest,
     KnowledgeRegistryRequest,
     LiunianAnalysisRequest,
+    LiushiAnalysisRequest,
     QimenAnalysisRequest,
     TaiyiAnalysisRequest,
     TimingAnalysisRequest,
@@ -29,6 +30,7 @@ from api import (
     calculate_astro_chart,
     calculate_dayun,
     calculate_liunian,
+    calculate_liushi,
     calculate_pdchart_module,
     calculate_relative_chart,
     calculate_solarreturn_module,
@@ -51,6 +53,7 @@ from fastmcp_server import (
     knowledge_read,
     knowledge_registry,
     liunian_analysis,
+    liushi_analysis,
     pdchart,
     qimen,
     solarreturn,
@@ -353,6 +356,21 @@ NON_REGISTRY_PARITY_CASES = [
         lambda request: request.model_dump(),
     ),
     (
+        "liushi_analysis",
+        lambda: LiushiAnalysisRequest(
+            **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
+            analysis_year=2028,
+            analysis_month=4,
+            analysis_day=6,
+            analysis_hour=21,
+            analysis_minute=55,
+            selected_sections=["查询信息", "流时信息"],
+        ),
+        calculate_liushi,
+        liushi_analysis,
+        lambda request: request.model_dump(),
+    ),
+    (
         "qimen",
         lambda: QimenAnalysisRequest(
             **{
@@ -437,11 +455,21 @@ def test_alignment_request_models_accept_fastmcp_offline_fields():
         **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
         target_year=2028,
     )
+    liushi_request = LiushiAnalysisRequest(
+        **_build_birth_payload(name="张三", gender="男", birth_place="上海"),
+        analysis_year=2028,
+        analysis_month=4,
+        analysis_day=6,
+        analysis_hour=21,
+        analysis_minute=55,
+        selected_sections=["查询信息", "流时信息"],
+    )
 
     compatibility_payload = compatibility_request.model_dump()
     timing_payload = timing_request.model_dump()
     dayun_payload = dayun_request.model_dump()
     liunian_payload = liunian_request.model_dump()
+    liushi_payload = liushi_request.model_dump()
 
     assert compatibility_payload["person1_birth_minute"] == 30
     assert compatibility_payload["person2_birth_timezone"] == "Asia/Shanghai"
@@ -458,6 +486,12 @@ def test_alignment_request_models_accept_fastmcp_offline_fields():
     assert dayun_payload["analysis_age"] == 38
     assert dayun_payload["selected_sections"] == ["查询信息", "大运信息"]
     assert liunian_payload["target_year"] == 2028
+    assert liushi_payload["analysis_year"] == 2028
+    assert liushi_payload["analysis_month"] == 4
+    assert liushi_payload["analysis_day"] == 6
+    assert liushi_payload["analysis_hour"] == 21
+    assert liushi_payload["analysis_minute"] == 55
+    assert liushi_payload["selected_sections"] == ["查询信息", "流时信息"]
 
 
 def test_tool_registry_first_batch_descriptors_cover_expected_families():
