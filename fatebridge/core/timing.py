@@ -9,7 +9,9 @@
 """
 
 import math
+from copy import deepcopy
 from datetime import datetime, timedelta
+from functools import lru_cache
 from typing import Dict, List, Optional
 
 from .almanac import (
@@ -31,6 +33,83 @@ from ..utils.data import (
     check_branch_conflict,
     check_branch_combination,
 )
+
+
+@lru_cache(maxsize=2048)
+def _calculate_liuyue_cached(
+    target_year: int,
+    target_month: int,
+    target_day: int,
+    timezone_name: str,
+    target_date: Optional[datetime],
+) -> Dict:
+    """Cache deterministic liuyue calculations for repeated timing analysis."""
+    effective_target_date = target_date or datetime(target_year, target_month, target_day)
+    local_target_date = localize_datetime(effective_target_date, timezone_name)
+    bazi_year = get_bazi_year(local_target_date, timezone_name)
+    month_context = get_bazi_month_context(local_target_date, timezone_name)
+    liuyue_stem, liuyue_branch = BaZiCalendar.calculate_month_pillar_by_branch(
+        bazi_year,
+        month_context["branch"],
+    )
+    stem_element, stem_polarity = STEM_ELEMENTS[liuyue_stem]
+
+    return {
+        "year": target_year,
+        "month": target_month,
+        "day": local_target_date.day,
+        "analysis_datetime": local_target_date.strftime("%Y-%m-%d %H:%M:%S"),
+        "bazi_year": bazi_year,
+        "stem": liuyue_stem,
+        "branch": liuyue_branch,
+        "pillar": f"{liuyue_stem}{liuyue_branch}",
+        "element": stem_element.value,
+        "polarity": stem_polarity.value,
+        "nayin": get_nayin(liuyue_stem, liuyue_branch),
+        "solar_term_window": {
+            "start_term": month_context["start_term"],
+            "next_term": month_context["next_term"],
+            "days_since_start": month_context["days_since_start"],
+            "days_until_next": month_context["days_until_next"],
+        },
+    }
+
+
+@lru_cache(maxsize=4096)
+def _calculate_liuri_cached(
+    target_date: datetime,
+    timezone_name: str,
+) -> Dict:
+    """Cache deterministic liuri calculations for repeated timeline analysis."""
+    local_target_date = localize_datetime(target_date, timezone_name)
+    liuri_stem, liuri_branch = BaZiCalendar.calculate_day_pillar(
+        local_target_date.year,
+        local_target_date.month,
+        local_target_date.day,
+    )
+    stem_element, stem_polarity = STEM_ELEMENTS[liuri_stem]
+    month_context = get_bazi_month_context(local_target_date, timezone_name)
+    weekday_names = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+
+    return {
+        "year": local_target_date.year,
+        "month": local_target_date.month,
+        "day": local_target_date.day,
+        "analysis_datetime": local_target_date.strftime("%Y-%m-%d %H:%M:%S"),
+        "stem": liuri_stem,
+        "branch": liuri_branch,
+        "pillar": f"{liuri_stem}{liuri_branch}",
+        "element": stem_element.value,
+        "polarity": stem_polarity.value,
+        "nayin": get_nayin(liuri_stem, liuri_branch),
+        "weekday": weekday_names[local_target_date.weekday()],
+        "solar_term_window": {
+            "start_term": month_context["start_term"],
+            "next_term": month_context["next_term"],
+            "days_since_start": month_context["days_since_start"],
+            "days_until_next": month_context["days_until_next"],
+        },
+    }
 
 
 class TimingAnalysis:
@@ -245,41 +324,15 @@ class TimingAnalysis:
         Returns:
             流月信息
         """
-        if target_date is None:
-            target_date = datetime(target_year, target_month, target_day)
-
-        local_target_date = localize_datetime(target_date, timezone_name)
-        bazi_year = get_bazi_year(local_target_date, timezone_name)
-        month_context = get_bazi_month_context(local_target_date, timezone_name)
-        liuyue_stem, liuyue_branch = BaZiCalendar.calculate_month_pillar_by_branch(
-            bazi_year, month_context["branch"]
+        return deepcopy(
+            _calculate_liuyue_cached(
+                target_year,
+                target_month,
+                target_day,
+                timezone_name,
+                target_date,
+            )
         )
-
-        # 获取天干五行
-        stem_element, stem_polarity = STEM_ELEMENTS[liuyue_stem]
-
-        # 获取纳音
-        nayin = get_nayin(liuyue_stem, liuyue_branch)
-
-        return {
-            "year": target_year,
-            "month": target_month,
-            "day": local_target_date.day,
-            "analysis_datetime": local_target_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "bazi_year": bazi_year,
-            "stem": liuyue_stem,
-            "branch": liuyue_branch,
-            "pillar": f"{liuyue_stem}{liuyue_branch}",
-            "element": stem_element.value,
-            "polarity": stem_polarity.value,
-            "nayin": nayin,
-            "solar_term_window": {
-                "start_term": month_context["start_term"],
-                "next_term": month_context["next_term"],
-                "days_since_start": month_context["days_since_start"],
-                "days_until_next": month_context["days_until_next"],
-            },
-        }
 
     @staticmethod
     def _next_supported_analysis_anchor(
@@ -366,36 +419,7 @@ class TimingAnalysis:
         """
         计算指定时点的流日干支。
         """
-        local_target_date = localize_datetime(target_date, timezone_name)
-        liuri_stem, liuri_branch = BaZiCalendar.calculate_day_pillar(
-            local_target_date.year,
-            local_target_date.month,
-            local_target_date.day,
-        )
-        stem_element, stem_polarity = STEM_ELEMENTS[liuri_stem]
-        nayin = get_nayin(liuri_stem, liuri_branch)
-        month_context = get_bazi_month_context(local_target_date, timezone_name)
-        weekday_names = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-
-        return {
-            "year": local_target_date.year,
-            "month": local_target_date.month,
-            "day": local_target_date.day,
-            "analysis_datetime": local_target_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "stem": liuri_stem,
-            "branch": liuri_branch,
-            "pillar": f"{liuri_stem}{liuri_branch}",
-            "element": stem_element.value,
-            "polarity": stem_polarity.value,
-            "nayin": nayin,
-            "weekday": weekday_names[local_target_date.weekday()],
-            "solar_term_window": {
-                "start_term": month_context["start_term"],
-                "next_term": month_context["next_term"],
-                "days_since_start": month_context["days_since_start"],
-                "days_until_next": month_context["days_until_next"],
-            },
-        }
+        return deepcopy(_calculate_liuri_cached(target_date, timezone_name))
 
     @staticmethod
     def calculate_jieqi_transition_timeline(
@@ -472,6 +496,7 @@ class TimingAnalysis:
         target_day: int = 1,
         timezone_name: str = DEFAULT_TIMEZONE,
         target_date: Optional[datetime] = None,
+        liuyue_info: Optional[Dict] = None,
     ) -> Dict:
         """
         流月的详细分析，包括十神关系、吉凶判断等
@@ -486,13 +511,14 @@ class TimingAnalysis:
             流月详细分析结果
         """
         # 获取基础流月信息
-        liuyue_info = TimingAnalysis.calculate_liuyue(
-            target_year,
-            target_month,
-            target_day=target_day,
-            timezone_name=timezone_name,
-            target_date=target_date,
-        )
+        if liuyue_info is None:
+            liuyue_info = TimingAnalysis.calculate_liuyue(
+                target_year,
+                target_month,
+                target_day=target_day,
+                timezone_name=timezone_name,
+                target_date=target_date,
+            )
 
         # 获取日主
         if day_stem is None:
@@ -536,13 +562,15 @@ class TimingAnalysis:
         target_date: datetime,
         day_stem: Optional[str] = None,
         timezone_name: str = DEFAULT_TIMEZONE,
+        liuri_info: Optional[Dict] = None,
     ) -> Dict:
         """
         流日详细分析，包括十神关系、冲合与日级建议。
         """
-        liuri_info = TimingAnalysis.calculate_liuri(
-            target_date, timezone_name=timezone_name
-        )
+        if liuri_info is None:
+            liuri_info = TimingAnalysis.calculate_liuri(
+                target_date, timezone_name=timezone_name
+            )
 
         if day_stem is None:
             day_stem = birth_pillars["day"][0]

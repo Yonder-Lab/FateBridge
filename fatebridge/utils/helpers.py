@@ -12,6 +12,7 @@ from builtins import TimeoutError as BuiltinTimeoutError
 from calendar import monthrange
 from dataclasses import dataclass
 from datetime import datetime, timedelta, tzinfo
+from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple, cast
 
 from dateutil import tz
@@ -456,7 +457,14 @@ def resolve_birth_place_context(
         return BirthPlaceResolution(None, None, None, None, None)
 
     normalized_place = normalize_birth_place_text(birth_place)
+    return _resolve_birth_place_context_cached(normalized_place)
 
+
+@lru_cache(maxsize=256)
+def _resolve_birth_place_context_cached(
+    normalized_place: str,
+) -> BirthPlaceResolution:
+    """Cache offline place resolution because it is deterministic and reusable."""
     best_match: Optional[Tuple[int, int, int, int, Dict[str, Any]]] = None
     for entry in KNOWN_BIRTH_PLACE_ENTRIES:
         for alias in entry["normalized_aliases"]:
@@ -486,6 +494,12 @@ def resolve_birth_place_context(
 def parse_timezone_name(timezone_name: str) -> tzinfo:
     """Parse IANA names or UTC±HH[:MM] offsets into a tzinfo."""
     timezone_name = timezone_name.strip()
+    return _parse_timezone_name_cached(timezone_name)
+
+
+@lru_cache(maxsize=128)
+def _parse_timezone_name_cached(timezone_name: str) -> tzinfo:
+    """Cache parsed tzinfo objects for repeated birth-time normalization."""
     timezone_info = tz.gettz(timezone_name)
     if timezone_info is not None:
         return cast(tzinfo, timezone_info)

@@ -7,16 +7,13 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-from fatebridge.core.almanac import build_calendar_context
-from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.export_parser import parse_export_content
-from fatebridge.services.calculation import calculate_destiny_analysis
-from fatebridge.services.timing import (
-    calculate_dayun_analysis,
-    calculate_liunian_analysis,
-    calculate_liuri_analysis,
-    calculate_liuyue_analysis,
+from fatebridge.services.calculation import (
+    BirthComputationContext,
+    _build_birth_computation_context,
+    _render_destiny_analysis,
 )
+from fatebridge.services.timing import _build_current_timing_state
 from fatebridge.utils.data import (
     BRANCH_HIDDEN_STEMS,
     EARTHLY_BRANCHES,
@@ -28,7 +25,6 @@ from fatebridge.utils.helpers import (
     PersonInfo,
     format_birth_datetime_display,
     handle_calculation_error,
-    normalize_birth_time,
 )
 
 PILLAR_LABELS = {
@@ -269,33 +265,25 @@ def _build_shensha_entries(
 
 def _build_timing_overview(
     *,
-    person: PersonInfo,
-    normalized_birth_datetime: datetime,
+    birth_context: BirthComputationContext,
     analysis_date: datetime,
 ) -> Dict[str, Any]:
-    analysis_age = _calculate_age(normalized_birth_datetime, analysis_date)
-    dayun_result = calculate_dayun_analysis(person, analysis_age)
-    liunian_result = calculate_liunian_analysis(person, analysis_date.year)
-    liuyue_result = calculate_liuyue_analysis(
-        person,
-        analysis_year=analysis_date.year,
-        analysis_month=analysis_date.month,
-        analysis_day=analysis_date.day,
+    timing_state = _build_current_timing_state(
+        birth_context,
+        analysis_date=analysis_date,
     )
-    liuri_result = calculate_liuri_analysis(
-        person,
-        analysis_year=analysis_date.year,
-        analysis_month=analysis_date.month,
-        analysis_day=analysis_date.day,
-    )
+    dayun_result = timing_state["dayun_analysis"]
+    liunian_result = timing_state["liunian_analysis"]
+    liuyue_result = timing_state["liuyue_analysis"]
+    liuri_result = timing_state["liuri_analysis"]
 
     dayun_payload: Dict[str, Any]
     if "dayun_info" in dayun_result:
         dayun_payload = {
-            "pillar": dayun_result["dayun_info"]["current_dayun"],
-            "start_age": dayun_result["dayun_info"]["start_age"],
-            "dayun_age": dayun_result["dayun_info"]["dayun_age"],
-            "years_in_period": dayun_result["dayun_info"]["years_in_period"],
+            "pillar": dayun_result["dayun_info"]["pillar"],
+            "start_age": dayun_result["age_info"]["start_age"],
+            "dayun_age": dayun_result["age_info"]["dayun_age"],
+            "years_in_period": dayun_result["age_info"]["years_in_period"],
             "summary": dayun_result.get("summary", ""),
         }
     else:
@@ -324,8 +312,8 @@ def _build_timing_overview(
             "summary": liuri_result.get("summary", ""),
             "weekday": liuri_info["weekday"],
         },
-        "current_jieqi": liuyue_result["analysis_calendar"]["analysis_date_context"]["current_solar_term"]["name"],
-        "next_jieqi": liuyue_result["analysis_calendar"]["analysis_date_context"]["next_solar_term"]["name"],
+        "current_jieqi": liuyue_info["solar_term_window"]["start_term"]["name"],
+        "next_jieqi": liuyue_info["solar_term_window"]["next_term"]["name"],
     }
 
 
@@ -453,27 +441,18 @@ def _build_base_bazi_payload(
     person: PersonInfo,
     analysis_date: datetime,
 ) -> Dict[str, Any]:
-    normalized_birth_time = normalize_birth_time(person)
+    birth_context = _build_birth_computation_context(person)
+    normalized_birth_time = birth_context.normalized_birth_time
     input_birth_datetime = normalized_birth_time.input_datetime
     normalized_birth_datetime = normalized_birth_time.corrected_datetime
-    pillars = BaZiCalendar.get_four_pillars(
-        normalized_birth_datetime,
-        timezone_name=normalized_birth_time.timezone,
-    )
-    calendar_context = build_calendar_context(
-        normalized_birth_datetime,
-        timezone_name=normalized_birth_time.timezone,
-        pillars=pillars,
-    )
-    base_analysis = calculate_destiny_analysis(person)
-    three_origins = _build_three_origins(pillars)
+    base_analysis = _render_destiny_analysis(birth_context)
+    three_origins = _build_three_origins(birth_context.birth_pillars)
     shensha_entries = _build_shensha_entries(
-        pillars=pillars,
+        pillars=birth_context.birth_pillars,
         three_origins=three_origins,
     )
     timing_overview = _build_timing_overview(
-        person=person,
-        normalized_birth_datetime=normalized_birth_datetime,
+        birth_context=birth_context,
         analysis_date=analysis_date,
     )
     snapshot_text = _build_snapshot_text(
@@ -483,8 +462,8 @@ def _build_base_bazi_payload(
         timezone_name=normalized_birth_time.timezone,
         longitude=normalized_birth_time.longitude,
         applied_true_solar=normalized_birth_time.applied,
-        calendar_context=calendar_context,
-        pillars=pillars,
+        calendar_context=birth_context.birth_calendar_context,
+        pillars=birth_context.birth_pillars,
         three_origins=three_origins,
         shensha_entries=shensha_entries,
         timing_overview=timing_overview,
@@ -493,7 +472,7 @@ def _build_base_bazi_payload(
         "input_birth_datetime": input_birth_datetime,
         "normalized_birth_datetime": normalized_birth_datetime,
         "normalized_birth_time": normalized_birth_time,
-        "calendar_context": calendar_context,
+        "calendar_context": birth_context.birth_calendar_context,
         "base_analysis": base_analysis,
         "three_origins": three_origins,
         "shensha_entries": shensha_entries,

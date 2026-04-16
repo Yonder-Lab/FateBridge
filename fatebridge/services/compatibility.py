@@ -11,7 +11,10 @@ from fatebridge.utils.helpers import (
 )
 from fatebridge.core.rules import BaZiRules
 from fatebridge.analysis.compatibility import AdvancedCompatibility, RelationshipType
-from fatebridge.services.calculation import calculate_destiny_analysis
+from fatebridge.services.calculation import (
+    _build_birth_computation_context,
+    _render_destiny_analysis,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,9 +33,10 @@ def calculate_compatibility_analysis(
         dict: 配合度分析结果
     """
     try:
-        # 分别计算两人命理分析
-        analysis1 = calculate_destiny_analysis(person1)
-        analysis2 = calculate_destiny_analysis(person2)
+        context1 = _build_birth_computation_context(person1)
+        context2 = _build_birth_computation_context(person2)
+        analysis1 = _render_destiny_analysis(context1)
+        analysis2 = _render_destiny_analysis(context2)
 
         if "error" in analysis1 or "error" in analysis2:
             return {"error": "计算个人分析时出现错误"}
@@ -53,12 +57,8 @@ def calculate_compatibility_analysis(
         )
 
         # 保持向后兼容，同时提供传统分析
-        pillars1 = {
-            k: (v["stem"], v["branch"]) for k, v in analysis1["four_pillars"].items()
-        }
-        pillars2 = {
-            k: (v["stem"], v["branch"]) for k, v in analysis2["four_pillars"].items()
-        }
+        pillars1 = context1.birth_pillars
+        pillars2 = context2.birth_pillars
         traditional_compatibility = BaZiRules.calculate_compatibility_score(
             pillars1, pillars2
         )

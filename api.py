@@ -3,6 +3,7 @@ FastAPI REST server for FateBridge calculations.
 Provides HTTP endpoints for birth analysis, timing, and divination calculations.
 """
 
+import asyncio
 import logging
 import math
 import os
@@ -117,6 +118,21 @@ def _get_env_int(name: str, default: int) -> int:
     except ValueError:
         logger.warning("Invalid integer for %s, falling back to %s", name, default)
         return default
+
+
+def _default_heavy_calc_max_concurrency() -> int:
+    return min(4, max(1, os.cpu_count() or 1))
+
+
+HEAVY_CALC_MAX_CONCURRENCY = max(
+    1,
+    _get_env_int(
+        "FATEBRIDGE_HEAVY_CALC_MAX_CONCURRENCY",
+        _default_heavy_calc_max_concurrency(),
+    ),
+)
+HEAVY_CALC_SEMAPHORE: Optional[asyncio.Semaphore] = None
+HEAVY_CALC_SEMAPHORE_LOOP: Optional[asyncio.AbstractEventLoop] = None
 
 
 def _prometheus_escape(value: str) -> str:
@@ -454,9 +470,12 @@ def _request_client_id(request: Request) -> str:
 
 
 def _reset_runtime_state_for_tests() -> None:
+    global HEAVY_CALC_SEMAPHORE, HEAVY_CALC_SEMAPHORE_LOOP
     REQUEST_METRICS.reset()
     REQUEST_RATE_LIMITER.reset()
     API_KEY_QUOTA_TRACKER.reset()
+    HEAVY_CALC_SEMAPHORE = None
+    HEAVY_CALC_SEMAPHORE_LOOP = None
 
 
 @app.middleware("http")
@@ -564,14 +583,40 @@ def _raise_service_http_error(result: Dict[str, Any]) -> None:
     )
 
 
+def _get_heavy_calc_semaphore() -> asyncio.Semaphore:
+    global HEAVY_CALC_SEMAPHORE, HEAVY_CALC_SEMAPHORE_LOOP
+    loop = asyncio.get_running_loop()
+    if HEAVY_CALC_SEMAPHORE is not None and HEAVY_CALC_SEMAPHORE_LOOP is None:
+        HEAVY_CALC_SEMAPHORE_LOOP = loop
+        return HEAVY_CALC_SEMAPHORE
+    if HEAVY_CALC_SEMAPHORE is None or HEAVY_CALC_SEMAPHORE_LOOP is not loop:
+        HEAVY_CALC_SEMAPHORE = asyncio.Semaphore(HEAVY_CALC_MAX_CONCURRENCY)
+        HEAVY_CALC_SEMAPHORE_LOOP = loop
+    return HEAVY_CALC_SEMAPHORE
+
+
+async def _run_heavy_calculation(
+    service: Callable[..., Dict[str, Any]],
+    *args: Any,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    semaphore = _get_heavy_calc_semaphore()
+    async with semaphore:
+        return await run_in_threadpool(service, *args, **kwargs)
+
+
 async def _execute_service(
     service: Callable[..., Dict[str, Any]],
     *args: Any,
     error_is_fatal: Optional[Callable[[Dict[str, Any]], bool]] = None,
     tool_name: Optional[str] = None,
+    cpu_bound: bool = False,
     **kwargs: Any,
 ) -> Dict[str, Any]:
-    result = await run_in_threadpool(service, *args, **kwargs)
+    if cpu_bound:
+        result = await _run_heavy_calculation(service, *args, **kwargs)
+    else:
+        result = await run_in_threadpool(service, *args, **kwargs)
     fatal_error = error_is_fatal(result) if error_is_fatal else "error" in result
     if fatal_error:
         _raise_service_http_error(result)
@@ -1500,6 +1545,7 @@ async def calculate_destiny(request: FateBridgeRequest) -> dict:
             calculate_bazi_birth,
             person,
             tool_name="analyze_destiny",
+            cpu_bound=True,
         )
 
         logger.info("Calculation successful")
@@ -1547,6 +1593,7 @@ async def calculate_bazi_birth_chart(request: BaziBirthRequest) -> dict:
             analysis_day=request.analysis_day,
             selected_sections=request.selected_sections or None,
             tool_name="bazi_birth",
+            cpu_bound=True,
         )
 
         return result
@@ -1594,6 +1641,7 @@ async def calculate_bazi_direct_chart(request: BaziDirectRequest) -> dict:
             analysis_day=request.analysis_day,
             selected_sections=request.selected_sections or None,
             tool_name="bazi_direct",
+            cpu_bound=True,
         )
 
         return result
@@ -1657,6 +1705,7 @@ async def calculate_two_person_compatibility(
             person2,
             request.relationship_type,
             tool_name="two_person_compatibility",
+            cpu_bound=True,
         )
 
         logger.info("Compatibility analysis successful")
@@ -1710,6 +1759,7 @@ async def calculate_timing_analysis(request: TimingAnalysisRequest) -> dict:
             analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
             tool_name="timing_analysis",
+            cpu_bound=True,
         )
 
         logger.info("Comprehensive timing analysis successful")
@@ -1760,6 +1810,7 @@ async def calculate_dayun(request: DayunAnalysisRequest) -> dict:
             error_is_fatal=lambda payload: "error" in payload
             and payload.get("analysis_type") is None,
             tool_name="dayun_analysis",
+            cpu_bound=True,
         )
 
         logger.info("Dayun analysis successful")
@@ -1805,6 +1856,7 @@ async def calculate_liunian(request: LiunianAnalysisRequest) -> dict:
             request.target_year,
             selected_sections=request.selected_sections or None,
             tool_name="liunian_analysis",
+            cpu_bound=True,
         )
 
         logger.info("Liunian analysis successful")
@@ -2894,6 +2946,7 @@ async def calculate_liuyue(request: LiuyueAnalysisRequest) -> dict:
             analysis_hour=request.analysis_hour,
             analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
+            cpu_bound=True,
         )
 
         logger.info("Liuyue analysis successful")
@@ -2944,6 +2997,7 @@ async def calculate_liuri(request: LiuriAnalysisRequest) -> dict:
             analysis_hour=request.analysis_hour,
             analysis_minute=request.analysis_minute,
             selected_sections=request.selected_sections or None,
+            cpu_bound=True,
         )
 
         logger.info("Liuri analysis successful")
@@ -2988,6 +3042,7 @@ async def calculate_jieqi_timeline(request: JieqiTimelineRequest) -> dict:
             person,
             target_year=request.target_year,
             selected_sections=request.selected_sections or None,
+            cpu_bound=True,
         )
 
         logger.info("Jieqi timeline analysis successful")

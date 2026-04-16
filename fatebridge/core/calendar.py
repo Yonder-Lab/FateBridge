@@ -4,6 +4,7 @@ Converts Gregorian dates to Chinese sexagenary cycle (干支).
 """
 
 from datetime import datetime
+from functools import lru_cache
 from typing import Tuple, Dict
 
 from .almanac import (
@@ -178,6 +179,42 @@ class BaZiCalendar:
         return hour_stem, hour_branch
 
     @classmethod
+    @lru_cache(maxsize=2048)
+    def _get_four_pillars_cached(
+        cls,
+        local_birth_datetime: datetime,
+        timezone_name: str,
+        day_pillar_strategy: str,
+    ) -> Tuple[Tuple[str, str], Tuple[str, str], Tuple[str, str], Tuple[str, str]]:
+        """Cache deterministic four-pillar derivation for repeated service calls."""
+        year = local_birth_datetime.year
+        month = local_birth_datetime.month
+        day = local_birth_datetime.day
+        hour = local_birth_datetime.hour
+
+        bazi_year = get_bazi_year(local_birth_datetime, timezone_name)
+        month_context = get_bazi_month_context(local_birth_datetime, timezone_name)
+        month_branch = month_context["branch"]
+
+        return (
+            cls.calculate_year_pillar(bazi_year),
+            cls.calculate_month_pillar_by_branch(bazi_year, month_branch),
+            cls.calculate_day_pillar(
+                year,
+                month,
+                day,
+                strategy=day_pillar_strategy,
+            ),
+            cls.calculate_hour_pillar(
+                year,
+                month,
+                day,
+                hour,
+                day_pillar_strategy=day_pillar_strategy,
+            ),
+        )
+
+    @classmethod
     def get_four_pillars(
         cls,
         birth_datetime: datetime,
@@ -193,31 +230,16 @@ class BaZiCalendar:
             Each value is a tuple of (heavenly_stem, earthly_branch)
         """
         local_birth_datetime = localize_datetime(birth_datetime, timezone_name)
-        year = local_birth_datetime.year
-        month = local_birth_datetime.month
-        day = local_birth_datetime.day
-        hour = local_birth_datetime.hour
-
-        bazi_year = get_bazi_year(local_birth_datetime, timezone_name)
-        month_context = get_bazi_month_context(local_birth_datetime, timezone_name)
-        month_branch = month_context["branch"]
-
+        year_pillar, month_pillar, day_pillar, hour_pillar = cls._get_four_pillars_cached(
+            local_birth_datetime,
+            timezone_name,
+            day_pillar_strategy,
+        )
         return {
-            "year": cls.calculate_year_pillar(bazi_year),
-            "month": cls.calculate_month_pillar_by_branch(bazi_year, month_branch),
-            "day": cls.calculate_day_pillar(
-                year,
-                month,
-                day,
-                strategy=day_pillar_strategy,
-            ),
-            "hour": cls.calculate_hour_pillar(
-                year,
-                month,
-                day,
-                hour,
-                day_pillar_strategy=day_pillar_strategy,
-            ),
+            "year": year_pillar,
+            "month": month_pillar,
+            "day": day_pillar,
+            "hour": hour_pillar,
         }
 
     @classmethod
