@@ -7,13 +7,12 @@ Provides HTTP endpoints for birth analysis, timing, and divination calculations.
 
 import asyncio
 import logging
-import math
 import os
 import time
-from collections import defaultdict, deque
-from datetime import datetime, timedelta, timezone
+from collections import defaultdict
+from datetime import datetime
 from threading import Lock
-from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -76,7 +75,6 @@ from fatebridge.utils.runtime import (
     load_runtime_env,
     parse_allowed_origins,
     parse_api_keys,
-    parse_rate_limit_exempt_clients,
     summarize_request_context,
 )
 
@@ -106,7 +104,6 @@ app = FastAPI(
 # Get allowed origins from environment variable, default to localhost for development
 ALLOWED_ORIGINS = parse_allowed_origins()
 API_KEY_HEADER_NAME = get_api_key_header_name()
-RATE_LIMIT_EXEMPT_CLIENTS = frozenset(parse_rate_limit_exempt_clients())
 
 app.add_middleware(
     CORSMiddleware,
@@ -144,47 +141,6 @@ def _prometheus_escape(value: str) -> str:
     return value.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"')
 
 
-class RequestRateLimiter:
-    def __init__(self, *, max_requests: int, window_seconds: int) -> None:
-        self.max_requests = max_requests
-        self.window_seconds = window_seconds
-        self._events: Dict[Tuple[str, str], Deque[float]] = defaultdict(deque)
-        self._lock = Lock()
-
-    def check(
-        self,
-        *,
-        client_id: str,
-        path: str,
-        now: Optional[float] = None,
-    ) -> Tuple[bool, Optional[int]]:
-        if self.max_requests <= 0 or self.window_seconds <= 0:
-            return True, None
-
-        current_time = now if now is not None else time.monotonic()
-        key = (client_id, path)
-        cutoff = current_time - self.window_seconds
-
-        with self._lock:
-            bucket = self._events[key]
-            while bucket and bucket[0] <= cutoff:
-                bucket.popleft()
-
-            if len(bucket) >= self.max_requests:
-                retry_after = max(
-                    1,
-                    math.ceil(self.window_seconds - (current_time - bucket[0])),
-                )
-                return False, retry_after
-
-            bucket.append(current_time)
-            return True, None
-
-    def reset(self) -> None:
-        with self._lock:
-            self._events.clear()
-
-
 class RuntimeMetrics:
     def __init__(self) -> None:
         self._request_counts: Dict[Tuple[str, str, str], float] = defaultdict(float)
@@ -212,7 +168,6 @@ class RuntimeMetrics:
         readiness_status: str,
         api_key_auth_enabled: bool,
         configured_api_keys: int,
-        api_key_daily_quota: int,
     ) -> str:
         with self._lock:
             request_counts = dict(self._request_counts)
@@ -278,9 +233,6 @@ class RuntimeMetrics:
                 "# HELP fatebridge_api_keys_configured_total Number of configured API keys.",
                 "# TYPE fatebridge_api_keys_configured_total gauge",
                 f"fatebridge_api_keys_configured_total {configured_api_keys}",
-                "# HELP fatebridge_api_key_daily_quota Configured daily quota per API key. Zero means disabled.",
-                "# TYPE fatebridge_api_key_daily_quota gauge",
-                f"fatebridge_api_key_daily_quota {api_key_daily_quota}",
             ]
         )
         return "\n".join(lines) + "\n"
@@ -315,61 +267,7 @@ class ApiKeyAuthenticator:
         return self._secret_to_id.get(secret)
 
 
-def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
-
-
-class ApiKeyQuotaTracker:
-    def __init__(self, *, daily_quota: int) -> None:
-        self.daily_quota = daily_quota
-        self._usage: Dict[Tuple[str, str], int] = {}
-        self._lock = Lock()
-
-    @property
-    def enabled(self) -> bool:
-        return self.daily_quota > 0
-
-    def check_and_consume(
-        self,
-        *,
-        key_id: str,
-        now: Optional[datetime] = None,
-    ) -> Tuple[bool, Optional[int], Optional[int]]:
-        if not self.enabled:
-            return True, None, None
-
-        current_time = now if now is not None else _utc_now()
-        current_day = current_time.date().isoformat()
-        usage_key = (current_day, key_id)
-
-        with self._lock:
-            stale_keys = [item for item in self._usage if item[0] != current_day]
-            for stale_key in stale_keys:
-                self._usage.pop(stale_key, None)
-
-            used = self._usage.get(usage_key, 0)
-            if used >= self.daily_quota:
-                return False, 0, self.seconds_until_reset(current_time)
-
-            used += 1
-            self._usage[usage_key] = used
-            return True, self.daily_quota - used, self.seconds_until_reset(current_time)
-
-    def seconds_until_reset(self, now: Optional[datetime] = None) -> int:
-        current_time = now if now is not None else _utc_now()
-        next_midnight = current_time.replace(
-            hour=0, minute=0, second=0, microsecond=0
-        ) + timedelta(days=1)
-        return max(1, int((next_midnight - current_time).total_seconds()))
-
-    def reset(self) -> None:
-        with self._lock:
-            self._usage.clear()
-
-
-RATE_LIMIT_MAX_REQUESTS = _get_env_int("RATE_LIMIT_MAX_REQUESTS", 120)
-RATE_LIMIT_WINDOW_SECONDS = _get_env_int("RATE_LIMIT_WINDOW_SECONDS", 60)
-RATE_LIMIT_EXEMPT_PATHS = frozenset(
+API_KEY_EXEMPT_PATHS = frozenset(
     {
         "/health",
         "/ready",
@@ -379,16 +277,9 @@ RATE_LIMIT_EXEMPT_PATHS = frozenset(
         "/openapi.json",
     }
 )
-API_KEY_EXEMPT_PATHS = RATE_LIMIT_EXEMPT_PATHS
 API_KEY_AUTHENTICATOR = ApiKeyAuthenticator(
     header_name=API_KEY_HEADER_NAME,
     api_keys=parse_api_keys(),
-)
-API_KEY_DAILY_QUOTA = _get_env_int("API_KEY_DAILY_QUOTA", 0)
-API_KEY_QUOTA_TRACKER = ApiKeyQuotaTracker(daily_quota=API_KEY_DAILY_QUOTA)
-REQUEST_RATE_LIMITER = RequestRateLimiter(
-    max_requests=RATE_LIMIT_MAX_REQUESTS,
-    window_seconds=RATE_LIMIT_WINDOW_SECONDS,
 )
 REQUEST_METRICS = RuntimeMetrics()
 
@@ -424,12 +315,6 @@ def _build_readiness_payload() -> Dict[str, Any]:
             "header_name": API_KEY_AUTHENTICATOR.header_name,
             "configured_keys": len(API_KEY_AUTHENTICATOR.api_keys),
         },
-        "api_key_quota": {
-            "ok": (not API_KEY_QUOTA_TRACKER.enabled) or API_KEY_AUTHENTICATOR.enabled,
-            "required": False,
-            "enabled": API_KEY_QUOTA_TRACKER.enabled,
-            "daily_quota": API_KEY_QUOTA_TRACKER.daily_quota,
-        },
     }
     required_checks_ok = all(
         item["ok"] for item in checks.values() if item.get("required")
@@ -437,14 +322,6 @@ def _build_readiness_payload() -> Dict[str, Any]:
     return {
         "status": "ready" if required_checks_ok else "not_ready",
         "checks": checks,
-    }
-
-
-def _build_rate_limit_detail() -> Dict[str, Any]:
-    return {
-        "error": "请求过于频繁，请稍后重试",
-        "error_code": "rate_limited",
-        "retryable": True,
     }
 
 
@@ -456,37 +333,9 @@ def _build_authentication_detail() -> Dict[str, Any]:
     }
 
 
-def _build_quota_detail(quota_limit: int) -> Dict[str, Any]:
-    return {
-        "error": "API key 当日配额已用尽，请明日再试",
-        "error_code": "quota_exceeded",
-        "retryable": True,
-        "quota_limit": quota_limit,
-        "reset_scope": "utc_day",
-    }
-
-
-def _request_client_id(request: Request) -> str:
-    forwarded_for = request.headers.get("x-forwarded-for", "")
-    if forwarded_for:
-        return forwarded_for.split(",", 1)[0].strip() or "forwarded-unknown"
-    return _request_client_host(request)
-
-
-def _request_client_host(request: Request) -> str:
-    client = request.client
-    return client.host if client and client.host else "unknown"
-
-
-def _is_rate_limit_exempt_client(request: Request) -> bool:
-    return _request_client_host(request) in RATE_LIMIT_EXEMPT_CLIENTS
-
-
 def _reset_runtime_state_for_tests() -> None:
     global HEAVY_CALC_SEMAPHORE, HEAVY_CALC_SEMAPHORE_LOOP
     REQUEST_METRICS.reset()
-    REQUEST_RATE_LIMITER.reset()
-    API_KEY_QUOTA_TRACKER.reset()
     HEAVY_CALC_SEMAPHORE = None
     HEAVY_CALC_SEMAPHORE_LOOP = None
 
@@ -498,7 +347,6 @@ async def instrument_request_lifecycle(
 ) -> Response:
     path = request.url.path
     method = request.method.upper()
-    authenticated_key_id: Optional[str] = None
 
     if method != "OPTIONS" and path not in API_KEY_EXEMPT_PATHS:
         if API_KEY_AUTHENTICATOR.enabled:
@@ -517,52 +365,6 @@ async def instrument_request_lifecycle(
                 return auth_response
 
             request.state.api_key_id = authenticated_key_id
-
-        if API_KEY_QUOTA_TRACKER.enabled and authenticated_key_id is not None:
-            allowed, remaining, retry_after = API_KEY_QUOTA_TRACKER.check_and_consume(
-                key_id=authenticated_key_id,
-            )
-            request.state.api_key_remaining = remaining
-            if not allowed:
-                quota_response = JSONResponse(
-                    status_code=429,
-                    content={
-                        "detail": _build_quota_detail(API_KEY_QUOTA_TRACKER.daily_quota)
-                    },
-                )
-                if retry_after is not None:
-                    quota_response.headers["Retry-After"] = str(retry_after)
-                REQUEST_METRICS.observe(
-                    method=method,
-                    path=path,
-                    status_code=429,
-                    duration_seconds=0.0,
-                )
-                return quota_response
-
-    if (
-        method != "OPTIONS"
-        and path not in RATE_LIMIT_EXEMPT_PATHS
-        and not _is_rate_limit_exempt_client(request)
-    ):
-        allowed, retry_after = REQUEST_RATE_LIMITER.check(
-            client_id=authenticated_key_id or _request_client_id(request),
-            path=path,
-        )
-        if not allowed:
-            detail = _build_rate_limit_detail()
-            rate_limit_response = JSONResponse(
-                status_code=429, content={"detail": detail}
-            )
-            if retry_after is not None:
-                rate_limit_response.headers["Retry-After"] = str(retry_after)
-            REQUEST_METRICS.observe(
-                method=method,
-                path=path,
-                status_code=429,
-                duration_seconds=0.0,
-            )
-            return rate_limit_response
 
     started_at = time.perf_counter()
     try:
@@ -1936,7 +1738,6 @@ async def metrics_endpoint() -> PlainTextResponse:
             readiness_status=readiness_status,
             api_key_auth_enabled=API_KEY_AUTHENTICATOR.enabled,
             configured_api_keys=len(API_KEY_AUTHENTICATOR.api_keys),
-            api_key_daily_quota=API_KEY_QUOTA_TRACKER.daily_quota,
         ),
         media_type="text/plain; version=0.0.4",
     )

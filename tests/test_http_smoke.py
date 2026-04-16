@@ -13,18 +13,8 @@ def _build_client(monkeypatch) -> TestClient:
     api_module._reset_runtime_state_for_tests()
     monkeypatch.setattr(
         api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
-    )
-    monkeypatch.setattr(
-        api_module,
         "API_KEY_AUTHENTICATOR",
         api_module.ApiKeyAuthenticator(header_name="X-API-Key", api_keys={}),
-    )
-    monkeypatch.setattr(
-        api_module,
-        "API_KEY_QUOTA_TRACKER",
-        api_module.ApiKeyQuotaTracker(daily_quota=0),
     )
     return TestClient(api_module.app)
 

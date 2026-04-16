@@ -50,18 +50,12 @@ API_HOST=0.0.0.0
 API_PORT=8010
 ALLOWED_ORIGINS=http://localhost:3000
 LOG_LEVEL=INFO
-RATE_LIMIT_EXEMPT_CLIENTS=
 
 # 可选：启用 REST API key 鉴权
 FATEBRIDGE_API_KEYS=agent:replace-me
 API_KEY_HEADER_NAME=X-API-Key
-
-# 可选：单个 API key 的 UTC 日配额，0 表示关闭
-API_KEY_DAILY_QUOTA=0
 ```
 
-- `RATE_LIMIT_EXEMPT_CLIENTS` 允许你为受信任的内部来源跳过通用请求频率限制。
-- 当 FateBridge 仅作为 HorizonX 的同机私有上游时，推荐设置为 `127.0.0.1,::1`。
 - 端口 `8010` 应视为内部服务端口，不应直接暴露为公网业务入口。
 
 ### 3. 启动 REST API

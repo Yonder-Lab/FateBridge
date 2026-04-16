@@ -64,17 +64,6 @@ def parse_allowed_origins(
     return [origin.strip() for origin in origins.split(",") if origin.strip()]
 
 
-def parse_rate_limit_exempt_clients(
-    raw_value: Optional[str] = None,
-) -> List[str]:
-    source = (
-        raw_value
-        if raw_value is not None
-        else os.getenv("RATE_LIMIT_EXEMPT_CLIENTS", "")
-    )
-    return [client.strip() for client in source.split(",") if client.strip()]
-
-
 def get_api_key_header_name(default: str = "X-API-Key") -> str:
     header_name = os.getenv("API_KEY_HEADER_NAME", default).strip()
     return header_name or default

@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from starlette.requests import Request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -24,7 +23,6 @@ from fatebridge.utils.runtime import (
     load_runtime_env,
     parse_allowed_origins,
     parse_api_keys,
-    parse_rate_limit_exempt_clients,
 )
 
 
@@ -41,35 +39,6 @@ def _build_birth_payload() -> dict:
         "birth_latitude": 31.2167,
         "birth_place": "上海",
     }
-
-
-def _build_request(
-    *,
-    client_host: str,
-    path: str = "/api/divination/gua",
-    method: str = "POST",
-) -> Request:
-    async def receive() -> dict:
-        return {"type": "http.request", "body": b"{}", "more_body": False}
-
-    return Request(
-        {
-            "type": "http",
-            "asgi": {"version": "3.0"},
-            "http_version": "1.1",
-            "method": method,
-            "scheme": "http",
-            "path": path,
-            "raw_path": path.encode("utf-8"),
-            "query_string": b"",
-            "headers": [],
-            "client": (client_host, 12345),
-            "server": ("testserver", 80),
-            "root_path": "",
-        },
-        receive=receive,
-    )
-
 
 def test_load_runtime_env_reads_local_env_without_overriding_existing_values(
     tmp_path, monkeypatch
@@ -109,19 +78,6 @@ def test_parse_api_keys_supports_named_and_unnamed_entries(monkeypatch):
         "agent": "secret-a",
         "key2": "secret-b",
     }
-
-
-def test_parse_rate_limit_exempt_clients_filters_blank_entries(monkeypatch):
-    monkeypatch.setenv(
-        "RATE_LIMIT_EXEMPT_CLIENTS",
-        "127.0.0.1, ::1, ,10.0.0.5",
-    )
-
-    assert parse_rate_limit_exempt_clients() == [
-        "127.0.0.1",
-        "::1",
-        "10.0.0.5",
-    ]
 
 
 def test_handle_calculation_error_returns_structured_validation_payload():
@@ -242,13 +198,8 @@ def test_western_timing_route_uses_structured_service_error_status(monkeypatch):
     }
 
 
-def test_ready_endpoint_reports_required_and_optional_checks(monkeypatch):
+def test_ready_endpoint_reports_required_and_optional_checks():
     api_module._reset_runtime_state_for_tests()
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
-    )
 
     client = TestClient(api_module.app)
 
@@ -261,17 +212,12 @@ def test_ready_endpoint_reports_required_and_optional_checks(monkeypatch):
     assert payload["checks"]["offline_astrology"]["required"] is True
     assert payload["checks"]["western_predictive_runtime"]["required"] is False
     assert payload["checks"]["api_key_auth"]["enabled"] is False
-    assert payload["checks"]["api_key_quota"]["enabled"] is False
+    assert "api_key_quota" not in payload["checks"]
     assert isinstance(payload["checks"]["western_predictive_runtime"]["ok"], bool)
 
 
-def test_metrics_endpoint_exposes_request_counters(monkeypatch):
+def test_metrics_endpoint_exposes_request_counters():
     api_module._reset_runtime_state_for_tests()
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
-    )
 
     client = TestClient(api_module.app)
     client.get("/health")
@@ -296,16 +242,23 @@ def test_metrics_endpoint_exposes_request_counters(monkeypatch):
     assert 'fatebridge_readiness_state{status="ready"} 1' in response.text
     assert "fatebridge_api_key_auth_enabled 0" in response.text
     assert "fatebridge_api_keys_configured_total 0" in response.text
-    assert "fatebridge_api_key_daily_quota 0" in response.text
+    assert "fatebridge_api_key_daily_quota" not in response.text
 
 
-def test_rate_limit_returns_429_when_window_exceeded(monkeypatch):
+def test_repeated_requests_are_not_rate_limited_even_when_legacy_limiter_is_injected(
+    monkeypatch,
+):
+    class RejectAllLimiter:
+        def check(self, *, client_id, path, now=None):
+            return False, 60
+
     api_module._reset_runtime_state_for_tests()
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=1, window_seconds=60),
-    )
+    if hasattr(api_module, "REQUEST_RATE_LIMITER"):
+        monkeypatch.setattr(
+            api_module,
+            "REQUEST_RATE_LIMITER",
+            RejectAllLimiter(),
+        )
 
     client = TestClient(api_module.app)
 
@@ -313,80 +266,7 @@ def test_rate_limit_returns_429_when_window_exceeded(monkeypatch):
     second = client.post("/api/divination/gua", json={"query": "乾"})
 
     assert first.status_code == 200
-    assert second.status_code == 429
-    assert second.headers["retry-after"] == "60"
-    assert second.json()["detail"] == {
-        "error": "请求过于频繁，请稍后重试",
-        "error_code": "rate_limited",
-        "retryable": True,
-    }
-
-
-def test_loopback_client_bypasses_request_rate_limit(monkeypatch):
-    api_module._reset_runtime_state_for_tests()
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=1, window_seconds=60),
-    )
-    monkeypatch.setattr(
-        api_module,
-        "RATE_LIMIT_EXEMPT_CLIENTS",
-        frozenset({"127.0.0.1"}),
-    )
-
-    async def fake_call_next(_request):
-        return api_module.JSONResponse(status_code=200, content={"ok": True})
-
-    first = asyncio.run(
-        api_module.instrument_request_lifecycle(
-            _build_request(client_host="127.0.0.1"),
-            fake_call_next,
-        )
-    )
-    second = asyncio.run(
-        api_module.instrument_request_lifecycle(
-            _build_request(client_host="127.0.0.1"),
-            fake_call_next,
-        )
-    )
-
-    assert first.status_code == 200
     assert second.status_code == 200
-
-
-def test_non_exempt_client_still_hits_request_rate_limit(monkeypatch):
-    api_module._reset_runtime_state_for_tests()
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=1, window_seconds=60),
-    )
-    monkeypatch.setattr(
-        api_module,
-        "RATE_LIMIT_EXEMPT_CLIENTS",
-        frozenset({"127.0.0.1"}),
-    )
-
-    async def fake_call_next(_request):
-        return api_module.JSONResponse(status_code=200, content={"ok": True})
-
-    first = asyncio.run(
-        api_module.instrument_request_lifecycle(
-            _build_request(client_host="198.51.100.10"),
-            fake_call_next,
-        )
-    )
-    second = asyncio.run(
-        api_module.instrument_request_lifecycle(
-            _build_request(client_host="198.51.100.10"),
-            fake_call_next,
-        )
-    )
-
-    assert first.status_code == 200
-    assert second.status_code == 429
-    assert second.headers["retry-after"] == "60"
 
 
 def test_api_key_auth_rejects_missing_key_when_configured(monkeypatch):
@@ -399,17 +279,6 @@ def test_api_key_auth_rejects_missing_key_when_configured(monkeypatch):
             api_keys={"agent": "secret-key"},
         ),
     )
-    monkeypatch.setattr(
-        api_module,
-        "API_KEY_QUOTA_TRACKER",
-        api_module.ApiKeyQuotaTracker(daily_quota=0),
-    )
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
-    )
-
     client = TestClient(api_module.app)
     response = client.post("/api/divination/gua", json={"query": "乾"})
 
@@ -431,17 +300,6 @@ def test_api_key_auth_accepts_valid_key_when_configured(monkeypatch):
             api_keys={"agent": "secret-key"},
         ),
     )
-    monkeypatch.setattr(
-        api_module,
-        "API_KEY_QUOTA_TRACKER",
-        api_module.ApiKeyQuotaTracker(daily_quota=0),
-    )
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
-    )
-
     client = TestClient(api_module.app)
     response = client.post(
         "/api/divination/gua",
@@ -462,12 +320,6 @@ def test_api_key_auth_keeps_ready_endpoint_public(monkeypatch):
             api_keys={"agent": "secret-key"},
         ),
     )
-    monkeypatch.setattr(
-        api_module,
-        "API_KEY_QUOTA_TRACKER",
-        api_module.ApiKeyQuotaTracker(daily_quota=1),
-    )
-
     client = TestClient(api_module.app)
     response = client.get("/ready")
 
@@ -475,7 +327,16 @@ def test_api_key_auth_keeps_ready_endpoint_public(monkeypatch):
     assert response.json()["status"] == "ready"
 
 
-def test_api_key_quota_returns_429_when_daily_limit_exceeded(monkeypatch):
+def test_api_key_requests_are_not_quota_limited_even_when_legacy_tracker_is_injected(
+    monkeypatch,
+):
+    class ExhaustedQuotaTracker:
+        enabled = True
+        daily_quota = 1
+
+        def check_and_consume(self, *, key_id, now=None):
+            return False, 0, 60
+
     api_module._reset_runtime_state_for_tests()
     monkeypatch.setattr(
         api_module,
@@ -485,16 +346,12 @@ def test_api_key_quota_returns_429_when_daily_limit_exceeded(monkeypatch):
             api_keys={"agent": "secret-key"},
         ),
     )
-    monkeypatch.setattr(
-        api_module,
-        "API_KEY_QUOTA_TRACKER",
-        api_module.ApiKeyQuotaTracker(daily_quota=1),
-    )
-    monkeypatch.setattr(
-        api_module,
-        "REQUEST_RATE_LIMITER",
-        api_module.RequestRateLimiter(max_requests=20, window_seconds=60),
-    )
+    if hasattr(api_module, "API_KEY_QUOTA_TRACKER"):
+        monkeypatch.setattr(
+            api_module,
+            "API_KEY_QUOTA_TRACKER",
+            ExhaustedQuotaTracker(),
+        )
 
     client = TestClient(api_module.app)
     headers = {"X-API-Key": "secret-key"}
@@ -503,12 +360,4 @@ def test_api_key_quota_returns_429_when_daily_limit_exceeded(monkeypatch):
     second = client.post("/api/divination/gua", json={"query": "乾"}, headers=headers)
 
     assert first.status_code == 200
-    assert second.status_code == 429
-    assert int(second.headers["retry-after"]) > 0
-    assert second.json()["detail"] == {
-        "error": "API key 当日配额已用尽，请明日再试",
-        "error_code": "quota_exceeded",
-        "retryable": True,
-        "quota_limit": 1,
-        "reset_scope": "utc_day",
-    }
+    assert second.status_code == 200
