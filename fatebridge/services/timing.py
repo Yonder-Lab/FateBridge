@@ -1235,7 +1235,7 @@ def calculate_comprehensive_timing(
         if "dayun_info" in dayun_analysis:
             dayun_info = dayun_analysis["dayun_info"]
             age_info = dayun_analysis["age_info"]
-            result["dayun_analysis"] = {
+            dayun_section: Dict[str, Any] = {
                 "current_dayun": dayun_info["pillar"],
                 "stem": dayun_info["stem"],
                 "branch": dayun_info["branch"],
@@ -1244,6 +1244,14 @@ def calculate_comprehensive_timing(
                 "years_in_period": age_info["years_in_period"],
                 "summary": dayun_analysis["summary"],
             }
+            # Include element_effects so downstream consumers (e.g. HorizonX
+            # letters emotion curve) can score the dayun layer when they
+            # receive the comprehensive payload as a fallback.
+            if "element_effects" in dayun_analysis:
+                dayun_section["element_effects"] = _serialize_element_effects(
+                    dayun_analysis["element_effects"]
+                )
+            result["dayun_analysis"] = dayun_section
         else:
             result["dayun_analysis"] = {
                 "error": dayun_analysis.get("message", "大运信息不可用")
@@ -1252,12 +1260,17 @@ def calculate_comprehensive_timing(
         # 流年分析
         liunian_analysis = timing_result["liunian_analysis"]
         liunian_info = liunian_analysis["liunian_info"]
-        result["liunian_analysis"] = {
+        liunian_section: Dict[str, Any] = {
             "pillar": liunian_info["pillar"],
             "stem": liunian_info["stem"],
             "branch": liunian_info["branch"],
             "summary": liunian_analysis["summary"],
         }
+        if "element_effects" in liunian_analysis:
+            liunian_section["element_effects"] = _serialize_element_effects(
+                liunian_analysis["element_effects"]
+            )
+        result["liunian_analysis"] = liunian_section
 
         # 流月分析
         liuyue_analysis = timing_result["liuyue_analysis"]
