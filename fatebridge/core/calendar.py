@@ -3,7 +3,7 @@ Calendar conversion utilities for BaZi calculations.
 Converts Gregorian dates to Chinese sexagenary cycle (干支).
 """
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from functools import lru_cache
 from typing import Tuple, Dict
 
@@ -21,6 +21,25 @@ from ..utils.data import (
     MONTH_BRANCHES,
     get_hour_branch,
 )
+
+
+LATE_ZI_HOUR = 23  # 23:00-23:59 属 late 子时 / 晚子时, 日柱翻至次日
+
+
+def resolve_bazi_effective_date(
+    year: int, month: int, day: int, hour: int
+) -> Tuple[int, int, int]:
+    """根据晚子时 (夜子时) 规则把 23:00-23:59 的 BaZi 日柱向次日翻转。
+
+    传入参数是一个公历 civil 日期 + 时辰小时（0-23）。返回用于 BaZi 日/时柱
+    计算的有效公历日期。对于 0-22 时，返回值就是原日期；对于 23 时，返回值是
+    原日期 + 1 天。该函数不处理月/年跨界特殊情况，依赖 datetime.date
+    的日期算术正确跨月跨年。
+    """
+    if hour >= LATE_ZI_HOUR:
+        shifted = date(year, month, day) + timedelta(days=1)
+        return shifted.year, shifted.month, shifted.day
+    return year, month, day
 
 
 class BaZiCalendar:
@@ -138,16 +157,29 @@ class BaZiCalendar:
         hour: int,
         *,
         day_pillar_strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
+        apply_late_zi_rollover: bool = True,
     ) -> Tuple[str, str]:
-        """Calculate the hour pillar (时柱) for a given datetime."""
+        """Calculate the hour pillar (时柱) for a given datetime.
+
+        当 ``apply_late_zi_rollover`` 为 True (默认) 且 ``hour`` 为 23 时，
+        时柱所依赖的日柱会翻至次日（晚子时/夜子时 翻日规则）。
+        该默认与 ``get_four_pillars`` 保持一致；如果调用方自行维护了
+        翻日逻辑，可显式传入 ``apply_late_zi_rollover=False``。
+        """
         # Get the earthly branch for the hour
         hour_branch = get_hour_branch(hour)
 
+        effective_year, effective_month, effective_day = (
+            resolve_bazi_effective_date(year, month, day, hour)
+            if apply_late_zi_rollover
+            else (year, month, day)
+        )
+
         # Calculate heavenly stem based on day stem
         day_stem, _ = cls.calculate_day_pillar(
-            year,
-            month,
-            day,
+            effective_year,
+            effective_month,
+            effective_day,
             strategy=day_pillar_strategy,
         )
         day_stem_index = HEAVENLY_STEMS.index(day_stem)
@@ -196,13 +228,19 @@ class BaZiCalendar:
         month_context = get_bazi_month_context(local_birth_datetime, timezone_name)
         month_branch = month_context["branch"]
 
+        # 晚子时 (23:00-23:59) 的日柱翻到次日; 年柱 / 月柱 分别由 立春 / 节气
+        # 决定, 不受 hour 影响, 所以保持原始 local_birth_datetime 计算。
+        effective_year, effective_month, effective_day = resolve_bazi_effective_date(
+            year, month, day, hour
+        )
+
         return (
             cls.calculate_year_pillar(bazi_year),
             cls.calculate_month_pillar_by_branch(bazi_year, month_branch),
             cls.calculate_day_pillar(
-                year,
-                month,
-                day,
+                effective_year,
+                effective_month,
+                effective_day,
                 strategy=day_pillar_strategy,
             ),
             cls.calculate_hour_pillar(

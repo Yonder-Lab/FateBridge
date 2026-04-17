@@ -9,6 +9,7 @@ chart family remains usable without external ephemeris files or network access.
 
 from __future__ import annotations
 
+import logging
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
@@ -21,6 +22,27 @@ try:
     import swisseph as swe
 except ImportError:  # pragma: no cover - optional runtime dependency
     swe = None
+
+logger = logging.getLogger(__name__)
+
+# Log the first swisseph runtime failure so operators notice a broken ephemeris
+# install instead of silently degrading to the approximation engine. Further
+# failures are suppressed to avoid flooding the logs.
+_SWE_RUNTIME_FAILURE_LOGGED = False
+
+
+def _log_swe_runtime_failure(call: str, error: BaseException) -> None:
+    global _SWE_RUNTIME_FAILURE_LOGGED
+    if _SWE_RUNTIME_FAILURE_LOGGED:
+        return
+    _SWE_RUNTIME_FAILURE_LOGGED = True
+    logger.warning(
+        "Swiss Ephemeris %s raised %s (%s); falling back to the offline "
+        "approximation engine. Subsequent failures will be suppressed.",
+        call,
+        type(error).__name__,
+        error,
+    )
 
 SIGNS = [
     "Aries",
@@ -738,7 +760,10 @@ def _midpoint(longitude_a: float, longitude_b: float) -> float:
 
 
 def _ayanamsha(julian_day: float) -> float:
-    return 24.0 + ((julian_day - 2451545.0) / 36525.0) * 0.6986
+    # Lahiri-like ayanamsha: base value at J2000.0 plus precession drift.
+    # J2000 baseline ≈ 23.853°, precession ≈ 50.29"/yr ≈ 1.3971°/Julian century.
+    centuries_since_j2000 = (julian_day - 2451545.0) / 36525.0
+    return 23.853 + centuries_since_j2000 * 1.3971
 
 
 def _nakshatra(longitude: float) -> str:
@@ -804,7 +829,8 @@ def _swisseph_angles(
         return None
     try:
         _, ascmc = swe.houses_ex(julian_day, latitude, longitude, b"E")
-    except Exception:
+    except Exception as error:
+        _log_swe_runtime_failure("houses_ex", error)
         return None
     return {
         "ascendant": normalize_angle(float(ascmc[0])),
@@ -881,7 +907,8 @@ def _swisseph_planet_state(
         return None
     try:
         coordinates, _ = swe.calc_ut(julian_day, planet_id, swe.FLG_SWIEPH)
-    except Exception:
+    except Exception as error:
+        _log_swe_runtime_failure("calc_ut", error)
         return None
     return {
         "longitude": normalize_angle(float(coordinates[0])),

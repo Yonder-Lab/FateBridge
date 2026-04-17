@@ -18,7 +18,7 @@ from .almanac import (
     get_jieqi_year_grid,
     localize_datetime,
 )
-from .calendar import BaZiCalendar
+from .calendar import BaZiCalendar, resolve_bazi_effective_date
 from .divination import build_hexagram
 from ..utils.data import (
     BRANCH_ELEMENTS,
@@ -937,23 +937,28 @@ def _qimen_build_yinyangdun_map(
 
 
 def _qimen_effective_ganzhi(seed: MetaphysicsSeed) -> Tuple[str, str]:
+    # 晚子时 (23:00-23:59) 翻日规则现已由 BaZiCalendar 统一处理：
+    # - calculate_hour_pillar 会把 23 时的 day stem 对齐到次日
+    # - get_four_pillars 的 day pillar 同样已翻日
+    # 所以只要 seed.pillars 是走 get_four_pillars 得到的，就与 Qimen 预期一致，
+    # 这里不再需要手动 +1 天。
     local_datetime = localize_datetime(seed.corrected_datetime, seed.timezone)
     if local_datetime.hour != 23:
         return ganzhi_text(seed.pillars["day"]), ganzhi_text(seed.pillars["hour"])
 
-    effective_date = local_datetime.date()
-    effective_date = effective_date + timedelta(days=1)
-
     day_pillar = BaZiCalendar.calculate_day_pillar(
-        effective_date.year,
-        effective_date.month,
-        effective_date.day,
+        *resolve_bazi_effective_date(
+            local_datetime.year,
+            local_datetime.month,
+            local_datetime.day,
+            local_datetime.hour,
+        ),
         strategy=DAY_GANZHI_STRATEGY_STANDARD,
     )
     hour_pillar = BaZiCalendar.calculate_hour_pillar(
-        effective_date.year,
-        effective_date.month,
-        effective_date.day,
+        local_datetime.year,
+        local_datetime.month,
+        local_datetime.day,
         local_datetime.hour,
         day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
     )

@@ -106,6 +106,8 @@ def _build_current_timing_state(
         birth_context.birth_pillars,
         analysis_date.year,
         original_element_counts=birth_context.original_element_counts,
+        moment=analysis_date,
+        timezone_name=timezone_name,
     )
     liuyue_analysis = TimingEffectsAnalysis.analyze_liuyue_effects(
         birth_context.birth_pillars,
@@ -1526,6 +1528,8 @@ def calculate_liuyue_analysis(
             birth_context.birth_pillars,
             analysis_year,
             original_element_counts=birth_context.original_element_counts,
+            moment=analysis_date,
+            timezone_name=normalized_birth_time.timezone,
         )
 
         liuyue_result = TimingEffectsAnalysis.analyze_liuyue_comprehensive(

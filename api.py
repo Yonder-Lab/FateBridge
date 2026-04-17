@@ -6,6 +6,7 @@ Provides HTTP endpoints for birth analysis, timing, and divination calculations.
 """
 
 import asyncio
+import hmac
 import logging
 import os
 import time
@@ -248,13 +249,15 @@ class ApiKeyAuthenticator:
     def __init__(self, *, header_name: str, api_keys: Dict[str, str]) -> None:
         self.header_name = header_name
         self.api_keys = dict(api_keys)
-        self._secret_to_id = {
-            secret: key_id for key_id, secret in self.api_keys.items()
-        }
+        # Order-stable list for constant-time comparison against every secret.
+        self._known_secrets: Tuple[Tuple[bytes, str], ...] = tuple(
+            (secret.encode("utf-8"), key_id)
+            for key_id, secret in self.api_keys.items()
+        )
 
     @property
     def enabled(self) -> bool:
-        return bool(self._secret_to_id)
+        return bool(self._known_secrets)
 
     def authenticate(self, request: Request) -> Optional[str]:
         if not self.enabled:
@@ -264,7 +267,16 @@ class ApiKeyAuthenticator:
         if not secret:
             return None
 
-        return self._secret_to_id.get(secret)
+        # hmac.compare_digest avoids short-circuiting on mismatch byte,
+        # preventing timing-based key probing. We must compare against every
+        # configured secret unconditionally so total runtime does not leak
+        # how many candidates matched a prefix of the supplied value.
+        candidate_bytes = secret.encode("utf-8")
+        matched_id: Optional[str] = None
+        for known_secret, key_id in self._known_secrets:
+            if hmac.compare_digest(candidate_bytes, known_secret):
+                matched_id = key_id
+        return matched_id
 
 
 API_KEY_EXEMPT_PATHS = frozenset(

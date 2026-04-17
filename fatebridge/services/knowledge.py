@@ -16,10 +16,15 @@ from fatebridge.utils.helpers import handle_calculation_error
 
 
 def _validation_error_payload(exc: ToolValidationError) -> Dict[str, Any]:
+    # Include status_code/error_code so the HTTP transport (_execute_service)
+    # maps this to a 400 instead of the default 500.
     return {
         "error": str(exc),
+        "error_code": exc.code or "validation_error",
         "code": exc.code,
         "details": exc.details,
+        "status_code": 400,
+        "retryable": False,
     }
 
 

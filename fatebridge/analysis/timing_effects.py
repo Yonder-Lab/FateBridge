@@ -227,6 +227,9 @@ class TimingEffectsAnalysis:
         birth_pillars: Dict,
         target_year: int,
         original_element_counts: Optional[Dict[Element, float]] = None,
+        *,
+        moment: Optional[datetime] = None,
+        timezone_name: Optional[str] = None,
     ) -> Dict:
         """
         分析流年影响
@@ -234,12 +237,22 @@ class TimingEffectsAnalysis:
         Args:
             birth_pillars: 出生四柱
             target_year: 目标年份
+            moment: 可选的具体时间点；若给出，流年会以立春为边界解析，
+                避免 1 月 / 早 2 月误判为前一年。
+            timezone_name: ``moment`` 的时区（仅在传入 moment 时使用）。
 
         Returns:
             流年影响分析
         """
-        # 获取流年信息
-        liunian_info = TimingAnalysis.calculate_liunian(target_year)
+        # 获取流年信息；传入 moment 使 calculate_liunian 以立春为边界。
+        liunian_kwargs: Dict = {}
+        if moment is not None:
+            liunian_kwargs["moment"] = moment
+            if timezone_name is not None:
+                liunian_kwargs["timezone_name"] = timezone_name
+        liunian_info = TimingAnalysis.calculate_liunian(
+            target_year, **liunian_kwargs
+        )
 
         # 分析流年对命局的影响
         timing_pillars = {

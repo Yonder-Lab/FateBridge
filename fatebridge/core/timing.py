@@ -303,19 +303,35 @@ class TimingAnalysis:
         return dayun_sequence
 
     @staticmethod
-    def calculate_liunian(target_year: int) -> Dict:
+    def calculate_liunian(
+        target_year: int,
+        *,
+        moment: Optional[datetime] = None,
+        timezone_name: str = DEFAULT_TIMEZONE,
+    ) -> Dict:
         """
-        计算指定年份的流年干支
+        计算指定年份的流年干支。
 
         Args:
-            target_year: 目标年份
+            target_year: 目标年份（公历 / civil year）。当同时提供 ``moment`` 时，
+                该参数只作为 fallback；``moment`` 所在的立春 BaZi 年优先。
+            moment: 可选的具体日期-时间。若给出，该方法会用 ``get_bazi_year``
+                以立春为分界解析真正的 BaZi 年，从而避免 1 月 / 早 2 月的流年
+                误差。生产调用强烈建议传入 ``moment``。
+            timezone_name: ``moment`` 的时区，默认为模块 ``DEFAULT_TIMEZONE``。
 
         Returns:
-            流年信息
+            流年信息 dict，包含 `year`（解析后的 BaZi 年，可能与 `target_year`
+            不同）、`stem`、`branch`、`pillar`、`element`。
         """
+        if moment is not None:
+            resolved_year = get_bazi_year(moment, timezone_name)
+        else:
+            resolved_year = target_year
+
         # 计算年干支（以甲子年为基准：1984年）
         base_year = 1984  # 甲子年
-        year_offset = target_year - base_year
+        year_offset = resolved_year - base_year
 
         stem_index = year_offset % 10
         branch_index = year_offset % 12
@@ -327,7 +343,7 @@ class TimingAnalysis:
         stem_element, stem_polarity = STEM_ELEMENTS[liunian_stem]
 
         return {
-            "year": target_year,
+            "year": resolved_year,
             "stem": liunian_stem,
             "branch": liunian_branch,
             "pillar": f"{liunian_stem}{liunian_branch}",
@@ -1022,8 +1038,10 @@ class TimingAnalysis:
         month_stem = birth_pillars["month"]["stem"]
         month_branch = birth_pillars["month"]["branch"]
 
-        # 获取当前流年
-        current_liunian = TimingAnalysis.calculate_liunian(current_date.year)
+        # 获取当前流年（传入完整 moment，使用立春边界解析 BaZi 年）
+        current_liunian = TimingAnalysis.calculate_liunian(
+            current_date.year, moment=current_date
+        )
 
         # 获取当前流月
         current_liuyue = TimingAnalysis.calculate_liuyue(

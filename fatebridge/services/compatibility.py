@@ -38,8 +38,17 @@ def calculate_compatibility_analysis(
         analysis1 = _render_destiny_analysis(context1)
         analysis2 = _render_destiny_analysis(context2)
 
-        if "error" in analysis1 or "error" in analysis2:
-            return {"error": "计算个人分析时出现错误"}
+        # Propagate the underlying per-person error preserving its status_code/
+        # error_code so the HTTP layer can return the correct class instead of
+        # collapsing everything into a generic 500.
+        for upstream in (analysis1, analysis2):
+            if "error" in upstream:
+                return {
+                    "error": upstream.get("error", "计算个人分析时出现错误"),
+                    "error_code": upstream.get("error_code", "internal_error"),
+                    "status_code": upstream.get("status_code", 500),
+                    "retryable": upstream.get("retryable", False),
+                }
 
         # 转换关系类型
         rel_type_map = {

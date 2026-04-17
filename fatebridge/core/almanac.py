@@ -7,6 +7,7 @@ code can enrich responses without recomputing 24 solar terms on every call.
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -20,7 +21,18 @@ try:
 except ImportError:  # pragma: no cover - exercised only in misconfigured envs
     LunarDate = None
 
+try:  # pragma: no cover - optional runtime dependency
+    import swisseph as swe
+except ImportError:
+    swe = None  # type: ignore[assignment]
+
 from .divination import derive_meihua_hexagram
+
+logger = logging.getLogger(__name__)
+
+# Solar ecliptic longitude (tropical) at which each term occurs.
+# Mapping follows SOLAR_TERM_NAMES order starting at 小寒 = 285°.
+SOLAR_TERM_LONGITUDES = tuple((285 + 15 * i) % 360 for i in range(24))
 
 
 DEFAULT_TIMEZONE = "Asia/Shanghai"
@@ -225,21 +237,168 @@ def get_day_ganzhi(
     return f"{GAN[index % 10]}{ZHI[index % 12]}"
 
 
+def _solar_term_utc_via_swe(
+    year: int, target_longitude: float, anchor_utc: datetime
+) -> Optional[datetime]:
+    """Resolve the UTC moment when the Sun's tropical longitude equals
+    ``target_longitude`` near ``anchor_utc``.
+
+    The anchor is used to disambiguate which yearly crossing to return
+    (so 冬至 for civil year 2024 is Dec 2024 rather than Dec 2023). We
+    scan a ±30-day window around the linear-approximation anchor; the
+    Sun moves ~1°/day so a crossing is guaranteed in that window.
+
+    Returns None if swisseph is unavailable or no crossing is found
+    (so the caller can fall back to the linear approximation).
+    """
+    if swe is None:
+        return None
+
+    # Convert anchor to Julian day (UT) and scan ±30 days around it.
+    anchor_jd = swe.julday(
+        anchor_utc.year,
+        anchor_utc.month,
+        anchor_utc.day,
+        anchor_utc.hour + anchor_utc.minute / 60.0 + anchor_utc.second / 3600.0,
+    )
+    jd_start = anchor_jd - 30.0
+    jd_end = anchor_jd + 30.0
+    del year  # unused; retained in signature for future callers
+
+    def sun_longitude(jd: float) -> float:
+        # calc_ut returns a tuple (longitude, latitude, distance, ...)
+        result, _err = swe.calc_ut(jd, swe.SUN, swe.FLG_SWIEPH)
+        return result[0] % 360.0
+
+    # Coarse scan at ~daily resolution to find a sign change of
+    # wrapped(longitude - target). Bisect within the bracket.
+    def wrapped_diff(jd: float) -> float:
+        diff = (sun_longitude(jd) - target_longitude + 540.0) % 360.0 - 180.0
+        return diff
+
+    try:
+        previous_jd = jd_start
+        previous_diff = wrapped_diff(previous_jd)
+        step = 1.0  # one day
+        jd = previous_jd + step
+        crossing: Optional[Tuple[float, float]] = None
+        while jd <= jd_end:
+            current_diff = wrapped_diff(jd)
+            # A valid crossing goes from negative to non-negative while both
+            # samples are near target (exclude the opposite-side wrap).
+            if (
+                previous_diff < 0.0
+                and current_diff >= 0.0
+                and current_diff - previous_diff < 90.0
+            ):
+                crossing = (previous_jd, jd)
+                break
+            previous_jd, previous_diff = jd, current_diff
+            jd += step
+
+        if crossing is None:
+            return None
+
+        low, high = crossing
+        for _ in range(48):  # 2^-48 days is well below any needed precision
+            mid = (low + high) / 2.0
+            if wrapped_diff(mid) < 0.0:
+                low = mid
+            else:
+                high = mid
+        resolved_jd = (low + high) / 2.0
+    except Exception as error:  # pragma: no cover - defensive swe error surface
+        logger.warning(
+            "swisseph solar-term resolution failed at year=%s target=%s: %s",
+            year,
+            target_longitude,
+            error,
+        )
+        return None
+
+    # Convert Julian day (UT) back to a UTC datetime.
+    jd_int = int(resolved_jd)
+    fraction = resolved_jd - jd_int
+    # swe.jdut1_to_utc returns (year, month, day, hour_float) but not all
+    # builds expose it — reconstruct via swe.revjul which is universally
+    # available.
+    y, m, d, hour_float = swe.revjul(resolved_jd, swe.GREG_CAL)
+    del jd_int, fraction
+    whole_hours = int(hour_float)
+    minute_float = (hour_float - whole_hours) * 60.0
+    whole_minutes = int(minute_float)
+    whole_seconds = int(round((minute_float - whole_minutes) * 60.0))
+    if whole_seconds == 60:
+        whole_seconds = 0
+        whole_minutes += 1
+    if whole_minutes == 60:
+        whole_minutes = 0
+        whole_hours += 1
+    # swe.revjul can return 24.0h on boundary rounding: normalize via timedelta.
+    base = datetime(int(y), int(m), int(d), tzinfo=timezone.utc)
+    return base + timedelta(
+        hours=whole_hours, minutes=whole_minutes, seconds=whole_seconds
+    )
+
+
+def _solar_term_utc_via_linear(year: int, term_index: int) -> datetime:
+    """Legacy linear fixed-qì approximation anchored at 1900. Used as fallback
+    when swisseph is unavailable; drift grows as the year moves away from
+    the anchor (tens of minutes near 2100, hours pre-1900).
+    """
+    offset_minutes = SOLAR_TERM_MINUTE_OFFSETS[term_index]
+    total_milliseconds = (
+        MILLISECONDS_PER_TROPICAL_YEAR * (year - 1900) + offset_minutes * 60_000
+    )
+    return SOLAR_TERM_BASE_UTC + timedelta(milliseconds=total_milliseconds)
+
+
+_LINEAR_FALLBACK_WARNED = False
+
+
 @lru_cache(maxsize=128)
 def get_solar_terms_for_year(
     year: int, timezone_name: str = DEFAULT_TIMEZONE
 ) -> Tuple[SolarTerm, ...]:
+    global _LINEAR_FALLBACK_WARNED
     tzinfo = _parse_timezone_spec(timezone_name)
     terms: List[SolarTerm] = []
 
-    for term_name, offset_minutes in zip(SOLAR_TERM_NAMES, SOLAR_TERM_MINUTE_OFFSETS):
-        total_milliseconds = (
-            MILLISECONDS_PER_TROPICAL_YEAR * (year - 1900)
-            + offset_minutes * 60_000
-        )
-        utc_moment = SOLAR_TERM_BASE_UTC + timedelta(
-            milliseconds=total_milliseconds
-        )
+    using_swe = swe is not None
+    for index, (term_name, target_longitude) in enumerate(
+        zip(SOLAR_TERM_NAMES, SOLAR_TERM_LONGITUDES)
+    ):
+        # The linear approximation is used both as a fallback and as a
+        # disambiguation anchor for the swe bisection: it picks the "correct"
+        # yearly crossing (e.g. Dec 2024 冬至 vs Dec 2023) because the linear
+        # anchor is always in civil-year ``year``.
+        linear_utc = _solar_term_utc_via_linear(year, index)
+
+        utc_moment: Optional[datetime] = None
+        if using_swe:
+            utc_moment = _solar_term_utc_via_swe(
+                year, float(target_longitude), linear_utc
+            )
+
+        if utc_moment is None:
+            # Fall back to the linear approximation; warn once per process so
+            # operators can spot a missing swisseph install without flooding logs.
+            if using_swe and not _LINEAR_FALLBACK_WARNED:
+                logger.warning(
+                    "Solar-term resolution falling back to linear approximation "
+                    "for year=%s; check swisseph ephemeris configuration.",
+                    year,
+                )
+                _LINEAR_FALLBACK_WARNED = True
+            elif not using_swe and not _LINEAR_FALLBACK_WARNED:
+                logger.info(
+                    "swisseph unavailable; solar terms use the linear fixed-qì "
+                    "approximation anchored at 1900 (drift up to tens of "
+                    "minutes near 2100)."
+                )
+                _LINEAR_FALLBACK_WARNED = True
+            utc_moment = linear_utc
+
         local_moment = utc_moment.astimezone(tzinfo)
         terms.append(
             SolarTerm(

@@ -294,7 +294,7 @@ def bazi_birth(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
-        tool_name="qimen",
+        tool_name="bazi_birth",
     )
 
 
@@ -353,7 +353,7 @@ def bazi_direct(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
-        tool_name="taiyi",
+        tool_name="bazi_direct",
     )
 
 
@@ -1150,7 +1150,7 @@ def jieqi_year(
         result,
         compact=compact,
         include_snapshot_text=include_snapshot_text,
-        tool_name="western_timing_analysis",
+        tool_name="jieqi_year",
     )
 
 

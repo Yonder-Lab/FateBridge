@@ -153,20 +153,31 @@ class AdvancedCompatibility:
                         details.append(f"{b1}与{b2}六害")
                         
         # 检查三刑
-        # 这是一个简化检查，实际三刑需要三个地支，这里只检查两个人的地支组合
-        all_combined_branches = branches1 + branches2
+        # 这是一个合盘（cross-chart）三刑检查：只有当三刑所需的地支
+        # 至少在两人命盘中各贡献一支时才算“合盘构成”，
+        # 避免某一方自身已具三刑时被重复记入合盘惩罚分。
+        branches1_set = set(branches1)
+        branches2_set = set(branches2)
         for punishment_set in BaZiRules.TRIPLE_PUNISHMENT:
-             found = [b for b in punishment_set if b in all_combined_branches]
-             if len(punishment_set) == 3 and len(found) == 3:
-                 traditional_score -= 5
-                 details.append(f"合盘构成{''.join(punishment_set)}三刑")
-        
+            if len(punishment_set) != 3:
+                continue
+            required = set(punishment_set)
+            covered_by_1 = required & branches1_set
+            covered_by_2 = required & branches2_set
+            if covered_by_1 and covered_by_2 and required <= (covered_by_1 | covered_by_2):
+                traditional_score -= 5
+                details.append(f"合盘构成{''.join(punishment_set)}三刑")
+
         normalized_traditional_score = min(100, max(0, traditional_score))
-        
+
         traditional_analysis = {
-            "overall_score": (traditional_score - 50) / 10, # 转换回大致的原始分数范围
+            # traditional_deviation 是相对于 50 分基准的偏移量 (-/+)，
+            # normalized_score 则是 clip 到 [0, 100] 的传统分析项权重分。
+            # 旧字段 "overall_score" 命名会与外层结果里的全局 overall_score
+            # 混淆，按语义改名。
+            "traditional_deviation": (traditional_score - 50) / 10,
             "normalized_score": normalized_traditional_score,
-            "details": details
+            "details": details,
         }
         
         result["detailed_analysis"]["traditional_analysis"] = traditional_analysis
@@ -692,511 +703,6 @@ class AdvancedCompatibility:
         return cross_gods
 
     @staticmethod
-    def _count_ten_gods(ten_gods: Dict[str, List]) -> Dict[str, int]:
-        """统计十神数量"""
-        count = {}
-        for pillar_gods in ten_gods.values():
-            for god_info in pillar_gods:
-                god_name = god_info.get("ten_god", "")
-                count[god_name] = count.get(god_name, 0) + 1
-        return count
-
-    @staticmethod
-    def _analyze_marriage_cross_ten_gods(
-        cross_gods: Dict[str, Any], analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """分析婚姻关系的跨人十神配合"""
-
-        # 提取所有十神统计
-        all_ten_gods = {}
-        for key, gods_data in cross_gods.items():
-            if isinstance(gods_data, dict) and "ten_gods_count" in gods_data:
-                for ten_god, count in gods_data["ten_gods_count"].items():
-                    all_ten_gods[ten_god] = all_ten_gods.get(ten_god, 0) + count
-
-        # 导入TenGod枚举
-
-        # 婚姻中有利的十神影响 (权重40%)
-        favorable_gods = {
-            TenGod.POSITIVE_OFFICER: 15,  # 正官代表责任感，有利婚姻
-            TenGod.POSITIVE_WEALTH: 12,  # 正财代表稳定收入，有利婚姻
-            TenGod.POSITIVE_SEAL: 10,  # 正印代表关爱，有利婚姻
-            TenGod.FOOD_GOD: 8,  # 食神代表温和，有利婚姻
-            TenGod.PARTIAL_WEALTH: 6,  # 偏财适度有利
-        }
-
-        # 婚姻中不利的十神影响
-        unfavorable_gods = {
-            TenGod.SEVEN_KILLER: -10,  # 七杀过多易冲突
-            TenGod.HURT_OFFICER: -8,  # 伤官过多易争执
-            TenGod.ROB_WEALTH: -6,  # 劫财过多易破财
-            TenGod.PARTIAL_SEAL: -5,  # 偏印过多易孤独
-        }
-
-        # 计算十神影响得分
-        for ten_god, count in all_ten_gods.items():
-            if ten_god in favorable_gods:
-                bonus = favorable_gods[ten_god] * min(count, 2)  # 最多计算2个
-                analysis["score"] += bonus
-                analysis["details"].append(
-                    f"跨人{ten_god.value}影响×{count}，有利婚姻(+{bonus}分)"
-                )
-                analysis["compatibility_aspects"].append(f"{ten_god.value}互助")
-            elif ten_god in unfavorable_gods:
-                penalty = unfavorable_gods[ten_god] * min(count, 3)  # 最多扣3个的分
-                analysis["score"] += penalty  # penalty是负数
-                analysis["details"].append(
-                    f"跨人{ten_god.value}影响×{count}，需要注意({penalty}分)"
-                )
-
-        # 分析互补性 (权重30%)
-        complementary_pairs = [
-            (TenGod.POSITIVE_OFFICER, TenGod.POSITIVE_SEAL),  # 官印相生
-            (TenGod.POSITIVE_WEALTH, TenGod.FOOD_GOD),  # 食神生财
-            (TenGod.COMPARE, TenGod.POSITIVE_OFFICER),  # 官制比肩
-        ]
-
-        for god1, god2 in complementary_pairs:
-            if all_ten_gods.get(god1, 0) > 0 and all_ten_gods.get(god2, 0) > 0:
-                analysis["score"] += 12
-                analysis["details"].append(
-                    f"跨人{god1.value}与{god2.value}形成互补，有利婚姻"
-                )
-                analysis["relationship_dynamics"].append(
-                    f"{god1.value}-{god2.value}互补"
-                )
-
-        # 确保分数在合理范围
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-
-        return analysis
-
-    @staticmethod
-    def _analyze_business_cross_ten_gods(
-        cross_gods: Dict[str, Any], analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """分析商业关系的跨人十神配合。"""
-
-        all_ten_gods: Dict[str, float] = {}
-        for gods_data in cross_gods.values():
-            if isinstance(gods_data, dict) and "ten_gods_count" in gods_data:
-                for ten_god, count in gods_data["ten_gods_count"].items():
-                    all_ten_gods[ten_god] = all_ten_gods.get(ten_god, 0.0) + float(count)
-
-        favorable_gods = {
-            "正财": 15,
-            "偏财": 12,
-            "食神": 10,
-            "伤官": 8,
-            "正官": 8,
-        }
-        unfavorable_gods = {
-            "劫财": -8,
-            "偏印": -6,
-            "七杀": -4,
-        }
-
-        for ten_god, count in all_ten_gods.items():
-            limited_count = min(count, 2.0)
-            if ten_god in favorable_gods:
-                bonus = round(favorable_gods[ten_god] * limited_count)
-                analysis["score"] += bonus
-                analysis["details"].append(
-                    f"跨人{ten_god}影响约{count:.1f}，有利商业协作(+{bonus}分)"
-                )
-                analysis["compatibility_aspects"].append(f"{ten_god}助力")
-            elif ten_god in unfavorable_gods:
-                penalty = round(unfavorable_gods[ten_god] * limited_count)
-                analysis["score"] += penalty
-                analysis["details"].append(
-                    f"跨人{ten_god}影响约{count:.1f}，合作中需额外留意({penalty}分)"
-                )
-
-        business_combinations = [
-            ("正财", "食神", 12, "创意与变现衔接顺畅"),
-            ("偏财", "伤官", 10, "市场嗅觉与技术输出形成配合"),
-            ("正官", "正印", 14, "管理与制度支持形成正循环"),
-            ("七杀", "食神", 15, "执行推动力强，适合高压项目"),
-        ]
-        for god1, god2, score_bonus, description in business_combinations:
-            if all_ten_gods.get(god1, 0.0) > 0 and all_ten_gods.get(god2, 0.0) > 0:
-                analysis["score"] += score_bonus
-                analysis["details"].append(description)
-                analysis["relationship_dynamics"].append(description)
-                analysis["compatibility_aspects"].append(f"{god1}-{god2}商业配合")
-
-        risk_combinations = [
-            ("劫财", "偏财", -18, "劫财与偏财同旺，利益分配压力增大"),
-            ("七杀", "七杀", -15, "双方都过强势时，决策摩擦会明显上升"),
-            ("伤官", "正官", -12, "伤官见官，容易出现流程与管理冲突"),
-        ]
-        for god1, god2, score_penalty, description in risk_combinations:
-            if all_ten_gods.get(god1, 0.0) > 0 and all_ten_gods.get(god2, 0.0) > 0:
-                analysis["score"] += score_penalty
-                analysis["details"].append(description)
-
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-        return analysis
-
-    @staticmethod
-    def _analyze_friendship_cross_ten_gods(
-        cross_gods: Dict[str, Any], analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """分析友谊关系的跨人十神配合"""
-
-        # 提取所有十神统计
-        all_ten_gods = {}
-        for key, gods_data in cross_gods.items():
-            if isinstance(gods_data, dict) and "ten_gods_count" in gods_data:
-                for ten_god, count in gods_data["ten_gods_count"].items():
-                    all_ten_gods[ten_god] = all_ten_gods.get(ten_god, 0) + count
-
-        # 友谊中有利的十神影响
-        favorable_gods = {
-            "食神": 12,  # 食神代表温和友善
-            "正印": 10,  # 正印代表关爱包容
-            "比肩": 8,  # 比肩代表平等友好
-            "正官": 6,  # 正官代表正直可靠
-            "正财": 5,  # 正财代表稳重
-        }
-
-        # 友谊中不利的十神影响
-        unfavorable_gods = {
-            "伤官": -6,  # 伤官易争执
-            "七杀": -8,  # 七杀易冲突
-            "劫财": -4,  # 劫财易竞争
-        }
-
-        # 计算十神影响得分
-        for ten_god, count in all_ten_gods.items():
-            if ten_god in favorable_gods:
-                bonus = favorable_gods[ten_god] * min(count, 2)
-                analysis["score"] += bonus
-                analysis["details"].append(
-                    f"跨人{ten_god}影响×{count}，有利友谊(+{bonus}分)"
-                )
-                analysis["compatibility_aspects"].append(f"{ten_god}friendly")
-            elif ten_god in unfavorable_gods:
-                penalty = unfavorable_gods[ten_god] * min(count, 2)
-                analysis["score"] += penalty
-                analysis["details"].append(
-                    f"跨人{ten_god}影响×{count}，需要注意({penalty}分)"
-                )
-
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-        return analysis
-
-    @staticmethod
-    def _analyze_general_cross_ten_gods(
-        cross_gods: Dict[str, Any], analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """分析一般关系的跨人十神配合"""
-
-        # 提取所有十神统计
-        all_ten_gods = {}
-        for key, gods_data in cross_gods.items():
-            if isinstance(gods_data, dict) and "ten_gods_count" in gods_data:
-                for ten_god, count in gods_data["ten_gods_count"].items():
-                    all_ten_gods[ten_god] = all_ten_gods.get(ten_god, 0) + count
-
-        # 一般关系中的十神影响（相对温和）
-        god_influences = {
-            "食神": 8,  # 食神温和
-            "正印": 6,  # 正印关爱
-            "正官": 5,  # 正官正直
-            "正财": 4,  # 正财稳重
-            "比肩": 3,  # 比肩平等
-            "偏财": 2,  # 偏财灵活
-            "伤官": -3,  # 伤官易争执
-            "七杀": -5,  # 七杀易冲突
-            "劫财": -2,  # 劫财易竞争
-            "偏印": -2,  # 偏印易孤立
-        }
-
-        # 计算十神影响得分
-        for ten_god, count in all_ten_gods.items():
-            if ten_god in god_influences:
-                influence = god_influences[ten_god] * min(count, 2)
-                analysis["score"] += influence
-                if influence > 0:
-                    analysis["details"].append(
-                        f"跨人{ten_god}影响×{count}，总体有利(+{influence}分)"
-                    )
-                    analysis["compatibility_aspects"].append(f"{ten_god}正面")
-                else:
-                    analysis["details"].append(
-                        f"跨人{ten_god}影响×{count}，需要注意({influence}分)"
-                    )
-
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-        return analysis
-
-    @staticmethod
-    def _analyze_marriage_ten_gods(
-        gods1: Dict[str, int], gods2: Dict[str, int]
-    ) -> Dict[str, Any]:
-        """分析婚姻关系的十神配合，返回0-100分"""
-        analysis = {
-            "score": 50.0,  # 基础分50分
-            "details": [],
-            "relationship_dynamics": [],
-            "compatibility_aspects": [],
-        }
-
-        # 婚姻中的有利十神组合 (权重40%)
-        favorable_combinations = [
-            ("正官", "正印", 15),  # 官印相生 +15分
-            ("偏财", "食神", 12),  # 食神生财 +12分
-            ("正财", "伤官", 12),  # 伤官生财 +12分
-            ("比肩", "劫财", 8),  # 比劫帮身 +8分
-            ("正印", "偏印", 10),  # 印星互助 +10分
-            ("食神", "伤官", 8),  # 食伤配合 +8分
-        ]
-
-        # 检查有利组合
-        for god1, god2, score_bonus in favorable_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(f"一方{god1}配另一方{god2}，有利婚姻")
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god1}-{god2}配合")
-            elif gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0:
-                analysis["details"].append(f"一方{god2}配另一方{god1}，有利婚姻")
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god2}-{god1}配合")
-
-        # 分析性格互补 (权重30%)
-        complement_pairs = [
-            ("正官", "伤官", "一方稳重（正官），一方活泼（伤官）", 10),
-            ("正印", "食神", "一方内敛（正印），一方外向（食神）", 10),
-            ("偏财", "正印", "一方务实（偏财），一方理想（正印）", 8),
-            ("七杀", "食神", "一方强势（七杀），一方温和（食神）", 12),
-        ]
-
-        for god1, god2, desc, score_bonus in complement_pairs:
-            if (gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0) or (
-                gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0
-            ):
-                analysis["relationship_dynamics"].append(desc)
-                analysis["score"] += score_bonus
-
-        # 检查不利组合 (权重30%)
-        unfavorable_combinations = [
-            ("七杀", "伤官", "七杀配伤官，容易冲突", -15),
-            ("劫财", "偏财", "劫财夺财，经济纠纷", -12),
-            ("比肩", "正官", "比肩抗官，权威冲突", -10),
-        ]
-
-        for god1, god2, desc, score_penalty in unfavorable_combinations:
-            if (gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0) or (
-                gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0
-            ):
-                analysis["details"].append(desc)
-                analysis["score"] += score_penalty
-
-        # 确保分数在0-100范围内
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-
-        return analysis
-
-    @staticmethod
-    def _analyze_business_ten_gods(
-        gods1: Dict[str, int], gods2: Dict[str, int]
-    ) -> Dict[str, Any]:
-        """分析商业合作的十神配合，返回0-100分"""
-        analysis = {
-            "score": 45.0,  # 商业合作基础分45分（相对保守）
-            "details": [],
-            "relationship_dynamics": [],
-            "compatibility_aspects": [],
-        }
-
-        # 商业中的有利十神组合 (权重50%)
-        business_combinations = [
-            ("正财", "食神", 18),  # 食神生财，创意变现 +18分
-            ("偏财", "伤官", 16),  # 伤官生财，技能变现 +16分
-            ("正官", "正印", 14),  # 官印相生，管理有序 +14分
-            ("七杀", "食神", 15),  # 七杀配食神，执行力强 +15分
-            ("比肩", "劫财", 10),  # 比劫合作，资源整合 +10分
-            ("偏印", "伤官", 12),  # 偏印伤官，技术创新 +12分
-        ]
-
-        # 检查商业组合
-        for god1, god2, score_bonus in business_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(f"一方{god1}配另一方{god2}，有利商业合作")
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god1}-{god2}商业配合")
-            elif gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0:
-                analysis["details"].append(f"一方{god2}配另一方{god1}，有利商业合作")
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god2}-{god1}商业配合")
-
-        # 分析商业角色互补 (权重30%)
-        role_complements = [
-            ("正官", "偏财", "一方善管理（正官），一方善经营（偏财）", 12),
-            ("正印", "伤官", "一方重策略（正印），一方重执行（伤官）", 10),
-            ("七杀", "正印", "一方决断力强（七杀），一方深思熟虑（正印）", 11),
-            ("食神", "比肩", "一方创意丰富（食神），一方执行稳定（比肩）", 9),
-        ]
-
-        for god1, god2, desc, score_bonus in role_complements:
-            if (gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0) or (
-                gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0
-            ):
-                analysis["relationship_dynamics"].append(desc)
-                analysis["score"] += score_bonus
-
-        # 检查商业风险组合 (权重20%)
-        risk_combinations = [
-            ("劫财", "偏财", "劫财夺财，利益冲突风险", -18),
-            ("七杀", "七杀", "双方都过于强势，决策冲突", -15),
-            ("伤官", "正官", "伤官见官，管理混乱", -12),
-            ("比肩", "比肩", "过于相似，缺乏互补", -8),
-        ]
-
-        for god1, god2, desc, score_penalty in risk_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(desc)
-                analysis["score"] += score_penalty
-
-        # 确保分数在0-100范围内
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-
-        return analysis
-
-    @staticmethod
-    def _analyze_friendship_ten_gods(
-        gods1: Dict[str, int], gods2: Dict[str, int]
-    ) -> Dict[str, Any]:
-        """分析友谊关系的十神配合，返回0-100分"""
-        analysis = {
-            "score": 55.0,  # 友谊基础分55分（相对宽松）
-            "details": [],
-            "relationship_dynamics": [],
-            "compatibility_aspects": [],
-        }
-
-        # 友谊中的和谐组合 (权重40%)
-        harmony_combinations = [
-            ("食神", "食神", "双方都开朗乐观，相处愉快", 12),
-            ("正印", "正印", "双方都内敛稳重，深度交流", 10),
-            ("比肩", "比肩", "性格相似，容易理解", 8),
-            ("食神", "比肩", "一方活泼一方稳定，互补平衡", 11),
-            ("正印", "食神", "一方深沉一方开朗，互相吸引", 13),
-            ("伤官", "食神", "都有创意天赋，共同话题多", 10),
-        ]
-
-        # 检查和谐组合
-        for god1, god2, desc, score_bonus in harmony_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(desc)
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god1}-{god2}和谐")
-
-        # 友谊中的互补组合 (权重35%)
-        complement_combinations = [
-            ("正官", "伤官", "一方规矩一方自由，互相学习", 12),
-            ("七杀", "食神", "一方强势一方温和，平衡关系", 11),
-            ("偏印", "伤官", "一方内向一方外向，互补较强", 10),
-            ("正财", "比肩", "一方务实一方理想，视角不同", 9),
-            ("劫财", "正印", "一方冲动一方冷静，相互制衡", 8),
-        ]
-
-        for god1, god2, desc, score_bonus in complement_combinations:
-            if (gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0) or (
-                gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0
-            ):
-                analysis["relationship_dynamics"].append(desc)
-                analysis["score"] += score_bonus
-
-        # 友谊中的冲突组合 (权重25%)
-        conflict_combinations = [
-            ("七杀", "七杀", "双方都过于强势，容易争执", -12),
-            ("劫财", "劫财", "都比较冲动，可能产生摩擦", -10),
-            ("伤官", "正官", "价值观差异较大，难以理解", -8),
-            ("偏印", "偏印", "都比较孤僻，缺乏交流", -6),
-        ]
-
-        for god1, god2, desc, score_penalty in conflict_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(desc)
-                analysis["score"] += score_penalty
-
-        # 确保分数在0-100范围内
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-
-        return analysis
-
-    @staticmethod
-    def _analyze_general_ten_gods(
-        gods1: Dict[str, int], gods2: Dict[str, int]
-    ) -> Dict[str, Any]:
-        """通用十神关系分析，返回0-100分"""
-        analysis = {
-            "score": 50.0,  # 通用关系基础分50分
-            "details": [],
-            "relationship_dynamics": [],
-            "compatibility_aspects": [],
-        }
-
-        # 通用的和谐组合 (权重45%)
-        harmony_combinations = [
-            ("正官", "正印", "官印相生，秩序与智慧结合", 15),
-            ("食神", "正财", "食神生财，才华变现", 14),
-            ("比肩", "劫财", "比劫帮身，互助合作", 10),
-            ("正印", "食神", "印绶食神，学识与创意", 12),
-            ("偏财", "伤官", "伤官生财，技能致富", 13),
-            ("七杀", "正印", "杀印相生，威权与智慧", 11),
-        ]
-
-        # 检查和谐组合
-        for god1, god2, desc, score_bonus in harmony_combinations:
-            if gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0:
-                analysis["details"].append(desc)
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god1}-{god2}配合")
-            elif gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0:
-                analysis["details"].append(desc)
-                analysis["score"] += score_bonus
-                analysis["compatibility_aspects"].append(f"{god2}-{god1}配合")
-
-        # 通用的互补组合 (权重35%)
-        complement_combinations = [
-            ("正官", "伤官", "规范与创新的平衡", 10),
-            ("正印", "偏财", "理论与实践的结合", 9),
-            ("七杀", "食神", "刚柔并济，相得益彰", 11),
-            ("比肩", "正财", "合作与竞争的平衡", 8),
-            ("劫财", "正印", "冲动与理性的制衡", 7),
-        ]
-
-        for god1, god2, desc, score_bonus in complement_combinations:
-            if (gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0) or (
-                gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0
-            ):
-                analysis["relationship_dynamics"].append(desc)
-                analysis["score"] += score_bonus
-
-        # 通用的冲突组合 (权重20%)
-        conflict_combinations = [
-            ("七杀", "伤官", "威权与叛逆的冲突", -12),
-            ("劫财", "正财", "争夺与保守的矛盾", -10),
-            ("偏印", "食神", "偏印夺食，创意受阻", -8),
-            ("比肩", "正官", "平等与等级的冲突", -6),
-        ]
-
-        for god1, god2, desc, score_penalty in conflict_combinations:
-            if (gods1.get(god1, 0) > 0 and gods2.get(god2, 0) > 0) or (
-                gods1.get(god2, 0) > 0 and gods2.get(god1, 0) > 0
-            ):
-                analysis["details"].append(desc)
-                analysis["score"] += score_penalty
-
-        # 确保分数在0-100范围内
-        analysis["score"] = min(100.0, max(0.0, analysis["score"]))
-
-        return analysis
-
-    @staticmethod
     def _analyze_pattern_synergy(
         analysis1: Dict[str, Any], analysis2: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -1308,36 +814,25 @@ class AdvancedCompatibility:
     def _adjust_for_relationship_type(
         detailed_analysis: Dict[str, Any], relationship_type: RelationshipType
     ) -> Dict[str, Any]:
-        """根据关系类型调整分析重点"""
-        adjustment = {"score_adjustment": 0, "recommendations": []}
+        """根据关系类型给出侧重方向的建议。
+
+        早期版本还会返回一个 ``score_adjustment`` 字段试图二次放大各维度分，
+        但调用方从未消费它，保留只会带来字段歧义和未来回归，所以整条分数
+        调整路径已被删除。本函数现在只产出 recommendations。
+        """
+        recommendations: List[str] = []
+        # detailed_analysis 在当前实现里已经是用权重结构算出来的，这里不再
+        # 二次读取它的每维得分；保留参数仅为向后兼容和潜在的策略扩展。
+        del detailed_analysis
 
         if relationship_type == RelationshipType.MARRIAGE:
-            # 婚姻关系更重视五行互补和喜用神互助
-            element_score = detailed_analysis.get("element_balance", {}).get("score", 0)
-            favorable_score = detailed_analysis.get("favorable_synergy", {}).get(
-                "score", 0
-            )
-            adjustment["score_adjustment"] = (element_score + favorable_score) * 0.3
-            adjustment["recommendations"].append("婚姻关系建议重视五行互补和精神契合")
-
+            recommendations.append("婚姻关系建议重视五行互补和精神契合")
         elif relationship_type == RelationshipType.BUSINESS:
-            # 商业合作更重视十神配合和格局协调
-            ten_gods_score = detailed_analysis.get("ten_gods_relationship", {}).get(
-                "score", 0
-            )
-            pattern_score = detailed_analysis.get("pattern_synergy", {}).get("score", 0)
-            adjustment["score_adjustment"] = (ten_gods_score + pattern_score) * 0.2
-            adjustment["recommendations"].append("商业合作建议发挥各自优势，互补不足")
-
+            recommendations.append("商业合作建议发挥各自优势，互补不足")
         elif relationship_type == RelationshipType.FRIENDSHIP:
-            # 友谊关系更重视性格相投
-            ten_gods_score = detailed_analysis.get("ten_gods_relationship", {}).get(
-                "score", 0
-            )
-            adjustment["score_adjustment"] = ten_gods_score * 0.2
-            adjustment["recommendations"].append("友谊关系建议保持真诚，互相理解")
+            recommendations.append("友谊关系建议保持真诚，互相理解")
 
-        return adjustment
+        return {"recommendations": recommendations}
 
     @staticmethod
     def _generate_comprehensive_summary(result: Dict[str, Any]) -> Dict[str, Any]:

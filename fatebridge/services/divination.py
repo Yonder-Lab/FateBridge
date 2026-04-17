@@ -187,9 +187,15 @@ def calculate_meihua_analysis(
         meihua = lunar_calendar.get("meihua")
 
         if not meihua:
+            # A missing lunar context is a runtime-dependency problem, not a
+            # user-input problem, so surface it as 503 with an explicit
+            # error_code so clients and the HTTP layer can distinguish it.
             return {
                 "error": "当前环境缺少农历上下文，无法生成梅花时卦。",
                 "analysis_type": "梅花时卦分析",
+                "error_code": "dependency_missing",
+                "status_code": 503,
+                "retryable": False,
             }
 
         interpretation = build_meihua_interpretation(meihua, question or "")
