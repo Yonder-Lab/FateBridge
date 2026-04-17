@@ -5,7 +5,7 @@ Converts Gregorian dates to Chinese sexagenary cycle (干支).
 
 from datetime import date, datetime, timedelta
 from functools import lru_cache
-from typing import Tuple, Dict
+from typing import Dict, Optional, Tuple
 
 from .almanac import (
     DAY_GANZHI_STRATEGY_STANDARD,
@@ -142,9 +142,27 @@ class BaZiCalendar:
         month: int,
         day: int,
         *,
+        hour: Optional[int] = None,
+        apply_late_zi_rollover: bool = True,
         strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
     ) -> Tuple[str, str]:
-        """Calculate the day pillar (日柱) for a given date."""
+        """Calculate the day pillar (日柱) for a given date.
+
+        When ``hour`` is provided and ``apply_late_zi_rollover`` is True
+        (default), times at 23:00-23:59 automatically roll to the next day's
+        pillar per the 晚子时/夜子时 rule. Callers that only have a civil
+        date (no hour context) can omit ``hour`` to get the original date's
+        pillar with no rollover applied — this preserves the pre-rollover
+        signature so existing callers who already did their own
+        ``resolve_bazi_effective_date`` need no changes.
+
+        Prefer passing ``hour`` when you have it: this keeps the rollover
+        invariant encapsulated here rather than scattered across callers,
+        which is what allowed _calculate_liuri_cached to silently skip it
+        for months.
+        """
+        if hour is not None and apply_late_zi_rollover:
+            year, month, day = resolve_bazi_effective_date(year, month, day, hour)
         day_ganzhi = get_day_ganzhi(year, month, day, strategy=strategy)
         return day_ganzhi[0], day_ganzhi[1]
 

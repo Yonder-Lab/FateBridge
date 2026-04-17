@@ -23,7 +23,7 @@ from .almanac import (
     get_solar_terms_for_year,
     localize_datetime,
 )
-from .calendar import BaZiCalendar
+from .calendar import BaZiCalendar, resolve_bazi_effective_date
 from ..utils.data import (
     HEAVENLY_STEMS,
     EARTHLY_BRANCHES,
@@ -111,28 +111,56 @@ def _calculate_liuri_cached(
     target_date: datetime,
     timezone_name: str,
 ) -> Dict:
-    """Cache deterministic liuri calculations for repeated timeline analysis."""
+    """Cache deterministic liuri calculations for repeated timeline analysis.
+
+    BaZi day pillars roll over at 23:00 (晚子时/夜子时) - times at or after
+    23:00 belong to the NEXT day's pillar. We pass ``hour=`` to
+    ``calculate_day_pillar`` so the rollover is handled atomically with the
+    pillar calculation and cannot be forgotten again.
+    """
     local_target_date = localize_datetime(target_date, timezone_name)
     liuri_stem, liuri_branch = BaZiCalendar.calculate_day_pillar(
         local_target_date.year,
         local_target_date.month,
         local_target_date.day,
+        hour=local_target_date.hour,
+    )
+    effective_year, effective_month, effective_day = resolve_bazi_effective_date(
+        local_target_date.year,
+        local_target_date.month,
+        local_target_date.day,
+        local_target_date.hour,
+    )
+    applied_late_zi_rollover = (
+        effective_year != local_target_date.year
+        or effective_month != local_target_date.month
+        or effective_day != local_target_date.day
     )
     stem_element, stem_polarity = STEM_ELEMENTS[liuri_stem]
     month_context = get_bazi_month_context(local_target_date, timezone_name)
     weekday_names = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
     return {
+        # Civil year/month/day so callers can locate the sample on their own
+        # calendar timeline. The pillar above is computed on the BaZi-effective
+        # date per the 晚子时 rollover rule, handled by calculate_day_pillar.
         "year": local_target_date.year,
         "month": local_target_date.month,
         "day": local_target_date.day,
         "analysis_datetime": local_target_date.strftime("%Y-%m-%d %H:%M:%S"),
+        "effective_date": (
+            f"{effective_year:04d}-{effective_month:02d}-{effective_day:02d}"
+        ),
+        "late_zi_rollover_applied": applied_late_zi_rollover,
         "stem": liuri_stem,
         "branch": liuri_branch,
         "pillar": f"{liuri_stem}{liuri_branch}",
         "element": stem_element.value,
         "polarity": stem_polarity.value,
         "nayin": get_nayin(liuri_stem, liuri_branch),
+        # Weekday stays on the civil calendar - 23:30 is still "today"
+        # for the wall-clock user, even though the BaZi day pillar has
+        # advanced.
         "weekday": weekday_names[local_target_date.weekday()],
         "solar_term_window": {
             "start_term": month_context["start_term"],
