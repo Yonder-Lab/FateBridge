@@ -56,7 +56,13 @@ def test_dayun_start_details_use_jieqi_boundary():
     assert details["forward_direction"] is True
     assert details["year_stem"] == "戊"
     assert details["reference_term"]["name"] == "立夏"
-    assert details["start_age_precise"] == pytest.approx(9.76, abs=0.05)
+    # start_age_precise uses the delta between birth and 立夏; after switching
+    # from a linear fixed-qì approximation to swisseph-resolved solar terms
+    # (see almanac.get_solar_terms_for_year), the boundary moved slightly and
+    # the precise age updated from ~9.76 to ~9.63. Both values are under a
+    # day's drift at the term boundary; we allow 0.1 year margin to keep the
+    # assertion stable across minor ephemeris updates.
+    assert details["start_age_precise"] == pytest.approx(9.63, abs=0.1)
     assert details["start_age_rounded"] == 10
 
 

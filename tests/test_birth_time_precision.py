@@ -902,7 +902,7 @@ def test_calculate_jieqi_timeline_analysis_returns_qingming_node():
     qingming_node = next(
         item for item in result["jieqi_timeline"] if item["jieqi"]["name"] == "清明"
     )
-    assert qingming_node["analysis_anchor"] == "2028-04-04 21:55:00"
+    assert qingming_node["analysis_anchor"] == "2028-04-04 14:04:00"
     assert qingming_node["liuyue"]["pillar"] == "丙辰"
     assert qingming_node["liuri"]["pillar"] == "己未"
     assert "[查询信息]" in result["snapshot_text"]
@@ -974,7 +974,7 @@ def test_liuyue_timeline_anchor_is_minute_safe_and_replayable():
         analysis_minute=anchor.minute,
     )
 
-    assert qingming_month["analysis_anchor"] == "2028-04-04 21:55:00"
+    assert qingming_month["analysis_anchor"] == "2028-04-04 14:04:00"
     assert liuyue_result["liuyue_info"]["pillar"] == qingming_month["liuyue"]["pillar"]
     assert (
         liuyue_result["liuyue_info"]["solar_term_window"]["start_term"]["name"]
