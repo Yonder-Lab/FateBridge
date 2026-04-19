@@ -25,6 +25,7 @@ from fatebridge.utils.helpers import (
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.timing import TimingAnalysis
 from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
+from fatebridge.analysis.life_dimensions import LifeDimensionAnalysis
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,88 @@ def _calculate_analysis_age(
     ):
         age -= 1
     return age
+
+
+def _compute_life_dimensions_for_moment(
+    birth_context: BirthComputationContext,
+    analysis_date: datetime,
+) -> Optional[Dict[str, float]]:
+    """
+    为指定时刻计算用户的五维生命维度分值（爱情/财富/事业/学习/人际）。
+
+    汇总本命四柱 + 当前可用的时间层柱（大运/流年/流月/流日/流时），
+    任何一层失败都不会让整体崩溃 —— 只是少一个层级权重，
+    最终 dimension 分数仍然有意义。
+    """
+    try:
+        normalized_birth_time = birth_context.normalized_birth_time
+        timezone_name = normalized_birth_time.timezone
+        gender = birth_context.person.gender
+
+        current_pillars: Dict[str, tuple] = {}
+
+        # 流时（小时粒度）
+        try:
+            liushi = TimingAnalysis.calculate_liushi(analysis_date, timezone_name=timezone_name)
+            current_pillars["liushi"] = (liushi["stem"], liushi["branch"])
+        except Exception:
+            logger.debug("life_dimensions: liushi 计算失败", exc_info=True)
+
+        # 流日
+        try:
+            liuri = TimingAnalysis.calculate_liuri(analysis_date, timezone_name=timezone_name)
+            current_pillars["liuri"] = (liuri["stem"], liuri["branch"])
+        except Exception:
+            logger.debug("life_dimensions: liuri 计算失败", exc_info=True)
+
+        # 流月
+        try:
+            liuyue = TimingAnalysis.calculate_liuyue(
+                analysis_date.year,
+                analysis_date.month,
+                analysis_date.day,
+                timezone_name=timezone_name,
+                target_date=analysis_date,
+            )
+            current_pillars["liuyue"] = (liuyue["stem"], liuyue["branch"])
+        except Exception:
+            logger.debug("life_dimensions: liuyue 计算失败", exc_info=True)
+
+        # 流年
+        try:
+            liunian = TimingAnalysis.calculate_liunian(
+                analysis_date.year, moment=analysis_date, timezone_name=timezone_name
+            )
+            current_pillars["liunian"] = (liunian["stem"], liunian["branch"])
+        except Exception:
+            logger.debug("life_dimensions: liunian 计算失败", exc_info=True)
+
+        # 大运（依赖 gender + age）
+        try:
+            birth_date = normalized_birth_time.corrected_datetime
+            analysis_age = _calculate_analysis_age(birth_date, analysis_date)
+            dayun_result = TimingEffectsAnalysis.analyze_dayun_effects(
+                birth_context.birth_pillars,
+                birth_date,
+                gender,
+                analysis_age,
+                timezone_name=timezone_name,
+                original_element_counts=birth_context.original_element_counts,
+            )
+            dayun_info = dayun_result.get("dayun_info") if isinstance(dayun_result, dict) else None
+            if dayun_info and dayun_info.get("stem") and dayun_info.get("branch"):
+                current_pillars["dayun"] = (dayun_info["stem"], dayun_info["branch"])
+        except Exception:
+            logger.debug("life_dimensions: dayun 计算失败", exc_info=True)
+
+        return LifeDimensionAnalysis.calculate_life_dimensions(
+            birth_pillars=birth_context.birth_pillars,
+            current_pillars=current_pillars,
+            gender=gender,
+        )
+    except Exception:
+        logger.warning("life_dimensions 计算整体失败，返回 None", exc_info=True)
+        return None
 
 
 def _serialize_element_effects(element_effects: Dict[str, Any]) -> Dict[str, Any]:
@@ -1869,6 +1952,9 @@ def calculate_liushi_analysis(
                 "suggestions": detailed_analysis["suggestions"],
             },
             "element_effects": _serialize_element_effects(element_effects),
+            "life_dimensions": _compute_life_dimensions_for_moment(
+                birth_context, analysis_date
+            ),
             "summary": summary,
             "snapshot_text": snapshot_text,
             "snapshot_export": snapshot_export,
