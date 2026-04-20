@@ -28,6 +28,7 @@ from ..utils.data import (
     HEAVENLY_STEMS,
     STEM_ELEMENTS,
 )
+from ..utils.helpers import normalize_gender
 
 
 SEXAGENARY_CYCLE = [
@@ -1428,7 +1429,7 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     day_branch = seed.pillars["day"][1]
     day_stem_index = HEAVENLY_STEMS.index(day_stem)
     day_branch_index = EARTHLY_BRANCHES.index(day_branch)
-    gender_offset = 0 if gender == "男" else 1
+    gender_offset = 0 if normalize_gender(gender) == "男" else 1
 
     ming_index = (lunar_month - hour_index) % 12
     shen_index = (lunar_month + hour_index - 2) % 12
@@ -1695,7 +1696,7 @@ def build_liureng_board(
 
 def build_liureng_runyear(seed: MetaphysicsSeed, gender: str, birth_year: int) -> Dict[str, Any]:
     age = max(1, seed.corrected_datetime.year - birth_year + 1)
-    if gender == "女":
+    if normalize_gender(gender) == "女":
         start_index = sexagenary_index_for("己卯")
         direction = -1
     else:

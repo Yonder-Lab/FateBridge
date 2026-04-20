@@ -1116,8 +1116,12 @@ def calculate_nongli_time(
                     "time_alg=0 需要 lon 或 gps_lon 才能计算真太阳时，已回退为直接时间。"
                 )
 
-        if _coerce_bool(after23_new_day) and analysis_datetime.hour >= 23:
-            analysis_datetime += timedelta(days=1)
+        # 晚子时 (23:00-23:59) 的日柱翻日由 BaZiCalendar.get_four_pillars
+        # 内部自动处理 (见 calendar.py 的 resolve_bazi_effective_date)。
+        # 此前的 `analysis_datetime += timedelta(days=1)` 会与内部翻日叠加
+        # 造成"双重翻日" (戊辰→己巳→庚午)。`after23_new_day` 现仅作
+        # 元数据透传，实际翻日逻辑统一由核心承担，避免语义冲突。
+        _ = _coerce_bool(after23_new_day)  # 保留解析以便校验输入
 
         pillars = BaZiCalendar.get_four_pillars(
             analysis_datetime,

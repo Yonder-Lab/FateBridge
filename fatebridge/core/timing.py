@@ -33,6 +33,7 @@ from ..utils.data import (
     check_branch_conflict,
     check_branch_combination,
 )
+from ..utils.helpers import normalize_gender
 
 
 @lru_cache(maxsize=2048)
@@ -238,7 +239,10 @@ class TimingAnalysis:
         year_stem, _ = BaZiCalendar.calculate_year_pillar(bazi_year)
         is_yang_year = HEAVENLY_STEMS.index(year_stem) % 2 == 0
 
-        if (gender == "男" and is_yang_year) or (gender == "女" and not is_yang_year):
+        canonical_gender = normalize_gender(gender)
+        if (canonical_gender == "男" and is_yang_year) or (
+            canonical_gender == "女" and not is_yang_year
+        ):
             forward_direction = True
         else:
             forward_direction = False
@@ -292,7 +296,10 @@ class TimingAnalysis:
             year_stem_index = (birth_year - 4) % 10
             is_yang_year = year_stem_index % 2 == 0
 
-        if (gender == "男" and is_yang_year) or (gender == "女" and not is_yang_year):
+        canonical_gender = normalize_gender(gender)
+        if (canonical_gender == "男" and is_yang_year) or (
+            canonical_gender == "女" and not is_yang_year
+        ):
             direction = 1  # 顺行
         else:
             direction = -1  # 逆行

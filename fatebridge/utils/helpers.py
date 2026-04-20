@@ -128,6 +128,40 @@ def normalize_birth_place_text(text: str) -> str:
     return PLACE_TEXT_SANITIZER.sub("", normalized_text)
 
 
+_MALE_GENDER_TOKENS = frozenset({"男", "male", "m", "man", "boy", "1", "true", "阳", "乾"})
+_FEMALE_GENDER_TOKENS = frozenset({"女", "female", "f", "woman", "girl", "0", "false", "阴", "坤"})
+
+
+def normalize_gender(gender: Any) -> str:
+    """规范化性别输入为中文 "男"/"女"/"未知"。
+
+    接受中英文、大小写、布尔型等多种输入形式，统一输出内部使用的中文标识。
+    任何无法识别的输入返回 "未知"。
+    """
+    if gender is None:
+        return "未知"
+    if isinstance(gender, bool):
+        return "男" if gender else "女"
+    token = str(gender).strip().casefold()
+    if not token:
+        return "未知"
+    if token in _MALE_GENDER_TOKENS:
+        return "男"
+    if token in _FEMALE_GENDER_TOKENS:
+        return "女"
+    return "未知"
+
+
+def is_male(gender: Any) -> bool:
+    """Convenience: True iff gender normalizes to 男."""
+    return normalize_gender(gender) == "男"
+
+
+def is_female(gender: Any) -> bool:
+    """Convenience: True iff gender normalizes to 女."""
+    return normalize_gender(gender) == "女"
+
+
 def make_birth_place_entry(
     canonical_name: str,
     longitude: float,
