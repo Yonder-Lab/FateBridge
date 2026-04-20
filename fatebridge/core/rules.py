@@ -1518,24 +1518,33 @@ class BaZiRules:
             "details": [],
         }
 
-        # Extract all branches from both charts
-        branches1 = [branch for _, branch in pillars1.values()]
-        branches2 = [branch for _, branch in pillars2.values()]
+        # Extract branches by pillar position so details can name which
+        # pillar of each person is being matched (avoids "巳与申六合 x4"
+        # deduped output that hides whether each hit is a real new match
+        # or just a display repeat).
+        pillar_keys = ("year", "month", "day", "hour")
+        pillar_labels = {"year": "年", "month": "月", "day": "日", "hour": "时"}
+        branches1 = [(pk, pillars1[pk][1]) for pk in pillar_keys if pk in pillars1]
+        branches2 = [(pk, pillars2[pk][1]) for pk in pillar_keys if pk in pillars2]
 
         # Check harmony between charts
-        for b1 in branches1:
-            for b2 in branches2:
+        for pk1, b1 in branches1:
+            for pk2, b2 in branches2:
                 # Check six harmony
                 for harmony_pair in BaZiRules.SIX_HARMONY:
                     if (b1, b2) in [harmony_pair, harmony_pair[::-1]]:
                         compatibility["harmony_score"] += 2
-                        compatibility["details"].append(f"{b1}与{b2}六合")
+                        compatibility["details"].append(
+                            f"一方{pillar_labels[pk1]}支{b1} × 二方{pillar_labels[pk2]}支{b2}：六合"
+                        )
 
                 # Check six clash
                 for clash_pair in BaZiRules.SIX_CLASH:
                     if (b1, b2) in [clash_pair, clash_pair[::-1]]:
                         compatibility["clash_score"] += 2
-                        compatibility["details"].append(f"{b1}与{b2}六冲")
+                        compatibility["details"].append(
+                            f"一方{pillar_labels[pk1]}支{b1} × 二方{pillar_labels[pk2]}支{b2}：六冲"
+                        )
 
         # Check day pillar compatibility (most important)
         day_stem1, day_branch1 = pillars1["day"]

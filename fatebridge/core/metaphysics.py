@@ -27,8 +27,33 @@ from ..utils.data import (
     GENERATION_CYCLE,
     HEAVENLY_STEMS,
     STEM_ELEMENTS,
+    get_nayin,
 )
 from ..utils.helpers import normalize_gender
+
+
+# 五行局数字与标签 (紫微斗数): 水二局 / 木三局 / 金四局 / 土五局 / 火六局
+_WUXING_JU_NUMBER_BY_ELEMENT: Dict[str, int] = {
+    "水": 2, "木": 3, "金": 4, "土": 5, "火": 6,
+}
+_WUXING_JU_LABEL_BY_NUMBER: Dict[int, str] = {
+    2: "水二局", 3: "木三局", 4: "金四局", 5: "土五局", 6: "火六局",
+}
+
+
+def _resolve_wuxing_ju(ming_stem: str, ming_branch: str) -> Dict[str, Any]:
+    """由命宫干支的纳音推出五行局 (起大限岁数)。"""
+    nayin = get_nayin(ming_stem, ming_branch)
+    element = nayin[-1] if nayin and nayin != "未知纳音" else "木"
+    if element not in _WUXING_JU_NUMBER_BY_ELEMENT:
+        element = "木"  # 无法识别时退回 木三局 保守默认
+    number = _WUXING_JU_NUMBER_BY_ELEMENT[element]
+    return {
+        "number": number,
+        "element": element,
+        "label": _WUXING_JU_LABEL_BY_NUMBER[number],
+        "nayin": nayin,
+    }
 
 
 SEXAGENARY_CYCLE = [
@@ -1447,12 +1472,31 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     palace_names = ZIWEI_PALACE_SEQUENCE[:]
     ziwei_anchor = (lunar_day + lunar_month + gender_offset - 1) % 12
 
+    # 五行局 (起大限岁数) — 由命宫 (palaces[0]) 干支的纳音决定
+    wuxing_ju = _resolve_wuxing_ju(palace_stems[0], palace_branches[0])
+    start_age = wuxing_ju["number"]
+
+    # 大限方向: 阳男阴女顺行 / 阴男阳女逆行
+    is_yang_year = HEAVENLY_STEMS.index(year_stem) % 2 == 0
+    canonical_gender = normalize_gender(gender)
+    daxian_forward = (canonical_gender == "男" and is_yang_year) or (
+        canonical_gender == "女" and not is_yang_year
+    )
+    daxian_direction_label = "顺行" if daxian_forward else "逆行"
+
     palaces: List[Dict[str, Any]] = []
     for index, palace_name in enumerate(palace_names):
+        # 命宫永远是第一个大限, 其余按顺/逆方向顺着宫位排列
+        if daxian_forward:
+            period_index = index  # 命宫→兄弟→夫妻→... (顺时针宫位序)
+        else:
+            period_index = (-index) % 12  # 命宫→父母→福德→... (逆着宫位序)
+        period_start = start_age + period_index * 10
         palace = {
             "name": palace_name,
             "ganzhi": f"{palace_stems[index]}{palace_branches[index]}",
-            "daxian": f"{3 + index * 10}~{12 + index * 10}",
+            "daxian": f"{period_start}~{period_start + 9}",
+            "daxian_period": period_index + 1,
             "stars": [],
         }
         palaces.append(palace)
@@ -1493,6 +1537,8 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
             "branch": shen_branch,
             "ganzhi": shen_palace["ganzhi"],
         },
+        "wuxing_ju": wuxing_ju,
+        "daxian_direction": daxian_direction_label,
         "sihua": sihua,
         "palaces": palaces,
     }

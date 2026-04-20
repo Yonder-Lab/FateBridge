@@ -162,6 +162,79 @@ def is_female(gender: Any) -> bool:
     return normalize_gender(gender) == "女"
 
 
+# Swiss Ephemeris 宫位系统代码 ↔ 常见英文/中文别名
+# Keys normalized via casefold + strip for lookup. Values are the
+# single-letter codes accepted by swisseph / kerykeion.
+_HOUSE_SYSTEM_ALIASES: Dict[str, str] = {
+    # Placidus (default)
+    "placidus": "P", "placidian": "P", "普拉西德": "P", "普拉西迪斯": "P",
+    # Koch
+    "koch": "K", "koh": "K", "柯赫": "K", "科赫": "K",
+    # Equal house (A and E both map to Equal from Ascendant in swisseph)
+    "equal": "A", "equalhouse": "A", "equal-house": "A", "equalasc": "A",
+    "equal sign": "A", "等宫": "A", "等分制": "A",
+    # Whole sign
+    "whole": "W", "wholesign": "W", "whole-sign": "W", "whole_signs": "W",
+    "whole signs": "W", "整宫": "W", "整宫制": "W",
+    # Regiomontanus
+    "regiomontanus": "R", "regio": "R", "雷乔蒙塔努斯": "R",
+    # Campanus
+    "campanus": "C", "坎帕努斯": "C",
+    # Porphyry / Porphyrius
+    "porphyry": "O", "porphyrius": "O", "波菲利": "O",
+    # Alcabitius
+    "alcabitius": "B", "alchabitius": "B", "alchabitus": "B", "阿卡比特斯": "B",
+    # Morinus
+    "morinus": "M", "莫里努斯": "M",
+    # Topocentric / Polich-Page
+    "topocentric": "T", "polich": "T", "polichpage": "T", "polich-page": "T",
+    "polich page": "T",
+    # Horizontal / Azimuthal
+    "horizontal": "H", "azimuthal": "H",
+    # Axial rotation / Meridian
+    "axial": "X", "meridian": "X", "axial rotation": "X",
+    # Vehlow Equal
+    "vehlow": "V", "vehlowequal": "V", "vehlow equal": "V",
+    # APC / Krusinski
+    "apc": "Y", "krusinski": "U",
+}
+
+# Valid single-letter codes per kerykeion.schemas.kr_literals.HousesSystemIdentifier
+_VALID_HOUSE_SYSTEM_CODES = frozenset(
+    {"A", "B", "C", "D", "F", "H", "I", "i", "K", "L", "M", "N",
+     "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"}
+)
+
+
+def normalize_house_system(house_system: Any, default: str = "P") -> str:
+    """Map friendly names (placidus/koch/whole-sign/...) to SE single-letter codes.
+
+    Accepts: single-letter codes (validated and passed through), full English
+    names (case-insensitive), Chinese labels, and common variants. Unknown
+    input falls back to the supplied default (Placidus by default).
+    """
+    if house_system is None:
+        return default
+    token = str(house_system).strip()
+    if not token:
+        return default
+    # Single-letter code (preserves kerykeion's case-sensitive "i" vs "I")
+    if len(token) == 1 and token in _VALID_HOUSE_SYSTEM_CODES:
+        return token
+    # Alias lookup (case-insensitive, collapse separators)
+    lookup = token.casefold().replace("_", "").replace("-", "").replace(" ", "")
+    if lookup in _HOUSE_SYSTEM_ALIASES:
+        return _HOUSE_SYSTEM_ALIASES[lookup]
+    # Re-match without normalization for Chinese labels that don't casefold
+    if token in _HOUSE_SYSTEM_ALIASES:
+        return _HOUSE_SYSTEM_ALIASES[token]
+    # Upper-case fallback for codes given in wrong case (e.g. "p" → "P")
+    upper = token.upper()
+    if len(upper) == 1 and upper in _VALID_HOUSE_SYSTEM_CODES:
+        return upper
+    return default
+
+
 def make_birth_place_entry(
     canonical_name: str,
     longitude: float,

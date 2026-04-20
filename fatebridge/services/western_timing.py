@@ -12,7 +12,7 @@ from fatebridge.core.astrology_predictive import (
     build_western_timing_module_payload,
     build_western_timing_payload,
 )
-from fatebridge.utils.helpers import handle_calculation_error
+from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
 
 
 def calculate_western_timing_analysis(
@@ -46,6 +46,7 @@ def calculate_western_timing_analysis(
     and time-lord systems around a target analysis date.
     """
     try:
+        house_system = normalize_house_system(house_system)
         birth_info = build_predictive_birth_info(
             birth_year=birth_year,
             birth_month=birth_month,
@@ -111,6 +112,7 @@ def calculate_western_timing_module_analysis(
 ) -> Dict[str, Any]:
     """Build a single western timing technique payload for standalone tools."""
     try:
+        house_system = normalize_house_system(house_system)
         birth_info = build_predictive_birth_info(
             birth_year=birth_year,
             birth_month=birth_month,
