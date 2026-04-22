@@ -1005,7 +1005,7 @@ def _build_phase2_metaphysics_seed(
     gps_lat: Optional[float] = None,
     gps_lon: Optional[float] = None,
     use_true_solar_time: bool = False,
-    day_pillar_strategy: str = DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    day_pillar_strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
 ) -> MetaphysicsSeed:
     timezone_value = timezone_name or DEFAULT_BIRTH_TIMEZONE
     input_datetime_naive = datetime.fromisoformat(

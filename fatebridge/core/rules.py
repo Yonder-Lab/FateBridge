@@ -754,11 +754,34 @@ class BaZiRules:
         return dict(counts)
 
     @staticmethod
+    def _get_significant_gods(
+        pillars: Dict[str, Tuple[str, str]],
+        day_stem: str,
+    ) -> set[str]:
+        significant = set()
+        # Stems (excluding day master)
+        for p in ["year", "month", "hour"]:
+            stem = pillars[p][0]
+            god = get_ten_god(day_stem, stem).value
+            significant.add(god)
+
+        # Month Branch Main Qi
+        month_branch = pillars["month"][1]
+        hidden = BRANCH_HIDDEN_STEMS.get(month_branch, [])
+        if hidden:
+            main_hidden = hidden[0]
+            main_god = get_ten_god(day_stem, main_hidden).value
+            significant.add(main_god)
+
+        return significant
+
+    @staticmethod
     def _build_structure_candidates(
         pillars: Dict[str, Tuple[str, str]],
         day_stem: str,
     ) -> List[Dict[str, Any]]:
         branches = [branch for _, branch in pillars.values()]
+        sig_gods = BaZiRules._get_significant_gods(pillars, day_stem)
         ten_god_counts = BaZiRules._count_ten_gods_for_chart(pillars, day_stem)
 
         killer_element = BaZiRules._element_for_ten_god(day_stem, TenGod.SEVEN_KILLER.value)
@@ -769,7 +792,7 @@ class BaZiRules:
         candidates: List[Dict[str, Any]] = []
 
         blade_branch = BaZiRules.YANG_BLADE_BRANCHES.get(day_stem)
-        if blade_branch and blade_branch in branches and ten_god_counts.get(TenGod.SEVEN_KILLER.value, 0) > 0:
+        if blade_branch and blade_branch in branches and TenGod.SEVEN_KILLER.value in sig_gods:
             candidates.append(
                 {
                     "key": "yang_ren_jia_sha",
@@ -792,10 +815,10 @@ class BaZiRules:
             )
 
         if (
-            ten_god_counts.get(TenGod.SEVEN_KILLER.value, 0) > 0
+            TenGod.SEVEN_KILLER.value in sig_gods
             and (
-                ten_god_counts.get(TenGod.POSITIVE_SEAL.value, 0) > 0
-                or ten_god_counts.get(TenGod.PARTIAL_SEAL.value, 0) > 0
+                TenGod.POSITIVE_SEAL.value in sig_gods
+                or TenGod.PARTIAL_SEAL.value in sig_gods
             )
         ):
             candidates.append(
@@ -818,8 +841,8 @@ class BaZiRules:
             )
 
         if (
-            ten_god_counts.get(TenGod.SEVEN_KILLER.value, 0) > 0
-            and ten_god_counts.get(TenGod.FOOD_GOD.value, 0) > 0
+            TenGod.SEVEN_KILLER.value in sig_gods
+            and TenGod.FOOD_GOD.value in sig_gods
         ):
             candidates.append(
                 {
@@ -839,10 +862,10 @@ class BaZiRules:
             )
 
         if (
-            ten_god_counts.get(TenGod.HURT_OFFICER.value, 0) > 0
+            TenGod.HURT_OFFICER.value in sig_gods
             and (
-                ten_god_counts.get(TenGod.POSITIVE_SEAL.value, 0) > 0
-                or ten_god_counts.get(TenGod.PARTIAL_SEAL.value, 0) > 0
+                TenGod.POSITIVE_SEAL.value in sig_gods
+                or TenGod.PARTIAL_SEAL.value in sig_gods
             )
         ):
             candidates.append(
@@ -864,8 +887,8 @@ class BaZiRules:
             )
 
         if (
-            ten_god_counts.get(TenGod.HURT_OFFICER.value, 0) > 0
-            and ten_god_counts.get(TenGod.POSITIVE_OFFICER.value, 0) > 0
+            TenGod.HURT_OFFICER.value in sig_gods
+            and TenGod.POSITIVE_OFFICER.value in sig_gods
         ):
             candidates.append(
                 {
@@ -961,9 +984,21 @@ class BaZiRules:
             useful_elements = BaZiRules._ordered_unique(
                 dominant_structure.get("useful_elements", []) + baseline_useful
             )
+            
+            # Prioritize structure-specific useful gods. 
+            # Only add baseline gods if they are "Self" stars and DM is not strong.
+            structure_useful_gods = dominant_structure.get("useful_ten_gods", [])
+            filtered_baseline_gods = []
+            if "弱" in day_strength or "中和" in day_strength:
+                filtered_baseline_gods = [
+                    god for god in baseline_useful_ten_gods 
+                    if god in [TenGod.COMPARE.value, TenGod.ROB_WEALTH.value]
+                ]
+            
             useful_ten_gods = BaZiRules._ordered_unique(
-                dominant_structure.get("useful_ten_gods", []) + baseline_useful_ten_gods
+                structure_useful_gods + filtered_baseline_gods
             )
+            
             avoid_elements = BaZiRules._ordered_unique(
                 dominant_structure.get("avoid_elements", [])
                 + [element.value for element in Element if element.value not in useful_elements]

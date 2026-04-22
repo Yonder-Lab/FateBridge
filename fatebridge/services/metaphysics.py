@@ -49,7 +49,7 @@ def _build_analysis_seed(
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
     use_true_solar_time: bool = False,
-    day_pillar_strategy: str = DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+    day_pillar_strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
 ) -> MetaphysicsSeed:
     timezone_name = analysis_timezone or DEFAULT_BIRTH_TIMEZONE
     input_datetime = datetime(
@@ -108,7 +108,7 @@ def _build_person_seed(person: PersonInfo) -> MetaphysicsSeed:
     pillars = BaZiCalendar.get_four_pillars(
         corrected_datetime,
         timezone_name=normalized_birth_time.timezone,
-        day_pillar_strategy=DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
+        day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
     )
     calendar_context = build_calendar_context(
         corrected_datetime,

@@ -1462,7 +1462,7 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     shen_branch = ZIWEI_BRANCH_SEQUENCE[shen_index]
 
     ming_stem = HEAVENLY_STEMS[
-        (HEAVENLY_STEMS.index(year_stem) * 2 + ming_index) % len(HEAVENLY_STEMS)
+        (HEAVENLY_STEMS.index(year_stem) * 2 + 2 + ming_index) % len(HEAVENLY_STEMS)
     ]
     palace_stems = [
         HEAVENLY_STEMS[(HEAVENLY_STEMS.index(ming_stem) + offset) % len(HEAVENLY_STEMS)]
@@ -1470,9 +1470,8 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     ]
     palace_branches = ZIWEI_BRANCH_SEQUENCE[ming_index:] + ZIWEI_BRANCH_SEQUENCE[:ming_index]
     palace_names = ZIWEI_PALACE_SEQUENCE[:]
-    ziwei_anchor = (lunar_day + lunar_month + gender_offset - 1) % 12
-
     # 五行局 (起大限岁数) — 由命宫 (palaces[0]) 干支的纳音决定
+    # Note: palace_stems[0] and palace_branches[0] are Ming Gong stems/branches
     wuxing_ju = _resolve_wuxing_ju(palace_stems[0], palace_branches[0])
     start_age = wuxing_ju["number"]
 
@@ -1482,15 +1481,40 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     daxian_forward = (canonical_gender == "男" and is_yang_year) or (
         canonical_gender == "女" and not is_yang_year
     )
+
     daxian_direction_label = "顺行" if daxian_forward else "逆行"
+
+    # --- Standard Zi Wei Star Placement ---
+    # 1. Resolve Zi Wei star position based on Wu Xing Ju and Lunar Day
+    ju_num = wuxing_ju["number"]
+    # Formula: find X such that ju_num * X >= lunar_day, Y = ju_num * X - lunar_day
+    x = (lunar_day + ju_num - 1) // ju_num
+    y = ju_num * x - lunar_day
+    if y % 2 == 0:
+        ziwei_index = (x + y - 1) % 12  # Relative to 寅 (0)
+    else:
+        ziwei_index = (x - y - 1) % 12
+
+    # 2. Derive Tian Fu star position (mirrored from Zi Wei)
+    tianfu_index = (12 - ziwei_index) % 12
+
+    # 3. Place stars
+    # Zi Wei group (Counter-clockwise relative to Zi Wei)
+    ziwei_group = {
+        "紫微": 0, "天机": -1, "太阳": -3, "武曲": -4, "天同": -5, "廉贞": -8
+    }
+    # Tian Fu group (Clockwise relative to Tian Fu)
+    tianfu_group = {
+        "天府": 0, "太阴": 1, "贪狼": 2, "巨门": 3, "天相": 4, "天梁": 5, "七杀": 6, "破军": 10
+    }
 
     palaces: List[Dict[str, Any]] = []
     for index, palace_name in enumerate(palace_names):
         # 命宫永远是第一个大限, 其余按顺/逆方向顺着宫位排列
         if daxian_forward:
-            period_index = index  # 命宫→兄弟→夫妻→... (顺时针宫位序)
+            period_index = index  # 命宫→兄弟→夫妻→...
         else:
-            period_index = (-index) % 12  # 命宫→父母→福德→... (逆着宫位序)
+            period_index = (-index) % 12  # 命宫→父母→福德→...
         period_start = start_age + period_index * 10
         palace = {
             "name": palace_name,
@@ -1501,19 +1525,48 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
         }
         palaces.append(palace)
 
-    for star_name, offset in ZIWEI_STAR_OFFSETS.items():
-        palace_index = (ziwei_anchor + offset) % 12
-        palaces[palace_index]["stars"].append(star_name)
+    # Place Zi Wei group
+    for star, offset in ziwei_group.items():
+        idx = (ziwei_index + offset) % 12
+        # Current palaces list is ordered by ZIWEI_PALACE_SEQUENCE starting from Ming Gong
+        # But we need to find the palace that matches the earthly branch index (idx)
+        for p in palaces:
+            if p["ganzhi"][1] == ZIWEI_BRANCH_SEQUENCE[idx]:
+                p["stars"].append(star)
+                break
 
-    for star_name, locator in AUXILIARY_STAR_RULES.items():
-        palace_index = locator(
-            lunar_month,
-            lunar_day,
-            hour_index - 1,
-            day_stem_index,
-            day_branch_index,
-        )
-        palaces[palace_index]["stars"].append(star_name)
+    # Place Tian Fu group
+    for star, offset in tianfu_group.items():
+        idx = (tianfu_index + offset) % 12
+        for p in palaces:
+            if p["ganzhi"][1] == ZIWEI_BRANCH_SEQUENCE[idx]:
+                p["stars"].append(star)
+                break
+
+    # 4. Place Auxiliary Stars (Fixed Rules)
+    aux_locators = {
+        "左辅": (2 + lunar_month - 1) % 12,           # Starts from 辰 (2)
+        "右弼": (8 - (lunar_month - 1)) % 12,        # Starts from 戌 (8)
+        "文昌": (9 - (hour_index - 1)) % 12,         # Starts from 戌 (9) - Wait, let me check
+        "文曲": (3 + (hour_index - 1)) % 12,         # Starts from 辰 (3) - Wait, check
+    }
+    # Wen Chang: 戌 (index 8? No, 戌 is index 8 in 寅=0 sequence).
+    # Wait: 寅(0), 卯(1), 辰(2), 巳(3), 午(4), 未(5), 申(6), 酉(7), 戌(8), 亥(9), 子(10), 丑(11).
+    # 文昌: From 戌(8) counter-clockwise. Pos = (8 - (hour-1)) % 12.
+    # 文曲: From 辰(2) clockwise. Pos = (2 + (hour-1)) % 12.
+    # Re-calculating:
+    aux_locators = {
+        "左辅": (2 + lunar_month - 1) % 12,
+        "右弼": (8 - (lunar_month - 1)) % 12,
+        "文昌": (8 - (hour_index - 1)) % 12,
+        "文曲": (2 + (hour_index - 1)) % 12,
+    }
+
+    for star, idx in aux_locators.items():
+        for p in palaces:
+            if p["ganzhi"][1] == ZIWEI_BRANCH_SEQUENCE[idx]:
+                p["stars"].append(star)
+                break
 
     sihua = _apply_sihua_to_palaces(palaces, year_stem)
     for palace in palaces:
