@@ -277,19 +277,23 @@ WUZI_DUN_START = {
 }
 
 ZIWEI_BRANCH_SEQUENCE = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"]
+# 紫微十二宫顺序：命宫定位后，沿地支递增方向（子→丑→寅→...→亥）依次为
+# 命、父母、福德、田宅、官禄、仆役、迁移、疾厄、财帛、子女、夫妻、兄弟。
+# 这一排列等价于「从命宫逆时针起兄弟、夫妻...父母」的传统顺序
+# （iztro / 紫微斗数全书一致做法）。
 ZIWEI_PALACE_SEQUENCE = [
     "命宫",
-    "兄弟宫",
-    "夫妻宫",
-    "子女宫",
-    "财帛宫",
-    "疾厄宫",
-    "迁移宫",
-    "仆役宫",
-    "官禄宫",
-    "田宅宫",
-    "福德宫",
     "父母宫",
+    "福德宫",
+    "田宅宫",
+    "官禄宫",
+    "仆役宫",
+    "迁移宫",
+    "疾厄宫",
+    "财帛宫",
+    "子女宫",
+    "夫妻宫",
+    "兄弟宫",
 ]
 
 ZIWEI_SIHUA_RULES = {
@@ -1508,6 +1512,11 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     lunar = seed.calendar_context.get("lunar_calendar") or {}
     lunar_month = int(lunar.get("month") or 1)
     lunar_day = int(lunar.get("day") or 1)
+
+    # 紫微斗数闰月处理：以十五日为界，十五日及以前作当月算，十六日及以后作下月算
+    if lunar.get("is_leap_month"):
+        if lunar_day >= 16:
+            lunar_month = (lunar_month % 12) + 1
     hour_branch = seed.pillars["hour"][1]
     hour_index = _branch_from_hour(hour_branch)
     year_stem = seed.pillars["year"][0]
@@ -1522,11 +1531,15 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     ming_branch = ZIWEI_BRANCH_SEQUENCE[ming_index]
     shen_branch = ZIWEI_BRANCH_SEQUENCE[shen_index]
 
-    ming_stem = HEAVENLY_STEMS[
-        (HEAVENLY_STEMS.index(year_stem) * 2 + 2 + ming_index) % len(HEAVENLY_STEMS)
-    ]
+    # 宫干按「五虎遁」规则从年干推出：
+    #   甲己之年 → 寅宫起丙寅，乙庚 → 戊寅，丙辛 → 庚寅，丁壬 → 壬寅，戊癸 → 甲寅。
+    # ZIWEI_BRANCH_SEQUENCE 以 寅=0 为起点顺数到丑=11，因此某宫位在序列中的位置
+    # 就是它相对于寅的偏移量，可直接叠加到寅宫干基。
+    year_stem_index = HEAVENLY_STEMS.index(year_stem)
+    yin_stem_base = (year_stem_index * 2 + 2) % len(HEAVENLY_STEMS)
+    ming_stem = HEAVENLY_STEMS[(yin_stem_base + ming_index) % len(HEAVENLY_STEMS)]
     palace_stems = [
-        HEAVENLY_STEMS[(HEAVENLY_STEMS.index(ming_stem) + offset) % len(HEAVENLY_STEMS)]
+        HEAVENLY_STEMS[(yin_stem_base + (ming_index + offset) % 12) % len(HEAVENLY_STEMS)]
         for offset in range(12)
     ]
     palace_branches = ZIWEI_BRANCH_SEQUENCE[ming_index:] + ZIWEI_BRANCH_SEQUENCE[:ming_index]
@@ -1571,11 +1584,12 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
 
     palaces: List[Dict[str, Any]] = []
     for index, palace_name in enumerate(palace_names):
-        # 命宫永远是第一个大限, 其余按顺/逆方向顺着宫位排列
+        # 命宫永远是第一个大限，其余按顺/逆方向沿宫位排列；
+        # 宫名序列已按地支递增方向排布（命→父母→福德→...→兄弟）。
         if daxian_forward:
-            period_index = index  # 命宫→兄弟→夫妻→...
+            period_index = index  # 阳男/阴女：命→父母→福德→...
         else:
-            period_index = (-index) % 12  # 命宫→父母→福德→...
+            period_index = (-index) % 12  # 阴男/阳女：命→兄弟→夫妻→...
         period_start = start_age + period_index * 10
         palace = {
             "name": palace_name,
@@ -1611,11 +1625,10 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
         "文昌": (9 - (hour_index - 1)) % 12,         # Starts from 戌 (9) - Wait, let me check
         "文曲": (3 + (hour_index - 1)) % 12,         # Starts from 辰 (3) - Wait, check
     }
-    # Wen Chang: 戌 (index 8? No, 戌 is index 8 in 寅=0 sequence).
-    # Wait: 寅(0), 卯(1), 辰(2), 巳(3), 午(4), 未(5), 申(6), 酉(7), 戌(8), 亥(9), 子(10), 丑(11).
-    # 文昌: From 戌(8) counter-clockwise. Pos = (8 - (hour-1)) % 12.
-    # 文曲: From 辰(2) clockwise. Pos = (2 + (hour-1)) % 12.
-    # Re-calculating:
+    # ZIWEI_BRANCH_SEQUENCE indexing: 寅(0), 卯(1), 辰(2), 巳(3), 午(4), 未(5),
+    # 申(6), 酉(7), 戌(8), 亥(9), 子(10), 丑(11)。
+    # 月系（生月起）：左辅从辰顺、右弼从戌逆。
+    # 时系（生时起）：文昌从戌逆、文曲从辰顺。
     aux_locators = {
         "左辅": (2 + lunar_month - 1) % 12,
         "右弼": (8 - (lunar_month - 1)) % 12,
@@ -1626,6 +1639,220 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     for star, idx in aux_locators.items():
         for p in palaces:
             if p["ganzhi"][1] == ZIWEI_BRANCH_SEQUENCE[idx]:
+                p["stars"].append(star)
+                break
+
+    # --- 年干 / 年支 / 生时 派生的辅煞星 ---
+    year_branch = seed.pillars["year"][1]
+    year_branch_earth_index = EARTHLY_BRANCHES.index(year_branch)
+    hour_earth_index = EARTHLY_BRANCHES.index(hour_branch)
+
+    lucun_by_year_stem = {
+        "甲": "寅", "乙": "卯", "丙": "巳", "丁": "午", "戊": "巳",
+        "己": "午", "庚": "申", "辛": "酉", "壬": "亥", "癸": "子",
+    }
+    tiankui_by_year_stem = {
+        "甲": "丑", "戊": "丑", "庚": "丑",
+        "乙": "子", "己": "子",
+        "丙": "亥", "丁": "亥",
+        "辛": "午",
+        "壬": "卯", "癸": "卯",
+    }
+    tianyue_by_year_stem = {
+        "甲": "未", "戊": "未", "庚": "未",
+        "乙": "申", "己": "申",
+        "丙": "酉", "丁": "酉",
+        "辛": "寅",
+        "壬": "巳", "癸": "巳",
+    }
+    # 年支三合局定马 / 火铃起点
+    tianma_by_year_branch = {
+        "寅": "申", "午": "申", "戌": "申",
+        "申": "寅", "子": "寅", "辰": "寅",
+        "巳": "亥", "酉": "亥", "丑": "亥",
+        "亥": "巳", "卯": "巳", "未": "巳",
+    }
+    huoxing_start_by_year_branch = {
+        "寅": "丑", "午": "丑", "戌": "丑",
+        "申": "寅", "子": "寅", "辰": "寅",
+        "巳": "卯", "酉": "卯", "丑": "卯",
+        "亥": "酉", "卯": "酉", "未": "酉",
+    }
+    lingxing_start_by_year_branch = {
+        "寅": "卯", "午": "卯", "戌": "卯",
+        "申": "戌", "子": "戌", "辰": "戌",
+        "巳": "戌", "酉": "戌", "丑": "戌",
+        "亥": "戌", "卯": "戌", "未": "戌",
+    }
+
+    def _branch_by_offset(start_branch: str, offset: int) -> str:
+        return EARTHLY_BRANCHES[
+            (EARTHLY_BRANCHES.index(start_branch) + offset) % 12
+        ]
+
+    lucun_branch = lucun_by_year_stem[year_stem]
+    minor_star_branches: Dict[str, str] = {
+        "禄存": lucun_branch,
+        "擎羊": _branch_by_offset(lucun_branch, 1),   # 禄存前一位
+        "陀罗": _branch_by_offset(lucun_branch, -1),  # 禄存后一位
+        "天魁": tiankui_by_year_stem[year_stem],
+        "天钺": tianyue_by_year_stem[year_stem],
+        "天马": tianma_by_year_branch[year_branch],
+        "火星": _branch_by_offset(
+            huoxing_start_by_year_branch[year_branch], hour_earth_index
+        ),
+        "铃星": _branch_by_offset(
+            lingxing_start_by_year_branch[year_branch], hour_earth_index
+        ),
+        # 地空 / 地劫：生时起亥逆 / 顺
+        "地空": EARTHLY_BRANCHES[(11 - hour_earth_index) % 12],
+        "地劫": EARTHLY_BRANCHES[(11 + hour_earth_index) % 12],
+        # 红鸾 / 天喜：年支起卯逆 / 对冲
+        "红鸾": EARTHLY_BRANCHES[(3 - year_branch_earth_index) % 12],
+        "天喜": EARTHLY_BRANCHES[(9 - year_branch_earth_index) % 12],
+    }
+    for star, target_branch in minor_star_branches.items():
+        for p in palaces:
+            if p["ganzhi"][1] == target_branch:
+                p["stars"].append(star)
+                break
+
+    # --- 杂星 (adjective stars) ---
+    # 年支三合派
+    huagai_by_triad = {
+        "寅": "戌", "午": "戌", "戌": "戌",
+        "申": "辰", "子": "辰", "辰": "辰",
+        "巳": "丑", "酉": "丑", "丑": "丑",
+        "亥": "未", "卯": "未", "未": "未",
+    }
+    xianchi_by_triad = {
+        "寅": "卯", "午": "卯", "戌": "卯",
+        "申": "酉", "子": "酉", "辰": "酉",
+        "巳": "午", "酉": "午", "丑": "午",
+        "亥": "子", "卯": "子", "未": "子",
+    }
+    # 孤辰/寡宿 按年支"方局"
+    guchen_gushu_table = {
+        frozenset({"寅", "卯", "辰"}): ("巳", "丑"),
+        frozenset({"巳", "午", "未"}): ("申", "辰"),
+        frozenset({"申", "酉", "戌"}): ("亥", "未"),
+        frozenset({"亥", "子", "丑"}): ("寅", "戌"),
+    }
+    guchen_branch = None
+    guashu_branch = None
+    for members, (gu, gua) in guchen_gushu_table.items():
+        if year_branch in members:
+            guchen_branch, guashu_branch = gu, gua
+            break
+
+    # 破碎 按年支
+    posui_by_year_branch = {
+        "子": "巳", "午": "巳", "卯": "巳", "酉": "巳",
+        "寅": "酉", "申": "酉", "巳": "酉", "亥": "酉",
+        "辰": "丑", "戌": "丑", "丑": "丑", "未": "丑",
+    }
+    # 蜚廉 按年支（固定表）
+    feilian_by_year_branch = {
+        "子": "申", "丑": "酉", "寅": "戌", "卯": "巳",
+        "辰": "午", "巳": "未", "午": "寅", "未": "卯",
+        "申": "辰", "酉": "亥", "戌": "子", "亥": "丑",
+    }
+
+    # 年干系 查表
+    tianguan_by_year_stem = {
+        "甲": "未", "乙": "辰", "丙": "巳", "丁": "寅", "戊": "卯",
+        "己": "酉", "庚": "亥", "辛": "酉", "壬": "戌", "癸": "午",
+    }
+    tianfu_by_year_stem = {
+        "甲": "酉", "乙": "申", "丙": "子", "丁": "亥", "戊": "卯",
+        "己": "寅", "庚": "午", "辛": "巳", "壬": "午", "癸": "巳",
+    }
+    tianchu_by_year_stem = {
+        "甲": "巳", "乙": "午", "丙": "子", "丁": "巳", "戊": "午",
+        "己": "申", "庚": "寅", "辛": "午", "壬": "酉", "癸": "亥",
+    }
+
+    # 月系（按生月, 1-12）: 天月 / 天刑 / 天姚 / 天巫 / 解神 / 阴煞
+    tianyue_month_table = ["戌","巳","辰","寅","未","卯","亥","未","寅","午","戌","寅"]
+    tianxing_start_idx = 9  # 酉起正月顺
+    tianyao_start_idx = 1   # 丑起正月顺
+    tianwu_cycle = ["巳","申","寅","亥"]  # 4-day cycle
+    jieshen_pair_table = ["申","申","戌","戌","子","子","寅","寅","辰","辰","午","午"]
+    yinsha_six_cycle = ["寅","子","戌","申","午","辰"]
+
+    # 时系: 封诰 / 台辅
+    fenggao_start_idx = 2   # 寅起子时顺
+    taifu_start_idx = 6     # 午起子时顺
+
+    # 命宫/身宫 + 年支: 天才 / 天寿
+    ming_branch_idx = EARTHLY_BRANCHES.index(ming_branch)
+    shen_branch_idx = EARTHLY_BRANCHES.index(shen_branch)
+
+    # 文昌/文曲地支位置（复用前面 aux_locators 公式，转成地支索引）
+    wenchang_earth_idx = (10 - hour_earth_index) % 12
+    wenqu_earth_idx = (4 + hour_earth_index) % 12
+    # 左辅/右弼地支位置（月系）
+    zuofu_earth_idx = (4 + lunar_month - 1) % 12   # 辰(4)起正月顺
+    youbi_earth_idx = (10 - (lunar_month - 1)) % 12  # 戌(10)起正月逆
+
+    # 旬空: 年支所在旬空亡，阳干取阳支、阴干取阴支
+    #   甲子旬 → 戌亥, 甲戌旬 → 申酉, 甲申旬 → 午未,
+    #   甲午旬 → 辰巳, 甲辰旬 → 寅卯, 甲寅旬 → 子丑。
+    #   第一支为阳(戌/申/午/辰/寅/子)，第二支为阴(亥/酉/未/巳/卯/丑)。
+    year_pillar_text = f"{year_stem}{year_branch}"
+    year_cycle_index = sexagenary_index_for(year_pillar_text)
+    xunkong_pairs = [("戌","亥"),("申","酉"),("午","未"),("辰","巳"),("寅","卯"),("子","丑")]
+    xun_group = year_cycle_index // 10  # 0..5
+    xunkong_yang, xunkong_yin = xunkong_pairs[xun_group]
+    is_yang_stem = HEAVENLY_STEMS.index(year_stem) % 2 == 0
+    xunkong_branch = xunkong_yang if is_yang_stem else xunkong_yin
+
+    adjective_star_branches: Dict[str, str] = {
+        # 命身派
+        "天伤": EARTHLY_BRANCHES[(ming_branch_idx + 5) % 12],
+        "天使": EARTHLY_BRANCHES[(ming_branch_idx + 7) % 12],
+        "天才": EARTHLY_BRANCHES[(ming_branch_idx + year_branch_earth_index) % 12],
+        "天寿": EARTHLY_BRANCHES[(shen_branch_idx + year_branch_earth_index) % 12],
+        # 年支三合派
+        "华盖": huagai_by_triad[year_branch],
+        "咸池": xianchi_by_triad[year_branch],
+        "孤辰": guchen_branch or year_branch,
+        "寡宿": guashu_branch or year_branch,
+        "破碎": posui_by_year_branch[year_branch],
+        "蜚廉": feilian_by_year_branch[year_branch],
+        # 年支派
+        "龙池": EARTHLY_BRANCHES[(4 + year_branch_earth_index) % 12],
+        "凤阁": EARTHLY_BRANCHES[(10 - year_branch_earth_index) % 12],
+        "年解": EARTHLY_BRANCHES[(10 - year_branch_earth_index) % 12],  # 与凤阁同位
+        "天哭": EARTHLY_BRANCHES[(6 - year_branch_earth_index) % 12],
+        "天虚": EARTHLY_BRANCHES[(6 + year_branch_earth_index) % 12],
+        "天德": EARTHLY_BRANCHES[(9 + year_branch_earth_index) % 12],
+        "月德": EARTHLY_BRANCHES[(5 + year_branch_earth_index) % 12],
+        # 年干查表派
+        "天官": tianguan_by_year_stem[year_stem],
+        "天福": tianfu_by_year_stem[year_stem],
+        "天厨": tianchu_by_year_stem[year_stem],
+        # 月系
+        "天月": tianyue_month_table[(lunar_month - 1) % 12],
+        "天刑": EARTHLY_BRANCHES[(tianxing_start_idx + lunar_month - 1) % 12],
+        "天姚": EARTHLY_BRANCHES[(tianyao_start_idx + lunar_month - 1) % 12],
+        "天巫": tianwu_cycle[(lunar_month - 1) % 4],
+        "解神": jieshen_pair_table[(lunar_month - 1) % 12],
+        "阴煞": yinsha_six_cycle[(lunar_month - 1) % 6],
+        # 时系
+        "封诰": EARTHLY_BRANCHES[(fenggao_start_idx + hour_earth_index) % 12],
+        "台辅": EARTHLY_BRANCHES[(taifu_start_idx + hour_earth_index) % 12],
+        # 月日复合派 (三台/八座 沿左辅/右弼; 恩光/天贵 沿文昌/文曲)
+        "三台": EARTHLY_BRANCHES[(zuofu_earth_idx + lunar_day - 1) % 12],
+        "八座": EARTHLY_BRANCHES[(youbi_earth_idx - (lunar_day - 1)) % 12],
+        "恩光": EARTHLY_BRANCHES[(wenchang_earth_idx + lunar_day - 2) % 12],
+        "天贵": EARTHLY_BRANCHES[(wenqu_earth_idx + lunar_day - 2) % 12],
+        # 旬空
+        "旬空": xunkong_branch,
+    }
+    for star, target_branch in adjective_star_branches.items():
+        for p in palaces:
+            if p["ganzhi"][1] == target_branch:
                 p["stars"].append(star)
                 break
 

@@ -437,9 +437,20 @@ def build_mutual_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
 
 
 def build_opposite_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
+    """错卦（旁通卦）: 每爻阴阳相反。"""
     opposite_lines = [0 if bit == 1 else 1 for bit in hexagram["lines"]]
     lower = _bagua_from_lines(opposite_lines[:3])
     upper = _bagua_from_lines(opposite_lines[3:])
+    return build_hexagram(upper["name"], lower["name"])
+
+
+def build_inverted_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
+    """综卦（倒颠卦）: 将原卦初爻与上爻、二爻与五爻、三爻与四爻对换 —
+    即整卦 180° 倒读。当卦为"错自身"时（如乾/坤/颐/大过/中孚/小过/坎/离），
+    返回的综卦即原卦。"""
+    inverted_lines = list(reversed(hexagram["lines"]))
+    lower = _bagua_from_lines(inverted_lines[:3])
+    upper = _bagua_from_lines(inverted_lines[3:])
     return build_hexagram(upper["name"], lower["name"])
 
 
@@ -761,7 +772,8 @@ def derive_meihua_hexagram(
     base = build_hexagram(upper["name"], lower["name"])
     changed = build_changed_hexagram(base, moving_line)
     mutual = build_mutual_hexagram(base)
-    opposite = build_opposite_hexagram(base)
+    opposite = build_opposite_hexagram(base)  # 错卦：每爻阴阳相反
+    inverted = build_inverted_hexagram(base)  # 综卦：整卦倒颠
     relation = relationship_by_element(upper["element"], lower["element"])
     body_use = resolve_body_use(base, moving_line)
 
@@ -779,7 +791,10 @@ def derive_meihua_hexagram(
         "base_hexagram": base,
         "changed_hexagram": changed,
         "mutual_hexagram": mutual,
+        # 历史字段保留以维持后向兼容；opposite_hexagram 指"错卦"语义。
         "opposite_hexagram": opposite,
+        "cuo_hexagram": opposite,
+        "zong_hexagram": inverted,
         "element_relation": relation,
         "moving_palace": body_use["moving_palace"],
         "body_trigram": body_use["body_trigram"],

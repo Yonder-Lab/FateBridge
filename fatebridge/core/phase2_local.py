@@ -171,6 +171,293 @@ HOUSE_KEYWORDS = {
 SIX_YAO_GODS = ["青龙", "朱雀", "勾陈", "腾蛇", "白虎", "玄武"]
 SIX_YAO_NAMES = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"]
 
+# ---- 六爻 (易卦) 排盘辅助数据 ----
+# 每卦的六爻纳甲地支：由上下两卦的"京房纳甲"拼接得到。
+# 下卦 (初→三爻) 与上卦 (四→上爻) 的地支各有 3 个。
+_TRIGRAM_LOWER_BRANCHES = {
+    "乾": ("子", "寅", "辰"),
+    "坎": ("寅", "辰", "午"),
+    "艮": ("辰", "午", "申"),
+    "震": ("子", "寅", "辰"),
+    "巽": ("丑", "亥", "酉"),
+    "离": ("卯", "丑", "亥"),
+    "坤": ("未", "巳", "卯"),
+    "兑": ("巳", "卯", "丑"),
+}
+_TRIGRAM_UPPER_BRANCHES = {
+    "乾": ("午", "申", "戌"),
+    "坎": ("申", "戌", "子"),
+    "艮": ("戌", "子", "寅"),
+    "震": ("午", "申", "戌"),
+    "巽": ("未", "巳", "卯"),
+    "离": ("酉", "未", "巳"),
+    "坤": ("丑", "亥", "酉"),
+    "兑": ("亥", "酉", "未"),
+}
+
+# 八宫本宫卦二进制码 (初爻→上爻, 从左到右). 乾=111111, 坤=000000 …
+_BAGONG_BASES = [
+    ("乾", "111111", "金"),
+    ("坎", "010010", "水"),
+    ("艮", "001001", "土"),
+    ("震", "100100", "木"),
+    ("巽", "011011", "木"),
+    ("离", "101101", "火"),
+    ("坤", "000000", "土"),
+    ("兑", "110110", "金"),
+]
+
+# 八宫卦位 → 相对本宫的 XOR 掩码 + 世爻 (1-indexed from 初爻)
+_BAGONG_POSITION_INFO = [
+    ("本宫", "000000", 6),
+    ("一世", "100000", 1),
+    ("二世", "110000", 2),
+    ("三世", "111000", 3),
+    ("四世", "111100", 4),
+    ("五世", "111110", 5),
+    ("游魂", "111010", 4),
+    ("归魂", "000010", 3),
+]
+
+# 地支五行
+_BRANCH_TO_ELEMENT = {
+    "寅": "木", "卯": "木",
+    "巳": "火", "午": "火",
+    "申": "金", "酉": "金",
+    "亥": "水", "子": "水",
+    "辰": "土", "戌": "土", "丑": "土", "未": "土",
+}
+
+# 六神起法：按日干决定青龙所在爻（0 基）：
+# 甲乙→初爻起青龙，丙丁→朱雀，戊→勾陈，己→腾蛇，庚辛→白虎，壬癸→玄武。
+_LIUSHEN_CYCLE = ("青龙", "朱雀", "勾陈", "腾蛇", "白虎", "玄武")
+_LIUSHEN_OFFSET_BY_STEM = {
+    "甲": 0, "乙": 0,
+    "丙": 1, "丁": 1,
+    "戊": 2,
+    "己": 3,
+    "庚": 4, "辛": 4,
+    "壬": 5, "癸": 5,
+}
+
+
+def _xor_binary(code: str, mask: str) -> str:
+    return "".join("1" if a != b else "0" for a, b in zip(code, mask))
+
+
+def _build_hexagram_palace_lookup() -> Dict[str, Dict[str, Any]]:
+    """根据 8 本宫 × 8 卦位 × XOR 掩码生成 64 卦 → 宫 / 世爻 / 宫五行 查表。"""
+    lookup: Dict[str, Dict[str, Any]] = {}
+    for palace_name, base_code, palace_element in _BAGONG_BASES:
+        for position_name, mask, shi_line in _BAGONG_POSITION_INFO:
+            code = _xor_binary(base_code, mask)
+            # 应爻 = (世爻 + 3 - 1) % 6 + 1 (1-indexed)
+            ying_line = ((shi_line + 2) % 6) + 1
+            lookup[code] = {
+                "palace": palace_name,
+                "palace_element": palace_element,
+                "position": position_name,
+                "shi_line": shi_line,
+                "ying_line": ying_line,
+            }
+    return lookup
+
+
+_HEXAGRAM_PALACE_LOOKUP: Dict[str, Dict[str, Any]] = _build_hexagram_palace_lookup()
+
+
+def _decode_trigrams(code: str) -> Tuple[str, str]:
+    """拆分六位二进制到 (下卦, 上卦) 三画卦名。"""
+    inv = {v: k for k, v in {
+        "乾": "111", "坎": "010", "艮": "001", "震": "100",
+        "巽": "011", "离": "101", "坤": "000", "兑": "110",
+    }.items()}
+    lower = inv.get(code[0:3])
+    upper = inv.get(code[3:6])
+    return lower or "?", upper or "?"
+
+
+# 六冲卦：上下卦为阴阳对冲 (乾/坤、震/巽、坎/离、艮/兑) 的本宫纯卦 + 对冲组合。
+# 标准清单: 乾、坤、震、巽、坎、离、艮、兑 (八纯卦) + 雷天大壮、泽天夬 等 "上下互冲" — 共 8 卦。
+# 通行版本 (来自《卜筮正宗》): 乾、坤、震、巽、坎、离、艮、兑 八个纯卦即六冲卦。
+_LIUCHONG_HEXAGRAM_CODES = frozenset({
+    "111111",  # 乾为天
+    "000000",  # 坤为地
+    "100100",  # 震为雷
+    "011011",  # 巽为风
+    "010010",  # 坎为水
+    "101101",  # 离为火
+    "001001",  # 艮为山
+    "110110",  # 兑为泽
+})
+
+# 六合卦: 地天泰、天地否、雷地豫、地雷复、泽水困、水泽节、火山旅、山火贲 —
+# 传统八大六合卦。
+_LIUHE_HEXAGRAM_CODES = frozenset({
+    "111000",  # 地天泰
+    "000111",  # 天地否
+    "000100",  # 雷地豫
+    "100000",  # 地雷复
+    "010110",  # 泽水困
+    "110010",  # 水泽节
+    "001101",  # 火山旅
+    "101001",  # 山火贲
+})
+
+# 地支六冲对
+_BRANCH_CLASH = {
+    "子": "午", "午": "子",
+    "丑": "未", "未": "丑",
+    "寅": "申", "申": "寅",
+    "卯": "酉", "酉": "卯",
+    "辰": "戌", "戌": "辰",
+    "巳": "亥", "亥": "巳",
+}
+
+
+def _detect_sixyao_patterns(
+    current_code: str,
+    changed_code: str,
+    current_branches: List[str],
+    changed_branches: List[str],
+    moving_indices: List[int],
+) -> Dict[str, Any]:
+    """识别六爻常见格局：六冲/六合/反吟/伏吟。"""
+    patterns: List[Dict[str, str]] = []
+    # 本卦六冲 / 六合
+    if current_code in _LIUCHONG_HEXAGRAM_CODES:
+        patterns.append({"name": "本卦六冲", "basis": "本卦为八纯冲卦，事主聚散快、易有决断。"})
+    if current_code in _LIUHE_HEXAGRAM_CODES:
+        patterns.append({"name": "本卦六合", "basis": "本卦为六合卦，事主和合、凝聚、需圆融。"})
+    # 之卦六冲 / 六合
+    if current_code != changed_code:
+        if changed_code in _LIUCHONG_HEXAGRAM_CODES:
+            patterns.append({"name": "变卦六冲", "basis": "之卦转为六冲，后续多变散、不守恒。"})
+        if changed_code in _LIUHE_HEXAGRAM_CODES:
+            patterns.append({"name": "变卦六合", "basis": "之卦归六合，结局趋于和谐收敛。"})
+
+    # 伏吟 / 反吟 (只在动爻上判断, 避开 changed_branch 为空的静爻)
+    fu_count = 0
+    fan_count = 0
+    for idx in moving_indices:
+        if idx < 0 or idx >= 6:
+            continue
+        orig_branch = current_branches[idx]
+        new_branch = changed_branches[idx]
+        if not orig_branch or not new_branch:
+            continue
+        if orig_branch == new_branch:
+            fu_count += 1
+        elif _BRANCH_CLASH.get(orig_branch) == new_branch:
+            fan_count += 1
+    if fu_count and fu_count == len(moving_indices):
+        patterns.append({"name": "伏吟", "basis": "动爻所变支全与本支同 (伏而不动)，主压抑、旧事重来。"})
+    elif fu_count:
+        patterns.append({"name": "局部伏吟", "basis": f"{fu_count}个动爻之支与原支相同，该爻所主之事停滞。"})
+    if fan_count and fan_count == len(moving_indices):
+        patterns.append({"name": "反吟", "basis": "动爻所变支全与本支相冲，主反复、事有大转折。"})
+    elif fan_count:
+        patterns.append({"name": "局部反吟", "basis": f"{fan_count}个动爻之支与原支相冲，该爻反复。"})
+
+    return {
+        "patterns": patterns,
+        "is_liuchong_base": current_code in _LIUCHONG_HEXAGRAM_CODES,
+        "is_liuhe_base": current_code in _LIUHE_HEXAGRAM_CODES,
+        "is_liuchong_changed": changed_code in _LIUCHONG_HEXAGRAM_CODES,
+        "is_liuhe_changed": changed_code in _LIUHE_HEXAGRAM_CODES,
+    }
+
+
+def _liuqin_against_palace(palace_element: str, line_element: str) -> str:
+    if palace_element == line_element:
+        return "兄弟"
+    generates = {"金": "水", "水": "木", "木": "火", "火": "土", "土": "金"}
+    controls = {"金": "木", "木": "土", "土": "水", "水": "火", "火": "金"}
+    if generates.get(line_element) == palace_element:
+        return "父母"  # 生宫者
+    if generates.get(palace_element) == line_element:
+        return "子孙"  # 宫所生
+    if controls.get(line_element) == palace_element:
+        return "官鬼"  # 克宫者
+    if controls.get(palace_element) == line_element:
+        return "妻财"  # 宫所克
+    return "平"
+
+
+def _build_sixyao_enrichment(
+    current_code: str,
+    changed_code: str,
+    day_gan: Optional[str],
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """生成本卦信息 + 六爻纳甲/世应/六亲/六神。lines 下标 0=初爻，5=上爻。"""
+
+    current_info = _HEXAGRAM_PALACE_LOOKUP.get(current_code, {})
+    changed_info = _HEXAGRAM_PALACE_LOOKUP.get(changed_code, {})
+
+    lower_trigram, upper_trigram = _decode_trigrams(current_code)
+    lower_branches = _TRIGRAM_LOWER_BRANCHES.get(lower_trigram, ("", "", ""))
+    upper_branches = _TRIGRAM_UPPER_BRANCHES.get(upper_trigram, ("", "", ""))
+    branches = list(lower_branches) + list(upper_branches)
+
+    # 之卦地支 (仅作参考, 用于动爻变后的六亲比对)
+    changed_lower_trigram, changed_upper_trigram = _decode_trigrams(changed_code)
+    changed_branches = list(
+        _TRIGRAM_LOWER_BRANCHES.get(changed_lower_trigram, ("", "", ""))
+    ) + list(_TRIGRAM_UPPER_BRANCHES.get(changed_upper_trigram, ("", "", "")))
+
+    palace_element = current_info.get("palace_element", "")
+    shi_line = current_info.get("shi_line", 0)
+    ying_line = current_info.get("ying_line", 0)
+
+    offset = _LIUSHEN_OFFSET_BY_STEM.get(day_gan or "", 0)
+
+    enriched_lines: List[Dict[str, Any]] = []
+    for i in range(6):
+        branch = branches[i]
+        element = _BRANCH_TO_ELEMENT.get(branch, "")
+        liuqin = _liuqin_against_palace(palace_element, element) if element else "平"
+        # 动爻后的变爻地支 + 之卦六亲 (用本宫五行)
+        changed_branch = changed_branches[i] if changed_branches[i] else branch
+        changed_element = _BRANCH_TO_ELEMENT.get(changed_branch, "")
+        changed_liuqin = (
+            _liuqin_against_palace(palace_element, changed_element)
+            if changed_element
+            else "平"
+        )
+        position_label = SIX_YAO_NAMES[i]
+        position_num = i + 1
+        shi_ying = ""
+        if position_num == shi_line:
+            shi_ying = "世"
+        elif position_num == ying_line:
+            shi_ying = "应"
+        liushen = _LIUSHEN_CYCLE[(offset + i) % 6]
+        enriched_lines.append(
+            {
+                "branch": branch,
+                "element": element,
+                "liuqin": liuqin,
+                "shi_ying": shi_ying,
+                "liushen": liushen,
+                "position_label": position_label,
+                "position": position_num,
+                "changed_branch": changed_branch if changed_branch != branch else None,
+                "changed_liuqin": changed_liuqin if changed_branch != branch else None,
+            }
+        )
+
+    hexagram_info = {
+        "current_palace": current_info.get("palace"),
+        "current_position": current_info.get("position"),
+        "current_palace_element": palace_element,
+        "shi_line": shi_line,
+        "ying_line": ying_line,
+        "changed_palace": changed_info.get("palace"),
+        "changed_position": changed_info.get("position"),
+        "changed_palace_element": changed_info.get("palace_element"),
+    }
+    return hexagram_info, enriched_lines
+
 QIMEN_STARS = ["天蓬", "天任", "天冲", "天辅", "天英", "天芮", "天柱", "天心", "天禽"]
 QIMEN_DOORS = ["休门", "生门", "伤门", "杜门", "景门", "死门", "惊门", "开门"]
 QIMEN_GODS = ["值符", "螣蛇", "太阴", "六合", "白虎", "玄武", "九地", "九天"]
@@ -1243,6 +1530,31 @@ def build_sixyao_result(
         next_code: changed_payload,
     }
 
+    # 按起卦日干 + 卦码排纳甲、世应、六亲、六神，并写回每爻。
+    day_ganzhi = context.get("nongli", {}).get("dayGanZi") or ""
+    day_gan = day_ganzhi[0] if day_ganzhi else None
+    hexagram_info, enrichment = _build_sixyao_enrichment(
+        current_code=current_code, changed_code=next_code, day_gan=day_gan
+    )
+    for line_dict, extra in zip(normalized_lines, enrichment):
+        # 六神与 SIX_YAO_GODS 的固定位置不同——按日干重算 god。
+        line_dict["god"] = extra["liushen"]
+        line_dict["name"] = extra["position_label"]
+        line_dict["position"] = extra["position"]
+        line_dict["branch"] = extra["branch"]
+        line_dict["element"] = extra["element"]
+        line_dict["liuqin"] = extra["liuqin"]
+        line_dict["liushen"] = extra["liushen"]
+        line_dict["shi_ying"] = extra["shi_ying"]
+        if extra["changed_branch"]:
+            line_dict["changed_branch"] = extra["changed_branch"]
+            line_dict["changed_liuqin"] = extra["changed_liuqin"]
+        elif line_dict.get("change"):
+            # 动爻但变后地支与原支相同——标记为伏吟位的提示
+            line_dict["changed_branch"] = extra["branch"]
+            line_dict["changed_liuqin"] = extra["liuqin"]
+            line_dict["is_fuyin_line"] = True
+
     snapshot_text = _build_sixyao_snapshot_text(
         input_normalized=input_normalized,
         nongli=context["nongli"],
@@ -1252,6 +1564,19 @@ def build_sixyao_result(
     )
 
     moving_lines = [index + 1 for index, line in enumerate(normalized_lines) if line.get("change")]
+    moving_indices = [i for i, line in enumerate(normalized_lines) if line.get("change")]
+    current_branches = [line.get("branch", "") for line in normalized_lines]
+    changed_branches = [
+        line.get("changed_branch") or line.get("branch", "")
+        for line in normalized_lines
+    ]
+    pattern_info = _detect_sixyao_patterns(
+        current_code=current_code,
+        changed_code=next_code,
+        current_branches=current_branches,
+        changed_branches=changed_branches,
+        moving_indices=moving_indices,
+    )
     return {
         "analysis_type": "六爻 / 易卦",
         "input_normalized": input_normalized,
@@ -1260,6 +1585,14 @@ def build_sixyao_result(
         "changed_code": next_code,
         "lines": normalized_lines,
         "moving_lines": moving_lines,
+        "hexagram_info": hexagram_info,
+        "patterns": pattern_info["patterns"],
+        "pattern_flags": {
+            "liuchong_base": pattern_info["is_liuchong_base"],
+            "liuhe_base": pattern_info["is_liuhe_base"],
+            "liuchong_changed": pattern_info["is_liuchong_changed"],
+            "liuhe_changed": pattern_info["is_liuhe_changed"],
+        },
         "question": question,
         "descriptions": descriptions,
         "current_hexagram": current_payload["raw"],

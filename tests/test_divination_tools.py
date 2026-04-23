@@ -515,7 +515,9 @@ def test_calculate_sixyao_analysis_uses_upstream_default_lines_when_absent():
     assert result["current_code"] == "101010"
     assert result["changed_code"] == "100011"
     assert result["moving_lines"] == [3, 6]
-    assert result["lines"][0]["god"] == "青龙"
+    # 2028-04-06 日干=辛，按"庚辛日起白虎"的规则，初爻六神应为白虎。
+    # 旧测试沿用的"初爻固定青龙"并非 六爻卜筮 的正确排盘方式。
+    assert result["lines"][0]["god"] == "白虎"
     assert result["lines"][2]["change"] is True
     assert result["lines"][5]["name"] == "上爻"
     assert "第3爻：阳爻（动）" in result["snapshot_text"]
