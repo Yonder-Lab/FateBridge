@@ -213,9 +213,13 @@ def test_normalize_birth_time_uses_birth_place_for_true_solar_time():
     assert normalized.timezone == "Asia/Shanghai"
     assert normalized.longitude == pytest.approx(116.4074, abs=0.01)
     assert normalized.longitude_source == "birth_place"
-    assert normalized.corrected_datetime.hour == 10
+    # 1990-05-15 于中国夏令时期 (CDT, UTC+9)，钟表 10:30 实际对应 CST 09:30。
+    # 真太阳时修正应先脱 DST 再做 longitude + EoT 校正：
+    #   09:30 + (-14.37) + 3.75 ≈ 09:19
+    assert normalized.corrected_datetime.hour == 9
     assert normalized.corrected_datetime.minute == 19
-    assert normalized.total_correction_minutes == pytest.approx(-10.62, abs=0.1)
+    assert normalized.daylight_saving_minutes == pytest.approx(60.0, abs=0.1)
+    assert normalized.total_correction_minutes == pytest.approx(-70.62, abs=0.1)
     assert normalized.applied is True
 
 

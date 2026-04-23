@@ -248,6 +248,21 @@ GUI_REN_BRANCH_BY_NAME = {
     "天后": "亥",
 }
 
+# 大六壬 "日干寄宫" 表：十天干各自所寄的地支宫位。
+# 四课中，一课/二课 以 "日干寄宫" 为下神起点；三课/四课 以 "日支" 为下神起点。
+DAY_STEM_HOUSE = {
+    "甲": "寅",
+    "乙": "辰",
+    "丙": "巳",
+    "丁": "未",
+    "戊": "巳",
+    "己": "未",
+    "庚": "申",
+    "辛": "戌",
+    "壬": "亥",
+    "癸": "丑",
+}
+
 WUZI_DUN_START = {
     "甲": "甲",
     "己": "甲",
@@ -666,16 +681,19 @@ def _liureng_judge_lesson(
     with_day = _branch_relation(upper_branch, day_branch, same_label="比和")
     with_lower = _branch_relation(upper_branch, lower_branch, same_label="伏吟")
 
+    # 大六壬课体判断以"上下"关系为主：伏吟=上下同位，返吟=上下相冲，六合=上下合。
+    # 上神与日支的关系只作辅参，不应单独触发 返吟/六合 类型，否则会把
+    # "上下六合、上神冲日" 这种组合误判为返吟。
     if with_lower == "伏吟":
         return "伏吟", "上神与下神同位，伏吟取象。", with_day, with_lower
-    if with_day == "六冲" or with_lower == "六冲":
-        return "返吟", "上神遇冲，先看返吟与往复之象。", with_day, with_lower
-    if with_day == "六害" or with_lower == "六害":
-        return "涉害", "上神见害，课传重看牵连阻滞。", with_day, with_lower
+    if with_lower == "六冲":
+        return "返吟", "上神与下神相冲，取返吟往复之象。", with_day, with_lower
+    if with_lower == "六害":
+        return "涉害", "上神与下神相害，课传重看牵连阻滞。", with_day, with_lower
     if relation == "官鬼":
         return "官鬼", "上神为官鬼，先取克身之应。", with_day, with_lower
-    if with_day == "六合" or with_lower == "六合":
-        return "六合", "上神见合，以和合成局为先。", with_day, with_lower
+    if with_lower == "六合":
+        return "六合", "上神与下神相合，以和合成局为先。", with_day, with_lower
     return "比用", "同类比用，以首课取发用。", with_day, with_lower
 
 
@@ -697,13 +715,30 @@ def _liureng_build_transmissions(
     style: str,
     initial_lesson: Dict[str, Any],
     sky_to_earth: Dict[str, str],
+    day_stem_house: Optional[str] = None,
+    day_branch: Optional[str] = None,
+    four_lessons: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[str, List[str]]:
     initial_branch = initial_lesson["upper_branch"]
     lower_branch = initial_lesson["lower_branch"]
 
     if style == "伏吟":
-        return "伏吟守一", [initial_branch, initial_branch, initial_branch]
+        # 伏吟守一：月将加占时同位，四课上下伏吟。发用已按阳/阴日选在干上/支上，
+        # 取 初 = 课1/3 上神 (即 日干寄宫/日支)。中 = 初的自刑为支上神；末 = 中的刑。
+        initial = initial_branch
+        if day_stem_house is not None and day_branch is not None and four_lessons:
+            # 阳日：初=日干寄宫, 中=日支, 末=中的刑；阴日反之
+            if initial_lesson.get("anchor_branch") == day_stem_house:
+                middle = day_branch
+            else:
+                middle = day_stem_house
+        else:
+            middle = initial
+        final = _branch_self_punish(middle)
+        return "伏吟守一", [initial, middle, final]
     if style == "返吟":
+        # 返吟取冲：月将加占时相冲，四课上下皆冲。
+        # 取 初 = 发用之上 (阳日干上/阴日支上)，中 = 初之冲，末 = 中的上神 (=sky[中])。
         middle = SIX_CLASH_BRANCHES.get(initial_branch, initial_branch)
         final = sky_to_earth.get(middle, middle)
         return "返吟取冲", [initial_branch, middle, final]
@@ -718,6 +753,27 @@ def _liureng_build_transmissions(
     if style == "官鬼":
         return "官鬼循盘", _liureng_follow_sky(initial_branch, sky_to_earth, 2)
     return "比用循盘", _liureng_follow_sky(initial_branch, sky_to_earth, 2)
+
+
+# 自刑地支对：大六壬 三刑 中的"自刑"四位：辰午酉亥。
+_BRANCH_SELF_PUNISHMENT = {"辰", "午", "酉", "亥"}
+# 非自刑地支的 刑 对（用于伏吟末传推演）。
+_BRANCH_THREE_PUNISHMENTS = {
+    "子": "卯",
+    "卯": "子",
+    "丑": "戌",
+    "戌": "未",
+    "未": "丑",
+    "寅": "巳",
+    "巳": "申",
+    "申": "寅",
+}
+
+
+def _branch_self_punish(branch: str) -> str:
+    if branch in _BRANCH_SELF_PUNISHMENT:
+        return branch
+    return _BRANCH_THREE_PUNISHMENTS.get(branch, branch)
 
 
 def _liureng_upper_lower_relation(upper_branch: str, lower_branch: str) -> str:
@@ -741,35 +797,40 @@ def _liureng_refine_style_detail(
     style: str,
     selected_lesson: Dict[str, Any],
     four_lessons: List[Dict[str, Any]],
+    day_stem_house: Optional[str] = None,
+    day_branch: Optional[str] = None,
 ) -> Tuple[str, str]:
     upper_branches = [lesson["upper_branch"] for lesson in four_lessons]
     unique_upper = len(set(upper_branches))
-    repeated_pair = (
-        len(upper_branches) >= 4
-        and upper_branches[0] == upper_branches[2]
-        and upper_branches[1] == upper_branches[3]
-    )
     upper_lower_relation = selected_lesson.get("upper_lower_relation", "平")
     selected_index = int(selected_lesson.get("index") or 1)
+    # 八专课：日干寄宫 == 日支（干支共位），四课自然只出现两套上下，课1/3 下神相同。
+    bazhuan = (
+        day_stem_house is not None
+        and day_branch is not None
+        and day_stem_house == day_branch
+    )
 
     if style == "伏吟":
         return "伏吟", "上下同临，细课体仍从伏吟。"
     if style == "返吟":
         return "返吟", "冲返往复，细课体仍从返吟。"
+    if bazhuan:
+        return "八专", "日干寄宫与日支同位，四课两两重见，取偏专之象。"
     if selected_index != 1 and style == "官鬼":
         return "遥克", "发用不居首课，以远神克应论遥克。"
-    if repeated_pair and unique_upper <= 2:
-        return "八专", "四课两两重见，取偏专之象。"
     if upper_lower_relation == "上克下":
         return "元首", "上神克下神，取元首先发之象。"
     if upper_lower_relation == "下贼上":
         return "重审", "下神贼上神，回身重审其因。"
+    if upper_lower_relation == "下生上":
+        return "别责", "四课之间无克贼可取，以下生上之义为发用，课体为别责。"
     if style == "涉害":
         return "涉害", "课中见害，细课体仍从涉害。"
     if unique_upper == 4 and style == "比用":
         return "昴星", "四课分张散列，取昴星之象。"
-    if unique_upper <= 2:
-        return "别责", "四课多重叠，以偏专责一端观之。"
+    if unique_upper == 3:
+        return "别责", "四课上神不足四种，以偏专责一端观之。"
     return style, selected_lesson.get("style_basis", "依主课体取象。")
 
 
@@ -1660,15 +1721,36 @@ def build_liureng_board(
         for index in range(len(EARTHLY_BRANCHES))
     }
 
-    lesson_bases = [day_branch, hour_branch, yuejiang_branch, seed.pillars["year"][1]]
+    # 大六壬 classical 四课 construction:
+    # 一课 下=日干寄宫, 上=sky[日干寄宫]
+    # 二课 下=一课上神, 上=sky[一课上神]
+    # 三课 下=日支, 上=sky[日支]
+    # 四课 下=三课上神, 上=sky[三课上神]
+    day_stem_house = DAY_STEM_HOUSE[day_stem]
+    lesson_1_lower = day_stem_house
+    lesson_1_upper = sky_to_earth[lesson_1_lower]
+    lesson_2_lower = lesson_1_upper
+    lesson_2_upper = sky_to_earth[lesson_2_lower]
+    lesson_3_lower = day_branch
+    lesson_3_upper = sky_to_earth[lesson_3_lower]
+    lesson_4_lower = lesson_3_upper
+    lesson_4_upper = sky_to_earth[lesson_4_lower]
+    lesson_specs = [
+        # (lower, upper, anchor_branch)：一/二课 以日干寄宫为 anchor；三/四课 以日支为 anchor。
+        (lesson_1_lower, lesson_1_upper, day_stem_house),
+        (lesson_2_lower, lesson_2_upper, day_stem_house),
+        (lesson_3_lower, lesson_3_upper, day_branch),
+        (lesson_4_lower, lesson_4_upper, day_branch),
+    ]
     four_lessons = []
-    for lesson_index, lower_branch in enumerate(lesson_bases, start=1):
-        upper_branch = sky_to_earth[lower_branch]
+    for lesson_index, (lower_branch, upper_branch, anchor_branch) in enumerate(
+        lesson_specs, start=1
+    ):
         relation = liuqin_against_day(day_element, branch_element_text(upper_branch))
         style_hint, style_basis, with_day, with_lower = _liureng_judge_lesson(
             upper_branch=upper_branch,
             lower_branch=lower_branch,
-            day_branch=day_branch,
+            day_branch=anchor_branch,
             relation=relation,
         )
         four_lessons.append(
@@ -1676,6 +1758,7 @@ def build_liureng_board(
                 "index": lesson_index,
                 "upper_branch": upper_branch,
                 "lower_branch": lower_branch,
+                "anchor_branch": anchor_branch,
                 "text": f"{upper_branch}加{lower_branch}",
                 "relation": relation,
                 "upper_lower_relation": _liureng_upper_lower_relation(
@@ -1692,32 +1775,105 @@ def build_liureng_board(
             }
         )
 
+    # Board-level 伏吟/返吟 detection (classical 大六壬):
+    # 月将 加 占时 == 占时 (offset=0) → 四课上下同位 → 伏吟.
+    # 月将 加 占时 == 占时的冲 (offset=6) → 四课上下皆冲 → 返吟.
+    board_fuyin = yuejiang_branch == hour_branch
+    board_fanyin = SIX_CLASH_BRANCHES.get(yuejiang_branch) == hour_branch
+
     style = "比用"
     style_basis = "同类比用，以首课取发用。"
     initial_lesson = four_lessons[0]
-    judged_lessons = sorted(
-        four_lessons,
-        key=lambda lesson: (
-            LIURENG_STYLE_PRIORITY.get(lesson["style_hint"], 0),
-            -lesson["index"],
-        ),
-        reverse=True,
-    )
-    if judged_lessons:
-        initial_lesson = judged_lessons[0]
-        style = initial_lesson["style_hint"]
-        style_basis = initial_lesson["style_basis"]
+    day_stem_polarity_idx = HEAVENLY_STEMS.index(day_stem)
+    yang_day = day_stem_polarity_idx % 2 == 0
+
+    if board_fuyin:
+        initial_lesson = four_lessons[0] if yang_day else four_lessons[2]
+        style = "伏吟"
+        style_basis = "月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。"
+    elif board_fanyin:
+        initial_lesson = four_lessons[0] if yang_day else four_lessons[2]
+        style = "返吟"
+        style_basis = "月将加占时相冲，四课上下返吟，按阳日取干上、阴日取支上发用。"
+    else:
+        # 正统贼克发用：下贼上 优于 上克下。若多于一个，按 知一/涉害 规则选一。
+        ke_lessons = [
+            les for les in four_lessons
+            if les.get("upper_lower_relation") == "上克下"
+        ]
+        zei_lessons = [
+            les for les in four_lessons
+            if les.get("upper_lower_relation") == "下贼上"
+        ]
+
+        def _pick_zhiyi(lessons: List[Dict[str, Any]]) -> Dict[str, Any]:
+            """知一法简化：阳日取 阳支 发用，阴日取 阴支 发用；若无匹配，取课号最小者。"""
+            yang_branches = {"子", "寅", "辰", "午", "申", "戌"}
+            preferred = [
+                les for les in lessons
+                if (les["upper_branch"] in yang_branches) == yang_day
+            ]
+            candidates = preferred or lessons
+            return min(candidates, key=lambda les: les["index"])
+
+        if zei_lessons:
+            initial_lesson = (
+                zei_lessons[0] if len(zei_lessons) == 1 else _pick_zhiyi(zei_lessons)
+            )
+            style = "重审"
+            style_basis = "下神贼上神，以贼课取发用，课体为重审。"
+        elif ke_lessons:
+            initial_lesson = (
+                ke_lessons[0] if len(ke_lessons) == 1 else _pick_zhiyi(ke_lessons)
+            )
+            style = "元首"
+            style_basis = "上神克下神，以克课取发用，课体为元首。"
+        else:
+            # 无正克贼：看是否有 六合、遥克 或 比用 可推。
+            liuhe_lessons = [
+                les for les in four_lessons if les.get("style_hint") == "六合"
+            ]
+            yaoke_lessons = [
+                les for les in four_lessons if les.get("style_hint") == "官鬼"
+            ]
+            if liuhe_lessons:
+                initial_lesson = min(liuhe_lessons, key=lambda les: les["index"])
+                style = "六合"
+                style_basis = "上下相合，取合课发用。"
+            elif yaoke_lessons:
+                # 无正克贼，有 官鬼 (上神克日)：为遥克课。发用取 最后一个 克 lesson (index 4 优先)。
+                initial_lesson = max(yaoke_lessons, key=lambda les: les["index"])
+                style = "官鬼"
+                style_basis = "四课无正克贼，上神克日干，远神克应论遥克。"
+            else:
+                # 默认：按 style priority 次序取。
+                judged_lessons = sorted(
+                    four_lessons,
+                    key=lambda lesson: (
+                        LIURENG_STYLE_PRIORITY.get(lesson["style_hint"], 0),
+                        -lesson["index"],
+                    ),
+                    reverse=True,
+                )
+                initial_lesson = judged_lessons[0]
+                style = initial_lesson["style_hint"]
+                style_basis = initial_lesson["style_basis"]
     initial_lesson["use_candidate"] = True
     style_detail, style_detail_basis = _liureng_refine_style_detail(
         style=style,
         selected_lesson=initial_lesson,
         four_lessons=four_lessons,
+        day_stem_house=day_stem_house,
+        day_branch=day_branch,
     )
 
     transmission_method, transmission_branches = _liureng_build_transmissions(
         style=style,
         initial_lesson=initial_lesson,
         sky_to_earth=sky_to_earth,
+        day_stem_house=day_stem_house,
+        day_branch=day_branch,
+        four_lessons=four_lessons,
     )
     initial_branch = transmission_branches[0]
     transmission_labels = ["initial", "middle", "final"]

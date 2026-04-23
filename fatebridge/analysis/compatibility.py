@@ -186,8 +186,10 @@ class AdvancedCompatibility:
         )
         result["overall_score"] += weighted_traditional_score
 
-        # 确保总分在0-100范围内
-        result["overall_score"] = min(100.0, max(0.0, result["overall_score"]))
+        # 确保总分在0-100范围内；round 到一位小数以避免浮点累加产生的显示噪声
+        result["overall_score"] = round(
+            min(100.0, max(0.0, result["overall_score"])), 1
+        )
 
         # 6. 根据关系类型调整分析重点
         relationship_adjustment = AdvancedCompatibility._adjust_for_relationship_type(

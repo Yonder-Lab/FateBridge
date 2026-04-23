@@ -412,6 +412,7 @@ class NormalizedBirthTime:
     resolution_level: Optional[str]
     longitude_correction_minutes: float
     equation_of_time_minutes: float
+    daylight_saving_minutes: float
     total_correction_minutes: float
     applied: bool
 
@@ -426,6 +427,7 @@ class NormalizedBirthTime:
             "resolution_level": self.resolution_level,
             "longitude_correction_minutes": round(self.longitude_correction_minutes, 2),
             "equation_of_time_minutes": round(self.equation_of_time_minutes, 2),
+            "daylight_saving_minutes": round(self.daylight_saving_minutes, 2),
             "total_correction_minutes": round(self.total_correction_minutes, 2),
         }
 
@@ -666,17 +668,28 @@ def calculate_solar_time_adjustment(
     standard_offset = utc_offset - daylight_saving
     standard_meridian = (standard_offset.total_seconds() / 3600) * 15
     longitude_correction_minutes = 4 * (longitude - standard_meridian)
+    # Chinese metaphysics conventions use 标准时 (standard civil time) as the
+    # base before applying longitude / equation-of-time corrections. When the
+    # user's wall-clock input was recorded during a DST period (e.g. China's
+    # 夏令时 1986-1991, historic European/US DST dates), the naive clock is an
+    # hour ahead of standard time. We subtract the DST amount here so that the
+    # resulting normalized datetime reflects true solar time anchored at the
+    # standard meridian — otherwise users born near 时辰 boundaries during a
+    # DST period land in the wrong hour pillar.
+    dst_offset_minutes = daylight_saving.total_seconds() / 60
 
     if strategy == SOLAR_TIME_STRATEGY_APPARENT:
         equation_of_time_minutes = calculate_equation_of_time_minutes(input_datetime)
         total_correction_minutes = (
-            longitude_correction_minutes + equation_of_time_minutes
+            longitude_correction_minutes
+            + equation_of_time_minutes
+            - dst_offset_minutes
         )
     elif strategy == SOLAR_TIME_STRATEGY_LONGITUDE_ONLY:
         # Some local metaphysics techniques use a longitude-only civil-time
         # correction without the equation-of-time term.
         equation_of_time_minutes = 0.0
-        total_correction_minutes = -longitude_correction_minutes
+        total_correction_minutes = -longitude_correction_minutes - dst_offset_minutes
     else:
         raise ValueError(f"Unsupported solar time strategy: {strategy}")
 
@@ -684,6 +697,7 @@ def calculate_solar_time_adjustment(
         "standard_meridian": standard_meridian,
         "longitude_correction_minutes": longitude_correction_minutes,
         "equation_of_time_minutes": equation_of_time_minutes,
+        "daylight_saving_minutes": dst_offset_minutes,
         "total_correction_minutes": total_correction_minutes,
     }
 
@@ -728,6 +742,7 @@ def normalize_birth_time(
             resolution_level=resolution_level,
             longitude_correction_minutes=0.0,
             equation_of_time_minutes=0.0,
+            daylight_saving_minutes=0.0,
             total_correction_minutes=0.0,
             applied=False,
         )
@@ -745,6 +760,7 @@ def normalize_birth_time(
     )
     longitude_correction_minutes = adjustment["longitude_correction_minutes"]
     equation_of_time_minutes = adjustment["equation_of_time_minutes"]
+    daylight_saving_minutes = adjustment.get("daylight_saving_minutes", 0.0)
     total_correction_minutes = adjustment["total_correction_minutes"]
     corrected_datetime = input_datetime + timedelta(minutes=total_correction_minutes)
 
@@ -758,6 +774,7 @@ def normalize_birth_time(
         resolution_level=resolution_level,
         longitude_correction_minutes=longitude_correction_minutes,
         equation_of_time_minutes=equation_of_time_minutes,
+        daylight_saving_minutes=daylight_saving_minutes,
         total_correction_minutes=total_correction_minutes,
         applied=True,
     )
