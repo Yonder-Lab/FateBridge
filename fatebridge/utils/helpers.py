@@ -687,9 +687,14 @@ def calculate_solar_time_adjustment(
         )
     elif strategy == SOLAR_TIME_STRATEGY_LONGITUDE_ONLY:
         # Some local metaphysics techniques use a longitude-only civil-time
-        # correction without the equation-of-time term.
+        # correction without the equation-of-time term. The sign of the
+        # longitude correction must match the SOLAR_TIME_STRATEGY_APPARENT
+        # branch: east of the standard meridian -> solar time runs AHEAD of
+        # the wall clock, so we ADD longitude_correction_minutes (which is
+        # positive east of meridian) and subtract the DST offset to rebase
+        # onto standard time before applying the longitude delta.
         equation_of_time_minutes = 0.0
-        total_correction_minutes = -longitude_correction_minutes - dst_offset_minutes
+        total_correction_minutes = longitude_correction_minutes - dst_offset_minutes
     else:
         raise ValueError(f"Unsupported solar time strategy: {strategy}")
 

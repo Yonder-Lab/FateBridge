@@ -14,6 +14,7 @@ from fatebridge.services.calculation import (
     _render_destiny_analysis,
 )
 from fatebridge.services.timing import _build_current_timing_state
+from fatebridge.core.metaphysics import kongwang_for_ganzhi
 from fatebridge.utils.data import (
     BRANCH_HIDDEN_STEMS,
     EARTHLY_BRANCHES,
@@ -249,6 +250,8 @@ def _build_shensha_entries(
         ("日支华盖", [day_huagai] if day_huagai else []),
         ("日主天乙贵人", TIAN_YI_TARGETS.get(day_stem, [])),
         ("日主文昌", [WEN_CHANG_TARGETS[day_stem]] if day_stem in WEN_CHANG_TARGETS else []),
+        ("年柱空亡", list(kongwang_for_ganzhi(f"{pillars['year'][0]}{pillars['year'][1]}"))),
+        ("日柱空亡", list(kongwang_for_ganzhi(f"{day_stem}{day_branch}"))),
     ]
 
     for label, targets in rule_rows:

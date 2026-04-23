@@ -1327,8 +1327,10 @@ def calculate_comprehensive_timing(
                 "stem": dayun_info["stem"],
                 "branch": dayun_info["branch"],
                 "start_age": age_info["start_age"],
+                "start_age_precise": age_info.get("start_age_precise"),
                 "dayun_age": age_info["dayun_age"],
                 "years_in_period": age_info["years_in_period"],
+                "direction": age_info.get("direction"),
                 "summary": dayun_analysis["summary"],
             }
             # Include element_effects so downstream consumers (e.g. HorizonX
@@ -1473,8 +1475,14 @@ def calculate_dayun_analysis(
                 "stem": dayun_info["stem"],
                 "branch": dayun_info["branch"],
                 "start_age": age_info["start_age"],
+                # start_age is the classical ceil-rounded display value;
+                # ``dayun_age`` and ``years_in_period`` are computed from the
+                # precise fractional起运岁, so surface it too to let callers
+                # reconcile ``age - start_age_precise ≈ dayun_age``.
+                "start_age_precise": age_info.get("start_age_precise"),
                 "dayun_age": age_info["dayun_age"],
                 "years_in_period": age_info["years_in_period"],
+                "direction": age_info.get("direction"),
             }
 
             result["element_effects"] = _serialize_element_effects(element_effects)

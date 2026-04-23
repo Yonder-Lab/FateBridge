@@ -205,17 +205,19 @@ class ElementAnalysis:
             # Analyze hidden stems in branch
             hidden_stems_in_branch = BRANCH_HIDDEN_STEMS[pillar_branch]
             for hidden_stem_index, hidden_stem in enumerate(hidden_stems_in_branch):
-                if (
-                    hidden_stem != day_master_stem
-                ):  # Don't analyze if it's the same as day stem
-                    ten_god_relationship = get_ten_god(day_master_stem, hidden_stem)
-                    pillar_ten_gods.append(
-                        {
-                            "position": f"{pillar_name}_branch_hidden_{hidden_stem_index+1}",
-                            "character": hidden_stem,
-                            "ten_god": ten_god_relationship.value,
-                        }
-                    )
+                # Hidden stems that share the day-master stem still matter —
+                # they represent the day master's 根 (root strength) and show
+                # up as 比肩 in classical ten-god tables. Skipping them used to
+                # hide a chart's roots (e.g. 庚日 at 巳月 藏 庚 should list
+                # 比肩, not disappear).
+                ten_god_relationship = get_ten_god(day_master_stem, hidden_stem)
+                pillar_ten_gods.append(
+                    {
+                        "position": f"{pillar_name}_branch_hidden_{hidden_stem_index+1}",
+                        "character": hidden_stem,
+                        "ten_god": ten_god_relationship.value,
+                    }
+                )
 
             ten_gods_analysis[pillar_name] = pillar_ten_gods
 

@@ -1581,6 +1581,59 @@ class BaZiRules:
                             f"一方{pillar_labels[pk1]}支{b1} × 二方{pillar_labels[pk2]}支{b2}：六冲"
                         )
 
+                # Check six harm (一方对二方某支相害；视为轻度减分)
+                for harm_pair in BaZiRules.SIX_HARM:
+                    if (b1, b2) in [harm_pair, harm_pair[::-1]]:
+                        compatibility["clash_score"] += 1
+                        compatibility["details"].append(
+                            f"一方{pillar_labels[pk1]}支{b1} × 二方{pillar_labels[pk2]}支{b2}：六害"
+                        )
+
+                # Check half-harmony (two branches of a triple-harmony set that
+                # belong to the same group). A full 三合 built across both
+                # charts is detected further below; here we reward any 2-branch
+                # overlap that would otherwise be invisible.
+                for triple in BaZiRules.TRIPLE_HARMONY:
+                    if (b1 in triple and b2 in triple and b1 != b2):
+                        pair = tuple(sorted((b1, b2)))
+                        key = ("half_harmony", pk1, pk2, pair)
+                        if key not in compatibility.setdefault("_half_seen", set()):
+                            compatibility["_half_seen"].add(key)
+                            compatibility["harmony_score"] += 3
+                            compatibility["details"].append(
+                                f"一方{pillar_labels[pk1]}支{b1} × 二方{pillar_labels[pk2]}支{b2}：半合{triple[0]}{triple[1]}{triple[2]}局"
+                            )
+
+        # Cross-chart triple harmony (三合): awarded once per distinct 三合 set
+        # that has at least one branch from each person — matches the
+        # "合盘构成三刑" convention used by the advanced analyzer.
+        branches1_set = {b for _, b in branches1}
+        branches2_set = {b for _, b in branches2}
+        for triple in BaZiRules.TRIPLE_HARMONY:
+            required = set(triple)
+            covered_by_1 = required & branches1_set
+            covered_by_2 = required & branches2_set
+            if covered_by_1 and covered_by_2 and required <= (covered_by_1 | covered_by_2):
+                compatibility["harmony_score"] += 5
+                compatibility["details"].append(
+                    f"合盘构成{''.join(triple)}三合"
+                )
+
+        # Cross-chart triple punishment (三刑): symmetric reward with 三合.
+        for punishment in BaZiRules.TRIPLE_PUNISHMENT:
+            if len(punishment) != 3:
+                continue
+            required = set(punishment)
+            covered_by_1 = required & branches1_set
+            covered_by_2 = required & branches2_set
+            if covered_by_1 and covered_by_2 and required <= (covered_by_1 | covered_by_2):
+                compatibility["clash_score"] += 5
+                compatibility["details"].append(
+                    f"合盘构成{''.join(punishment)}三刑"
+                )
+
+        compatibility.pop("_half_seen", None)
+
         # Check day pillar compatibility (most important)
         day_stem1, day_branch1 = pillars1["day"]
         day_stem2, day_branch2 = pillars2["day"]

@@ -571,12 +571,15 @@ def test_metaphysics_true_solar_time_uses_longitude_only_correction():
         use_true_solar_time=True,
     )
 
+    # 121.4737°E sits east of the 120°E standard meridian, so true solar time
+    # runs AHEAD of the wall clock. A 1.4737° offset adds ~5.89 min, moving
+    # 21:18 civil time to 21:23:53 solar time.
     assert result["analysis_context"]["time_algorithm"] == "真太阳时"
     assert result["analysis_context"]["corrected_datetime"].startswith(
-        "2026-04-04 21:12:"
+        "2026-04-04 21:23:"
     )
     assert result["analysis_context"]["total_correction_minutes"] == pytest.approx(
-        -5.89, abs=0.05
+        5.89, abs=0.05
     )
     assert result["four_pillars"] == {
         "year": {"stem": "丙", "branch": "午"},

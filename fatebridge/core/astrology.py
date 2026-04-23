@@ -1040,6 +1040,23 @@ def _build_planet_record(
     return record
 
 
+
+DEFAULT_PLANET_ORBS = {
+    "Sun": 10.0, "Moon": 10.0,
+    "Mercury": 7.0, "Venus": 7.0, "Mars": 7.5,
+    "Jupiter": 9.0, "Saturn": 9.0,
+    "Uranus": 5.0, "Neptune": 5.0, "Pluto": 5.0,
+}
+
+def _get_dynamic_orb(planet_a_id: str, planet_b_id: str, aspect_name: str, default_orb: float = 6.0) -> float:
+    orb_a = DEFAULT_PLANET_ORBS.get(planet_a_id, default_orb)
+    orb_b = DEFAULT_PLANET_ORBS.get(planet_b_id, default_orb)
+    base_orb = (orb_a + orb_b) / 2.0
+    
+    if aspect_name in {"sextile", "square"}:
+        return base_orb * 0.8
+    return base_orb
+
 def _build_aspects(planets: Iterable[Dict[str, Any]], orb: float = 6.0) -> List[Dict[str, Any]]:
     items = list(planets)
     aspects: List[Dict[str, Any]] = []
@@ -1051,7 +1068,8 @@ def _build_aspects(planets: Iterable[Dict[str, Any]], orb: float = 6.0) -> List[
             matched: Optional[Tuple[str, float]] = None
             for aspect_name, exact_angle in ASPECTS:
                 current_orb = abs(difference - exact_angle)
-                if current_orb <= orb and (matched is None or current_orb < matched[1]):
+                dynamic_max_orb = _get_dynamic_orb(first["id"], second["id"], aspect_name, default_orb=orb)
+                if current_orb <= dynamic_max_orb and (matched is None or current_orb < matched[1]):
                     matched = (aspect_name, current_orb)
             if matched is None:
                 continue
@@ -1537,7 +1555,13 @@ def _normalize_relative_mode(
     return payload
 
 
-def _match_cross_aspect(longitude_a: float, longitude_b: float, orb: float = 4.0) -> Optional[Dict[str, Any]]:
+def _match_cross_aspect(
+    longitude_a: float,
+    longitude_b: float,
+    orb: float = 4.0,
+    planet_a_id: Optional[str] = None,
+    planet_b_id: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
     difference = abs(longitude_a - longitude_b)
     if difference > 180:
         difference = 360 - difference
@@ -1545,7 +1569,11 @@ def _match_cross_aspect(longitude_a: float, longitude_b: float, orb: float = 4.0
     matched: Optional[Tuple[str, float]] = None
     for aspect_name, exact_angle in ASPECTS:
         current_orb = abs(difference - exact_angle)
-        if current_orb <= orb and (matched is None or current_orb < matched[1]):
+        dynamic_max_orb = orb
+        if planet_a_id and planet_b_id:
+            dynamic_max_orb = _get_dynamic_orb(planet_a_id, planet_b_id, aspect_name, default_orb=orb)
+            
+        if current_orb <= dynamic_max_orb and (matched is None or current_orb < matched[1]):
             matched = (aspect_name, current_orb)
 
     if matched is None:
@@ -1573,7 +1601,11 @@ def _build_directional_relative_aspects(
             if target_planet["id"] not in TRADITIONAL_PLANETS:
                 continue
             matched = _match_cross_aspect(
-                source_planet["longitude"], target_planet["longitude"], orb=orb
+                source_planet["longitude"], 
+                target_planet["longitude"], 
+                orb=orb,
+                planet_a_id=source_planet["id"],
+                planet_b_id=target_planet["id"]
             )
             if matched is None:
                 continue
@@ -1736,14 +1768,56 @@ def _count_directional_relative_midpoint_hits(
     return sum(len(items) for items in midpoint_hits.values())
 
 
-def _resolve_offline_house_system(hsys: Any, *, context_label: str) -> Dict[str, Any]:
+def _coerce_house_system_code(hsys: Any) -> Optional[int]:
+    """Translate a user-facing house-system identifier into the internal 0-8 code.
+
+    Accepts:
+    - ``int``/``str`` numeric values in 0..8
+    - Swiss Ephemeris single-letter codes (case-insensitive): P, K, W, R, B,
+      V, T, S, D. These match the ``swisseph_code`` bytes on each spec entry
+      and align astro/chart hsys with the ``house_system`` strings the
+      astro/timing endpoints already accept.
+    - Key strings like "placidus"/"whole_sign"/"koch" (case-insensitive),
+      matching the internal ``key`` attribute.
+
+    Returns the canonical integer code, or ``None`` if the input cannot be
+    resolved (caller raises a descriptive error)."""
+    if hsys is None:
+        return None
     try:
-        resolved = int(hsys)
+        resolved_int = int(hsys)
     except (TypeError, ValueError):
-        raise ValueError(
-            f"{context_label}离线模式暂仅支持 hsys=0..8。"
-        )
-    if resolved not in RELATIVE_HOUSE_SYSTEM_SPECS:
+        resolved_int = None
+    else:
+        if resolved_int in RELATIVE_HOUSE_SYSTEM_SPECS:
+            return resolved_int
+
+    if not isinstance(hsys, str):
+        return None
+
+    normalized = hsys.strip()
+    if not normalized:
+        return None
+
+    if len(normalized) == 1:
+        letter = normalized.upper().encode("ascii", errors="ignore")
+        for code, spec in RELATIVE_HOUSE_SYSTEM_SPECS.items():
+            if spec["swisseph_code"] == letter:
+                return code
+
+    folded = normalized.casefold()
+    for code, spec in RELATIVE_HOUSE_SYSTEM_SPECS.items():
+        if spec["key"].casefold() == folded:
+            return code
+        if spec["label_zh"].casefold() == folded:
+            return code
+
+    return None
+
+
+def _resolve_offline_house_system(hsys: Any, *, context_label: str) -> Dict[str, Any]:
+    resolved = _coerce_house_system_code(hsys)
+    if resolved is None or resolved not in RELATIVE_HOUSE_SYSTEM_SPECS:
         raise ValueError(
             f"{context_label}离线模式暂仅支持 hsys=0..8（整宫制、Alcabitus、Regiomontanus、Placidus、Koch、Vehlow Equal、Polich Page、Sripati、天顶为10宫中点等宫制）。"
         )

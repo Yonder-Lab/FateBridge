@@ -38,7 +38,7 @@ from .metaphysics import (
 )
 from ..utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
-    SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
+    SOLAR_TIME_STRATEGY_APPARENT,
     calculate_solar_time_adjustment,
     create_pillar_dict,
 )
@@ -532,16 +532,43 @@ def _render_snapshot_text(sections: List[Tuple[str, str]]) -> str:
 
 
 def _normalize_date_text(date_text: str) -> str:
-    return (date_text or "").strip().replace("/", "-")
+    """Normalize YYYY/M/D or YYYY-M-D (potentially unpadded) into YYYY-MM-DD.
+
+    Callers then feed the result to ``datetime.fromisoformat`` which rejects
+    non-zero-padded month/day components, so we must pad here rather than let
+    a natural ``"2026/4/23"`` input crash the endpoint.
+    """
+    raw = (date_text or "").strip()
+    if not raw:
+        return raw
+
+    canonical = raw.replace("/", "-")
+    parts = canonical.split("-")
+    if len(parts) != 3:
+        return canonical
+
+    year_text, month_text, day_text = (part.strip() for part in parts)
+    if not (year_text.isdigit() and month_text.isdigit() and day_text.isdigit()):
+        return canonical
+
+    return f"{int(year_text):04d}-{int(month_text):02d}-{int(day_text):02d}"
 
 
 def _normalize_time_text(time_text: str) -> str:
     value = (time_text or "").strip()
     if not value:
         return "00:00:00"
-    if len(value.split(":")) == 2:
-        return f"{value}:00"
-    return value
+    parts = value.split(":")
+    if len(parts) < 2 or len(parts) > 3:
+        return value
+    hours_text = parts[0]
+    minutes_text = parts[1]
+    seconds_text = parts[2] if len(parts) == 3 else "0"
+    if not all(p.isdigit() for p in (hours_text, minutes_text, seconds_text)):
+        return value
+    return (
+        f"{int(hours_text):02d}:{int(minutes_text):02d}:{int(seconds_text):02d}"
+    )
 
 
 def parse_phase2_datetime(
@@ -1313,7 +1340,7 @@ def _build_phase2_metaphysics_seed(
             input_datetime_naive,
             timezone_value,
             longitude,
-            strategy=SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
+            strategy=SOLAR_TIME_STRATEGY_APPARENT,
         )
         total_correction_minutes = adjustment["total_correction_minutes"]
         corrected_datetime = localize_datetime(
@@ -1502,6 +1529,7 @@ def build_sixyao_result(
 ) -> Dict[str, Any]:
     context = _build_phase2_context(date_text=date, time_text=time, timezone_name=zone)
     normalized_lines = _normalize_gua_lines(lines)
+    explicit_lines_provided = bool(normalized_lines)
     if not normalized_lines:
         normalized_lines = _default_sixyao_lines()
 
@@ -1510,6 +1538,14 @@ def build_sixyao_result(
 
     if len(current_code) != 6 or len(next_code) != 6:
         raise ValueError("六爻卦码必须是 6 位 0/1 字符串。")
+
+    # When the caller supplied explicit gua_code/changed_code but no lines, the
+    # placeholder lines still carry demo-only ``change`` flags (hard-coded on
+    # lines 3 and 6). Recompute the canonical line set from the authoritative
+    # codes so moving-line detection reflects the real request instead of the
+    # default seed.
+    if (gua_code or changed_code) and not explicit_lines_provided:
+        normalized_lines = _lines_from_codes(current_code, next_code)
 
     input_normalized = {
         "date": _normalize_date_text(date),
