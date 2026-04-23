@@ -2,7 +2,7 @@
 
 FateBridge 是一个面向命理、占术与离线占星场景的 Python 后端仓库。当前仓库只包含服务端与核心算法，不包含前端应用；同一套领域能力同时通过 FastAPI 和 FastMCP 对外暴露，便于 Web 集成、脚本调用与 Agent 工具接入。
 
-> 当前仓库默认提供 51 个 REST 路由（含 `/health`）和 50 个 FastMCP 工具。
+> 当前仓库默认提供 54 个 REST 路由（含 `/health`、`/ready`、`/metrics`）和 51 个 FastMCP 工具。
 
 ## 项目定位
 
@@ -195,7 +195,7 @@ FateBridge/
 | --- | --- | --- |
 | 八字与命理分析 | `/api/calculate`、`/api/cn/bazi/*` | 出生信息归一化、四柱、五行、格局、喜用神 |
 | 双人配合 | `/api/compatibility` | 基于两份个人分析结果做综合配合度评估 |
-| 时运分析 | `/api/timing/*` | 综合时运、大运、流年、流月、流日、节气时间轴 |
+| 时运分析 | `/api/timing/*` | 综合时运、大运、流年、流月、流日、流时、节气时间轴 |
 | Calendar / Gua helper | `/api/cn/jieqi/year`、`/api/cn/nongli/time`、`/api/divination/gua` | 给上层应用和 Agent 的历法/义理辅助面 |
 | Phase 2 本地技法 | `/api/divination/*` | 梅花、统摄法、六爻、宿占、占星骰子、三式合一 |
 | 中国术数独立盘 | `/api/cn/ziwei/*`、`/api/cn/liureng/*`、`/api/cn/qimen`、`/api/cn/taiyi`、`/api/cn/jinkou` | 统一支持 `snapshot_text + snapshot_export` |

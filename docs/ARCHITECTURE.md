@@ -51,7 +51,7 @@ flowchart LR
 
 - `api.py`
   - 定义 FastAPI app、CORS、中英文 request model
-  - 暴露 51 个 REST 路由（含 `/health`）
+  - 暴露 54 个 REST 路由（含 `/health`、`/ready`、`/metrics`）
   - 负责把 Pydantic 模型转为 service 参数
 - `fastmcp_server.py`
   - 定义 FastMCP app
@@ -64,7 +64,7 @@ flowchart LR
 | --- | --- |
 | `fatebridge/services/calculation.py` | 单人命理分析 |
 | `fatebridge/services/compatibility.py` | 双人配合分析 |
-| `fatebridge/services/timing.py` | 综合时运、大运、流年、流月、流日、节气时间轴、calendar helper |
+| `fatebridge/services/timing.py` | 综合时运、大运、流年、流月、流日、流时、节气时间轴、calendar helper |
 | `fatebridge/services/divination.py` | 梅花、卦义、统摄法、六爻、宿占、占星骰子、三式合一 |
 | `fatebridge/services/metaphysics.py` | 紫微、六壬、奇门、太乙、金口诀 |
 | `fatebridge/services/astrology.py` | 核心盘、关系盘、中点盘以及对应快照 |

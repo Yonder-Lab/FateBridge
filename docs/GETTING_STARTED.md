@@ -6,7 +6,7 @@
 
 至少准备：
 
-- Python 3.8+
+- Python 3.10+
 - Git
 
 如果你计划使用西占推运能力，建议额外确认相关本地运行时可用；否则核心 chart 家族可以继续使用，但西占推运类接口会直接报依赖缺失。详细见 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)。

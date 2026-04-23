@@ -1600,7 +1600,11 @@ def calculate_liuyue_analysis(
         if analysis_month is None:
             analysis_month = now.month
         if analysis_day is None:
-            analysis_day = 1
+            # 节气月起点 (立春/惊蛰/清明/立夏...) 大多落在阳历月上旬 5-9 日；
+            # 若 user 只指定 analysis_month 而未指定 day，取日=15 能稳定落到
+            # 该阳历月"主导"的节气月中段，避免默认到 day=1 时仍滞留在上一节气月，
+            # 产生 "四月流月=卯月" 这种反直觉结果。
+            analysis_day = 15
         if analysis_hour is None:
             analysis_hour = 0
         if analysis_minute is None:

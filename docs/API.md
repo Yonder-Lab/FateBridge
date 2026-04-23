@@ -5,7 +5,7 @@
 - REST API：FastAPI，默认 `http://localhost:8010`
 - FastMCP：`python fastmcp_server.py` 启动的 MCP 工具面
 
-> 当前实际暴露 51 个 REST 路由（含 `/health`）和 50 个 FastMCP 工具。
+> 当前实际暴露 54 个 REST 路由（含 `/health`、`/ready`、`/metrics`）和 51 个 FastMCP 工具。
 
 ## 1. 基础信息
 
@@ -198,6 +198,7 @@ REST 端通常返回：
 | `POST` | `/api/timing/liunian` | 流年 |
 | `POST` | `/api/timing/liuyue` | 流月 |
 | `POST` | `/api/timing/liuri` | 流日 |
+| `POST` | `/api/timing/liushi` | 流时 |
 | `POST` | `/api/timing/jieqi` | 全年节气节点时间轴 |
 
 ### 4.3 Calendar / knowledge / export helper

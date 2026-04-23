@@ -35,7 +35,9 @@ Provides Chinese metaphysics and offline astrology functionality via FastMCP:
 28. decennials - Standalone decennials snapshot
 """
 
+import asyncio
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Optional
 
 from fastmcp import FastMCP
@@ -2982,6 +2984,43 @@ def decennials(
         compact=compact,
         include_snapshot_text=include_snapshot_text,
     )
+
+
+def _attach_fastmcp_legacy_metadata() -> None:
+    """
+    FastMCP 3.x leaves decorated globals as plain functions.
+
+    The existing FateBridge tests and some host integrations expect the older
+    contract where exported tools expose `.fn` and `.parameters` directly.
+    Attach those attributes back onto the decorated callables while keeping the
+    actual FastMCP registration untouched.
+    """
+
+    async def _load_registered_tools() -> list[Any]:
+        return list(await app.list_tools(run_middleware=False))
+
+    try:
+        registered_tools = asyncio.run(_load_registered_tools())
+    except RuntimeError as exc:
+        if "asyncio.run() cannot be called from a running event loop" not in str(exc):
+            raise
+
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            registered_tools = executor.submit(
+                lambda: asyncio.run(_load_registered_tools())
+            ).result()
+
+    for tool in registered_tools:
+        target = globals().get(tool.name)
+        if not callable(target):
+            continue
+        setattr(target, "fn", tool.fn)
+        setattr(target, "parameters", tool.parameters)
+        setattr(target, "schema", getattr(tool, "schema", None))
+        setattr(target, "description", getattr(tool, "description", None))
+
+
+_attach_fastmcp_legacy_metadata()
 
 
 def main() -> None:
