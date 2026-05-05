@@ -7,6 +7,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
+from fatebridge.core.almanac import build_calendar_context
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.services.calculation import (
     BirthComputationContext,
@@ -270,6 +271,7 @@ def _build_timing_overview(
     *,
     birth_context: BirthComputationContext,
     analysis_date: datetime,
+    analysis_calendar_context: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     timing_state = _build_current_timing_state(
         birth_context,
@@ -299,6 +301,14 @@ def _build_timing_overview(
     liuyue_info = liuyue_result["liuyue_info"]
     liuri_info = liuri_result["liuri_info"]
     liushi_info = liushi_result["liushi_info"]
+
+    current_solar_term_name = (
+        (analysis_calendar_context or {}).get("current_solar_term", {}).get("name", "未知")
+    )
+    next_solar_term_name = (
+        (analysis_calendar_context or {}).get("next_solar_term", {}).get("name", "未知")
+    )
+
     return {
         "analysis_date": analysis_date.strftime("%Y-%m-%d"),
         "dayun": dayun_payload,
@@ -325,6 +335,8 @@ def _build_timing_overview(
         },
         "current_jieqi": liuyue_info["solar_term_window"]["start_term"]["name"],
         "next_jieqi": liuyue_info["solar_term_window"]["next_term"]["name"],
+        "current_solar_term_name": current_solar_term_name,
+        "next_solar_term_name": next_solar_term_name,
     }
 
 
@@ -361,6 +373,7 @@ def _build_snapshot_text(
     three_origins: Dict[str, Dict[str, Any]],
     shensha_entries: List[Dict[str, str]],
     timing_overview: Dict[str, Any],
+    analysis_calendar_context: Optional[Dict[str, Any]] = None,
 ) -> str:
     include_minutes = (
         person.birth_minute != 0
@@ -371,24 +384,34 @@ def _build_snapshot_text(
     day_stem = pillars["day"][0]
     lunar_calendar = calendar_context.get("lunar_calendar") or {}
 
-    sections = [
+    acc_solar_term = (
+        (analysis_calendar_context or {}).get("current_solar_term", {}).get("name")
+    )
+    acc_next_term = (
+        (analysis_calendar_context or {}).get("next_solar_term", {}).get("name")
+    )
+
+    birth_context_lines = [
+        f"姓名：{person.name or '未提供'}",
+        f"性别：{person.gender or '未知'}",
+        f"出生时间：{format_birth_datetime_display(input_birth_datetime, include_minutes=include_minutes)}",
+        f"校正时间：{format_birth_datetime_display(normalized_birth_datetime, include_minutes=True)}",
+        f"出生地：{person.birth_place or '未提供'}",
+        f"时区：{timezone_name}",
+        f"经度：{longitude if longitude is not None else '未提供'}",
+        f"时间算法：{'真太阳时' if applied_true_solar else '直接时间'}",
+        f"农历：{lunar_calendar.get('display', '未知')}",
+        f"出生节气：{calendar_context['current_solar_term']['name']}",
+        f"出生后节气：{calendar_context['next_solar_term']['name']}",
+    ]
+    if acc_solar_term and acc_next_term:
+        birth_context_lines.append(
+            f"当下节气：{acc_solar_term}，后续节气：{acc_next_term}"
+        )
+        sections = [
         (
             "起盘信息",
-            "\n".join(
-                [
-                    f"姓名：{person.name or '未提供'}",
-                    f"性别：{person.gender or '未知'}",
-                    f"出生时间：{format_birth_datetime_display(input_birth_datetime, include_minutes=include_minutes)}",
-                    f"校正时间：{format_birth_datetime_display(normalized_birth_datetime, include_minutes=True)}",
-                    f"出生地：{person.birth_place or '未提供'}",
-                    f"时区：{timezone_name}",
-                    f"经度：{longitude if longitude is not None else '未提供'}",
-                    f"时间算法：{'真太阳时' if applied_true_solar else '直接时间'}",
-                    f"农历：{lunar_calendar.get('display', '未知')}",
-                    f"当前节气：{calendar_context['current_solar_term']['name']}",
-                    f"下个节气：{calendar_context['next_solar_term']['name']}",
-                ]
-            ).strip(),
+            "\n".join(birth_context_lines).strip(),
         ),
         (
             "四柱与三元",
@@ -431,8 +454,8 @@ def _build_snapshot_text(
                         f"{timing_overview['liushi']['shichen']}时；"
                         f"{timing_overview['liushi']['summary']}"
                     ),
-                    f"当下节气：{timing_overview['current_jieqi']}",
-                    f"后续节气：{timing_overview['next_jieqi']}",
+                    f"当下节气：{timing_overview['current_solar_term_name']}（月令：{timing_overview['current_jieqi']}）",
+                    f"后续节气：{timing_overview['next_solar_term_name']}（月令：{timing_overview['next_jieqi']}）",
                 ]
             ).strip(),
         ),
@@ -468,9 +491,17 @@ def _build_base_bazi_payload(
         pillars=birth_context.birth_pillars,
         three_origins=three_origins,
     )
+    timezone_name = normalized_birth_time.timezone
+    analysis_pillars = birth_context.birth_pillars
+    analysis_calendar_context = build_calendar_context(
+        analysis_date,
+        timezone_name=timezone_name,
+        pillars=analysis_pillars,
+    )
     timing_overview = _build_timing_overview(
         birth_context=birth_context,
         analysis_date=analysis_date,
+        analysis_calendar_context=analysis_calendar_context,
     )
     snapshot_text = _build_snapshot_text(
         person=person,
@@ -484,12 +515,14 @@ def _build_base_bazi_payload(
         three_origins=three_origins,
         shensha_entries=shensha_entries,
         timing_overview=timing_overview,
+        analysis_calendar_context=analysis_calendar_context,
     )
     return {
         "input_birth_datetime": input_birth_datetime,
         "normalized_birth_datetime": normalized_birth_datetime,
         "normalized_birth_time": normalized_birth_time,
         "calendar_context": birth_context.birth_calendar_context,
+        "analysis_calendar_context": analysis_calendar_context,
         "base_analysis": base_analysis,
         "three_origins": three_origins,
         "shensha_entries": shensha_entries,
@@ -535,6 +568,7 @@ def calculate_bazi_birth(
                 "ten_gods": base_analysis["ten_gods"],
                 "patterns": base_analysis["patterns"],
                 "calendar_context": base_analysis["calendar_context"],
+                "analysis_calendar_context": payload["analysis_calendar_context"],
                 "timing_overview": payload["timing_overview"],
                 "shensha": payload["shensha_entries"],
             },
@@ -578,6 +612,7 @@ def calculate_bazi_direct(
                 "timing_overview": payload["timing_overview"],
                 "shensha": payload["shensha_entries"],
                 "calendar_context": base_analysis["calendar_context"],
+                "analysis_calendar_context": payload["analysis_calendar_context"],
                 "structure_profile": base_analysis["structure_profile"],
                 "patterns": base_analysis["patterns"],
             },
