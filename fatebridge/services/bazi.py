@@ -88,6 +88,170 @@ WEN_CHANG_TARGETS = {
     "癸": "卯",
 }
 
+# --- 天德贵人 (Heavenly Virtue Noble) ---
+# 按月支查天德所在
+TIAN_DE_TARGETS = {
+    "子": "巳",
+    "丑": "庚",
+    "寅": "丁",
+    "卯": "申",
+    "辰": "壬",
+    "巳": "辛",
+    "午": "亥",
+    "未": "甲",
+    "申": "癸",
+    "酉": "寅",
+    "戌": "丙",
+    "亥": "乙",
+}
+
+# --- 月德贵人 (Monthly Virtue Noble) ---
+# 按月支查月德所在
+YUE_DE_TARGETS = {
+    "子": "壬",
+    "丑": "庚",
+    "寅": "丙",
+    "卯": "甲",
+    "辰": "壬",
+    "巳": "庚",
+    "午": "丙",
+    "未": "甲",
+    "申": "壬",
+    "酉": "庚",
+    "戌": "丙",
+    "亥": "甲",
+}
+
+# --- 将星 (General Star) ---
+JIANG_XING_TARGETS = (
+    (("申", "子", "辰"), "子"),
+    (("寅", "午", "戌"), "午"),
+    (("亥", "卯", "未"), "卯"),
+    (("巳", "酉", "丑"), "酉"),
+)
+
+# --- 金舆 (Golden Carriage) ---
+JIN_YU_TARGETS = {
+    "甲": "辰",
+    "乙": "巳",
+    "丙": "未",
+    "丁": "申",
+    "戊": "未",
+    "己": "申",
+    "庚": "戌",
+    "辛": "亥",
+    "壬": "丑",
+    "癸": "寅",
+}
+
+# --- 亡神 (Lost Spirit) ---
+WANG_SHEN_TARGETS = (
+    (("申", "子", "辰"), "亥"),
+    (("寅", "午", "戌"), "巳"),
+    (("亥", "卯", "未"), "寅"),
+    (("巳", "酉", "丑"), "申"),
+)
+
+# --- 劫煞 (Robbery Sha) ---
+JIE_SHA_TARGETS = (
+    (("申", "子", "辰"), "巳"),
+    (("寅", "午", "戌"), "亥"),
+    (("亥", "卯", "未"), "申"),
+    (("巳", "酉", "丑"), "寅"),
+)
+
+# --- 孤辰 (Lonely Star) ---
+GU_CHEN_TARGETS = {
+    "子": "寅",
+    "丑": "寅",
+    "寅": "巳",
+    "卯": "巳",
+    "辰": "巳",
+    "巳": "申",
+    "午": "申",
+    "未": "申",
+    "申": "亥",
+    "酉": "亥",
+    "戌": "亥",
+    "亥": "寅",
+}
+
+# --- 寡宿 (Widow Star) ---
+GUA_SU_TARGETS = {
+    "子": "戌",
+    "丑": "戌",
+    "寅": "丑",
+    "卯": "丑",
+    "辰": "丑",
+    "巳": "辰",
+    "午": "辰",
+    "未": "辰",
+    "申": "未",
+    "酉": "未",
+    "戌": "未",
+    "亥": "戌",
+}
+
+# --- 红鸾 (Red Phoenix) ---
+HONG_LUAN_TARGETS = {
+    "子": "卯",
+    "丑": "寅",
+    "寅": "丑",
+    "卯": "子",
+    "辰": "亥",
+    "巳": "戌",
+    "午": "酉",
+    "未": "申",
+    "申": "未",
+    "酉": "午",
+    "戌": "巳",
+    "亥": "辰",
+}
+
+# --- 天喜 (Heavenly Joy) ---
+TIAN_XI_TARGETS = {
+    "子": "酉",
+    "丑": "申",
+    "寅": "未",
+    "卯": "午",
+    "辰": "巳",
+    "巳": "辰",
+    "午": "卯",
+    "未": "寅",
+    "申": "丑",
+    "酉": "子",
+    "戌": "亥",
+    "亥": "戌",
+}
+
+# --- 学堂 (Study Hall) ---
+XUE_TANG_TARGETS = {
+    "甲": "亥",
+    "乙": "午",
+    "丙": "寅",
+    "丁": "酉",
+    "戊": "寅",
+    "己": "酉",
+    "庚": "巳",
+    "辛": "子",
+    "壬": "申",
+    "癸": "卯",
+}
+
+# --- 词馆 (Literary Hall) ---
+CI_GUAN_TARGETS = {
+    "甲": "寅",
+    "乙": "卯",
+    "丙": "巳",
+    "丁": "午",
+    "戊": "巳",
+    "己": "午",
+    "庚": "申",
+    "辛": "酉",
+    "壬": "亥",
+    "癸": "子",
+}
+
 
 def _resolve_analysis_date(
     analysis_year: Optional[int],
@@ -201,12 +365,31 @@ def _collect_branch_hits(
     return hits
 
 
+def _collect_stem_or_branch_hits(
+    target: str,
+    stem_positions: Dict[str, str],
+    branch_positions: Dict[str, str],
+) -> List[str]:
+    """Collect hits for a target that can be either a stem or a branch."""
+    from fatebridge.utils.data import HEAVENLY_STEMS
+    hits: List[str] = []
+    if target in HEAVENLY_STEMS:
+        for key, stem in stem_positions.items():
+            if stem == target:
+                hits.append(f"{PILLAR_LABELS[key]}{stem}")
+    else:
+        for key, branch in branch_positions.items():
+            if branch == target:
+                hits.append(f"{PILLAR_LABELS[key]}{branch}")
+    return hits
+
+
 def _build_shensha_entries(
     *,
     pillars: Dict[str, Tuple[str, str]],
     three_origins: Dict[str, Dict[str, Any]],
 ) -> List[Dict[str, str]]:
-    positions = {
+    branch_positions = {
         "year": pillars["year"][1],
         "month": pillars["month"][1],
         "day": pillars["day"][1],
@@ -214,6 +397,15 @@ def _build_shensha_entries(
         "taiyuan": three_origins["taiyuan"]["branch"],
         "minggong": three_origins["minggong"]["branch"],
         "shengong": three_origins["shengong"]["branch"],
+    }
+    stem_positions = {
+        "year": pillars["year"][0],
+        "month": pillars["month"][0],
+        "day": pillars["day"][0],
+        "hour": pillars["hour"][0],
+        "taiyuan": three_origins["taiyuan"]["stem"],
+        "minggong": three_origins["minggong"]["stem"],
+        "shengong": three_origins["shengong"]["stem"],
     }
     day_stem = pillars["day"][0]
     year_branch = pillars["year"][1]
@@ -241,8 +433,18 @@ def _build_shensha_entries(
     day_horse = _find_group_target(day_branch, TRAVEL_HORSE_TARGETS)
     year_huagai = _find_group_target(year_branch, HUA_GAI_TARGETS)
     day_huagai = _find_group_target(day_branch, HUA_GAI_TARGETS)
+    year_jiangxing = _find_group_target(year_branch, JIANG_XING_TARGETS)
+    day_jiangxing = _find_group_target(day_branch, JIANG_XING_TARGETS)
+    year_wangshen = _find_group_target(year_branch, WANG_SHEN_TARGETS)
+    day_wangshen = _find_group_target(day_branch, WANG_SHEN_TARGETS)
+    year_jiesha = _find_group_target(year_branch, JIE_SHA_TARGETS)
+    day_jiesha = _find_group_target(day_branch, JIE_SHA_TARGETS)
 
-    rule_rows = [
+    month_branch = pillars["month"][1]
+    tian_de_target = TIAN_DE_TARGETS.get(month_branch)
+    yue_de_target = YUE_DE_TARGETS.get(month_branch)
+
+    rule_rows: List[Tuple[str, List[str]]] = [
         ("年支桃花", [year_peach] if year_peach else []),
         ("日支桃花", [day_peach] if day_peach else []),
         ("年支驿马", [year_horse] if year_horse else []),
@@ -251,18 +453,43 @@ def _build_shensha_entries(
         ("日支华盖", [day_huagai] if day_huagai else []),
         ("日主天乙贵人", TIAN_YI_TARGETS.get(day_stem, [])),
         ("日主文昌", [WEN_CHANG_TARGETS[day_stem]] if day_stem in WEN_CHANG_TARGETS else []),
+        ("年支将星", [year_jiangxing] if year_jiangxing else []),
+        ("日支将星", [day_jiangxing] if day_jiangxing else []),
+        ("日主金舆", [JIN_YU_TARGETS[day_stem]] if day_stem in JIN_YU_TARGETS else []),
+        ("年支亡神", [year_wangshen] if year_wangshen else []),
+        ("日支亡神", [day_wangshen] if day_wangshen else []),
+        ("年支劫煞", [year_jiesha] if year_jiesha else []),
+        ("日支劫煞", [day_jiesha] if day_jiesha else []),
+        ("日支孤辰", [GU_CHEN_TARGETS[day_branch]] if day_branch in GU_CHEN_TARGETS else []),
+        ("日支寡宿", [GUA_SU_TARGETS[day_branch]] if day_branch in GUA_SU_TARGETS else []),
+        ("年支红鸾", [HONG_LUAN_TARGETS[year_branch]] if year_branch in HONG_LUAN_TARGETS else []),
+        ("年支天喜", [TIAN_XI_TARGETS[year_branch]] if year_branch in TIAN_XI_TARGETS else []),
+        ("日主学堂", [XUE_TANG_TARGETS[day_stem]] if day_stem in XUE_TANG_TARGETS else []),
+        ("日主词馆", [CI_GUAN_TARGETS[day_stem]] if day_stem in CI_GUAN_TARGETS else []),
         ("年柱空亡", list(kongwang_for_ganzhi(f"{pillars['year'][0]}{pillars['year'][1]}"))),
         ("日柱空亡", list(kongwang_for_ganzhi(f"{day_stem}{day_branch}"))),
     ]
 
     for label, targets in rule_rows:
-        hits = _collect_branch_hits(targets, positions) if targets else []
+        hits = _collect_branch_hits(targets, branch_positions) if targets else []
         entries.append(
             {
                 "label": label,
                 "value": "、".join(hits) if hits else "未触发",
             }
         )
+
+    # 天德/月德需要同时检查天干和地支位置
+    if tian_de_target:
+        tian_de_hits = _collect_stem_or_branch_hits(tian_de_target, stem_positions, branch_positions)
+        entries.append({"label": "天德", "value": "、".join(tian_de_hits) if tian_de_hits else "未触发"})
+    else:
+        entries.append({"label": "天德", "value": "未触发"})
+    if yue_de_target:
+        yue_de_hits = _collect_stem_or_branch_hits(yue_de_target, stem_positions, branch_positions)
+        entries.append({"label": "月德", "value": "、".join(yue_de_hits) if yue_de_hits else "未触发"})
+    else:
+        entries.append({"label": "月德", "value": "未触发"})
 
     return entries
 

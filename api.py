@@ -1510,6 +1510,166 @@ async def calculate_bazi_direct_chart(request: BaziDirectRequest) -> dict:
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
+class BaziMarriageRequest(FateBridgeRequest):
+    """Request model for BaZi marriage analysis."""
+
+    dayun_pillar: Optional[str] = Field(
+        default=None, description="Current dayun pillar, e.g., '甲子'"
+    )
+    liunian_pillar: Optional[str] = Field(
+        default=None, description="Current liunian pillar, e.g., '丙寅'"
+    )
+
+
+class BaziCareerRequest(FateBridgeRequest):
+    """Request model for BaZi career analysis."""
+
+    dayun_pillar: Optional[str] = Field(
+        default=None, description="Current dayun pillar, e.g., '甲子'"
+    )
+    liunian_pillar: Optional[str] = Field(
+        default=None, description="Current liunian pillar, e.g., '丙寅'"
+    )
+
+
+def _parse_pillar(pillar_str: Optional[str]) -> Optional[Tuple[str, str]]:
+    """Parse a pillar string like '甲子' into (stem, branch) tuple."""
+    if not pillar_str or len(pillar_str) < 2:
+        return None
+    stem = pillar_str[0]
+    branch = pillar_str[1]
+    from fatebridge.utils.data import HEAVENLY_STEMS, EARTHLY_BRANCHES
+    if stem in HEAVENLY_STEMS and branch in EARTHLY_BRANCHES:
+        return (stem, branch)
+    return None
+
+
+@app.post("/api/cn/bazi/marriage")
+async def calculate_bazi_marriage_analysis(request: BaziMarriageRequest) -> dict:
+    """
+    Calculate BaZi marriage analysis including spouse star, spouse palace,
+    marriage quality, marriage timing, and risk factors.
+    """
+    try:
+        logger.info(
+            "Processing bazi marriage request (%s)",
+            summarize_request_context(name=request.name),
+        )
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        from fatebridge.services.calculation import (
+            BirthComputationContext,
+            _build_birth_computation_context,
+        )
+        from fatebridge.analysis.marriage import MarriageAnalysis
+
+        birth_context = _build_birth_computation_context(person)
+        pillars = birth_context.birth_pillars
+
+        dayun_pillar = _parse_pillar(request.dayun_pillar)
+        liunian_pillar = _parse_pillar(request.liunian_pillar)
+
+        result = await _execute_service(
+            MarriageAnalysis.analyze_marriage,
+            pillars,
+            gender=request.gender,
+            dayun_pillar=dayun_pillar,
+            liunian_pillar=liunian_pillar,
+            tool_name="bazi_marriage",
+            cpu_bound=True,
+        )
+
+        return {
+            "analysis_type": "八字婚姻分析",
+            "marriage_analysis": result,
+        }
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的八字婚姻分析参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during bazi marriage analysis: {str(e)}", exc_info=True
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
+@app.post("/api/cn/bazi/career")
+async def calculate_bazi_career_analysis(request: BaziCareerRequest) -> dict:
+    """
+    Calculate BaZi career analysis including suitable industries,
+    career structure, entrepreneurship tendency, and career timing.
+    """
+    try:
+        logger.info(
+            "Processing bazi career request (%s)",
+            summarize_request_context(name=request.name),
+        )
+        person = create_person_info(
+            birth_year=request.birth_year,
+            birth_month=request.birth_month,
+            birth_day=request.birth_day,
+            birth_hour=request.birth_hour,
+            name=request.name,
+            gender=request.gender,
+            birth_place=request.birth_place,
+            birth_minute=request.birth_minute,
+            birth_timezone=request.birth_timezone,
+            birth_longitude=request.birth_longitude,
+            use_true_solar_time=request.use_true_solar_time,
+        )
+
+        from fatebridge.services.calculation import (
+            BirthComputationContext,
+            _build_birth_computation_context,
+        )
+        from fatebridge.analysis.career import CareerAnalysis
+
+        birth_context = _build_birth_computation_context(person)
+        pillars = birth_context.birth_pillars
+
+        dayun_pillar = _parse_pillar(request.dayun_pillar)
+        liunian_pillar = _parse_pillar(request.liunian_pillar)
+
+        result = await _execute_service(
+            CareerAnalysis.analyze_career,
+            pillars,
+            gender=request.gender,
+            dayun_pillar=dayun_pillar,
+            liunian_pillar=liunian_pillar,
+            tool_name="bazi_career",
+            cpu_bound=True,
+        )
+
+        return {
+            "analysis_type": "八字事业分析",
+            "career_analysis": result,
+        }
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的八字事业分析参数")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during bazi career analysis: {str(e)}", exc_info=True
+        )
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+
 @app.post("/api/compatibility")
 async def calculate_two_person_compatibility(
     request: TwoPersonCompatibilityRequest,

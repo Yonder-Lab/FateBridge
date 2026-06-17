@@ -121,7 +121,51 @@ curl -X POST http://localhost:8010/api/calculate \
 - `patterns`
 - `calendar_context`
 
-其中八字类结果新增 `structure_profile`，会把当前主格局、次级格局、最终喜用五行、可用十神与合冲事件对格局流通的影响结构化返回；`/api/compatibility` 的 `detailed_analysis` 也会补充 `score_basis`、`supportive_patterns`、`tension_patterns`、`risk_patterns` / `risk_reasons` 等解释字段，用于区分“和合支持”“高张力吸引”和“明显风险”。
+其中八字类结果新增 `structure_profile`，会把当前主格局、次级格局、最终喜用五行、可用十神与合冲事件对格局流通的影响结构化返回；`/api/compatibility` 的 `detailed_analysis` 也会补充 `score_basis`、`supportive_patterns`、`tension_patterns`、`risk_patterns` / `risk_reasons` 等解释字段，用于区分"和合支持""高张力吸引"和"明显风险"。
+
+### 婚姻分析结果
+
+`/api/cn/bazi/marriage` 端点返回婚姻专项分析：
+
+- `spouse_star`：配偶星定位与特征（正财/偏财为妻、正官/七杀为夫）
+- `spouse_palace`：配偶宫（日支）分析与稳定性
+- `marriage_quality`：婚姻质量评分（0-100）与等级
+- `marriage_timing`：婚期推断信号与早婚/晚婚倾向
+- `risk_factors`：婚姻风险因素（日支逢冲、伤官见官、比劫争财等）
+- `suggestions`：综合婚姻建议
+
+### 事业分析结果
+
+`/api/cn/bazi/career` 端点返回事业专项分析：
+
+- `dominant_ten_gods`：主导十神与事业类型（独立经营/竞争型/才华型/创新型/稳健型等）
+- `industry_analysis`：适合行业推荐（基于喜用神五行）
+- `career_structure`：事业格局评分与等级
+- `entrepreneurship`：创业 vs 打工倾向评分
+- `career_timing`：事业时机信号
+- `noble_direction`：贵人方位
+- `suggestions`：综合事业建议
+
+### 扩展神煞系统
+
+八字命盘现在包含 32 项神煞（原 10 项），新增：
+
+- 天德贵人、月德贵人：主逢凶化吉、品德高尚
+- 将星：主领导力、权威
+- 金舆：主富贵、车马之福
+- 亡神、劫煞：主变动、劫难
+- 孤辰、寡宿：主孤独、晚婚
+- 红鸾、天喜：主婚恋喜事
+- 学堂、词馆：主学业、文采
+
+### 八字知识库
+
+`/api/knowledge/read` 支持 `domain=bazi` 查询，包含：
+
+- 十神解释（10 项）：比肩、劫财、食神、伤官、正财、偏财、正官、七杀、正印、偏印
+- 神煞解释（12 项）：天乙贵人、文昌、桃花、驿马、华盖、天德/月德、将星、金舆、孤辰寡宿、红鸾天喜、学堂词馆
+- 格局解释（10 项）：正官格、七杀格、食神格、伤官格、正财格、偏财格、正印格、偏印格、建禄格、羊刃驾杀格
+- 五行解释（5 项）：木、火、土、金、水（含方位、行业、健康对应）
 
 ### 快照类结果
 
@@ -185,7 +229,7 @@ FateBridge/
 - `fastmcp_server.py`: FastMCP 工具定义与 JSON 输出封装
 - `fatebridge/core`: 核心算法、历法、占星、占术、导出合同
 - `fatebridge/services`: 面向 API/MCP 的编排层与快照拼装层
-- `fatebridge/analysis`: 高层分析逻辑，如配合度与时运影响
+- `fatebridge/analysis`: 高层分析逻辑，如配合度与时运影响、婚姻分析、事业分析
 - `fatebridge/utils`: 输入归一化、真太阳时、地点解析、通用 helper
 - `tests`: API/MCP 对齐、合同、回归与能力验证
 
@@ -194,6 +238,8 @@ FateBridge/
 | 能力域 | 代表接口 | 说明 |
 | --- | --- | --- |
 | 八字与命理分析 | `/api/calculate`、`/api/cn/bazi/*` | 出生信息归一化、四柱、五行、格局、喜用神 |
+| 八字婚姻分析 | `/api/cn/bazi/marriage` | 配偶星、配偶宫、婚期推断、婚姻质量评估 |
+| 八字事业分析 | `/api/cn/bazi/career` | 事业类型、行业推荐、创业倾向、事业格局 |
 | 双人配合 | `/api/compatibility` | 基于两份个人分析结果做综合配合度评估 |
 | 时运分析 | `/api/timing/*` | 综合时运、大运、流年、流月、流日、流时、节气时间轴 |
 | Calendar / Gua helper | `/api/cn/jieqi/year`、`/api/cn/nongli/time`、`/api/divination/gua` | 给上层应用和 Agent 的历法/义理辅助面 |
@@ -201,7 +247,7 @@ FateBridge/
 | 中国术数独立盘 | `/api/cn/ziwei/*`、`/api/cn/liureng/*`、`/api/cn/qimen`、`/api/cn/taiyi`、`/api/cn/jinkou` | 统一支持 `snapshot_text + snapshot_export` |
 | 核心占星盘 | `/api/astro/*` | 离线星盘、派生盘、关系盘 |
 | 西占推运 | `/api/astro/timing*` | 总览与独立 technique 工具 |
-| 导出与知识 | `/api/export/*`、`/api/knowledge/*` | 导出协议与内置知识库 |
+| 导出与知识 | `/api/export/*`、`/api/knowledge/*` | 导出协议与内置知识库（含八字知识库） |
 
 ## 开发与验证
 

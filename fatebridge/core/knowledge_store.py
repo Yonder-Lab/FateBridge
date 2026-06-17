@@ -108,6 +108,7 @@ def load_knowledge_bundles() -> dict[str, dict[str, Any]]:
         "astro": _load_json("astro.json"),
         "liureng": _load_json("liureng.json"),
         "qimen": _load_json("qimen.json"),
+        "bazi": _load_json("bazi.json"),
     }
 
 
@@ -362,6 +363,16 @@ def build_knowledge_registry(domain: str | None = None) -> dict[str, Any]:
                 }
                 for category, entries in bundle.get("categories", {}).items()
             ]
+        elif name == "bazi":
+            categories = [
+                {
+                    "name": category,
+                    "count": len(entries),
+                    "keys": sorted(entries)[:20],
+                    "supports": ["read"],
+                }
+                for category, entries in bundle.get("categories", {}).items()
+            ]
         else:
             categories = [
                 {
@@ -506,6 +517,33 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
             code="knowledge.liureng.unknown_category",
             details={"category": category},
         )
+
+    if domain == "bazi":
+        bundle = bundles["bazi"]
+        categories = bundle.get("categories", {})
+        category_data = categories.get(category, {})
+        entry = category_data.get(key)
+        if not entry:
+            raise ToolValidationError(
+                f"Unknown 八字 knowledge key: {key}",
+                code="knowledge.bazi.unknown_key",
+                details={"category": category, "key": key},
+            )
+        tips = list(entry.get("tips", []))
+        return {
+            "domain": domain,
+            "category": category,
+            "key": key,
+            "query_normalized": {"key": key},
+            "title": entry.get("title", key),
+            "tips": tips,
+            "lines": [tip for tip in tips if tip and tip != "=="],
+            "rendered_text": _tips_to_rendered_text(entry.get("title", key), tips),
+            "source": "fatebridge_knowledge",
+            "bundle_version": load_knowledge_index().get("bundle_version"),
+            "provenance": _knowledge_provenance(domain=domain, category=category, key=key),
+            "citation": f"FateBridge knowledge · {domain}/{category}/{key}",
+        }
 
     bundle = bundles["qimen"]
     normalized_key = _normalize_qimen_key(category, key)
