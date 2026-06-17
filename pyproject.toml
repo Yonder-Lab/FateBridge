@@ -42,6 +42,7 @@ dev = [
 ]
 
 [project.scripts]
+fatebridge = "fatebridge.cli:main"
 fatebridge-api = "api:main"
 fatebridge-mcp = "fastmcp_server:main"
 

@@ -202,6 +202,51 @@ REST_POST_CASES = {
         "analysis_month": 4,
         "analysis_day": 1,
     },
+    "/api/cn/bazi/marriage": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/career": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/wealth": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/health": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/children": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/education": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/personality": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/relatives": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
+    "/api/cn/bazi/romance": lambda: {
+        **_birth_payload(),
+        "dayun_pillar": "壬戌",
+        "liunian_pillar": "丁卯",
+    },
     "/api/compatibility": _compatibility_payload,
     "/api/timing/comprehensive": lambda: {
         **_birth_payload(),
@@ -422,6 +467,42 @@ MCP_CASES = {
             "analysis_month": 4,
             "analysis_day": 1,
         },
+    ),
+    "bazi_marriage": (
+        "bazi_marriage",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_career": (
+        "bazi_career",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_wealth": (
+        "bazi_wealth",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_health": (
+        "bazi_health",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_children": (
+        "bazi_children",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_education": (
+        "bazi_education",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_personality": (
+        "bazi_personality",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_relatives": (
+        "bazi_relatives",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
+    ),
+    "bazi_romance": (
+        "bazi_romance",
+        lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},
     ),
     "two_person_compatibility": ("two_person_compatibility", _compatibility_payload),
     "timing_analysis": (

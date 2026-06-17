@@ -146,6 +146,76 @@ curl -X POST http://localhost:8010/api/calculate \
 - `noble_direction`：贵人方位
 - `suggestions`：综合事业建议
 
+### 财运分析结果
+
+`/api/cn/bazi/wealth` 端点返回财运专项分析：
+
+- `wealth_stars`：财星定位（正财/偏财，含地支藏干）与正偏财比重
+- `wealth_structure`：财富格局（身财两停/财多身弱/身旺财旺/身旺财轻等）与评分
+- `wealth_storage`：墓库财分析（辰戌丑未财库与冲开时机）
+- `wealth_style` / `wealth_direction`：求财方式（正业/投资）与求财方位
+- `wealth_risk`：破财风险（比劫夺财、财星受冲）
+- `wealth_timing`：大运/流年财运与破财信号
+
+### 健康分析结果
+
+`/api/cn/bazi/health` 端点返回健康专项分析（仅供命理参考，非医学诊断）：
+
+- `constitution`：体质（日主强弱 + 寒暖燥湿调候）
+- `organ_analysis`：五行脏腑强弱（过旺/偏弱/缺失对应隐患）
+- `disease_risks`：易患疾病提示（地支相冲、五行受克处）
+- `health_timing`：健康风险时机（冲克日主、七杀攻身）
+- `regimen`：养生调理方向（喜用神对应脏腑）
+
+### 子女分析结果
+
+`/api/cn/bazi/children` 端点返回子女专项分析（按性别取子女星）：
+
+- `child_star`：子女星定位（男命官杀、女命食伤）与力量
+- `child_palace`：子女宫（时柱）状态与冲合
+- `affinity`：子女缘分厚薄、数量倾向评分
+- `relationship`：与子女关系及子女成就倾向
+- `children_timing`：生育/添丁时机信号
+
+### 学业分析结果
+
+`/api/cn/bazi/education` 端点返回学业专项分析：
+
+- `study_stars`：印星/食伤/官星/财星力量（学业关键十神）
+- `education_level`：学历层次倾向（官印相生/食伤配印/财破印等）与评分
+- `wenchang`：文昌贵人
+- `subject_orientation`：文理倾向与适合学科方向
+- `exam_timing`：考试/升学时机信号
+
+### 性格 / 六亲 / 正缘桃花分析结果
+
+- `/api/cn/bazi/personality`（性格心性）：日主五行心性、主导十神性格、刚柔内外向、优劣势与调适建议。
+- `/api/cn/bazi/relatives`（六亲关系）：父母星（偏财/正印）、兄弟姐妹星（比劫）、六亲宫位与贵人助力。
+- `/api/cn/bazi/romance`（正缘桃花）：桃花（咸池）、红鸾天喜、异性缘星（按性别）、桃花正邪与正缘时机（区别于侧重配偶宫的「婚姻」维度）。
+
+> 以上九个八字专项维度（婚姻/事业/财运/健康/子女/学业/性格/六亲/正缘桃花）均同时提供独立 REST 端点、MCP 工具与 CLI 子命令：`bazi_marriage` / `bazi_career` / `bazi_wealth` / `bazi_health` / `bazi_children` / `bazi_education` / `bazi_personality` / `bazi_relatives` / `bazi_romance`。
+>
+> **大运/流年自动推算**：用户无需自己知道大运。各维度默认由命盘 + 分析日期（缺省为今天，或传 `analysis_year`/`analysis_month`/`analysis_day`）**内部推算**当前大运、流年柱，并在结果的 `timing_context` 中回显所用的大运/流年与起运年龄。如确需指定，可传 `dayun_pillar`、`liunian_pillar`（如 `"甲子"`）作为覆盖。
+
+### 统一工具目录与三大接口
+
+所有工具（约 60 个）现在只在中央目录 `fatebridge/services/tool_catalog.py` 中以 `ToolSpec` **声明一次**，由注册器自动挂载到三个接口：
+
+- **REST**（`api.py` → `register_rest`）：FastAPI HTTP 端点
+- **MCP**（`fastmcp_server.py` → `register_mcp`）：FastMCP 工具
+- **CLI**（`fatebridge/cli.py`）：命令行子命令，面向 Agentic/脚本化使用
+
+新增一个工具或分析维度只需在目录中追加一个 `ToolSpec`，无需改动任何接口文件。
+
+```bash
+# CLI 示例
+fatebridge list                       # 列出所有工具
+# 大运/流年自动推算，无需手动输入：
+fatebridge bazi_wealth --birth-year 1990 --birth-month 6 --birth-day 15 \
+    --birth-hour 10 --gender male
+fatebridge knowledge_read --domain bazi --category romance --key 桃花咸池
+```
+
 ### 扩展神煞系统
 
 八字命盘现在包含 32 项神煞（原 10 项），新增：
@@ -166,6 +236,13 @@ curl -X POST http://localhost:8010/api/calculate \
 - 神煞解释（12 项）：天乙贵人、文昌、桃花、驿马、华盖、天德/月德、将星、金舆、孤辰寡宿、红鸾天喜、学堂词馆
 - 格局解释（10 项）：正官格、七杀格、食神格、伤官格、正财格、偏财格、正印格、偏印格、建禄格、羊刃驾杀格
 - 五行解释（5 项）：木、火、土、金、水（含方位、行业、健康对应）
+- 财运（8 项）：身财两停、财多身弱、身旺财旺、食伤生财、比劫夺财、财库、正财、偏财
+- 健康（8 项）：五行藏象、木主肝胆、火主心、土主脾胃、金主肺、水主肾、七杀攻身、调候寒暖
+- 子女（4 项）：子女星、子女宫、时柱十神看子女、生育时机
+- 学业（6 项）：印星主学历、官印相生、食伤主才华、文昌贵人、财破印、伤官见官
+- 性格（3 项）：日主五行心性、十神定性格、身强身弱定刚柔
+- 六亲（3 项）：六亲取象、六亲宫位、比劫论兄弟姐妹
+- 正缘桃花（3 项）：桃花咸池、红鸾天喜、异性缘星
 
 ### 快照类结果
 

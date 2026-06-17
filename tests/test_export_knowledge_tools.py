@@ -202,6 +202,7 @@ def test_knowledge_registry_full_domain_order_matches_reference_order():
 
     assert [item["domain"] for item in registry["domains"]] == [
         "astro",
+        "bazi",
         "liureng",
         "qimen",
     ]

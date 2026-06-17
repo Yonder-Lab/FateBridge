@@ -848,3 +848,338 @@ def calculate_bazi_direct(
         }
     except Exception as exc:
         return handle_calculation_error(exc, "八字直断")
+
+
+# =============================================================================
+# 八字专项分析服务（财运 / 健康 / 子女 / 学业）
+#
+# 每个服务从出生信息构建四柱，调用对应分析模块，返回统一结构：
+#   {"analysis_type": ..., "<dim>_analysis": {...}}
+# 同时支撑 FastAPI 端点与 FastMCP 工具，避免重复构盘逻辑。
+# =============================================================================
+
+
+def _parse_pillar_str(pillar_str: Optional[str]) -> Optional[Tuple[str, str]]:
+    """将 '甲子' 形式的柱字符串解析为 (天干, 地支)。无效则返回 None。"""
+    if not pillar_str or len(pillar_str) < 2:
+        return None
+    stem, branch = pillar_str[0], pillar_str[1]
+    if stem in HEAVENLY_STEMS and branch in EARTHLY_BRANCHES:
+        return (stem, branch)
+    return None
+
+
+def _derive_current_pillars(
+    birth_context: BirthComputationContext,
+    analysis_date: datetime,
+) -> Tuple[Optional[Tuple[str, str]], Optional[Tuple[str, str]], Dict[str, Any]]:
+    """从命盘 + 分析日期内部推算当前大运、流年柱（用户无需自己知道大运）。"""
+    state = _build_current_timing_state(birth_context, analysis_date=analysis_date)
+    dayun_result = state.get("dayun_analysis", {}) or {}
+    liunian_result = state.get("liunian_analysis", {}) or {}
+    dayun_pillar_str = (dayun_result.get("dayun_info") or {}).get("pillar")
+    liunian_pillar_str = (liunian_result.get("liunian_info") or {}).get("pillar")
+    context = {
+        "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+        "dayun_pillar": dayun_pillar_str,
+        "liunian_pillar": liunian_pillar_str,
+        "dayun_age": (dayun_result.get("age_info") or {}).get("dayun_age"),
+        "source": "auto-derived",
+    }
+    return (
+        _parse_pillar_str(dayun_pillar_str),
+        _parse_pillar_str(liunian_pillar_str),
+        context,
+    )
+
+
+def _run_bazi_dimension_analysis(
+    person: PersonInfo,
+    *,
+    analyzer,
+    analysis_type: str,
+    result_key: str,
+    error_label: str,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """通用八字专项分析执行器。
+
+    大运、流年默认由命盘 + 分析日期（默认今天，或 analysis_year/month/day）内部推算，
+    用户无需自己知道大运；如显式传入 dayun_pillar / liunian_pillar 则作为覆盖。
+    """
+    try:
+        birth_context = _build_birth_computation_context(person)
+        pillars = birth_context.birth_pillars
+
+        dayun = _parse_pillar_str(dayun_pillar)
+        liunian = _parse_pillar_str(liunian_pillar)
+
+        timing_context: Optional[Dict[str, Any]] = None
+        if dayun is None or liunian is None:
+            analysis_date = _resolve_analysis_date(
+                analysis_year, analysis_month, analysis_day
+            )
+            auto_dayun, auto_liunian, timing_context = _derive_current_pillars(
+                birth_context, analysis_date
+            )
+            timing_context["overridden"] = {
+                "dayun_pillar": dayun is not None,
+                "liunian_pillar": liunian is not None,
+            }
+            if dayun is None:
+                dayun = auto_dayun
+            if liunian is None:
+                liunian = auto_liunian
+
+        analysis = analyzer(
+            pillars,
+            gender=person.gender,
+            dayun_pillar=dayun,
+            liunian_pillar=liunian,
+        )
+        if isinstance(analysis, dict) and timing_context is not None:
+            analysis = {**analysis, "timing_context": timing_context}
+        return {
+            "analysis_type": analysis_type,
+            result_key: analysis,
+        }
+    except Exception as exc:
+        return handle_calculation_error(exc, error_label)
+
+
+def calculate_bazi_marriage(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字婚姻分析：配偶星、配偶宫、婚姻质量、婚期与婚姻风险。"""
+    from fatebridge.analysis.marriage import MarriageAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=MarriageAnalysis.analyze_marriage,
+        analysis_type="八字婚姻分析",
+        result_key="marriage_analysis",
+        error_label="八字婚姻分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_career(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字事业分析：适合行业、事业格局、创业倾向与事业时机。"""
+    from fatebridge.analysis.career import CareerAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=CareerAnalysis.analyze_career,
+        analysis_type="八字事业分析",
+        result_key="career_analysis",
+        error_label="八字事业分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_wealth(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字财运分析：财星定位、财富格局、墓库财、求财方式与财运时机。"""
+    from fatebridge.analysis.wealth import WealthAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=WealthAnalysis.analyze_wealth,
+        analysis_type="八字财运分析",
+        result_key="wealth_analysis",
+        error_label="八字财运分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_health(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字健康分析：体质、脏腑强弱、易患疾病与健康风险时机。"""
+    from fatebridge.analysis.health import HealthAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=HealthAnalysis.analyze_health,
+        analysis_type="八字健康分析",
+        result_key="health_analysis",
+        error_label="八字健康分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_children(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字子女分析：子女星、子女宫、缘分厚薄与生育时机。"""
+    from fatebridge.analysis.children import ChildrenAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=ChildrenAnalysis.analyze_children,
+        analysis_type="八字子女分析",
+        result_key="children_analysis",
+        error_label="八字子女分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_education(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字学业分析：印星食伤、学历层次、文昌、学科方向与考试时机。"""
+    from fatebridge.analysis.education import EducationAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=EducationAnalysis.analyze_education,
+        analysis_type="八字学业分析",
+        result_key="education_analysis",
+        error_label="八字学业分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_personality(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字性格分析：日主心性、主导十神、刚柔内外向与优劣势。"""
+    from fatebridge.analysis.personality import PersonalityAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=PersonalityAnalysis.analyze_personality,
+        analysis_type="八字性格分析",
+        result_key="personality_analysis",
+        error_label="八字性格分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_relatives(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字六亲分析：父母星、兄弟姐妹星、六亲宫位与贵人助力。"""
+    from fatebridge.analysis.relatives import RelativesAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=RelativesAnalysis.analyze_relatives,
+        analysis_type="八字六亲分析",
+        result_key="relatives_analysis",
+        error_label="八字六亲分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )
+
+
+def calculate_bazi_romance(
+    person: PersonInfo,
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    dayun_pillar: Optional[str] = None,
+    liunian_pillar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """八字正缘桃花分析：桃花咸池、红鸾天喜、异性缘星与正缘时机。"""
+    from fatebridge.analysis.romance import RomanceAnalysis
+
+    return _run_bazi_dimension_analysis(
+        person,
+        analyzer=RomanceAnalysis.analyze_romance,
+        analysis_type="八字正缘桃花分析",
+        result_key="romance_analysis",
+        error_label="八字正缘桃花分析",
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        dayun_pillar=dayun_pillar,
+        liunian_pillar=liunian_pillar,
+    )

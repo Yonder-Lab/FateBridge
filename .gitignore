@@ -60,3 +60,7 @@ yarn-error.log*
 # Dependencies
 .pnp
 .pnp.js
+
+# BaZi source books (large reference PDFs/courses — not part of the codebase)
+八字/
+.bazi_src/
