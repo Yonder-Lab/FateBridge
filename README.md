@@ -210,6 +210,7 @@ curl -X POST http://localhost:8010/api/calculate \
 ```bash
 # CLI 示例
 fatebridge list                       # 列出所有工具
+fatebridge describe bazi_wealth        # 输出某工具的参数 schema/接口/示例（JSON，供 agent 自助发现）
 # 大运/流年自动推算，无需手动输入：
 fatebridge bazi_wealth --birth-year 1990 --birth-month 6 --birth-day 15 \
     --birth-hour 10 --gender male
