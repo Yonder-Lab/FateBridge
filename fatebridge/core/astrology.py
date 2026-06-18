@@ -2441,6 +2441,88 @@ def _build_marks_chart(
     )
 
 
+# 关系取向（婚姻/恋爱）的解读侧重：强调宫位 + 关键星体，并据此过滤 synastry 相位。
+RELATIONSHIP_FOCUS_DEFS: Dict[str, Dict[str, Any]] = {
+    "marriage": {
+        "label_zh": "婚姻",
+        "houses": [7],
+        "bodies": ["Sun", "Moon", "Venus", "Saturn"],
+        "note": "婚姻取向：重点观察第7宫（夫妻宫）与日/月/金星/土星之间的 synastry 相位。",
+    },
+    "romance": {
+        "label_zh": "恋爱",
+        "houses": [5],
+        "bodies": ["Sun", "Moon", "Venus", "Mars"],
+        "note": "恋爱取向：重点观察第5宫（恋爱宫）与日/月/金星/火星之间的 synastry 相位。",
+    },
+}
+
+_RELATIONSHIP_FOCUS_ALIASES = {
+    "marriage": "marriage",
+    "marry": "marriage",
+    "婚姻": "marriage",
+    "结婚": "marriage",
+    "romance": "romance",
+    "romantic": "romance",
+    "dating": "romance",
+    "love": "romance",
+    "恋爱": "romance",
+    "戀愛": "romance",
+    "general": "general",
+    "泛": "general",
+    "none": "general",
+    "": "general",
+}
+
+
+def _normalize_relationship_focus(focus: Any) -> str:
+    """把多语言/别名的关系取向输入归一化为 marriage/romance/general。"""
+    if focus is None:
+        return "general"
+    raw = str(focus).strip()
+    if raw in _RELATIONSHIP_FOCUS_ALIASES:
+        return _RELATIONSHIP_FOCUS_ALIASES[raw]
+    return _RELATIONSHIP_FOCUS_ALIASES.get(raw.casefold(), "general")
+
+
+def relationship_focus_block(
+    focus: Any, synastry_aspects: List[Dict[str, Any]]
+) -> Dict[str, Any]:
+    """据关系取向生成解读侧重块，并把 synastry 相位过滤到该取向的关键星体。
+
+    相位只要任一端落在该取向的关键星体集合内即纳入（如恋爱取向纳入所有涉及
+    日/月/金/火的互相相位）。general（默认/未指定）不做过滤。
+    """
+    normalized = _normalize_relationship_focus(focus)
+    if normalized == "general":
+        return {
+            "focus": "general",
+            "focus_label_zh": "泛",
+            "emphasis_houses": [],
+            "emphasis_bodies": [],
+            "note": "未指定关系取向，未对 synastry 相位做意图过滤。",
+            "focused_synastry_aspects": [],
+            "focused_aspect_count": 0,
+        }
+
+    spec = RELATIONSHIP_FOCUS_DEFS[normalized]
+    bodies = set(spec["bodies"])
+    focused = [
+        aspect
+        for aspect in synastry_aspects
+        if aspect.get("inner") in bodies or aspect.get("outer") in bodies
+    ]
+    return {
+        "focus": normalized,
+        "focus_label_zh": spec["label_zh"],
+        "emphasis_houses": list(spec["houses"]),
+        "emphasis_bodies": list(spec["bodies"]),
+        "note": spec["note"],
+        "focused_synastry_aspects": focused,
+        "focused_aspect_count": len(focused),
+    }
+
+
 def _base_relative_relationship_profile(
     relative_mode_info: Dict[str, Any],
     *,
@@ -2941,6 +3023,7 @@ def build_relative_payload(
     relative_mode_source: str = "default",
     hsys: int = 0,
     zodiacal: int = 0,
+    relationship_focus: Any = None,
 ) -> Dict[str, Any]:
     relative_mode_info = _normalize_relative_mode(
         relative_mode,
@@ -3041,15 +3124,22 @@ def build_relative_payload(
 
     normalized_mode = relative_mode_info["normalized"]
     if normalized_mode == "compare":
-        return _build_compare_relative_payload(**shared_kwargs)
-    if normalized_mode == "composite":
-        return _build_composite_relative_payload(**shared_kwargs)
-    if normalized_mode == "influence":
-        return _build_influence_relative_payload(**shared_kwargs)
-    if normalized_mode == "timespace":
-        return _build_timespace_relative_payload(
+        payload = _build_compare_relative_payload(**shared_kwargs)
+    elif normalized_mode == "composite":
+        payload = _build_composite_relative_payload(**shared_kwargs)
+    elif normalized_mode == "influence":
+        payload = _build_influence_relative_payload(**shared_kwargs)
+    elif normalized_mode == "timespace":
+        payload = _build_timespace_relative_payload(
             **shared_kwargs, timespace_chart=timespace_chart
         )
-    if normalized_mode == "marks":
-        return _build_marks_relative_payload(**shared_kwargs, marks_chart=marks_chart)
-    return _build_unimplemented_relative_payload(**shared_kwargs)
+    elif normalized_mode == "marks":
+        payload = _build_marks_relative_payload(**shared_kwargs, marks_chart=marks_chart)
+    else:
+        payload = _build_unimplemented_relative_payload(**shared_kwargs)
+
+    # 关系取向解读侧重对所有盘式通用，在分发后统一附加一次。
+    payload.setdefault("relationship_profile", {})["focus"] = relationship_focus_block(
+        relationship_focus, synastry_aspects
+    )
+    return payload

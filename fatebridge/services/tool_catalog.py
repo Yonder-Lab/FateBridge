@@ -190,6 +190,7 @@ def _astro_relative_rest_bind(req: Any):
         "relative_mode_source": req.mode_input_source,
         "hsys": req.hsys,
         "zodiacal": req.zodiacal,
+        "relationship_focus": req.relationship_focus,
     }
 
 
@@ -217,6 +218,7 @@ def _astro_relative_flat_bind(req: Any):
         "relationship_mode": d["relationship_mode"],
         "hsys": d["hsys"],
         "zodiacal": d["zodiacal"],
+        "relationship_focus": d.get("relationship_focus"),
     }
 
 
