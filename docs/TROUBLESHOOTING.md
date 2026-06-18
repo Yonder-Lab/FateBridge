@@ -32,6 +32,13 @@ pip install -r requirements.txt
 
 如果你在网络较慢环境中安装，可以切换镜像源，但这不是 FateBridge 自身逻辑问题。
 
+也可以换用 [uv](https://docs.astral.sh/uv/)，解析和下载都快很多，遇到 pip 卡住或解析超时的情况往往直接就好了：
+
+```bash
+uv venv && source .venv/bin/activate
+uv pip install -e .
+```
+
 ## 2. 启动问题
 
 ### 2.1 端口占用

@@ -4,14 +4,22 @@
 
 ## 1. 环境准备
 
+推荐用 [uv](https://docs.astral.sh/uv/)：
+
 ```bash
 git clone https://github.com/thomas-yanxin/FateBridge.git
 cd FateBridge
 
+uv venv
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+```
+
+或者用 pip：
+
+```bash
 python -m venv venv
 source venv/bin/activate
-
-pip install -r requirements.txt
 pip install -e ".[dev]"
 ```
 

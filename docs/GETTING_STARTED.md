@@ -16,10 +16,21 @@
 ```bash
 git clone https://github.com/thomas-yanxin/FateBridge.git
 cd FateBridge
+```
 
+推荐用 [uv](https://docs.astral.sh/uv/)：
+
+```bash
+uv venv
+source .venv/bin/activate
+uv pip install -e .
+```
+
+或者用 pip：
+
+```bash
 python -m venv venv
 source venv/bin/activate
-
 pip install -r requirements.txt
 ```
 

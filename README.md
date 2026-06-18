@@ -30,10 +30,23 @@ FateBridge 当前能力建议按三类理解：
 ```bash
 git clone https://github.com/thomas-yanxin/FateBridge.git
 cd FateBridge
+```
 
+推荐用 [uv](https://docs.astral.sh/uv/)，建虚拟环境和装依赖一步到位，也快很多：
+
+```bash
+uv venv                  # 在 .venv 建虚拟环境（可加 --python 3.13 指定版本）
+source .venv/bin/activate
+uv pip install -e .      # 装运行依赖；想跑测试/格式化就用 -e ".[dev]"
+```
+
+还没装 uv 的话：`curl -LsSf https://astral.sh/uv/install.sh | sh`。
+
+也可以继续用 pip：
+
+```bash
 python -m venv venv
 source venv/bin/activate
-
 pip install -r requirements.txt
 ```
 
