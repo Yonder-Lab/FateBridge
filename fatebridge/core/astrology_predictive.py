@@ -8,19 +8,19 @@ of the existing offline natal chart surface.
 
 from __future__ import annotations
 
+import math
 from calendar import monthrange
 from collections import Counter
 from datetime import datetime, timedelta
-import math
 from typing import Any, Dict, List, Optional
 
 import pytz
 
 from fatebridge.core.astrology import (
-    AstroBirthInfo,
     RULER_BY_SIGN,
     SIGN_LABELS_ZH,
     SIGNS,
+    AstroBirthInfo,
     build_astro_birth_info,
     normalize_angle,
 )
@@ -3214,6 +3214,32 @@ def _resolve_decennial_count(
     return max(7, int((age_minutes + l1_minutes - 1) // l1_minutes) + 2)
 
 
+def _truncate_decennial_node(
+    node: Optional[Dict[str, Any]], max_level: int
+) -> Optional[Dict[str, Any]]:
+    """Return a copy of a decennial node with its sublevel tree cut at ``max_level``.
+
+    The decennial tree is four levels deep (``7**4`` ≈ 2400 leaf nodes); serialising
+    it whole produced a multi-megabyte response that no agent context — nor the MCP
+    /HTTP transports — can carry. The active drill-down is already exposed via
+    ``current_level_1/2/3``, so the timeline only needs the decade overview and each
+    active level only its immediate children. Nodes at ``max_level`` keep an empty
+    ``sublevel``; shallower nodes recurse. No computed value is altered — only the
+    depth of the serialised subtree.
+    """
+    if node is None:
+        return None
+    truncated = dict(node)
+    if node.get("level", 0) >= max_level:
+        truncated["sublevel"] = []
+    else:
+        truncated["sublevel"] = [
+            _truncate_decennial_node(child, max_level)
+            for child in node.get("sublevel", []) or []
+        ]
+    return truncated
+
+
 def build_decennials_payload(
     birth_info: AstroBirthInfo,
     natal_subject: Any,
@@ -3286,10 +3312,13 @@ def build_decennials_payload(
         "resolved_start_planet": start_planet,
         "resolved_start_planet_label": planet_label(start_planet),
         "base_order": base_order,
-        "current_level_1": current_level_1,
-        "current_level_2": current_level_2,
-        "current_level_3": current_level_3,
-        "timeline": data[:7],
+        # The active path keeps full granularity down its own chain; each level
+        # exposes only its immediate children (the next level lives in the next
+        # current_level_*). The timeline is a decade overview (level 1 only).
+        "current_level_1": _truncate_decennial_node(current_level_1, 2),
+        "current_level_2": _truncate_decennial_node(current_level_2, 3),
+        "current_level_3": _truncate_decennial_node(current_level_3, 4),
+        "timeline": [_truncate_decennial_node(node, 1) for node in data[:7]],
     }
 
 
