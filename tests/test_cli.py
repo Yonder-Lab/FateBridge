@@ -187,3 +187,26 @@ def test_cli_validation_error_returns_nonzero(capsys):
     err = capsys.readouterr().err
     assert code == 1
     assert "error" in err
+
+
+def test_cli_invalid_input_renders_clean_error_shape(capsys):
+    # M2: bad input renders the same generic, structured error shape REST/MCP
+    # use (status_code 400, VALIDATION_ERROR) instead of a raw exception string.
+    code = run(
+        [
+            "bazi_wealth",
+            "--birth-year",
+            "1990",
+            "--birth-month",
+            "2",
+            "--birth-day",
+            "31",  # Feb 31: passes argparse + pydantic le=31, fails monthrange
+            "--birth-hour",
+            "10",
+        ]
+    )
+    err = capsys.readouterr().err
+    assert code == 1
+    payload = json.loads(err)
+    assert payload["status_code"] == 400
+    assert payload["error_code"] == "VALIDATION_ERROR"
