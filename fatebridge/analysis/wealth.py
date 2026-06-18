@@ -24,21 +24,20 @@ from ..utils.data import (
     BRANCH_ELEMENTS,
     BRANCH_HIDDEN_STEMS,
     DESTRUCTION_CYCLE,
-    Element,
     STEM_ELEMENTS,
+    Element,
     TenGod,
     check_branch_conflict,
     get_ten_god,
 )
 
-
 # 财库：辰戌丑未对应所藏之财（墓库）
 # 每个土支为某一五行的墓库
 STORAGE_BRANCHES = {
-    "辰": Element.WATER,   # 水库
-    "戌": Element.FIRE,    # 火库
-    "丑": Element.METAL,   # 金库
-    "未": Element.WOOD,    # 木库
+    "辰": Element.WATER,  # 水库
+    "戌": Element.FIRE,  # 火库
+    "丑": Element.METAL,  # 金库
+    "未": Element.WOOD,  # 木库
 }
 
 # 正财/偏财求财方式说明
@@ -95,9 +94,7 @@ class WealthAnalysis:
         structure = WealthAnalysis._analyze_wealth_structure(
             pillars, day_stem, wealth_element
         )
-        storage = WealthAnalysis._analyze_wealth_storage(
-            pillars, wealth_element
-        )
+        storage = WealthAnalysis._analyze_wealth_storage(pillars, wealth_element)
         style = WealthAnalysis._analyze_wealth_style(wealth_stars)
         direction = WealthAnalysis._analyze_wealth_direction(wealth_element)
         risk = WealthAnalysis._analyze_wealth_risk(pillars, day_stem, wealth_element)
@@ -132,12 +129,14 @@ class WealthAnalysis:
             if p_name != "day":
                 god = get_ten_god(day_stem, stem)
                 if god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                    positions.append({
-                        "pillar": p_name,
-                        "location": "天干",
-                        "char": stem,
-                        "ten_god": god.value,
-                    })
+                    positions.append(
+                        {
+                            "pillar": p_name,
+                            "location": "天干",
+                            "char": stem,
+                            "ten_god": god.value,
+                        }
+                    )
                     if god == TenGod.POSITIVE_WEALTH:
                         zheng_count += 1.0
                     else:
@@ -145,12 +144,14 @@ class WealthAnalysis:
             for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
                 h_god = get_ten_god(day_stem, hidden)
                 if h_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                    positions.append({
-                        "pillar": p_name,
-                        "location": "地支藏干",
-                        "char": hidden,
-                        "ten_god": h_god.value,
-                    })
+                    positions.append(
+                        {
+                            "pillar": p_name,
+                            "location": "地支藏干",
+                            "char": hidden,
+                            "ten_god": h_god.value,
+                        }
+                    )
                     if h_god == TenGod.POSITIVE_WEALTH:
                         zheng_count += 0.5
                     else:
@@ -266,14 +267,19 @@ class WealthAnalysis:
                     other != branch and check_branch_conflict(branch, other)
                     for other in branches
                 )
-                storage_hits.append({
-                    "pillar": p_name,
-                    "branch": branch,
-                    "stores": f"{wealth_element.value}（财库）",
-                    "opened": opened,
-                    "note": "财库逢冲，开库进财，主大财或不动产" if opened
-                    else "财库未冲，财气封藏，逢冲库之运流年易得大财",
-                })
+                storage_hits.append(
+                    {
+                        "pillar": p_name,
+                        "branch": branch,
+                        "stores": f"{wealth_element.value}（财库）",
+                        "opened": opened,
+                        "note": (
+                            "财库逢冲，开库进财，主大财或不动产"
+                            if opened
+                            else "财库未冲，财气封藏，逢冲库之运流年易得大财"
+                        ),
+                    }
+                )
 
         if storage_hits:
             summary = "命带财库，财富有积聚之象，关键看冲开时机"
@@ -352,8 +358,12 @@ class WealthAnalysis:
         for p_name, (_, branch) in pillars.items():
             b_elem = BRANCH_ELEMENTS[branch][0]
             if b_elem == wealth_element:
-                if any(o != branch and check_branch_conflict(branch, o) for o in branches):
-                    risks.append(f"{p_name}支财星受冲，财来财去、收入不稳，宜留现金储备")
+                if any(
+                    o != branch and check_branch_conflict(branch, o) for o in branches
+                ):
+                    risks.append(
+                        f"{p_name}支财星受冲，财来财去、收入不稳，宜留现金储备"
+                    )
                     break
 
         if not risks:
@@ -378,14 +388,20 @@ class WealthAnalysis:
             stem, branch = pillar
             god = get_ten_god(day_stem, stem)
             if god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                signals.append(f"{label}{stem}{branch}见财星，财运转旺，利于求财、投资与正业增收")
+                signals.append(
+                    f"{label}{stem}{branch}见财星，财运转旺，利于求财、投资与正业增收"
+                )
             elif god in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER):
-                signals.append(f"{label}{stem}{branch}见食伤，食伤生财，利于以才华、项目、副业生财")
+                signals.append(
+                    f"{label}{stem}{branch}见食伤，食伤生财，利于以才华、项目、副业生财"
+                )
             elif god in (TenGod.COMPARE, TenGod.ROB_WEALTH):
                 signals.append(f"{label}{stem}{branch}见比劫，防破财、被借贷与合伙纠纷")
             # 地支引动财库/财星
             if STORAGE_BRANCHES.get(branch) == wealth_element:
-                signals.append(f"{label}支为{wealth_element.value}财库，逢冲开库主进大财或不动产变现")
+                signals.append(
+                    f"{label}支为{wealth_element.value}财库，逢冲开库主进大财或不动产变现"
+                )
 
         if dayun_pillar:
             _assess("大运", dayun_pillar)
@@ -406,7 +422,9 @@ class WealthAnalysis:
 
         pattern = structure["pattern"]
         if pattern == "财多身弱":
-            suggestions.append("宜先强身（结交贵人、提升专业、稳固根基）再图大财，切忌贪多冒进")
+            suggestions.append(
+                "宜先强身（结交贵人、提升专业、稳固根基）再图大财，切忌贪多冒进"
+            )
         elif pattern in ("身旺财旺", "身财两停"):
             suggestions.append("身能任财，可积极进取，把握行财运、食伤运的发财窗口")
         elif pattern == "身旺财轻":

@@ -17,16 +17,71 @@ from .gua_meanings import (
     get_trigram_meaning,
 )
 
-
 BAGUA_BY_NAME: Dict[str, Dict[str, object]] = {
-    "乾": {"name": "乾", "nature": "天", "element": "金", "lines": [1, 1, 1], "symbol": "☰", "keywords": "刚健、开创、天道"},
-    "兑": {"name": "兑", "nature": "泽", "element": "金", "lines": [1, 1, 0], "symbol": "☱", "keywords": "喜悦、交流、润泽"},
-    "离": {"name": "离", "nature": "火", "element": "火", "lines": [1, 0, 1], "symbol": "☲", "keywords": "光明、表达、洞察"},
-    "震": {"name": "震", "nature": "雷", "element": "木", "lines": [1, 0, 0], "symbol": "☳", "keywords": "发动、突破、惊醒"},
-    "巽": {"name": "巽", "nature": "风", "element": "木", "lines": [0, 1, 1], "symbol": "☴", "keywords": "渗透、谋划、柔入"},
-    "坎": {"name": "坎", "nature": "水", "element": "水", "lines": [0, 1, 0], "symbol": "☵", "keywords": "流动、隐忧、险中求通"},
-    "艮": {"name": "艮", "nature": "山", "element": "土", "lines": [0, 0, 1], "symbol": "☶", "keywords": "止守、边界、收束"},
-    "坤": {"name": "坤", "nature": "地", "element": "土", "lines": [0, 0, 0], "symbol": "☷", "keywords": "承载、包容、顺势"},
+    "乾": {
+        "name": "乾",
+        "nature": "天",
+        "element": "金",
+        "lines": [1, 1, 1],
+        "symbol": "☰",
+        "keywords": "刚健、开创、天道",
+    },
+    "兑": {
+        "name": "兑",
+        "nature": "泽",
+        "element": "金",
+        "lines": [1, 1, 0],
+        "symbol": "☱",
+        "keywords": "喜悦、交流、润泽",
+    },
+    "离": {
+        "name": "离",
+        "nature": "火",
+        "element": "火",
+        "lines": [1, 0, 1],
+        "symbol": "☲",
+        "keywords": "光明、表达、洞察",
+    },
+    "震": {
+        "name": "震",
+        "nature": "雷",
+        "element": "木",
+        "lines": [1, 0, 0],
+        "symbol": "☳",
+        "keywords": "发动、突破、惊醒",
+    },
+    "巽": {
+        "name": "巽",
+        "nature": "风",
+        "element": "木",
+        "lines": [0, 1, 1],
+        "symbol": "☴",
+        "keywords": "渗透、谋划、柔入",
+    },
+    "坎": {
+        "name": "坎",
+        "nature": "水",
+        "element": "水",
+        "lines": [0, 1, 0],
+        "symbol": "☵",
+        "keywords": "流动、隐忧、险中求通",
+    },
+    "艮": {
+        "name": "艮",
+        "nature": "山",
+        "element": "土",
+        "lines": [0, 0, 1],
+        "symbol": "☶",
+        "keywords": "止守、边界、收束",
+    },
+    "坤": {
+        "name": "坤",
+        "nature": "地",
+        "element": "土",
+        "lines": [0, 0, 0],
+        "symbol": "☷",
+        "keywords": "承载、包容、顺势",
+    },
 }
 
 BAGUA_BY_NUMBER = {
@@ -355,9 +410,7 @@ def build_moving_line_oracle(
     favorable = (
         f"{detail['favorable']}；并顺着本卦所宜{hexagram.get('favorable', '顺势推进')}"
     )
-    caution = (
-        f"{detail['caution']}；并防本卦所忌{hexagram.get('caution', '失衡冒进')}"
-    )
+    caution = f"{detail['caution']}；并防本卦所忌{hexagram.get('caution', '失衡冒进')}"
     summary = (
         f"动{moving_line}爻居{detail['position']}，{judgement}{transition}"
         f"宜{favorable}，忌{caution}。"
@@ -418,14 +471,18 @@ def build_hexagram(upper_name: str, lower_name: str) -> Dict[str, object]:
     upper = _enrich_trigram(BAGUA_BY_NAME[upper_name])
     lower = _enrich_trigram(BAGUA_BY_NAME[lower_name])
     lines = [*lower["lines"], *upper["lines"]]
-    return _enrich_hexagram({
-        "name": HEXAGRAM_NAMES.get((upper_name, lower_name), f"{upper['nature']}{lower['nature']}"),
-        "upper": upper,
-        "lower": lower,
-        "lines": lines,
-        "binary_code": "".join(str(bit) for bit in lines),
-        "symbol": f"{upper['symbol']}{lower['symbol']}",
-    })
+    return _enrich_hexagram(
+        {
+            "name": HEXAGRAM_NAMES.get(
+                (upper_name, lower_name), f"{upper['nature']}{lower['nature']}"
+            ),
+            "upper": upper,
+            "lower": lower,
+            "lines": lines,
+            "binary_code": "".join(str(bit) for bit in lines),
+            "symbol": f"{upper['symbol']}{lower['symbol']}",
+        }
+    )
 
 
 def build_mutual_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
@@ -454,10 +511,14 @@ def build_inverted_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
     return build_hexagram(upper["name"], lower["name"])
 
 
-def build_changed_hexagram(hexagram: Dict[str, object], moving_line: int) -> Dict[str, object]:
+def build_changed_hexagram(
+    hexagram: Dict[str, object], moving_line: int
+) -> Dict[str, object]:
     normalized_line = 6 if moving_line % 6 == 0 else moving_line % 6
     changed_lines = list(hexagram["lines"])
-    changed_lines[normalized_line - 1] = 0 if changed_lines[normalized_line - 1] == 1 else 1
+    changed_lines[normalized_line - 1] = (
+        0 if changed_lines[normalized_line - 1] == 1 else 1
+    )
     lower = _bagua_from_lines(changed_lines[:3])
     upper = _bagua_from_lines(changed_lines[3:])
     changed = build_hexagram(upper["name"], lower["name"])
@@ -558,9 +619,7 @@ def build_meihua_interpretation(
         active_line=moving_line,
         domain=domain,
     )
-    moving_line_oracle = next(
-        oracle for oracle in line_oracles if oracle["is_active"]
-    )
+    moving_line_oracle = next(oracle for oracle in line_oracles if oracle["is_active"])
     body_use_relation = moving_line_oracle["body_use_relation"]
     body_use_detail = BODY_USE_INTERPRETATIONS.get(
         body_use_relation, BODY_USE_INTERPRETATIONS["体用关系未明"]
@@ -730,7 +789,10 @@ def lookup_gua(query: str, lookup_mode: str = "auto") -> Dict[str, object]:
             result["lookup_type"] = "hexagram"
             result["matched_query"] = query_text
             return result
-        if normalized_mode == "hexagram" or query_text.replace("卦", "") not in BAGUA_BY_NAME:
+        if (
+            normalized_mode == "hexagram"
+            or query_text.replace("卦", "") not in BAGUA_BY_NAME
+        ):
             try:
                 result = lookup_hexagram_by_name(query_text)
                 result["lookup_type"] = "hexagram"

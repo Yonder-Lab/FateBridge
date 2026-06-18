@@ -28,7 +28,6 @@ from ..utils.data import (
     get_ten_god,
 )
 
-
 _MALE_TOKENS = {"male", "m", "男", "man"}
 
 # 地支所主性格特征
@@ -106,9 +105,7 @@ class MarriageAnalysis:
         is_male = gender_token in _MALE_TOKENS
 
         # 1. 配偶星分析
-        spouse_star = MarriageAnalysis._analyze_spouse_star(
-            pillars, day_stem, is_male
-        )
+        spouse_star = MarriageAnalysis._analyze_spouse_star(pillars, day_stem, is_male)
 
         # 2. 配偶宫分析
         spouse_palace = MarriageAnalysis._analyze_spouse_palace(
@@ -121,14 +118,11 @@ class MarriageAnalysis:
         )
 
         # 4. 婚姻神煞
-        marriage_shensha = MarriageAnalysis._check_marriage_shensha(
-            pillars
-        )
+        marriage_shensha = MarriageAnalysis._check_marriage_shensha(pillars)
 
         # 5. 婚期推断
         marriage_timing = MarriageAnalysis._predict_marriage_timing(
-            pillars, day_stem, day_branch, is_male,
-            dayun_pillar, liunian_pillar
+            pillars, day_stem, day_branch, is_male, dayun_pillar, liunian_pillar
         )
 
         # 6. 风险提示
@@ -138,8 +132,12 @@ class MarriageAnalysis:
 
         # 7. 综合建议
         suggestions = MarriageAnalysis._generate_suggestions(
-            spouse_star, spouse_palace, marriage_quality,
-            marriage_shensha, risk_factors, is_male
+            spouse_star,
+            spouse_palace,
+            marriage_quality,
+            marriage_shensha,
+            risk_factors,
+            is_male,
         )
 
         return {
@@ -181,24 +179,28 @@ class MarriageAnalysis:
                 continue
             god = get_ten_god(day_stem, stem)
             if god == spouse_god or god == spouse_god_alt:
-                spouse_star_positions.append({
-                    "position": pillar_name,
-                    "stem": stem,
-                    "branch": branch,
-                    "ten_god": god.value,
-                    "is_primary": god == spouse_god,
-                })
+                spouse_star_positions.append(
+                    {
+                        "position": pillar_name,
+                        "stem": stem,
+                        "branch": branch,
+                        "ten_god": god.value,
+                        "is_primary": god == spouse_god,
+                    }
+                )
             # 检查藏干
             for hidden_stem in BRANCH_HIDDEN_STEMS.get(branch, []):
                 hidden_god = get_ten_god(day_stem, hidden_stem)
                 if hidden_god == spouse_god or hidden_god == spouse_god_alt:
-                    spouse_star_positions.append({
-                        "position": f"{pillar_name}_hidden",
-                        "stem": hidden_stem,
-                        "branch": branch,
-                        "ten_god": hidden_god.value,
-                        "is_primary": hidden_god == spouse_god,
-                    })
+                    spouse_star_positions.append(
+                        {
+                            "position": f"{pillar_name}_hidden",
+                            "stem": hidden_stem,
+                            "branch": branch,
+                            "ten_god": hidden_god.value,
+                            "is_primary": hidden_god == spouse_god,
+                        }
+                    )
 
         # 配偶星旺衰判断
         spouse_star_strength = "未现"
@@ -270,12 +272,16 @@ class MarriageAnalysis:
         # 检查日支是否逢冲
         for clash_pair in SIX_CLASH:
             if day_branch in clash_pair:
-                other_branch = clash_pair[1] if clash_pair[0] == day_branch else clash_pair[0]
+                other_branch = (
+                    clash_pair[1] if clash_pair[0] == day_branch else clash_pair[0]
+                )
                 # 检查其他柱是否有冲
                 for p_name, (_, b) in pillars.items():
                     if p_name != "day" and b == other_branch:
                         stability = "不稳（日支逢冲）"
-                        stability_notes.append(f"日支{day_branch}与{p_name}支{b}相冲，配偶宫动荡")
+                        stability_notes.append(
+                            f"日支{day_branch}与{p_name}支{b}相冲，配偶宫动荡"
+                        )
                         break
 
         # 配偶宫性格特征
@@ -323,7 +329,11 @@ class MarriageAnalysis:
         # 2. 检查天干合
         stems = [pillars[p][0] for p in ["year", "month", "day", "hour"]]
         stem_combinations = [
-            ("甲", "己"), ("乙", "庚"), ("丙", "辛"), ("丁", "壬"), ("戊", "癸"),
+            ("甲", "己"),
+            ("乙", "庚"),
+            ("丙", "辛"),
+            ("丁", "壬"),
+            ("戊", "癸"),
         ]
         for i in range(len(stems)):
             for j in range(i + 1, len(stems)):
@@ -413,69 +423,125 @@ class MarriageAnalysis:
 
         # 红鸾天喜已在 shensha 模块中，这里做婚姻专用解读
         hong_luan_map = {
-            "子": "卯", "丑": "寅", "寅": "丑", "卯": "子",
-            "辰": "亥", "巳": "戌", "午": "酉", "未": "申",
-            "申": "未", "酉": "午", "戌": "巳", "亥": "辰",
+            "子": "卯",
+            "丑": "寅",
+            "寅": "丑",
+            "卯": "子",
+            "辰": "亥",
+            "巳": "戌",
+            "午": "酉",
+            "未": "申",
+            "申": "未",
+            "酉": "午",
+            "戌": "巳",
+            "亥": "辰",
         }
         tian_xi_map = {
-            "子": "酉", "丑": "申", "寅": "未", "卯": "午",
-            "辰": "巳", "巳": "辰", "午": "卯", "未": "寅",
-            "申": "丑", "酉": "子", "戌": "亥", "亥": "戌",
+            "子": "酉",
+            "丑": "申",
+            "寅": "未",
+            "卯": "午",
+            "辰": "巳",
+            "巳": "辰",
+            "午": "卯",
+            "未": "寅",
+            "申": "丑",
+            "酉": "子",
+            "戌": "亥",
+            "亥": "戌",
         }
 
         hl = hong_luan_map.get(year_branch)
         tx = tian_xi_map.get(year_branch)
         if hl:
-            entries.append({
-                "name": "红鸾",
-                "position": f"年支{year_branch}查",
-                "meaning": f"红鸾在{hl}，主婚恋喜事",
-            })
+            entries.append(
+                {
+                    "name": "红鸾",
+                    "position": f"年支{year_branch}查",
+                    "meaning": f"红鸾在{hl}，主婚恋喜事",
+                }
+            )
         if tx:
-            entries.append({
-                "name": "天喜",
-                "position": f"年支{year_branch}查",
-                "meaning": f"天喜在{tx}，主感情顺遂",
-            })
+            entries.append(
+                {
+                    "name": "天喜",
+                    "position": f"年支{year_branch}查",
+                    "meaning": f"天喜在{tx}，主感情顺遂",
+                }
+            )
 
         # 咸池（桃花）
         peach_map = {
-            "申": "酉", "子": "酉", "辰": "酉",
-            "寅": "卯", "午": "卯", "戌": "卯",
-            "亥": "子", "卯": "子", "未": "子",
-            "巳": "午", "酉": "午", "丑": "午",
+            "申": "酉",
+            "子": "酉",
+            "辰": "酉",
+            "寅": "卯",
+            "午": "卯",
+            "戌": "卯",
+            "亥": "子",
+            "卯": "子",
+            "未": "子",
+            "巳": "午",
+            "酉": "午",
+            "丑": "午",
         }
         peach = peach_map.get(day_branch)
         if peach:
-            entries.append({
-                "name": "咸池（桃花）",
-                "position": f"日支{day_branch}查",
-                "meaning": f"咸池在{peach}，主异性缘佳，需防烂桃花",
-            })
+            entries.append(
+                {
+                    "name": "咸池（桃花）",
+                    "position": f"日支{day_branch}查",
+                    "meaning": f"咸池在{peach}，主异性缘佳，需防烂桃花",
+                }
+            )
 
         # 孤辰寡宿
         gu_chen_map = {
-            "子": "寅", "丑": "寅", "寅": "巳", "卯": "巳", "辰": "巳",
-            "巳": "申", "午": "申", "未": "申", "申": "亥", "酉": "亥", "戌": "亥", "亥": "寅",
+            "子": "寅",
+            "丑": "寅",
+            "寅": "巳",
+            "卯": "巳",
+            "辰": "巳",
+            "巳": "申",
+            "午": "申",
+            "未": "申",
+            "申": "亥",
+            "酉": "亥",
+            "戌": "亥",
+            "亥": "寅",
         }
         gua_su_map = {
-            "子": "戌", "丑": "戌", "寅": "丑", "卯": "丑", "辰": "丑",
-            "巳": "辰", "午": "辰", "未": "辰", "申": "未", "酉": "未", "戌": "未", "亥": "戌",
+            "子": "戌",
+            "丑": "戌",
+            "寅": "丑",
+            "卯": "丑",
+            "辰": "丑",
+            "巳": "辰",
+            "午": "辰",
+            "未": "辰",
+            "申": "未",
+            "酉": "未",
+            "戌": "未",
+            "亥": "戌",
         }
         gc = gu_chen_map.get(day_branch)
         gs = gua_su_map.get(day_branch)
         if gc:
-            entries.append({
-                "name": "孤辰",
-                "position": f"日支{day_branch}查",
-                "meaning": f"孤辰在{gc}，主性格独立，婚姻较晚",
-            })
+            entries.append(
+                {
+                    "name": "孤辰",
+                    "position": f"日支{day_branch}查",
+                    "meaning": f"孤辰在{gc}，主性格独立，婚姻较晚",
+                }
+            )
         if gs:
-            entries.append({
-                "name": "寡宿",
-                "position": f"日支{day_branch}查",
-                "meaning": f"寡宿在{gs}，主内心孤独感，需主动经营感情",
-            })
+            entries.append(
+                {
+                    "name": "寡宿",
+                    "position": f"日支{day_branch}查",
+                    "meaning": f"寡宿在{gs}，主内心孤独感，需主动经营感情",
+                }
+            )
 
         return entries
 
@@ -504,35 +570,69 @@ class MarriageAnalysis:
             d_god = get_ten_god(day_stem, d_stem)
             if is_male and d_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
                 timing_signals.append(f"大运{d_stem}{d_branch}见财星，有婚恋机会")
-            elif not is_male and d_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
+            elif not is_male and d_god in (
+                TenGod.POSITIVE_OFFICER,
+                TenGod.SEVEN_KILLER,
+            ):
                 timing_signals.append(f"大运{d_stem}{d_branch}见官星，有婚恋机会")
 
             # 日支逢合（确保两个地支不同且构成六合）
-            if d_branch != day_branch and frozenset((day_branch, d_branch)) in SIX_HARMONY:
-                timing_signals.append(f"大运支{d_branch}与日支{day_branch}六合，婚姻宫被引动")
+            if (
+                d_branch != day_branch
+                and frozenset((day_branch, d_branch)) in SIX_HARMONY
+            ):
+                timing_signals.append(
+                    f"大运支{d_branch}与日支{day_branch}六合，婚姻宫被引动"
+                )
 
         if liunian_pillar:
             l_stem, l_branch = liunian_pillar
             l_god = get_ten_god(day_stem, l_stem)
             if is_male and l_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
                 timing_signals.append(f"流年{l_stem}{l_branch}见财星，当年有婚恋机遇")
-            elif not is_male and l_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
+            elif not is_male and l_god in (
+                TenGod.POSITIVE_OFFICER,
+                TenGod.SEVEN_KILLER,
+            ):
                 timing_signals.append(f"流年{l_stem}{l_branch}见官星，当年有婚恋机遇")
 
             # 流年支与日支合（确保两个地支不同且构成六合）
-            if l_branch != day_branch and frozenset((day_branch, l_branch)) in SIX_HARMONY:
-                timing_signals.append(f"流年支{l_branch}与日支{day_branch}六合，婚姻宫被引动")
+            if (
+                l_branch != day_branch
+                and frozenset((day_branch, l_branch)) in SIX_HARMONY
+            ):
+                timing_signals.append(
+                    f"流年支{l_branch}与日支{day_branch}六合，婚姻宫被引动"
+                )
 
             # 红鸾天喜流年
             hong_luan_map = {
-                "子": "卯", "丑": "寅", "寅": "丑", "卯": "子",
-                "辰": "亥", "巳": "戌", "午": "酉", "未": "申",
-                "申": "未", "酉": "午", "戌": "巳", "亥": "辰",
+                "子": "卯",
+                "丑": "寅",
+                "寅": "丑",
+                "卯": "子",
+                "辰": "亥",
+                "巳": "戌",
+                "午": "酉",
+                "未": "申",
+                "申": "未",
+                "酉": "午",
+                "戌": "巳",
+                "亥": "辰",
             }
             tian_xi_map = {
-                "子": "酉", "丑": "申", "寅": "未", "卯": "午",
-                "辰": "巳", "巳": "辰", "午": "卯", "未": "寅",
-                "申": "丑", "酉": "子", "戌": "亥", "亥": "戌",
+                "子": "酉",
+                "丑": "申",
+                "寅": "未",
+                "卯": "午",
+                "辰": "巳",
+                "巳": "辰",
+                "午": "卯",
+                "未": "寅",
+                "申": "丑",
+                "酉": "子",
+                "戌": "亥",
+                "亥": "戌",
             }
             year_branch = pillars["year"][1]
             hl = hong_luan_map.get(year_branch)
@@ -588,11 +688,13 @@ class MarriageAnalysis:
                 other = clash_pair[1] if clash_pair[0] == day_branch else clash_pair[0]
                 for p_name, (_, b) in pillars.items():
                     if p_name != "day" and b == other:
-                        risks.append({
-                            "type": "日支逢冲",
-                            "severity": "高",
-                            "description": f"日支{day_branch}与{p_name}支{b}相冲，婚姻宫动荡，需注意感情稳定性",
-                        })
+                        risks.append(
+                            {
+                                "type": "日支逢冲",
+                                "severity": "高",
+                                "description": f"日支{day_branch}与{p_name}支{b}相冲，婚姻宫动荡，需注意感情稳定性",
+                            }
+                        )
                         break
 
         # 2. 伤官见官（女命）
@@ -608,11 +710,13 @@ class MarriageAnalysis:
                 if god == TenGod.POSITIVE_OFFICER:
                     has_zhengguan = True
             if has_shangguan and has_zhengguan:
-                risks.append({
-                    "type": "伤官见官",
-                    "severity": "高",
-                    "description": "女命伤官见官，婚姻易生口舌是非，需注意沟通方式",
-                })
+                risks.append(
+                    {
+                        "type": "伤官见官",
+                        "severity": "高",
+                        "description": "女命伤官见官，婚姻易生口舌是非，需注意沟通方式",
+                    }
+                )
 
         # 3. 比劫争财（男命）
         if is_male:
@@ -624,11 +728,13 @@ class MarriageAnalysis:
                 if god in (TenGod.COMPARE, TenGod.ROB_WEALTH):
                     bijie_count += 1
             if bijie_count >= 3:
-                risks.append({
-                    "type": "比劫争财",
-                    "severity": "中",
-                    "description": "男命比劫重重，婚姻中易有竞争或第三者干扰",
-                })
+                risks.append(
+                    {
+                        "type": "比劫争财",
+                        "severity": "中",
+                        "description": "男命比劫重重，婚姻中易有竞争或第三者干扰",
+                    }
+                )
 
         # 4. 配偶星入墓
         spouse_stem_set: set = set()
@@ -659,11 +765,13 @@ class MarriageAnalysis:
         for p_name, (stem, branch) in pillars.items():
             if stem in spouse_stem_set and branch in tomb_map:
                 if stem in tomb_map[branch]:
-                    risks.append({
-                        "type": "配偶星入墓",
-                        "severity": "中",
-                        "description": f"配偶星{stem}在{p_name}支{branch}入墓，配偶健康或运势需关注",
-                    })
+                    risks.append(
+                        {
+                            "type": "配偶星入墓",
+                            "severity": "中",
+                            "description": f"配偶星{stem}在{p_name}支{branch}入墓，配偶健康或运势需关注",
+                        }
+                    )
 
         return risks
 
@@ -695,12 +803,16 @@ class MarriageAnalysis:
         # 基于风险因素
         high_risks = [r for r in risk_factors if r.get("severity") == "高"]
         if high_risks:
-            suggestions.append("存在高风险因素，建议婚姻中保持坦诚沟通，必要时寻求专业婚姻咨询")
+            suggestions.append(
+                "存在高风险因素，建议婚姻中保持坦诚沟通，必要时寻求专业婚姻咨询"
+            )
 
         # 基于神煞
         shensha_names = {s["name"] for s in marriage_shensha}
         if "孤辰" in shensha_names or "寡宿" in shensha_names:
-            suggestions.append("命带孤辰/寡宿，内心世界丰富但不善表达，建议主动表达感情")
+            suggestions.append(
+                "命带孤辰/寡宿，内心世界丰富但不善表达，建议主动表达感情"
+            )
 
         if not suggestions:
             suggestions.append("婚姻运势平稳，顺其自然即可")

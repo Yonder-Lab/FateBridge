@@ -21,20 +21,39 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
     BRANCH_HIDDEN_STEMS,
+    STEM_ELEMENTS,
     Element,
     Polarity,
-    STEM_ELEMENTS,
     TenGod,
     get_ten_god,
 )
 
-
 ELEMENT_NATURE = {
-    Element.WOOD: {"virtue": "仁", "traits": "仁慈、有恻隐之心、积极进取、有规划力", "short": "过则优柔、固执、好面子"},
-    Element.FIRE: {"virtue": "礼", "traits": "热情、礼貌、有表现力、直爽光明", "short": "过则急躁、虚荣、缺乏耐性"},
-    Element.EARTH: {"virtue": "信", "traits": "诚信、稳重、包容、务实可靠", "short": "过则固执、保守、行动迟缓"},
-    Element.METAL: {"virtue": "义", "traits": "重义气、果断、有原则、执行力强", "short": "过则刚硬、肃杀、不近人情"},
-    Element.WATER: {"virtue": "智", "traits": "聪明、灵活、应变力强、有谋略", "short": "过则多虑、善变、城府深"},
+    Element.WOOD: {
+        "virtue": "仁",
+        "traits": "仁慈、有恻隐之心、积极进取、有规划力",
+        "short": "过则优柔、固执、好面子",
+    },
+    Element.FIRE: {
+        "virtue": "礼",
+        "traits": "热情、礼貌、有表现力、直爽光明",
+        "short": "过则急躁、虚荣、缺乏耐性",
+    },
+    Element.EARTH: {
+        "virtue": "信",
+        "traits": "诚信、稳重、包容、务实可靠",
+        "short": "过则固执、保守、行动迟缓",
+    },
+    Element.METAL: {
+        "virtue": "义",
+        "traits": "重义气、果断、有原则、执行力强",
+        "short": "过则刚硬、肃杀、不近人情",
+    },
+    Element.WATER: {
+        "virtue": "智",
+        "traits": "聪明、灵活、应变力强、有谋略",
+        "short": "过则多虑、善变、城府深",
+    },
 }
 
 TEN_GOD_PERSONALITY = {
@@ -94,7 +113,9 @@ class PersonalityAnalysis:
         }
 
     @staticmethod
-    def _dominant_traits(pillars: Dict[str, Tuple[str, str]], day_stem: str) -> Dict[str, Any]:
+    def _dominant_traits(
+        pillars: Dict[str, Tuple[str, str]], day_stem: str
+    ) -> Dict[str, Any]:
         counts: Dict[TenGod, float] = {tg: 0.0 for tg in TenGod}
         for p_name, (stem, branch) in pillars.items():
             if p_name != "day":
@@ -105,14 +126,20 @@ class PersonalityAnalysis:
         top = [(g, c) for g, c in ranked if c > 0][:3]
         return {
             "top_gods": [
-                {"ten_god": g.value, "weight": round(c, 1), "traits": TEN_GOD_PERSONALITY.get(g, "")}
+                {
+                    "ten_god": g.value,
+                    "weight": round(c, 1),
+                    "traits": TEN_GOD_PERSONALITY.get(g, ""),
+                }
                 for g, c in top
             ],
             "primary": top[0][0].value if top else "",
         }
 
     @staticmethod
-    def _disposition(pillars: Dict[str, Tuple[str, str]], day_polarity: Polarity) -> Dict[str, Any]:
+    def _disposition(
+        pillars: Dict[str, Tuple[str, str]], day_polarity: Polarity
+    ) -> Dict[str, Any]:
         from ..core.elements import ElementAnalysis
 
         dm = ElementAnalysis.analyze_day_master_strength(pillars)
@@ -124,7 +151,9 @@ class PersonalityAnalysis:
             notes.append("日主弱，随和谦逊、依赖性较强、内敛，宜增强自信与决断")
         else:
             notes.append("日主中和，性格较平衡、能屈能伸")
-        yin_yang = "阳（刚健主动）" if day_polarity == Polarity.YANG else "阴（柔顺内敛）"
+        yin_yang = (
+            "阳（刚健主动）" if day_polarity == Polarity.YANG else "阴（柔顺内敛）"
+        )
         notes.append(f"日干为{yin_yang}")
         return {
             "strength": strength,

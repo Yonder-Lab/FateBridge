@@ -28,8 +28,8 @@ from fatebridge.core.phase2_local import (
 )
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
-    PersonInfo,
     SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
+    PersonInfo,
     calculate_solar_time_adjustment,
     create_pillar_dict,
     format_birth_datetime_display,
@@ -226,8 +226,12 @@ def _build_liureng_snapshot_text(
     runyear: Optional[Dict[str, Any]] = None,
 ) -> str:
     lunar_calendar = seed.calendar_context.get("lunar_calendar") or {}
-    month_general = liureng.get("month_general", {}) if isinstance(liureng, dict) else {}
-    transmissions = liureng.get("three_transmissions", {}) if isinstance(liureng, dict) else {}
+    month_general = (
+        liureng.get("month_general", {}) if isinstance(liureng, dict) else {}
+    )
+    transmissions = (
+        liureng.get("three_transmissions", {}) if isinstance(liureng, dict) else {}
+    )
     pattern_lines = [
         f"{item.get('name', '无')}：{item.get('basis', '无')}"
         for item in liureng.get("patterns", []) or []
@@ -492,8 +496,12 @@ def _build_ziwei_snapshot_text(
     ziwei_birth: Dict[str, Any],
 ) -> str:
     lunar_calendar = seed.calendar_context.get("lunar_calendar") or {}
-    ming_gong = ziwei_birth.get("ming_gong", {}) if isinstance(ziwei_birth, dict) else {}
-    shen_gong = ziwei_birth.get("shen_gong", {}) if isinstance(ziwei_birth, dict) else {}
+    ming_gong = (
+        ziwei_birth.get("ming_gong", {}) if isinstance(ziwei_birth, dict) else {}
+    )
+    shen_gong = (
+        ziwei_birth.get("shen_gong", {}) if isinstance(ziwei_birth, dict) else {}
+    )
     sihua = ziwei_birth.get("sihua", {}) if isinstance(ziwei_birth, dict) else {}
     palace_lines = []
     for palace in ziwei_birth.get("palaces", []) or []:
@@ -554,8 +562,12 @@ def _build_ziwei_snapshot_text(
 
 
 def _build_ziwei_rules_snapshot_text(payload: Dict[str, Any]) -> str:
-    rule_catalogue = payload.get("rule_catalogue", {}) if isinstance(payload, dict) else {}
-    focused_rules = payload.get("focused_rules", {}) if isinstance(payload, dict) else {}
+    rule_catalogue = (
+        payload.get("rule_catalogue", {}) if isinstance(payload, dict) else {}
+    )
+    focused_rules = (
+        payload.get("focused_rules", {}) if isinstance(payload, dict) else {}
+    )
     palace_sequence = "、".join(rule_catalogue.get("palace_sequence", []) or []) or "无"
     sihua_lines = [
         f"{stem}："
@@ -563,10 +575,14 @@ def _build_ziwei_rules_snapshot_text(payload: Dict[str, Any]) -> str:
             f"{label}={star}"
             for label, star in (mapping.items() if isinstance(mapping, dict) else [])
         )
-        for stem, mapping in (rule_catalogue.get("sihua_by_year_stem", {}) or {}).items()
+        for stem, mapping in (
+            rule_catalogue.get("sihua_by_year_stem", {}) or {}
+        ).items()
         if isinstance(mapping, dict)
     ]
-    focused_sihua = focused_rules.get("sihua", {}) if isinstance(focused_rules, dict) else {}
+    focused_sihua = (
+        focused_rules.get("sihua", {}) if isinstance(focused_rules, dict) else {}
+    )
     sections = [
         (
             "规则概览",
@@ -596,10 +612,7 @@ def _build_ziwei_rules_snapshot_text(payload: Dict[str, Any]) -> str:
                 _join_snapshot_lines(
                     [
                         f"天干：{focused_rules.get('year_stem', payload.get('requested_year_stem') or '无')}",
-                        *[
-                            f"{label}：{star}"
-                            for label, star in focused_sihua.items()
-                        ],
+                        *[f"{label}：{star}" for label, star in focused_sihua.items()],
                     ]
                 ),
             )

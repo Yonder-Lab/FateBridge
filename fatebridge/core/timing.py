@@ -14,6 +14,16 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Dict, List, Optional
 
+from ..utils.data import (
+    EARTHLY_BRANCHES,
+    HEAVENLY_STEMS,
+    STEM_ELEMENTS,
+    check_branch_combination,
+    check_branch_conflict,
+    get_nayin,
+    get_shishen,
+)
+from ..utils.helpers import normalize_gender
 from .almanac import (
     BAZI_MONTH_START_TERMS,
     DEFAULT_TIMEZONE,
@@ -24,16 +34,6 @@ from .almanac import (
     localize_datetime,
 )
 from .calendar import BaZiCalendar, resolve_bazi_effective_date
-from ..utils.data import (
-    HEAVENLY_STEMS,
-    EARTHLY_BRANCHES,
-    STEM_ELEMENTS,
-    get_nayin,
-    get_shishen,
-    check_branch_conflict,
-    check_branch_combination,
-)
-from ..utils.helpers import normalize_gender
 
 
 @lru_cache(maxsize=2048)
@@ -45,7 +45,9 @@ def _calculate_liuyue_cached(
     target_date: Optional[datetime],
 ) -> Dict:
     """Cache deterministic liuyue calculations for repeated timing analysis."""
-    effective_target_date = target_date or datetime(target_year, target_month, target_day)
+    effective_target_date = target_date or datetime(
+        target_year, target_month, target_day
+    )
     local_target_date = localize_datetime(effective_target_date, timezone_name)
     bazi_year = get_bazi_year(local_target_date, timezone_name)
     month_context = get_bazi_month_context(local_target_date, timezone_name)
@@ -255,9 +257,9 @@ class TimingAnalysis:
             local_birth_date, timezone_name
         )
         target_term = next_term if forward_direction else start_term
-        delta_days = abs(
-            (target_term.moment - local_birth_date).total_seconds()
-        ) / 86400
+        delta_days = (
+            abs((target_term.moment - local_birth_date).total_seconds()) / 86400
+        )
         start_age_precise = round(delta_days / 3, 2)
 
         return {
@@ -606,7 +608,9 @@ class TimingAnalysis:
         生成目标年份 24 节气切换节点的时运时间轴。
         """
         timeline: List[Dict] = []
-        for index, term in enumerate(get_solar_terms_for_year(target_year, timezone_name)):
+        for index, term in enumerate(
+            get_solar_terms_for_year(target_year, timezone_name)
+        ):
             anchor = TimingAnalysis._next_supported_analysis_anchor(
                 term.moment,
                 timezone_name=timezone_name,

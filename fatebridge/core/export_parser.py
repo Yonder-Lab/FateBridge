@@ -36,7 +36,9 @@ def split_content_sections(content: str, technique: str) -> list[dict[str, Any]]
         if not current_title and not "".join(current_lines).strip():
             current_lines = []
             return
-        body_lines = current_lines[1:] if current_title and current_lines else current_lines
+        body_lines = (
+            current_lines[1:] if current_title and current_lines else current_lines
+        )
         sections.append(
             {
                 "raw_title": current_raw_title,
@@ -66,7 +68,11 @@ def split_content_sections(content: str, technique: str) -> list[dict[str, Any]]
 
 
 def render_sections_to_text(sections: list[dict[str, Any]]) -> str:
-    blocks = [section["content"] for section in sections if f"{section.get('content', '')}".strip()]
+    blocks = [
+        section["content"]
+        for section in sections
+        if f"{section.get('content', '')}".strip()
+    ]
     return "\n\n".join(blocks).strip()
 
 
@@ -84,16 +90,28 @@ def parse_export_content(
 
     raw_text = f"{content or ''}".strip()
     sections = split_content_sections(raw_text, technique)
-    detected_titles = unique_list([section["title"] for section in sections if section["title"]])
+    detected_titles = unique_list(
+        [section["title"] for section in sections if section["title"]]
+    )
 
-    forbidden = {normalize_section_title(item) for item in technique_info["forbidden_sections"]}
-    preset_sections = [normalize_section_title(item) for item in technique_info["preset_sections"]]
-    requested = selected_sections[:] if selected_sections else technique_info["preset_sections"][:]
+    forbidden = {
+        normalize_section_title(item) for item in technique_info["forbidden_sections"]
+    }
+    preset_sections = [
+        normalize_section_title(item) for item in technique_info["preset_sections"]
+    ]
+    requested = (
+        selected_sections[:]
+        if selected_sections
+        else technique_info["preset_sections"][:]
+    )
     selected_normalized = unique_list(
         [
             map_legacy_section_title(technique, item)
             for item in requested
-            if map_legacy_section_title(technique, item) and normalize_section_title(map_legacy_section_title(technique, item)) not in forbidden
+            if map_legacy_section_title(technique, item)
+            and normalize_section_title(map_legacy_section_title(technique, item))
+            not in forbidden
         ]
     )
     wanted = {normalize_section_title(item) for item in selected_normalized}
@@ -115,7 +133,9 @@ def parse_export_content(
             }
         )
 
-    strict_filtered = render_sections_to_text([section for section in filtered_sections if section["included"]])
+    strict_filtered = render_sections_to_text(
+        [section for section in filtered_sections if section["included"]]
+    )
     safe_export_text = strict_filtered or render_sections_to_text(
         [
             {
@@ -126,8 +146,18 @@ def parse_export_content(
         ]
     )
 
-    unknown_detected = [title for title in detected_titles if normalize_section_title(title) not in {normalize_section_title(item) for item in preset_sections}]
-    missing_selected = [title for title in selected_normalized if normalize_section_title(title) not in {normalize_section_title(item) for item in detected_titles}]
+    unknown_detected = [
+        title
+        for title in detected_titles
+        if normalize_section_title(title)
+        not in {normalize_section_title(item) for item in preset_sections}
+    ]
+    missing_selected = [
+        title
+        for title in selected_normalized
+        if normalize_section_title(title)
+        not in {normalize_section_title(item) for item in detected_titles}
+    ]
     settings_used = {
         "version": AI_EXPORT_SETTINGS_VERSION,
         "sections": {technique: selected_normalized},
@@ -135,9 +165,16 @@ def parse_export_content(
         "astroMeaning": {},
     }
     if technique_info["supports_planet_info"]:
-        settings_used["planetInfo"][technique] = normalize_planet_info_setting(planet_info)
-    if technique_info["supports_astro_meaning"] or technique_info["supports_hover_meaning"]:
-        settings_used["astroMeaning"][technique] = normalize_astro_meaning_setting(astro_meaning)
+        settings_used["planetInfo"][technique] = normalize_planet_info_setting(
+            planet_info
+        )
+    if (
+        technique_info["supports_astro_meaning"]
+        or technique_info["supports_hover_meaning"]
+    ):
+        settings_used["astroMeaning"][technique] = normalize_astro_meaning_setting(
+            astro_meaning
+        )
 
     return {
         "technique": technique_info,

@@ -6,15 +6,16 @@
 提供深层次的命理分析合盘分析，超越简单的刑冲克害
 """
 
-from typing import Dict, List, Any
 from enum import Enum
+from typing import Any, Dict, List
+
 from ..core.rules import BaZiRules
 from ..utils.data import (
+    BRANCH_HIDDEN_STEMS,
+    DESTRUCTION_CYCLE,
+    GENERATION_CYCLE,
     Element,
     TenGod,
-    BRANCH_HIDDEN_STEMS,
-    GENERATION_CYCLE,
-    DESTRUCTION_CYCLE,
     get_ten_god,
 )
 
@@ -95,7 +96,9 @@ class AdvancedCompatibility:
         weights = AdvancedCompatibility._get_dimension_weights(relationship_type)
 
         # 1. 五行平衡分析 (权重: 25%)
-        element_analysis = AdvancedCompatibility._analyze_element_balance(analysis1, analysis2)
+        element_analysis = AdvancedCompatibility._analyze_element_balance(
+            analysis1, analysis2
+        )
         result["detailed_analysis"]["element_balance"] = element_analysis
         weighted_element_score = element_analysis["score"] * weights["element_balance"]
         result["overall_score"] += weighted_element_score
@@ -121,7 +124,9 @@ class AdvancedCompatibility:
         result["overall_score"] += weighted_ten_gods_score
 
         # 4. 格局配合分析 (权重: 15%)
-        pattern_analysis = AdvancedCompatibility._analyze_pattern_synergy(analysis1, analysis2)
+        pattern_analysis = AdvancedCompatibility._analyze_pattern_synergy(
+            analysis1, analysis2
+        )
         result["detailed_analysis"]["pattern_synergy"] = pattern_analysis
         weighted_pattern_score = pattern_analysis["score"] * weights["pattern_synergy"]
         result["overall_score"] += weighted_pattern_score
@@ -131,11 +136,11 @@ class AdvancedCompatibility:
         # 由于calculate_compatibility_score可能还没有更新，我们手动计算
         traditional_score = 50.0  # 基础分
         details = []
-        
+
         # 提取地支
         branches1 = [branch for _, branch in pillars1.values()]
         branches2 = [branch for _, branch in pillars2.values()]
-        
+
         # 检查六冲
         for b1 in branches1:
             for b2 in branches2:
@@ -143,7 +148,7 @@ class AdvancedCompatibility:
                     if (b1, b2) in [clash_pair, clash_pair[::-1]]:
                         traditional_score -= 2
                         details.append(f"{b1}与{b2}六冲")
-        
+
         # 检查六害
         for b1 in branches1:
             for b2 in branches2:
@@ -151,7 +156,7 @@ class AdvancedCompatibility:
                     if (b1, b2) in [harm_pair, harm_pair[::-1]]:
                         traditional_score -= 2
                         details.append(f"{b1}与{b2}六害")
-                        
+
         # 检查三刑
         # 这是一个合盘（cross-chart）三刑检查：只有当三刑所需的地支
         # 至少在两人命盘中各贡献一支时才算“合盘构成”，
@@ -164,7 +169,11 @@ class AdvancedCompatibility:
             required = set(punishment_set)
             covered_by_1 = required & branches1_set
             covered_by_2 = required & branches2_set
-            if covered_by_1 and covered_by_2 and required <= (covered_by_1 | covered_by_2):
+            if (
+                covered_by_1
+                and covered_by_2
+                and required <= (covered_by_1 | covered_by_2)
+            ):
                 traditional_score -= 5
                 details.append(f"合盘构成{''.join(punishment_set)}三刑")
 
@@ -179,7 +188,7 @@ class AdvancedCompatibility:
             "normalized_score": normalized_traditional_score,
             "details": details,
         }
-        
+
         result["detailed_analysis"]["traditional_analysis"] = traditional_analysis
         weighted_traditional_score = (
             normalized_traditional_score * weights["traditional_analysis"]
@@ -277,11 +286,19 @@ class AdvancedCompatibility:
 
         if person1_element and person2_element:
             person1_element_enum = next(
-                (element_enum for element_enum in Element if element_enum.value == person1_element),
+                (
+                    element_enum
+                    for element_enum in Element
+                    if element_enum.value == person1_element
+                ),
                 None,
             )
             person2_element_enum = next(
-                (element_enum for element_enum in Element if element_enum.value == person2_element),
+                (
+                    element_enum
+                    for element_enum in Element
+                    if element_enum.value == person2_element
+                ),
                 None,
             )
 
@@ -346,7 +363,9 @@ class AdvancedCompatibility:
                     analysis["balance_type"] = "相克制约"
 
             if person1_element == person2_element:
-                analysis["details"].append(f"两人日主同为{person1_element}，更容易理解彼此的表达方式")
+                analysis["details"].append(
+                    f"两人日主同为{person1_element}，更容易理解彼此的表达方式"
+                )
                 analysis["score"] += 12
                 analysis["balance_type"] = "同类互助"
             elif (
@@ -354,19 +373,27 @@ class AdvancedCompatibility:
                 and person2_element_enum
                 and GENERATION_CYCLE[person1_element_enum] == person2_element_enum
             ):
-                analysis["details"].append(f"{person1_element}生{person2_element}，第一人更容易助推第二人的状态")
+                analysis["details"].append(
+                    f"{person1_element}生{person2_element}，第一人更容易助推第二人的状态"
+                )
                 analysis["score"] += 18
                 analysis["balance_type"] = "相生互助"
-                analysis["mutual_support"].append(f"{person1_element}→{person2_element}")
+                analysis["mutual_support"].append(
+                    f"{person1_element}→{person2_element}"
+                )
             elif (
                 person1_element_enum
                 and person2_element_enum
                 and GENERATION_CYCLE[person2_element_enum] == person1_element_enum
             ):
-                analysis["details"].append(f"{person2_element}生{person1_element}，第二人更容易助推第一人的状态")
+                analysis["details"].append(
+                    f"{person2_element}生{person1_element}，第二人更容易助推第一人的状态"
+                )
                 analysis["score"] += 18
                 analysis["balance_type"] = "相生互助"
-                analysis["mutual_support"].append(f"{person2_element}→{person1_element}")
+                analysis["mutual_support"].append(
+                    f"{person2_element}→{person1_element}"
+                )
             elif (
                 person1_element_enum
                 and person2_element_enum
@@ -394,7 +421,9 @@ class AdvancedCompatibility:
                     controller_useful=person2_useful,
                 )
             else:
-                analysis["details"].append(f"{person1_element}与{person2_element}关系平和，更多看后续格局流通")
+                analysis["details"].append(
+                    f"{person1_element}与{person2_element}关系平和，更多看后续格局流通"
+                )
                 analysis["score"] += 6
                 analysis["balance_type"] = "平和相处"
 
@@ -407,7 +436,9 @@ class AdvancedCompatibility:
             analysis["details"].append("两人都较为中和，基础相处面更稳定")
             analysis["score"] += 8
         elif person1_strength == person2_strength and person1_strength in {"强", "弱"}:
-            analysis["details"].append(f"两人都偏{person1_strength}，需要额外关注平衡问题")
+            analysis["details"].append(
+                f"两人都偏{person1_strength}，需要额外关注平衡问题"
+            )
             analysis["score"] -= 4
 
         if person1_elements and person2_elements:
@@ -417,10 +448,14 @@ class AdvancedCompatibility:
                 person2_share = person2_elements.get(element, 0.0)
                 if person1_share < 8 and person2_share >= 22:
                     complement_score += 2
-                    analysis["details"].append(f"第一人在{element}上偏弱，第二人在{element}上能形成补位")
+                    analysis["details"].append(
+                        f"第一人在{element}上偏弱，第二人在{element}上能形成补位"
+                    )
                 elif person2_share < 8 and person1_share >= 22:
                     complement_score += 2
-                    analysis["details"].append(f"第二人在{element}上偏弱，第一人在{element}上能形成补位")
+                    analysis["details"].append(
+                        f"第二人在{element}上偏弱，第一人在{element}上能形成补位"
+                    )
                 elif abs(person1_share - person2_share) <= 8:
                     complement_score += 1
             analysis["score"] += min(12, complement_score)
@@ -449,8 +484,12 @@ class AdvancedCompatibility:
 
         profile1 = analysis1.get("structure_profile", {}) or {}
         profile2 = analysis2.get("structure_profile", {}) or {}
-        person1_favorable_elements = set(profile1.get("useful_elements", analysis1.get("favorable_elements", [])))
-        person2_favorable_elements = set(profile2.get("useful_elements", analysis2.get("favorable_elements", [])))
+        person1_favorable_elements = set(
+            profile1.get("useful_elements", analysis1.get("favorable_elements", []))
+        )
+        person2_favorable_elements = set(
+            profile2.get("useful_elements", analysis2.get("favorable_elements", []))
+        )
         person1_avoid_elements = set(profile1.get("avoid_elements", []))
         person2_avoid_elements = set(profile2.get("avoid_elements", []))
         person1_distribution = analysis1.get("element_distribution", {})
@@ -469,7 +508,9 @@ class AdvancedCompatibility:
                     description = f"{source_label}{element}占比高，能明显补到{target_label}的可用之气"
                 elif share >= 16:
                     delta = 7
-                    description = f"{source_label}{element}较旺，对{target_label}有稳定补益"
+                    description = (
+                        f"{source_label}{element}较旺，对{target_label}有稳定补益"
+                    )
                 elif share >= 10:
                     delta = 4
                     description = f"{source_label}{element}具备一定承接力，对{target_label}略有帮助"
@@ -489,10 +530,16 @@ class AdvancedCompatibility:
                     }
                 )
 
-        _support_from_distribution("第二人", "第一人", person1_favorable_elements, person2_distribution)
-        _support_from_distribution("第一人", "第二人", person2_favorable_elements, person1_distribution)
+        _support_from_distribution(
+            "第二人", "第一人", person1_favorable_elements, person2_distribution
+        )
+        _support_from_distribution(
+            "第一人", "第二人", person2_favorable_elements, person1_distribution
+        )
 
-        common_favorable_elements = person1_favorable_elements & person2_favorable_elements
+        common_favorable_elements = (
+            person1_favorable_elements & person2_favorable_elements
+        )
         if common_favorable_elements:
             delta = min(12, len(common_favorable_elements) * 4)
             common_text = f"共同喜用五行：{', '.join(sorted(common_favorable_elements))}，目标更容易同频"
@@ -594,7 +641,13 @@ class AdvancedCompatibility:
 
         relationship_bias = {
             RelationshipType.MARRIAGE: {"正财": 2, "偏财": 1, "正官": 2, "七杀": 1},
-            RelationshipType.BUSINESS: {"正财": 3, "偏财": 3, "食神": 2, "伤官": 2, "正官": 2},
+            RelationshipType.BUSINESS: {
+                "正财": 3,
+                "偏财": 3,
+                "食神": 2,
+                "伤官": 2,
+                "正官": 2,
+            },
             RelationshipType.FRIENDSHIP: {"比肩": 2, "食神": 2, "正印": 2},
             RelationshipType.FAMILY: {"正印": 2, "正官": 1, "比肩": 1},
             RelationshipType.GENERAL: {},
@@ -613,7 +666,9 @@ class AdvancedCompatibility:
                     continue
 
                 if ten_god in target_useful_ten_gods:
-                    delta = int(min(12, round(count * 5))) + relationship_bias[relationship_type].get(ten_god, 0)
+                    delta = int(min(12, round(count * 5))) + relationship_bias[
+                        relationship_type
+                    ].get(ten_god, 0)
                     description = f"{provider_label}命局提供{ten_god}，正好契合{target_label}当前格局所需"
                     analysis["score"] += delta
                     analysis["details"].append(description)
@@ -637,9 +692,15 @@ class AdvancedCompatibility:
                     )
                     continue
 
-                if ten_god in {TenGod.POSITIVE_OFFICER.value, TenGod.SEVEN_KILLER.value}:
+                if ten_god in {
+                    TenGod.POSITIVE_OFFICER.value,
+                    TenGod.SEVEN_KILLER.value,
+                }:
                     description = f"{provider_label}带来{ten_god}之气，对{target_label}属于张力型输入"
-                    if {TenGod.POSITIVE_OFFICER.value, TenGod.SEVEN_KILLER.value} & target_useful_ten_gods:
+                    if {
+                        TenGod.POSITIVE_OFFICER.value,
+                        TenGod.SEVEN_KILLER.value,
+                    } & target_useful_ten_gods:
                         analysis["score"] += 4
                         analysis["score_basis"].append(f"{description}(+4)")
                     else:
@@ -665,8 +726,13 @@ class AdvancedCompatibility:
                     analysis["risk_reasons"].append(description)
                     continue
 
-                if ten_god == TenGod.ROB_WEALTH.value and relationship_type == RelationshipType.BUSINESS:
-                    description = f"{provider_label}的劫财之气在商业合作里更容易放大利益分配压力"
+                if (
+                    ten_god == TenGod.ROB_WEALTH.value
+                    and relationship_type == RelationshipType.BUSINESS
+                ):
+                    description = (
+                        f"{provider_label}的劫财之气在商业合作里更容易放大利益分配压力"
+                    )
                     analysis["score"] -= 5
                     analysis["score_basis"].append(f"{description}(-5)")
                     analysis["risk_reasons"].append(description)
@@ -686,13 +752,17 @@ class AdvancedCompatibility:
 
         common_useful_ten_gods = useful_ten_gods1 & useful_ten_gods2
         if common_useful_ten_gods:
-            description = f"双方共同认可能用的十神为：{', '.join(sorted(common_useful_ten_gods))}"
+            description = (
+                f"双方共同认可能用的十神为：{', '.join(sorted(common_useful_ten_gods))}"
+            )
             analysis["relationship_dynamics"].append(description)
             analysis["compatibility_aspects"].append("共同取用一致")
             analysis["score"] += min(10, len(common_useful_ten_gods) * 3)
 
         if not analysis["details"]:
-            analysis["details"].append("跨人十神没有形成特别鲜明的格局承接，更多看五行与合盘事件")
+            analysis["details"].append(
+                "跨人十神没有形成特别鲜明的格局承接，更多看五行与合盘事件"
+            )
         if not analysis["risk_reasons"]:
             analysis["risk_reasons"].append("未见明显的十神级高风险冲突")
 
@@ -750,9 +820,13 @@ class AdvancedCompatibility:
                         }
                     )
 
-                for index, hidden_stem in enumerate(BRANCH_HIDDEN_STEMS.get(branch, [])):
+                for index, hidden_stem in enumerate(
+                    BRANCH_HIDDEN_STEMS.get(branch, [])
+                ):
                     ten_god = get_ten_god(target_day_master_stem, hidden_stem).value
-                    weight = hidden_weights[index] if index < len(hidden_weights) else 0.2
+                    weight = (
+                        hidden_weights[index] if index < len(hidden_weights) else 0.2
+                    )
                     ten_gods_count[ten_god] = ten_gods_count.get(ten_god, 0.0) + weight
                     cross_gods["source_breakdown"].append(
                         {
@@ -824,18 +898,24 @@ class AdvancedCompatibility:
                 delta = 5
             analysis["score"] += delta
             analysis["details"].append(pattern["description"])
-            analysis["score_basis"].append(f"{pattern['label']}：{pattern['description']}(+{delta})")
+            analysis["score_basis"].append(
+                f"{pattern['label']}：{pattern['description']}(+{delta})"
+            )
             supportive_harmony_labels.append(pattern["label"])
 
         for pattern in analysis["tension_patterns"]:
             if pattern["label"] == "天克地冲":
                 delta = 2
-                analysis["synergy_effects"].append("天克地冲带来高吸引与高摩擦并存的张力")
+                analysis["synergy_effects"].append(
+                    "天克地冲带来高吸引与高摩擦并存的张力"
+                )
             else:
                 delta = -4
             analysis["score"] += delta
             analysis["details"].append(pattern["description"])
-            analysis["score_basis"].append(f"{pattern['label']}：{pattern['description']}({delta:+d})")
+            analysis["score_basis"].append(
+                f"{pattern['label']}：{pattern['description']}({delta:+d})"
+            )
 
         for pattern in analysis["risk_patterns"]:
             if pattern["type"] in {"six_clash", "six_harm", "three_punishment"}:
@@ -844,7 +924,9 @@ class AdvancedCompatibility:
                 delta = -10
             analysis["score"] += delta
             analysis["details"].append(pattern["description"])
-            analysis["score_basis"].append(f"{pattern['label']}：{pattern['description']}({delta})")
+            analysis["score_basis"].append(
+                f"{pattern['label']}：{pattern['description']}({delta})"
+            )
 
         recognized1 = {
             item.get("label")

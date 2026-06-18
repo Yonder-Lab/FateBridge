@@ -10,10 +10,10 @@ chart family remains usable without external ephemeris files or network access.
 from __future__ import annotations
 
 import logging
+import math
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
-import math
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from fatebridge.utils.helpers import parse_timezone_name, resolve_birth_place_context
@@ -43,6 +43,7 @@ def _log_swe_runtime_failure(call: str, error: BaseException) -> None:
         type(error).__name__,
         error,
     )
+
 
 SIGNS = [
     "Aries",
@@ -418,13 +419,62 @@ CORE_CHART_DEFAULT_ZODIACAL = {
 }
 
 PLANET_ORBITAL_ELEMENTS = {
-    "Mercury": lambda d: (48.3313 + 3.24587e-5 * d, 7.0047 + 5e-8 * d, 29.1241 + 1.01444e-5 * d, 0.387098, 0.205635 + 5.59e-10 * d, 168.6562 + 4.0923344368 * d),
-    "Venus": lambda d: (76.6799 + 2.4659e-5 * d, 3.3946 + 2.75e-8 * d, 54.8910 + 1.38374e-5 * d, 0.72333, 0.006773 - 1.302e-9 * d, 48.0052 + 1.6021302244 * d),
-    "Mars": lambda d: (49.5574 + 2.11081e-5 * d, 1.8497 - 1.78e-8 * d, 286.5016 + 2.92961e-5 * d, 1.523688, 0.093405 + 2.516e-9 * d, 18.6021 + 0.5240207766 * d),
-    "Jupiter": lambda d: (100.4542 + 2.76854e-5 * d, 1.303 - 1.557e-7 * d, 273.8777 + 1.64505e-5 * d, 5.20256, 0.048498 + 4.469e-9 * d, 19.895 + 0.0830853001 * d),
-    "Saturn": lambda d: (113.6634 + 2.3898e-5 * d, 2.4886 - 1.081e-7 * d, 339.3939 + 2.97661e-5 * d, 9.55475, 0.055546 - 9.499e-9 * d, 316.967 + 0.0334442282 * d),
-    "Uranus": lambda d: (74.0005 + 1.3978e-5 * d, 0.7733 + 1.9e-8 * d, 96.6612 + 3.0565e-5 * d, 19.18171 - 1.55e-8 * d, 0.047318 + 7.45e-9 * d, 142.5905 + 0.011725806 * d),
-    "Neptune": lambda d: (131.7806 + 3.0173e-5 * d, 1.77 - 2.55e-7 * d, 272.8461 - 6.027e-6 * d, 30.05826 + 3.313e-8 * d, 0.008606 + 2.15e-9 * d, 260.2471 + 0.005995147 * d),
+    "Mercury": lambda d: (
+        48.3313 + 3.24587e-5 * d,
+        7.0047 + 5e-8 * d,
+        29.1241 + 1.01444e-5 * d,
+        0.387098,
+        0.205635 + 5.59e-10 * d,
+        168.6562 + 4.0923344368 * d,
+    ),
+    "Venus": lambda d: (
+        76.6799 + 2.4659e-5 * d,
+        3.3946 + 2.75e-8 * d,
+        54.8910 + 1.38374e-5 * d,
+        0.72333,
+        0.006773 - 1.302e-9 * d,
+        48.0052 + 1.6021302244 * d,
+    ),
+    "Mars": lambda d: (
+        49.5574 + 2.11081e-5 * d,
+        1.8497 - 1.78e-8 * d,
+        286.5016 + 2.92961e-5 * d,
+        1.523688,
+        0.093405 + 2.516e-9 * d,
+        18.6021 + 0.5240207766 * d,
+    ),
+    "Jupiter": lambda d: (
+        100.4542 + 2.76854e-5 * d,
+        1.303 - 1.557e-7 * d,
+        273.8777 + 1.64505e-5 * d,
+        5.20256,
+        0.048498 + 4.469e-9 * d,
+        19.895 + 0.0830853001 * d,
+    ),
+    "Saturn": lambda d: (
+        113.6634 + 2.3898e-5 * d,
+        2.4886 - 1.081e-7 * d,
+        339.3939 + 2.97661e-5 * d,
+        9.55475,
+        0.055546 - 9.499e-9 * d,
+        316.967 + 0.0334442282 * d,
+    ),
+    "Uranus": lambda d: (
+        74.0005 + 1.3978e-5 * d,
+        0.7733 + 1.9e-8 * d,
+        96.6612 + 3.0565e-5 * d,
+        19.18171 - 1.55e-8 * d,
+        0.047318 + 7.45e-9 * d,
+        142.5905 + 0.011725806 * d,
+    ),
+    "Neptune": lambda d: (
+        131.7806 + 3.0173e-5 * d,
+        1.77 - 2.55e-7 * d,
+        272.8461 - 6.027e-6 * d,
+        30.05826 + 3.313e-8 * d,
+        0.008606 + 2.15e-9 * d,
+        260.2471 + 0.005995147 * d,
+    ),
 }
 
 
@@ -511,9 +561,10 @@ def _cos_deg(value: float) -> float:
 def _julian_day(target: datetime) -> float:
     year = target.year
     month = target.month
-    day = target.day + (
-        target.hour + target.minute / 60.0 + target.second / 3600.0
-    ) / 24.0
+    day = (
+        target.day
+        + (target.hour + target.minute / 60.0 + target.second / 3600.0) / 24.0
+    )
 
     if month <= 2:
         year -= 1
@@ -521,13 +572,7 @@ def _julian_day(target: datetime) -> float:
 
     a = year // 100
     b = 2 - a + a // 4
-    return (
-        int(365.25 * (year + 4716))
-        + int(30.6001 * (month + 1))
-        + day
-        + b
-        - 1524.5
-    )
+    return int(365.25 * (year + 4716)) + int(30.6001 * (month + 1)) + day + b - 1524.5
 
 
 def _solve_kepler(mean_anomaly_deg: float, eccentricity: float) -> float:
@@ -540,8 +585,17 @@ def _solve_kepler(mean_anomaly_deg: float, eccentricity: float) -> float:
     return estimate
 
 
-def _planet_heliocentric_coords(planet: str, day_number: float) -> Tuple[float, float, float]:
-    ascending_node, inclination, perihelion, semi_major_axis, eccentricity, mean_anomaly = PLANET_ORBITAL_ELEMENTS[planet](day_number)
+def _planet_heliocentric_coords(
+    planet: str, day_number: float
+) -> Tuple[float, float, float]:
+    (
+        ascending_node,
+        inclination,
+        perihelion,
+        semi_major_axis,
+        eccentricity,
+        mean_anomaly,
+    ) = PLANET_ORBITAL_ELEMENTS[planet](day_number)
     eccentric_anomaly = _solve_kepler(normalize_angle(mean_anomaly), eccentricity)
     xv = semi_major_axis * (math.cos(eccentric_anomaly) - eccentricity)
     yv = semi_major_axis * (
@@ -677,7 +731,9 @@ def _pluto_state(day_number: float) -> Dict[str, float]:
     return {"longitude": normalize_angle(longitude), "latitude": latitude}
 
 
-def _planet_state(planet: str, day_number: float, sun_state: Dict[str, float]) -> Dict[str, float]:
+def _planet_state(
+    planet: str, day_number: float, sun_state: Dict[str, float]
+) -> Dict[str, float]:
     if planet == "Sun":
         return {"longitude": sun_state["longitude"], "latitude": 0.0}
     if planet == "Moon":
@@ -994,9 +1050,7 @@ def _precision_label_zh(engine_precision: str) -> str:
 def _precision_label_from_profiles(
     *profiles: Optional[Dict[str, Any]],
 ) -> str:
-    return _precision_label_zh(
-        _derive_engine_profile(*profiles)["engine_precision"]
-    )
+    return _precision_label_zh(_derive_engine_profile(*profiles)["engine_precision"])
 
 
 def _build_planet_record(
@@ -1013,7 +1067,11 @@ def _build_planet_record(
     include_nakshatra: bool = False,
     include_su28: bool = False,
 ) -> Dict[str, Any]:
-    effective_longitude = normalize_angle(longitude - ayanamsha) if sidereal else normalize_angle(longitude)
+    effective_longitude = (
+        normalize_angle(longitude - ayanamsha)
+        if sidereal
+        else normalize_angle(longitude)
+    )
     sign = _sign_name(effective_longitude)
     record = {
         "id": planet,
@@ -1040,36 +1098,51 @@ def _build_planet_record(
     return record
 
 
-
 DEFAULT_PLANET_ORBS = {
-    "Sun": 10.0, "Moon": 10.0,
-    "Mercury": 7.0, "Venus": 7.0, "Mars": 7.5,
-    "Jupiter": 9.0, "Saturn": 9.0,
-    "Uranus": 5.0, "Neptune": 5.0, "Pluto": 5.0,
+    "Sun": 10.0,
+    "Moon": 10.0,
+    "Mercury": 7.0,
+    "Venus": 7.0,
+    "Mars": 7.5,
+    "Jupiter": 9.0,
+    "Saturn": 9.0,
+    "Uranus": 5.0,
+    "Neptune": 5.0,
+    "Pluto": 5.0,
 }
 
-def _get_dynamic_orb(planet_a_id: str, planet_b_id: str, aspect_name: str, default_orb: float = 6.0) -> float:
+
+def _get_dynamic_orb(
+    planet_a_id: str, planet_b_id: str, aspect_name: str, default_orb: float = 6.0
+) -> float:
     orb_a = DEFAULT_PLANET_ORBS.get(planet_a_id, default_orb)
     orb_b = DEFAULT_PLANET_ORBS.get(planet_b_id, default_orb)
     base_orb = (orb_a + orb_b) / 2.0
-    
+
     if aspect_name in {"sextile", "square"}:
         return base_orb * 0.8
     return base_orb
 
-def _build_aspects(planets: Iterable[Dict[str, Any]], orb: float = 6.0) -> List[Dict[str, Any]]:
+
+def _build_aspects(
+    planets: Iterable[Dict[str, Any]], orb: float = 6.0
+) -> List[Dict[str, Any]]:
     items = list(planets)
     aspects: List[Dict[str, Any]] = []
     for index, first in enumerate(items):
-        for second in items[index + 1:]:
+        for second in items[index + 1 :]:
             difference = abs(first["longitude"] - second["longitude"])
             if difference > 180:
                 difference = 360 - difference
             matched: Optional[Tuple[str, float]] = None
             for aspect_name, exact_angle in ASPECTS:
                 current_orb = abs(difference - exact_angle)
-                dynamic_max_orb = _get_dynamic_orb(first["id"], second["id"], aspect_name, default_orb=orb)
-                if current_orb <= dynamic_max_orb and (matched is None or current_orb < matched[1]):
+                dynamic_max_orb = _get_dynamic_orb(
+                    first["id"], second["id"], aspect_name, default_orb=orb
+                )
+                if current_orb <= dynamic_max_orb and (
+                    matched is None or current_orb < matched[1]
+                ):
                     matched = (aspect_name, current_orb)
             if matched is None:
                 continue
@@ -1081,7 +1154,9 @@ def _build_aspects(planets: Iterable[Dict[str, Any]], orb: float = 6.0) -> List[
                     "orb": round(matched[1], 4),
                 }
             )
-    return sorted(aspects, key=lambda item: (item["orb"], item["planet_a"], item["planet_b"]))
+    return sorted(
+        aspects, key=lambda item: (item["orb"], item["planet_a"], item["planet_b"])
+    )
 
 
 def _balance(planets: Iterable[Dict[str, Any]], key: str) -> Dict[str, int]:
@@ -1140,11 +1215,23 @@ def _fortune_lot(planets: List[Dict[str, Any]], ascendant: float) -> Dict[str, A
     }
 
 
-def _compatibility_score(inner: List[Dict[str, Any]], outer: List[Dict[str, Any]], aspects: List[Dict[str, Any]]) -> Dict[str, int]:
-    inner_elements = Counter(item["element"] for item in inner if item["id"] in TRADITIONAL_PLANETS)
-    outer_elements = Counter(item["element"] for item in outer if item["id"] in TRADITIONAL_PLANETS)
-    inner_modalities = Counter(item["modality"] for item in inner if item["id"] in TRADITIONAL_PLANETS)
-    outer_modalities = Counter(item["modality"] for item in outer if item["id"] in TRADITIONAL_PLANETS)
+def _compatibility_score(
+    inner: List[Dict[str, Any]],
+    outer: List[Dict[str, Any]],
+    aspects: List[Dict[str, Any]],
+) -> Dict[str, int]:
+    inner_elements = Counter(
+        item["element"] for item in inner if item["id"] in TRADITIONAL_PLANETS
+    )
+    outer_elements = Counter(
+        item["element"] for item in outer if item["id"] in TRADITIONAL_PLANETS
+    )
+    inner_modalities = Counter(
+        item["modality"] for item in inner if item["id"] in TRADITIONAL_PLANETS
+    )
+    outer_modalities = Counter(
+        item["modality"] for item in outer if item["id"] in TRADITIONAL_PLANETS
+    )
 
     def overlap_score(left: Counter, right: Counter) -> int:
         overlap = sum(min(left[key], right[key]) for key in left)
@@ -1324,7 +1411,7 @@ def build_midpoint_payload(
     ]
     midpoints: List[Dict[str, Any]] = []
     for index, first in enumerate(midpoint_bodies):
-        for second in midpoint_bodies[index + 1:]:
+        for second in midpoint_bodies[index + 1 :]:
             longitude = _midpoint(first["longitude"], second["longitude"])
             sign = _sign_name(longitude)
             midpoints.append(
@@ -1361,7 +1448,9 @@ def build_midpoint_payload(
             "analysis_focus": "midpoints",
             "house_system": base_chart["chart_profile"]["house_system"],
             "house_system_code": base_chart["chart_profile"].get("house_system_code"),
-            "house_system_label_zh": base_chart["chart_profile"].get("house_system_label_zh"),
+            "house_system_label_zh": base_chart["chart_profile"].get(
+                "house_system_label_zh"
+            ),
             "zodiac": base_chart["chart_profile"]["zodiac"],
             "zodiacal": base_chart["chart_profile"].get("zodiacal"),
             "zodiac_label_zh": base_chart["chart_profile"].get("zodiac_label_zh"),
@@ -1420,7 +1509,8 @@ def _composite_chart(
             _build_planet_record(
                 planet,
                 longitude,
-                (inner_planets[planet]["latitude"] + outer_planets[planet]["latitude"]) / 2.0,
+                (inner_planets[planet]["latitude"] + outer_planets[planet]["latitude"])
+                / 2.0,
                 ascendant,
                 house_system,
                 house_cusps=house_cusps or None,
@@ -1453,8 +1543,12 @@ def _composite_chart(
             "chart_type": "composite",
             "tradition": inner_chart.get("chart_profile", {}).get("tradition", False),
             "house_system": house_system,
-            "house_system_code": inner_chart.get("chart_profile", {}).get("house_system_code"),
-            "house_system_label_zh": inner_chart.get("chart_profile", {}).get("house_system_label_zh"),
+            "house_system_code": inner_chart.get("chart_profile", {}).get(
+                "house_system_code"
+            ),
+            "house_system_label_zh": inner_chart.get("chart_profile", {}).get(
+                "house_system_label_zh"
+            ),
             **_relative_zodiac_profile_overrides(zodiacal_info),
             **engine_profile,
         },
@@ -1468,7 +1562,7 @@ def _composite_chart(
                 "longitude": round(midheaven, 4),
                 "sign": _sign_name(midheaven),
                 "sign_zh": SIGN_LABELS_ZH[_sign_name(midheaven)],
-            }
+            },
         },
         "houses": _build_houses(
             ascendant,
@@ -1496,7 +1590,11 @@ def _normalize_relative_mode(
     normalized: Optional[str] = None
     resolution = "default"
     note: Optional[str] = None
-    mode_source = source if source in {"default", "relative_mode", "relationship_mode"} else "default"
+    mode_source = (
+        source
+        if source in {"default", "relative_mode", "relationship_mode"}
+        else "default"
+    )
 
     if isinstance(raw_value, int) and raw_value in RELATIVE_MODE_NUMERIC_MAP:
         normalized = RELATIVE_MODE_NUMERIC_MAP[raw_value]
@@ -1560,7 +1658,7 @@ def _match_cross_aspect(
     longitude_b: float,
     orb: float = 4.0,
     planet_a_id: Optional[str] = None,
-    planet_b_id: Optional[str] = None
+    planet_b_id: Optional[str] = None,
 ) -> Optional[Dict[str, Any]]:
     difference = abs(longitude_a - longitude_b)
     if difference > 180:
@@ -1571,9 +1669,13 @@ def _match_cross_aspect(
         current_orb = abs(difference - exact_angle)
         dynamic_max_orb = orb
         if planet_a_id and planet_b_id:
-            dynamic_max_orb = _get_dynamic_orb(planet_a_id, planet_b_id, aspect_name, default_orb=orb)
-            
-        if current_orb <= dynamic_max_orb and (matched is None or current_orb < matched[1]):
+            dynamic_max_orb = _get_dynamic_orb(
+                planet_a_id, planet_b_id, aspect_name, default_orb=orb
+            )
+
+        if current_orb <= dynamic_max_orb and (
+            matched is None or current_orb < matched[1]
+        ):
             matched = (aspect_name, current_orb)
 
     if matched is None:
@@ -1601,11 +1703,11 @@ def _build_directional_relative_aspects(
             if target_planet["id"] not in TRADITIONAL_PLANETS:
                 continue
             matched = _match_cross_aspect(
-                source_planet["longitude"], 
-                target_planet["longitude"], 
+                source_planet["longitude"],
+                target_planet["longitude"],
                 orb=orb,
                 planet_a_id=source_planet["id"],
-                planet_b_id=target_planet["id"]
+                planet_b_id=target_planet["id"],
             )
             if matched is None:
                 continue
@@ -1623,7 +1725,9 @@ def _build_directional_relative_aspects(
         grouped.append(
             {
                 "id": source_planet["id"],
-                "objects": sorted(matches, key=lambda item: (item["delta"], item["id"])),
+                "objects": sorted(
+                    matches, key=lambda item: (item["delta"], item["id"])
+                ),
             }
         )
 
@@ -1656,13 +1760,15 @@ def _flatten_directional_relative_aspects(
     return flattened
 
 
-def _build_relative_midpoint_catalog(target_planets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _build_relative_midpoint_catalog(
+    target_planets: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
     midpoint_bodies = [
         item for item in target_planets if item["id"] in TRADITIONAL_PLANETS
     ]
     catalog: List[Dict[str, Any]] = []
     for index, first in enumerate(midpoint_bodies):
-        for second in midpoint_bodies[index + 1:]:
+        for second in midpoint_bodies[index + 1 :]:
             midpoint_longitude = _midpoint(first["longitude"], second["longitude"])
             catalog.append(
                 {
@@ -1990,10 +2096,7 @@ def _midpoint_house_cusps(
 ) -> List[float]:
     if len(left_cusps) != 12 or len(right_cusps) != 12:
         return []
-    return [
-        _midpoint(left_cusps[index], right_cusps[index])
-        for index in range(12)
-    ]
+    return [_midpoint(left_cusps[index], right_cusps[index]) for index in range(12)]
 
 
 def _relative_house_layout(
@@ -2040,9 +2143,7 @@ def _relative_house_layout(
     if ayanamsha is not None:
         ascendant = normalize_angle(ascendant - ayanamsha)
         midheaven = normalize_angle(midheaven - ayanamsha)
-        house_cusps = [
-            normalize_angle(item - ayanamsha) for item in house_cusps
-        ]
+        house_cusps = [normalize_angle(item - ayanamsha) for item in house_cusps]
 
     return {
         "ascendant": ascendant,
@@ -2120,18 +2221,14 @@ def _build_relative_base_chart(
         midheaven=layout["midheaven"],
         house_system=house_system_info["key"],
         house_cusps=(
-            None
-            if house_system_info["key"] == "whole_sign"
-            else layout["house_cusps"]
+            None if house_system_info["key"] == "whole_sign" else layout["house_cusps"]
         ),
         summary_prefix="已生成 FateBridge 关系盘基础命盘。",
         engine_profile=engine_profile,
         profile_overrides={
             "tradition": base_chart["chart_profile"].get("tradition", False),
             **_relative_house_profile_overrides(house_system_info),
-            **_relative_zodiac_profile_overrides(
-                zodiacal_info, ayanamsha=ayanamsha
-            ),
+            **_relative_zodiac_profile_overrides(zodiacal_info, ayanamsha=ayanamsha),
         },
     )
 
@@ -2212,13 +2309,12 @@ def _build_midpoint_birth_info(
     inner_birth: AstroBirthInfo,
     outer_birth: AstroBirthInfo,
 ) -> AstroBirthInfo:
-    midpoint_utc = inner_birth.utc_datetime + (
-        outer_birth.utc_datetime - inner_birth.utc_datetime
-    ) / 2
+    midpoint_utc = (
+        inner_birth.utc_datetime
+        + (outer_birth.utc_datetime - inner_birth.utc_datetime) / 2
+    )
     timezone_name = (
-        inner_birth.timezone
-        if inner_birth.timezone == outer_birth.timezone
-        else "UTC"
+        inner_birth.timezone if inner_birth.timezone == outer_birth.timezone else "UTC"
     )
     midpoint_local = midpoint_utc.astimezone(parse_timezone_name(timezone_name))
     return AstroBirthInfo(
@@ -2265,9 +2361,7 @@ def _build_timespace_chart(
         midheaven=layout["midheaven"],
         house_system=house_system_info["key"],
         house_cusps=(
-            None
-            if house_system_info["key"] == "whole_sign"
-            else layout["house_cusps"]
+            None if house_system_info["key"] == "whole_sign" else layout["house_cusps"]
         ),
         summary_prefix="已生成 FateBridge 时空中点盘。",
         engine_profile=engine_profile,
@@ -2275,9 +2369,7 @@ def _build_timespace_chart(
             "derivation": "midpoint_birth",
             "tradition": midpoint_chart["chart_profile"].get("tradition", False),
             **_relative_house_profile_overrides(house_system_info),
-            **_relative_zodiac_profile_overrides(
-                zodiacal_info, ayanamsha=ayanamsha
-            ),
+            **_relative_zodiac_profile_overrides(zodiacal_info, ayanamsha=ayanamsha),
         },
     )
 
@@ -2317,8 +2409,12 @@ def _build_influence_chart_wrapper(
         profile_overrides={
             "reference_frame": f"{source_name}_planets_in_{target_name}_houses",
             "tradition": house_chart.get("chart_profile", {}).get("tradition", False),
-            "house_system_code": house_chart.get("chart_profile", {}).get("house_system_code"),
-            "house_system_label_zh": house_chart.get("chart_profile", {}).get("house_system_label_zh"),
+            "house_system_code": house_chart.get("chart_profile", {}).get(
+                "house_system_code"
+            ),
+            "house_system_label_zh": house_chart.get("chart_profile", {}).get(
+                "house_system_label_zh"
+            ),
             **_relative_zodiac_profile_overrides(zodiacal_info),
         },
     )
@@ -2326,8 +2422,12 @@ def _build_influence_chart_wrapper(
         "chart_profile": {
             "chart_type": f"influence_{role}",
             "house_system": house_system,
-            "house_system_code": house_chart.get("chart_profile", {}).get("house_system_code"),
-            "house_system_label_zh": house_chart.get("chart_profile", {}).get("house_system_label_zh"),
+            "house_system_code": house_chart.get("chart_profile", {}).get(
+                "house_system_code"
+            ),
+            "house_system_label_zh": house_chart.get("chart_profile", {}).get(
+                "house_system_label_zh"
+            ),
             "zodiac": influence_chart["chart_profile"].get("zodiac", "tropical"),
             "zodiacal": zodiacal_info["value"],
             "zodiac_label_zh": zodiacal_info["label_zh"],
@@ -2433,9 +2533,15 @@ def _build_marks_chart(
         engine_profile=engine_profile,
         profile_overrides={
             "derivation": "composite_timespace_blend",
-            "tradition": composite_chart.get("chart_profile", {}).get("tradition", False),
-            "house_system_code": composite_chart.get("chart_profile", {}).get("house_system_code"),
-            "house_system_label_zh": composite_chart.get("chart_profile", {}).get("house_system_label_zh"),
+            "tradition": composite_chart.get("chart_profile", {}).get(
+                "tradition", False
+            ),
+            "house_system_code": composite_chart.get("chart_profile", {}).get(
+                "house_system_code"
+            ),
+            "house_system_label_zh": composite_chart.get("chart_profile", {}).get(
+                "house_system_label_zh"
+            ),
             **_relative_zodiac_profile_overrides(zodiacal_info),
         },
     )
@@ -3134,7 +3240,9 @@ def build_relative_payload(
             **shared_kwargs, timespace_chart=timespace_chart
         )
     elif normalized_mode == "marks":
-        payload = _build_marks_relative_payload(**shared_kwargs, marks_chart=marks_chart)
+        payload = _build_marks_relative_payload(
+            **shared_kwargs, marks_chart=marks_chart
+        )
     else:
         payload = _build_unimplemented_relative_payload(**shared_kwargs)
 

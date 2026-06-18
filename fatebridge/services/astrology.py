@@ -16,7 +16,6 @@ from fatebridge.core.astrology import (
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.utils.helpers import handle_calculation_error
 
-
 SUPPORTED_CHART_VARIANTS = {
     "chart",
     "chart13",
@@ -231,16 +230,17 @@ def _build_balance_line(balance: Dict[str, Any], labels: Dict[str, str]) -> str:
     ordered_keys = [key for key in labels if key in balance]
     if not ordered_keys:
         return "无"
-    return "，".join(
-        f"{labels[key]} {balance.get(key, 0)}" for key in ordered_keys
-    )
+    return "，".join(f"{labels[key]} {balance.get(key, 0)}" for key in ordered_keys)
 
 
 def _build_house_lines(houses: List[Dict[str, Any]]) -> str:
-    return "\n".join(
-        f"第{item['house']}宫：{item['sign_zh']} {_format_degree(item['cusp_longitude'])}"
-        for item in houses
-    ).strip() or "无"
+    return (
+        "\n".join(
+            f"第{item['house']}宫：{item['sign_zh']} {_format_degree(item['cusp_longitude'])}"
+            for item in houses
+        ).strip()
+        or "无"
+    )
 
 
 def _build_angle_lines(angles: Dict[str, Any]) -> str:
@@ -307,7 +307,9 @@ def _house_focus(planets: List[Dict[str, Any]]) -> List[tuple[int, int]]:
 
 def _sign_focus(planets: List[Dict[str, Any]]) -> List[tuple[str, int]]:
     counter = Counter(
-        item["sign"] for item in planets if item.get("sign") and item.get("id") != "North Node"
+        item["sign"]
+        for item in planets
+        if item.get("sign") and item.get("id") != "North Node"
     )
     return sorted(counter.items(), key=lambda item: (-item[1], item[0]))
 
@@ -344,7 +346,9 @@ def _build_dominant_energy(
         lines.append(ELEMENT_THEMES.get(dominant_element, ""))
     if dominant_modality:
         lines.append(MODALITY_THEMES.get(dominant_modality, ""))
-    return " ".join(item for item in lines if item).strip() or "当前盘面主导能量尚不明显。"
+    return (
+        " ".join(item for item in lines if item).strip() or "当前盘面主导能量尚不明显。"
+    )
 
 
 def _build_core_identity(planets: List[Dict[str, Any]]) -> str:
@@ -443,8 +447,12 @@ def _build_aspect_pattern(aspects: List[Dict[str, Any]]) -> str:
     aspect_meaning = ASPECT_INTERPRETATION.get(
         aspect_name or "", "这组能量会成为盘面里很难忽略的主旋律。"
     )
-    harmony_count = sum(1 for item in aspects if item.get("aspect") in HARMONIOUS_ASPECTS)
-    tension_count = sum(1 for item in aspects if item.get("aspect") in CHALLENGING_ASPECTS)
+    harmony_count = sum(
+        1 for item in aspects if item.get("aspect") in HARMONIOUS_ASPECTS
+    )
+    tension_count = sum(
+        1 for item in aspects if item.get("aspect") in CHALLENGING_ASPECTS
+    )
     if tension_count > harmony_count:
         tone = "整体相位张力略强，成长通常来自摩擦、决断和重新分配能量。"
     elif harmony_count > tension_count:
@@ -473,7 +481,10 @@ def _build_development_advice(
             f"成长建议可以特别参考北交点：往{sign_trait.get('growth', '更成熟地承担长期课题')}"
             f"，并把重心逐步放到第{north_node.get('house', '—')}宫对应的人生领域。"
         )
-    return " ".join(item for item in advice_parts if item).strip() or "当前盘面建议先观察现实情境中的重复模式。"
+    return (
+        " ".join(item for item in advice_parts if item).strip()
+        or "当前盘面建议先观察现实情境中的重复模式。"
+    )
 
 
 def _build_variant_note(payload: Dict[str, Any], chart_variant: str) -> Optional[str]:
@@ -483,9 +494,13 @@ def _build_variant_note(payload: Dict[str, Any], chart_variant: str) -> Optional
             hellenistic.get("ascendant_ruler", ""),
             hellenistic.get("ascendant_ruler", "未知"),
         )
-        angular_planets = "、".join(
-            PLANET_LABELS_ZH.get(item, item) for item in hellenistic.get("angular_planets", [])
-        ) or "无"
+        angular_planets = (
+            "、".join(
+                PLANET_LABELS_ZH.get(item, item)
+                for item in hellenistic.get("angular_planets", [])
+            )
+            or "无"
+        )
         return (
             f"希腊盘补充信息显示这是{hellenistic.get('sect', '未知')}盘，"
             f"上升主星为{ascendant_ruler}，角宫星体有{angular_planets}。"
@@ -512,7 +527,9 @@ def _build_variant_note(payload: Dict[str, Any], chart_variant: str) -> Optional
     return None
 
 
-def _build_chart_interpretation(payload: Dict[str, Any], chart_variant: str) -> Dict[str, str]:
+def _build_chart_interpretation(
+    payload: Dict[str, Any], chart_variant: str
+) -> Dict[str, str]:
     planets = payload.get("planets", [])
     angles = payload.get("angles", {})
     element_balance = payload.get("element_balance", {})
@@ -606,9 +623,7 @@ def _build_standard_chart_snapshot_sections(
     ]
 
     if chart_variant == "chart13":
-        detail_lines.append(
-            f"13扇区数量：{len(payload.get('thirteen_sectors', []))}"
-        )
+        detail_lines.append(f"13扇区数量：{len(payload.get('thirteen_sectors', []))}")
 
     hellenistic = payload.get("hellenistic", {})
     if chart_variant == "hellen_chart":
@@ -704,12 +719,16 @@ def _build_guolao_snapshot_sections(payload: Dict[str, Any]) -> List[tuple[str, 
     ]
 
 
-def _build_chart_snapshot(payload: Dict[str, Any], chart_variant: str) -> Dict[str, Any]:
+def _build_chart_snapshot(
+    payload: Dict[str, Any], chart_variant: str
+) -> Dict[str, Any]:
     technique = CORE_CHART_EXPORT_TECHNIQUES.get(chart_variant, "astrochart")
     sections = (
         _build_guolao_snapshot_sections(payload)
         if chart_variant == "guolao_chart"
-        else _build_standard_chart_snapshot_sections(payload, chart_variant=chart_variant)
+        else _build_standard_chart_snapshot_sections(
+            payload, chart_variant=chart_variant
+        )
     )
     snapshot_text = _render_snapshot_text(sections)
     snapshot_export = parse_export_content(
@@ -853,14 +872,20 @@ def calculate_relative_chart_analysis(
         inner_birth = _build_birth_info(inner_payload)
         outer_birth = _build_birth_info(outer_payload)
         resolved_mode_source = relative_mode_source
-        if resolved_mode_source not in {"default", "relative_mode", "relationship_mode"}:
+        if resolved_mode_source not in {
+            "default",
+            "relative_mode",
+            "relationship_mode",
+        }:
             if relative_mode not in (None, ""):
                 resolved_mode_source = "relative_mode"
             elif relationship_mode not in (None, ""):
                 resolved_mode_source = "relationship_mode"
             else:
                 resolved_mode_source = "default"
-        resolved_mode = relative_mode if relative_mode not in (None, "") else relationship_mode
+        resolved_mode = (
+            relative_mode if relative_mode not in (None, "") else relationship_mode
+        )
         return build_relative_payload(
             inner_birth=inner_birth,
             outer_birth=outer_birth,

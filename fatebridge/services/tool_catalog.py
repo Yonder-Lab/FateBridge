@@ -141,7 +141,6 @@ from fatebridge.services.western_timing_tools import (
     calculate_zr,
 )
 
-
 # ---------------------------------------------------------------------------
 # Custom invokes for the few tools whose glue does not fit a standard binder.
 # ---------------------------------------------------------------------------
@@ -182,16 +181,20 @@ def _astro_chart_bind(req: Any):
 
 
 def _astro_relative_rest_bind(req: Any):
-    return calculate_relative_chart_analysis, (), {
-        "inner_payload": req.inner.model_dump(),
-        "outer_payload": req.outer.model_dump(),
-        "relative_mode": req.relative_mode,
-        "relationship_mode": req.relationship_mode,
-        "relative_mode_source": req.mode_input_source,
-        "hsys": req.hsys,
-        "zodiacal": req.zodiacal,
-        "relationship_focus": req.relationship_focus,
-    }
+    return (
+        calculate_relative_chart_analysis,
+        (),
+        {
+            "inner_payload": req.inner.model_dump(),
+            "outer_payload": req.outer.model_dump(),
+            "relative_mode": req.relative_mode,
+            "relationship_mode": req.relationship_mode,
+            "relative_mode_source": req.mode_input_source,
+            "hsys": req.hsys,
+            "zodiacal": req.zodiacal,
+            "relationship_focus": req.relationship_focus,
+        },
+    )
 
 
 def _astro_relative_flat_bind(req: Any):
@@ -211,23 +214,34 @@ def _astro_relative_flat_bind(req: Any):
             "birth_place": d[f"{prefix}_birth_place"],
         }
 
-    return calculate_relative_chart_analysis, (), {
-        "inner_payload": party("inner"),
-        "outer_payload": party("outer"),
-        "relative_mode": d["relative_mode"],
-        "relationship_mode": d["relationship_mode"],
-        "hsys": d["hsys"],
-        "zodiacal": d["zodiacal"],
-        "relationship_focus": d.get("relationship_focus"),
-    }
+    return (
+        calculate_relative_chart_analysis,
+        (),
+        {
+            "inner_payload": party("inner"),
+            "outer_payload": party("outer"),
+            "relative_mode": d["relative_mode"],
+            "relationship_mode": d["relationship_mode"],
+            "hsys": d["hsys"],
+            "zodiacal": d["zodiacal"],
+            "relationship_focus": d.get("relationship_focus"),
+        },
+    )
 
 
 def _chart_spec(
-    key: str, rest_path: str, mcp_name: str, variant: str, label: str, metadata_name: str
+    key: str,
+    rest_path: str,
+    mcp_name: str,
+    variant: str,
+    label: str,
+    metadata_name: str,
 ) -> ToolSpec:
     return ToolSpec(
         key=key,
-        bind=raw_invoke(calculate_core_chart_analysis, fixed={"chart_variant": variant}),
+        bind=raw_invoke(
+            calculate_core_chart_analysis, fixed={"chart_variant": variant}
+        ),
         request_model=AstroChartRequest,
         summary=f"离线{label}（优先本地高精度星历，缺失时回退近似模型）。",
         operation_label_zh=label,
@@ -318,15 +332,36 @@ CATALOG: List[ToolSpec] = [
         mcp_name="bazi_direct",
         cpu_bound=True,
     ),
-    _bazi_dimension_spec("marriage", calculate_bazi_marriage, BaziMarriageRequest, "八字婚姻分析"),
-    _bazi_dimension_spec("career", calculate_bazi_career, BaziCareerRequest, "八字事业分析"),
-    _bazi_dimension_spec("wealth", calculate_bazi_wealth, BaziWealthRequest, "八字财运分析"),
-    _bazi_dimension_spec("health", calculate_bazi_health, BaziHealthRequest, "八字健康分析"),
-    _bazi_dimension_spec("children", calculate_bazi_children, BaziChildrenRequest, "八字子女分析"),
-    _bazi_dimension_spec("education", calculate_bazi_education, BaziEducationRequest, "八字学业分析"),
-    _bazi_dimension_spec("personality", calculate_bazi_personality, BaziPersonalityRequest, "八字性格分析"),
-    _bazi_dimension_spec("relatives", calculate_bazi_relatives, BaziRelativesRequest, "八字六亲分析"),
-    _bazi_dimension_spec("romance", calculate_bazi_romance, BaziRomanceRequest, "八字正缘桃花分析"),
+    _bazi_dimension_spec(
+        "marriage", calculate_bazi_marriage, BaziMarriageRequest, "八字婚姻分析"
+    ),
+    _bazi_dimension_spec(
+        "career", calculate_bazi_career, BaziCareerRequest, "八字事业分析"
+    ),
+    _bazi_dimension_spec(
+        "wealth", calculate_bazi_wealth, BaziWealthRequest, "八字财运分析"
+    ),
+    _bazi_dimension_spec(
+        "health", calculate_bazi_health, BaziHealthRequest, "八字健康分析"
+    ),
+    _bazi_dimension_spec(
+        "children", calculate_bazi_children, BaziChildrenRequest, "八字子女分析"
+    ),
+    _bazi_dimension_spec(
+        "education", calculate_bazi_education, BaziEducationRequest, "八字学业分析"
+    ),
+    _bazi_dimension_spec(
+        "personality",
+        calculate_bazi_personality,
+        BaziPersonalityRequest,
+        "八字性格分析",
+    ),
+    _bazi_dimension_spec(
+        "relatives", calculate_bazi_relatives, BaziRelativesRequest, "八字六亲分析"
+    ),
+    _bazi_dimension_spec(
+        "romance", calculate_bazi_romance, BaziRomanceRequest, "八字正缘桃花分析"
+    ),
     # --- Compatibility -----------------------------------------------------
     ToolSpec(
         key="two_person_compatibility",
@@ -561,7 +596,9 @@ CATALOG: List[ToolSpec] = [
     ),
     ToolSpec(
         key="liureng_runyear",
-        bind=person_invoke(calculate_liureng_runyear, also_pass=("use_true_solar_time",)),
+        bind=person_invoke(
+            calculate_liureng_runyear, also_pass=("use_true_solar_time",)
+        ),
         request_model=LiuRengRunyearRequest,
         summary="六壬流年分析。",
         operation_label_zh="六壬流年",
@@ -652,10 +689,38 @@ CATALOG: List[ToolSpec] = [
         mcp_name="astro_chart",
         metadata_name="chart",
     ),
-    _chart_spec("astro_chart13", "/api/astro/chart13", "astro_chart13", "chart13", "13星座盘", "chart13"),
-    _chart_spec("astro_hellen", "/api/astro/hellen", "astro_hellen_chart", "hellen_chart", "希腊盘", "astro_hellen_chart"),
-    _chart_spec("astro_guolao", "/api/astro/guolao", "astro_guolao_chart", "guolao_chart", "果老星宗盘", "astro_guolao_chart"),
-    _chart_spec("astro_india", "/api/astro/india", "astro_india_chart", "india_chart", "印度盘", "astro_india_chart"),
+    _chart_spec(
+        "astro_chart13",
+        "/api/astro/chart13",
+        "astro_chart13",
+        "chart13",
+        "13星座盘",
+        "chart13",
+    ),
+    _chart_spec(
+        "astro_hellen",
+        "/api/astro/hellen",
+        "astro_hellen_chart",
+        "hellen_chart",
+        "希腊盘",
+        "astro_hellen_chart",
+    ),
+    _chart_spec(
+        "astro_guolao",
+        "/api/astro/guolao",
+        "astro_guolao_chart",
+        "guolao_chart",
+        "果老星宗盘",
+        "astro_guolao_chart",
+    ),
+    _chart_spec(
+        "astro_india",
+        "/api/astro/india",
+        "astro_india_chart",
+        "india_chart",
+        "印度盘",
+        "astro_india_chart",
+    ),
     ToolSpec(
         key="astro_germany",
         bind=raw_invoke(calculate_germany_chart_analysis),

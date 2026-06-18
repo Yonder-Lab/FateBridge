@@ -62,7 +62,9 @@ def _build_snapshot_export(
     )
 
 
-def _build_knowledge_registry_snapshot_text(registry: Dict[str, Any], *, domain: Optional[str]) -> str:
+def _build_knowledge_registry_snapshot_text(
+    registry: Dict[str, Any], *, domain: Optional[str]
+) -> str:
     provenance = registry.get("provenance") or {}
     domains = registry.get("domains") or []
     overview_lines = [

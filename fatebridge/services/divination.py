@@ -126,7 +126,9 @@ def _build_gua_meiyi_snapshot_text(
     result_lines: list[str] = []
     for query in queries:
         item = results.get(query) or {}
-        result_lines.append(f"{query} -> {item.get('name', '未知')} ({item.get('lookup_type', '未知')})")
+        result_lines.append(
+            f"{query} -> {item.get('name', '未知')} ({item.get('lookup_type', '未知')})"
+        )
         if item.get("theme"):
             result_lines.append(f"主题：{item['theme']}")
         if item.get("judgement"):

@@ -2,8 +2,8 @@
 Basic data structures and constants for BaZi calculations.
 """
 
-from typing import Optional
 from enum import Enum
+from typing import Optional
 
 # 天干 (Heavenly Stems)
 HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]

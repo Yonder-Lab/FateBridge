@@ -32,10 +32,10 @@ jobs:
         run: pytest -q
 
       - name: Check formatting
-        run: black --check api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py tests
+        run: black --check fatebridge api.py fastmcp_server.py scripts tests
 
       - name: Check import order
-        run: isort --check-only api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py tests
+        run: isort --check-only fatebridge api.py fastmcp_server.py scripts tests
 
       - name: Run type checks
         run: mypy --follow-imports=silent api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py
