@@ -235,6 +235,57 @@ def test_tian_ke_di_chong_is_reported_as_tension_pattern():
     assert not any(item["label"] == "天克地冲" for item in result["risk_patterns"])
 
 
+def test_element_balance_treats_needed_control_as_favorable():
+    # person1 日主甲(木) 克 person2 日主戊(土)。对 person2 而言，木是其官杀。
+    # person2 的格局把木列为喜用（如羊刃驾杀需官杀），此时"被克"是格局所需，
+    # 不应按无情之克扣分。
+    analysis1 = _build_minimal_analysis(
+        day_stem="甲",
+        day_branch="子",
+        useful_elements=["水", "木"],
+        avoid_elements=["土", "火", "金"],
+        useful_ten_gods=["正印"],
+    )
+    analysis2 = _build_minimal_analysis(
+        day_stem="戊",
+        day_branch="辰",
+        useful_elements=["木", "水"],
+        avoid_elements=["土", "火", "金"],
+        useful_ten_gods=["正官", "七杀"],
+    )
+
+    result = AdvancedCompatibility._analyze_element_balance(analysis1, analysis2)
+
+    assert result["balance_type"] == "相克有情"
+    assert not any("压制感" in detail for detail in result["details"])
+    # 与无情之克(-8)相比，有情之克不扣分，总分应高于扣分基准。
+    assert result["score"] >= 65.0
+
+
+def test_element_balance_still_penalizes_wujing_control():
+    # person1 日主甲(木) 克 person2 日主戊(土)，但木落在 person2 的忌神区间，
+    # 且 person2 的土也非 person1 喜用——双方都不得益，仍按无情之克扣分。
+    analysis1 = _build_minimal_analysis(
+        day_stem="甲",
+        day_branch="子",
+        useful_elements=["水", "木"],
+        avoid_elements=["土", "火", "金"],
+        useful_ten_gods=["正印"],
+    )
+    analysis2 = _build_minimal_analysis(
+        day_stem="戊",
+        day_branch="辰",
+        useful_elements=["火", "土"],
+        avoid_elements=["木", "水", "金"],
+        useful_ten_gods=["正印"],
+    )
+
+    result = AdvancedCompatibility._analyze_element_balance(analysis1, analysis2)
+
+    assert result["balance_type"] == "相克制约"
+    assert any("压制感" in detail for detail in result["details"])
+
+
 def test_calculate_destiny_analysis_exposes_structure_profile():
     person = create_person_info(
         birth_year=1994,
