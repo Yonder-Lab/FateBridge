@@ -21,7 +21,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
 
 from pydantic import BaseModel
 
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.helpers import VALIDATION_ERROR_CODE, create_person_info
 
 ServiceResult = Dict[str, Any]
 # A bind turns a validated request model into a concrete service call:
@@ -101,7 +101,9 @@ def _build_person(data: Dict[str, Any], prefix: str = ""):
     )
 
 
-def person_invoke(service: Callable[..., ServiceResult], *, also_pass: Tuple[str, ...] = ()) -> Bind:
+def person_invoke(
+    service: Callable[..., ServiceResult], *, also_pass: Tuple[str, ...] = ()
+) -> Bind:
     """Single-person tools: bind to service(person, **extras).
 
     ``extras`` is auto-derived as every request field that is NOT a standard
@@ -236,17 +238,28 @@ def invalid_input_result(spec: ToolSpec) -> ServiceResult:
     no HTTP layer, so they render this same shape through the normal error
     renderer — keeping bad-input handling identical across every surface instead
     of leaking a raw traceback on MCP.
+
+    The ``error_code`` reuses the same ``validation_error`` token that
+    ``handle_calculation_error`` emits for service-layer ``ValueError``s, so an
+    agent can branch on ``error_code`` regardless of *where* the bad input was
+    caught. The two paths differ only in message detail — and that difference is
+    intentional: this binding-layer path stays generic because a raw pydantic
+    ``ValidationError`` can echo caller input, whereas a service raises a
+    hand-written domain message that is safe and useful to surface. Branch on
+    ``error_code``, not on message text.
     """
     label = spec.rest_error_label or f"{spec.operation_label_zh}参数"
     return {
         "error": f"无效的{label}",
-        "error_code": "VALIDATION_ERROR",
+        "error_code": VALIDATION_ERROR_CODE,
         "status_code": 400,
         "retryable": False,
     }
 
 
-def model_parameters(model: Type[BaseModel]) -> Tuple[List[inspect.Parameter], Dict[str, Any]]:
+def model_parameters(
+    model: Type[BaseModel],
+) -> Tuple[List[inspect.Parameter], Dict[str, Any]]:
     """Convert a pydantic model's fields into ordered inspect.Parameters."""
     required: List[inspect.Parameter] = []
     optional: List[inspect.Parameter] = []

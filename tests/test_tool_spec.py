@@ -110,7 +110,7 @@ def test_invalid_input_result_shape_mirrors_rest_400():
     out = invalid_input_result(spec)
     assert out["error"] == "无效的八字参数"
     assert out["status_code"] == 400
-    assert out["error_code"] == "VALIDATION_ERROR"
+    assert out["error_code"] == "validation_error"
     assert out["retryable"] is False
 
 
@@ -125,7 +125,7 @@ def test_mcp_fn_renders_valueerror_as_clean_error():
     fn = _make_mcp_fn(spec, render_response=render_response, render_error=render_error)
     assert fn() == "err"
     assert captured["error_result"]["status_code"] == 400
-    assert captured["error_result"]["error_code"] == "VALIDATION_ERROR"
+    assert captured["error_result"]["error_code"] == "validation_error"
 
 
 def test_mcp_fn_invalid_date_renders_error_end_to_end():
