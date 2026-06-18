@@ -128,8 +128,12 @@ def normalize_birth_place_text(text: str) -> str:
     return PLACE_TEXT_SANITIZER.sub("", normalized_text)
 
 
-_MALE_GENDER_TOKENS = frozenset({"男", "male", "m", "man", "boy", "1", "true", "阳", "乾"})
-_FEMALE_GENDER_TOKENS = frozenset({"女", "female", "f", "woman", "girl", "0", "false", "阴", "坤"})
+_MALE_GENDER_TOKENS = frozenset(
+    {"男", "male", "m", "man", "boy", "1", "true", "阳", "乾"}
+)
+_FEMALE_GENDER_TOKENS = frozenset(
+    {"女", "female", "f", "woman", "girl", "0", "false", "阴", "坤"}
+)
 
 
 def normalize_gender(gender: Any) -> str:
@@ -167,42 +171,99 @@ def is_female(gender: Any) -> bool:
 # single-letter codes accepted by swisseph / kerykeion.
 _HOUSE_SYSTEM_ALIASES: Dict[str, str] = {
     # Placidus (default)
-    "placidus": "P", "placidian": "P", "普拉西德": "P", "普拉西迪斯": "P",
+    "placidus": "P",
+    "placidian": "P",
+    "普拉西德": "P",
+    "普拉西迪斯": "P",
     # Koch
-    "koch": "K", "koh": "K", "柯赫": "K", "科赫": "K",
+    "koch": "K",
+    "koh": "K",
+    "柯赫": "K",
+    "科赫": "K",
     # Equal house (A and E both map to Equal from Ascendant in swisseph)
-    "equal": "A", "equalhouse": "A", "equal-house": "A", "equalasc": "A",
-    "equal sign": "A", "等宫": "A", "等分制": "A",
+    "equal": "A",
+    "equalhouse": "A",
+    "equal-house": "A",
+    "equalasc": "A",
+    "equal sign": "A",
+    "等宫": "A",
+    "等分制": "A",
     # Whole sign
-    "whole": "W", "wholesign": "W", "whole-sign": "W", "whole_signs": "W",
-    "whole signs": "W", "整宫": "W", "整宫制": "W",
+    "whole": "W",
+    "wholesign": "W",
+    "whole-sign": "W",
+    "whole_signs": "W",
+    "whole signs": "W",
+    "整宫": "W",
+    "整宫制": "W",
     # Regiomontanus
-    "regiomontanus": "R", "regio": "R", "雷乔蒙塔努斯": "R",
+    "regiomontanus": "R",
+    "regio": "R",
+    "雷乔蒙塔努斯": "R",
     # Campanus
-    "campanus": "C", "坎帕努斯": "C",
+    "campanus": "C",
+    "坎帕努斯": "C",
     # Porphyry / Porphyrius
-    "porphyry": "O", "porphyrius": "O", "波菲利": "O",
+    "porphyry": "O",
+    "porphyrius": "O",
+    "波菲利": "O",
     # Alcabitius
-    "alcabitius": "B", "alchabitius": "B", "alchabitus": "B", "阿卡比特斯": "B",
+    "alcabitius": "B",
+    "alchabitius": "B",
+    "alchabitus": "B",
+    "阿卡比特斯": "B",
     # Morinus
-    "morinus": "M", "莫里努斯": "M",
+    "morinus": "M",
+    "莫里努斯": "M",
     # Topocentric / Polich-Page
-    "topocentric": "T", "polich": "T", "polichpage": "T", "polich-page": "T",
+    "topocentric": "T",
+    "polich": "T",
+    "polichpage": "T",
+    "polich-page": "T",
     "polich page": "T",
     # Horizontal / Azimuthal
-    "horizontal": "H", "azimuthal": "H",
+    "horizontal": "H",
+    "azimuthal": "H",
     # Axial rotation / Meridian
-    "axial": "X", "meridian": "X", "axial rotation": "X",
+    "axial": "X",
+    "meridian": "X",
+    "axial rotation": "X",
     # Vehlow Equal
-    "vehlow": "V", "vehlowequal": "V", "vehlow equal": "V",
+    "vehlow": "V",
+    "vehlowequal": "V",
+    "vehlow equal": "V",
     # APC / Krusinski
-    "apc": "Y", "krusinski": "U",
+    "apc": "Y",
+    "krusinski": "U",
 }
 
 # Valid single-letter codes per kerykeion.schemas.kr_literals.HousesSystemIdentifier
 _VALID_HOUSE_SYSTEM_CODES = frozenset(
-    {"A", "B", "C", "D", "F", "H", "I", "i", "K", "L", "M", "N",
-     "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"}
+    {
+        "A",
+        "B",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "i",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+    }
 )
 
 
@@ -681,9 +742,7 @@ def calculate_solar_time_adjustment(
     if strategy == SOLAR_TIME_STRATEGY_APPARENT:
         equation_of_time_minutes = calculate_equation_of_time_minutes(input_datetime)
         total_correction_minutes = (
-            longitude_correction_minutes
-            + equation_of_time_minutes
-            - dst_offset_minutes
+            longitude_correction_minutes + equation_of_time_minutes - dst_offset_minutes
         )
     elif strategy == SOLAR_TIME_STRATEGY_LONGITUDE_ONLY:
         # Some local metaphysics techniques use a longitude-only civil-time

@@ -40,6 +40,7 @@ def _build_birth_payload() -> dict:
         "birth_place": "上海",
     }
 
+
 def test_load_runtime_env_reads_local_env_without_overriding_existing_values(
     tmp_path, monkeypatch
 ):

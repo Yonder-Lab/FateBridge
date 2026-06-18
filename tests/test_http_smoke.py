@@ -112,7 +112,13 @@ HTTP_SMOKE_CASES = [
 @pytest.mark.parametrize(
     ("path", "payload", "tool_name", "assertion"),
     HTTP_SMOKE_CASES,
-    ids=["astro_chart", "solarreturn", "qimen", "knowledge_registry", "export_registry"],
+    ids=[
+        "astro_chart",
+        "solarreturn",
+        "qimen",
+        "knowledge_registry",
+        "export_registry",
+    ],
 )
 def test_http_smoke_endpoints_return_expected_payloads(
     monkeypatch,
@@ -126,7 +132,10 @@ def test_http_smoke_endpoints_return_expected_payloads(
 
     if tool_name == "solarreturn" and response.status_code == 503:
         detail = response.json().get("detail", {})
-        if isinstance(detail, dict) and detail.get("error_code") == "dependency_missing":
+        if (
+            isinstance(detail, dict)
+            and detail.get("error_code") == "dependency_missing"
+        ):
             pytest.skip("western predictive runtime unavailable in test environment")
 
     assert response.status_code == 200

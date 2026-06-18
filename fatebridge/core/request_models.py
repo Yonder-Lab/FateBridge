@@ -1,0 +1,902 @@
+"""
+FateBridge request models (Pydantic).
+
+Extracted from api.py into a neutral module so that the central tool catalog,
+the REST app, and other surfaces can all import them without circular imports.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+
+class FateBridgeRequest(BaseModel):
+    """Request model for individual destiny analysis"""
+
+    name: Optional[str] = Field(default="未提供", description="Name (optional)")
+    gender: Optional[str] = Field(default="未知", description="Gender (optional)")
+    birth_year: int = Field(description="Birth year, e.g., 1990")
+    birth_month: int = Field(ge=1, le=12, description="Birth month (1-12)")
+    birth_day: int = Field(ge=1, le=31, description="Birth day (1-31)")
+    birth_hour: int = Field(ge=0, le=23, description="Birth hour (0-23)")
+    birth_minute: int = Field(default=0, ge=0, le=59, description="Birth minute (0-59)")
+    birth_place: Optional[str] = Field(
+        default="未提供", description="Birth place (optional)"
+    )
+    birth_timezone: Optional[str] = Field(
+        default=None, description="Birth timezone (IANA name or UTC offset)"
+    )
+    birth_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Birth longitude (optional)"
+    )
+    use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time correction"
+    )
+
+
+class BaziDimensionRequest(FateBridgeRequest):
+    """Shared base for BaZi single-dimension analyses.
+
+    大运/流年默认由命盘 + 分析日期内部推算（analysis_* 缺省为今天），用户无需自己
+    知道大运；dayun_pillar / liunian_pillar 为可选覆盖。
+    """
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year (defaults to current year)")
+    analysis_month: Optional[int] = Field(default=None, ge=1, le=12, description="Analysis month (1-12)")
+    analysis_day: Optional[int] = Field(default=None, ge=1, le=31, description="Analysis day (1-31)")
+    dayun_pillar: Optional[str] = Field(default=None, description="Optional override: current dayun pillar, e.g. '甲子'")
+    liunian_pillar: Optional[str] = Field(default=None, description="Optional override: current liunian pillar, e.g. '丙寅'")
+
+class BaziBirthRequest(FateBridgeRequest):
+    """Request model for standalone BaZi birth output."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class BaziDirectRequest(BaziBirthRequest):
+    """Request model for standalone BaZi direct output."""
+
+class TwoPersonCompatibilityRequest(BaseModel):
+    """Request model for two-person compatibility analysis."""
+
+    person1_name: str = Field(description="First person name")
+    person1_birth_year: int = Field(description="First person birth year, e.g., 1990")
+    person1_birth_month: int = Field(
+        ge=1, le=12, description="First person birth month"
+    )
+    person1_birth_day: int = Field(ge=1, le=31, description="First person birth day")
+    person1_birth_hour: int = Field(ge=0, le=23, description="First person birth hour")
+    person1_gender: str = Field(default="未知", description="First person gender")
+    person1_birth_place: str = Field(
+        default="未提供", description="First person birth place"
+    )
+    person1_birth_minute: int = Field(
+        default=0, ge=0, le=59, description="First person birth minute"
+    )
+    person1_birth_timezone: Optional[str] = Field(
+        default=None, description="First person birth timezone"
+    )
+    person1_birth_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="First person birth longitude"
+    )
+    person1_use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time for first person"
+    )
+    person2_name: str = Field(description="Second person name")
+    person2_birth_year: int = Field(description="Second person birth year, e.g., 1992")
+    person2_birth_month: int = Field(
+        ge=1, le=12, description="Second person birth month"
+    )
+    person2_birth_day: int = Field(ge=1, le=31, description="Second person birth day")
+    person2_birth_hour: int = Field(ge=0, le=23, description="Second person birth hour")
+    person2_gender: str = Field(default="未知", description="Second person gender")
+    person2_birth_place: str = Field(
+        default="未提供", description="Second person birth place"
+    )
+    person2_birth_minute: int = Field(
+        default=0, ge=0, le=59, description="Second person birth minute"
+    )
+    person2_birth_timezone: Optional[str] = Field(
+        default=None, description="Second person birth timezone"
+    )
+    person2_birth_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Second person birth longitude"
+    )
+    person2_use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time for second person"
+    )
+    relationship_type: str = Field(
+        default="general", description="Relationship type, e.g. marriage or business"
+    )
+
+class TimingAnalysisRequest(FateBridgeRequest):
+    """Request model for comprehensive timing analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    analysis_age: Optional[int] = Field(
+        default=None, ge=0, description="Analysis age override"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class DayunAnalysisRequest(FateBridgeRequest):
+    """Request model for dayun analysis."""
+
+    gender: str = Field(description="Gender used for dayun direction rules")
+    analysis_age: int = Field(ge=0, description="Analysis age")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class LiunianAnalysisRequest(FateBridgeRequest):
+    """Request model for liunian analysis."""
+
+    target_year: int = Field(description="Target analysis year")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class LiuriAnalysisRequest(FateBridgeRequest):
+    """Request model for liuri analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class LiushiAnalysisRequest(FateBridgeRequest):
+    """Request model for liushi analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class JieqiTimelineRequest(FateBridgeRequest):
+    """Request model for jieqi timeline analysis."""
+
+    target_year: Optional[int] = Field(default=None, description="Target year")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class LiuyueAnalysisRequest(FateBridgeRequest):
+    """Request model for liuyue analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    analysis_hour: Optional[int] = Field(
+        default=None, ge=0, le=23, description="Analysis hour (0-23)"
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class MeihuaAnalysisRequest(BaseModel):
+    """Request model for time-seeded Mei Hua Yi Shu analysis."""
+
+    analysis_year: int = Field(description="Analysis year, e.g., 2028")
+    analysis_month: int = Field(ge=1, le=12, description="Analysis month (1-12)")
+    analysis_day: int = Field(ge=1, le=31, description="Analysis day (1-31)")
+    analysis_hour: int = Field(ge=0, le=23, description="Analysis hour (0-23)")
+    analysis_minute: int = Field(
+        default=0, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    analysis_timezone: Optional[str] = Field(
+        default=None, description="Analysis timezone (IANA name or UTC offset)"
+    )
+    question: Optional[str] = Field(
+        default=None, description="Question or topic for the divination context"
+    )
+
+class GuaLookupRequest(BaseModel):
+    """Request model for trigram/hexagram lookup."""
+
+    query: str = Field(description="Hexagram/trigram name or binary code")
+    lookup_mode: str = Field(
+        default="auto",
+        description="Lookup mode: auto, hexagram, or trigram",
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class JieqiYearRequest(BaseModel):
+    """Request model for annual jieqi helper output."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    year: int = Field(description="Target year, e.g. 2028")
+    zone: Optional[str] = Field(default="Asia/Shanghai", description="Timezone spec")
+    lat: Optional[str] = Field(default=None, description="Latitude text hint")
+    lon: Optional[str] = Field(default=None, description="Longitude text hint")
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    jieqis: List[str] = Field(
+        default_factory=list, description="Optional focused jieqi names"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class NongliTimeRequest(BaseModel):
+    """Request model for nongli-time helper output."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str = Field(description="Date string, e.g. 2028-04-01")
+    time: str = Field(description="Time string, e.g. 09:00:00")
+    zone: Optional[str] = Field(default="Asia/Shanghai", description="Timezone spec")
+    lat: Optional[str] = Field(default=None, description="Latitude text hint")
+    lon: Optional[str] = Field(default=None, description="Longitude text hint")
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    gender: Optional[bool] = Field(
+        default=None, description="Optional gender flag passthrough"
+    )
+    after23_new_day: bool = Field(
+        default=False,
+        alias="after23NewDay",
+        description="Whether 23:00 counts as next day",
+    )
+    time_alg: int = Field(
+        default=0,
+        alias="timeAlg",
+        description="Time algorithm: 0=true solar time (requires longitude), 1=direct clock time",
+    )
+    ad: int = Field(
+        default=1,
+        description="Common era flag; offline nongli conversion supports ad=1 only within 1900-01-31 to 2100-02-08",
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class GuaMeiyiRequest(BaseModel):
+    """Request model for batch Meiyi hexagram meanings."""
+
+    name: List[str] = Field(description="Trigram or hexagram names/codes")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class ExportRegistryRequest(BaseModel):
+    """Request model for export registry lookup."""
+
+    technique: Optional[str] = Field(default=None, description="Optional technique key")
+
+class ExportParseRequest(BaseModel):
+    """Request model for export snapshot parsing."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    technique: str = Field(description="Technique key, e.g. qimen")
+    content: str = Field(description="Snapshot text content")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional selected section titles",
+    )
+    planet_info: Optional[Dict[str, Any]] = Field(
+        default=None,
+        alias="planetInfo",
+        description="Optional planet info export toggles",
+    )
+    astro_meaning: Optional[Dict[str, Any]] = Field(
+        default=None,
+        alias="astroMeaning",
+        description="Optional astro meaning export toggles",
+    )
+
+class KnowledgeRegistryRequest(BaseModel):
+    """Request model for bundled knowledge registry."""
+
+    domain: Optional[str] = Field(default=None, description="Optional domain filter")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class KnowledgeReadRequest(BaseModel):
+    """Request model for bundled knowledge lookup."""
+
+    domain: str = Field(description="Knowledge domain: astro, liureng, or qimen")
+    category: str = Field(description="Category within the domain")
+    key: Optional[str] = Field(default=None, description="Primary lookup key")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+    aspect_degree: Optional[int] = Field(
+        default=None,
+        description="Optional aspect degree for astro aspect lookups",
+    )
+    object_a: Optional[str] = Field(default=None, description="First astro object")
+    object_b: Optional[str] = Field(default=None, description="Second astro object")
+    jiang_name: Optional[str] = Field(default=None, description="Liureng general name")
+    tian_branch: Optional[str] = Field(
+        default=None, description="Liureng heaven branch"
+    )
+    di_branch: Optional[str] = Field(default=None, description="Liureng earth branch")
+
+class TongSheFaRequest(BaseModel):
+    """Request model for tongshefa."""
+
+    taiyin: Optional[str] = Field(default="巽", description="Taiyin trigram")
+    taiyang: Optional[str] = Field(default="坤", description="Taiyang trigram")
+    shaoyang: Optional[str] = Field(default="震", description="Shaoyang trigram")
+    shaoyin: Optional[str] = Field(default="震", description="Shaoyin trigram")
+
+class SixYaoLineRequest(BaseModel):
+    """One six-yao line item."""
+
+    value: int = Field(ge=0, le=1, description="0 for yin, 1 for yang")
+    change: bool = Field(default=False, description="Whether the line is moving")
+    god: Optional[str] = Field(default=None, description="Optional six-god label")
+    name: Optional[str] = Field(default=None, description="Optional line label")
+
+class SixYaoRequest(BaseModel):
+    """Request model for sixyao."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str = Field(description="Date string, e.g. 2028-04-06")
+    time: str = Field(description="Time string, e.g. 09:33:00")
+    zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
+    lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    question: Optional[str] = Field(default=None, description="Question or topic")
+    gua_code: Optional[str] = Field(default=None, description="Current hexagram code")
+    changed_code: Optional[str] = Field(
+        default=None, description="Changed hexagram code"
+    )
+    lines: List[SixYaoLineRequest] = Field(
+        default_factory=list, description="Optional six lines"
+    )
+
+class SuZhanRequest(BaseModel):
+    """Request model for suzhan."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str = Field(description="Date string, e.g. 2028-04-06")
+    time: str = Field(description="Time string, e.g. 09:33:00")
+    zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
+    lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    szchart: int = Field(default=0, description="Chart mode flag")
+    szshape: int = Field(default=0, description="Chart shape flag")
+    house_start_mode: int = Field(
+        default=1, alias="houseStartMode", description="House start mode"
+    )
+    doubing_su28: bool = Field(
+        default=True,
+        alias="doubingSu28",
+        description="Whether to double-check su28 labels",
+    )
+    hsys: int = Field(
+        default=8,
+        description="Offline house system selector; standard suzhan supports 0..8 with the same FateBridge local house semantics as core chart",
+    )
+    zodiacal: int = Field(
+        default=0,
+        description="Offline zodiac selector; standard suzhan supports 0=tropical and 1=sidereal(Lahiri-like)",
+    )
+
+class OtherBuRequest(BaseModel):
+    """Request model for otherbu."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str = Field(description="Date string, e.g. 2028-04-06")
+    time: str = Field(description="Time string, e.g. 09:33:00")
+    zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
+    lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    tradition: bool = Field(
+        default=False, description="Traditional mode without outer planets"
+    )
+    sign: Optional[str] = Field(default="Aries", description="Dice sign")
+    house: int = Field(default=0, ge=0, le=11, description="Dice house index (0-11)")
+    planet: Optional[str] = Field(default="Sun", description="Dice planet")
+    hsys: int = Field(
+        default=8,
+        description="Offline house system selector; supports 0..8 via local Swiss house cusps",
+    )
+    zodiacal: int = Field(
+        default=0,
+        description="Offline zodiac selector; supports 0=tropical and 1=sidereal(Lahiri-like)",
+    )
+    question: Optional[str] = Field(default=None, description="Question or topic")
+
+class SanShiUnitedRequest(BaseModel):
+    """Request model for sanshiunited."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str = Field(description="Date string, e.g. 2028-04-06")
+    time: str = Field(description="Time string, e.g. 09:33:00")
+    zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
+    lat: Optional[str] = Field(default="31n13", description="Latitude text or decimal")
+    lon: Optional[str] = Field(
+        default="121e28", description="Longitude text or decimal"
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    qimen_options: Dict[str, Any] = Field(
+        default_factory=dict,
+        alias="qimen_options",
+        description="Optional qimen settings",
+    )
+    taiyi_options: Dict[str, Any] = Field(
+        default_factory=dict,
+        alias="taiyi_options",
+        description="Optional taiyi settings",
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+    liureng_yue: Optional[str] = Field(
+        default=None,
+        alias="liureng_yue",
+        description="Optional liureng month-general override",
+    )
+    liureng_is_diurnal: Optional[bool] = Field(
+        default=None,
+        alias="liureng_isDiurnal",
+        description="Optional liureng day/night override",
+    )
+    use_true_solar_time: bool = Field(
+        default=False,
+        description="Enable local true solar time correction before sanshi aggregation",
+    )
+
+class ZiweiBirthRequest(FateBridgeRequest):
+    """Request model for Zi Wei birth chart analysis."""
+
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class ZiweiRulesRequest(BaseModel):
+    """Request model for Zi Wei rule catalogue lookup."""
+
+    year_stem: Optional[str] = Field(
+        default=None,
+        description="Optional heavenly stem filter, e.g. 甲",
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class LiuRengGodsRequest(BaseModel):
+    """Request model for Liu Ren divination."""
+
+    analysis_year: int = Field(description="Analysis year, e.g., 2026")
+    analysis_month: int = Field(ge=1, le=12, description="Analysis month (1-12)")
+    analysis_day: int = Field(ge=1, le=31, description="Analysis day (1-31)")
+    analysis_hour: int = Field(ge=0, le=23, description="Analysis hour (0-23)")
+    analysis_minute: int = Field(
+        default=0, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    analysis_timezone: Optional[str] = Field(
+        default=None, description="Analysis timezone (IANA name or UTC offset)"
+    )
+    analysis_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Analysis longitude"
+    )
+    gender: Optional[str] = Field(default="未知", description="Gender")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+    use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time correction"
+    )
+
+class LiuRengRunyearRequest(FateBridgeRequest):
+    """Request model for Liu Ren runyear analysis."""
+
+    analysis_year: int = Field(description="Analysis year, e.g., 2026")
+    analysis_month: int = Field(ge=1, le=12, description="Analysis month (1-12)")
+    analysis_day: int = Field(ge=1, le=31, description="Analysis day (1-31)")
+    analysis_hour: int = Field(ge=0, le=23, description="Analysis hour (0-23)")
+    analysis_minute: int = Field(
+        default=0, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    analysis_timezone: Optional[str] = Field(
+        default=None, description="Analysis timezone (IANA name or UTC offset)"
+    )
+    analysis_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Analysis longitude"
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+class QimenAnalysisRequest(BaseModel):
+    """Request model for Qi Men analysis."""
+
+    analysis_year: int = Field(description="Analysis year, e.g., 2026")
+    analysis_month: int = Field(ge=1, le=12, description="Analysis month (1-12)")
+    analysis_day: int = Field(ge=1, le=31, description="Analysis day (1-31)")
+    analysis_hour: int = Field(ge=0, le=23, description="Analysis hour (0-23)")
+    analysis_minute: int = Field(
+        default=0, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    analysis_timezone: Optional[str] = Field(
+        default=None, description="Analysis timezone (IANA name or UTC offset)"
+    )
+    analysis_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Analysis longitude"
+    )
+    qimen_options: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Optional qimen settings like layout or palaceShift",
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+    use_true_solar_time: bool = Field(
+        default=False, description="Enable true solar time correction"
+    )
+
+class TaiyiAnalysisRequest(QimenAnalysisRequest):
+    """Request model for Taiyi analysis."""
+
+    gender: Optional[str] = Field(default="未知", description="Gender")
+
+class JinkouAnalysisRequest(LiuRengGodsRequest):
+    """Request model for Jin Kou analysis."""
+
+    di_fen: Optional[str] = Field(default=None, description="Ground division branch")
+
+class AstroBirthRequest(BaseModel):
+    """Base birth request model for offline astrology endpoints."""
+
+    name: Optional[str] = Field(default="未提供", description="Name (optional)")
+    birth_year: int = Field(description="Birth year, e.g., 1990")
+    birth_month: int = Field(ge=1, le=12, description="Birth month (1-12)")
+    birth_day: int = Field(ge=1, le=31, description="Birth day (1-31)")
+    birth_hour: int = Field(ge=0, le=23, description="Birth hour (0-23)")
+    birth_minute: int = Field(default=0, ge=0, le=59, description="Birth minute (0-59)")
+    birth_timezone: Optional[str] = Field(
+        default="UTC", description="Birth timezone (IANA name or UTC offset)"
+    )
+    birth_longitude: float = Field(ge=-180, le=180, description="Birth longitude")
+    birth_latitude: float = Field(ge=-90, le=90, description="Birth latitude")
+    birth_place: Optional[str] = Field(default="未提供", description="Birth place")
+
+class AstroChartRequest(AstroBirthRequest):
+    """Request model for offline astrology chart generation."""
+
+    birth_longitude: Optional[float] = Field(  # type: ignore[assignment]
+        default=None,
+        ge=-180,
+        le=180,
+        description=(
+            "Birth longitude. Optional for core chart endpoints when FateBridge can "
+            "infer it from a supported birth_place."
+        ),
+    )
+    birth_latitude: Optional[float] = Field(  # type: ignore[assignment]
+        default=None,
+        ge=-90,
+        le=90,
+        description=(
+            "Birth latitude. Optional for core chart endpoints when FateBridge can "
+            "infer it from a supported birth_place."
+        ),
+    )
+    hsys: Optional[int] = Field(
+        default=None,
+        description=(
+            "Optional offline house system override; if omitted, FateBridge keeps each "
+            "chart variant's historical default. Explicit values currently support "
+            "0=whole_sign, 1=Alcabitus, 2=Regiomontanus, 3=Placidus, 4=Koch, "
+            "5=Vehlow Equal, 6=Polich Page, 7=Sripati, 8=equal_mc"
+        ),
+    )
+    zodiacal: Optional[int] = Field(
+        default=None,
+        description=(
+            "Optional offline zodiac override; if omitted, FateBridge keeps each "
+            "chart variant's historical default. Explicit values currently support "
+            "0=tropical and 1=sidereal(Lahiri-like)"
+        ),
+    )
+
+class AstroRelativePartyRequest(AstroBirthRequest):
+    """One side of a relative/synastry request."""
+
+class AstroRelativeRequest(BaseModel):
+    """Request model for relative / synastry chart generation."""
+
+    inner: AstroRelativePartyRequest
+    outer: AstroRelativePartyRequest
+    _mode_input_source: str = PrivateAttr(default="default")
+    relative_mode: Optional[Union[str, int]] = Field(
+        default=None,
+        description=(
+            "Modern relative mode selector, e.g. 0/1/2/3/4, Comp, Composite, "
+            "Synastry, TimeSpace, or Marks; when using relative_mode, "
+            "Synastry/synastry will resolve to the Horosa-style influence chart"
+        ),
+    )
+    relationship_mode: Optional[Union[str, int]] = Field(
+        default=None,
+        description=(
+            "Legacy alias for relative_mode; relationship_mode='synastry' is "
+            "preserved as FateBridge's older compare-mode compatibility path"
+        ),
+    )
+    hsys: int = Field(
+        default=0,
+        description="Legacy-compatible house system identifier; offline mode currently supports 0..8 via local Swiss house cusps",
+    )
+    zodiacal: int = Field(
+        default=0,
+        description="Legacy-compatible zodiac selector; offline mode currently supports 0=tropical and 1=sidereal(Lahiri-like) only",
+    )
+
+    def __init__(self, **data: Any):
+        mode_source = "default"
+        if data.get("relative_mode") not in (None, ""):
+            mode_source = "relative_mode"
+        elif data.get("relationship_mode") not in (None, ""):
+            mode_source = "relationship_mode"
+        super().__init__(**data)
+        self._mode_input_source = mode_source
+
+    @property
+    def mode_input_source(self) -> str:
+        return self._mode_input_source
+
+    @model_validator(mode="before")
+    @classmethod
+    def _sync_relative_mode_aliases(cls, payload: Any) -> Any:
+        if not isinstance(payload, dict):
+            return payload
+        relative_mode = payload.get("relative_mode")
+        relationship_mode = payload.get("relationship_mode")
+        if relative_mode in (None, "") and relationship_mode not in (None, ""):
+            payload["relative_mode"] = relationship_mode
+        elif relationship_mode in (None, "") and relative_mode not in (None, ""):
+            payload["relationship_mode"] = relative_mode
+        elif relative_mode in (None, "") and relationship_mode in (None, ""):
+            payload["relative_mode"] = 0
+            payload["relationship_mode"] = 0
+        return payload
+
+class WesternTimingRequest(AstroBirthRequest):
+    """Request model for western predictive timing analysis."""
+
+    analysis_year: Optional[int] = Field(default=None, description="Analysis year")
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    return_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Return chart longitude"
+    )
+    return_latitude: Optional[float] = Field(
+        default=None, ge=-90, le=90, description="Return chart latitude"
+    )
+    return_timezone: Optional[str] = Field(
+        default=None, description="Return chart timezone (IANA name or UTC offset)"
+    )
+    house_system: str = Field(
+        default="P", description="House system identifier, e.g. P for Placidus"
+    )
+    zodiac_type: str = Field(
+        default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
+    )
+    pd_method: str = Field(
+        default="astroapp_alchabitius",
+        description=(
+            "Primary direction method identifier, e.g. astroapp_alchabitius, "
+            "legacy_reference / legacy_equatorial, or fatebridge_mundane_semiarc"
+        ),
+    )
+    pd_time_key: str = Field(
+        default="Ptolemy",
+        description="Primary direction time key, e.g. Ptolemy or Naibod",
+    )
+    pd_type: int = Field(
+        default=0,
+        ge=0,
+        le=1,
+        description="Primary direction mode: 0 for direct, 1 for converse",
+    )
+    pd_aspects: List[int] = Field(
+        default_factory=lambda: [0, 60, 90, 120, 180],
+        description="Primary direction aspects in degrees",
+    )
+    show_pd_bounds: bool = Field(
+        default=True,
+        description="Whether to expose the bounds overlay preference for the primary direction chart",
+    )
+
+class WesternTimingModuleRequest(WesternTimingRequest):
+    """Request model for standalone western timing module tools."""
+
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional export sections to keep in snapshot_export",
+    )
+
+class BaziMarriageRequest(BaziDimensionRequest):
+    """Request model for BaZi marriage analysis."""
+
+class BaziCareerRequest(BaziDimensionRequest):
+    """Request model for BaZi career analysis."""
+
+class BaziWealthRequest(BaziDimensionRequest):
+    """Request model for BaZi wealth analysis."""
+
+class BaziHealthRequest(BaziDimensionRequest):
+    """Request model for BaZi health analysis."""
+
+class BaziChildrenRequest(BaziDimensionRequest):
+    """Request model for BaZi children analysis."""
+
+class BaziEducationRequest(BaziDimensionRequest):
+    """Request model for BaZi education analysis."""
+
+
+class AstroChartPolyRequest(AstroChartRequest):
+    """Polymorphic astro chart request (adds a chart_variant selector)."""
+
+    chart_variant: str = Field(
+        default="chart",
+        description="Chart variant: chart, chart13, hellen_chart, guolao_chart, india_chart, germany",
+    )
+
+
+class AstroRelativeFlatRequest(BaseModel):
+    """Flat (non-nested) relative/synastry chart request for tool surfaces."""
+
+    inner_birth_year: int = Field(description="Inner chart birth year")
+    inner_birth_month: int = Field(ge=1, le=12, description="Inner chart birth month")
+    inner_birth_day: int = Field(ge=1, le=31, description="Inner chart birth day")
+    inner_birth_hour: int = Field(ge=0, le=23, description="Inner chart birth hour")
+    inner_birth_longitude: float = Field(ge=-180, le=180, description="Inner longitude")
+    inner_birth_latitude: float = Field(ge=-90, le=90, description="Inner latitude")
+    outer_birth_year: int = Field(description="Outer chart birth year")
+    outer_birth_month: int = Field(ge=1, le=12, description="Outer chart birth month")
+    outer_birth_day: int = Field(ge=1, le=31, description="Outer chart birth day")
+    outer_birth_hour: int = Field(ge=0, le=23, description="Outer chart birth hour")
+    outer_birth_longitude: float = Field(ge=-180, le=180, description="Outer longitude")
+    outer_birth_latitude: float = Field(ge=-90, le=90, description="Outer latitude")
+    inner_name: Optional[str] = Field(default="内盘", description="Inner chart name")
+    outer_name: Optional[str] = Field(default="外盘", description="Outer chart name")
+    inner_birth_place: Optional[str] = Field(default="未提供", description="Inner birth place")
+    outer_birth_place: Optional[str] = Field(default="未提供", description="Outer birth place")
+    relationship_mode: Optional[Union[str, int]] = Field(default=None, description="Legacy relative mode alias")
+    relative_mode: Optional[Union[str, int]] = Field(default=None, description="Modern relative mode selector")
+    inner_birth_minute: int = Field(default=0, ge=0, le=59, description="Inner birth minute")
+    outer_birth_minute: int = Field(default=0, ge=0, le=59, description="Outer birth minute")
+    inner_birth_timezone: Optional[str] = Field(default="UTC", description="Inner timezone")
+    outer_birth_timezone: Optional[str] = Field(default="UTC", description="Outer timezone")
+    hsys: int = Field(default=0, description="House system identifier")
+    zodiacal: int = Field(default=0, description="Zodiac selector")
+
+
+class BaziPersonalityRequest(BaziDimensionRequest):
+    """Request model for BaZi personality analysis."""
+
+
+class BaziRelativesRequest(BaziDimensionRequest):
+    """Request model for BaZi relatives analysis."""
+
+
+class BaziRomanceRequest(BaziDimensionRequest):
+    """Request model for BaZi romance / peach-blossom analysis."""
