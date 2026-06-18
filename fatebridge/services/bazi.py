@@ -9,6 +9,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from fatebridge.core.almanac import build_calendar_context
+from fatebridge.core.classical import (
+    build_classical_overview,
+    classical_snapshot_lines,
+)
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.services.calculation import (
     BirthComputationContext,
@@ -604,6 +608,7 @@ def _build_snapshot_text(
     three_origins: Dict[str, Dict[str, Any]],
     shensha_entries: List[Dict[str, str]],
     timing_overview: Dict[str, Any],
+    classical_overview: Dict[str, Any],
     analysis_calendar_context: Optional[Dict[str, Any]] = None,
 ) -> str:
     include_minutes = (
@@ -639,7 +644,7 @@ def _build_snapshot_text(
         birth_context_lines.append(
             f"当下节气：{acc_solar_term}，后续节气：{acc_next_term}"
         )
-        sections = [
+    sections = [
         (
             "起盘信息",
             "\n".join(birth_context_lines).strip(),
@@ -657,6 +662,10 @@ def _build_snapshot_text(
                     _format_origin_line(three_origins["shengong"]),
                 ]
             ).strip(),
+        ),
+        (
+            "格局调候",
+            "\n".join(classical_snapshot_lines(classical_overview)).strip(),
         ),
         (
             "流年行运概略",
@@ -722,6 +731,7 @@ def _build_base_bazi_payload(
         pillars=birth_context.birth_pillars,
         three_origins=three_origins,
     )
+    classical_overview = build_classical_overview(birth_context.birth_pillars)
     timezone_name = normalized_birth_time.timezone
     analysis_pillars = birth_context.birth_pillars
     analysis_calendar_context = build_calendar_context(
@@ -746,6 +756,7 @@ def _build_base_bazi_payload(
         three_origins=three_origins,
         shensha_entries=shensha_entries,
         timing_overview=timing_overview,
+        classical_overview=classical_overview,
         analysis_calendar_context=analysis_calendar_context,
     )
     return {
@@ -757,6 +768,7 @@ def _build_base_bazi_payload(
         "base_analysis": base_analysis,
         "three_origins": three_origins,
         "shensha_entries": shensha_entries,
+        "classical_overview": classical_overview,
         "timing_overview": timing_overview,
         "snapshot_text": snapshot_text,
     }
@@ -802,6 +814,7 @@ def calculate_bazi_birth(
                 "analysis_calendar_context": payload["analysis_calendar_context"],
                 "timing_overview": payload["timing_overview"],
                 "shensha": payload["shensha_entries"],
+                "classical": payload["classical_overview"],
             },
             "snapshot_text": snapshot_text,
             "snapshot_export": snapshot_export,
