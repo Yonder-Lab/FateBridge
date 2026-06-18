@@ -38,84 +38,15 @@ Provides Chinese metaphysics and offline astrology functionality via FastMCP:
 import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
-from fatebridge.services.astrology import (
-    calculate_core_chart_analysis,
-    calculate_germany_chart_analysis,
-    calculate_relative_chart_analysis,
-)
-from fatebridge.services.bazi import (
-    calculate_bazi_birth as calculate_bazi_birth_service,
-)
-from fatebridge.services.bazi import (
-    calculate_bazi_direct as calculate_bazi_direct_service,
-)
-from fatebridge.services.bazi import (
-    calculate_bazi_career as calculate_bazi_career_service,
-    calculate_bazi_children as calculate_bazi_children_service,
-    calculate_bazi_education as calculate_bazi_education_service,
-    calculate_bazi_health as calculate_bazi_health_service,
-    calculate_bazi_marriage as calculate_bazi_marriage_service,
-    calculate_bazi_wealth as calculate_bazi_wealth_service,
-)
-from fatebridge.services.calculation import calculate_destiny_analysis
-from fatebridge.services.compatibility import calculate_compatibility_analysis
-from fatebridge.services.divination import (
-    calculate_gua_lookup,
-    calculate_gua_meiyi,
-    calculate_meihua_analysis,
-    calculate_otherbu_analysis,
-    calculate_sanshiunited_analysis,
-    calculate_sixyao_analysis,
-    calculate_suzhan_analysis,
-    calculate_tongshefa_analysis,
-)
-from fatebridge.services.metaphysics import (
-    calculate_jinkou_analysis as calculate_jinkou_analysis_service,
-)
-from fatebridge.services.metaphysics import (
-    calculate_liureng_gods as calculate_liureng_gods_service,
-)
-from fatebridge.services.metaphysics import (
-    calculate_liureng_runyear as calculate_liureng_runyear_service,
-)
-from fatebridge.services.metaphysics import (
-    calculate_qimen_analysis as calculate_qimen_analysis_service,
-)
-from fatebridge.services.metaphysics import (
-    calculate_taiyi_analysis as calculate_taiyi_analysis_service,
-)
-from fatebridge.services.metaphysics import (
-    calculate_ziwei_birth as calculate_ziwei_birth_service,
-)
-from fatebridge.services.metaphysics import (
-    calculate_ziwei_rules as calculate_ziwei_rules_service,
-)
-from fatebridge.services.timing import (
-    calculate_comprehensive_timing,
-    calculate_dayun_analysis,
-    calculate_jieqi_timeline_analysis,
-    calculate_jieqi_year,
-    calculate_liunian_analysis,
-    calculate_liuri_analysis,
-    calculate_liushi_analysis,
-    calculate_liuyue_analysis,
-    calculate_nongli_time,
-)
 from fatebridge.services.run_metadata import (
     attach_run_metadata,
     infer_tool_name_from_payload,
 )
-from fatebridge.services.tool_registry import get_tool_descriptor
-from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.utils.helpers import (
-    create_person_info,
-    format_error_response,
-    format_json_response,
-)
+from fatebridge.utils.helpers import format_error_response, format_json_response
 from fatebridge.utils.runtime import get_log_level, load_runtime_env
 
 # ============================================================================

@@ -62,7 +62,19 @@ from fastmcp_server import (
     two_person_compatibility,
 )
 from fatebridge.services.run_metadata import resolve_runtime_engine
-from fatebridge.services.tool_registry import get_tool_descriptor, iter_tool_descriptors
+from fatebridge.services.tool_catalog import CATALOG
+from fatebridge.services.western_timing_tools import calculate_solarreturn
+
+_SPEC_BY_KEY = {spec.key: spec for spec in CATALOG}
+
+
+def get_tool_descriptor(key):
+    """Catalog-backed lookup (replaces the retired tool_registry)."""
+    return _SPEC_BY_KEY[key]
+
+
+def iter_tool_descriptors(*, family=None):
+    return [s for s in CATALOG if family is None or s.family == family]
 
 
 def _build_birth_payload(name: str, gender: str, birth_place: str) -> dict:
@@ -508,11 +520,13 @@ def test_tool_registry_first_batch_descriptors_cover_expected_families():
         "pdchart",
     }
 
-    for descriptor in iter_tool_descriptors():
-        assert descriptor.mcp_name == descriptor.key
-        assert descriptor.rest_path.startswith("/api/")
-        assert descriptor.request_model_name
-        assert descriptor.summary
+    # Invariants for the registry-equivalent families (1:1 REST<->MCP tools).
+    for family in ("export", "knowledge", "western_timing_tool"):
+        for descriptor in iter_tool_descriptors(family=family):
+            assert descriptor.mcp_name == descriptor.key
+            assert descriptor.rest_path.startswith("/api/")
+            assert descriptor.request_model
+            assert descriptor.summary
 
 
 @pytest.mark.parametrize(
@@ -728,7 +742,7 @@ def test_western_timing_module_api_offloads_calculation_to_threadpool(monkeypatc
 
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="solarreturn")
-    assert captured["func"] is get_tool_descriptor("solarreturn").service
+    assert captured["func"] is calculate_solarreturn
     assert captured["args"] == ()
     assert captured["kwargs"]["selected_sections"] == ["起盘信息"]
     assert captured["kwargs"]["analysis_day"] == 20

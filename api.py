@@ -13,13 +13,12 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from threading import Lock
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 from fatebridge.core.request_models import (
     FateBridgeRequest,
     BaziBirthRequest,
@@ -73,58 +72,22 @@ from starlette.responses import Response
 
 from fatebridge.core import astrology as astrology_core
 from fatebridge.core import astrology_predictive as astrology_predictive_core
-from fatebridge.services.astrology import (
+
+# Re-exported for back-compat / test identity checks: some tests assert the
+# threadpool offload runs exactly these service objects via `api.<name>`.
+from fatebridge.services.astrology import (  # noqa: F401
     calculate_core_chart_analysis,
-    calculate_germany_chart_analysis,
     calculate_relative_chart_analysis,
 )
-from fatebridge.services.bazi import calculate_bazi_birth, calculate_bazi_direct
-from fatebridge.services.compatibility import calculate_compatibility_analysis
-from fatebridge.services.divination import (
-    calculate_gua_lookup,
-    calculate_gua_meiyi,
-    calculate_meihua_analysis,
-    calculate_otherbu_analysis,
-    calculate_sanshiunited_analysis,
-    calculate_sixyao_analysis,
-    calculate_suzhan_analysis,
-    calculate_tongshefa_analysis,
-)
-from fatebridge.services.metaphysics import (
-    calculate_jinkou_analysis,
-    calculate_liureng_gods,
-    calculate_liureng_runyear,
-    calculate_qimen_analysis,
-    calculate_taiyi_analysis,
-    calculate_ziwei_birth,
-    calculate_ziwei_rules,
-)
-from fatebridge.services.timing import (
-    calculate_comprehensive_timing,
-    calculate_dayun_analysis,
-    calculate_jieqi_timeline_analysis,
-    calculate_jieqi_year,
-    calculate_liunian_analysis,
-    calculate_liuri_analysis,
-    calculate_liushi_analysis,
-    calculate_liuyue_analysis,
-    calculate_nongli_time,
+from fatebridge.services.bazi import calculate_bazi_birth  # noqa: F401
+from fatebridge.services.western_timing import (  # noqa: F401
+    calculate_western_timing_analysis,
 )
 from fatebridge.services.run_metadata import (
     attach_run_metadata,
     infer_tool_name_from_service,
 )
-from fatebridge.services.tool_registry import get_tool_descriptor
-from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.utils.helpers import create_person_info
-from fatebridge.utils.runtime import (
-    get_api_key_header_name,
-    get_log_level,
-    load_runtime_env,
-    parse_allowed_origins,
-    parse_api_keys,
-    summarize_request_context,
-)
+from fatebridge.utils.runtime import get_api_key_header_name, get_log_level, load_runtime_env, parse_allowed_origins, parse_api_keys
 
 # ============================================================================
 # Setup
@@ -506,16 +469,6 @@ async def _execute_service(
     return attach_run_metadata(result, tool_name=resolved_tool_name)
 
 
-async def _execute_registered_tool(
-    tool_key: str,
-    **kwargs: Any,
-) -> Dict[str, Any]:
-    descriptor = get_tool_descriptor(tool_key)
-    return await _execute_service(
-        descriptor.service,
-        tool_name=descriptor.key,
-        **kwargs,
-    )
 
 
 
@@ -718,19 +671,6 @@ async def metrics_endpoint() -> PlainTextResponse:
 
 
 
-async def _run_astro_chart_variant(
-    request: AstroChartRequest, chart_variant: str
-) -> dict:
-    return await _execute_service(
-        calculate_core_chart_analysis,
-        tool_name=chart_variant if chart_variant in {"chart", "chart13"} else {
-            "hellen_chart": "astro_hellen_chart",
-            "guolao_chart": "astro_guolao_chart",
-            "india_chart": "astro_india_chart",
-        }.get(chart_variant, "astro_chart"),
-        chart_variant=chart_variant,
-        **request.model_dump(),
-    )
 
 
 
@@ -749,32 +689,6 @@ async def _run_astro_chart_variant(
 
 
 
-async def _run_western_timing_module_request(
-    *,
-    request: WesternTimingModuleRequest,
-    tool_key: str,
-) -> dict:
-    try:
-        descriptor = get_tool_descriptor(tool_key)
-        logger.info(
-            "Processing %s request (%s)",
-            descriptor.key,
-            summarize_request_context(name=request.name),
-        )
-        return await _execute_registered_tool(
-            tool_key,
-            **request.model_dump(),
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(
-            "Unexpected error during %s calculation: %s",
-            tool_key,
-            str(e),
-            exc_info=True,
-        )
-        raise HTTPException(status_code=500, detail="内部服务器错误")
 
 
 

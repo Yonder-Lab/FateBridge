@@ -325,7 +325,15 @@ def _make_mcp_fn(
 ) -> Callable[..., str]:
     model = spec.request_model
     params, annotations = model_parameters(model)
-    # Transport-level flags appended after model fields.
+    # Transport-level flags appended after model fields; guard against a model
+    # field shadowing them (would make the flag unsettable / silently swallowed).
+    _reserved = {"compact", "include_snapshot_text"}
+    _clash = _reserved & set(model.model_fields)
+    if _clash:
+        raise ValueError(
+            f"Tool '{spec.tool_name}' request model has reserved field name(s) {_clash}; "
+            "these collide with MCP transport flags."
+        )
     params.append(
         inspect.Parameter("compact", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True)
     )
