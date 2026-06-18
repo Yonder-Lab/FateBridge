@@ -874,13 +874,13 @@ def handle_calculation_error(error: Exception, operation: str) -> Dict[str, Any]
     Returns:
         包含错误信息的字典（不暴露内部细节）
     """
-    logger.error(f"{operation} failed: {str(error)}", exc_info=True)
     error_text = str(error).strip()
     normalized = error_text.casefold()
 
     if isinstance(error, (ImportError, ModuleNotFoundError)) or any(
         hint in normalized for hint in DEPENDENCY_ERROR_HINTS
     ):
+        logger.error(f"{operation} failed: {error_text}", exc_info=True)
         return {
             "error": f"{operation}所需依赖缺失，请检查运行环境",
             "error_code": DEPENDENCY_ERROR_CODE,
@@ -889,6 +889,7 @@ def handle_calculation_error(error: Exception, operation: str) -> Dict[str, Any]
         }
 
     if isinstance(error, (TimeoutError, BuiltinTimeoutError)):
+        logger.error(f"{operation} failed: {error_text}", exc_info=True)
         return {
             "error": f"{operation}处理超时，请稍后重试",
             "error_code": TIMEOUT_ERROR_CODE,
@@ -897,6 +898,11 @@ def handle_calculation_error(error: Exception, operation: str) -> Dict[str, Any]
         }
 
     if isinstance(error, ValueError):
+        # User/domain input rejection (HTTP 400), not a system fault. Log a
+        # concise warning without a stack trace — dumping a full traceback for
+        # every "invalid date" or "unknown hexagram name" floods the error log
+        # with noise that looks like a crash.
+        logger.warning(f"{operation} rejected invalid input: {error_text}")
         return {
             "error": error_text or f"{operation}输入无效",
             "error_code": VALIDATION_ERROR_CODE,
@@ -904,6 +910,9 @@ def handle_calculation_error(error: Exception, operation: str) -> Dict[str, Any]
             "retryable": False,
         }
 
+    # Unexpected internal fault — this is the one case that warrants a full
+    # stack trace at ERROR level for server-side diagnosis.
+    logger.error(f"{operation} failed: {error_text}", exc_info=True)
     return {
         "error": f"{operation}暂时不可用，请稍后重试",
         "error_code": INTERNAL_ERROR_CODE,
