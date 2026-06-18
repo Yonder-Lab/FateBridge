@@ -1,8 +1,8 @@
 # FateBridge
 
-FateBridge 是一个面向命理、占术与离线占星场景的 Python 后端仓库。当前仓库只包含服务端与核心算法，不包含前端应用；同一套领域能力同时通过 FastAPI 和 FastMCP 对外暴露，便于 Web 集成、脚本调用与 Agent 工具接入。
+FateBridge 是一个面向命理、占术与离线占星场景的 Python 后端仓库。当前仓库只包含服务端与核心算法，不包含前端应用；同一套领域能力通过 FastAPI、FastMCP 与命令行（`fatebridge` CLI）三类接口对外暴露，便于 Web 集成、脚本调用与 Agent 工具接入。三类接口均由中央工具目录（`fatebridge/services/tool_catalog.py`）统一声明、自动注册。
 
-> 当前仓库默认提供 54 个 REST 路由（含 `/health`、`/ready`、`/metrics`）和 51 个 FastMCP 工具。
+> 当前仓库默认提供 63 个 REST 路由（含 `/health`、`/ready`、`/metrics`）、60 个 FastMCP 工具，以及对应的 `fatebridge` CLI 子命令。
 
 ## 项目定位
 
