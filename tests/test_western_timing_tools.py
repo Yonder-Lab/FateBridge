@@ -240,3 +240,54 @@ def test_fastmcp_western_timing_tools_expose_parameters():
         assert "analysis_month" in properties
         assert "analysis_day" in properties
         assert "selected_sections" in properties
+
+
+def _count_decennial_nodes(node) -> int:
+    """Total nodes in a decennial subtree (node + all descendants)."""
+    if not node:
+        return 0
+    total = 1
+    for child in node.get("sublevel", []) or []:
+        total += _count_decennial_nodes(child)
+    return total
+
+
+def test_decennials_payload_is_bounded_for_agent_consumption():
+    """The decennial tree is 4 levels deep (7^4 ≈ 2400 leaves). Serialising it
+    whole produced a ~14 MB response that no agent context (or MCP/HTTP
+    transport) can hold. The active drill-down is exposed via
+    current_level_1/2/3, so the timeline only needs the decade overview and each
+    current_level only its immediate children. Guard the bound."""
+    import json
+
+    result = calculate_decennials(**_build_kwargs())
+    payload = result["decennials"]
+
+    # Whole tool response must stay comfortably agent-readable.
+    serialized = json.dumps(result, ensure_ascii=False, default=str)
+    assert (
+        len(serialized) < 200_000
+    ), f"decennials response too large: {len(serialized)}"
+
+    # Timeline is a decade overview: 7 level-1 nodes, no deep subtree.
+    timeline = payload["timeline"]
+    assert len(timeline) == 7
+    for node in timeline:
+        assert node["level"] == 1
+        assert node.get("sublevel", []) == []
+
+    # The active path is preserved: each current_level carries its immediate
+    # children only (one level deep), not the full tree.
+    cl1 = payload["current_level_1"]
+    cl2 = payload["current_level_2"]
+    cl3 = payload["current_level_3"]
+    assert cl1 and cl1["level"] == 1
+    assert cl2 and cl2["level"] == 2
+    assert cl3 and cl3["level"] == 3
+    # Immediate children present, but no grandchildren (bounded depth).
+    for cur, child_level in ((cl1, 2), (cl2, 3), (cl3, 4)):
+        children = cur.get("sublevel", [])
+        assert children, "active level should expose its immediate children"
+        for child in children:
+            assert child["level"] == child_level
+            assert child.get("sublevel", []) == []
