@@ -105,6 +105,33 @@ def test_cli_fields_projection_trims_payload(capsys):
     assert set(payload) <= {"analysis_type", "run_metadata"}
     assert payload["analysis_type"] == "八字正缘桃花分析"
     assert "romance_analysis" not in payload
+
+
+def test_cli_fields_dotted_subpath_prunes_block(capsys):
+    code = run(
+        [
+            "bazi_birth",
+            "--birth-year",
+            "1990",
+            "--birth-month",
+            "6",
+            "--birth-day",
+            "15",
+            "--birth-hour",
+            "10",
+            "--gender",
+            "male",
+            "--fields",
+            "bazi_birth.day_master",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert code == 0
+    # The heavy bazi_birth block is pruned to just the requested sub-key.
+    assert set(payload) <= {"bazi_birth", "run_metadata"}
+    assert set(payload["bazi_birth"]) == {"day_master"}
+    assert "element" in payload["bazi_birth"]["day_master"]
     assert isinstance(payload.get("run_metadata"), dict)
 
 
