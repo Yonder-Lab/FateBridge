@@ -98,7 +98,6 @@ def _render_tool_error(
     return format_error_response(data, operation, compact=compact)
 
 
-
 # ============================================================================
 # Tool registration — every tool is declared once in the central catalog and
 # auto-registered here. To add a tool, edit fatebridge/services/tool_catalog.py.

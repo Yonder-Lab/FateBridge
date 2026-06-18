@@ -19,59 +19,59 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
-from fatebridge.core.request_models import (
-    FateBridgeRequest,
-    BaziBirthRequest,
-    BaziDirectRequest,
-    TwoPersonCompatibilityRequest,
-    TimingAnalysisRequest,
-    DayunAnalysisRequest,
-    LiunianAnalysisRequest,
-    LiuriAnalysisRequest,
-    LiushiAnalysisRequest,
-    JieqiTimelineRequest,
-    LiuyueAnalysisRequest,
-    MeihuaAnalysisRequest,
-    GuaLookupRequest,
-    JieqiYearRequest,
-    NongliTimeRequest,
-    GuaMeiyiRequest,
-    ExportRegistryRequest,
-    ExportParseRequest,
-    KnowledgeRegistryRequest,
-    KnowledgeReadRequest,
-    TongSheFaRequest,
-    SixYaoLineRequest,
-    SixYaoRequest,
-    SuZhanRequest,
-    OtherBuRequest,
-    SanShiUnitedRequest,
-    ZiweiBirthRequest,
-    ZiweiRulesRequest,
-    LiuRengGodsRequest,
-    LiuRengRunyearRequest,
-    QimenAnalysisRequest,
-    TaiyiAnalysisRequest,
-    JinkouAnalysisRequest,
-    AstroBirthRequest,
-    AstroChartRequest,
-    AstroRelativePartyRequest,
-    AstroRelativeRequest,
-    WesternTimingRequest,
-    WesternTimingModuleRequest,
-    BaziMarriageRequest,
-    BaziCareerRequest,
-    BaziWealthRequest,
-    BaziHealthRequest,
-    BaziChildrenRequest,
-    BaziEducationRequest,
-)
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
 from fatebridge.core import astrology as astrology_core
 from fatebridge.core import astrology_predictive as astrology_predictive_core
+from fatebridge.core.request_models import (
+    AstroBirthRequest,
+    AstroChartRequest,
+    AstroRelativePartyRequest,
+    AstroRelativeRequest,
+    BaziBirthRequest,
+    BaziCareerRequest,
+    BaziChildrenRequest,
+    BaziDirectRequest,
+    BaziEducationRequest,
+    BaziHealthRequest,
+    BaziMarriageRequest,
+    BaziWealthRequest,
+    DayunAnalysisRequest,
+    ExportParseRequest,
+    ExportRegistryRequest,
+    FateBridgeRequest,
+    GuaLookupRequest,
+    GuaMeiyiRequest,
+    JieqiTimelineRequest,
+    JieqiYearRequest,
+    JinkouAnalysisRequest,
+    KnowledgeReadRequest,
+    KnowledgeRegistryRequest,
+    LiunianAnalysisRequest,
+    LiuRengGodsRequest,
+    LiuRengRunyearRequest,
+    LiuriAnalysisRequest,
+    LiushiAnalysisRequest,
+    LiuyueAnalysisRequest,
+    MeihuaAnalysisRequest,
+    NongliTimeRequest,
+    OtherBuRequest,
+    QimenAnalysisRequest,
+    SanShiUnitedRequest,
+    SixYaoLineRequest,
+    SixYaoRequest,
+    SuZhanRequest,
+    TaiyiAnalysisRequest,
+    TimingAnalysisRequest,
+    TongSheFaRequest,
+    TwoPersonCompatibilityRequest,
+    WesternTimingModuleRequest,
+    WesternTimingRequest,
+    ZiweiBirthRequest,
+    ZiweiRulesRequest,
+)
 
 # Re-exported for back-compat / test identity checks: some tests assert the
 # threadpool offload runs exactly these service objects via `api.<name>`.
@@ -80,14 +80,20 @@ from fatebridge.services.astrology import (  # noqa: F401
     calculate_relative_chart_analysis,
 )
 from fatebridge.services.bazi import calculate_bazi_birth  # noqa: F401
-from fatebridge.services.western_timing import (  # noqa: F401
-    calculate_western_timing_analysis,
-)
 from fatebridge.services.run_metadata import (
     attach_run_metadata,
     infer_tool_name_from_service,
 )
-from fatebridge.utils.runtime import get_api_key_header_name, get_log_level, load_runtime_env, parse_allowed_origins, parse_api_keys
+from fatebridge.services.western_timing import (  # noqa: F401
+    calculate_western_timing_analysis,
+)
+from fatebridge.utils.runtime import (
+    get_api_key_header_name,
+    get_log_level,
+    load_runtime_env,
+    parse_allowed_origins,
+    parse_api_keys,
+)
 
 # ============================================================================
 # Setup
@@ -261,8 +267,7 @@ class ApiKeyAuthenticator:
         self.api_keys = dict(api_keys)
         # Order-stable list for constant-time comparison against every secret.
         self._known_secrets: Tuple[Tuple[bytes, str], ...] = tuple(
-            (secret.encode("utf-8"), key_id)
-            for key_id, secret in self.api_keys.items()
+            (secret.encode("utf-8"), key_id) for key_id, secret in self.api_keys.items()
         )
 
     @property
@@ -469,136 +474,14 @@ async def _execute_service(
     return attach_run_metadata(result, tool_name=resolved_tool_name)
 
 
-
-
-
-
 # ============================================================================
 # Request/Response Models
 # ============================================================================
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ============================================================================
 # API Endpoints
 # ============================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @app.get("/health")
@@ -627,98 +510,6 @@ async def metrics_endpoint() -> PlainTextResponse:
         ),
         media_type="text/plain; version=0.0.4",
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # ============================================================================

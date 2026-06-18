@@ -16,6 +16,7 @@ These tests lock in fixes for defects discovered by the
    timing endpoints' ``house_system="P"`` strings were rejected on the
    core-chart side. Both input styles now resolve to the same spec.
 """
+
 from __future__ import annotations
 
 import sys

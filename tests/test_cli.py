@@ -23,8 +23,12 @@ def test_result_is_error_honors_error_is_fatal():
     assert result_is_error(base, {"ok": 1}) is False
     # error_is_fatal override is honored uniformly (the contract REST already used).
     lenient = ToolSpec(
-        key="t", bind=base.bind, request_model=base.request_model,
-        summary="t", operation_label_zh="t", family="t",
+        key="t",
+        bind=base.bind,
+        request_model=base.request_model,
+        summary="t",
+        operation_label_zh="t",
+        family="t",
         error_is_fatal=lambda r: False,
     )
     assert result_is_error(lenient, {"error": "non-fatal"}) is False
@@ -38,17 +42,34 @@ def test_cli_exposes_catalog_commands(capsys):
     choices = set(subparsers[0].choices)
     assert "list" in choices
     # A representative sample across families is present.
-    for cmd in ("bazi_wealth", "bazi_personality", "qimen", "knowledge_read", "solarreturn"):
+    for cmd in (
+        "bazi_wealth",
+        "bazi_personality",
+        "qimen",
+        "knowledge_read",
+        "solarreturn",
+    ):
         assert cmd in choices, cmd
 
 
 def test_cli_runs_bazi_dimension(capsys):
-    code = run([
-        "bazi_romance",
-        "--birth-year", "1990", "--birth-month", "6", "--birth-day", "15",
-        "--birth-hour", "10", "--gender", "male",
-        "--dayun-pillar", "壬戌",
-    ])
+    code = run(
+        [
+            "bazi_romance",
+            "--birth-year",
+            "1990",
+            "--birth-month",
+            "6",
+            "--birth-day",
+            "15",
+            "--birth-hour",
+            "10",
+            "--gender",
+            "male",
+            "--dayun-pillar",
+            "壬戌",
+        ]
+    )
     out = capsys.readouterr().out
     payload = json.loads(out)
     assert code == 0
@@ -58,7 +79,9 @@ def test_cli_runs_bazi_dimension(capsys):
 
 
 def test_cli_runs_knowledge_read(capsys):
-    code = run(["knowledge_read", "--domain", "bazi", "--category", "wealth", "--key", "财库"])
+    code = run(
+        ["knowledge_read", "--domain", "bazi", "--category", "wealth", "--key", "财库"]
+    )
     out = capsys.readouterr().out
     payload = json.loads(out)
     assert code == 0
@@ -67,11 +90,19 @@ def test_cli_runs_knowledge_read(capsys):
 
 def test_cli_validation_error_returns_nonzero(capsys):
     # Invalid month (passes argparse int parse, fails pydantic le=12) -> exit 1.
-    code = run([
-        "bazi_wealth",
-        "--birth-year", "1990", "--birth-month", "13", "--birth-day", "15",
-        "--birth-hour", "10",
-    ])
+    code = run(
+        [
+            "bazi_wealth",
+            "--birth-year",
+            "1990",
+            "--birth-month",
+            "13",
+            "--birth-day",
+            "15",
+            "--birth-hour",
+            "10",
+        ]
+    )
     err = capsys.readouterr().err
     assert code == 1
     assert "error" in err

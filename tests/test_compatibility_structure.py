@@ -54,7 +54,10 @@ def _build_minimal_analysis(
         },
         "structure_profile": {
             "dominant_structure": (
-                (recognized_structures or [{"key": "default_support", "label": "扶抑调候"}])[0]
+                (
+                    recognized_structures
+                    or [{"key": "default_support", "label": "扶抑调候"}]
+                )[0]
             ),
             "secondary_structures": (recognized_structures or [])[1:],
             "recognized_structures": recognized_structures or [],
@@ -179,7 +182,13 @@ def test_favorable_synergy_reads_top_level_distribution_and_structure_profile():
         useful_elements=["金", "土"],
         avoid_elements=["火"],
         useful_ten_gods=["七杀"],
-        element_distribution={"木": 12.0, "火": 8.0, "土": 28.0, "金": 30.0, "水": 22.0},
+        element_distribution={
+            "木": 12.0,
+            "火": 8.0,
+            "土": 28.0,
+            "金": 30.0,
+            "水": 22.0,
+        },
     )
     analysis2 = _build_minimal_analysis(
         day_stem="己",
@@ -187,7 +196,13 @@ def test_favorable_synergy_reads_top_level_distribution_and_structure_profile():
         useful_elements=["木", "水"],
         avoid_elements=["金"],
         useful_ten_gods=["正官"],
-        element_distribution={"木": 24.0, "火": 10.0, "土": 18.0, "金": 16.0, "水": 32.0},
+        element_distribution={
+            "木": 24.0,
+            "火": 10.0,
+            "土": 18.0,
+            "金": 16.0,
+            "水": 32.0,
+        },
     )
 
     result = AdvancedCompatibility._analyze_favorable_synergy(analysis1, analysis2)
@@ -216,9 +231,7 @@ def test_tian_ke_di_chong_is_reported_as_tension_pattern():
 
     result = AdvancedCompatibility._analyze_pattern_synergy(analysis1, analysis2)
 
-    assert any(
-        item["label"] == "天克地冲" for item in result["tension_patterns"]
-    )
+    assert any(item["label"] == "天克地冲" for item in result["tension_patterns"])
     assert not any(item["label"] == "天克地冲" for item in result["risk_patterns"])
 
 
@@ -238,6 +251,8 @@ def test_calculate_destiny_analysis_exposes_structure_profile():
     result = calculate_destiny_analysis(person)
 
     assert "structure_profile" in result
-    assert result["favorable_elements"] == result["structure_profile"]["useful_elements"]
+    assert (
+        result["favorable_elements"] == result["structure_profile"]["useful_elements"]
+    )
     assert "recognized_structures" in result["patterns"]["special"]
     assert "metadata" in result["patterns"]["special"]

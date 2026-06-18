@@ -168,7 +168,9 @@ def _assert_run_metadata(payload: dict, *, tool_name: str) -> dict:
     return metadata
 
 
-def _assert_transport_parity(api_result: dict, mcp_result: dict, *, tool_name: str) -> None:
+def _assert_transport_parity(
+    api_result: dict, mcp_result: dict, *, tool_name: str
+) -> None:
     assert _payload_without_run_metadata(api_result) == _payload_without_run_metadata(
         mcp_result
     )
@@ -515,7 +517,9 @@ def test_tool_registry_first_batch_descriptors_cover_expected_families():
         "knowledge_registry",
         "knowledge_read",
     }
-    assert {item.key for item in iter_tool_descriptors(family="western_timing_tool")} >= {
+    assert {
+        item.key for item in iter_tool_descriptors(family="western_timing_tool")
+    } >= {
         "solarreturn",
         "pdchart",
     }

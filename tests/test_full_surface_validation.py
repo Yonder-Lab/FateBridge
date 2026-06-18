@@ -701,7 +701,10 @@ MCP_CASES = {
             "selected_sections": ["起盘信息", "行年"],
         },
     ),
-    "qimen": ("qimen", lambda: {**_metaphysics_payload(), "qimen_options": {"layout": "rotating"}}),
+    "qimen": (
+        "qimen",
+        lambda: {**_metaphysics_payload(), "qimen_options": {"layout": "rotating"}},
+    ),
     "taiyi": (
         "taiyi",
         lambda: {
