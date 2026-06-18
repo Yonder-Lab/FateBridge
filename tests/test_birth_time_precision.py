@@ -375,6 +375,7 @@ def test_calculate_comprehensive_timing_uses_corrected_birth_time():
         birth_place="乌鲁木齐",
         use_true_solar_time=True,
         name="测试",
+        gender="男",
     )
 
     result = calculate_comprehensive_timing(

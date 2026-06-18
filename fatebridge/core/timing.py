@@ -240,6 +240,10 @@ class TimingAnalysis:
         is_yang_year = HEAVENLY_STEMS.index(year_stem) % 2 == 0
 
         canonical_gender = normalize_gender(gender)
+        if canonical_gender not in ("男", "女"):
+            raise ValueError(
+                "大运方向需要明确性别（男/女）；请提供 gender，或显式传入 dayun_pillar。"
+            )
         if (canonical_gender == "男" and is_yang_year) or (
             canonical_gender == "女" and not is_yang_year
         ):
@@ -297,6 +301,10 @@ class TimingAnalysis:
             is_yang_year = year_stem_index % 2 == 0
 
         canonical_gender = normalize_gender(gender)
+        if canonical_gender not in ("男", "女"):
+            raise ValueError(
+                "大运方向需要明确性别（男/女）；请提供 gender，或显式传入 dayun_pillar。"
+            )
         if (canonical_gender == "男" and is_yang_year) or (
             canonical_gender == "女" and not is_yang_year
         ):
