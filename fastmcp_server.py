@@ -78,10 +78,14 @@ def _render_tool_response(
     *,
     compact: bool = True,
     include_snapshot_text: bool = True,
+    fields: Optional[list] = None,
     tool_name: Optional[str] = None,
 ) -> str:
     resolved_tool_name = tool_name or infer_tool_name_from_payload(data)
     payload = attach_run_metadata(data, tool_name=resolved_tool_name)
+    # Project AFTER run_metadata is attached so provenance survives a field
+    # selection (project_fields always keeps run_metadata).
+    payload = project_fields(payload, fields)
     return format_json_response(
         payload,
         compact=compact,
@@ -103,7 +107,7 @@ def _render_tool_error(
 # auto-registered here. To add a tool, edit fatebridge/services/tool_catalog.py.
 # ============================================================================
 
-from fatebridge.core.tool_spec import register_mcp  # noqa: E402
+from fatebridge.core.tool_spec import project_fields, register_mcp  # noqa: E402
 from fatebridge.services.tool_catalog import mcp_specs  # noqa: E402
 
 register_mcp(

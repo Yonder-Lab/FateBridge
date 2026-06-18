@@ -17,7 +17,7 @@ handler signatures, and stringified annotations would break schema inference.
 
 import inspect
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
 
 from pydantic import BaseModel
 
@@ -192,6 +192,23 @@ def execute_spec(spec: ToolSpec, request: BaseModel) -> ServiceResult:
     return result
 
 
+def project_fields(
+    result: ServiceResult, fields: Optional[Iterable[str]]
+) -> ServiceResult:
+    """Project a result to a subset of top-level keys for token budgeting.
+
+    Lets an agent ask for only the keys it needs (the heavy payloads — e.g.
+    ``detailed_analysis``, ``synastry_aspects`` — are all top-level, so top-level
+    projection is enough). ``run_metadata`` is always preserved so provenance
+    survives even a single-field request. A ``None`` or empty selection returns
+    the result unchanged; unknown keys are ignored.
+    """
+    if not fields:
+        return result
+    keep = set(fields) | {"run_metadata"}
+    return {k: v for k, v in result.items() if k in keep}
+
+
 def result_is_error(spec: ToolSpec, result: ServiceResult) -> bool:
     """Classify a service result as an error, honoring spec.error_is_fatal.
 
@@ -213,7 +230,9 @@ def model_parameters(model: Type[BaseModel]) -> Tuple[List[inspect.Parameter], D
         annotations[name] = ann
         if field.is_required():
             required.append(
-                inspect.Parameter(name, inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=ann)
+                inspect.Parameter(
+                    name, inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=ann
+                )
             )
         else:
             default = field.get_default(call_default_factory=True)
@@ -300,7 +319,11 @@ def make_rest_handler(
     handler.__name__ = f"rest_{spec.key}"
     handler.__doc__ = spec.summary
     handler.__signature__ = inspect.Signature(
-        [inspect.Parameter("request", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=model)]
+        [
+            inspect.Parameter(
+                "request", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=model
+            )
+        ]
     )
     handler.__annotations__ = {"request": model, "return": dict}
     return handler
@@ -324,8 +347,12 @@ def register_mcp(
     for spec in specs:
         if spec.mcp_name is None and spec.key is None:
             continue
-        fn = _make_mcp_fn(spec, render_response=render_response, render_error=render_error)
-        app.add_tool(Tool.from_function(fn, name=spec.tool_name, description=spec.summary))
+        fn = _make_mcp_fn(
+            spec, render_response=render_response, render_error=render_error
+        )
+        app.add_tool(
+            Tool.from_function(fn, name=spec.tool_name, description=spec.summary)
+        )
 
 
 def _make_mcp_fn(
@@ -338,7 +365,7 @@ def _make_mcp_fn(
     params, annotations = model_parameters(model)
     # Transport-level flags appended after model fields; guard against a model
     # field shadowing them (would make the flag unsettable / silently swallowed).
-    _reserved = {"compact", "include_snapshot_text"}
+    _reserved = {"compact", "include_snapshot_text", "fields"}
     _clash = _reserved & set(model.model_fields)
     if _clash:
         raise ValueError(
@@ -346,7 +373,9 @@ def _make_mcp_fn(
             "these collide with MCP transport flags."
         )
     params.append(
-        inspect.Parameter("compact", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True)
+        inspect.Parameter(
+            "compact", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
+        )
     )
     params.append(
         inspect.Parameter(
@@ -356,11 +385,27 @@ def _make_mcp_fn(
             default=spec.include_snapshot_text,
         )
     )
-    annotations = {**annotations, "compact": bool, "include_snapshot_text": bool}
+    params.append(
+        inspect.Parameter(
+            "fields",
+            inspect.Parameter.KEYWORD_ONLY,
+            annotation=Optional[List[str]],
+            default=None,
+        )
+    )
+    annotations = {
+        **annotations,
+        "compact": bool,
+        "include_snapshot_text": bool,
+        "fields": Optional[List[str]],
+    }
 
     def impl(**kwargs: Any) -> str:
         compact = kwargs.pop("compact", True)
-        include_snapshot_text = kwargs.pop("include_snapshot_text", spec.include_snapshot_text)
+        include_snapshot_text = kwargs.pop(
+            "include_snapshot_text", spec.include_snapshot_text
+        )
+        fields = kwargs.pop("fields", None)
         request = model(**kwargs)
         result = execute_spec(spec, request)
         if result_is_error(spec, result):
@@ -369,6 +414,7 @@ def _make_mcp_fn(
             result,
             compact=compact,
             include_snapshot_text=include_snapshot_text,
+            fields=fields,
             tool_name=spec.run_metadata_name,
         )
 

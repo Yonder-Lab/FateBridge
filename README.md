@@ -215,7 +215,12 @@ fatebridge describe bazi_wealth        # 输出某工具的参数 schema/接口/
 fatebridge bazi_wealth --birth-year 1990 --birth-month 6 --birth-day 15 \
     --birth-hour 10 --gender male
 fatebridge knowledge_read --domain bazi --category romance --key 桃花咸池
+# 字段投影（token 预算）：只取需要的顶层字段，run_metadata 始终保留
+fatebridge bazi_wealth --birth-year 1990 --birth-month 6 --birth-day 15 \
+    --birth-hour 10 --gender male --fields analysis_type wealth_analysis
 ```
+
+> **字段投影（token 预算控制）**：CLI 的 `--fields KEY...` 与 FastMCP 工具的 `fields` 参数都可把响应裁剪到指定顶层字段，便于 Agent 按 token 预算取数；`run_metadata` 始终保留以维持溯源，错误响应不会被裁剪。
 
 ### 扩展神煞系统
 

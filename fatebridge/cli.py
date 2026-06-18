@@ -22,7 +22,12 @@ from typing import Any, List, Optional, Union, get_args, get_origin
 
 from pydantic import BaseModel
 
-from fatebridge.core.tool_spec import ToolSpec, execute_spec, result_is_error
+from fatebridge.core.tool_spec import (
+    ToolSpec,
+    execute_spec,
+    project_fields,
+    result_is_error,
+)
 from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.tool_catalog import CATALOG
 
@@ -198,8 +203,24 @@ def build_parser() -> argparse.ArgumentParser:
         sp = sub.add_parser(_command_name(spec), help=spec.summary)
         for fname, field in spec.request_model.model_fields.items():
             _add_field_argument(sp, fname, field)
+        _add_transport_flags(sp)
         sp.set_defaults(_spec=spec)
     return parser
+
+
+def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
+    """Per-tool flags that control output shape rather than the calculation.
+
+    These live on each tool subparser (not the top-level parser) so they can be
+    passed naturally after the tool name, e.g. `fatebridge bazi_wealth ... --fields summary`.
+    """
+    parser.add_argument(
+        "--fields",
+        nargs="*",
+        default=None,
+        metavar="KEY",
+        help="只输出这些顶层字段（token 预算控制；run_metadata 始终保留）",
+    )
 
 
 def _unsupported_hint(spec: ToolSpec) -> str:
@@ -288,6 +309,11 @@ def run(argv: Optional[List[str]] = None) -> int:
     is_error = result_is_error(spec, result)
     if not args.no_metadata and not is_error:
         result = attach_run_metadata(result, tool_name=spec.run_metadata_name)
+
+    # Project to requested top-level fields (token budgeting). Never trim an
+    # error payload — that would drop the `error` key the caller needs.
+    if not is_error and getattr(args, "fields", None):
+        result = project_fields(result, args.fields)
 
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
     return 1 if is_error else 0
