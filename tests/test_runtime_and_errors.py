@@ -362,3 +362,35 @@ def test_api_key_requests_are_not_quota_limited_even_when_legacy_tracker_is_inje
 
     assert first.status_code == 200
     assert second.status_code == 200
+
+
+def test_value_error_logged_as_warning_without_traceback(caplog):
+    """A user/domain input rejection (ValueError -> 400) must not log a full
+    stack trace; that floods the error log with crash-looking noise."""
+    import logging
+
+    with caplog.at_level(logging.WARNING, logger="fatebridge.utils.helpers"):
+        handle_calculation_error(ValueError("未识别的六十四卦名称：ZZZ"), "卦义检索")
+
+    records = [r for r in caplog.records if r.name == "fatebridge.utils.helpers"]
+    assert records, "expected a log record"
+    for rec in records:
+        assert rec.levelno == logging.WARNING
+        assert rec.exc_info is None  # no traceback attached
+
+
+def test_internal_error_logged_at_error_with_traceback(caplog):
+    """A genuine internal fault (-> 500) should still log ERROR + traceback."""
+    import logging
+
+    with caplog.at_level(logging.WARNING, logger="fatebridge.utils.helpers"):
+        payload = handle_calculation_error(RuntimeError("boom"), "测试操作")
+
+    assert payload["error_code"] == "internal_error"
+    err_records = [
+        r
+        for r in caplog.records
+        if r.name == "fatebridge.utils.helpers" and r.levelno == logging.ERROR
+    ]
+    assert err_records, "expected an ERROR record for an internal fault"
+    assert any(r.exc_info is not None for r in err_records)
