@@ -68,24 +68,44 @@ git fetch upstream
 git checkout -b feature/your-feature-name
 ```
 
-### 第五步：进行更改
+### 第五步：搭建开发环境
+
+跑测试和格式化需要装上 dev 依赖。推荐用 [uv](https://docs.astral.sh/uv/)：
+
+```bash
+uv venv
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+```
+
+或者用 pip：
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -e ".[dev]"
+```
+
+`[dev]` 里带了 pytest、black、isort、mypy，跟 CI 的四道门禁是对齐的。
+
+### 第六步：进行更改
 
 编辑文件，进行测试，确保您的更改正常工作。
 
-### 第六步：提交更改
+### 第七步：提交更改
 
 ```bash
 git add .
 git commit -m "feat: Add your feature description"
 ```
 
-### 第七步：推送到您的 Fork
+### 第八步：推送到您的 Fork
 
 ```bash
 git push origin feature/your-feature-name
 ```
 
-### 第八步：创建 Pull Request
+### 第九步：创建 Pull Request
 
 访问原始仓库，您应该会看到一个"创建 Pull Request"的按钮。
 
