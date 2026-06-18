@@ -285,6 +285,66 @@ class AdvancedCompatibility:
                 None,
             )
 
+            # 被克不一定扣分：克的吉凶取决于格局取用，而非五行关系本身。
+            # 与 BaZiRules._classify_combined_event 的口径一致，按双方喜用判定。
+            profile1 = analysis1.get("structure_profile", {}) or {}
+            profile2 = analysis2.get("structure_profile", {}) or {}
+            person1_useful = set(
+                profile1.get("useful_elements", analysis1.get("favorable_elements", []))
+            )
+            person2_useful = set(
+                profile2.get("useful_elements", analysis2.get("favorable_elements", []))
+            )
+
+            def _apply_day_master_control(
+                controller_label: str,
+                controller_element: str,
+                controlled_label: str,
+                controlled_element: str,
+                controlled_useful: set,
+                controller_useful: set,
+            ) -> None:
+                """controller_element 克 controlled_element 时的条件化打分。
+
+                有情之克的两种来源：
+                - 被克方格局正需此制（控方五行属被克方喜用，如羊刃驾杀需官杀）；
+                - 被克方之气正是控方喜用（财为我克），克之为取用。
+                两者皆无时，才按无情之克(忌神相战)扣分。
+                """
+                needed_by_controlled = controller_element in controlled_useful
+                wealth_for_controller = controlled_element in controller_useful
+
+                if needed_by_controlled and wealth_for_controller:
+                    analysis["details"].append(
+                        f"{controller_element}克{controlled_element}："
+                        f"{controlled_label}格局正需此制，且{controlled_element}又是"
+                        f"{controller_label}的喜用，属双向有情之克"
+                    )
+                    analysis["score"] += 10
+                    analysis["balance_type"] = "相克有情"
+                elif needed_by_controlled:
+                    analysis["details"].append(
+                        f"{controller_element}克{controlled_element}："
+                        f"{controlled_label}格局正需{controller_element}之制（如官杀为用），"
+                        f"被克反成助力"
+                    )
+                    analysis["score"] += 5
+                    analysis["balance_type"] = "相克有情"
+                elif wealth_for_controller:
+                    analysis["details"].append(
+                        f"{controller_element}克{controlled_element}："
+                        f"{controlled_element}是{controller_label}的喜用，"
+                        f"{controller_label}克之为有用之财"
+                    )
+                    analysis["score"] += 5
+                    analysis["balance_type"] = "相克有情"
+                else:
+                    analysis["details"].append(
+                        f"{controller_element}克{controlled_element}，互动中容易出现压制感"
+                    )
+                    analysis["score"] -= 8
+                    analysis["balance_type"] = "相克制约"
+
             if person1_element == person2_element:
                 analysis["details"].append(f"两人日主同为{person1_element}，更容易理解彼此的表达方式")
                 analysis["score"] += 12
@@ -312,17 +372,27 @@ class AdvancedCompatibility:
                 and person2_element_enum
                 and DESTRUCTION_CYCLE[person1_element_enum] == person2_element_enum
             ):
-                analysis["details"].append(f"{person1_element}克{person2_element}，互动中容易出现压制感")
-                analysis["score"] -= 8
-                analysis["balance_type"] = "相克制约"
+                _apply_day_master_control(
+                    controller_label="第一人",
+                    controller_element=person1_element,
+                    controlled_label="第二人",
+                    controlled_element=person2_element,
+                    controlled_useful=person2_useful,
+                    controller_useful=person1_useful,
+                )
             elif (
                 person1_element_enum
                 and person2_element_enum
                 and DESTRUCTION_CYCLE[person2_element_enum] == person1_element_enum
             ):
-                analysis["details"].append(f"{person2_element}克{person1_element}，互动中容易出现压制感")
-                analysis["score"] -= 8
-                analysis["balance_type"] = "相克制约"
+                _apply_day_master_control(
+                    controller_label="第二人",
+                    controller_element=person2_element,
+                    controlled_label="第一人",
+                    controlled_element=person1_element,
+                    controlled_useful=person1_useful,
+                    controller_useful=person2_useful,
+                )
             else:
                 analysis["details"].append(f"{person1_element}与{person2_element}关系平和，更多看后续格局流通")
                 analysis["score"] += 6
