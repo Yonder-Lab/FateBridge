@@ -42,10 +42,7 @@ from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
-from fatebridge.services.run_metadata import (
-    attach_run_metadata,
-    infer_tool_name_from_payload,
-)
+from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.utils.helpers import format_error_response, format_json_response
 from fatebridge.utils.runtime import get_log_level, load_runtime_env
 
@@ -81,8 +78,9 @@ def _render_tool_response(
     fields: Optional[list] = None,
     tool_name: Optional[str] = None,
 ) -> str:
-    resolved_tool_name = tool_name or infer_tool_name_from_payload(data)
-    payload = attach_run_metadata(data, tool_name=resolved_tool_name)
+    # tool_name is supplied by the catalog registrar (spec.run_metadata_name);
+    # the neutral fallback only guards a stray non-catalog caller.
+    payload = attach_run_metadata(data, tool_name=tool_name or "unknown_tool")
     # Project AFTER run_metadata is attached so provenance survives a field
     # selection (project_fields always keeps run_metadata).
     payload = project_fields(payload, fields)

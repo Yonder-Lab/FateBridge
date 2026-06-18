@@ -82,10 +82,7 @@ from fatebridge.services.astrology import (  # noqa: F401
     calculate_relative_chart_analysis,
 )
 from fatebridge.services.bazi import calculate_bazi_birth  # noqa: F401
-from fatebridge.services.run_metadata import (
-    attach_run_metadata,
-    infer_tool_name_from_service,
-)
+from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.western_timing import (  # noqa: F401
     calculate_western_timing_analysis,
 )
@@ -468,12 +465,9 @@ async def _execute_service(
     fatal_error = error_is_fatal(result) if error_is_fatal else "error" in result
     if fatal_error:
         _raise_service_http_error(result)
-    resolved_tool_name = infer_tool_name_from_service(
-        explicit_tool_name=tool_name,
-        service_name=getattr(service, "__name__", None),
-        kwargs=kwargs,
-    )
-    return attach_run_metadata(result, tool_name=resolved_tool_name)
+    # tool_name is supplied by the catalog registrar (spec.run_metadata_name);
+    # the neutral fallback only guards a stray non-catalog caller.
+    return attach_run_metadata(result, tool_name=tool_name or "unknown_tool")
 
 
 # ============================================================================
