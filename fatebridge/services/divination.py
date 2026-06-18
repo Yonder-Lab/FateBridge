@@ -18,6 +18,7 @@ from fatebridge.core.phase2_local import (
     build_suzhan_result,
     build_tongshefa_result,
 )
+from fatebridge.core.sukuyo import su28_to_su27, sukuyo_relation
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     create_pillar_dict,
@@ -401,6 +402,129 @@ def calculate_suzhan_analysis(
         )
     except Exception as exc:
         return handle_calculation_error(exc, "宿占分析")
+
+
+def _natal_su_from_suzhan(
+    *,
+    date: str,
+    time: str,
+    zone: Optional[str] = None,
+    lat: Optional[str] = None,
+    lon: Optional[str] = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+) -> Dict[str, Any]:
+    """从宿占盘取月所在宿（本命宿）及其黄经，作为宿曜相性的输入。"""
+    result = build_suzhan_result(
+        date=date,
+        time=time,
+        zone=zone,
+        lat=lat,
+        lon=lon,
+        gps_lat=gps_lat,
+        gps_lon=gps_lon,
+        doubing_su28=True,
+    )
+    objects = (result.get("chart") or {}).get("objects") or []
+    moon = next((item for item in objects if item.get("id") == "Moon"), None)
+    if not moon or not moon.get("su28"):
+        raise ValueError("无法从宿占盘获取月宿（Moon su28）。")
+    su28 = str(moon["su28"])
+    longitude = round(float(moon.get("lon", 0.0)), 4)
+    return {
+        "su28": su28,
+        "su27": su28_to_su27(su28, longitude),
+        "moon_longitude": longitude,
+    }
+
+
+def calculate_sukuyo_compatibility(
+    *,
+    person1_name: str = "甲方",
+    person1_date: str,
+    person1_time: str,
+    person1_zone: Optional[str] = None,
+    person1_lat: Optional[str] = None,
+    person1_lon: Optional[str] = None,
+    person1_gps_lat: Optional[float] = None,
+    person1_gps_lon: Optional[float] = None,
+    person2_name: str = "乙方",
+    person2_date: str,
+    person2_time: str,
+    person2_zone: Optional[str] = None,
+    person2_lat: Optional[str] = None,
+    person2_lon: Optional[str] = None,
+    person2_gps_lat: Optional[float] = None,
+    person2_gps_lon: Optional[float] = None,
+) -> Dict[str, Any]:
+    """宿曜（二十七宿）双人相性分析 / 三九の秘法。
+
+    以双方各自宿占盘中月所在之宿为本命宿，按二十七宿循环距离判定有向关系
+    （正反向互为配对）。本命宿口径与 suzhan 工具完全一致（二十八宿去牛→27）。
+    """
+    try:
+        person1 = _natal_su_from_suzhan(
+            date=person1_date,
+            time=person1_time,
+            zone=person1_zone,
+            lat=person1_lat,
+            lon=person1_lon,
+            gps_lat=person1_gps_lat,
+            gps_lon=person1_gps_lon,
+        )
+        person2 = _natal_su_from_suzhan(
+            date=person2_date,
+            time=person2_time,
+            zone=person2_zone,
+            lat=person2_lat,
+            lon=person2_lon,
+            gps_lat=person2_gps_lat,
+            gps_lon=person2_gps_lon,
+        )
+
+        forward = sukuyo_relation(
+            person1["su28"],
+            person2["su28"],
+            person1["moon_longitude"],
+            person2["moon_longitude"],
+        )
+        reverse = sukuyo_relation(
+            person2["su28"],
+            person1["su28"],
+            person2["moon_longitude"],
+            person1["moon_longitude"],
+        )
+
+        summary = (
+            f"{person1_name}本命宿{person1['su27']}，{person2_name}本命宿"
+            f"{person2['su27']}，互为「{forward['pair']}」相性。"
+            f"{person1_name}看{person2_name}为{forward['relation']}"
+            f"（{forward['distance'] or '同宿'}）；{person2_name}看{person1_name}为"
+            f"{reverse['relation']}（{reverse['distance'] or '同宿'}）。"
+        )
+
+        return {
+            "analysis_type": "宿曜双人相性 / 三九の秘法",
+            "su27_basis": "su28_drop_niu",
+            "person1": {
+                "name": person1_name,
+                "natal_su28": person1["su28"],
+                "natal_su27": person1["su27"],
+                "moon_longitude": person1["moon_longitude"],
+            },
+            "person2": {
+                "name": person2_name,
+                "natal_su28": person2["su28"],
+                "natal_su27": person2["su27"],
+                "moon_longitude": person2["moon_longitude"],
+            },
+            "pair": forward["pair"],
+            "person1_to_person2": forward,
+            "person2_to_person1": reverse,
+            "summary": summary,
+        }
+    except Exception as exc:
+        return handle_calculation_error(exc, "宿曜双人相性")
 
 
 def calculate_otherbu_analysis(

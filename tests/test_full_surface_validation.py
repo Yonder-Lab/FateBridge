@@ -338,6 +338,12 @@ REST_POST_CASES = {
         "house_start_mode": 2,
         "doubing_su28": False,
     },
+    "/api/compatibility/sukuyo": lambda: {
+        "person1_date": "1990-06-15",
+        "person1_time": "08:30:00",
+        "person2_date": "1992-03-20",
+        "person2_time": "14:00:00",
+    },
     "/api/divination/otherbu": lambda: {
         **_phase2_base(),
         "sign": "Aries",
@@ -634,6 +640,15 @@ MCP_CASES = {
             "szshape": 1,
             "house_start_mode": 2,
             "doubing_su28": False,
+        },
+    ),
+    "sukuyo_compatibility": (
+        "sukuyo_compatibility",
+        lambda: {
+            "person1_date": "1990-06-15",
+            "person1_time": "08:30:00",
+            "person2_date": "1992-03-20",
+            "person2_time": "14:00:00",
         },
     ),
     "otherbu": (

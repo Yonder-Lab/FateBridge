@@ -472,6 +472,50 @@ class SuZhanRequest(BaseModel):
         description="Offline zodiac selector; standard suzhan supports 0=tropical and 1=sidereal(Lahiri-like)",
     )
 
+class SukuyoCompatibilityRequest(BaseModel):
+    """Request model for 宿曜 two-person compatibility (三九の秘法).
+
+    Each person is located by their suzhan-style birth event; the natal 宿
+    is the mansion of the Moon, kept identical to the suzhan tool.
+    """
+
+    person1_name: str = Field(default="甲方", description="First person name / label")
+    person1_date: str = Field(description="First person birth date, e.g. 1990-06-15")
+    person1_time: str = Field(description="First person birth time, e.g. 08:30:00")
+    person1_zone: Optional[str] = Field(
+        default="+08:00", description="First person timezone spec"
+    )
+    person1_lat: Optional[str] = Field(
+        default="31n13", description="First person latitude text or decimal"
+    )
+    person1_lon: Optional[str] = Field(
+        default="121e28", description="First person longitude text or decimal"
+    )
+    person1_gps_lat: Optional[float] = Field(
+        default=None, description="First person GPS latitude"
+    )
+    person1_gps_lon: Optional[float] = Field(
+        default=None, description="First person GPS longitude"
+    )
+    person2_name: str = Field(default="乙方", description="Second person name / label")
+    person2_date: str = Field(description="Second person birth date")
+    person2_time: str = Field(description="Second person birth time")
+    person2_zone: Optional[str] = Field(
+        default="+08:00", description="Second person timezone spec"
+    )
+    person2_lat: Optional[str] = Field(
+        default="31n13", description="Second person latitude text or decimal"
+    )
+    person2_lon: Optional[str] = Field(
+        default="121e28", description="Second person longitude text or decimal"
+    )
+    person2_gps_lat: Optional[float] = Field(
+        default=None, description="Second person GPS latitude"
+    )
+    person2_gps_lon: Optional[float] = Field(
+        default=None, description="Second person GPS longitude"
+    )
+
 class OtherBuRequest(BaseModel):
     """Request model for otherbu."""
 
