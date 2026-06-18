@@ -4,6 +4,7 @@ Standalone BaZi tool surfaces for FateBridge.
 
 from __future__ import annotations
 
+import calendar
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -259,11 +260,14 @@ def _resolve_analysis_date(
     analysis_day: Optional[int],
 ) -> datetime:
     now = datetime.now()
-    return datetime(
-        analysis_year or now.year,
-        analysis_month or now.month,
-        analysis_day or now.day,
-    )
+    year = analysis_year or now.year
+    month = analysis_month or now.month
+    day = analysis_day or now.day
+    # Clamp the day to the resolved month so a partial date (e.g. only
+    # analysis_day=31) combined with the current month never raises a
+    # clock-dependent "day is out of range" error.
+    last_day = calendar.monthrange(year, month)[1]
+    return datetime(year, month, min(day, last_day))
 
 
 def _calculate_age(birth_datetime: datetime, analysis_date: datetime) -> int:

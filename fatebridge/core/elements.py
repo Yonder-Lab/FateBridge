@@ -34,6 +34,10 @@ class ElementAnalysis:
     - 季节因素：月令对五行旺衰的影响
     """
 
+    # 月令（月支当令）对日主旺衰的加权量级。月令是子平判旺衰最重要的因素，
+    # 故在普通五行计数（天干1 / 本气1 / 藏干0.5）之外额外加权约两个单位。
+    MONTH_COMMAND_WEIGHT = 2.0
+
     @staticmethod
     def get_pillar_elements(
         pillars: Dict[str, Tuple[str, str]],
@@ -152,6 +156,16 @@ class ElementAnalysis:
             weaken_strength += element_counts.get(element_destroyed_by_day_master, 0)
         if element_destroying_day_master:
             weaken_strength += element_counts.get(element_destroying_day_master, 0)
+
+        # 月令加权：月支当令是日主旺衰最重要的因素（得令 / 失令）。
+        # 月支与日主同类或生日主 → 得令（扶）；否则（泄/耗/克）→ 失令（抑）。
+        # 该加权在普通五行计数之外额外计入，以反映月令的主导地位。
+        month_branch = pillars["month"][1]
+        month_element = BRANCH_ELEMENTS[month_branch][0]
+        if month_element == day_master_element or month_element == generating_element:
+            support_strength += ElementAnalysis.MONTH_COMMAND_WEIGHT
+        else:
+            weaken_strength += ElementAnalysis.MONTH_COMMAND_WEIGHT
 
         # Determine strength level
         if support_strength > weaken_strength * 1.5:

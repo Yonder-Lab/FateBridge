@@ -782,10 +782,8 @@ def normalize_birth_time(
 
     inferred_place = resolve_birth_place_context(person.birth_place)
 
-    timezone_name = (
-        person.birth_timezone or inferred_place.timezone or DEFAULT_BIRTH_TIMEZONE
-    )
-    parse_timezone_name(timezone_name)
+    explicit_timezone = person.birth_timezone or inferred_place.timezone
+    timezone_name = explicit_timezone or DEFAULT_BIRTH_TIMEZONE
 
     longitude = person.birth_longitude
     longitude_source = "birth_longitude" if longitude is not None else None
@@ -794,6 +792,16 @@ def normalize_birth_time(
     if longitude is None and inferred_place.longitude is not None:
         longitude = inferred_place.longitude
         longitude_source = inferred_place.source
+
+    # When no timezone is explicitly supplied but a longitude is known, assume the
+    # given wall-clock time is local standard time at the zone nearest that
+    # longitude — rather than defaulting to Asia/Shanghai's 120°E meridian, which
+    # makes true-solar-time correction badly wrong for non-China longitudes.
+    if explicit_timezone is None and longitude is not None:
+        zone_hours = max(-12, min(14, int(round(longitude / 15.0))))
+        timezone_name = f"{'+' if zone_hours >= 0 else '-'}{abs(zone_hours):02d}:00"
+
+    parse_timezone_name(timezone_name)
 
     if not person.use_true_solar_time:
         return NormalizedBirthTime(
