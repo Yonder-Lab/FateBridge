@@ -50,6 +50,7 @@ from fatebridge.core.request_models import (
     QimenAnalysisRequest,
     SanShiUnitedRequest,
     SixYaoRequest,
+    SukuyoCompatibilityRequest,
     SuZhanRequest,
     TaiyiAnalysisRequest,
     TimingAnalysisRequest,
@@ -93,6 +94,7 @@ from fatebridge.services.divination import (
     calculate_otherbu_analysis,
     calculate_sanshiunited_analysis,
     calculate_sixyao_analysis,
+    calculate_sukuyo_compatibility,
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
 )
@@ -493,6 +495,16 @@ CATALOG: List[ToolSpec] = [
         family="divination",
         rest_path="/api/divination/suzhan",
         mcp_name="suzhan",
+    ),
+    ToolSpec(
+        key="sukuyo_compatibility",
+        bind=raw_invoke(calculate_sukuyo_compatibility),
+        request_model=SukuyoCompatibilityRequest,
+        summary="宿曜双人相性分析（三九の秘法，二十七宿）。",
+        operation_label_zh="宿曜合盘",
+        family="compatibility",
+        rest_path="/api/compatibility/sukuyo",
+        mcp_name="sukuyo_compatibility",
     ),
     ToolSpec(
         key="otherbu",
