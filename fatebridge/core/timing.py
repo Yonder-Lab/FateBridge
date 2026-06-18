@@ -1076,11 +1076,6 @@ class TimingAnalysis:
         if current_date is None:
             current_date = datetime.now()
 
-        # 这里需要从birth_pillars中提取必要信息
-        # 假设birth_pillars包含必要的信息
-        month_stem = birth_pillars["month"]["stem"]
-        month_branch = birth_pillars["month"]["branch"]
-
         # 获取当前流年（传入完整 moment，使用立春边界解析 BaZi 年）
         current_liunian = TimingAnalysis.calculate_liunian(
             current_date.year, moment=current_date

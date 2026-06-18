@@ -1952,7 +1952,6 @@ def _rehouse_chart_payload(
     house_cusps: Optional[List[float]] = None,
 ) -> Dict[str, Any]:
     ascendant = chart_payload["angles"]["ascendant"]["longitude"]
-    midheaven = chart_payload["angles"]["midheaven"]["longitude"]
     planets = [
         _build_planet_record(
             item["id"],

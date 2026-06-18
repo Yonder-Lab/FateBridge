@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from fatebridge.core.almanac import (
-    DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
     DAY_GANZHI_STRATEGY_STANDARD,
     build_calendar_context,
 )
@@ -735,7 +734,8 @@ def calculate_liureng_runyear(
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     try:
-        birth_seed = _build_person_seed(person)
+        # 大六壬行年以「分析时刻」起课，不依赖出生四柱；
+        # 仅 person.gender / person.birth_year 在下方直接使用。
         seed = _build_analysis_seed(
             analysis_year=analysis_year,
             analysis_month=analysis_month,

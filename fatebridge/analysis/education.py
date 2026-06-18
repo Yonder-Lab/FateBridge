@@ -24,7 +24,6 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..utils.data import (
     BRANCH_HIDDEN_STEMS,
     Element,
-    STEM_ELEMENTS,
     TenGod,
     get_ten_god,
 )
@@ -69,7 +68,6 @@ class EducationAnalysis:
             学业分析结果字典
         """
         day_stem = pillars["day"][0]
-        day_element = STEM_ELEMENTS[day_stem][0]
 
         gods = EducationAnalysis._count_study_gods(pillars, day_stem)
         level = EducationAnalysis._analyze_education_level(pillars, day_stem, gods)

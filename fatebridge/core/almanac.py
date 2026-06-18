@@ -263,7 +263,8 @@ def _solar_term_utc_via_swe(
     )
     jd_start = anchor_jd - 30.0
     jd_end = anchor_jd + 30.0
-    del year  # unused; retained in signature for future callers
+    # ``year`` is otherwise unused (the scan is anchored on ``anchor_utc``),
+    # but the swisseph-failure warning below reports it, so it stays live.
 
     def sun_longitude(jd: float) -> float:
         # calc_ut returns a tuple (longitude, latitude, distance, ...)

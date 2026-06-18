@@ -489,7 +489,6 @@ def check_branch_combination(branch1: str, branch2: str) -> bool:
 def check_triple_combination(branch1: str, branch2: str, branch3: str) -> Optional[str]:
     """检查地支是否三合，返回三合局类型"""
     branches = sorted([branch1, branch2, branch3])
-    branch_set = "".join(branches)
 
     for triple_key, bureau_type in BRANCH_TRIPLE_COMBINATIONS.items():
         if sorted(list(triple_key)) == branches:

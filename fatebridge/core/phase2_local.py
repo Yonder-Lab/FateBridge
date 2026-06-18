@@ -14,7 +14,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from .almanac import (
-    DAY_GANZHI_STRATEGY_REFERENCE_OFFSET,
     DAY_GANZHI_STRATEGY_STANDARD,
     build_calendar_context,
     localize_datetime,

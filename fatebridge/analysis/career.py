@@ -22,9 +22,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..utils.data import (
     BRANCH_ELEMENTS,
     BRANCH_HIDDEN_STEMS,
-    DESTRUCTION_CYCLE,
     Element,
-    GENERATION_CYCLE,
     STEM_ELEMENTS,
     TenGod,
     get_ten_god,
