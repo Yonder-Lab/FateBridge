@@ -653,6 +653,14 @@ CATALOG: List[ToolSpec] = [
         mcp_name="astro_germany_chart",
         metadata_name="germany",
     ),
+    # The relative/合盘 tool is exposed as ONE logical tool through two request
+    # shapes: a nested inner/outer model on REST, and a flat inner_/outer_ model
+    # on MCP. They INTENTIONALLY share a single provenance name
+    # (``astro_relative_chart``) so downstream metrics/logs treat them as one
+    # tool regardless of surface — this parity is locked by
+    # tests/test_api_alignment.py (both surfaces assert the same run_metadata
+    # tool_name). The ``metadata_name`` override on the REST spec is what aligns
+    # its provenance to the MCP name; do not split them without updating that test.
     ToolSpec(
         key="astro_relative",
         bind=_astro_relative_rest_bind,

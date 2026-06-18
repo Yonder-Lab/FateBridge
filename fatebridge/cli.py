@@ -25,6 +25,7 @@ from pydantic import BaseModel
 from fatebridge.core.tool_spec import (
     ToolSpec,
     execute_spec,
+    invalid_input_result,
     project_fields,
     result_is_error,
 )
@@ -302,7 +303,16 @@ def run(argv: Optional[List[str]] = None) -> int:
     try:
         request = spec.request_model(**provided)
         result = execute_spec(spec, request)
-    except Exception as exc:  # noqa: BLE001
+    except ValueError:
+        # Mirror REST/MCP: bad input (pydantic ValidationError or a date check
+        # raised during binding) renders as a clean, generic error rather than
+        # dumping a raw exception string.
+        print(
+            json.dumps(invalid_input_result(spec), ensure_ascii=False),
+            file=sys.stderr,
+        )
+        return 1
+    except Exception as exc:  # noqa: BLE001 - unexpected internal failure
         print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 1
 

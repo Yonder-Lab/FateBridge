@@ -184,10 +184,17 @@ def raw_invoke(
 
 
 def execute_spec(spec: ToolSpec, request: BaseModel) -> ServiceResult:
-    """Synchronously run a spec's bound service call (used by MCP and the CLI)."""
+    """Synchronously run a spec's bound service call (used by MCP and the CLI).
+
+    ``result_transform`` is applied only to *non-error* results, mirroring the
+    REST surface (where a fatal error short-circuits before the transform ever
+    runs). This keeps error payloads identical across REST/MCP/CLI, so a
+    transform that assumes a success-shaped result can never silently corrupt
+    an error dict on the MCP/CLI path.
+    """
     service, args, kwargs = spec.bind(request)
     result = service(*args, **kwargs)
-    if spec.result_transform is not None:
+    if spec.result_transform is not None and not result_is_error(spec, result):
         result = spec.result_transform(result)
     return result
 
@@ -218,6 +225,25 @@ def result_is_error(spec: ToolSpec, result: ServiceResult) -> bool:
     if spec.error_is_fatal is not None:
         return bool(spec.error_is_fatal(result))
     return "error" in result
+
+
+def invalid_input_result(spec: ToolSpec) -> ServiceResult:
+    """Error result for invalid input, mirroring the REST 400 path.
+
+    REST maps any ``ValueError``/``ValidationError`` raised while binding or
+    validating a request to HTTP 400 with a generic ``无效的<label>`` detail
+    (it deliberately does not leak the raw exception text). MCP and the CLI have
+    no HTTP layer, so they render this same shape through the normal error
+    renderer — keeping bad-input handling identical across every surface instead
+    of leaking a raw traceback on MCP.
+    """
+    label = spec.rest_error_label or f"{spec.operation_label_zh}参数"
+    return {
+        "error": f"无效的{label}",
+        "error_code": "VALIDATION_ERROR",
+        "status_code": 400,
+        "retryable": False,
+    }
 
 
 def model_parameters(model: Type[BaseModel]) -> Tuple[List[inspect.Parameter], Dict[str, Any]]:
@@ -406,8 +432,17 @@ def _make_mcp_fn(
             "include_snapshot_text", spec.include_snapshot_text
         )
         fields = kwargs.pop("fields", None)
-        request = model(**kwargs)
-        result = execute_spec(spec, request)
+        try:
+            request = model(**kwargs)
+            result = execute_spec(spec, request)
+        except ValueError:
+            # Mirror REST's ValueError -> 400: bad input (incl. pydantic
+            # ValidationError, which subclasses ValueError, and date checks
+            # raised during binding) renders as a clean error instead of
+            # bubbling a raw exception out of the MCP tool.
+            return render_error(
+                invalid_input_result(spec), spec.operation_label_zh, compact=compact
+            )
         if result_is_error(spec, result):
             return render_error(result, spec.operation_label_zh, compact=compact)
         return render_response(
