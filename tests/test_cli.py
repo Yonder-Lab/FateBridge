@@ -78,6 +78,36 @@ def test_cli_runs_bazi_dimension(capsys):
     assert isinstance(payload.get("run_metadata"), dict)
 
 
+def test_cli_fields_projection_trims_payload(capsys):
+    code = run(
+        [
+            "bazi_romance",
+            "--birth-year",
+            "1990",
+            "--birth-month",
+            "6",
+            "--birth-day",
+            "15",
+            "--birth-hour",
+            "10",
+            "--gender",
+            "male",
+            "--dayun-pillar",
+            "壬戌",
+            "--fields",
+            "analysis_type",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert code == 0
+    # Only the requested key survives; run_metadata is always preserved.
+    assert set(payload) <= {"analysis_type", "run_metadata"}
+    assert payload["analysis_type"] == "八字正缘桃花分析"
+    assert "romance_analysis" not in payload
+    assert isinstance(payload.get("run_metadata"), dict)
+
+
 def test_cli_runs_knowledge_read(capsys):
     code = run(
         ["knowledge_read", "--domain", "bazi", "--category", "wealth", "--key", "财库"]

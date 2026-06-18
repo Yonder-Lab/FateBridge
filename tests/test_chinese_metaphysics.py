@@ -255,6 +255,7 @@ def test_fastmcp_metaphysics_tools_expose_compact_controls():
         properties = tool.parameters["properties"]
         assert "compact" in properties
         assert "include_snapshot_text" in properties
+        assert "fields" in properties
 
 
 def test_fastmcp_ziwei_birth_compact_mode_can_drop_snapshot_text():
@@ -277,6 +278,29 @@ def test_fastmcp_ziwei_birth_compact_mode_can_drop_snapshot_text():
     assert "snapshot_text" not in payload
     assert "snapshot_export" in payload
     assert "\n" not in rendered
+
+
+def test_fastmcp_ziwei_birth_fields_projection_trims_to_subset():
+    rendered = ziwei_birth.fn(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        name="张三",
+        gender="男",
+        birth_place="上海",
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        fields=["snapshot_export"],
+    )
+
+    payload = json.loads(rendered)
+
+    # Only the requested key survives; run_metadata is always preserved.
+    assert set(payload) <= {"snapshot_export", "run_metadata"}
+    assert "snapshot_export" in payload
+    assert "snapshot_text" not in payload
+    assert isinstance(payload.get("run_metadata"), dict)
 
 
 def test_calculate_liureng_gods_returns_core_sections():
