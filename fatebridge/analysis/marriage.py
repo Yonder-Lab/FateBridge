@@ -22,7 +22,6 @@ from ..utils.data import (
     BRANCH_ELEMENTS,
     BRANCH_HIDDEN_STEMS,
     DESTRUCTION_CYCLE,
-    Element,
     GENERATION_CYCLE,
     STEM_ELEMENTS,
     TenGod,
@@ -31,7 +30,6 @@ from ..utils.data import (
 
 
 _MALE_TOKENS = {"male", "m", "男", "man"}
-_FEMALE_TOKENS = {"female", "f", "女", "woman"}
 
 # 地支所主性格特征
 BRANCH_PERSONALITY = {
@@ -106,7 +104,6 @@ class MarriageAnalysis:
         gender_token = (gender or "").strip().lower()
 
         is_male = gender_token in _MALE_TOKENS
-        is_female = gender_token in _FEMALE_TOKENS
 
         # 1. 配偶星分析
         spouse_star = MarriageAnalysis._analyze_spouse_star(

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from .almanac import (
@@ -22,9 +22,7 @@ from .calendar import BaZiCalendar, resolve_bazi_effective_date
 from .divination import build_hexagram
 from ..utils.data import (
     BRANCH_ELEMENTS,
-    DESTRUCTION_CYCLE,
     EARTHLY_BRANCHES,
-    GENERATION_CYCLE,
     HEAVENLY_STEMS,
     STEM_ELEMENTS,
     get_nayin,
@@ -1520,11 +1518,6 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     hour_branch = seed.pillars["hour"][1]
     hour_index = _branch_from_hour(hour_branch)
     year_stem = seed.pillars["year"][0]
-    day_stem = seed.pillars["day"][0]
-    day_branch = seed.pillars["day"][1]
-    day_stem_index = HEAVENLY_STEMS.index(day_stem)
-    day_branch_index = EARTHLY_BRANCHES.index(day_branch)
-    gender_offset = 0 if normalize_gender(gender) == "男" else 1
 
     ming_index = (lunar_month - hour_index) % 12
     shen_index = (lunar_month + hour_index - 2) % 12
@@ -1537,7 +1530,6 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     # 就是它相对于寅的偏移量，可直接叠加到寅宫干基。
     year_stem_index = HEAVENLY_STEMS.index(year_stem)
     yin_stem_base = (year_stem_index * 2 + 2) % len(HEAVENLY_STEMS)
-    ming_stem = HEAVENLY_STEMS[(yin_stem_base + ming_index) % len(HEAVENLY_STEMS)]
     palace_stems = [
         HEAVENLY_STEMS[(yin_stem_base + (ming_index + offset) % 12) % len(HEAVENLY_STEMS)]
         for offset in range(12)

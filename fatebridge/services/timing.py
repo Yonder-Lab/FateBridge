@@ -18,9 +18,7 @@ from fatebridge.utils.helpers import (
     handle_calculation_error,
     create_pillar_dict,
     get_current_analysis_date,
-    format_json_response,
     calculate_solar_time_adjustment,
-    normalize_birth_time,
 )
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.timing import TimingAnalysis

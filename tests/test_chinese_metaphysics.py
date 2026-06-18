@@ -339,6 +339,43 @@ def test_calculate_liureng_runyear_uses_birth_context():
     assert result["runyear"]["ganzhi"] in result["snapshot_text"]
 
 
+def test_liureng_runyear_independent_of_birth_pillars(monkeypatch):
+    # 大六壬行年以「分析时刻」起课，不依赖出生四柱的构建。
+    # 回归测试：曾有一处废弃的 _build_person_seed(person) 调用，会让非法出生数据
+    # 误使整个行年分析报错。即便出生四柱构建失败，行年分析也应正常返回。
+    import fatebridge.services.metaphysics as meta
+
+    def _boom(*args, **kwargs):
+        raise ValueError("行年分析不应依赖出生四柱")
+
+    monkeypatch.setattr(meta, "_build_person_seed", _boom)
+
+    person = create_person_info(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        name="张三",
+        gender="男",
+        birth_place="上海",
+    )
+
+    result = calculate_liureng_runyear(
+        person,
+        analysis_year=2026,
+        analysis_month=4,
+        analysis_day=4,
+        analysis_hour=21,
+        analysis_minute=18,
+        analysis_timezone="Asia/Shanghai",
+        analysis_longitude=121.4737,
+    )
+
+    assert "error" not in result
+    assert result["analysis_type"] == "大六壬行年"
+    assert result["runyear"]["engine"] == "fatebridge-offline"
+
+
 def test_calculate_liureng_gods_distinguishes_liuhe_style():
     # 2028-04-06 09:33 (辛酉日巳时, 月将戌)：经典 大六壬 四课 中 一课 上下相合 (上卯下戌)，
     # 但 三/四课 出现下贼上，按 贼克优先 规则，整体课体判为 "重审"。此用例验证一课

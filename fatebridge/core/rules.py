@@ -323,7 +323,6 @@ class BaZiRules:
                     })
             
             # Control (Ke) - General Elemental Control
-            from ..utils.data import STEM_ELEMENTS, DESTRUCTION_CYCLE
             e1 = STEM_ELEMENTS[s1][0]
             e2 = STEM_ELEMENTS[s2][0]
             
@@ -411,8 +410,6 @@ class BaZiRules:
             "zai": [],       # Branch generates Stem (载 - 地生天)
             "tong": [],      # Same Element (比和 - 天地同气)
         }
-        
-        from ..utils.data import STEM_ELEMENTS, BRANCH_ELEMENTS, DESTRUCTION_CYCLE, GENERATION_CYCLE
         
         for name, (stem, branch) in pillars.items():
             stem_elem = STEM_ELEMENTS[stem][0]
@@ -709,51 +706,6 @@ class BaZiRules:
         return BaZiRules._ordered_unique(ten_gods)
 
     @staticmethod
-    def _collect_chart_stems(
-        pillars: Dict[str, Tuple[str, str]],
-    ) -> List[Dict[str, Any]]:
-        hidden_weights = [0.5, 0.3, 0.2]
-        entries: List[Dict[str, Any]] = []
-        for pillar_name, (stem, branch) in pillars.items():
-            entries.append(
-                {
-                    "stem": stem,
-                    "pillar": pillar_name,
-                    "source_type": "stem",
-                    "weight": 1.0,
-                }
-            )
-            for index, hidden_stem in enumerate(BRANCH_HIDDEN_STEMS.get(branch, [])):
-                entries.append(
-                    {
-                        "stem": hidden_stem,
-                        "pillar": pillar_name,
-                        "source_type": "hidden_stem",
-                        "weight": hidden_weights[index]
-                        if index < len(hidden_weights)
-                        else 0.2,
-                    }
-                )
-        return entries
-
-    @staticmethod
-    def _count_ten_gods_for_chart(
-        pillars: Dict[str, Tuple[str, str]],
-        day_stem: str,
-    ) -> Dict[str, float]:
-        counts: Dict[str, float] = defaultdict(float)
-        for entry in BaZiRules._collect_chart_stems(pillars):
-            if (
-                entry["pillar"] == "day"
-                and entry["source_type"] == "stem"
-                and entry["stem"] == day_stem
-            ):
-                continue
-            ten_god = get_ten_god(day_stem, entry["stem"]).value
-            counts[ten_god] += entry["weight"]
-        return dict(counts)
-
-    @staticmethod
     def _get_significant_gods(
         pillars: Dict[str, Tuple[str, str]],
         day_stem: str,
@@ -782,7 +734,6 @@ class BaZiRules:
     ) -> List[Dict[str, Any]]:
         branches = [branch for _, branch in pillars.values()]
         sig_gods = BaZiRules._get_significant_gods(pillars, day_stem)
-        ten_god_counts = BaZiRules._count_ten_gods_for_chart(pillars, day_stem)
 
         killer_element = BaZiRules._element_for_ten_god(day_stem, TenGod.SEVEN_KILLER.value)
         seal_element = BaZiRules._element_for_ten_god(day_stem, TenGod.POSITIVE_SEAL.value)
