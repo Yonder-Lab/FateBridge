@@ -494,3 +494,25 @@ def check_triple_combination(branch1: str, branch2: str, branch3: str) -> Option
         if sorted(list(triple_key)) == branches:
             return bureau_type
     return None
+
+
+# 性别归一化 (Gender normalization)
+# 多个分析模块（子女 / 桃花 / 婚姻 / 生命维度）此前各自复制同一套 token 集合与
+# 归一化逻辑，这里集中为单一信源。
+GENDER_MALE_TOKENS = frozenset({"male", "m", "男", "man"})
+GENDER_FEMALE_TOKENS = frozenset({"female", "f", "女", "woman"})
+
+
+def normalize_gender(gender: Optional[str]) -> Optional[str]:
+    """将自由格式的性别输入归一化为 ``"male"`` / ``"female"`` / ``None``。
+
+    None、空串、无法识别的取值统一返回 None（中性，由各模块自行决定如何处理）。
+    """
+    if gender is None:
+        return None
+    token = gender.strip().lower()
+    if token in GENDER_MALE_TOKENS:
+        return "male"
+    if token in GENDER_FEMALE_TOKENS:
+        return "female"
+    return None
