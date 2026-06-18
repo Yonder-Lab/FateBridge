@@ -192,6 +192,17 @@ def execute_spec(spec: ToolSpec, request: BaseModel) -> ServiceResult:
     return result
 
 
+def result_is_error(spec: ToolSpec, result: ServiceResult) -> bool:
+    """Classify a service result as an error, honoring spec.error_is_fatal.
+
+    Mirrors the REST transport's logic so every surface (REST/MCP/CLI) treats
+    failures identically.
+    """
+    if spec.error_is_fatal is not None:
+        return bool(spec.error_is_fatal(result))
+    return "error" in result
+
+
 def model_parameters(model: Type[BaseModel]) -> Tuple[List[inspect.Parameter], Dict[str, Any]]:
     """Convert a pydantic model's fields into ordered inspect.Parameters."""
     required: List[inspect.Parameter] = []
@@ -351,11 +362,8 @@ def _make_mcp_fn(
         compact = kwargs.pop("compact", True)
         include_snapshot_text = kwargs.pop("include_snapshot_text", spec.include_snapshot_text)
         request = model(**kwargs)
-        service, args, call_kwargs = spec.bind(request)
-        result = service(*args, **call_kwargs)
-        if spec.result_transform is not None:
-            result = spec.result_transform(result)
-        if "error" in result:
+        result = execute_spec(spec, request)
+        if result_is_error(spec, result):
             return render_error(result, spec.operation_label_zh, compact=compact)
         return render_response(
             result,

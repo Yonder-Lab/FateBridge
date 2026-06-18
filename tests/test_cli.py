@@ -3,7 +3,31 @@
 import json
 
 from fatebridge.cli import build_parser, run
+from fatebridge.core.tool_spec import ToolSpec, result_is_error
 from fatebridge.services.tool_catalog import CATALOG
+
+
+def test_nested_model_tool_gives_hint_not_crash(capsys):
+    # astro_relative uses a nested request model -> CLI-unsupported, but should
+    # print a helpful hint (pointing at the flat variant) and exit 2.
+    code = run(["astro_relative"])
+    err = capsys.readouterr().err
+    assert code == 2
+    assert "astro_relative_chart" in err
+
+
+def test_result_is_error_honors_error_is_fatal():
+    base = next(s for s in CATALOG if s.rest_path == "/api/cn/bazi/wealth")
+    # Default: "error" key marks an error.
+    assert result_is_error(base, {"error": "x"}) is True
+    assert result_is_error(base, {"ok": 1}) is False
+    # error_is_fatal override is honored uniformly (the contract REST already used).
+    lenient = ToolSpec(
+        key="t", bind=base.bind, request_model=base.request_model,
+        summary="t", operation_label_zh="t", family="t",
+        error_is_fatal=lambda r: False,
+    )
+    assert result_is_error(lenient, {"error": "non-fatal"}) is False
 
 
 def test_cli_exposes_catalog_commands(capsys):
