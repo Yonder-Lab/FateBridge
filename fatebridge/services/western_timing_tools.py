@@ -13,7 +13,6 @@ from fatebridge.services.western_timing import (
 )
 from fatebridge.utils.helpers import handle_calculation_error
 
-
 TOOL_SPECS: dict[str, dict[str, Any]] = {
     "solarreturn": {
         "analysis_type": "西占太阳返照",

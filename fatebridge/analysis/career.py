@@ -22,21 +22,27 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..utils.data import (
     BRANCH_ELEMENTS,
     BRANCH_HIDDEN_STEMS,
-    Element,
     STEM_ELEMENTS,
+    Element,
     TenGod,
     get_ten_god,
 )
-
 
 # 五行对应行业
 ELEMENT_INDUSTRIES = {
     Element.WOOD: {
         "label": "木",
         "industries": [
-            "教育培训", "文化出版", "园林绿化", "家具木材",
-            "纺织服装", "医药健康", "农业种植", "环保生态",
-            "设计创意", "宗教哲学",
+            "教育培训",
+            "文化出版",
+            "园林绿化",
+            "家具木材",
+            "纺织服装",
+            "医药健康",
+            "农业种植",
+            "环保生态",
+            "设计创意",
+            "宗教哲学",
         ],
         "direction": "东方",
         "season": "春季",
@@ -44,9 +50,16 @@ ELEMENT_INDUSTRIES = {
     Element.FIRE: {
         "label": "火",
         "industries": [
-            "互联网科技", "电子电器", "能源电力", "餐饮娱乐",
-            "传媒广告", "美容化妆", "照明光学", "冶炼铸造",
-            "心理咨询", "演艺娱乐",
+            "互联网科技",
+            "电子电器",
+            "能源电力",
+            "餐饮娱乐",
+            "传媒广告",
+            "美容化妆",
+            "照明光学",
+            "冶炼铸造",
+            "心理咨询",
+            "演艺娱乐",
         ],
         "direction": "南方",
         "season": "夏季",
@@ -54,9 +67,16 @@ ELEMENT_INDUSTRIES = {
     Element.EARTH: {
         "label": "土",
         "industries": [
-            "房地产建筑", "农业畜牧", "矿业资源", "仓储物流",
-            "陶瓷建材", "殡葬服务", "宗教场所", "人力资源",
-            "会计审计", "仓储管理",
+            "房地产建筑",
+            "农业畜牧",
+            "矿业资源",
+            "仓储物流",
+            "陶瓷建材",
+            "殡葬服务",
+            "宗教场所",
+            "人力资源",
+            "会计审计",
+            "仓储管理",
         ],
         "direction": "中央",
         "season": "四季月（辰戌丑未月）",
@@ -64,9 +84,16 @@ ELEMENT_INDUSTRIES = {
     Element.METAL: {
         "label": "金",
         "industries": [
-            "金融银行", "法律司法", "机械制造", "汽车交通",
-            "珠宝首饰", "医疗器械", "军事国防", "体育竞技",
-            "IT硬件", "精密仪器",
+            "金融银行",
+            "法律司法",
+            "机械制造",
+            "汽车交通",
+            "珠宝首饰",
+            "医疗器械",
+            "军事国防",
+            "体育竞技",
+            "IT硬件",
+            "精密仪器",
         ],
         "direction": "西方",
         "season": "秋季",
@@ -74,9 +101,16 @@ ELEMENT_INDUSTRIES = {
     Element.WATER: {
         "label": "水",
         "industries": [
-            "贸易流通", "物流运输", "旅游酒店", "水产渔业",
-            "饮料酒业", "水利水务", "航海航空", "媒体传播",
-            "咨询顾问", "外交公关",
+            "贸易流通",
+            "物流运输",
+            "旅游酒店",
+            "水产渔业",
+            "饮料酒业",
+            "水利水务",
+            "航海航空",
+            "媒体传播",
+            "咨询顾问",
+            "外交公关",
         ],
         "direction": "北方",
         "season": "冬季",
@@ -184,14 +218,10 @@ class CareerAnalysis:
         )
 
         # 3. 事业格局
-        career_structure = CareerAnalysis._analyze_career_structure(
-            pillars, day_stem
-        )
+        career_structure = CareerAnalysis._analyze_career_structure(pillars, day_stem)
 
         # 4. 创业 vs 打工倾向
-        entrepreneurship = CareerAnalysis._analyze_entrepreneurship(
-            pillars, day_stem
-        )
+        entrepreneurship = CareerAnalysis._analyze_entrepreneurship(pillars, day_stem)
 
         # 5. 事业时机
         career_timing = CareerAnalysis._analyze_career_timing(
@@ -199,14 +229,11 @@ class CareerAnalysis:
         )
 
         # 6. 贵人方位
-        noble_direction = CareerAnalysis._analyze_noble_direction(
-            pillars, day_element
-        )
+        noble_direction = CareerAnalysis._analyze_noble_direction(pillars, day_element)
 
         # 7. 综合建议
         suggestions = CareerAnalysis._generate_suggestions(
-            dominant_god_analysis, industry_analysis,
-            career_structure, entrepreneurship
+            dominant_god_analysis, industry_analysis, career_structure, entrepreneurship
         )
 
         return {
@@ -243,17 +270,21 @@ class CareerAnalysis:
         career_profiles = []
         for god, count in top_gods:
             profile = TEN_GOD_CAREER.get(god, {})
-            career_profiles.append({
-                "ten_god": god.value,
-                "weight": round(count, 1),
-                "career_type": profile.get("career_type", "综合型"),
-                "traits": profile.get("traits", ""),
-                "suitable_roles": profile.get("suitable", []),
-            })
+            career_profiles.append(
+                {
+                    "ten_god": god.value,
+                    "weight": round(count, 1),
+                    "career_type": profile.get("career_type", "综合型"),
+                    "traits": profile.get("traits", ""),
+                    "suitable_roles": profile.get("suitable", []),
+                }
+            )
 
         return {
             "top_gods": career_profiles,
-            "primary_career_type": career_profiles[0]["career_type"] if career_profiles else "综合型",
+            "primary_career_type": (
+                career_profiles[0]["career_type"] if career_profiles else "综合型"
+            ),
         }
 
     @staticmethod
@@ -276,6 +307,7 @@ class CareerAnalysis:
 
         # 喜用神五行
         from ..core.elements import ElementAnalysis
+
         day_master_analysis = ElementAnalysis.analyze_day_master_strength(pillars)
         favorable = ElementAnalysis.get_favorable_elements(day_master_analysis)
 
@@ -284,12 +316,14 @@ class CareerAnalysis:
         for elem in favorable:
             info = ELEMENT_INDUSTRIES.get(elem)
             if info:
-                recommended_industries.append({
-                    "element": info["label"],
-                    "industries": info["industries"],
-                    "direction": info["direction"],
-                    "reason": f"喜用神为{info['label']}，适合{info['label']}相关行业",
-                })
+                recommended_industries.append(
+                    {
+                        "element": info["label"],
+                        "industries": info["industries"],
+                        "direction": info["direction"],
+                        "reason": f"喜用神为{info['label']}，适合{info['label']}相关行业",
+                    }
+                )
 
         # 忌神行业
         avoid_elements = [e for e in Element if e not in favorable]
@@ -297,17 +331,21 @@ class CareerAnalysis:
         for elem in avoid_elements:
             info = ELEMENT_INDUSTRIES.get(elem)
             if info:
-                avoid_industries.append({
-                    "element": info["label"],
-                    "industries": info["industries"][:3],
-                    "reason": f"忌神为{info['label']}，{info['label']}行业需谨慎",
-                })
+                avoid_industries.append(
+                    {
+                        "element": info["label"],
+                        "industries": info["industries"][:3],
+                        "reason": f"忌神为{info['label']}，{info['label']}行业需谨慎",
+                    }
+                )
 
         return {
             "favorable_elements": [e.value for e in favorable],
             "recommended_industries": recommended_industries,
             "avoid_industries": avoid_industries,
-            "element_distribution": {e.value: round(c, 1) for e, c in element_counts.items()},
+            "element_distribution": {
+                e.value: round(c, 1) for e, c in element_counts.items()
+            },
         }
 
     @staticmethod
@@ -364,6 +402,7 @@ class CareerAnalysis:
 
         # 4. 日主强弱影响
         from ..core.elements import ElementAnalysis
+
         dm_analysis = ElementAnalysis.analyze_day_master_strength(pillars)
         strength = dm_analysis["strength_level"]
         if strength == "强":
@@ -411,16 +450,26 @@ class CareerAnalysis:
                 god_counts[h_god] = god_counts.get(h_god, 0) + 0.5
 
         # 偏星多 → 创业倾向
-        partial_stars = sum(god_counts.get(g, 0) for g in [
-            TenGod.ROB_WEALTH.value, TenGod.HURT_OFFICER.value,
-            TenGod.PARTIAL_WEALTH.value, TenGod.SEVEN_KILLER.value,
-            TenGod.PARTIAL_SEAL.value,
-        ])
-        normal_stars = sum(god_counts.get(g, 0) for g in [
-            TenGod.COMPARE.value, TenGod.FOOD_GOD.value,
-            TenGod.POSITIVE_WEALTH.value, TenGod.POSITIVE_OFFICER.value,
-            TenGod.POSITIVE_SEAL.value,
-        ])
+        partial_stars = sum(
+            god_counts.get(g, 0)
+            for g in [
+                TenGod.ROB_WEALTH.value,
+                TenGod.HURT_OFFICER.value,
+                TenGod.PARTIAL_WEALTH.value,
+                TenGod.SEVEN_KILLER.value,
+                TenGod.PARTIAL_SEAL.value,
+            ]
+        )
+        normal_stars = sum(
+            god_counts.get(g, 0)
+            for g in [
+                TenGod.COMPARE.value,
+                TenGod.FOOD_GOD.value,
+                TenGod.POSITIVE_WEALTH.value,
+                TenGod.POSITIVE_OFFICER.value,
+                TenGod.POSITIVE_SEAL.value,
+            ]
+        )
 
         if partial_stars > normal_stars:
             entrepreneur_score += 15
@@ -467,7 +516,9 @@ class CareerAnalysis:
             d_stem, d_branch = dayun_pillar
             d_god = get_ten_god(day_stem, d_stem)
             if d_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
-                signals.append(f"大运{d_stem}{d_branch}见官杀，事业运旺盛，有升职或权力增长机会")
+                signals.append(
+                    f"大运{d_stem}{d_branch}见官杀，事业运旺盛，有升职或权力增长机会"
+                )
             elif d_god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
                 signals.append(f"大运{d_stem}{d_branch}见印星，贵人运佳，利于学习晋升")
             elif d_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
@@ -495,6 +546,7 @@ class CareerAnalysis:
         """分析贵人方位。"""
         # 喜用神方位
         from ..core.elements import ElementAnalysis
+
         dm_analysis = ElementAnalysis.analyze_day_master_strength(pillars)
         favorable = ElementAnalysis.get_favorable_elements(dm_analysis)
 
@@ -502,11 +554,13 @@ class CareerAnalysis:
         for elem in favorable:
             info = ELEMENT_INDUSTRIES.get(elem)
             if info:
-                directions.append({
-                    "element": info["label"],
-                    "direction": info["direction"],
-                    "reason": f"喜用神{info['label']}对应{info['direction']}方",
-                })
+                directions.append(
+                    {
+                        "element": info["label"],
+                        "direction": info["direction"],
+                        "reason": f"喜用神{info['label']}对应{info['direction']}方",
+                    }
+                )
 
         return {
             "favorable_directions": directions,

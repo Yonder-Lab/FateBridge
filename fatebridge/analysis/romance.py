@@ -41,13 +41,33 @@ _PEACH_TARGETS = (
 
 # 红鸾（年支 -> 红鸾地支）
 _HONGLUAN = {
-    "子": "卯", "丑": "寅", "寅": "丑", "卯": "子", "辰": "亥", "巳": "戌",
-    "午": "酉", "未": "申", "申": "未", "酉": "午", "戌": "巳", "亥": "辰",
+    "子": "卯",
+    "丑": "寅",
+    "寅": "丑",
+    "卯": "子",
+    "辰": "亥",
+    "巳": "戌",
+    "午": "酉",
+    "未": "申",
+    "申": "未",
+    "酉": "午",
+    "戌": "巳",
+    "亥": "辰",
 }
 # 天喜（年支 -> 天喜地支，红鸾对宫）
 _TIANXI = {
-    "子": "酉", "丑": "申", "寅": "未", "卯": "午", "辰": "巳", "巳": "辰",
-    "午": "卯", "未": "寅", "申": "丑", "酉": "子", "戌": "亥", "亥": "戌",
+    "子": "酉",
+    "丑": "申",
+    "寅": "未",
+    "卯": "午",
+    "辰": "巳",
+    "巳": "辰",
+    "午": "卯",
+    "未": "寅",
+    "申": "丑",
+    "酉": "子",
+    "戌": "亥",
+    "亥": "戌",
 }
 
 
@@ -103,17 +123,26 @@ class RomanceAnalysis:
         return targets
 
     @staticmethod
-    def _peach_blossom(pillars: Dict[str, Tuple[str, str]], branches: Dict[str, str]) -> Dict[str, Any]:
+    def _peach_blossom(
+        pillars: Dict[str, Tuple[str, str]], branches: Dict[str, str]
+    ) -> Dict[str, Any]:
         targets = RomanceAnalysis._peach_targets(branches)
         hits = [name for name, b in branches.items() if b in targets]
         if hits:
             note = "命带桃花（咸池），异性缘旺、有魅力；多则需防感情纷扰"
         else:
             note = "命无明显桃花，异性缘平稳，逢桃花之大运流年增强"
-        return {"peach_branches": sorted(targets), "hit_pillars": hits, "count": len(hits), "note": note}
+        return {
+            "peach_branches": sorted(targets),
+            "hit_pillars": hits,
+            "count": len(hits),
+            "note": note,
+        }
 
     @staticmethod
-    def _hongluan_tianxi(pillars: Dict[str, Tuple[str, str]], branches: Dict[str, str]) -> Dict[str, Any]:
+    def _hongluan_tianxi(
+        pillars: Dict[str, Tuple[str, str]], branches: Dict[str, str]
+    ) -> Dict[str, Any]:
         year_branch = branches.get("year")
         hongluan = _HONGLUAN.get(year_branch)
         tianxi = _TIANXI.get(year_branch)
@@ -125,7 +154,9 @@ class RomanceAnalysis:
         if xi_hits:
             notes.append("命带天喜，主喜庆、添丁、婚嫁之喜")
         if not notes:
-            notes.append(f"命无红鸾天喜（红鸾在{hongluan}、天喜在{tianxi}），逢之流年主婚恋喜庆")
+            notes.append(
+                f"命无红鸾天喜（红鸾在{hongluan}、天喜在{tianxi}），逢之流年主婚恋喜庆"
+            )
         return {
             "hongluan_branch": hongluan,
             "tianxi_branch": tianxi,
@@ -146,8 +177,10 @@ class RomanceAnalysis:
             basis = "官杀（女命异性缘）"
         else:
             gods = (
-                TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH,
-                TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER,
+                TenGod.POSITIVE_WEALTH,
+                TenGod.PARTIAL_WEALTH,
+                TenGod.POSITIVE_OFFICER,
+                TenGod.SEVEN_KILLER,
             )
             basis = "财/官杀（性别未提供，兼看）"
 
@@ -168,7 +201,9 @@ class RomanceAnalysis:
         return {"basis": basis, "weight": weight, "status": status}
 
     @staticmethod
-    def _peach_quality(peach: Dict[str, Any], pillars: Dict[str, Tuple[str, str]]) -> Dict[str, Any]:
+    def _peach_quality(
+        peach: Dict[str, Any], pillars: Dict[str, Tuple[str, str]]
+    ) -> Dict[str, Any]:
         notes: List[str] = []
         branches = [b for _, b in pillars.values()]
         for name in peach["hit_pillars"]:
@@ -206,14 +241,18 @@ class RomanceAnalysis:
             star_gods = (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER)
         else:
             star_gods = (
-                TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH,
-                TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER,
+                TenGod.POSITIVE_WEALTH,
+                TenGod.PARTIAL_WEALTH,
+                TenGod.POSITIVE_OFFICER,
+                TenGod.SEVEN_KILLER,
             )
 
         def _assess(label: str, pillar: Tuple[str, str]) -> None:
             stem, branch = pillar
             if get_ten_god(day_stem, stem) in star_gods:
-                signals.append(f"{label}{stem}{branch}引动异性缘星，利于桃花、恋爱、正缘出现")
+                signals.append(
+                    f"{label}{stem}{branch}引动异性缘星，利于桃花、恋爱、正缘出现"
+                )
             if branch in peach_targets:
                 signals.append(f"{label}逢桃花{branch}，异性缘旺、易有感情际遇")
             if branch == hongluan:

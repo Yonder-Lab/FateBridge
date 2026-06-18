@@ -28,11 +28,18 @@ from ..utils.data import (
     get_ten_god,
 )
 
-
 # 文昌贵人：以日干（或年干）查地支
 WENCHANG_TABLE = {
-    "甲": "巳", "乙": "午", "丙": "申", "丁": "酉", "戊": "申",
-    "己": "酉", "庚": "亥", "辛": "子", "壬": "寅", "癸": "卯",
+    "甲": "巳",
+    "乙": "午",
+    "丙": "申",
+    "丁": "酉",
+    "戊": "申",
+    "己": "酉",
+    "庚": "亥",
+    "辛": "子",
+    "壬": "寅",
+    "癸": "卯",
 }
 
 # 五行/十神 → 学科方向
@@ -99,14 +106,22 @@ class EducationAnalysis:
                 g = get_ten_god(day_stem, stem)
                 seal += 1.0 if g in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL) else 0
                 food_hurt += 1.0 if g in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER) else 0
-                officer += 1.0 if g in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER) else 0
-                wealth += 1.0 if g in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH) else 0
+                officer += (
+                    1.0 if g in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER) else 0
+                )
+                wealth += (
+                    1.0 if g in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH) else 0
+                )
             for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
                 g = get_ten_god(day_stem, hidden)
                 seal += 0.5 if g in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL) else 0
                 food_hurt += 0.5 if g in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER) else 0
-                officer += 0.5 if g in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER) else 0
-                wealth += 0.5 if g in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH) else 0
+                officer += (
+                    0.5 if g in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER) else 0
+                )
+                wealth += (
+                    0.5 if g in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH) else 0
+                )
 
         return {
             "seal_weight": round(seal, 1),
@@ -188,10 +203,7 @@ class EducationAnalysis:
     ) -> Dict[str, Any]:
         """文昌贵人。"""
         target = WENCHANG_TABLE.get(day_stem)
-        hits = [
-            p_name for p_name, (_, branch) in pillars.items()
-            if branch == target
-        ]
+        hits = [p_name for p_name, (_, branch) in pillars.items() if branch == target]
         if hits:
             note = f"命带文昌贵人（{target}），聪慧好学、利读书考试与文书"
         else:
@@ -226,6 +238,7 @@ class EducationAnalysis:
 
         # 以喜用神五行给学科方向
         from ..core.elements import ElementAnalysis
+
         dm_analysis = ElementAnalysis.analyze_day_master_strength(pillars)
         favorable = ElementAnalysis.get_favorable_elements(dm_analysis)
         fields: List[str] = []
@@ -253,11 +266,17 @@ class EducationAnalysis:
             stem, branch = pillar
             god = get_ten_god(day_stem, stem)
             if god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
-                signals.append(f"{label}{stem}{branch}见印星，学习运、文书运佳，利考试升学")
+                signals.append(
+                    f"{label}{stem}{branch}见印星，学习运、文书运佳，利考试升学"
+                )
             elif god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
-                signals.append(f"{label}{stem}{branch}见官星，功名考运动，利考公、考编、竞争性考试")
+                signals.append(
+                    f"{label}{stem}{branch}见官星，功名考运动，利考公、考编、竞争性考试"
+                )
             elif god in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER):
-                signals.append(f"{label}{stem}{branch}见食伤，思维活跃、表达灵感佳，利创作型考核")
+                signals.append(
+                    f"{label}{stem}{branch}见食伤，思维活跃、表达灵感佳，利创作型考核"
+                )
             if branch == wenchang:
                 signals.append(f"{label}逢文昌{wenchang}，读书考试如有神助")
 
@@ -282,7 +301,11 @@ class EducationAnalysis:
         suggestions.append(f"学历倾向：{level['tier']}")
         suggestions.append(f"学科方向：{subjects['inclination']}")
         if gods["seal_weight"] == 0:
-            suggestions.append("命局缺印，宜培养专注与持续学习习惯，或走技能证照路线扬长避短")
+            suggestions.append(
+                "命局缺印，宜培养专注与持续学习习惯，或走技能证照路线扬长避短"
+            )
         if gods["wealth_weight"] >= 2.0 and gods["seal_weight"] <= 1.0:
-            suggestions.append("求学阶段宜专注学业、节制逐利与外务，以免财旺破印影响学运")
+            suggestions.append(
+                "求学阶段宜专注学业、节制逐利与外务，以免财旺破印影响学运"
+            )
         return suggestions

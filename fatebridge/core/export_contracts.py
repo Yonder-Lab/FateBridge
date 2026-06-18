@@ -109,10 +109,50 @@ AI_EXPORT_TECHNIQUES = [
 ]
 
 AI_EXPORT_PRESET_SECTIONS = {
-    "astrochart": ["起盘信息", "宫位宫头", "星与虚点", "信息", "相位", "行星", "希腊点", "可能性"],
-    "indiachart": ["起盘信息", "宫位宫头", "星与虚点", "信息", "相位", "行星", "希腊点", "可能性"],
-    "astrochart_like": ["起盘信息", "宫位宫头", "星与虚点", "信息", "相位", "行星", "希腊点", "可能性"],
-    "relative": ["关系起盘信息", "A对B相位", "B对A相位", "A对B中点相位", "B对A中点相位", "A对B映点", "A对B反映点", "B对A映点", "B对A反映点", "合成图盘", "影响图盘-星盘A", "影响图盘-星盘B"],
+    "astrochart": [
+        "起盘信息",
+        "宫位宫头",
+        "星与虚点",
+        "信息",
+        "相位",
+        "行星",
+        "希腊点",
+        "可能性",
+    ],
+    "indiachart": [
+        "起盘信息",
+        "宫位宫头",
+        "星与虚点",
+        "信息",
+        "相位",
+        "行星",
+        "希腊点",
+        "可能性",
+    ],
+    "astrochart_like": [
+        "起盘信息",
+        "宫位宫头",
+        "星与虚点",
+        "信息",
+        "相位",
+        "行星",
+        "希腊点",
+        "可能性",
+    ],
+    "relative": [
+        "关系起盘信息",
+        "A对B相位",
+        "B对A相位",
+        "A对B中点相位",
+        "B对A中点相位",
+        "A对B映点",
+        "A对B反映点",
+        "B对A映点",
+        "B对A反映点",
+        "合成图盘",
+        "影响图盘-星盘A",
+        "影响图盘-星盘B",
+    ],
     "primarydirect": ["出生时间", "星盘信息", "主/界限法设置", "主/界限法表格"],
     "primarydirchart": ["出生时间", "星盘信息", "主限法盘设置", "主限法盘说明"],
     "zodialrelease": ["起盘信息", "星盘信息", "基于X点推运"],
@@ -124,13 +164,38 @@ AI_EXPORT_PRESET_SECTIONS = {
     "transit": ["星盘信息", "起盘信息", "相位"],
     "givenyear": ["星盘信息", "起盘信息", "相位"],
     "decennials": ["起盘信息", "星盘信息", "十年大运设置", "基于X起运"],
-    "bazi": ["起盘信息", "四柱与三元", "格局调候", "流年行运概略", "神煞（四柱与三元）"],
+    "bazi": [
+        "起盘信息",
+        "四柱与三元",
+        "格局调候",
+        "流年行运概略",
+        "神煞（四柱与三元）",
+    ],
     "ziwei": ["起盘信息", "宫位总览"],
     "ziwei_rules": ["规则概览", "宫位序列", "命身宫规则", "四化总表", "当前天干四化"],
     "suzhan": ["起盘信息", "宿盘宫位与二十八宿星曜"],
     "sixyao": ["起盘信息", "卦象", "六爻与动爻", "卦辞与断语"],
     "tongshefa": ["本卦", "六爻", "潜藏", "亲和"],
-    "liureng": ["起盘信息", "十二盘式", "十二地盘/十二天盘/十二贵神对应", "四课", "三传", "行年", "旬日", "旺衰", "基础神煞", "干煞", "月煞", "支煞", "岁煞", "十二长生", "大格", "小局", "参考", "概览"],
+    "liureng": [
+        "起盘信息",
+        "十二盘式",
+        "十二地盘/十二天盘/十二贵神对应",
+        "四课",
+        "三传",
+        "行年",
+        "旬日",
+        "旺衰",
+        "基础神煞",
+        "干煞",
+        "月煞",
+        "支煞",
+        "岁煞",
+        "十二长生",
+        "大格",
+        "小局",
+        "参考",
+        "概览",
+    ],
     "jinkou": ["起盘信息", "金口诀速览", "金口诀四位", "四位神煞"],
     "taiyi": ["起盘信息", "太乙盘", "十六宫标记"],
     "qimen": [
@@ -174,7 +239,17 @@ AI_EXPORT_PRESET_SECTIONS = {
     ],
     "guolao": ["起盘信息", "七政四余宫位与二十八宿星曜", "神煞"],
     "germany": ["起盘信息", "宫位宫头", "中点", "中点相位"],
-    "jieqi": ["节气盘参数", "春分星盘", "春分宿盘", "夏至星盘", "夏至宿盘", "秋分星盘", "秋分宿盘", "冬至星盘", "冬至宿盘"],
+    "jieqi": [
+        "节气盘参数",
+        "春分星盘",
+        "春分宿盘",
+        "夏至星盘",
+        "夏至宿盘",
+        "秋分星盘",
+        "秋分宿盘",
+        "冬至星盘",
+        "冬至宿盘",
+    ],
     **JIEQI_SETTING_PRESETS,
     "knowledge_registry": ["目录概览", "astro", "liureng", "qimen", "来源"],
     "jieqi_year": ["查询信息", "全年节气", "重点节气", "来源"],
@@ -204,8 +279,12 @@ AI_EXPORT_FORBIDDEN_SECTIONS = {
 def normalize_planet_info_setting(raw: dict[str, Any] | None) -> dict[str, int]:
     value = raw or {}
     return {
-        "showHouse": 1 if value.get("showHouse", value.get("show_house")) in {1, True} else 0,
-        "showRuler": 1 if value.get("showRuler", value.get("show_ruler")) in {1, True} else 0,
+        "showHouse": (
+            1 if value.get("showHouse", value.get("show_house")) in {1, True} else 0
+        ),
+        "showRuler": (
+            1 if value.get("showRuler", value.get("show_ruler")) in {1, True} else 0
+        ),
     }
 
 
@@ -318,16 +397,30 @@ def get_technique_info(key: str) -> dict[str, Any] | None:
         "preset_sections": deepcopy(AI_EXPORT_PRESET_SECTIONS.get(key, [])),
         "forbidden_sections": deepcopy(AI_EXPORT_FORBIDDEN_SECTIONS.get(key, [])),
         "supports_planet_info": supports_planet_info,
-        "planet_info_default": deepcopy(AI_EXPORT_PLANET_INFO_DEFAULT) if supports_planet_info else None,
+        "planet_info_default": (
+            deepcopy(AI_EXPORT_PLANET_INFO_DEFAULT) if supports_planet_info else None
+        ),
         "supports_astro_meaning": supports_astro_meaning,
         "supports_hover_meaning": supports_hover_meaning,
-        "astro_meaning_default": deepcopy(AI_EXPORT_ASTRO_MEANING_DEFAULT) if (supports_astro_meaning or supports_hover_meaning) else None,
+        "astro_meaning_default": (
+            deepcopy(AI_EXPORT_ASTRO_MEANING_DEFAULT)
+            if (supports_astro_meaning or supports_hover_meaning)
+            else None
+        ),
         "astro_meaning_title": meaning_meta["title"],
         "astro_meaning_checkbox": meaning_meta["checkbox"],
         "settings_template": {
             "sections": deepcopy(AI_EXPORT_PRESET_SECTIONS.get(key, [])),
-            "planetInfo": deepcopy(AI_EXPORT_PLANET_INFO_DEFAULT) if supports_planet_info else None,
-            "astroMeaning": deepcopy(AI_EXPORT_ASTRO_MEANING_DEFAULT) if (supports_astro_meaning or supports_hover_meaning) else None,
+            "planetInfo": (
+                deepcopy(AI_EXPORT_PLANET_INFO_DEFAULT)
+                if supports_planet_info
+                else None
+            ),
+            "astroMeaning": (
+                deepcopy(AI_EXPORT_ASTRO_MEANING_DEFAULT)
+                if (supports_astro_meaning or supports_hover_meaning)
+                else None
+            ),
         },
     }
 

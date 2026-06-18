@@ -25,12 +25,11 @@ from ..utils.data import (
     BRANCH_ELEMENTS,
     BRANCH_HIDDEN_STEMS,
     DESTRUCTION_CYCLE,
-    Element,
     STEM_ELEMENTS,
+    Element,
     check_branch_conflict,
     get_ten_god,
 )
-
 
 # 五行对应脏腑与身体系统
 ELEMENT_ORGANS = {
@@ -140,7 +139,9 @@ class HealthAnalysis:
 
         notes: List[str] = []
         if strength == "强":
-            notes.append("日主旺，体质底子较强，但忌过亢，宜疏泄（食伤、财官）以免郁结生热")
+            notes.append(
+                "日主旺，体质底子较强，但忌过亢，宜疏泄（食伤、财官）以免郁结生热"
+            )
         elif strength == "弱":
             notes.append("日主偏弱，元气根基较虚，宜固本培元、规律作息、避免过劳")
         else:
@@ -175,26 +176,32 @@ class HealthAnalysis:
         for elem, weight in counts.items():
             info = ELEMENT_ORGANS[elem]
             if weight == 0:
-                findings.append({
-                    "element": elem.value,
-                    "organs": info["organs"],
-                    "status": "缺失",
-                    "concern": f"命局缺{elem.value}，{info['organs']}相关功能先天偏弱：{info['deficient']}",
-                })
+                findings.append(
+                    {
+                        "element": elem.value,
+                        "organs": info["organs"],
+                        "status": "缺失",
+                        "concern": f"命局缺{elem.value}，{info['organs']}相关功能先天偏弱：{info['deficient']}",
+                    }
+                )
             elif weight >= avg * 1.8:
-                findings.append({
-                    "element": elem.value,
-                    "organs": info["organs"],
-                    "status": "过旺",
-                    "concern": f"{elem.value}过旺，{info['organs']}易亢：{info['excess']}",
-                })
+                findings.append(
+                    {
+                        "element": elem.value,
+                        "organs": info["organs"],
+                        "status": "过旺",
+                        "concern": f"{elem.value}过旺，{info['organs']}易亢：{info['excess']}",
+                    }
+                )
             elif weight <= avg * 0.4:
-                findings.append({
-                    "element": elem.value,
-                    "organs": info["organs"],
-                    "status": "偏弱",
-                    "concern": f"{elem.value}偏弱，{info['organs']}宜调养：{info['deficient']}",
-                })
+                findings.append(
+                    {
+                        "element": elem.value,
+                        "organs": info["organs"],
+                        "status": "偏弱",
+                        "concern": f"{elem.value}偏弱，{info['organs']}宜调养：{info['deficient']}",
+                    }
+                )
 
         if not findings:
             summary = "五行较为均衡，脏腑无明显偏颇，重在日常保养"
@@ -219,7 +226,7 @@ class HealthAnalysis:
         # 地支相冲 → 冲处脏腑/部位易伤
         seen_pairs = set()
         for i, (n1, b1) in enumerate(branch_items):
-            for n2, b2 in branch_items[i + 1:]:
+            for n2, b2 in branch_items[i + 1 :]:
                 if check_branch_conflict(b1, b2):
                     key = frozenset((b1, b2))
                     if key in seen_pairs:
@@ -237,7 +244,9 @@ class HealthAnalysis:
         # 过旺五行被克 / 受克脏腑
         counts = HealthAnalysis._element_counts(pillars)
         for elem, weight in counts.items():
-            controller = next((e for e in Element if DESTRUCTION_CYCLE[e] == elem), None)
+            controller = next(
+                (e for e in Element if DESTRUCTION_CYCLE[e] == elem), None
+            )
             if controller and counts.get(controller, 0) >= 2.5 and weight <= 1.0:
                 info = ELEMENT_ORGANS[elem]
                 risks.append(
@@ -265,10 +274,14 @@ class HealthAnalysis:
             stem, branch = pillar
             # 冲日支（配偶宫/自身宫）
             if check_branch_conflict(branch, day_branch):
-                signals.append(f"{label}{stem}{branch}冲日支{day_branch}，身体易有波动，注意休息与体检")
+                signals.append(
+                    f"{label}{stem}{branch}冲日支{day_branch}，身体易有波动，注意休息与体检"
+                )
             # 七杀克身
             if get_ten_god(day_stem, stem).value == "七杀":
-                signals.append(f"{label}{stem}{branch}七杀攻身，压力大、易劳损或意外，宜减压防伤")
+                signals.append(
+                    f"{label}{stem}{branch}七杀攻身，压力大、易劳损或意外，宜减压防伤"
+                )
             # 引动过旺/受克脏腑
             b_elem = BRANCH_ELEMENTS[branch][0]
             controlled = DESTRUCTION_CYCLE[b_elem]
@@ -298,7 +311,9 @@ class HealthAnalysis:
         advice: List[str] = []
         for elem in favorable:
             info = ELEMENT_ORGANS[elem]
-            advice.append(f"喜{elem.value}：宜养护{info['organs']}（{info['systems']}），相关饮食起居为调养重点")
+            advice.append(
+                f"喜{elem.value}：宜养护{info['organs']}（{info['systems']}），相关饮食起居为调养重点"
+            )
 
         if not advice:
             advice.append("以五行平衡为养生总则，作息规律、情志平和")

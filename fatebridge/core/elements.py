@@ -2,16 +2,17 @@
 Five Elements analysis for BaZi calculations.
 """
 
-from typing import Dict, List, Tuple, Any
 from collections import Counter
+from typing import Any, Dict, List, Tuple
+
 from ..utils.data import (
+    BRANCH_ELEMENTS,
+    BRANCH_HIDDEN_STEMS,
+    DESTRUCTION_CYCLE,
+    GENERATION_CYCLE,
+    STEM_ELEMENTS,
     Element,
     Polarity,
-    STEM_ELEMENTS,
-    BRANCH_ELEMENTS,
-    GENERATION_CYCLE,
-    DESTRUCTION_CYCLE,
-    BRANCH_HIDDEN_STEMS,
     get_ten_god,
 )
 

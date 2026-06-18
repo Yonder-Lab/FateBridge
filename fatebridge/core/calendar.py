@@ -7,21 +7,20 @@ from datetime import date, datetime, timedelta
 from functools import lru_cache
 from typing import Dict, Optional, Tuple
 
-from .almanac import (
-    DAY_GANZHI_STRATEGY_STANDARD,
-    DEFAULT_TIMEZONE,
-    get_day_ganzhi,
-    get_bazi_month_context,
-    get_bazi_year,
-    localize_datetime,
-)
 from ..utils.data import (
-    HEAVENLY_STEMS,
     EARTHLY_BRANCHES,
+    HEAVENLY_STEMS,
     MONTH_BRANCHES,
     get_hour_branch,
 )
-
+from .almanac import (
+    DAY_GANZHI_STRATEGY_STANDARD,
+    DEFAULT_TIMEZONE,
+    get_bazi_month_context,
+    get_bazi_year,
+    get_day_ganzhi,
+    localize_datetime,
+)
 
 LATE_ZI_HOUR = 23  # 23:00-23:59 属 late 子时 / 晚子时, 日柱翻至次日
 
@@ -286,10 +285,12 @@ class BaZiCalendar:
             Each value is a tuple of (heavenly_stem, earthly_branch)
         """
         local_birth_datetime = localize_datetime(birth_datetime, timezone_name)
-        year_pillar, month_pillar, day_pillar, hour_pillar = cls._get_four_pillars_cached(
-            local_birth_datetime,
-            timezone_name,
-            day_pillar_strategy,
+        year_pillar, month_pillar, day_pillar, hour_pillar = (
+            cls._get_four_pillars_cached(
+                local_birth_datetime,
+                timezone_name,
+                day_pillar_strategy,
+            )
         )
         return {
             "year": year_pillar,

@@ -1,13 +1,18 @@
 """
 FateBridge Timing Services
 """
-import re
-from typing import Any, Dict, List, Optional
-from datetime import datetime, timedelta
-import logging
 
+import logging
+import re
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+from fatebridge.analysis.life_dimensions import LifeDimensionAnalysis
+from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
 from fatebridge.core.almanac import build_calendar_context, get_jieqi_year_grid
+from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.export_parser import parse_export_content
+from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.calculation import (
     BirthComputationContext,
     _build_birth_computation_context,
@@ -15,15 +20,11 @@ from fatebridge.services.calculation import (
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     PersonInfo,
-    handle_calculation_error,
+    calculate_solar_time_adjustment,
     create_pillar_dict,
     get_current_analysis_date,
-    calculate_solar_time_adjustment,
+    handle_calculation_error,
 )
-from fatebridge.core.calendar import BaZiCalendar
-from fatebridge.core.timing import TimingAnalysis
-from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
-from fatebridge.analysis.life_dimensions import LifeDimensionAnalysis
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +70,18 @@ def _compute_life_dimensions_for_moment(
 
         # 流时（小时粒度）
         try:
-            liushi = TimingAnalysis.calculate_liushi(analysis_date, timezone_name=timezone_name)
+            liushi = TimingAnalysis.calculate_liushi(
+                analysis_date, timezone_name=timezone_name
+            )
             current_pillars["liushi"] = (liushi["stem"], liushi["branch"])
         except Exception:
             logger.debug("life_dimensions: liushi 计算失败", exc_info=True)
 
         # 流日
         try:
-            liuri = TimingAnalysis.calculate_liuri(analysis_date, timezone_name=timezone_name)
+            liuri = TimingAnalysis.calculate_liuri(
+                analysis_date, timezone_name=timezone_name
+            )
             current_pillars["liuri"] = (liuri["stem"], liuri["branch"])
         except Exception:
             logger.debug("life_dimensions: liuri 计算失败", exc_info=True)
@@ -115,7 +120,11 @@ def _compute_life_dimensions_for_moment(
                 timezone_name=timezone_name,
                 original_element_counts=birth_context.original_element_counts,
             )
-            dayun_info = dayun_result.get("dayun_info") if isinstance(dayun_result, dict) else None
+            dayun_info = (
+                dayun_result.get("dayun_info")
+                if isinstance(dayun_result, dict)
+                else None
+            )
             if dayun_info and dayun_info.get("stem") and dayun_info.get("branch"):
                 current_pillars["dayun"] = (dayun_info["stem"], dayun_info["branch"])
         except Exception:
@@ -370,7 +379,9 @@ def _format_location_line(
     if lat or lon:
         parts.append(f"文本提示：{lat or '未提供'} / {lon or '未提供'}")
     if gps_lat is not None or gps_lon is not None:
-        parts.append(f"GPS：{gps_lat if gps_lat is not None else '未提供'} / {gps_lon if gps_lon is not None else '未提供'}")
+        parts.append(
+            f"GPS：{gps_lat if gps_lat is not None else '未提供'} / {gps_lon if gps_lon is not None else '未提供'}"
+        )
     return "；".join(parts) if parts else "位置：未提供"
 
 
@@ -515,8 +526,12 @@ def _build_liuyue_snapshot_text(
     combination_effects: Dict[str, Any],
     summary: str,
 ) -> str:
-    current_term = (analysis_calendar_context.get("current_solar_term") or {}).get("name", "未知")
-    next_term = (analysis_calendar_context.get("next_solar_term") or {}).get("name", "未知")
+    current_term = (analysis_calendar_context.get("current_solar_term") or {}).get(
+        "name", "未知"
+    )
+    next_term = (analysis_calendar_context.get("next_solar_term") or {}).get(
+        "name", "未知"
+    )
     query_lines = [
         f"姓名：{person_name or '未提供'}",
         f"分析时刻：{analysis_date.strftime('%Y-%m-%d %H:%M')}",
@@ -545,8 +560,12 @@ def _build_liuyue_snapshot_text(
         )
     liuyue_liunian = combination_effects.get("liuyue_liunian") or {}
     if liuyue_liunian:
-        combo_lines.append(f"组合总效应：{liuyue_liunian.get('overall_effect', '未知')}")
-        combo_lines.append(f"组合影响分：{liuyue_liunian.get('total_impact_score', '未知')}")
+        combo_lines.append(
+            f"组合总效应：{liuyue_liunian.get('overall_effect', '未知')}"
+        )
+        combo_lines.append(
+            f"组合影响分：{liuyue_liunian.get('total_impact_score', '未知')}"
+        )
         for relation in liuyue_liunian.get("relations") or []:
             combo_lines.append(
                 f"{relation.get('type', '普通')}：{relation.get('description', '无')} / "
@@ -561,8 +580,12 @@ def _build_liuyue_snapshot_text(
     ]
     fortune_analysis = detailed_analysis.get("fortune_analysis") or {}
     if fortune_analysis:
-        effect_lines.append(f"运势等级：{fortune_analysis.get('overall_fortune', '未知')}")
-        effect_lines.append(f"运势分数：{fortune_analysis.get('fortune_score', '未知')}")
+        effect_lines.append(
+            f"运势等级：{fortune_analysis.get('overall_fortune', '未知')}"
+        )
+        effect_lines.append(
+            f"运势分数：{fortune_analysis.get('fortune_score', '未知')}"
+        )
         effect_lines.append(f"细断：{fortune_analysis.get('detailed_analysis', '无')}")
     for relation in detailed_analysis.get("branch_relations") or []:
         effect_lines.append(
@@ -700,8 +723,12 @@ def _build_liuri_snapshot_text(
     element_effects: Dict[str, Any],
     summary: str,
 ) -> str:
-    current_term = (analysis_calendar_context.get("current_solar_term") or {}).get("name", "未知")
-    next_term = (analysis_calendar_context.get("next_solar_term") or {}).get("name", "未知")
+    current_term = (analysis_calendar_context.get("current_solar_term") or {}).get(
+        "name", "未知"
+    )
+    next_term = (analysis_calendar_context.get("next_solar_term") or {}).get(
+        "name", "未知"
+    )
     query_lines = [
         f"姓名：{person_name or '未提供'}",
         f"分析时刻：{analysis_date.strftime('%Y-%m-%d %H:%M')}",
@@ -782,8 +809,12 @@ def _build_liushi_snapshot_text(
     ]
     fortune_analysis = detailed_analysis.get("fortune_analysis") or {}
     if fortune_analysis:
-        effect_lines.append(f"运势等级：{fortune_analysis.get('overall_fortune', '未知')}")
-        effect_lines.append(f"运势分数：{fortune_analysis.get('fortune_score', '未知')}")
+        effect_lines.append(
+            f"运势等级：{fortune_analysis.get('overall_fortune', '未知')}"
+        )
+        effect_lines.append(
+            f"运势分数：{fortune_analysis.get('fortune_score', '未知')}"
+        )
         effect_lines.append(f"细断：{fortune_analysis.get('detailed_analysis', '无')}")
     for relation in detailed_analysis.get("branch_relations") or []:
         effect_lines.append(
@@ -1004,12 +1035,12 @@ def calculate_jieqi_year(
         annual_grid = get_jieqi_year_grid(normalized_year, timezone_name)
         requested_terms = jieqis or []
         by_name = {item["name"]: item for item in annual_grid}
-        selected_terms = [
-            by_name[name] for name in requested_terms if name in by_name
-        ] if requested_terms else annual_grid
-        missing_terms = [
-            name for name in requested_terms if name not in by_name
-        ]
+        selected_terms = (
+            [by_name[name] for name in requested_terms if name in by_name]
+            if requested_terms
+            else annual_grid
+        )
+        missing_terms = [name for name in requested_terms if name not in by_name]
 
         summary = (
             f"{normalized_year}年共生成{len(annual_grid)}个节气节点，"
@@ -1054,9 +1085,7 @@ def calculate_jieqi_year(
             "snapshot_export": snapshot_export,
         }
         if missing_terms:
-            result["warnings"] = [
-                f"未识别的节气名称：{'、'.join(missing_terms)}"
-            ]
+            result["warnings"] = [f"未识别的节气名称：{'、'.join(missing_terms)}"]
         return result
     except Exception as exc:
         return handle_calculation_error(exc, "全年节气盘")
@@ -1134,8 +1163,7 @@ def calculate_nongli_time(
         lunar_support = calendar_context.get("lunar_calendar_support") or {}
         if not lunar_support.get("supported", bool(lunar_calendar)):
             raise ValueError(
-                lunar_support.get("reason")
-                or "离线农历换算当前不支持该日期。"
+                lunar_support.get("reason") or "离线农历换算当前不支持该日期。"
             )
         summary = (
             f"{calendar_context['solar_datetime']} 对应农历"
@@ -1423,6 +1451,7 @@ def calculate_comprehensive_timing(
     except Exception as e:
         return handle_calculation_error(e, "时运分析计算")
 
+
 def calculate_dayun_analysis(
     person: PersonInfo,
     analysis_age: int,
@@ -1511,6 +1540,7 @@ def calculate_dayun_analysis(
 
     except Exception as e:
         return handle_calculation_error(e, "大运分析计算")
+
 
 def calculate_liunian_analysis(
     person: PersonInfo,
@@ -1713,9 +1743,7 @@ def calculate_liuyue_analysis(
                 "solar_term_window": liuyue_info["solar_term_window"],
             },
             "detailed_analysis": {
-                "stem_relation": detailed_analysis["shishen_analysis"][
-                    "stem_relation"
-                ],
+                "stem_relation": detailed_analysis["shishen_analysis"]["stem_relation"],
                 "branch_relations": detailed_analysis["branch_relations"],
                 "fortune_analysis": detailed_analysis["fortune_analysis"],
                 "suggestions": detailed_analysis["suggestions"],
@@ -1915,9 +1943,7 @@ def calculate_liushi_analysis(
             analysis_calendar_context=analysis_calendar_context,
             liushi_info=liushi_info,
             detailed_analysis={
-                "stem_relation": detailed_analysis["shishen_analysis"][
-                    "stem_relation"
-                ],
+                "stem_relation": detailed_analysis["shishen_analysis"]["stem_relation"],
                 "branch_relations": detailed_analysis["branch_relations"],
                 "fortune_analysis": detailed_analysis["fortune_analysis"],
                 "suggestions": detailed_analysis["suggestions"],
@@ -1958,9 +1984,7 @@ def calculate_liushi_analysis(
                 "shichen": liushi_info["shichen"],
             },
             "detailed_analysis": {
-                "stem_relation": detailed_analysis["shishen_analysis"][
-                    "stem_relation"
-                ],
+                "stem_relation": detailed_analysis["shishen_analysis"]["stem_relation"],
                 "branch_relations": detailed_analysis["branch_relations"],
                 "fortune_analysis": detailed_analysis["fortune_analysis"],
                 "suggestions": detailed_analysis["suggestions"],

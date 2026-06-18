@@ -13,6 +13,12 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+from ..utils.helpers import (
+    DEFAULT_BIRTH_TIMEZONE,
+    SOLAR_TIME_STRATEGY_APPARENT,
+    calculate_solar_time_adjustment,
+    create_pillar_dict,
+)
 from .almanac import (
     DAY_GANZHI_STRATEGY_STANDARD,
     build_calendar_context,
@@ -27,21 +33,14 @@ from .divination import (
     lookup_hexagram_by_code,
 )
 from .metaphysics import (
-    MetaphysicsSeed,
     QIMEN_DOOR_CODE_BY_DISPLAY,
     QIMEN_DOOR_TO_TRIGRAM,
     QIMEN_STAR_CODE_BY_DISPLAY,
+    MetaphysicsSeed,
     build_liureng_board,
     build_qimen_board,
     build_taiyi_board,
 )
-from ..utils.helpers import (
-    DEFAULT_BIRTH_TIMEZONE,
-    SOLAR_TIME_STRATEGY_APPARENT,
-    calculate_solar_time_adjustment,
-    create_pillar_dict,
-)
-
 
 GEO_COORDINATE_RE = re.compile(
     r"^\s*(?P<degrees>-?\d+(?:\.\d+)?)(?:(?P<direction>[NSEWnsew])(?P<minutes>\d+(?:\.\d+)?))?\s*$"
@@ -220,23 +219,34 @@ _BAGONG_POSITION_INFO = [
 
 # 地支五行
 _BRANCH_TO_ELEMENT = {
-    "寅": "木", "卯": "木",
-    "巳": "火", "午": "火",
-    "申": "金", "酉": "金",
-    "亥": "水", "子": "水",
-    "辰": "土", "戌": "土", "丑": "土", "未": "土",
+    "寅": "木",
+    "卯": "木",
+    "巳": "火",
+    "午": "火",
+    "申": "金",
+    "酉": "金",
+    "亥": "水",
+    "子": "水",
+    "辰": "土",
+    "戌": "土",
+    "丑": "土",
+    "未": "土",
 }
 
 # 六神起法：按日干决定青龙所在爻（0 基）：
 # 甲乙→初爻起青龙，丙丁→朱雀，戊→勾陈，己→腾蛇，庚辛→白虎，壬癸→玄武。
 _LIUSHEN_CYCLE = ("青龙", "朱雀", "勾陈", "腾蛇", "白虎", "玄武")
 _LIUSHEN_OFFSET_BY_STEM = {
-    "甲": 0, "乙": 0,
-    "丙": 1, "丁": 1,
+    "甲": 0,
+    "乙": 0,
+    "丙": 1,
+    "丁": 1,
     "戊": 2,
     "己": 3,
-    "庚": 4, "辛": 4,
-    "壬": 5, "癸": 5,
+    "庚": 4,
+    "辛": 4,
+    "壬": 5,
+    "癸": 5,
 }
 
 
@@ -267,10 +277,19 @@ _HEXAGRAM_PALACE_LOOKUP: Dict[str, Dict[str, Any]] = _build_hexagram_palace_look
 
 def _decode_trigrams(code: str) -> Tuple[str, str]:
     """拆分六位二进制到 (下卦, 上卦) 三画卦名。"""
-    inv = {v: k for k, v in {
-        "乾": "111", "坎": "010", "艮": "001", "震": "100",
-        "巽": "011", "离": "101", "坤": "000", "兑": "110",
-    }.items()}
+    inv = {
+        v: k
+        for k, v in {
+            "乾": "111",
+            "坎": "010",
+            "艮": "001",
+            "震": "100",
+            "巽": "011",
+            "离": "101",
+            "坤": "000",
+            "兑": "110",
+        }.items()
+    }
     lower = inv.get(code[0:3])
     upper = inv.get(code[3:6])
     return lower or "?", upper or "?"
@@ -279,38 +298,48 @@ def _decode_trigrams(code: str) -> Tuple[str, str]:
 # 六冲卦：上下卦为阴阳对冲 (乾/坤、震/巽、坎/离、艮/兑) 的本宫纯卦 + 对冲组合。
 # 标准清单: 乾、坤、震、巽、坎、离、艮、兑 (八纯卦) + 雷天大壮、泽天夬 等 "上下互冲" — 共 8 卦。
 # 通行版本 (来自《卜筮正宗》): 乾、坤、震、巽、坎、离、艮、兑 八个纯卦即六冲卦。
-_LIUCHONG_HEXAGRAM_CODES = frozenset({
-    "111111",  # 乾为天
-    "000000",  # 坤为地
-    "100100",  # 震为雷
-    "011011",  # 巽为风
-    "010010",  # 坎为水
-    "101101",  # 离为火
-    "001001",  # 艮为山
-    "110110",  # 兑为泽
-})
+_LIUCHONG_HEXAGRAM_CODES = frozenset(
+    {
+        "111111",  # 乾为天
+        "000000",  # 坤为地
+        "100100",  # 震为雷
+        "011011",  # 巽为风
+        "010010",  # 坎为水
+        "101101",  # 离为火
+        "001001",  # 艮为山
+        "110110",  # 兑为泽
+    }
+)
 
 # 六合卦: 地天泰、天地否、雷地豫、地雷复、泽水困、水泽节、火山旅、山火贲 —
 # 传统八大六合卦。
-_LIUHE_HEXAGRAM_CODES = frozenset({
-    "111000",  # 地天泰
-    "000111",  # 天地否
-    "000100",  # 雷地豫
-    "100000",  # 地雷复
-    "010110",  # 泽水困
-    "110010",  # 水泽节
-    "001101",  # 火山旅
-    "101001",  # 山火贲
-})
+_LIUHE_HEXAGRAM_CODES = frozenset(
+    {
+        "111000",  # 地天泰
+        "000111",  # 天地否
+        "000100",  # 雷地豫
+        "100000",  # 地雷复
+        "010110",  # 泽水困
+        "110010",  # 水泽节
+        "001101",  # 火山旅
+        "101001",  # 山火贲
+    }
+)
 
 # 地支六冲对
 _BRANCH_CLASH = {
-    "子": "午", "午": "子",
-    "丑": "未", "未": "丑",
-    "寅": "申", "申": "寅",
-    "卯": "酉", "酉": "卯",
-    "辰": "戌", "戌": "辰",
-    "巳": "亥", "亥": "巳",
+    "子": "午",
+    "午": "子",
+    "丑": "未",
+    "未": "丑",
+    "寅": "申",
+    "申": "寅",
+    "卯": "酉",
+    "酉": "卯",
+    "辰": "戌",
+    "戌": "辰",
+    "巳": "亥",
+    "亥": "巳",
 }
 
 
@@ -325,15 +354,23 @@ def _detect_sixyao_patterns(
     patterns: List[Dict[str, str]] = []
     # 本卦六冲 / 六合
     if current_code in _LIUCHONG_HEXAGRAM_CODES:
-        patterns.append({"name": "本卦六冲", "basis": "本卦为八纯冲卦，事主聚散快、易有决断。"})
+        patterns.append(
+            {"name": "本卦六冲", "basis": "本卦为八纯冲卦，事主聚散快、易有决断。"}
+        )
     if current_code in _LIUHE_HEXAGRAM_CODES:
-        patterns.append({"name": "本卦六合", "basis": "本卦为六合卦，事主和合、凝聚、需圆融。"})
+        patterns.append(
+            {"name": "本卦六合", "basis": "本卦为六合卦，事主和合、凝聚、需圆融。"}
+        )
     # 之卦六冲 / 六合
     if current_code != changed_code:
         if changed_code in _LIUCHONG_HEXAGRAM_CODES:
-            patterns.append({"name": "变卦六冲", "basis": "之卦转为六冲，后续多变散、不守恒。"})
+            patterns.append(
+                {"name": "变卦六冲", "basis": "之卦转为六冲，后续多变散、不守恒。"}
+            )
         if changed_code in _LIUHE_HEXAGRAM_CODES:
-            patterns.append({"name": "变卦六合", "basis": "之卦归六合，结局趋于和谐收敛。"})
+            patterns.append(
+                {"name": "变卦六合", "basis": "之卦归六合，结局趋于和谐收敛。"}
+            )
 
     # 伏吟 / 反吟 (只在动爻上判断, 避开 changed_branch 为空的静爻)
     fu_count = 0
@@ -350,13 +387,30 @@ def _detect_sixyao_patterns(
         elif _BRANCH_CLASH.get(orig_branch) == new_branch:
             fan_count += 1
     if fu_count and fu_count == len(moving_indices):
-        patterns.append({"name": "伏吟", "basis": "动爻所变支全与本支同 (伏而不动)，主压抑、旧事重来。"})
+        patterns.append(
+            {
+                "name": "伏吟",
+                "basis": "动爻所变支全与本支同 (伏而不动)，主压抑、旧事重来。",
+            }
+        )
     elif fu_count:
-        patterns.append({"name": "局部伏吟", "basis": f"{fu_count}个动爻之支与原支相同，该爻所主之事停滞。"})
+        patterns.append(
+            {
+                "name": "局部伏吟",
+                "basis": f"{fu_count}个动爻之支与原支相同，该爻所主之事停滞。",
+            }
+        )
     if fan_count and fan_count == len(moving_indices):
-        patterns.append({"name": "反吟", "basis": "动爻所变支全与本支相冲，主反复、事有大转折。"})
+        patterns.append(
+            {"name": "反吟", "basis": "动爻所变支全与本支相冲，主反复、事有大转折。"}
+        )
     elif fan_count:
-        patterns.append({"name": "局部反吟", "basis": f"{fan_count}个动爻之支与原支相冲，该爻反复。"})
+        patterns.append(
+            {
+                "name": "局部反吟",
+                "basis": f"{fan_count}个动爻之支与原支相冲，该爻反复。",
+            }
+        )
 
     return {
         "patterns": patterns,
@@ -456,6 +510,7 @@ def _build_sixyao_enrichment(
         "changed_palace_element": changed_info.get("palace_element"),
     }
     return hexagram_info, enriched_lines
+
 
 QIMEN_STARS = ["天蓬", "天任", "天冲", "天辅", "天英", "天芮", "天柱", "天心", "天禽"]
 QIMEN_DOORS = ["休门", "生门", "伤门", "杜门", "景门", "死门", "惊门", "开门"]
@@ -565,9 +620,7 @@ def _normalize_time_text(time_text: str) -> str:
     seconds_text = parts[2] if len(parts) == 3 else "0"
     if not all(p.isdigit() for p in (hours_text, minutes_text, seconds_text)):
         return value
-    return (
-        f"{int(hours_text):02d}:{int(minutes_text):02d}:{int(seconds_text):02d}"
-    )
+    return f"{int(hours_text):02d}:{int(minutes_text):02d}:{int(seconds_text):02d}"
 
 
 def parse_phase2_datetime(
@@ -769,9 +822,7 @@ def _reindex_phase2_houses(source_houses: List[Dict[str, Any]]) -> List[Dict[str
 def _reverse_phase2_houses(source_houses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     if not source_houses:
         return []
-    return _reindex_phase2_houses(
-        [source_houses[0], *reversed(source_houses[1:])]
-    )
+    return _reindex_phase2_houses([source_houses[0], *reversed(source_houses[1:])])
 
 
 def _phase2_house_direction(houses: List[Dict[str, Any]]) -> str:
@@ -884,7 +935,9 @@ def _adapt_chart_objects(
             payload["su28"] = _su28_name(payload["lon"])
         objects.append(payload)
 
-    north_node = next((item for item in objects if item.get("id") == "North Node"), None)
+    north_node = next(
+        (item for item in objects if item.get("id") == "North Node"), None
+    )
     if north_node is not None:
         south_node_longitude = round((float(north_node["lon"]) + 180.0) % 360.0, 4)
         objects.append(
@@ -904,9 +957,13 @@ def _adapt_chart_objects(
         except (TypeError, ValueError):
             sun_house = 7
         if sun_house >= 7:
-            fortuna_longitude = (float(houses[0]["lon"]) + moon["lon"] - sun["lon"]) % 360.0
+            fortuna_longitude = (
+                float(houses[0]["lon"]) + moon["lon"] - sun["lon"]
+            ) % 360.0
         else:
-            fortuna_longitude = (float(houses[0]["lon"]) + sun["lon"] - moon["lon"]) % 360.0
+            fortuna_longitude = (
+                float(houses[0]["lon"]) + sun["lon"] - moon["lon"]
+            ) % 360.0
         objects.append(
             _build_phase2_point_object(
                 point_id="Pars Fortuna",
@@ -1018,7 +1075,9 @@ def _build_local_chart_response(
         params["hsys"] = resolved_hsys
     if resolved_hsys is not None:
         params["zodiacal"] = (core_payload.get("chart_profile") or {}).get("zodiacal")
-        params["zodiacLabelZh"] = (core_payload.get("chart_profile") or {}).get("zodiac_label_zh")
+        params["zodiacLabelZh"] = (core_payload.get("chart_profile") or {}).get(
+            "zodiac_label_zh"
+        )
     ayanamsha = (core_payload.get("chart_profile") or {}).get("ayanamsha")
     if ayanamsha:
         params["ayanamsha"] = ayanamsha
@@ -1031,8 +1090,12 @@ def _build_local_chart_response(
             "houses": houses,
             "objects": objects,
             "angles": {
-                "ascendant": round(float(core_payload["angles"]["ascendant"]["longitude"]), 4),
-                "midheaven": round(float(core_payload["angles"]["midheaven"]["longitude"]), 4),
+                "ascendant": round(
+                    float(core_payload["angles"]["ascendant"]["longitude"]), 4
+                ),
+                "midheaven": round(
+                    float(core_payload["angles"]["midheaven"]["longitude"]), 4
+                ),
             },
         },
     }
@@ -1046,7 +1109,9 @@ def _house_id_for_phase2_houses(longitude: float, houses: List[Dict[str, Any]]) 
     normalized_longitude = float(longitude) % 360.0
     for index, house in enumerate(houses):
         current = float(house.get("lon", 0.0)) % 360.0
-        next_longitude = float(houses[(index + 1) % len(houses)].get("lon", 0.0)) % 360.0
+        next_longitude = (
+            float(houses[(index + 1) % len(houses)].get("lon", 0.0)) % 360.0
+        )
         if ring_direction == "reverse":
             span = (current - next_longitude) % 360.0 or 360.0
             distance = (current - normalized_longitude) % 360.0
@@ -1124,7 +1189,9 @@ def _phase2_bagua_from_lines(lines: List[int]) -> Dict[str, Any]:
 
 def _phase2_hex(upper: Dict[str, Any], lower: Dict[str, Any]) -> Dict[str, Any]:
     lines = [*lower["value"], *upper["value"]]
-    name = HEXAGRAM_NAMES.get((upper["name"], lower["name"]), f"{upper['cname']}{lower['cname']}")
+    name = HEXAGRAM_NAMES.get(
+        (upper["name"], lower["name"]), f"{upper['cname']}{lower['cname']}"
+    )
     payload = {
         "name": name,
         "upper": upper,
@@ -1279,7 +1346,9 @@ def _build_phase2_context(
     moment = parse_phase2_datetime(date_text, time_text, timezone_name)
     timezone_value = timezone_name or DEFAULT_BIRTH_TIMEZONE
     pillars = BaZiCalendar.get_four_pillars(moment, timezone_name=timezone_value)
-    calendar_context = build_calendar_context(moment, timezone_name=timezone_value, pillars=pillars)
+    calendar_context = build_calendar_context(
+        moment, timezone_name=timezone_value, pillars=pillars
+    )
     lunar = calendar_context.get("lunar_calendar") or {}
     nongli = {
         "birth": calendar_context["solar_datetime"],
@@ -1343,9 +1412,7 @@ def _build_phase2_metaphysics_seed(
         )
         total_correction_minutes = adjustment["total_correction_minutes"]
         corrected_datetime = localize_datetime(
-            input_datetime_naive + timedelta(
-                minutes=total_correction_minutes
-            ),
+            input_datetime_naive + timedelta(minutes=total_correction_minutes),
             timezone_value,
         )
 
@@ -1407,7 +1474,9 @@ def _derive_changed_code(lines: List[Dict[str, Any]]) -> str:
     return "".join(chars) or "000000"
 
 
-def _lines_from_codes(current_code: str, changed_code: Optional[str] = None) -> List[Dict[str, Any]]:
+def _lines_from_codes(
+    current_code: str, changed_code: Optional[str] = None
+) -> List[Dict[str, Any]]:
     current = _clean_code(current_code)
     changed = _clean_code(changed_code or current_code)
     if len(current) != 6 or len(changed) != 6:
@@ -1476,10 +1545,14 @@ def _build_sixyao_snapshot_text(
     judge_lines = []
     if input_normalized.get("question"):
         judge_lines.append(f"问题：{input_normalized['question']}")
-    judge_lines.append(f"本卦：{current_payload.get('name', input_normalized['gua_code'])}")
+    judge_lines.append(
+        f"本卦：{current_payload.get('name', input_normalized['gua_code'])}"
+    )
     if current_payload.get("卦辞"):
         judge_lines.append(f"卦辞：{current_payload['卦辞']}")
-    judge_lines.append(f"之卦：{changed_payload.get('name', input_normalized['changed_code'])}")
+    judge_lines.append(
+        f"之卦：{changed_payload.get('name', input_normalized['changed_code'])}"
+    )
     if changed_payload.get("卦辞"):
         judge_lines.append(f"之卦卦辞：{changed_payload['卦辞']}")
 
@@ -1598,8 +1671,12 @@ def build_sixyao_result(
         lines=normalized_lines,
     )
 
-    moving_lines = [index + 1 for index, line in enumerate(normalized_lines) if line.get("change")]
-    moving_indices = [i for i, line in enumerate(normalized_lines) if line.get("change")]
+    moving_lines = [
+        index + 1 for index, line in enumerate(normalized_lines) if line.get("change")
+    ]
+    moving_indices = [
+        i for i, line in enumerate(normalized_lines) if line.get("change")
+    ]
     current_branches = [line.get("branch", "") for line in normalized_lines]
     changed_branches = [
         line.get("changed_branch") or line.get("branch", "")
@@ -1637,7 +1714,9 @@ def build_sixyao_result(
     }
 
 
-def _build_suzhan_snapshot_text(input_normalized: Dict[str, Any], response: Dict[str, Any]) -> str:
+def _build_suzhan_snapshot_text(
+    input_normalized: Dict[str, Any], response: Dict[str, Any]
+) -> str:
     chart = response.get("chart", {}) if isinstance(response, dict) else {}
     houses = chart.get("houses") if isinstance(chart, dict) else []
     objects = chart.get("objects") if isinstance(chart, dict) else []
@@ -1660,9 +1739,7 @@ def _build_suzhan_snapshot_text(input_normalized: Dict[str, Any], response: Dict
             degree, minute = _split_degree(item.get("signlon", item.get("lon")))
             su28 = str(item.get("su28") or "").strip()
             star_text = f"{degree}˚{su28}{minute}分" if su28 else f"{degree}˚{minute}分"
-            house_lines.append(
-                f"星曜：{item.get('id')} {star_text}".strip()
-            )
+            house_lines.append(f"星曜：{item.get('id')} {star_text}".strip())
         house_lines.append("")
 
     return _render_snapshot_text(
@@ -1704,7 +1781,9 @@ def build_suzhan_result(
 ) -> Dict[str, Any]:
     normalized_szchart = 1 if _normalize_mode(szchart, default=0) else 0
     normalized_szshape = 1 if _normalize_mode(szshape, default=0) else 0
-    normalized_house_start_mode = 2 if _normalize_mode(house_start_mode, default=1) == 2 else 1
+    normalized_house_start_mode = (
+        2 if _normalize_mode(house_start_mode, default=1) == 2 else 1
+    )
     include_su28 = bool(doubing_su28)
     normalized_hsys = 8 if hsys is None else int(hsys)
     normalized_zodiacal = 0 if zodiacal is None else int(zodiacal)
@@ -1763,11 +1842,19 @@ def build_suzhan_result(
     }
 
 
-def _build_otherbu_snapshot_text(input_normalized: Dict[str, Any], response: Dict[str, Any]) -> str:
-    chart_params = ((response.get("chart") or {}).get("params") or {}) if isinstance(response, dict) else {}
+def _build_otherbu_snapshot_text(
+    input_normalized: Dict[str, Any], response: Dict[str, Any]
+) -> str:
+    chart_params = (
+        ((response.get("chart") or {}).get("params") or {})
+        if isinstance(response, dict)
+        else {}
+    )
 
     def chart_lines(chart_payload: Dict[str, Any]) -> List[str]:
-        chart = chart_payload.get("chart", {}) if isinstance(chart_payload, dict) else {}
+        chart = (
+            chart_payload.get("chart", {}) if isinstance(chart_payload, dict) else {}
+        )
         houses = chart.get("houses") if isinstance(chart, dict) else []
         objects = chart.get("objects") if isinstance(chart, dict) else []
         lines: List[str] = []
@@ -1816,8 +1903,14 @@ def _build_otherbu_snapshot_text(input_normalized: Dict[str, Any], response: Dic
                     ]
                 ),
             ),
-            ("骰子盘宫位与星体", _join_lines(chart_lines(response.get("diceChart", {}))) or "无"),
-            ("天象盘宫位与星体", _join_lines(chart_lines(response.get("chart", {}))) or "无"),
+            (
+                "骰子盘宫位与星体",
+                _join_lines(chart_lines(response.get("diceChart", {}))) or "无",
+            ),
+            (
+                "天象盘宫位与星体",
+                _join_lines(chart_lines(response.get("chart", {}))) or "无",
+            ),
         ]
     )
 
@@ -1878,13 +1971,17 @@ def build_otherbu_result(
     dice_chart = copy.deepcopy(base_chart)
     target_longitude = ZODIAC_SIGNS.index(normalized_sign) * 30.0 + 15.0
     target_house_id = f"House{normalized_house + 1}"
-    dice_house1_longitude = round((target_longitude - normalized_house * 30.0 - 15.0) % 360.0, 4)
+    dice_house1_longitude = round(
+        (target_longitude - normalized_house * 30.0 - 15.0) % 360.0, 4
+    )
     dice_chart["chart"]["houses"] = _build_phase2_house_ring(
         dice_house1_longitude,
         step_degrees=30.0,
     )
     dice_chart["chart"]["angles"]["ascendant"] = dice_house1_longitude
-    dice_chart["chart"]["angles"]["midheaven"] = round((dice_house1_longitude + 90.0) % 360.0, 4)
+    dice_chart["chart"]["angles"]["midheaven"] = round(
+        (dice_house1_longitude + 90.0) % 360.0, 4
+    )
     target_object = None
     for item in dice_chart["chart"]["objects"]:
         if item.get("id") == normalized_planet:
@@ -1919,7 +2016,9 @@ def build_otherbu_result(
     dice_chart["params"]["diceTargetHouse"] = target_house_id
 
     interpretation = {
-        "planet_keyword": PLANET_KEYWORDS.get(normalized_planet, PLANET_KEYWORDS["Sun"]),
+        "planet_keyword": PLANET_KEYWORDS.get(
+            normalized_planet, PLANET_KEYWORDS["Sun"]
+        ),
         "sign_keyword": SIGN_KEYWORDS.get(normalized_sign, SIGN_KEYWORDS["Aries"]),
         "house_keyword": HOUSE_KEYWORDS[normalized_house],
     }
@@ -1929,7 +2028,9 @@ def build_otherbu_result(
         f"事情多会落在第{normalized_house + 1}宫的{interpretation['house_keyword']}。"
     )
     if question:
-        interpretation["question_adjustment"] = f"若问“{question}”，宜先抓住{normalized_planet}所示的主动线索。"
+        interpretation["question_adjustment"] = (
+            f"若问“{question}”，宜先抓住{normalized_planet}所示的主动线索。"
+        )
 
     response = {
         "planet": normalized_planet,
@@ -2068,10 +2169,9 @@ def build_qimen_snapshot_text(*, seed: MetaphysicsSeed, qimen: Dict[str, Any]) -
     def _content_note(item: Dict[str, Any]) -> str:
         if not item.get("content_palace"):
             return ""
-        if (
-            item.get("content_palace") == item.get("palace")
-            and item.get("content_trigram") == item.get("trigram")
-        ):
+        if item.get("content_palace") == item.get("palace") and item.get(
+            "content_trigram"
+        ) == item.get("trigram"):
             return ""
         return (
             f"；内容来源：{item.get('content_palace', '无')} / "
@@ -2140,13 +2240,17 @@ def build_qimen_snapshot_text(*, seed: MetaphysicsSeed, qimen: Dict[str, Any]) -
     return _render_snapshot_text(sections)
 
 
-def build_qimen_with_options(seed: MetaphysicsSeed, options: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def build_qimen_with_options(
+    seed: MetaphysicsSeed, options: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
     board = build_qimen_board(seed)
     normalized_options = dict(options or {})
     if not normalized_options:
         return board
 
-    layout = str(_option_value(normalized_options, "layout") or "direct").strip().lower()
+    layout = (
+        str(_option_value(normalized_options, "layout") or "direct").strip().lower()
+    )
     shift = _normalize_mode(
         _option_value(normalized_options, "palaceShift", "palace_shift"),
         default=0,
@@ -2201,7 +2305,11 @@ def build_qimen_with_options(seed: MetaphysicsSeed, options: Optional[Dict[str, 
         transformed_palaces[0] if transformed_palaces else {},
     )
     fushi_hexagram = build_hexagram(
-        upper_name=zhifu_palace.get("trigram", "坤") if zhifu_palace.get("trigram") != "中" else "坤",
+        upper_name=(
+            zhifu_palace.get("trigram", "坤")
+            if zhifu_palace.get("trigram") != "中"
+            else "坤"
+        ),
         lower_name=QIMEN_DOOR_TO_TRIGRAM.get(zhishi_palace.get("door"), "坤"),
     )
 
@@ -2249,14 +2357,20 @@ def build_qimen_with_options(seed: MetaphysicsSeed, options: Optional[Dict[str, 
     return transformed_board
 
 
-def _build_taiyi_with_options(seed: MetaphysicsSeed, options: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def _build_taiyi_with_options(
+    seed: MetaphysicsSeed, options: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
     board = build_taiyi_board(seed, gender="未知")
     normalized_options = dict(options or {})
     if not normalized_options:
         return board
 
-    acc_num = _normalize_mode(_option_value(normalized_options, "accNum", "acc_num"), default=0)
-    rotation = str(_option_value(normalized_options, "rotation") or board.get("rotation", "")).strip() or board.get("rotation", "")
+    acc_num = _normalize_mode(
+        _option_value(normalized_options, "accNum", "acc_num"), default=0
+    )
+    rotation = str(
+        _option_value(normalized_options, "rotation") or board.get("rotation", "")
+    ).strip() or board.get("rotation", "")
 
     palace_marks = board.get("palace_marks", []) or []
     palace_names = [
@@ -2285,14 +2399,18 @@ def _build_taiyi_with_options(seed: MetaphysicsSeed, options: Optional[Dict[str,
     taiyi_index = palace_index_map.get(board.get("taiyi_palace"), 0)
     wenchang_index = palace_index_map.get(board.get("wenchang_palace"), 0)
     transformed_taiyi_palace = palace_names[(taiyi_index + acc_num) % len(palace_names)]
-    transformed_wenchang_palace = palace_names[(wenchang_index + acc_num) % len(palace_names)]
+    transformed_wenchang_palace = palace_names[
+        (wenchang_index + acc_num) % len(palace_names)
+    ]
 
     transformed_core_board = copy.deepcopy(board.get("core_board", {}))
     transformed_core_board["main_calculation"] = (
         f"{transformed_core_board.get('main_calculation', '太乙局')}（积数+{acc_num}）"
     )
     transformed_core_board["taiyi_position"] = f"太乙在{transformed_taiyi_palace}宫"
-    transformed_core_board["wenchang_position"] = f"文昌在{transformed_wenchang_palace}宫"
+    transformed_core_board["wenchang_position"] = (
+        f"文昌在{transformed_wenchang_palace}宫"
+    )
 
     transformed_board = copy.deepcopy(board)
     transformed_board.update(
@@ -2335,7 +2453,9 @@ def _build_sanshi_snapshot_text(
         if isinstance(lesson, dict)
     ]
     liureng_transmission_lines = []
-    transmissions = liureng.get("three_transmissions", {}) if isinstance(liureng, dict) else {}
+    transmissions = (
+        liureng.get("three_transmissions", {}) if isinstance(liureng, dict) else {}
+    )
     for label, title in (("initial", "初传"), ("middle", "中传"), ("final", "末传")):
         item = transmissions.get(label, {}) if isinstance(transmissions, dict) else {}
         liureng_transmission_lines.append(
@@ -2345,7 +2465,9 @@ def _build_sanshi_snapshot_text(
         (item for item in liureng.get("patterns", []) or [] if isinstance(item, dict)),
         {},
     )
-    month_general = liureng.get("month_general", {}) if isinstance(liureng, dict) else {}
+    month_general = (
+        liureng.get("month_general", {}) if isinstance(liureng, dict) else {}
+    )
     sections = [
         (
             "起盘信息",

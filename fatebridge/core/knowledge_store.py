@@ -90,12 +90,7 @@ QIMEN_STAR_ALIASES = {
 
 
 def _data_path(name: str):
-    return (
-        Path(__file__).resolve().parents[1]
-        / "data"
-        / "knowledge"
-        / name
-    )
+    return Path(__file__).resolve().parents[1] / "data" / "knowledge" / name
 
 
 def _load_json(name: str) -> dict[str, Any]:
@@ -128,7 +123,11 @@ def load_knowledge_index() -> dict[str, Any]:
                 {
                     "domain": "astro",
                     "categories": [
-                        {"name": key, "count": len(value), "keys_sample": sorted(value)[:20]}
+                        {
+                            "name": key,
+                            "count": len(value),
+                            "keys_sample": sorted(value)[:20],
+                        }
                         for key, value in bundles["astro"].get("categories", {}).items()
                     ],
                     "missing_categories": [],
@@ -137,8 +136,20 @@ def load_knowledge_index() -> dict[str, Any]:
                 {
                     "domain": "liureng",
                     "categories": [
-                        {"name": "shen", "count": len(bundles["liureng"].get("shen_entries", {})), "keys_sample": sorted(bundles["liureng"].get("shen_entries", {}))[:20]},
-                        {"name": "house", "count": len(bundles["liureng"].get("jiang_info", {})), "keys_sample": sorted(bundles["liureng"].get("jiang_info", {}))[:20]},
+                        {
+                            "name": "shen",
+                            "count": len(bundles["liureng"].get("shen_entries", {})),
+                            "keys_sample": sorted(
+                                bundles["liureng"].get("shen_entries", {})
+                            )[:20],
+                        },
+                        {
+                            "name": "house",
+                            "count": len(bundles["liureng"].get("jiang_info", {})),
+                            "keys_sample": sorted(
+                                bundles["liureng"].get("jiang_info", {})
+                            )[:20],
+                        },
                     ],
                     "missing_categories": [],
                     "fallback_categories": [],
@@ -146,7 +157,11 @@ def load_knowledge_index() -> dict[str, Any]:
                 {
                     "domain": "qimen",
                     "categories": [
-                        {"name": key, "count": len(value), "keys_sample": sorted(value)[:20]}
+                        {
+                            "name": key,
+                            "count": len(value),
+                            "keys_sample": sorted(value)[:20],
+                        }
                         for key, value in bundles["qimen"].get("categories", {}).items()
                     ],
                     "missing_categories": [],
@@ -163,7 +178,9 @@ def _domain_index(domain: str) -> dict[str, Any]:
     return {}
 
 
-def _knowledge_provenance(*, domain: str, category: str | None = None, key: str | None = None) -> dict[str, Any]:
+def _knowledge_provenance(
+    *, domain: str, category: str | None = None, key: str | None = None
+) -> dict[str, Any]:
     index = load_knowledge_index()
     return {
         "source_domain": "xingque_hover_docs",
@@ -172,7 +189,9 @@ def _knowledge_provenance(*, domain: str, category: str | None = None, key: str 
         "key": key,
         "bundle_version": index.get("bundle_version"),
         "build_timestamp": index.get("build_timestamp"),
-        "upstream_source_marker": index.get("upstream_source_marker", "xingque_hover_docs"),
+        "upstream_source_marker": index.get(
+            "upstream_source_marker", "xingque_hover_docs"
+        ),
         "coverage": _domain_index(domain),
     }
 
@@ -186,7 +205,9 @@ def _normalize_house_key(key: str) -> str:
         number = int(match.group(1))
         if 1 <= number <= 12:
             return f"House{number}"
-    normalized = text.replace("第", "").replace("宫", "").replace("房", "").strip().lower()
+    normalized = (
+        text.replace("第", "").replace("宫", "").replace("房", "").strip().lower()
+    )
     aliases = {
         "asc": "House1",
         "命宫": "House1",
@@ -202,7 +223,9 @@ def _normalize_astro_key(category: str, key: str) -> str:
         return text
     bundle = load_knowledge_bundles()["astro"]
     labels = bundle.get("labels", {})
-    reverse_labels = {value: one for one, value in labels.items() if isinstance(value, str)}
+    reverse_labels = {
+        value: one for one, value in labels.items() if isinstance(value, str)
+    }
     return reverse_labels.get(text, text)
 
 
@@ -241,7 +264,9 @@ def _strip_qimen_html(text: str) -> str:
     return re.sub(r"<[^>]+>", "", text or "").strip()
 
 
-def _render_qimen_blocks(title: str, blocks: list[dict[str, Any]]) -> tuple[list[str], str]:
+def _render_qimen_blocks(
+    title: str, blocks: list[dict[str, Any]]
+) -> tuple[list[str], str]:
     lines = [f"[{title}]"]
     flat_lines: list[str] = []
     for block in blocks:
@@ -269,7 +294,9 @@ def _render_qimen_blocks(title: str, blocks: list[dict[str, Any]]) -> tuple[list
     return normalized_lines, rendered
 
 
-def _build_liureng_house_entry(bundle: dict[str, Any], jiang_name: str, tian_branch: str, di_branch: str) -> dict[str, Any]:
+def _build_liureng_house_entry(
+    bundle: dict[str, Any], jiang_name: str, tian_branch: str, di_branch: str
+) -> dict[str, Any]:
     aliases = bundle.get("jiang_aliases", {})
     jiang_info = bundle.get("jiang_info", {})
     jiang_branch_note = bundle.get("jiang_branch_note", {})
@@ -325,7 +352,9 @@ def _build_liureng_house_entry(bundle: dict[str, Any], jiang_name: str, tian_bra
         "rendered_text": _tips_to_rendered_text(jiang_name or normalized_name, tips),
         "source": "xingque_hover_docs",
         "bundle_version": load_knowledge_index().get("bundle_version"),
-        "provenance": _knowledge_provenance(domain="liureng", category="house", key=normalized_name),
+        "provenance": _knowledge_provenance(
+            domain="liureng", category="house", key=normalized_name
+        ),
         "citation": f"Xingque hover knowledge · liureng/house/{normalized_name}",
     }
 
@@ -404,7 +433,9 @@ def build_knowledge_registry(domain: str | None = None) -> dict[str, Any]:
             "source_domain": "xingque_hover_docs",
             "bundle_version": index.get("bundle_version"),
             "build_timestamp": index.get("build_timestamp"),
-            "upstream_source_marker": index.get("upstream_source_marker", "xingque_hover_docs"),
+            "upstream_source_marker": index.get(
+                "upstream_source_marker", "xingque_hover_docs"
+            ),
         },
         "domains": result_domains,
     }
@@ -425,7 +456,11 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
         bundle = bundles["astro"]
         categories = bundle.get("categories", {})
         if category == "aspect":
-            aspect_key = str(payload.get("aspect_degree") if payload.get("aspect_degree") is not None else key).strip()
+            aspect_key = str(
+                payload.get("aspect_degree")
+                if payload.get("aspect_degree") is not None
+                else key
+            ).strip()
             entry = categories.get("aspect", {}).get(aspect_key)
             if not entry:
                 raise ToolValidationError(
@@ -440,19 +475,28 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
             if object_a and object_b:
                 title = f"{ASTRO_LABELS.get(object_a, object_a)} - {ASTRO_LABELS.get(object_b, object_b)}：{entry.get('title', '')}"
                 if tips and not tips[0].startswith("对象："):
-                    tips.insert(0, f"对象：{ASTRO_LABELS.get(object_a, object_a)} 与 {ASTRO_LABELS.get(object_b, object_b)}")
+                    tips.insert(
+                        0,
+                        f"对象：{ASTRO_LABELS.get(object_a, object_a)} 与 {ASTRO_LABELS.get(object_b, object_b)}",
+                    )
             return {
                 "domain": domain,
                 "category": category,
                 "key": aspect_key,
-                "query_normalized": {"key": aspect_key, "object_a": object_a or None, "object_b": object_b or None},
+                "query_normalized": {
+                    "key": aspect_key,
+                    "object_a": object_a or None,
+                    "object_b": object_b or None,
+                },
                 "title": title,
                 "tips": tips,
                 "lines": [tip for tip in tips if tip and tip != "=="],
                 "rendered_text": _tips_to_rendered_text(title, tips),
                 "source": "xingque_hover_docs",
                 "bundle_version": load_knowledge_index().get("bundle_version"),
-                "provenance": _knowledge_provenance(domain=domain, category=category, key=aspect_key),
+                "provenance": _knowledge_provenance(
+                    domain=domain, category=category, key=aspect_key
+                ),
                 "citation": f"Xingque hover knowledge · {domain}/{category}/{aspect_key}",
             }
         normalized_key = _normalize_astro_key(category, key)
@@ -461,7 +505,11 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
             raise ToolValidationError(
                 f"Unknown astro knowledge key: {key}",
                 code="knowledge.astro.unknown_key",
-                details={"category": category, "key": key, "normalized_key": normalized_key},
+                details={
+                    "category": category,
+                    "key": key,
+                    "normalized_key": normalized_key,
+                },
             )
         tips = list(entry.get("tips", []))
         return {
@@ -472,10 +520,14 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
             "title": entry.get("title", normalized_key),
             "tips": tips,
             "lines": [tip for tip in tips if tip and tip != "=="],
-            "rendered_text": _tips_to_rendered_text(entry.get("title", normalized_key), tips),
+            "rendered_text": _tips_to_rendered_text(
+                entry.get("title", normalized_key), tips
+            ),
             "source": "xingque_hover_docs",
             "bundle_version": load_knowledge_index().get("bundle_version"),
-            "provenance": _knowledge_provenance(domain=domain, category=category, key=normalized_key),
+            "provenance": _knowledge_provenance(
+                domain=domain, category=category, key=normalized_key
+            ),
             "citation": f"Xingque hover knowledge · {domain}/{category}/{normalized_key}",
         }
 
@@ -499,10 +551,14 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
                 "title": entry.get("title", normalized_key),
                 "tips": tips,
                 "lines": [tip for tip in tips if tip and tip != "=="],
-                "rendered_text": _tips_to_rendered_text(entry.get("title", normalized_key), tips),
+                "rendered_text": _tips_to_rendered_text(
+                    entry.get("title", normalized_key), tips
+                ),
                 "source": "xingque_hover_docs",
                 "bundle_version": load_knowledge_index().get("bundle_version"),
-                "provenance": _knowledge_provenance(domain=domain, category=category, key=normalized_key),
+                "provenance": _knowledge_provenance(
+                    domain=domain, category=category, key=normalized_key
+                ),
                 "citation": f"Xingque hover knowledge · {domain}/{category}/{normalized_key}",
             }
         if category == "house":
@@ -541,7 +597,9 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
             "rendered_text": _tips_to_rendered_text(entry.get("title", key), tips),
             "source": "fatebridge_knowledge",
             "bundle_version": load_knowledge_index().get("bundle_version"),
-            "provenance": _knowledge_provenance(domain=domain, category=category, key=key),
+            "provenance": _knowledge_provenance(
+                domain=domain, category=category, key=key
+            ),
             "citation": f"FateBridge knowledge · {domain}/{category}/{key}",
         }
 
@@ -552,9 +610,15 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
         raise ToolValidationError(
             f"Unknown 奇门 knowledge key: {key}",
             code="knowledge.qimen.unknown_key",
-            details={"category": category, "key": key, "normalized_key": normalized_key},
+            details={
+                "category": category,
+                "key": key,
+                "normalized_key": normalized_key,
+            },
         )
-    lines, rendered_text = _render_qimen_blocks(entry.get("title", normalized_key), entry.get("blocks", []))
+    lines, rendered_text = _render_qimen_blocks(
+        entry.get("title", normalized_key), entry.get("blocks", [])
+    )
     return {
         "domain": domain,
         "category": category,
@@ -566,6 +630,8 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
         "rendered_text": rendered_text,
         "source": "xingque_hover_docs",
         "bundle_version": load_knowledge_index().get("bundle_version"),
-        "provenance": _knowledge_provenance(domain=domain, category=category, key=normalized_key),
+        "provenance": _knowledge_provenance(
+            domain=domain, category=category, key=normalized_key
+        ),
         "citation": f"Xingque hover knowledge · {domain}/{category}/{normalized_key}",
     }

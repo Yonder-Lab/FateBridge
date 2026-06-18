@@ -29,7 +29,6 @@ from ..utils.data import (
     get_ten_god,
 )
 
-
 _MALE_TOKENS = {"male", "m", "男", "man"}
 _FEMALE_TOKENS = {"female", "f", "女", "woman"}
 
@@ -93,8 +92,10 @@ class ChildrenAnalysis:
             star_label = "食伤（女命子女星）"
         else:
             child_gods = (
-                TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER,
-                TenGod.FOOD_GOD, TenGod.HURT_OFFICER,
+                TenGod.POSITIVE_OFFICER,
+                TenGod.SEVEN_KILLER,
+                TenGod.FOOD_GOD,
+                TenGod.HURT_OFFICER,
             )
             star_label = "官杀/食伤（性别未提供，兼看）"
 
@@ -131,18 +132,26 @@ class ChildrenAnalysis:
             if p_name != "day":
                 god = get_ten_god(day_stem, stem)
                 if god in child_gods:
-                    positions.append({
-                        "pillar": p_name, "location": "天干",
-                        "char": stem, "ten_god": god.value,
-                    })
+                    positions.append(
+                        {
+                            "pillar": p_name,
+                            "location": "天干",
+                            "char": stem,
+                            "ten_god": god.value,
+                        }
+                    )
                     weight += 1.0
             for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
                 h_god = get_ten_god(day_stem, hidden)
                 if h_god in child_gods:
-                    positions.append({
-                        "pillar": p_name, "location": "地支藏干",
-                        "char": hidden, "ten_god": h_god.value,
-                    })
+                    positions.append(
+                        {
+                            "pillar": p_name,
+                            "location": "地支藏干",
+                            "char": hidden,
+                            "ten_god": h_god.value,
+                        }
+                    )
                     weight += 0.5
 
         weight = round(weight, 1)
@@ -175,9 +184,13 @@ class ChildrenAnalysis:
             if p_name == "hour":
                 continue
             if check_branch_conflict(hour_branch, branch):
-                relations.append(f"时支{hour_branch}与{p_name}支{branch}相冲，子女宫受动，主子女缘聚少离多或操心")
+                relations.append(
+                    f"时支{hour_branch}与{p_name}支{branch}相冲，子女宫受动，主子女缘聚少离多或操心"
+                )
             elif check_branch_combination(hour_branch, branch):
-                relations.append(f"时支{hour_branch}与{p_name}支{branch}相合，子女宫得助，亲子关系融洽")
+                relations.append(
+                    f"时支{hour_branch}与{p_name}支{branch}相合，子女宫得助，亲子关系融洽"
+                )
 
         if not relations:
             relations.append("子女宫（时柱）无明显冲合，状态平稳")
@@ -273,11 +286,17 @@ class ChildrenAnalysis:
             stem, branch = pillar
             god = get_ten_god(day_stem, stem)
             if god in child_gods:
-                signals.append(f"{label}{stem}{branch}引动子女星，利于添丁、子女相关喜事")
+                signals.append(
+                    f"{label}{stem}{branch}引动子女星，利于添丁、子女相关喜事"
+                )
             if check_branch_combination(branch, hour_branch):
-                signals.append(f"{label}支{branch}合子女宫{hour_branch}，子女宫得动，主生育或子女缘分显现")
+                signals.append(
+                    f"{label}支{branch}合子女宫{hour_branch}，子女宫得动，主生育或子女缘分显现"
+                )
             elif check_branch_conflict(branch, hour_branch):
-                signals.append(f"{label}支{branch}冲子女宫{hour_branch}，子女事多变动，备孕育儿宜多留意")
+                signals.append(
+                    f"{label}支{branch}冲子女宫{hour_branch}，子女事多变动，备孕育儿宜多留意"
+                )
 
         if dayun_pillar:
             _assess("大运", dayun_pillar)

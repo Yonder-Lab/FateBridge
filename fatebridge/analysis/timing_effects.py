@@ -9,12 +9,12 @@
 4. 吉凶趋势判断
 """
 
-from typing import Dict, Optional
 from datetime import datetime
+from typing import Dict, Optional
 
 from ..core.almanac import DEFAULT_TIMEZONE
-from ..core.timing import TimingAnalysis
 from ..core.elements import ElementAnalysis
+from ..core.timing import TimingAnalysis
 from ..utils.data import BRANCH_ELEMENTS, BRANCH_HIDDEN_STEMS, STEM_ELEMENTS, Element
 
 
@@ -250,9 +250,7 @@ class TimingEffectsAnalysis:
             liunian_kwargs["moment"] = moment
             if timezone_name is not None:
                 liunian_kwargs["timezone_name"] = timezone_name
-        liunian_info = TimingAnalysis.calculate_liunian(
-            target_year, **liunian_kwargs
-        )
+        liunian_info = TimingAnalysis.calculate_liunian(target_year, **liunian_kwargs)
 
         # 分析流年对命局的影响
         timing_pillars = {
@@ -503,7 +501,7 @@ class TimingEffectsAnalysis:
         Returns:
             组合关系分析
         """
-        from ..utils.data import check_branch_conflict, check_branch_combination
+        from ..utils.data import check_branch_combination, check_branch_conflict
 
         relations = []
 

@@ -32,13 +32,12 @@ class BirthComputationContext:
     original_element_counts: Dict[Element, float]
 
 
-def _extract_original_element_counts(element_analysis: Dict[str, Any]) -> Dict[Element, float]:
+def _extract_original_element_counts(
+    element_analysis: Dict[str, Any],
+) -> Dict[Element, float]:
     """Reuse raw element counts from comprehensive analysis when available."""
     raw_counts = element_analysis["day_master"].get("element_distribution_raw") or {}
-    return {
-        element: float(raw_counts.get(element.value, 0.0))
-        for element in Element
-    }
+    return {element: float(raw_counts.get(element.value, 0.0)) for element in Element}
 
 
 def _build_birth_computation_context(person: PersonInfo) -> BirthComputationContext:

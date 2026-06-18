@@ -53,7 +53,9 @@ class RelativesAnalysis:
         }
 
     @staticmethod
-    def _star_weight(pillars: Dict[str, Tuple[str, str]], day_stem: str, gods: Tuple[TenGod, ...]) -> float:
+    def _star_weight(
+        pillars: Dict[str, Tuple[str, str]], day_stem: str, gods: Tuple[TenGod, ...]
+    ) -> float:
         weight = 0.0
         for p_name, (stem, branch) in pillars.items():
             if p_name != "day" and get_ten_god(day_stem, stem) in gods:
@@ -64,17 +66,25 @@ class RelativesAnalysis:
         return round(weight, 1)
 
     @staticmethod
-    def _analyze_parents(pillars: Dict[str, Tuple[str, str]], day_stem: str) -> Dict[str, Any]:
-        father = RelativesAnalysis._star_weight(pillars, day_stem, (TenGod.PARTIAL_WEALTH,))
-        mother = RelativesAnalysis._star_weight(pillars, day_stem, (TenGod.POSITIVE_SEAL,))
+    def _analyze_parents(
+        pillars: Dict[str, Tuple[str, str]], day_stem: str
+    ) -> Dict[str, Any]:
+        father = RelativesAnalysis._star_weight(
+            pillars, day_stem, (TenGod.PARTIAL_WEALTH,)
+        )
+        mother = RelativesAnalysis._star_weight(
+            pillars, day_stem, (TenGod.POSITIVE_SEAL,)
+        )
 
         notes: List[str] = []
         notes.append(
-            "父星（偏财）有力，与父缘分较厚、父辈有助" if father >= 1.0
+            "父星（偏财）有力，与父缘分较厚、父辈有助"
+            if father >= 1.0
             else "父星（偏财）不显，与父缘较淡或聚少离多"
         )
         notes.append(
-            "母星（正印）有力，得母荫庇、母慈而助力大" if mother >= 1.0
+            "母星（正印）有力，得母荫庇、母慈而助力大"
+            if mother >= 1.0
             else "母星（正印）不显，与母缘较淡或母操劳"
         )
         return {
@@ -84,13 +94,17 @@ class RelativesAnalysis:
         }
 
     @staticmethod
-    def _analyze_siblings(pillars: Dict[str, Tuple[str, str]], day_stem: str) -> Dict[str, Any]:
+    def _analyze_siblings(
+        pillars: Dict[str, Tuple[str, str]], day_stem: str
+    ) -> Dict[str, Any]:
         weight = RelativesAnalysis._star_weight(
             pillars, day_stem, (TenGod.COMPARE, TenGod.ROB_WEALTH)
         )
         from ..core.elements import ElementAnalysis
 
-        strength = ElementAnalysis.analyze_day_master_strength(pillars)["strength_level"]
+        strength = ElementAnalysis.analyze_day_master_strength(pillars)[
+            "strength_level"
+        ]
         notes: List[str] = []
         if weight >= 2.0:
             if strength == "弱":
@@ -126,7 +140,9 @@ class RelativesAnalysis:
         }
 
     @staticmethod
-    def _analyze_support(pillars: Dict[str, Tuple[str, str]], day_stem: str) -> Dict[str, Any]:
+    def _analyze_support(
+        pillars: Dict[str, Tuple[str, str]], day_stem: str
+    ) -> Dict[str, Any]:
         seal = RelativesAnalysis._star_weight(
             pillars, day_stem, (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL)
         )

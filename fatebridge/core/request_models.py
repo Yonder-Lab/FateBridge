@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
+
 class FateBridgeRequest(BaseModel):
     """Request model for individual destiny analysis"""
 
@@ -42,11 +43,23 @@ class BaziDimensionRequest(FateBridgeRequest):
     知道大运；dayun_pillar / liunian_pillar 为可选覆盖。
     """
 
-    analysis_year: Optional[int] = Field(default=None, description="Analysis year (defaults to current year)")
-    analysis_month: Optional[int] = Field(default=None, ge=1, le=12, description="Analysis month (1-12)")
-    analysis_day: Optional[int] = Field(default=None, ge=1, le=31, description="Analysis day (1-31)")
-    dayun_pillar: Optional[str] = Field(default=None, description="Optional override: current dayun pillar, e.g. '甲子'")
-    liunian_pillar: Optional[str] = Field(default=None, description="Optional override: current liunian pillar, e.g. '丙寅'")
+    analysis_year: Optional[int] = Field(
+        default=None, description="Analysis year (defaults to current year)"
+    )
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Analysis month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Analysis day (1-31)"
+    )
+    dayun_pillar: Optional[str] = Field(
+        default=None, description="Optional override: current dayun pillar, e.g. '甲子'"
+    )
+    liunian_pillar: Optional[str] = Field(
+        default=None,
+        description="Optional override: current liunian pillar, e.g. '丙寅'",
+    )
+
 
 class BaziBirthRequest(FateBridgeRequest):
     """Request model for standalone BaZi birth output."""
@@ -63,8 +76,10 @@ class BaziBirthRequest(FateBridgeRequest):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class BaziDirectRequest(BaziBirthRequest):
     """Request model for standalone BaZi direct output."""
+
 
 class TwoPersonCompatibilityRequest(BaseModel):
     """Request model for two-person compatibility analysis."""
@@ -119,6 +134,7 @@ class TwoPersonCompatibilityRequest(BaseModel):
         default="general", description="Relationship type, e.g. marriage or business"
     )
 
+
 class TimingAnalysisRequest(FateBridgeRequest):
     """Request model for comprehensive timing analysis."""
 
@@ -143,6 +159,7 @@ class TimingAnalysisRequest(FateBridgeRequest):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class DayunAnalysisRequest(FateBridgeRequest):
     """Request model for dayun analysis."""
 
@@ -153,6 +170,7 @@ class DayunAnalysisRequest(FateBridgeRequest):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class LiunianAnalysisRequest(FateBridgeRequest):
     """Request model for liunian analysis."""
 
@@ -161,6 +179,7 @@ class LiunianAnalysisRequest(FateBridgeRequest):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class LiuriAnalysisRequest(FateBridgeRequest):
     """Request model for liuri analysis."""
@@ -183,6 +202,7 @@ class LiuriAnalysisRequest(FateBridgeRequest):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class LiushiAnalysisRequest(FateBridgeRequest):
     """Request model for liushi analysis."""
 
@@ -204,6 +224,7 @@ class LiushiAnalysisRequest(FateBridgeRequest):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class JieqiTimelineRequest(FateBridgeRequest):
     """Request model for jieqi timeline analysis."""
 
@@ -212,6 +233,7 @@ class JieqiTimelineRequest(FateBridgeRequest):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class LiuyueAnalysisRequest(FateBridgeRequest):
     """Request model for liuyue analysis."""
@@ -234,6 +256,7 @@ class LiuyueAnalysisRequest(FateBridgeRequest):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class MeihuaAnalysisRequest(BaseModel):
     """Request model for time-seeded Mei Hua Yi Shu analysis."""
 
@@ -251,6 +274,7 @@ class MeihuaAnalysisRequest(BaseModel):
         default=None, description="Question or topic for the divination context"
     )
 
+
 class GuaLookupRequest(BaseModel):
     """Request model for trigram/hexagram lookup."""
 
@@ -263,6 +287,7 @@ class GuaLookupRequest(BaseModel):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class JieqiYearRequest(BaseModel):
     """Request model for annual jieqi helper output."""
@@ -286,6 +311,7 @@ class JieqiYearRequest(BaseModel):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class NongliTimeRequest(BaseModel):
     """Request model for nongli-time helper output."""
@@ -325,6 +351,7 @@ class NongliTimeRequest(BaseModel):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class GuaMeiyiRequest(BaseModel):
     """Request model for batch Meiyi hexagram meanings."""
 
@@ -334,10 +361,12 @@ class GuaMeiyiRequest(BaseModel):
         description="Optional snapshot section titles for filtered export payload",
     )
 
+
 class ExportRegistryRequest(BaseModel):
     """Request model for export registry lookup."""
 
     technique: Optional[str] = Field(default=None, description="Optional technique key")
+
 
 class ExportParseRequest(BaseModel):
     """Request model for export snapshot parsing."""
@@ -361,6 +390,7 @@ class ExportParseRequest(BaseModel):
         description="Optional astro meaning export toggles",
     )
 
+
 class KnowledgeRegistryRequest(BaseModel):
     """Request model for bundled knowledge registry."""
 
@@ -369,6 +399,7 @@ class KnowledgeRegistryRequest(BaseModel):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class KnowledgeReadRequest(BaseModel):
     """Request model for bundled knowledge lookup."""
@@ -392,6 +423,7 @@ class KnowledgeReadRequest(BaseModel):
     )
     di_branch: Optional[str] = Field(default=None, description="Liureng earth branch")
 
+
 class TongSheFaRequest(BaseModel):
     """Request model for tongshefa."""
 
@@ -400,6 +432,7 @@ class TongSheFaRequest(BaseModel):
     shaoyang: Optional[str] = Field(default="震", description="Shaoyang trigram")
     shaoyin: Optional[str] = Field(default="震", description="Shaoyin trigram")
 
+
 class SixYaoLineRequest(BaseModel):
     """One six-yao line item."""
 
@@ -407,6 +440,7 @@ class SixYaoLineRequest(BaseModel):
     change: bool = Field(default=False, description="Whether the line is moving")
     god: Optional[str] = Field(default=None, description="Optional six-god label")
     name: Optional[str] = Field(default=None, description="Optional line label")
+
 
 class SixYaoRequest(BaseModel):
     """Request model for sixyao."""
@@ -434,6 +468,7 @@ class SixYaoRequest(BaseModel):
     lines: List[SixYaoLineRequest] = Field(
         default_factory=list, description="Optional six lines"
     )
+
 
 class SuZhanRequest(BaseModel):
     """Request model for suzhan."""
@@ -471,6 +506,7 @@ class SuZhanRequest(BaseModel):
         default=0,
         description="Offline zodiac selector; standard suzhan supports 0=tropical and 1=sidereal(Lahiri-like)",
     )
+
 
 class SukuyoCompatibilityRequest(BaseModel):
     """Request model for 宿曜 two-person compatibility (三九の秘法).
@@ -516,6 +552,7 @@ class SukuyoCompatibilityRequest(BaseModel):
         default=None, description="Second person GPS longitude"
     )
 
+
 class OtherBuRequest(BaseModel):
     """Request model for otherbu."""
 
@@ -549,6 +586,7 @@ class OtherBuRequest(BaseModel):
         description="Offline zodiac selector; supports 0=tropical and 1=sidereal(Lahiri-like)",
     )
     question: Optional[str] = Field(default=None, description="Question or topic")
+
 
 class SanShiUnitedRequest(BaseModel):
     """Request model for sanshiunited."""
@@ -597,6 +635,7 @@ class SanShiUnitedRequest(BaseModel):
         description="Enable local true solar time correction before sanshi aggregation",
     )
 
+
 class ZiweiBirthRequest(FateBridgeRequest):
     """Request model for Zi Wei birth chart analysis."""
 
@@ -604,6 +643,7 @@ class ZiweiBirthRequest(FateBridgeRequest):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class ZiweiRulesRequest(BaseModel):
     """Request model for Zi Wei rule catalogue lookup."""
@@ -616,6 +656,7 @@ class ZiweiRulesRequest(BaseModel):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class LiuRengGodsRequest(BaseModel):
     """Request model for Liu Ren divination."""
@@ -642,6 +683,7 @@ class LiuRengGodsRequest(BaseModel):
         default=False, description="Enable true solar time correction"
     )
 
+
 class LiuRengRunyearRequest(FateBridgeRequest):
     """Request model for Liu Ren runyear analysis."""
 
@@ -662,6 +704,7 @@ class LiuRengRunyearRequest(FateBridgeRequest):
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
     )
+
 
 class QimenAnalysisRequest(BaseModel):
     """Request model for Qi Men analysis."""
@@ -691,15 +734,18 @@ class QimenAnalysisRequest(BaseModel):
         default=False, description="Enable true solar time correction"
     )
 
+
 class TaiyiAnalysisRequest(QimenAnalysisRequest):
     """Request model for Taiyi analysis."""
 
     gender: Optional[str] = Field(default="未知", description="Gender")
 
+
 class JinkouAnalysisRequest(LiuRengGodsRequest):
     """Request model for Jin Kou analysis."""
 
     di_fen: Optional[str] = Field(default=None, description="Ground division branch")
+
 
 class AstroBirthRequest(BaseModel):
     """Base birth request model for offline astrology endpoints."""
@@ -716,6 +762,7 @@ class AstroBirthRequest(BaseModel):
     birth_longitude: float = Field(ge=-180, le=180, description="Birth longitude")
     birth_latitude: float = Field(ge=-90, le=90, description="Birth latitude")
     birth_place: Optional[str] = Field(default="未提供", description="Birth place")
+
 
 class AstroChartRequest(AstroBirthRequest):
     """Request model for offline astrology chart generation."""
@@ -756,8 +803,10 @@ class AstroChartRequest(AstroBirthRequest):
         ),
     )
 
+
 class AstroRelativePartyRequest(AstroBirthRequest):
     """One side of a relative/synastry request."""
+
 
 class AstroRelativeRequest(BaseModel):
     """Request model for relative / synastry chart generation."""
@@ -828,6 +877,7 @@ class AstroRelativeRequest(BaseModel):
             payload["relationship_mode"] = 0
         return payload
 
+
 class WesternTimingRequest(AstroBirthRequest):
     """Request model for western predictive timing analysis."""
 
@@ -879,6 +929,7 @@ class WesternTimingRequest(AstroBirthRequest):
         description="Whether to expose the bounds overlay preference for the primary direction chart",
     )
 
+
 class WesternTimingModuleRequest(WesternTimingRequest):
     """Request model for standalone western timing module tools."""
 
@@ -887,20 +938,26 @@ class WesternTimingModuleRequest(WesternTimingRequest):
         description="Optional export sections to keep in snapshot_export",
     )
 
+
 class BaziMarriageRequest(BaziDimensionRequest):
     """Request model for BaZi marriage analysis."""
+
 
 class BaziCareerRequest(BaziDimensionRequest):
     """Request model for BaZi career analysis."""
 
+
 class BaziWealthRequest(BaziDimensionRequest):
     """Request model for BaZi wealth analysis."""
+
 
 class BaziHealthRequest(BaziDimensionRequest):
     """Request model for BaZi health analysis."""
 
+
 class BaziChildrenRequest(BaziDimensionRequest):
     """Request model for BaZi children analysis."""
+
 
 class BaziEducationRequest(BaziDimensionRequest):
     """Request model for BaZi education analysis."""
@@ -932,14 +989,30 @@ class AstroRelativeFlatRequest(BaseModel):
     outer_birth_latitude: float = Field(ge=-90, le=90, description="Outer latitude")
     inner_name: Optional[str] = Field(default="内盘", description="Inner chart name")
     outer_name: Optional[str] = Field(default="外盘", description="Outer chart name")
-    inner_birth_place: Optional[str] = Field(default="未提供", description="Inner birth place")
-    outer_birth_place: Optional[str] = Field(default="未提供", description="Outer birth place")
-    relationship_mode: Optional[Union[str, int]] = Field(default=None, description="Legacy relative mode alias")
-    relative_mode: Optional[Union[str, int]] = Field(default=None, description="Modern relative mode selector")
-    inner_birth_minute: int = Field(default=0, ge=0, le=59, description="Inner birth minute")
-    outer_birth_minute: int = Field(default=0, ge=0, le=59, description="Outer birth minute")
-    inner_birth_timezone: Optional[str] = Field(default="UTC", description="Inner timezone")
-    outer_birth_timezone: Optional[str] = Field(default="UTC", description="Outer timezone")
+    inner_birth_place: Optional[str] = Field(
+        default="未提供", description="Inner birth place"
+    )
+    outer_birth_place: Optional[str] = Field(
+        default="未提供", description="Outer birth place"
+    )
+    relationship_mode: Optional[Union[str, int]] = Field(
+        default=None, description="Legacy relative mode alias"
+    )
+    relative_mode: Optional[Union[str, int]] = Field(
+        default=None, description="Modern relative mode selector"
+    )
+    inner_birth_minute: int = Field(
+        default=0, ge=0, le=59, description="Inner birth minute"
+    )
+    outer_birth_minute: int = Field(
+        default=0, ge=0, le=59, description="Outer birth minute"
+    )
+    inner_birth_timezone: Optional[str] = Field(
+        default="UTC", description="Inner timezone"
+    )
+    outer_birth_timezone: Optional[str] = Field(
+        default="UTC", description="Outer timezone"
+    )
     hsys: int = Field(default=0, description="House system identifier")
     zodiacal: int = Field(default=0, description="Zodiac selector")
     relationship_focus: Optional[str] = Field(

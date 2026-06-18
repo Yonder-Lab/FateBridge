@@ -1,22 +1,24 @@
 """
 FateBridge Compatibility Services
 """
-from typing import Dict
-import logging
 
-from fatebridge.utils.helpers import (
-    PersonInfo,
-    handle_calculation_error,
-    get_element_relationship,
-)
-from fatebridge.core.rules import BaZiRules
+import logging
+from typing import Dict
+
 from fatebridge.analysis.compatibility import AdvancedCompatibility, RelationshipType
+from fatebridge.core.rules import BaZiRules
 from fatebridge.services.calculation import (
     _build_birth_computation_context,
     _render_destiny_analysis,
 )
+from fatebridge.utils.helpers import (
+    PersonInfo,
+    get_element_relationship,
+    handle_calculation_error,
+)
 
 logger = logging.getLogger(__name__)
+
 
 def calculate_compatibility_analysis(
     person1: PersonInfo, person2: PersonInfo, relationship_type: str = "general"

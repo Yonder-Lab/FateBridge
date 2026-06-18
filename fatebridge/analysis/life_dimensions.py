@@ -39,11 +39,11 @@ DIMENSION_KEYS = ("love", "wealth", "career", "learning", "relationship")
 # 各时间层柱在当前时刻的影响权重
 # （本命柱固定为 1.0，下表只覆盖时间柱）
 _TEMPORAL_LAYER_WEIGHTS: Dict[str, float] = {
-    "dayun": 1.0,    # 大运：十年一变，强影响
+    "dayun": 1.0,  # 大运：十年一变，强影响
     "liunian": 1.0,  # 流年：当年趋势
-    "liuyue": 0.8,   # 流月
-    "liuri": 0.7,    # 流日
-    "liushi": 0.5,   # 流时
+    "liuyue": 0.8,  # 流月
+    "liuri": 0.7,  # 流日
+    "liushi": 0.5,  # 流时
 }
 
 _MALE_TOKENS = {"male", "m", "男", "man"}
@@ -165,8 +165,7 @@ class LifeDimensionAnalysis:
             + ten_god_counts[TenGod.SEVEN_KILLER]
         )
         seal = (
-            ten_god_counts[TenGod.POSITIVE_SEAL]
-            + ten_god_counts[TenGod.PARTIAL_SEAL]
+            ten_god_counts[TenGod.POSITIVE_SEAL] + ten_god_counts[TenGod.PARTIAL_SEAL]
         )
 
         # 比肩/劫财 → 人际

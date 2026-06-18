@@ -14,13 +14,13 @@ from fatebridge.core.classical import (
     classical_snapshot_lines,
 )
 from fatebridge.core.export_parser import parse_export_content
+from fatebridge.core.metaphysics import kongwang_for_ganzhi
 from fatebridge.services.calculation import (
     BirthComputationContext,
     _build_birth_computation_context,
     _render_destiny_analysis,
 )
 from fatebridge.services.timing import _build_current_timing_state
-from fatebridge.core.metaphysics import kongwang_for_ganzhi
 from fatebridge.utils.data import (
     BRANCH_HIDDEN_STEMS,
     EARTHLY_BRANCHES,
@@ -44,7 +44,20 @@ PILLAR_LABELS = {
     "shengong": "身宫",
 }
 
-MONTH_HOUR_ORDER = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"]
+MONTH_HOUR_ORDER = [
+    "寅",
+    "卯",
+    "辰",
+    "巳",
+    "午",
+    "未",
+    "申",
+    "酉",
+    "戌",
+    "亥",
+    "子",
+    "丑",
+]
 
 PEACH_BLOSSOM_TARGETS = (
     (("申", "子", "辰"), "酉"),
@@ -276,7 +289,10 @@ def _resolve_analysis_date(
 
 def _calculate_age(birth_datetime: datetime, analysis_date: datetime) -> int:
     age = analysis_date.year - birth_datetime.year
-    if (analysis_date.month, analysis_date.day) < (birth_datetime.month, birth_datetime.day):
+    if (analysis_date.month, analysis_date.day) < (
+        birth_datetime.month,
+        birth_datetime.day,
+    ):
         age -= 1
     return max(age, 0)
 
@@ -286,9 +302,9 @@ def _cycle_stem(stem: str, steps: int) -> str:
 
 
 def _branch_offset(start_branch: str, end_branch: str) -> int:
-    return (MONTH_HOUR_ORDER.index(end_branch) - MONTH_HOUR_ORDER.index(start_branch)) % len(
-        MONTH_HOUR_ORDER
-    )
+    return (
+        MONTH_HOUR_ORDER.index(end_branch) - MONTH_HOUR_ORDER.index(start_branch)
+    ) % len(MONTH_HOUR_ORDER)
 
 
 def _build_origin_payload(
@@ -309,7 +325,9 @@ def _build_origin_payload(
     }
 
 
-def _build_three_origins(pillars: Dict[str, Tuple[str, str]]) -> Dict[str, Dict[str, Any]]:
+def _build_three_origins(
+    pillars: Dict[str, Tuple[str, str]],
+) -> Dict[str, Dict[str, Any]]:
     month_stem, month_branch = pillars["month"]
     day_stem = pillars["day"][0]
     hour_branch = pillars["hour"][1]
@@ -317,7 +335,9 @@ def _build_three_origins(pillars: Dict[str, Tuple[str, str]]) -> Dict[str, Dict[
     taiyuan = _build_origin_payload(
         label_key="taiyuan",
         stem=_cycle_stem(month_stem, 1),
-        branch=EARTHLY_BRANCHES[(EARTHLY_BRANCHES.index(month_branch) + 3) % len(EARTHLY_BRANCHES)],
+        branch=EARTHLY_BRANCHES[
+            (EARTHLY_BRANCHES.index(month_branch) + 3) % len(EARTHLY_BRANCHES)
+        ],
         day_stem=day_stem,
     )
 
@@ -355,7 +375,9 @@ def _build_three_origins(pillars: Dict[str, Tuple[str, str]]) -> Dict[str, Dict[
     }
 
 
-def _find_group_target(source_branch: str, mappings: tuple[tuple[tuple[str, ...], str], ...]) -> Optional[str]:
+def _find_group_target(
+    source_branch: str, mappings: tuple[tuple[tuple[str, ...], str], ...]
+) -> Optional[str]:
     for group, target in mappings:
         if source_branch in group:
             return target
@@ -380,6 +402,7 @@ def _collect_stem_or_branch_hits(
 ) -> List[str]:
     """Collect hits for a target that can be either a stem or a branch."""
     from fatebridge.utils.data import HEAVENLY_STEMS
+
     hits: List[str] = []
     if target in HEAVENLY_STEMS:
         for key, stem in stem_positions.items():
@@ -460,7 +483,10 @@ def _build_shensha_entries(
         ("年支华盖", [year_huagai] if year_huagai else []),
         ("日支华盖", [day_huagai] if day_huagai else []),
         ("日主天乙贵人", TIAN_YI_TARGETS.get(day_stem, [])),
-        ("日主文昌", [WEN_CHANG_TARGETS[day_stem]] if day_stem in WEN_CHANG_TARGETS else []),
+        (
+            "日主文昌",
+            [WEN_CHANG_TARGETS[day_stem]] if day_stem in WEN_CHANG_TARGETS else [],
+        ),
         ("年支将星", [year_jiangxing] if year_jiangxing else []),
         ("日支将星", [day_jiangxing] if day_jiangxing else []),
         ("日主金舆", [JIN_YU_TARGETS[day_stem]] if day_stem in JIN_YU_TARGETS else []),
@@ -468,13 +494,38 @@ def _build_shensha_entries(
         ("日支亡神", [day_wangshen] if day_wangshen else []),
         ("年支劫煞", [year_jiesha] if year_jiesha else []),
         ("日支劫煞", [day_jiesha] if day_jiesha else []),
-        ("日支孤辰", [GU_CHEN_TARGETS[day_branch]] if day_branch in GU_CHEN_TARGETS else []),
-        ("日支寡宿", [GUA_SU_TARGETS[day_branch]] if day_branch in GUA_SU_TARGETS else []),
-        ("年支红鸾", [HONG_LUAN_TARGETS[year_branch]] if year_branch in HONG_LUAN_TARGETS else []),
-        ("年支天喜", [TIAN_XI_TARGETS[year_branch]] if year_branch in TIAN_XI_TARGETS else []),
-        ("日主学堂", [XUE_TANG_TARGETS[day_stem]] if day_stem in XUE_TANG_TARGETS else []),
-        ("日主词馆", [CI_GUAN_TARGETS[day_stem]] if day_stem in CI_GUAN_TARGETS else []),
-        ("年柱空亡", list(kongwang_for_ganzhi(f"{pillars['year'][0]}{pillars['year'][1]}"))),
+        (
+            "日支孤辰",
+            [GU_CHEN_TARGETS[day_branch]] if day_branch in GU_CHEN_TARGETS else [],
+        ),
+        (
+            "日支寡宿",
+            [GUA_SU_TARGETS[day_branch]] if day_branch in GUA_SU_TARGETS else [],
+        ),
+        (
+            "年支红鸾",
+            (
+                [HONG_LUAN_TARGETS[year_branch]]
+                if year_branch in HONG_LUAN_TARGETS
+                else []
+            ),
+        ),
+        (
+            "年支天喜",
+            [TIAN_XI_TARGETS[year_branch]] if year_branch in TIAN_XI_TARGETS else [],
+        ),
+        (
+            "日主学堂",
+            [XUE_TANG_TARGETS[day_stem]] if day_stem in XUE_TANG_TARGETS else [],
+        ),
+        (
+            "日主词馆",
+            [CI_GUAN_TARGETS[day_stem]] if day_stem in CI_GUAN_TARGETS else [],
+        ),
+        (
+            "年柱空亡",
+            list(kongwang_for_ganzhi(f"{pillars['year'][0]}{pillars['year'][1]}")),
+        ),
         ("日柱空亡", list(kongwang_for_ganzhi(f"{day_stem}{day_branch}"))),
     ]
 
@@ -489,13 +540,27 @@ def _build_shensha_entries(
 
     # 天德/月德需要同时检查天干和地支位置
     if tian_de_target:
-        tian_de_hits = _collect_stem_or_branch_hits(tian_de_target, stem_positions, branch_positions)
-        entries.append({"label": "天德", "value": "、".join(tian_de_hits) if tian_de_hits else "未触发"})
+        tian_de_hits = _collect_stem_or_branch_hits(
+            tian_de_target, stem_positions, branch_positions
+        )
+        entries.append(
+            {
+                "label": "天德",
+                "value": "、".join(tian_de_hits) if tian_de_hits else "未触发",
+            }
+        )
     else:
         entries.append({"label": "天德", "value": "未触发"})
     if yue_de_target:
-        yue_de_hits = _collect_stem_or_branch_hits(yue_de_target, stem_positions, branch_positions)
-        entries.append({"label": "月德", "value": "、".join(yue_de_hits) if yue_de_hits else "未触发"})
+        yue_de_hits = _collect_stem_or_branch_hits(
+            yue_de_target, stem_positions, branch_positions
+        )
+        entries.append(
+            {
+                "label": "月德",
+                "value": "、".join(yue_de_hits) if yue_de_hits else "未触发",
+            }
+        )
     else:
         entries.append({"label": "月德", "value": "未触发"})
 
@@ -538,7 +603,9 @@ def _build_timing_overview(
     liushi_info = liushi_result["liushi_info"]
 
     current_solar_term_name = (
-        (analysis_calendar_context or {}).get("current_solar_term", {}).get("name", "未知")
+        (analysis_calendar_context or {})
+        .get("current_solar_term", {})
+        .get("name", "未知")
     )
     next_solar_term_name = (
         (analysis_calendar_context or {}).get("next_solar_term", {}).get("name", "未知")
@@ -783,7 +850,9 @@ def calculate_bazi_birth(
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     try:
-        analysis_date = _resolve_analysis_date(analysis_year, analysis_month, analysis_day)
+        analysis_date = _resolve_analysis_date(
+            analysis_year, analysis_month, analysis_day
+        )
         payload = _build_base_bazi_payload(person=person, analysis_date=analysis_date)
         base_analysis = payload["base_analysis"]
         snapshot_text = payload["snapshot_text"]
@@ -797,9 +866,11 @@ def calculate_bazi_birth(
             "analysis_type": "八字命盘",
             "bazi_birth": {
                 "engine": "fatebridge-offline",
-                "time_algorithm": "真太阳时"
-                if payload["normalized_birth_time"].applied
-                else "直接时间",
+                "time_algorithm": (
+                    "真太阳时"
+                    if payload["normalized_birth_time"].applied
+                    else "直接时间"
+                ),
                 "analysis_date": analysis_date.strftime("%Y-%m-%d"),
                 "person_info": base_analysis["person_info"],
                 "four_pillars": base_analysis["four_pillars"],
@@ -832,7 +903,9 @@ def calculate_bazi_direct(
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     try:
-        analysis_date = _resolve_analysis_date(analysis_year, analysis_month, analysis_day)
+        analysis_date = _resolve_analysis_date(
+            analysis_year, analysis_month, analysis_day
+        )
         payload = _build_base_bazi_payload(person=person, analysis_date=analysis_date)
         base_analysis = payload["base_analysis"]
         snapshot_text = payload["snapshot_text"]
@@ -846,9 +919,11 @@ def calculate_bazi_direct(
             "analysis_type": "八字直断",
             "bazi_direct": {
                 "engine": "fatebridge-offline",
-                "time_algorithm": "真太阳时"
-                if payload["normalized_birth_time"].applied
-                else "直接时间",
+                "time_algorithm": (
+                    "真太阳时"
+                    if payload["normalized_birth_time"].applied
+                    else "直接时间"
+                ),
                 "analysis_date": analysis_date.strftime("%Y-%m-%d"),
                 "person_info": base_analysis["person_info"],
                 "four_pillars": base_analysis["four_pillars"],

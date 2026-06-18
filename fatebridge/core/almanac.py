@@ -115,7 +115,20 @@ BAZI_MONTH_START_TERMS = {
     "小寒": "丑",
 }
 
-BAZI_MONTH_SEQUENCE = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"]
+BAZI_MONTH_SEQUENCE = [
+    "寅",
+    "卯",
+    "辰",
+    "巳",
+    "午",
+    "未",
+    "申",
+    "酉",
+    "戌",
+    "亥",
+    "子",
+    "丑",
+]
 
 LUNAR_MONTH_NAMES = {
     1: "正月",
@@ -233,7 +246,9 @@ def get_day_ganzhi(
     if strategy not in DAY_GANZHI_JDN_OFFSETS:
         raise ValueError(f"Unsupported day ganzhi strategy: {strategy}")
 
-    index = (_julian_day_number(year, month, day) + DAY_GANZHI_JDN_OFFSETS[strategy]) % 60
+    index = (
+        _julian_day_number(year, month, day) + DAY_GANZHI_JDN_OFFSETS[strategy]
+    ) % 60
     return f"{GAN[index % 10]}{ZHI[index % 12]}"
 
 
@@ -452,17 +467,20 @@ def get_adjacent_solar_terms(
 def get_bazi_year(moment: datetime, timezone_name: str = DEFAULT_TIMEZONE) -> int:
     local_moment = localize_datetime(moment, timezone_name)
     current_year_terms = {
-        term.name: term for term in get_solar_terms_for_year(local_moment.year, timezone_name)
+        term.name: term
+        for term in get_solar_terms_for_year(local_moment.year, timezone_name)
     }
     li_chun = current_year_terms["立春"]
-    return local_moment.year if local_moment >= li_chun.moment else local_moment.year - 1
+    return (
+        local_moment.year if local_moment >= li_chun.moment else local_moment.year - 1
+    )
 
 
 def get_bazi_month_context(
     moment: datetime, timezone_name: str = DEFAULT_TIMEZONE
 ) -> Dict[str, object]:
-    current_boundary, next_boundary, month_branch, month_index = get_bazi_month_boundaries(
-        moment, timezone_name
+    current_boundary, next_boundary, month_branch, month_index = (
+        get_bazi_month_boundaries(moment, timezone_name)
     )
     local_moment = localize_datetime(moment, timezone_name)
 
@@ -615,9 +633,7 @@ def build_calendar_context(
         "supported_range": _lunar_supported_range_payload(),
     }
     if lunar_context is None:
-        lunar_support["reason"] = (
-            "离线农历换算仅支持公历 1900-01-31 至 2100-02-08。"
-        )
+        lunar_support["reason"] = "离线农历换算仅支持公历 1900-01-31 至 2100-02-08。"
 
     return {
         "timezone": timezone_name,
