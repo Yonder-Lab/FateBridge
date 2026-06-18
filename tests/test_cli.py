@@ -191,7 +191,7 @@ def test_cli_validation_error_returns_nonzero(capsys):
 
 def test_cli_invalid_input_renders_clean_error_shape(capsys):
     # M2: bad input renders the same generic, structured error shape REST/MCP
-    # use (status_code 400, VALIDATION_ERROR) instead of a raw exception string.
+    # use (status_code 400, validation_error) instead of a raw exception string.
     code = run(
         [
             "bazi_wealth",
@@ -209,4 +209,4 @@ def test_cli_invalid_input_renders_clean_error_shape(capsys):
     assert code == 1
     payload = json.loads(err)
     assert payload["status_code"] == 400
-    assert payload["error_code"] == "VALIDATION_ERROR"
+    assert payload["error_code"] == "validation_error"
