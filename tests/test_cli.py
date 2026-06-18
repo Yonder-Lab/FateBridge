@@ -88,6 +88,57 @@ def test_cli_runs_knowledge_read(capsys):
     assert payload["title"].startswith("财库")
 
 
+def test_describe_is_a_subcommand():
+    parser = build_parser()
+    subparsers = [a for a in parser._actions if a.dest == "command"]
+    assert "describe" in set(subparsers[0].choices)
+
+
+def test_describe_flat_tool_emits_schema_and_example(capsys):
+    code = run(["describe", "bazi_wealth"])
+    out = capsys.readouterr().out
+    info = json.loads(out)
+    assert code == 0
+    assert info["tool"] == "bazi_wealth"
+    assert info["surfaces"]["cli"] is True
+    assert info["surfaces"]["rest_path"] == "/api/cn/bazi/wealth"
+    # birth_year is a required int parameter with a flag and description.
+    by = next(p for p in info["parameters"] if p["name"] == "birth_year")
+    assert by["required"] is True
+    assert by["type"] == "int"
+    assert by["flag"] == "--birth-year"
+    assert by["description"]
+    # A runnable example is offered for CLI-safe tools.
+    assert info["cli_example"].startswith("fatebridge bazi_wealth")
+    assert "--birth-year" in info["cli_example"]
+
+
+def test_describe_nested_tool_still_describes_with_hint(capsys):
+    # Nested-model tools can't run on the CLI, but describe must still work and
+    # point the agent at the right surface.
+    code = run(["describe", "astro_relative"])
+    out = capsys.readouterr().out
+    info = json.loads(out)
+    assert code == 0
+    assert info["surfaces"]["cli"] is False
+    assert "cli_hint" in info
+    assert "cli_example" not in info
+
+
+def test_describe_unknown_tool_returns_nonzero(capsys):
+    code = run(["describe", "no_such_tool"])
+    err = capsys.readouterr().err
+    assert code == 2
+    assert "no_such_tool" in err
+
+
+def test_describe_without_tool_returns_usage(capsys):
+    code = run(["describe"])
+    err = capsys.readouterr().err
+    assert code == 2
+    assert "describe" in err
+
+
 def test_cli_validation_error_returns_nonzero(capsys):
     # Invalid month (passes argparse int parse, fails pydantic le=12) -> exit 1.
     code = run(
