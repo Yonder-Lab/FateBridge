@@ -844,6 +844,7 @@ def calculate_relative_chart_analysis(
     relative_mode_source: Optional[str] = None,
     hsys: int = 0,
     zodiacal: int = 0,
+    relationship_focus: Any = None,
 ) -> Dict[str, Any]:
     """
     Build synastry/composite payloads for two parties.
@@ -867,6 +868,7 @@ def calculate_relative_chart_analysis(
             relative_mode_source=resolved_mode_source,
             hsys=hsys,
             zodiacal=zodiacal,
+            relationship_focus=relationship_focus,
         )
     except Exception as exc:
         return handle_calculation_error(exc, "关系星盘分析")

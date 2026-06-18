@@ -744,6 +744,16 @@ class AstroRelativeRequest(BaseModel):
         default=0,
         description="Legacy-compatible zodiac selector; offline mode currently supports 0=tropical and 1=sidereal(Lahiri-like) only",
     )
+    relationship_focus: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional relationship intent lens: marriage/婚姻 (emphasises 7th "
+            "house + Sun/Moon/Venus/Saturn) or romance/恋爱 (emphasises 5th "
+            "house + Sun/Moon/Venus/Mars). Adds a focus block + intent-filtered "
+            "synastry aspects without changing computed aspects; default/unset "
+            "is general (no filtering)."
+        ),
+    )
 
     def __init__(self, **data: Any):
         mode_source = "default"
@@ -888,6 +898,14 @@ class AstroRelativeFlatRequest(BaseModel):
     outer_birth_timezone: Optional[str] = Field(default="UTC", description="Outer timezone")
     hsys: int = Field(default=0, description="House system identifier")
     zodiacal: int = Field(default=0, description="Zodiac selector")
+    relationship_focus: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional relationship intent lens: marriage/婚姻 or romance/恋爱; "
+            "adds a focus block + intent-filtered synastry aspects. Default/unset "
+            "is general (no filtering)."
+        ),
+    )
 
 
 class BaziPersonalityRequest(BaziDimensionRequest):
