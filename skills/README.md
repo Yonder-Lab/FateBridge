@@ -1,6 +1,26 @@
-# FateBridge · 公开 Skills 汇总
+# FateBridge · Skills（泛心理陪伴套件）
 
-本目录收录与 FateBridge 命理/占术领域相关的公开 Claude Code Skills，供 Agent 工具接入时直接引用。
+把 FateBridge 引擎的 60+ 命理/占术/占星能力，按**用户真实困扰**重组成一套场景 Skill。  
+设计就一句话：**计算交给 FateBridge 引擎算得准，解读交给 Onda 河狸讲得像个人。**
+
+- 引擎完全离线，干支/排盘/合婚分全部由 `python3 -m fatebridge.cli` 算，杜绝 AI 手算幻觉——这是「预测准确」的根。
+- 解读遵循 [人味儿写作](https://github.com/orange2ai/renwei-writing)：白描优先、不写金句、保留语气词、禁排比/「不是X而是Y」/万能展望结尾，凶象一律翻译成能过的日子。
+
+---
+
+## 按场景找入口（不用懂术数，带着问题来）
+
+| 你想问的 | 用这个 Skill | 背后调的能力 |
+|---------|-------------|-------------|
+| 感情、姻缘、桃花、合不合、正缘何时到 | [`onda-yuanfen`](./onda-yuanfen/SKILL.md) | 八字婚姻/正缘桃花、双人合婚、紫微夫妻宫、关系星盘 |
+| 事业、财运、跳槽、创业、合伙 | [`onda-shiye`](./onda-shiye/SKILL.md) | 八字事业/财运、合作配合度、时运 |
+| 健康倾向、身心节奏、调理方向 | [`onda-jiankang`](./onda-jiankang/SKILL.md) | 八字健康、时运（只谈倾向，不诊断） |
+| 今年运势、大运流年、人生转折、择时 | [`onda-shiyun`](./onda-shiyun/SKILL.md) | 时运全系、节气农历、西占推运全套 |
+| 卡在一个决定、要不要做某事、求一卦 | [`onda-zhanbu`](./onda-zhanbu/SKILL.md) | 梅花/六爻/奇门/六壬/金口/太乙/宿占/三式 |
+| 我是谁、性格天赋、学业、家人、孩子 | [`onda-mingge`](./onda-mingge/SKILL.md) | 八字性格/学业/子女/六亲、命盘综合、紫微 |
+| 占星、出生盘、合盘、各流派星盘 | [`onda-xingpan`](./onda-xingpan/SKILL.md) | 标准/希腊/果老/印度/13星座盘、关系盘 |
+
+> 60+ 工具全部在这 7 个场景里有归属；完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
 ---
 
@@ -8,57 +28,35 @@
 
 ```
 skills/
-├── bazi/               八字四柱排盘与命理分析（jinchenma94/bazi-skill）
-├── yinyuan/            姻缘测算 · 赛博月老（Ming-H/yinyuan-skills）
-└── numerologist/       数术工程化三件套（FANzR-arch/Numerologist_skills）
-    ├── bazi/           —— 四柱八字大师
-    ├── ziwei-doushu/   —— 紫微斗数大师
-    └── qimen-dunjia/   —— 奇门遁甲大师
+├── _shared/
+│   ├── fatebridge-engine.md   计算层：CLI 调用、全量工具地图、字段字典、怎么读 snapshot
+│   └── onda-counsel.md        解读层：Onda 声音、人味儿规则、凶象翻译、红线、收尾自检
+├── onda-yuanfen/              缘分 · 感情合婚
+├── onda-shiye/                事业 · 财运
+├── onda-jiankang/             健康 · 身心
+├── onda-shiyun/               人生时运 · 择时
+├── onda-zhanbu/               抉择 · 问事占卜
+├── onda-mingge/               认识自己 · 性格天赋
+└── onda-xingpan/              星盘 · 占星自观
 ```
 
----
-
-## 已收录 Skills
-
-| 技能 | 来源仓库 | 覆盖系统 | 许可证 |
-|------|---------|---------|--------|
-| [八字四柱命理分析](./bazi/SKILL.md) | [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) | 八字、大运流年 | MIT |
-| [姻缘测算](./yinyuan/SKILL.md) | [Ming-H/yinyuan-skills](https://github.com/Ming-H/yinyuan-skills) | 八字合婚、生肖配对、紫微夫妻宫、桃花运 | — |
-| [数术·八字大师](./numerologist/bazi/SKILL.md) | [FANzR-arch/Numerologist_skills](https://github.com/FANzR-arch/Numerologist_skills) | 四柱八字（工程化） | — |
-| [数术·紫微斗数大师](./numerologist/ziwei-doushu/SKILL.md) | [FANzR-arch/Numerologist_skills](https://github.com/FANzR-arch/Numerologist_skills) | 紫微斗数 | — |
-| [数术·奇门遁甲大师](./numerologist/qimen-dunjia/SKILL.md) | [FANzR-arch/Numerologist_skills](https://github.com/FANzR-arch/Numerologist_skills) | 奇门遁甲 | — |
+每个场景 Skill 的 `SKILL.md` 都很薄：负责「问什么、调哪个工具、怎么共情」，计算与声音两层共用 `_shared/`。
 
 ---
 
-## 相关项目（非 Skill，供参考）
+## 给开发者
 
-| 项目 | 仓库 | 类型 | 说明 |
-|------|------|------|------|
-| horosa-skill | [Horace-Maxwell/horosa-skill](https://github.com/Horace-Maxwell/horosa-skill) | Python 包（同类后端） | 与 FateBridge 功能高度重叠：涵盖 Ziwei、Bazi、Qimen、西占全套；AGPL-3.0 授权，可作算法对比参考 |
-| cyber-fortune-telling | [zhaoolee/cyber-fortune-telling](https://github.com/zhaoolee/cyber-fortune-telling) | Web 应用 | Next.js + Strapi 全栈风水命理应用，含 MCP Server；可作前端集成参考 |
-| Master-skill | [xr843/Master-skill](https://github.com/xr843/Master-skill) | Claude Code Skill | 佛学大师教学角色生成器（玄奘、慧能等八位），与命理体系交叉度低，不纳入主目录 |
+新增/调整能力时守这条分工：**新维度＝指向对应的 `bazi_*` / 工具目录条目，不要在 Skill 里手写排盘步骤。**
 
-> 小红书链接（7-10）因平台访问限制无法自动抓取，请手动查阅后按上方格式补充。
-
----
-
-## 使用方式
-
-在 Claude Code 中通过 Skill 工具按路径调用，例如：
-
-```
-skill: "skills/bazi"
-skill: "skills/yinyuan"
-skill: "skills/numerologist/qimen-dunjia"
-```
-
-或在 Agent 提示中直接引用对应 SKILL.md 的相对路径。
+- 引擎侧加工具的方法见仓库 `fatebridge/services/tool_catalog.py`（中央目录，一处声明自动挂到 REST/MCP/CLI）。
+- 任何在 Skill 里引用的 CLI 命令，**提交前都要真跑一遍**（引擎离线，无需起服务）：
+  ```bash
+  python3 -m fatebridge.cli list
+  python3 -m fatebridge.cli describe <tool>
+  ```
 
 ---
 
-## 贡献指南
+## 边界声明
 
-如需新增社区技能：
-1. 在对应术数子目录下创建 `SKILL.md`（参照现有格式）
-2. 在本 README 的"已收录 Skills"表格中补充一行
-3. 注明来源仓库、覆盖系统与许可证
+所有解读为传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。幸福靠真实地生活和经营，不靠命定。
