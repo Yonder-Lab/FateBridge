@@ -3,14 +3,16 @@ FateBridge Compatibility Services
 """
 
 import logging
-from typing import Dict
+from typing import Any, Dict
 
 from fatebridge.analysis.compatibility import AdvancedCompatibility, RelationshipType
+from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.rules import BaZiRules
 from fatebridge.services.calculation import (
     _build_birth_computation_context,
     _render_destiny_analysis,
 )
+from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.utils.helpers import (
     PersonInfo,
     get_element_relationship,
@@ -80,7 +82,7 @@ def calculate_compatibility_analysis(
         element_relationship = get_element_relationship(element1, element2)
 
         # 优化的JSON输出格式
-        return {
+        result: Dict[str, Any] = {
             "summary": {
                 "overall_score": advanced_analysis["overall_score"],
                 "compatibility_level": advanced_analysis["summary"],
@@ -137,5 +139,11 @@ def calculate_compatibility_analysis(
                 "details": traditional_compatibility.get("details", []),
             },
         }
+        snapshot_text = render_structured_snapshot_text(result, title="双人配合度分析")
+        result["snapshot_text"] = snapshot_text
+        result["snapshot_export"] = parse_export_content(
+            technique="generic", content=snapshot_text
+        )
+        return result
     except Exception as e:
         return handle_calculation_error(e, "配合度分析")

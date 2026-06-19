@@ -33,14 +33,14 @@ fatebridge <tool> [参数...]
 
 ## 二、两种输出形态（决定你怎么读）
 
-FateBridge 工具吐两种结构，解读方式不同：
+**现在所有工具都带 `snapshot_text` + `snapshot_export`**（统一契约，不用再区分有没有）。但有一类工具的 `snapshot_text` 只是其结构化字段的「中文摊平」，**精确解读仍以结构化字段为准**：
 
 | 形态 | 谁是这种（已实测核对） | 怎么读 |
 |------|---------|--------|
-| **`snapshot_text`**（整段中文快照）+ `snapshot_export` | `bazi_birth` / `bazi_direct` / `analyze_destiny`、时运全系、紫微、梅花、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类 | 直接读 `snapshot_text`，它已经是结构化的中文事实（四柱/十神/格局/神煞/大运流年）。这是解读主依据。 |
-| **结构化 JSON**（无 snapshot_text） | **八字 9 大专项**（`bazi_marriage`/`romance`/`career`/`wealth`/`health`/`children`/`education`/`personality`/`relatives`）、`two_person_compatibility`、`sukuyo_compatibility`、`astro_relative_chart` | 读对应业务字段，见下。 |
+| **`snapshot_text` 即主依据** | `bazi_birth` / `bazi_direct` / `analyze_destiny`、时运全系、紫微、梅花、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类 | 直接读 `snapshot_text`，它已经是结构化的中文事实（四柱/十神/格局/神煞/大运流年）。 |
+| **`snapshot_text` 是摘要，细节看结构化字段** | **八字 9 大专项**（`bazi_marriage`/`romance`/`career`/`wealth`/`health`/`children`/`education`/`personality`/`relatives`）、`two_person_compatibility`、`sukuyo_compatibility`、`astro_relative_chart` | 快速看 `snapshot_text` 抓要点；要精确字段（分数/落点/相位）再读下面的业务字段。`astro_relative_chart` 的 `snapshot_text` 只摘 关系画像/互动相位/配合度，完整盘在结构化字段里。 |
 
-**结构化 JSON 怎么读：**
+**结构化字段怎么读（snapshot_text 之外要精确时）：**
 - 八字 9 专项 → `{"analysis_type": "...", "<dim>_analysis": {...}}`。解读读 `<dim>_analysis`，里面是该维度的子项。例：`bazi_romance` → `romance_analysis.{peach_blossom, hongluan_tianxi, opposite_sex_star, peach_quality, romance_timing, timing_context}`；`bazi_wealth` → `wealth_analysis.{...}`。`timing_context` 段是引擎自动推算的当前大运/流年，看时机就看它。
 - `two_person_compatibility` → `summary`（overall_score / compatibility_level）、`detailed_analysis`（element_balance / favorable_synergy）、`strengths`、`challenges`、`recommendations`。
 - `sukuyo_compatibility` → 27 宿相性，**有方向**：`person1_to_person2` 与 `person2_to_person1` 各一套关系判定，别只读一边；另有 `pair`（双向综合）、`su27_basis`（各自本命宿）、`summary`。
