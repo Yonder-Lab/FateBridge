@@ -15,6 +15,7 @@ from fatebridge.core.astrology import (
     build_relative_payload,
 )
 from fatebridge.core.export_parser import parse_export_content
+from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.utils.helpers import handle_calculation_error
 
 SUPPORTED_CHART_VARIANTS = {
@@ -887,7 +888,7 @@ def calculate_relative_chart_analysis(
         resolved_mode = (
             relative_mode if relative_mode not in (None, "") else relationship_mode
         )
-        return build_relative_payload(
+        payload = build_relative_payload(
             inner_birth=inner_birth,
             outer_birth=outer_birth,
             relative_mode=resolved_mode,
@@ -896,5 +897,27 @@ def calculate_relative_chart_analysis(
             zodiacal=zodiacal,
             relationship_focus=relationship_focus,
         )
+        if isinstance(payload, dict) and "error" not in payload:
+            # Allowlist the relationship-facing summary; the raw inner/outer/
+            # composite charts and the directional aspect/midpoint dumps stay in
+            # the structured payload only (they would flood the snapshot).
+            summary_view = {
+                key: payload[key]
+                for key in (
+                    "relationship_profile",
+                    "synastry_aspects",
+                    "compatibility",
+                    "summary",
+                )
+                if key in payload
+            }
+            snapshot_text = render_structured_snapshot_text(
+                summary_view, title="关系星盘分析"
+            )
+            payload["snapshot_text"] = snapshot_text
+            payload["snapshot_export"] = parse_export_content(
+                technique="relative", content=snapshot_text
+            )
+        return payload
     except Exception as exc:
         return handle_calculation_error(exc, "关系星盘分析")

@@ -282,7 +282,8 @@ def _bazi_dimension_spec(name: str, service: Any, model: Any, label: str) -> Too
         rest_path=f"/api/cn/bazi/{name}",
         mcp_name=f"bazi_{name}",
         cpu_bound=True,
-        include_snapshot_text=False,
+        # The dimension factory now renders a structured snapshot_text, so this
+        # tool participates in the standard snapshot contract (default True).
     )
 
 

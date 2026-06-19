@@ -29,6 +29,7 @@ from fatebridge.services.calculation import (
     _build_birth_computation_context,
     _render_destiny_analysis,
 )
+from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.services.timing import _build_current_timing_state
 from fatebridge.utils.data import (
     BRANCH_HIDDEN_STEMS,
@@ -1044,9 +1045,15 @@ def _run_bazi_dimension_analysis(
         )
         if isinstance(analysis, dict) and timing_context is not None:
             analysis = {**analysis, "timing_context": timing_context}
+        snapshot_text = render_structured_snapshot_text(analysis, title=analysis_type)
+        snapshot_export = parse_export_content(
+            technique="generic", content=snapshot_text
+        )
         return {
             "analysis_type": analysis_type,
             result_key: analysis,
+            "snapshot_text": snapshot_text,
+            "snapshot_export": snapshot_export,
         }
     except Exception as exc:
         return handle_calculation_error(exc, error_label)

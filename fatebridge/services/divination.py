@@ -19,6 +19,7 @@ from fatebridge.core.phase2_local import (
     build_tongshefa_result,
 )
 from fatebridge.core.sukuyo import su28_to_su27, sukuyo_relation
+from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     create_pillar_dict,
@@ -505,7 +506,7 @@ def calculate_sukuyo_compatibility(
             f"{reverse['relation']}（{reverse['distance'] or '同宿'}）。"
         )
 
-        return {
+        result: Dict[str, Any] = {
             "analysis_type": "宿曜双人相性 / 三九の秘法",
             "su27_basis": "su28_drop_niu",
             "person1": {
@@ -525,6 +526,14 @@ def calculate_sukuyo_compatibility(
             "person2_to_person1": reverse,
             "summary": summary,
         }
+        snapshot_text = render_structured_snapshot_text(
+            result, title="宿曜双人相性 / 三九の秘法"
+        )
+        result["snapshot_text"] = snapshot_text
+        result["snapshot_export"] = _build_snapshot_export(
+            technique="generic", snapshot_text=snapshot_text
+        )
+        return result
     except Exception as exc:
         return handle_calculation_error(exc, "宿曜双人相性")
 
