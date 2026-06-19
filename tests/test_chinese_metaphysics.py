@@ -1035,3 +1035,60 @@ def test_ziwei_horoscope_request_requires_target_datetime():
             birth_day=23,
             birth_hour=14,
         )
+
+
+def test_calculate_ziwei_horoscope_returns_six_scopes_and_snapshot():
+    from fatebridge.services.metaphysics import calculate_ziwei_horoscope
+
+    person = create_person_info(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        gender="男",
+    )
+    result = calculate_ziwei_horoscope(
+        person,
+        target_year=2026,
+        target_month=6,
+        target_day=19,
+        target_hour=14,
+    )
+    assert result["analysis_type"] == "紫微斗数运限"
+    h = result["ziwei_horoscope"]
+    assert h["engine"] == "fatebridge-offline"
+    assert h["nominal_age"] == 2026 - 1994 + 1  # 虚岁 drives 大限 selection
+    assert {s["scope"] for s in h["scopes"]} == {
+        "大限",
+        "小限",
+        "流年",
+        "流月",
+        "流日",
+        "流时",
+    }
+    assert "[起盘信息]" in result["snapshot_text"]
+    assert "[流年]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_ziwei_horoscope_supports_selected_sections():
+    from fatebridge.services.metaphysics import calculate_ziwei_horoscope
+
+    person = create_person_info(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        gender="男",
+    )
+    result = calculate_ziwei_horoscope(
+        person,
+        target_year=2026,
+        target_month=6,
+        target_day=19,
+        target_hour=14,
+        selected_sections=["流年"],
+    )
+    assert result["snapshot_export"]["selected_sections"] == ["流年"]
+    assert "[流年]" in result["snapshot_export"]["export_text"]
+    assert "[起盘信息]" not in result["snapshot_export"]["export_text"]
