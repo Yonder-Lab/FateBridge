@@ -26,10 +26,8 @@ from ..utils.data import (
     check_branch_combination,
     check_branch_conflict,
     get_ten_god,
+    normalize_gender,
 )
-
-_MALE_TOKENS = {"male", "m", "男", "man"}
-_FEMALE_TOKENS = {"female", "f", "女", "woman"}
 
 # 桃花（咸池）：三合局 -> 桃花地支
 _PEACH_TARGETS = (
@@ -71,17 +69,6 @@ _TIANXI = {
 }
 
 
-def _normalize_gender(gender: Optional[str]) -> Optional[str]:
-    if gender is None:
-        return None
-    g = gender.strip().lower()
-    if g in _MALE_TOKENS:
-        return "male"
-    if g in _FEMALE_TOKENS:
-        return "female"
-    return None
-
-
 class RomanceAnalysis:
     """正缘桃花分析工具类"""
 
@@ -93,7 +80,7 @@ class RomanceAnalysis:
         liunian_pillar: Optional[Tuple[str, str]] = None,
     ) -> Dict[str, Any]:
         day_stem = pillars["day"][0]
-        norm_gender = _normalize_gender(gender)
+        norm_gender = normalize_gender(gender)
         branches = {name: branch for name, (_, branch) in pillars.items()}
 
         peach = RomanceAnalysis._peach_blossom(pillars, branches)

@@ -26,9 +26,8 @@ from ..utils.data import (
     STEM_ELEMENTS,
     TenGod,
     get_ten_god,
+    normalize_gender,
 )
-
-_MALE_TOKENS = {"male", "m", "男", "man"}
 
 # 地支所主性格特征
 BRANCH_PERSONALITY = {
@@ -100,9 +99,7 @@ class MarriageAnalysis:
         """
         day_stem = pillars["day"][0]
         day_branch = pillars["day"][1]
-        gender_token = (gender or "").strip().lower()
-
-        is_male = gender_token in _MALE_TOKENS
+        is_male = normalize_gender(gender) == "male"
 
         # 1. 配偶星分析
         spouse_star = MarriageAnalysis._analyze_spouse_star(pillars, day_stem, is_male)

@@ -27,10 +27,8 @@ from ..utils.data import (
     check_branch_combination,
     check_branch_conflict,
     get_ten_god,
+    normalize_gender,
 )
-
-_MALE_TOKENS = {"male", "m", "男", "man"}
-_FEMALE_TOKENS = {"female", "f", "女", "woman"}
 
 # 时柱十神对应子女特征与关系
 HOUR_TEN_GOD_CHILDREN = {
@@ -45,17 +43,6 @@ HOUR_TEN_GOD_CHILDREN = {
     TenGod.POSITIVE_SEAL: "子女好学有文化、孝顺顾家，重感情",
     TenGod.PARTIAL_SEAL: "子女思维独特、有专才，性格偏内向",
 }
-
-
-def _normalize_gender(gender: Optional[str]) -> Optional[str]:
-    if gender is None:
-        return None
-    g = gender.strip().lower()
-    if g in _MALE_TOKENS:
-        return "male"
-    if g in _FEMALE_TOKENS:
-        return "female"
-    return None
 
 
 class ChildrenAnalysis:
@@ -81,7 +68,7 @@ class ChildrenAnalysis:
             子女分析结果字典
         """
         day_stem = pillars["day"][0]
-        norm_gender = _normalize_gender(gender)
+        norm_gender = normalize_gender(gender)
 
         # 子女星：男命官杀，女命食伤；性别未知则两者并参
         if norm_gender == "male":

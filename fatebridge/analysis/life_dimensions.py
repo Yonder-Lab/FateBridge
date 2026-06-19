@@ -29,7 +29,7 @@ from __future__ import annotations
 import math
 from typing import Dict, Mapping, Optional, Tuple
 
-from ..utils.data import BRANCH_HIDDEN_STEMS, TenGod, get_ten_god
+from ..utils.data import BRANCH_HIDDEN_STEMS, TenGod, get_ten_god, normalize_gender
 
 PillarMap = Mapping[str, Tuple[str, str]]
 """柱位映射: {label: (stem, branch)}, 例如 {"year": ("丙", "午")}"""
@@ -45,9 +45,6 @@ _TEMPORAL_LAYER_WEIGHTS: Dict[str, float] = {
     "liuri": 0.7,  # 流日
     "liushi": 0.5,  # 流时
 }
-
-_MALE_TOKENS = {"male", "m", "男", "man"}
-_FEMALE_TOKENS = {"female", "f", "女", "woman"}
 
 
 class LifeDimensionAnalysis:
@@ -182,10 +179,10 @@ class LifeDimensionAnalysis:
         # 印星 → 学习
         raw["learning"] += seal
 
-        gender_token = (gender or "").strip().lower()
-        if gender_token in _MALE_TOKENS:
+        norm_gender = normalize_gender(gender)
+        if norm_gender == "male":
             raw["love"] += wealth * 0.6
-        elif gender_token in _FEMALE_TOKENS:
+        elif norm_gender == "female":
             raw["love"] += officer * 0.6
         # 未知性别保持 0，归一化后落在 50 中性
 
