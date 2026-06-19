@@ -9,6 +9,15 @@ is needed.
 Romanization map applied: miao=庙, wang=旺, de=得, li=利, ping=平, bu=不,
 xian=陷; iztro's empty string '' (brightness not applicable at that branch)
 becomes ``None`` here.
+
+Coverage boundary (亮度覆盖边界) — verified against iztro ``stars.ts``:
+iztro defines a ``brightness`` array for **exactly 20 stars** — the 14 主星
+plus 文昌、文曲、火星、铃星、擎羊(iztro 别名 ``qingyangMin``)、陀罗。
+**所有其它星曜（天钺、天魁、左辅、右弼、禄存、天马、天刑、天姚等乙/丙级
+辅曜杂耀）在 iztro 中没有亮度数组**，因此 ``lookup_star_brightness`` 对它们
+返回 ``None`` 是**契约设计，而非数据缺漏**。换言之"天刑陷""天钺旺"这类判断
+不属于本引擎（也不属于 iztro）的亮度体系。覆盖集合由
+``tests/test_ziwei_brightness_coverage.py`` 锁定，防止移植回归。
 """
 
 from __future__ import annotations
