@@ -29,6 +29,8 @@ fatebridge <tool> [参数...]
 2. 跑完先看 exit code 和 JSON 是否完整，再解读。
 3. 报错先读报错（多半是缺必填字段或 flag 名写错），按 `describe` 改，不要重试同一条。
 
+**成功和失败都走 stdout JSON**：CLI 永远在 stdout 输出一段 JSON——成功是结果，失败是 `{"error": ..., "error_code": ..., "status_code": ..., "retryable": ...}`。用 **exit code≠0** 判失败，再读 stdout 里的 `error_code`/`error` 决定怎么改；**不要只在出错时去读 stderr**（错误信息不在那儿）。常见 `error_code`：CLI 调用层的 `usage_error`（缺必填/flag 写错）、`cli_unsupported`（含嵌套结构，`error` 会指向可用的扁平变体命令）、`unknown_tool`；引擎层（与 REST/MCP 一致）的 `validation_error`、`dependency_missing`、`timeout`、`internal_error`。`retryable=true` 才值得重试。
+
 ---
 
 ## 二、两种输出形态（决定你怎么读）
