@@ -14,7 +14,6 @@ from fatebridge.core.almanac import (
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.metaphysics import (
-    EARTHLY_BRANCHES,
     MetaphysicsSeed,
     build_jinkou_board,
     build_liureng_board,
@@ -734,23 +733,13 @@ def calculate_ziwei_horoscope(
             analysis_day=target_day,
             analysis_hour=target_hour,
         )
-        # 虚岁 must be derived from the BaZi year, not the calendar year.
-        # Dates before 立春 carry the previous year's branch, so the 流年 year
-        # is target_year - 1 in that case.
-        bazi_year_branch = target_seed.pillars["year"][1]
-        bazi_yr_expected_idx = (target_year - 4) % 12
-        bazi_year = (
-            target_year
-            if EARTHLY_BRANCHES.index(bazi_year_branch) == bazi_yr_expected_idx
-            else target_year - 1
-        )
-        nominal_age = bazi_year - person.birth_year + 1
         horoscope = build_ziwei_horoscope(
             chart=chart,
             gender=person.gender or "未知",
             natal_year_branch=seed.pillars["year"][1],
             target_pillars=target_seed.pillars,
-            nominal_age=nominal_age,
+            birth_year=person.birth_year,
+            target_year=target_year,
         )
         # engine 已由 build_ziwei_horoscope 标记，无需在此重复盖章
         # （与 calculate_ziwei_birth 不同：build_ziwei_chart 不自带 engine）。

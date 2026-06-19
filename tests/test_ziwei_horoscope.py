@@ -21,13 +21,13 @@ def _horoscope_for(birth, target):
         analysis_day=target["day"],
         analysis_hour=target["hour"],
     )
-    nominal_age = target["year"] - birth["birth_year"] + 1
     return build_ziwei_horoscope(
         chart=chart,
         gender=person.gender or "未知",
         natal_year_branch=natal_seed.pillars["year"][1],
         target_pillars=target_seed.pillars,
-        nominal_age=nominal_age,
+        birth_year=birth["birth_year"],
+        target_year=target["year"],
     )
 
 

@@ -2178,23 +2178,42 @@ def _horoscope_scope(scope: str, palace: Dict[str, Any], stem: str) -> Dict[str,
     }
 
 
+def _bazi_year_for(target_year: int, target_year_branch: str) -> int:
+    """Return the BaZi (节气) year for a calendar date.
+
+    A date before 立春 carries the previous solar year's 年柱, so the BaZi year
+    is target_year - 1 in that case. Detected by comparing the actual 年柱 branch
+    to the branch expected for target_year.
+    """
+    expected_idx = (target_year - 4) % 12
+    if EARTHLY_BRANCHES.index(target_year_branch) == expected_idx:
+        return target_year
+    return target_year - 1
+
+
 def build_ziwei_horoscope(
     *,
     chart: Dict[str, Any],
     gender: str,
     natal_year_branch: str,
     target_pillars: Dict[str, Any],
-    nominal_age: int,
+    birth_year: int,
+    target_year: int,
 ) -> Dict[str, Any]:
     """Assemble the six 运限 scopes for a target date over a natal chart.
 
     大限 selects among the chart's own (Tier-1) 大限 ranges by 虚岁; 流年/流月/流日/
     流时 land on the palace carrying that pillar's branch with 四化 from the
-    pillar stem; 小限 uses the 三合-based start palace and the 流年 stem.
+    pillar stem; 小限 uses the 三合-based start palace and the 小限 palace's 宫干
+    (iztro convention).
 
-    ``nominal_age`` is 虚岁 (target_year - birth_year + 1), not the western age.
+    ``birth_year`` and ``target_year`` are calendar years; the returned
+    ``nominal_age`` (虚岁) is derived from the BaZi (节气) year, so a target
+    before 立春 maps to ``target_year - 1`` internally.
     """
     palaces = chart["palaces"]
+    bazi_year = _bazi_year_for(target_year, target_pillars["year"][1])
+    nominal_age = bazi_year - birth_year + 1
 
     daxian_palace = _palace_for_nominal_age(palaces, nominal_age)
     daxian = _horoscope_scope("大限", daxian_palace, daxian_palace["ganzhi"][0])

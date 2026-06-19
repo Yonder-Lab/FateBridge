@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 from fatebridge.core.metaphysics import (
-    EARTHLY_BRANCHES,
     build_ziwei_chart,
     build_ziwei_horoscope,
 )
@@ -35,20 +34,6 @@ _TIME_INDEX_TO_HOUR = {
 }
 
 
-def _bazi_year(calendar_year: int, year_pillar_branch: str) -> int:
-    """Return the BaZi year corresponding to a target date.
-
-    If the target date falls before 立春 (Spring Equinox solar term boundary),
-    its BaZi year pillar will still carry the *previous* year's branch.  In that
-    case we return calendar_year - 1 so that 虚岁 is computed correctly.
-    """
-    expected_branch_idx = (calendar_year - 4) % 12
-    actual_branch_idx = EARTHLY_BRANCHES.index(year_pillar_branch)
-    return (
-        calendar_year if actual_branch_idx == expected_branch_idx else calendar_year - 1
-    )
-
-
 def _our_scopes(case: dict) -> dict:
     by, bm, bd = (int(x) for x in case["birth"]["date"].split("-"))
     bh = _TIME_INDEX_TO_HOUR[case["birth"]["time_index"]]
@@ -66,15 +51,13 @@ def _our_scopes(case: dict) -> dict:
     target_seed = _build_analysis_seed(
         analysis_year=ty, analysis_month=tm, analysis_day=td, analysis_hour=th
     )
-    # Use the BaZi year (from the year pillar branch) to compute 虚岁 correctly.
-    # Dates before 立春 carry the previous year's branch, so we must use that year.
-    bazi_yr = _bazi_year(ty, target_seed.pillars["year"][1])
     h = build_ziwei_horoscope(
         chart=chart,
         gender=person.gender or "未知",
         natal_year_branch=natal_seed.pillars["year"][1],
         target_pillars=target_seed.pillars,
-        nominal_age=bazi_yr - by + 1,
+        birth_year=by,
+        target_year=ty,
     )
     return {s["scope"]: s for s in h["scopes"]}
 

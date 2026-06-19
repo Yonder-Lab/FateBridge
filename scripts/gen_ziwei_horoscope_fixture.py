@@ -6,6 +6,11 @@ Run ONCE in an ISOLATED venv (py-iztro must NOT touch the project env):
     /tmp/iztro_oracle/bin/pip install py-iztro
     /tmp/iztro_oracle/bin/python3.11 scripts/gen_ziwei_horoscope_fixture.py
 
+DO NOT re-run without pinning the py-iztro version that produced the committed
+fixture: a silent upstream change could otherwise rewrite the oracle and let the
+cross-check pass against drifted reference data. The fixture committed here was
+generated with py-iztro 0.1.5.
+
 Per (birth, target) case it records, per scope, the active palace's earthly
 branch and the four 四化 target star names — a branch+stars tuple is
 convention-independent and survives palace-index/name differences between
@@ -32,14 +37,21 @@ CASES = [
     ("m_2001", "2001-11-5", 11, "男", "2030-1-15", 11),
 ]
 
-OUT = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / (
-    "ziwei_horoscope_reference.json"
+OUT = (
+    Path(__file__).resolve().parents[1]
+    / "tests"
+    / "fixtures"
+    / ("ziwei_horoscope_reference.json")
 )
 
 # our scope name -> py-iztro horoscope attribute
 SCOPE_ATTR = [
-    ("大限", "decadal"), ("小限", "age"), ("流年", "yearly"),
-    ("流月", "monthly"), ("流日", "daily"), ("流时", "hourly"),
+    ("大限", "decadal"),
+    ("小限", "age"),
+    ("流年", "yearly"),
+    ("流月", "monthly"),
+    ("流日", "daily"),
+    ("流时", "hourly"),
 ]
 
 
