@@ -24,7 +24,11 @@ from .almanac import (
     build_calendar_context,
     localize_datetime,
 )
-from .astrology import build_astro_birth_info, build_core_chart_payload
+from .astrology import (
+    AstroBirthInfo,
+    build_astro_birth_info,
+    build_core_chart_payload,
+)
 from .calendar import BaZiCalendar
 from .divination import (
     BAGUA_BY_NAME,
@@ -107,7 +111,7 @@ ZODIAC_SIGN_CN = {
     "Pisces": "双鱼座",
 }
 
-PLANET_DEFS = [
+PLANET_DEFS: List[Dict[str, Any]] = [
     {"id": "Sun", "base": 280.46, "speed": 0.9856474},
     {"id": "Moon", "base": 218.32, "speed": 13.176396},
     {"id": "Mercury", "base": 60.0, "speed": 4.09233445},
@@ -694,7 +698,7 @@ def _normalize_planet(planet: Optional[str]) -> str:
     if not planet:
         return "Sun"
     lowered = str(planet).strip().casefold()
-    for item in [definition["id"] for definition in PLANET_DEFS]:
+    for item in [str(definition["id"]) for definition in PLANET_DEFS]:
         if item.casefold() == lowered:
             return item
     return "Sun"
@@ -742,7 +746,7 @@ def _build_phase2_birth_info(
     lon: Any = None,
     gps_lat: Optional[float] = None,
     gps_lon: Optional[float] = None,
-):
+) -> Tuple[AstroBirthInfo, float, float]:
     moment = parse_phase2_datetime(date_text, time_text, timezone_name)
     latitude, longitude = _resolve_phase2_coordinates(
         lat=lat,
@@ -924,7 +928,7 @@ def _adapt_chart_objects(
         if tradition and point_id in OUTER_PLANETS:
             continue
         longitude = round(float(item.get("longitude", 0.0)), 4)
-        payload = {
+        payload: Dict[str, Any] = {
             "id": point_id,
             "house": _house_id_for_phase2_houses(longitude, houses),
             "sign": item.get("sign"),
@@ -1192,7 +1196,7 @@ def _phase2_hex(upper: Dict[str, Any], lower: Dict[str, Any]) -> Dict[str, Any]:
     name = HEXAGRAM_NAMES.get(
         (upper["name"], lower["name"]), f"{upper['cname']}{lower['cname']}"
     )
-    payload = {
+    payload: Dict[str, Any] = {
         "name": name,
         "upper": upper,
         "lower": lower,

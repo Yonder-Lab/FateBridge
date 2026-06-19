@@ -513,7 +513,7 @@ def _build_nongli_time_snapshot_text(
 
 def _build_liuyue_snapshot_text(
     *,
-    person_name: str,
+    person_name: Optional[str],
     birth_datetime: datetime,
     normalized_birth_datetime: datetime,
     timezone_name: str,
@@ -612,7 +612,7 @@ def _build_liuyue_snapshot_text(
 
 def _build_dayun_snapshot_text(
     *,
-    person_name: str,
+    person_name: Optional[str],
     birth_datetime: datetime,
     normalized_birth_datetime: datetime,
     timezone_name: str,
@@ -666,7 +666,7 @@ def _build_dayun_snapshot_text(
 
 def _build_liunian_snapshot_text(
     *,
-    person_name: str,
+    person_name: Optional[str],
     birth_datetime: datetime,
     normalized_birth_datetime: datetime,
     timezone_name: str,
@@ -713,7 +713,7 @@ def _build_liunian_snapshot_text(
 
 def _build_liuri_snapshot_text(
     *,
-    person_name: str,
+    person_name: Optional[str],
     birth_datetime: datetime,
     normalized_birth_datetime: datetime,
     timezone_name: str,
@@ -769,7 +769,7 @@ def _build_liuri_snapshot_text(
 
 def _build_liushi_snapshot_text(
     *,
-    person_name: str,
+    person_name: Optional[str],
     birth_datetime: datetime,
     normalized_birth_datetime: datetime,
     timezone_name: str,
@@ -839,7 +839,7 @@ def _build_liushi_snapshot_text(
 
 def _build_jieqi_timeline_snapshot_text(
     *,
-    person_name: str,
+    person_name: Optional[str],
     birth_datetime: datetime,
     normalized_birth_datetime: datetime,
     timezone_name: str,
@@ -884,7 +884,7 @@ def _build_jieqi_timeline_snapshot_text(
 
 def _build_comprehensive_timing_snapshot_text(
     *,
-    person_name: str,
+    person_name: Optional[str],
     birth_datetime: datetime,
     normalized_birth_datetime: datetime,
     timezone_name: str,
@@ -1209,7 +1209,7 @@ def calculate_nongli_time(
             selected_sections=selected_sections,
         )
 
-        result = {
+        result: Dict[str, Any] = {
             "analysis_type": "农历换算",
             "input_context": {
                 "date": date,
@@ -1321,7 +1321,7 @@ def calculate_comprehensive_timing(
         current_age = timing_result["current_age"]
 
         # 构建最终结果结构
-        result = {
+        result: Dict[str, Any] = {
             "analysis_type": "综合时运分析",
             "personal_info": {
                 "name": person.name,
@@ -1474,7 +1474,7 @@ def calculate_dayun_analysis(
             original_element_counts=birth_context.original_element_counts,
         )
 
-        result = {
+        result: Dict[str, Any] = {
             "analysis_type": "大运专项分析",
             "personal_info": {
                 "name": person.name,
@@ -1580,7 +1580,7 @@ def calculate_liunian_analysis(
             selected_sections=selected_sections,
         )
 
-        result = {
+        result: Dict[str, Any] = {
             "analysis_type": "流年专项分析",
             "personal_info": {
                 "name": person.name,
@@ -1664,12 +1664,14 @@ def calculate_liuyue_analysis(
             timezone_name=normalized_birth_time.timezone,
             target_date=analysis_date,
         )
-        liunian_analysis = TimingEffectsAnalysis.analyze_liunian_effects(
-            birth_context.birth_pillars,
-            analysis_year,
-            original_element_counts=birth_context.original_element_counts,
-            moment=analysis_date,
-            timezone_name=normalized_birth_time.timezone,
+        liunian_analysis: Optional[Dict[str, Any]] = (
+            TimingEffectsAnalysis.analyze_liunian_effects(
+                birth_context.birth_pillars,
+                analysis_year,
+                original_element_counts=birth_context.original_element_counts,
+                moment=analysis_date,
+                timezone_name=normalized_birth_time.timezone,
+            )
         )
 
         liuyue_result = TimingEffectsAnalysis.analyze_liuyue_comprehensive(
@@ -1691,7 +1693,7 @@ def calculate_liuyue_analysis(
         detailed_analysis = liuyue_analysis["detailed_analysis"]
         element_effects = liuyue_analysis["element_effects"]
         liunian_analysis = liuyue_result.get("liunian_analysis")
-        liunian_info = None
+        liunian_info: Optional[Dict[str, Any]] = None
         if liunian_analysis:
             liunian_info = liunian_analysis["liunian_info"]
         summary = liuyue_result["comprehensive_summary"]
@@ -1715,7 +1717,7 @@ def calculate_liuyue_analysis(
             selected_sections=selected_sections,
         )
 
-        result = {
+        result: Dict[str, Any] = {
             "analysis_type": "流月专项分析",
             "personal_info": {
                 "name": person.name,
@@ -1754,7 +1756,7 @@ def calculate_liuyue_analysis(
             "snapshot_export": snapshot_export,
         }
 
-        if liunian_analysis:
+        if liunian_info is not None:
             result["liunian_info"] = {
                 "pillar": liunian_info["pillar"],
                 "stem": liunian_info["stem"],
@@ -1842,7 +1844,7 @@ def calculate_liuri_analysis(
             selected_sections=selected_sections,
         )
 
-        result = {
+        result: Dict[str, Any] = {
             "analysis_type": "流日专项分析",
             "personal_info": {
                 "name": person.name,

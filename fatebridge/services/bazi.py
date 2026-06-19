@@ -997,7 +997,7 @@ def _derive_current_pillars(
 def _run_bazi_dimension_analysis(
     person: PersonInfo,
     *,
-    analyzer,
+    analyzer: Callable[..., Dict[str, Any]],
     analysis_type: str,
     result_key: str,
     error_label: str,

@@ -130,7 +130,7 @@ class RomanceAnalysis:
     def _hongluan_tianxi(
         pillars: Dict[str, Tuple[str, str]], branches: Dict[str, str]
     ) -> Dict[str, Any]:
-        year_branch = branches.get("year")
+        year_branch = branches.get("year", "")
         hongluan = _HONGLUAN.get(year_branch)
         tianxi = _TIANXI.get(year_branch)
         luan_hits = [n for n, b in branches.items() if b == hongluan]
@@ -157,7 +157,7 @@ class RomanceAnalysis:
         pillars: Dict[str, Tuple[str, str]], day_stem: str, norm_gender: Optional[str]
     ) -> Dict[str, Any]:
         if norm_gender == "male":
-            gods = (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH)
+            gods: Tuple[TenGod, ...] = (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH)
             basis = "财星（男命异性缘）"
         elif norm_gender == "female":
             gods = (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER)
@@ -223,7 +223,10 @@ class RomanceAnalysis:
         tianxi = _TIANXI.get(year_branch)
 
         if norm_gender == "male":
-            star_gods = (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH)
+            star_gods: Tuple[TenGod, ...] = (
+                TenGod.POSITIVE_WEALTH,
+                TenGod.PARTIAL_WEALTH,
+            )
         elif norm_gender == "female":
             star_gods = (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER)
         else:

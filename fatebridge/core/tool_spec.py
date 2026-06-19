@@ -21,7 +21,11 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
 
 from pydantic import BaseModel
 
-from fatebridge.utils.helpers import VALIDATION_ERROR_CODE, create_person_info
+from fatebridge.utils.helpers import (
+    VALIDATION_ERROR_CODE,
+    PersonInfo,
+    create_person_info,
+)
 
 ServiceResult = Dict[str, Any]
 # A bind turns a validated request model into a concrete service call:
@@ -82,7 +86,7 @@ _PERSON_KEYWORD = (
 )
 
 
-def _build_person(data: Dict[str, Any], prefix: str = ""):
+def _build_person(data: Dict[str, Any], prefix: str = "") -> PersonInfo:
     def g(field: str, default: Any = None) -> Any:
         return data.get(f"{prefix}{field}", default)
 
@@ -113,7 +117,9 @@ def person_invoke(
     """
     person_fields = set(_PERSON_POSITIONAL) | set(_PERSON_KEYWORD)
 
-    def _bind(req: BaseModel):
+    def _bind(
+        req: BaseModel,
+    ) -> Tuple[Callable[..., ServiceResult], tuple, Dict[str, Any]]:
         data = req.model_dump()
         person = _build_person(data)
         extras = {k: v for k, v in data.items() if k not in person_fields}
@@ -132,7 +138,9 @@ def pair_invoke(
 ) -> Bind:
     """Two-person compatibility: bind to service(person1, person2, relationship)."""
 
-    def _bind(req: BaseModel):
+    def _bind(
+        req: BaseModel,
+    ) -> Tuple[Callable[..., ServiceResult], tuple, Dict[str, Any]]:
         data = req.model_dump()
         p1 = _build_person(data, prefix="person1_")
         p2 = _build_person(data, prefix="person2_")
@@ -169,7 +177,9 @@ def raw_invoke(
     """
     accepted = _accepted_kwargs(service)
 
-    def _bind(req: BaseModel):
+    def _bind(
+        req: BaseModel,
+    ) -> Tuple[Callable[..., ServiceResult], tuple, Dict[str, Any]]:
         data = req.model_dump()
         if accepted is not None:
             data = {k: v for k, v in data.items() if k in accepted}
@@ -328,7 +338,7 @@ def make_rest_handler(
     model = spec.request_model
     error_label = spec.rest_error_label or f"{spec.operation_label_zh}参数"
 
-    async def handler(request):  # noqa: ANN001 - signature injected below
+    async def handler(request: Any) -> Any:  # signature injected below
         try:
             if logger is not None:
                 logger.info("Processing %s request", spec.tool_name)
@@ -357,12 +367,18 @@ def make_rest_handler(
 
     handler.__name__ = f"rest_{spec.key}"
     handler.__doc__ = spec.summary
-    handler.__signature__ = inspect.Signature(
-        [
-            inspect.Parameter(
-                "request", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=model
-            )
-        ]
+    setattr(
+        handler,
+        "__signature__",
+        inspect.Signature(
+            [
+                inspect.Parameter(
+                    "request",
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    annotation=model,
+                )
+            ]
+        ),
     )
     handler.__annotations__ = {"request": model, "return": dict}
     return handler
@@ -468,6 +484,6 @@ def _make_mcp_fn(
 
     impl.__name__ = spec.tool_name
     impl.__doc__ = spec.summary
-    impl.__signature__ = inspect.Signature(params)
+    setattr(impl, "__signature__", inspect.Signature(params))
     impl.__annotations__ = {**annotations, "return": str}
     return impl

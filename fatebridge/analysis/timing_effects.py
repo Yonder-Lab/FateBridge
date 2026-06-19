@@ -10,7 +10,7 @@
 """
 
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from ..core.almanac import DEFAULT_TIMEZONE
 from ..core.elements import ElementAnalysis
@@ -132,7 +132,7 @@ class TimingEffectsAnalysis:
     def analyze_dayun_effects(
         birth_pillars: Dict,
         birth_date: datetime,
-        gender: str,
+        gender: Optional[str],
         analysis_age: int,
         timezone_name: str = DEFAULT_TIMEZONE,
         original_element_counts: Optional[Dict[Element, float]] = None,
@@ -450,7 +450,10 @@ class TimingEffectsAnalysis:
             original_element_counts=original_element_counts,
         )
 
-        result = {"liuyue_analysis": liuyue_analysis, "combination_effects": {}}
+        result: Dict[str, Any] = {
+            "liuyue_analysis": liuyue_analysis,
+            "combination_effects": {},
+        }
 
         # 添加流年分析
         if include_liunian:
@@ -503,7 +506,7 @@ class TimingEffectsAnalysis:
         """
         from ..utils.data import check_branch_combination, check_branch_conflict
 
-        relations = []
+        relations: List[Dict[str, Any]] = []
 
         if check_branch_conflict(branch1, branch2):
             relations.append(

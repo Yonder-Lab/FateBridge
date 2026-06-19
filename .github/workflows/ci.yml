@@ -42,4 +42,4 @@ jobs:
         run: isort --check-only fatebridge api.py fastmcp_server.py scripts tests
 
       - name: Run type checks
-        run: mypy --follow-imports=silent api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py
+        run: mypy fatebridge/ api.py fastmcp_server.py

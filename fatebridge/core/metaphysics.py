@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
 
 from ..utils.data import (
     BRANCH_ELEMENTS,
@@ -370,7 +370,7 @@ AUXILIARY_STAR_RULES = {
     % 12,
 }
 
-QIMEN_PALACES = [
+QIMEN_PALACES: List[Dict[str, Any]] = [
     {"index": 1, "label": "坎一宫", "trigram": "坎"},
     {"index": 2, "label": "坤二宫", "trigram": "坤"},
     {"index": 3, "label": "震三宫", "trigram": "震"},
@@ -412,8 +412,12 @@ QIMEN_DOOR_DISPLAY = {
     "惊": "惊门",
     "开": "开门",
 }
-QIMEN_STAR_CODE_BY_DISPLAY = {value: key for key, value in QIMEN_STAR_DISPLAY.items()}
-QIMEN_DOOR_CODE_BY_DISPLAY = {value: key for key, value in QIMEN_DOOR_DISPLAY.items()}
+QIMEN_STAR_CODE_BY_DISPLAY: Dict[Any, str] = {
+    value: key for key, value in QIMEN_STAR_DISPLAY.items()
+}
+QIMEN_DOOR_CODE_BY_DISPLAY: Dict[Any, str] = {
+    value: key for key, value in QIMEN_DOOR_DISPLAY.items()
+}
 QIMEN_GOD_DISPLAY = {
     "符": "值符",
     "蛇": "螣蛇",
@@ -463,7 +467,7 @@ QIMEN_ZHIFU_TABLE_YIN = {
     "二": "三四五二一九八七六",
     "一": "二三四一九八七六五",
 }
-QIMEN_DOOR_TO_TRIGRAM = {
+QIMEN_DOOR_TO_TRIGRAM: Dict[Any, str] = {
     "休门": "坎",
     "生门": "艮",
     "伤门": "震",
@@ -1586,7 +1590,9 @@ def _apply_sihua_to_palaces(
                 break
         else:
             transformed[change_name] = star_name
-    return ordered_sihua_mapping(sihua)
+    # ordered_sihua_mapping keeps OrderedSihuaKey (a str subclass) keys for their
+    # custom ordering; at runtime they are plain str keys, satisfying Dict[str, str].
+    return cast(Dict[str, str], ordered_sihua_mapping(sihua))
 
 
 def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
@@ -1682,7 +1688,7 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
         else:
             period_index = (-index) % 12  # 阴男/阳女：命→兄弟→夫妻→...
         period_start = start_age + period_index * 10
-        palace = {
+        palace: Dict[str, Any] = {
             "name": palace_name,
             "ganzhi": f"{palace_stems[index]}{palace_branches[index]}",
             "daxian": f"{period_start}~{period_start + 9}",
@@ -2198,7 +2204,7 @@ def build_liureng_board(
         (lesson_3_lower, lesson_3_upper, day_branch),
         (lesson_4_lower, lesson_4_upper, day_branch),
     ]
-    four_lessons = []
+    four_lessons: List[Dict[str, Any]] = []
     for lesson_index, (lower_branch, upper_branch, anchor_branch) in enumerate(
         lesson_specs, start=1
     ):
@@ -2332,7 +2338,7 @@ def build_liureng_board(
     )
     initial_branch = transmission_branches[0]
     transmission_labels = ["initial", "middle", "final"]
-    transmission_payload = {"method": transmission_method}
+    transmission_payload: Dict[str, Any] = {"method": transmission_method}
     for offset, label in enumerate(transmission_labels):
         branch = transmission_branches[offset]
         relation = liuqin_against_day(day_element, branch_element_text(branch))
@@ -2554,7 +2560,7 @@ def build_taiyi_board(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
         f"{chinese_numeral(main_calculation_number)}局"
     )
 
-    marks = {palace: [] for palace in TAIYI_PALACE16_ORDER}
+    marks: Dict[str, List[str]] = {palace: [] for palace in TAIYI_PALACE16_ORDER}
     for marker, offset in TAIYI_MARKER_OFFSETS.items():
         marks[
             TAIYI_PALACE16_ORDER[(palace_index + offset) % len(TAIYI_PALACE16_ORDER)]

@@ -53,7 +53,7 @@ def _calculate_liuyue_cached(
     month_context = get_bazi_month_context(local_target_date, timezone_name)
     liuyue_stem, liuyue_branch = BaZiCalendar.calculate_month_pillar_by_branch(
         bazi_year,
-        month_context["branch"],
+        str(month_context["branch"]),
     )
     stem_element, stem_polarity = STEM_ELEMENTS[liuyue_stem]
 
@@ -201,7 +201,7 @@ class TimingAnalysis:
     def calculate_dayun_start_age(
         birth_date: datetime,
         month_pillar_stem: str,
-        gender: str,
+        gender: Optional[str],
         timezone_name: str = DEFAULT_TIMEZONE,
     ) -> int:
         """
@@ -221,13 +221,13 @@ class TimingAnalysis:
             gender,
             timezone_name=timezone_name,
         )
-        return max(1, math.ceil(details["start_age_precise"]))
+        return max(1, math.ceil(float(details["start_age_precise"])))
 
     @staticmethod
     def calculate_dayun_start_details(
         birth_date: datetime,
         month_pillar_stem: str,
-        gender: str,
+        gender: Optional[str],
         timezone_name: str = DEFAULT_TIMEZONE,
     ) -> Dict:
         """
@@ -275,7 +275,7 @@ class TimingAnalysis:
     def calculate_dayun_sequence(
         month_pillar_stem: str,
         month_pillar_branch: str,
-        gender: str,
+        gender: Optional[str],
         birth_year: int,
         periods: int = 8,
         start_age: float = 1.0,
@@ -990,7 +990,7 @@ class TimingAnalysis:
         birth_date: datetime,
         month_pillar_stem: str,
         month_pillar_branch: str,
-        gender: str,
+        gender: Optional[str],
         current_date: Optional[datetime] = None,
         timezone_name: str = DEFAULT_TIMEZONE,
     ) -> Dict:

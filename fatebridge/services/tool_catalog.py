@@ -9,7 +9,7 @@ no transport file needs editing.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Tuple
 
 from fatebridge.core.request_models import (
     AstroChartPolyRequest,
@@ -172,7 +172,9 @@ def _flatten_legacy_destiny(result: Dict[str, Any]) -> Dict[str, Any]:
     return payload
 
 
-def _astro_chart_bind(req: Any):
+def _astro_chart_bind(
+    req: Any,
+) -> Tuple[Callable[..., Any], Tuple[Any, ...], Dict[str, Any]]:
     data = req.model_dump()
     variant = data.pop("chart_variant", "chart")
     if variant == "germany":
@@ -180,7 +182,9 @@ def _astro_chart_bind(req: Any):
     return calculate_core_chart_analysis, (), {**data, "chart_variant": variant}
 
 
-def _astro_relative_rest_bind(req: Any):
+def _astro_relative_rest_bind(
+    req: Any,
+) -> Tuple[Callable[..., Any], Tuple[Any, ...], Dict[str, Any]]:
     return (
         calculate_relative_chart_analysis,
         (),
@@ -197,7 +201,9 @@ def _astro_relative_rest_bind(req: Any):
     )
 
 
-def _astro_relative_flat_bind(req: Any):
+def _astro_relative_flat_bind(
+    req: Any,
+) -> Tuple[Callable[..., Any], Tuple[Any, ...], Dict[str, Any]]:
     d = req.model_dump()
 
     def party(prefix: str) -> Dict[str, Any]:

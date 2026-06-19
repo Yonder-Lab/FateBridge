@@ -68,7 +68,7 @@ class AdvancedCompatibility:
         Returns:
             包含详细分析结果的字典
         """
-        result = {
+        result: Dict[str, Any] = {
             "overall_score": 0.0,
             "relationship_type": relationship_type.value,
             "detailed_analysis": {
@@ -268,7 +268,7 @@ class AdvancedCompatibility:
         analysis1: Dict[str, Any], analysis2: Dict[str, Any]
     ) -> Dict[str, Any]:
         """分析五行平衡互补，返回0-100分"""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "score": 65.0,
             "details": [],
             "balance_type": "",
@@ -470,7 +470,7 @@ class AdvancedCompatibility:
         analysis1: Dict[str, Any], analysis2: Dict[str, Any]
     ) -> Dict[str, Any]:
         """分析喜用神互助，返回0-100分"""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "score": 60.0,
             "details": [],
             "mutual_help": [],
@@ -598,7 +598,7 @@ class AdvancedCompatibility:
         relationship_type: RelationshipType,
     ) -> Dict[str, Any]:
         """分析十神关系，重点看对方是否提供本命格局所需十神。"""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "score": 65.0,
             "details": [],
             "relationship_dynamics": [],
@@ -775,7 +775,7 @@ class AdvancedCompatibility:
         analysis: Dict[str, Any], target_day_master: str, description: str
     ) -> Dict[str, Any]:
         """计算一个人的命局对另一个人日主形成的十神输入。"""
-        cross_gods = {
+        cross_gods: Dict[str, Any] = {
             "description": description,
             "ten_gods_count": {},
             "strong_influences": [],
@@ -791,7 +791,7 @@ class AdvancedCompatibility:
                 "金": "庚",
                 "水": "壬",
             }
-            target_day_master_stem = element_to_stem.get(target_day_master)
+            target_day_master_stem = element_to_stem[target_day_master]
 
         if not target_day_master_stem:
             return cross_gods
@@ -853,7 +853,7 @@ class AdvancedCompatibility:
         analysis1: Dict[str, Any], analysis2: Dict[str, Any]
     ) -> Dict[str, Any]:
         """分析格局配合，返回0-100分"""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "score": 68.0,
             "details": [],
             "pattern_combination": "",
