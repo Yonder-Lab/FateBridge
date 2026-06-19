@@ -41,6 +41,9 @@ dev = [
     "isort>=5.12.0",
     "mypy>=1.5.0",
 ]
+iztro-verify = [
+    "py-iztro>=0.1.5",
+]
 
 [project.scripts]
 fatebridge = "fatebridge.cli:main"
