@@ -18,7 +18,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 用户想问 | 调的工具 |
 |---------|---------|
 | 今年/某年整体运势 | `liunian_analysis --target-year`、`timing_analysis` |
-| 我现在走的大运、下一步运 | `dayun_analysis`（可 `--analysis-age`） |
+| 我现在走的大运、下一步运 | `dayun_analysis --analysis-age N`（**必填**，按虚岁 N 定位大运） |
 | 某月/某天的小节奏、择时 | `liuyue_analysis` / `liuri_analysis` / `liushi_analysis` |
 | 综合时运（大运+流年+流月一起看） | `timing_analysis` |
 | 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` |
@@ -32,7 +32,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 
 ## 工作流
 1. 问清他是「整年看个大概」还是「卡在某件事想择时」。
-2. 调引擎：整年＝`liunian_analysis`/`timing_analysis`；大运段＝`dayun_analysis`；西占年运＝`solarreturn`+`profection`。
+2. 调引擎：整年＝`liunian_analysis`/`timing_analysis`；大运段＝`dayun_analysis --analysis-age N`（虚岁必填）；西占年运＝`solarreturn`+`profection`。
 3. 读 `[流年行运概略]`：哪个五行被生扶（顺）、哪个被耗被克（费劲）。翻译成「上半年适合推进 X，下半年缓一缓」这种能准备的话。
 4. 给节奏建议，不给死期。
 5. 收尾落到一件近期能安排的小事，每次不一样。

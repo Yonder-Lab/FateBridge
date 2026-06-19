@@ -55,6 +55,24 @@ python3 -m fatebridge.cli --no-metadata bazi_birth ... \
 
 很多工具支持 `--selected-sections`（逗号分隔）只取需要的快照段，省 token。段名可先全量跑一次、从 `snapshot_export` 里看有哪些。
 
+**精确投影 `--fields`：只取你要的结构化字段，省 token。** 支持顶层 key，也支持点号子路径（从输出根算起的绝对路径，不深搜）。多个字段用**空格**分隔（不是逗号；逗号会被当成一个不存在的 key，返回空对象）。`run_metadata` 始终保留。
+
+```bash
+# 单字段：直接拿四柱
+python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
+  --fields bazi_birth.four_pillars
+
+# 多字段（空格分隔）：四柱 + 三元
+python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
+  --fields bazi_birth.four_pillars bazi_birth.three_origins
+
+# 专项嵌套字段：只取正缘时机信号
+python3 -m fatebridge.cli --no-metadata bazi_romance <出生参数> \
+  --fields romance_analysis.romance_timing
+```
+
+路径写法跟上面「结构化字段怎么读」一致：命盘类带 `bazi_birth.` 前缀，八字 9 专项带 `<dim>_analysis.` 前缀。路径不存在不会报错，会返回空对象——按「指不到字段就别说」处理，别编。
+
 ---
 
 ## 三、参数字典（共用字段）
