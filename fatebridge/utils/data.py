@@ -24,6 +24,22 @@ EARTHLY_BRANCHES = [
     "亥",
 ]
 
+# 紫微斗数宫位地支顺序：寅=0 起，顺数至丑=11。
+ZIWEI_BRANCH_SEQUENCE = [
+    "寅",
+    "卯",
+    "辰",
+    "巳",
+    "午",
+    "未",
+    "申",
+    "酉",
+    "戌",
+    "亥",
+    "子",
+    "丑",
+]
+
 
 # 五行 (Five Elements)
 class Element(Enum):

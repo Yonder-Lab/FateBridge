@@ -18,6 +18,7 @@ from ..utils.data import (
     EARTHLY_BRANCHES,
     HEAVENLY_STEMS,
     STEM_ELEMENTS,
+    ZIWEI_BRANCH_SEQUENCE,
     get_nayin,
 )
 from ..utils.helpers import normalize_gender
@@ -280,20 +281,6 @@ WUZI_DUN_START = {
     "癸": "壬",
 }
 
-ZIWEI_BRANCH_SEQUENCE = [
-    "寅",
-    "卯",
-    "辰",
-    "巳",
-    "午",
-    "未",
-    "申",
-    "酉",
-    "戌",
-    "亥",
-    "子",
-    "丑",
-]
 # 紫微十二宫顺序：命宫定位后，沿地支递增方向（子→丑→寅→...→亥）依次为
 # 命、父母、福德、田宅、官禄、仆役、迁移、疾厄、财帛、子女、夫妻、兄弟。
 # 这一排列等价于「从命宫逆时针起兄弟、夫妻...父母」的传统顺序

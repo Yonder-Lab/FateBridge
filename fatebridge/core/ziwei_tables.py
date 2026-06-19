@@ -4,7 +4,8 @@ placement logic in ``metaphysics.py`` so the transcribed data is auditable.
 
 Source of truth: iztro ``src/data/stars.ts`` -> ``STARS_INFO[*].brightness``.
 Each brightness row is ordered "从寅开始" (starting at 寅), which is exactly
-FateBridge's ``ZIWEI_BRANCH_SEQUENCE`` order, so no index translation is needed.
+``fatebridge.utils.data.ZIWEI_BRANCH_SEQUENCE`` order, so no index translation
+is needed.
 Romanization map applied: miao=庙, wang=旺, de=得, li=利, ping=平, bu=不,
 xian=陷; iztro's empty string '' (brightness not applicable at that branch)
 becomes ``None`` here.
@@ -14,21 +15,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Tuple
 
-# Branch order shared with metaphysics.ZIWEI_BRANCH_SEQUENCE (寅=0 ... 丑=11).
-_BRANCH_ORDER: List[str] = [
-    "寅",
-    "卯",
-    "辰",
-    "巳",
-    "午",
-    "未",
-    "申",
-    "酉",
-    "戌",
-    "亥",
-    "子",
-    "丑",
-]
+from fatebridge.utils.data import ZIWEI_BRANCH_SEQUENCE
+
+_BRANCH_INDEX = {branch: i for i, branch in enumerate(ZIWEI_BRANCH_SEQUENCE)}
 
 _MUTAGEN_SUFFIXES: Tuple[str, ...] = ("化禄", "化权", "化科", "化忌")
 
@@ -66,9 +55,10 @@ def lookup_star_brightness(star: str, branch: str) -> Optional[str]:
     or the branch is one where the star's brightness is not applicable.
     """
     row = ZIWEI_STAR_BRIGHTNESS.get(star)
-    if row is None or branch not in _BRANCH_ORDER:
+    idx = _BRANCH_INDEX.get(branch)
+    if row is None or idx is None:
         return None
-    return row[_BRANCH_ORDER.index(branch)]
+    return row[idx]
 
 
 def split_star_mutagen(star_label: str) -> Tuple[str, Optional[str]]:
