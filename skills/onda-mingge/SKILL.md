@@ -49,3 +49,16 @@ python3 -m fatebridge.cli --no-metadata ziwei_birth \
   --gender 女 --birth-year 1998 --birth-month 9 --birth-day 30 --birth-hour 16 --birth-place 武汉 \
   --selected-sections 命宫,福德宫,官禄宫
 ```
+
+`snapshot_text` 的宫位总览里，每颗主星后面跟着庙旺级别，例如：
+```
+命宫：乙丑；大限：4~13；星曜：天同(不)、天魁、寡宿、巨门(不)、红鸾
+福德宫：乙卯；大限：104~113；星曜：右弼化科、咸池、地空、天官、天才、天梁(庙)、天福、太阳(庙)
+官禄宫：丁巳；大限：84~93；星曜：天机化忌(平)、孤辰、禄存
+```
+
+结构化字段方面，每个宫多了一个 `stars_detail` 列表，和原来的 `stars`（纯星名）一一对应：
+```json
+{"name": "天同", "label": "天同", "brightness": "不", "mutagen": null}
+```
+亮度量表：庙 > 旺 > 得 > 利 > 平 > 不 > 陷（强→弱）；辅星和杂曜无亮度时 `brightness` 为 `null`。原来的 `stars` 字段不变，直接读旧字段的代码不受影响。
