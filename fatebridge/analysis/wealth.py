@@ -28,6 +28,7 @@ from ..utils.data import (
     Element,
     TenGod,
     check_branch_conflict,
+    count_element_distribution,
     get_ten_god,
 )
 
@@ -186,12 +187,7 @@ class WealthAnalysis:
         strength = dm_analysis["strength_level"]
 
         # 统计财星五行力量
-        element_counts: Dict[Element, float] = {e: 0.0 for e in Element}
-        for stem, branch in pillars.values():
-            element_counts[STEM_ELEMENTS[stem][0]] += 1.0
-            element_counts[BRANCH_ELEMENTS[branch][0]] += 0.5
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                element_counts[STEM_ELEMENTS[hidden][0]] += 0.3
+        element_counts = count_element_distribution(pillars)
         wealth_strength = round(element_counts[wealth_element], 1)
 
         score = 60

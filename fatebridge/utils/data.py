@@ -3,7 +3,7 @@ Basic data structures and constants for BaZi calculations.
 """
 
 from enum import Enum
-from typing import Optional
+from typing import Dict, Mapping, Optional, Tuple
 
 # 天干 (Heavenly Stems)
 HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
@@ -103,6 +103,25 @@ BRANCH_HIDDEN_STEMS = {
     "戌": ["戊", "辛", "丁"],
     "亥": ["壬", "甲"],
 }
+
+
+def count_element_distribution(
+    pillars: Mapping[str, Tuple[str, str]],
+) -> Dict[Element, float]:
+    """Weighted five-element tally over a pillar map.
+
+    Standard 命局五行 weighting, identical across the career/health/wealth
+    analyses it was extracted from: visible stem = 1.0, branch = 0.5, each
+    hidden stem of the branch = 0.3. Returns a dict with every Element present
+    (zero-initialised) so callers can index any element without a KeyError.
+    """
+    counts: Dict[Element, float] = {e: 0.0 for e in Element}
+    for stem, branch in pillars.values():
+        counts[STEM_ELEMENTS[stem][0]] += 1.0
+        counts[BRANCH_ELEMENTS[branch][0]] += 0.5
+        for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
+            counts[STEM_ELEMENTS[hidden][0]] += 0.3
+    return counts
 
 
 # 十神 (Ten Gods) - relationships between day stem and other stems

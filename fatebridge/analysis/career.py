@@ -20,11 +20,11 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
-    BRANCH_ELEMENTS,
     BRANCH_HIDDEN_STEMS,
     STEM_ELEMENTS,
     Element,
     TenGod,
+    count_element_distribution,
     get_ten_god,
 )
 
@@ -295,15 +295,7 @@ class CareerAnalysis:
     ) -> Dict[str, Any]:
         """分析适合的行业方向。"""
         # 统计命局五行分布
-        element_counts: Dict[Element, float] = {e: 0.0 for e in Element}
-        for stem, branch in pillars.values():
-            s_elem = STEM_ELEMENTS[stem][0]
-            element_counts[s_elem] += 1.0
-            b_elem = BRANCH_ELEMENTS[branch][0]
-            element_counts[b_elem] += 0.5
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                h_elem = STEM_ELEMENTS[hidden][0]
-                element_counts[h_elem] += 0.3
+        element_counts = count_element_distribution(pillars)
 
         # 喜用神五行
         from ..core.elements import ElementAnalysis

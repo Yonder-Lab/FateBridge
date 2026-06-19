@@ -23,11 +23,11 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
     BRANCH_ELEMENTS,
-    BRANCH_HIDDEN_STEMS,
     DESTRUCTION_CYCLE,
     STEM_ELEMENTS,
     Element,
     check_branch_conflict,
+    count_element_distribution,
     get_ten_god,
 )
 
@@ -114,13 +114,7 @@ class HealthAnalysis:
 
     @staticmethod
     def _element_counts(pillars: Dict[str, Tuple[str, str]]) -> Dict[Element, float]:
-        counts: Dict[Element, float] = {e: 0.0 for e in Element}
-        for stem, branch in pillars.values():
-            counts[STEM_ELEMENTS[stem][0]] += 1.0
-            counts[BRANCH_ELEMENTS[branch][0]] += 0.5
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                counts[STEM_ELEMENTS[hidden][0]] += 0.3
-        return counts
+        return count_element_distribution(pillars)
 
     @staticmethod
     def _analyze_constitution(
