@@ -2199,11 +2199,11 @@ def build_ziwei_horoscope(
     daxian_palace = _palace_for_nominal_age(palaces, nominal_age)
     daxian = _horoscope_scope("大限", daxian_palace, daxian_palace["ganzhi"][0])
 
-    year_stem = target_pillars["year"][0]
     xiao_palace = _palace_by_branch(
         palaces, _xiaoxian_branch(natal_year_branch, nominal_age, gender)
     )
-    xiaoxian = _horoscope_scope("小限", xiao_palace, year_stem)
+    # 小限 四化 follows the 宫干 of the 小限 palace (iztro convention), not the 流年 stem.
+    xiaoxian = _horoscope_scope("小限", xiao_palace, xiao_palace["ganzhi"][0])
 
     flowing = []
     for scope, key in (
