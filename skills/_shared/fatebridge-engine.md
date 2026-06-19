@@ -38,11 +38,12 @@ FateBridge 工具吐两种结构，解读方式不同：
 | 形态 | 谁是这种（已实测核对） | 怎么读 |
 |------|---------|--------|
 | **`snapshot_text`**（整段中文快照）+ `snapshot_export` | `bazi_birth` / `bazi_direct` / `analyze_destiny`、时运全系、紫微、梅花、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类 | 直接读 `snapshot_text`，它已经是结构化的中文事实（四柱/十神/格局/神煞/大运流年）。这是解读主依据。 |
-| **结构化 JSON**（无 snapshot_text） | **八字 9 大专项**（`bazi_marriage`/`romance`/`career`/`wealth`/`health`/`children`/`education`/`personality`/`relatives`）、`two_person_compatibility`、`astro_relative_chart` | 读对应业务字段，见下。 |
+| **结构化 JSON**（无 snapshot_text） | **八字 9 大专项**（`bazi_marriage`/`romance`/`career`/`wealth`/`health`/`children`/`education`/`personality`/`relatives`）、`two_person_compatibility`、`sukuyo_compatibility`、`astro_relative_chart` | 读对应业务字段，见下。 |
 
 **结构化 JSON 怎么读：**
 - 八字 9 专项 → `{"analysis_type": "...", "<dim>_analysis": {...}}`。解读读 `<dim>_analysis`，里面是该维度的子项。例：`bazi_romance` → `romance_analysis.{peach_blossom, hongluan_tianxi, opposite_sex_star, peach_quality, romance_timing, timing_context}`；`bazi_wealth` → `wealth_analysis.{...}`。`timing_context` 段是引擎自动推算的当前大运/流年，看时机就看它。
 - `two_person_compatibility` → `summary`（overall_score / compatibility_level）、`detailed_analysis`（element_balance / favorable_synergy）、`strengths`、`challenges`、`recommendations`。
+- `sukuyo_compatibility` → 27 宿相性，**有方向**：`person1_to_person2` 与 `person2_to_person1` 各一套关系判定，别只读一边；另有 `pair`（双向综合）、`su27_basis`（各自本命宿）、`summary`。
 - `astro_relative_chart` → `relationship_profile`、`inner_chart`、`outer_chart`、`synastry_aspects`、`composite_chart`、`compatibility`。
 
 取 `snapshot_text` 的稳妥写法：
@@ -117,6 +118,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth ... \
 | 工具 | 用途 |
 |------|------|
 | `two_person_compatibility` | 八字合婚 / 合作配合度：综合分、五行互补、共同喜用、优势/挑战/建议。两人各一套 `--person1-*` / `--person2-*` 字段（名/年/月/日/时/性别） |
+| `sukuyo_compatibility` | 宿曜 27 宿双人相性（按月亮经度），有方向性。两人各一套 `--person1-date/-time/-zone/-lat/-lon` 等字段 |
 
 ### 时运 · 推命（snapshot_text）
 `timing_analysis` 时运综合 · `dayun_analysis` 大运 · `liunian_analysis` 流年 · `liuyue_analysis` 流月 · `liuri_analysis` 流日 · `liushi_analysis` 流时 · `jieqi_timeline_analysis` 节气时间轴 · `jieqi_year` 节气年表 · `nongli_time` 农历时间换算。
