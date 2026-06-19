@@ -291,6 +291,14 @@ def _bazi_dimension_spec(name: str, service: Any, model: Any, label: str) -> Too
 
 CATALOG: List[ToolSpec] = [
     # --- BaZi core ---------------------------------------------------------
+    # Legacy /api/calculate: historically the ``analyze_destiny`` endpoint. It now
+    # binds ``calculate_bazi_birth`` and flattens the payload (``_flatten_legacy_destiny``)
+    # to preserve the old top-level shape. ``metadata_name="analyze_destiny"`` is an
+    # INTENTIONAL provenance alias so pre-existing clients reading run_metadata.tool_name
+    # still see "analyze_destiny" — the computation is honest (bazi_birth), only the
+    # provenance label is kept for backward compat. Locked by
+    # tests/test_runtime_and_errors.py (asserts func is calculate_bazi_birth AND
+    # tool_name == "analyze_destiny"); do not change either without updating that test.
     ToolSpec(
         key="calculate_legacy",
         bind=person_invoke(calculate_bazi_birth),

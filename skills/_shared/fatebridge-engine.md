@@ -140,6 +140,8 @@ python3 -m fatebridge.cli --no-metadata bazi_romance <出生参数> \
 ### 时运 · 推命（snapshot_text）
 `timing_analysis` 时运综合 · `dayun_analysis` 大运 · `liunian_analysis` 流年 · `liuyue_analysis` 流月 · `liuri_analysis` 流日 · `liushi_analysis` 流时 · `jieqi_timeline_analysis` 节气时间轴 · `jieqi_year` 节气年表 · `nongli_time` 农历时间换算。
 
+> **综合 vs 颗粒怎么选**：`timing_analysis` 是聚合器，一次把当前大运+流年（+流月等）的综合影响给全，**问「最近运势/这两年怎么样」用它**；`dayun_analysis`/`liunian_analysis`/… 是单层颗粒，**只盯某一层（如就看某个大运、某个特定流年）才单独调**。综合工具的内容与颗粒工具有意重叠——别为了拼一个时运全景去逐层调颗粒再自己拼，那是 `timing_analysis` 的活。
+
 ### 占卜 · 问事起卦（snapshot_text）
 | 工具 | 用途 / 输入 |
 |------|------|
@@ -165,6 +167,8 @@ python3 -m fatebridge.cli --no-metadata bazi_romance <出生参数> \
 
 ### 西占 · 推运（依赖本地星历更精确）
 `western_timing_analysis` 时运综合 · `solarreturn` 太阳返照 · `lunarreturn` 月返 · `transit` 行运 · `solararc` 太阳弧 · `givenyear` 指定年盘 · `profection` 年小限 · `pd`/`pdchart` 主限 · `zr` 黄道释放 · `firdaria` 法达星限 · `decennials` 十年星限。
+
+> 同八字时运的逻辑：`western_timing_analysis` 是综合聚合（要整体推运用它），`solarreturn`/`transit`/`profection`/… 是单一技法颗粒（只看某一术时单独调），两者内容有意重叠。
 
 ### 知识与导出 helper
 `knowledge_registry` 知识目录 · `knowledge_read` 读取词条（`--domain --category --key`）· `export_registry` 导出注册表 · `export_parse` 导出解析。用于给一段结果补充传统词条释义。
