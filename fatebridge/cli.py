@@ -220,7 +220,10 @@ def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
         nargs="*",
         default=None,
         metavar="KEY",
-        help="只输出这些顶层字段（token 预算控制；run_metadata 始终保留）",
+        help=(
+            "只输出这些字段（token 预算控制；run_metadata 始终保留）。"
+            "支持顶层 key 或点号子路径，如 bazi_birth.day_master"
+        ),
     )
 
 

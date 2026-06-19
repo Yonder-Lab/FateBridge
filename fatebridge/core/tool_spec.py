@@ -214,18 +214,59 @@ def execute_spec(spec: ToolSpec, request: BaseModel) -> ServiceResult:
 def project_fields(
     result: ServiceResult, fields: Optional[Iterable[str]]
 ) -> ServiceResult:
-    """Project a result to a subset of top-level keys for token budgeting.
+    """Project a result to a subset of keys for token budgeting.
 
-    Lets an agent ask for only the keys it needs (the heavy payloads — e.g.
-    ``detailed_analysis``, ``synastry_aspects`` — are all top-level, so top-level
-    projection is enough). ``run_metadata`` is always preserved so provenance
-    survives even a single-field request. A ``None`` or empty selection returns
-    the result unchanged; unknown keys are ignored.
+    Supports two forms, freely mixed:
+
+    - **Top-level**: ``"snapshot_text"`` keeps that whole top-level value.
+    - **Dotted sub-path**: ``"bazi_birth.day_master"`` keeps ``bazi_birth`` but
+      prunes it to just ``day_master`` (recurses to any depth). This lets an
+      agent pull a scalar buried in an otherwise huge block (e.g. the ~50KB
+      ``bazi_birth`` payload) without dumping the whole thing.
+
+    Rules: ``run_metadata`` is always preserved whole. Asking for a whole parent
+    AND a sub-path of it keeps the whole parent (whole wins, any order). A
+    ``None``/empty selection returns the result unchanged. Unknown top-level keys
+    are ignored; an unknown sub-key yields an empty parent; a sub-path under a
+    non-dict value keeps that value as-is.
     """
     if not fields:
         return result
-    keep = set(fields) | {"run_metadata"}
-    return {k: v for k, v in result.items() if k in keep}
+    tree = _build_selection_tree(fields)
+    tree["run_metadata"] = True  # provenance always survives, whole
+    return {
+        key: _apply_selection(result[key], child)
+        for key, child in tree.items()
+        if key in result
+    }
+
+
+# A selection node is ``True`` ("keep this subtree whole") or a dict of children.
+def _build_selection_tree(fields: Iterable[str]) -> Dict[str, Any]:
+    root: Dict[str, Any] = {}
+    for field in fields:
+        node = root
+        parts = field.split(".")
+        for i, part in enumerate(parts):
+            if i == len(parts) - 1:
+                node[part] = True  # whole-keep wins over any partial selection
+                break
+            child = node.get(part)
+            if child is True:
+                break  # parent already requested whole; sub-path is subsumed
+            if not isinstance(child, dict):
+                child = {}
+                node[part] = child
+            node = child
+    return root
+
+
+def _apply_selection(value: Any, node: Any) -> Any:
+    if node is True or not isinstance(value, dict):
+        return value
+    return {
+        k: _apply_selection(value[k], child) for k, child in node.items() if k in value
+    }
 
 
 def result_is_error(spec: ToolSpec, result: ServiceResult) -> bool:

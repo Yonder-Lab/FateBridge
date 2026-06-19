@@ -55,6 +55,61 @@ def test_project_fields_ignores_unknown_keys():
     assert set(out) == {"a", "run_metadata"}
 
 
+def _nested_payload():
+    return {
+        "analysis_type": "八字命盘",
+        "bazi_birth": {
+            "day_master": {"stem": "壬", "strength": "弱"},
+            "favorable_elements": ["金", "水"],
+            "element_distribution": {"木": 44.0, "水": 20.0},
+            "ten_gods": {"big": "blob"},
+            "shensha": [1, 2, 3],
+        },
+        "snapshot_text": "[起盘信息]...",
+        "run_metadata": {"run_id": "r"},
+    }
+
+
+def test_project_fields_dotted_prunes_into_subtree():
+    out = project_fields(
+        _nested_payload(),
+        ["bazi_birth.day_master", "bazi_birth.favorable_elements"],
+    )
+    # Top level keeps only the requested parent + run_metadata.
+    assert set(out) == {"bazi_birth", "run_metadata"}
+    # The parent is pruned to exactly the requested sub-keys (heavy ten_gods/shensha dropped).
+    assert set(out["bazi_birth"]) == {"day_master", "favorable_elements"}
+    assert out["bazi_birth"]["day_master"] == {"stem": "壬", "strength": "弱"}
+
+
+def test_project_fields_mixes_dotted_and_top_level():
+    out = project_fields(_nested_payload(), ["snapshot_text", "bazi_birth.day_master"])
+    assert set(out) == {"snapshot_text", "bazi_birth", "run_metadata"}
+    assert out["snapshot_text"] == "[起盘信息]..."
+    assert set(out["bazi_birth"]) == {"day_master"}
+
+
+def test_project_fields_whole_parent_overrides_dotted_regardless_of_order():
+    # Asking for the whole parent AND a sub-path => keep the whole parent.
+    payload = _nested_payload()
+    a = project_fields(payload, ["bazi_birth", "bazi_birth.day_master"])
+    b = project_fields(payload, ["bazi_birth.day_master", "bazi_birth"])
+    assert a["bazi_birth"] == payload["bazi_birth"]
+    assert b["bazi_birth"] == payload["bazi_birth"]
+
+
+def test_project_fields_dotted_unknown_subkey_yields_empty_parent():
+    out = project_fields(_nested_payload(), ["bazi_birth.no_such_sub"])
+    assert set(out) == {"bazi_birth", "run_metadata"}
+    assert out["bazi_birth"] == {}
+
+
+def test_project_fields_dotted_into_scalar_keeps_scalar():
+    # A sub-path under a non-dict value just keeps that value (lenient, no crash).
+    out = project_fields(_nested_payload(), ["snapshot_text.foo"])
+    assert out["snapshot_text"] == "[起盘信息]..."
+
+
 def _fake_renderers():
     captured = {}
 
