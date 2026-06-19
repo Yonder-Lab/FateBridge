@@ -155,11 +155,13 @@ def _assert_run_metadata(payload: dict, *, tool_name: str) -> dict:
         "tool_name",
         "generated_at",
         "engine",
+        "engine_is_approximate",
     }
     assert isinstance(metadata["run_id"], str) and metadata["run_id"]
     assert isinstance(metadata["trace_id"], str) and metadata["trace_id"]
     assert metadata["tool_name"] == tool_name
     assert isinstance(metadata["engine"], str) and metadata["engine"]
+    assert isinstance(metadata["engine_is_approximate"], bool)
     _assert_utc_timestamp(metadata["generated_at"])
     assert metadata["engine"] == resolve_runtime_engine(
         _payload_without_run_metadata(payload)
