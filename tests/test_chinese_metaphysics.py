@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -997,6 +998,7 @@ def test_ziwei_snapshot_text_annotates_brightness():
     result = calculate_ziwei_birth(person)
     snapshot = result["snapshot_text"]
 
-    # brightness should be rendered in parentheses next to at least one star,
-    # e.g. "紫微(庙)" — assert at least one bracketed brightness char appears.
-    assert any(f"({b})" in snapshot for b in ("庙", "旺", "得", "利", "平", "不", "陷"))
+    # brightness must render as `star(brightness)` — a brightness char in
+    # parentheses immediately after a star name (e.g. "紫微(庙)", "廉贞化禄(利)"),
+    # not merely somewhere in the text.
+    assert re.search(r"[一-鿿]+\([庙旺得利平不陷]\)", snapshot)

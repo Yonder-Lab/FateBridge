@@ -143,7 +143,7 @@ def main() -> None:
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(
-        json.dumps(fixture, ensure_ascii=False, indent=2, sort_keys=True),
+        json.dumps(fixture, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     print(f"Wrote {len(fixture)} entries to {out_path}")
