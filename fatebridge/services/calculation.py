@@ -127,6 +127,12 @@ def _render_destiny_analysis(context: BirthComputationContext) -> Dict[str, Any]
         "element_distribution": context.element_analysis["day_master"][
             "element_distribution"
         ],
+        "element_distribution_adjusted": context.element_analysis["day_master"].get(
+            "element_distribution_adjusted"
+        ),
+        "element_relations": context.element_analysis["day_master"].get(
+            "element_relations", []
+        ),
         "favorable_elements": structure_profile.get("useful_elements", []),
         "ten_gods": context.element_analysis["ten_gods"],
         "structure_profile": structure_profile,

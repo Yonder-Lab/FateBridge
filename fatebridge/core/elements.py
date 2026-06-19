@@ -15,6 +15,7 @@ from ..utils.data import (
     Polarity,
     get_ten_god,
 )
+from .element_relations import adjust_element_counts
 
 
 class ElementAnalysis:
@@ -179,6 +180,13 @@ class ElementAnalysis:
         # Convert to percentage format
         element_percentages = ElementAnalysis.convert_to_percentage(element_counts)
 
+        # 关系调整后的分布：在静态计数上叠加刑冲克害 / 合化（见 element_relations）。
+        # 静态字段保持不变，调整结果以新增字段承载，确保现有契约零破坏。
+        adjusted_counts, element_relations = adjust_element_counts(
+            element_counts, pillars
+        )
+        adjusted_percentages = ElementAnalysis.convert_to_percentage(adjusted_counts)
+
         return {
             "day_master": day_master_stem,
             "day_element": day_master_element.value,
@@ -191,6 +199,12 @@ class ElementAnalysis:
                 element_enum.value: count
                 for element_enum, count in element_counts.items()
             },  # Keep raw scores for internal calculations
+            "element_distribution_adjusted": adjusted_percentages,
+            "element_distribution_adjusted_raw": {
+                element_enum.value: count
+                for element_enum, count in adjusted_counts.items()
+            },
+            "element_relations": element_relations,
         }
 
     @staticmethod
