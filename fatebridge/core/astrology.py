@@ -317,7 +317,7 @@ RELATIVE_ZODIACAL_LABELS_ZH = {
     1: "恒星黄道，岁差:Lahiri",
 }
 
-RELATIVE_HOUSE_SYSTEM_SPECS = {
+RELATIVE_HOUSE_SYSTEM_SPECS: Dict[int, Dict[str, Any]] = {
     0: {
         "key": "whole_sign",
         "label_zh": "整宫制",
@@ -3205,7 +3205,7 @@ def build_relative_payload(
     out_to_in_contra_antiscia = _build_directional_relative_antiscia(
         outer_chart["planets"], inner_chart["planets"], contra=True
     )
-    shared_kwargs = {
+    shared_kwargs: Dict[str, Any] = {
         "relative_mode_info": relative_mode_info,
         "hsys": hsys,
         "zodiacal": zodiacal,

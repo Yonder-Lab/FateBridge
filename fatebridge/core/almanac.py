@@ -11,8 +11,9 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from datetime import tzinfo as _TzInfo
 from functools import lru_cache
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from dateutil import tz as dateutil_tz
 
@@ -205,11 +206,11 @@ class SolarTerm:
         }
 
 
-def _parse_timezone_spec(timezone_name: Optional[str]):
+def _parse_timezone_spec(timezone_name: Optional[str]) -> _TzInfo:
     value = (timezone_name or DEFAULT_TIMEZONE).strip()
     tzinfo = dateutil_tz.gettz(value)
     if tzinfo is not None:
-        return tzinfo
+        return cast(_TzInfo, tzinfo)
 
     match = OFFSET_RE.match(value)
     if not match:
@@ -284,7 +285,7 @@ def _solar_term_utc_via_swe(
     def sun_longitude(jd: float) -> float:
         # calc_ut returns a tuple (longitude, latitude, distance, ...)
         result, _err = swe.calc_ut(jd, swe.SUN, swe.FLG_SWIEPH)
-        return result[0] % 360.0
+        return float(result[0] % 360.0)
 
     # Coarse scan at ~daily resolution to find a sign change of
     # wrapped(longitude - target). Bisect within the bracket.
@@ -621,7 +622,7 @@ def build_calendar_context(
     *,
     timezone_name: str = DEFAULT_TIMEZONE,
     pillars: Optional[Dict[str, Tuple[str, str]]] = None,
-) -> Dict[str, object]:
+) -> Dict[str, Any]:
     local_moment = localize_datetime(moment, timezone_name)
     previous_term, next_term = get_adjacent_solar_terms(local_moment, timezone_name)
     month_context = get_bazi_month_context(local_moment, timezone_name)

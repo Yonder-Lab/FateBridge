@@ -243,7 +243,7 @@ class BaZiCalendar:
 
         bazi_year = get_bazi_year(local_birth_datetime, timezone_name)
         month_context = get_bazi_month_context(local_birth_datetime, timezone_name)
-        month_branch = month_context["branch"]
+        month_branch = str(month_context["branch"])
 
         # 晚子时 (23:00-23:59) 的日柱翻到次日; 年柱 / 月柱 分别由 立春 / 节气
         # 决定, 不受 hour 影响, 所以保持原始 local_birth_datetime 计算。

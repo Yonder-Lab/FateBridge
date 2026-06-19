@@ -286,7 +286,7 @@ def run(argv: Optional[List[str]] = None) -> int:
     if args.command == "describe":
         return _run_describe(getattr(args, "tool", None))
 
-    spec: ToolSpec = getattr(args, "_spec", None)
+    spec: Optional[ToolSpec] = getattr(args, "_spec", None)
     if spec is None:
         parser.error(f"未知工具: {args.command}")
         return 2

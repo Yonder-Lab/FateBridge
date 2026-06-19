@@ -158,7 +158,7 @@ def parse_export_content(
         if normalize_section_title(title)
         not in {normalize_section_title(item) for item in detected_titles}
     ]
-    settings_used = {
+    settings_used: dict[str, Any] = {
         "version": AI_EXPORT_SETTINGS_VERSION,
         "sections": {technique: selected_normalized},
         "planetInfo": {},

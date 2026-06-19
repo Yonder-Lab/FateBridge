@@ -3,7 +3,7 @@ BaZi rules and pattern analysis.
 """
 
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from ..utils.data import (
     BRANCH_ELEMENTS,
@@ -152,10 +152,10 @@ class BaZiRules:
     @staticmethod
     def check_harmony_patterns(
         pillars: Dict[str, Tuple[str, str]],
-    ) -> Dict[str, List[str]]:
+    ) -> Dict[str, List[Any]]:
         """Check for harmony patterns in the chart."""
         all_branches = [pillar_branch for _, pillar_branch in pillars.values()]
-        harmony_patterns = {
+        harmony_patterns: Dict[str, List[Any]] = {
             "three_harmony": [],
             "half_harmony": [],
             "six_harmony": [],
@@ -205,7 +205,7 @@ class BaZiRules:
     ) -> Dict[str, Any]:
         """Check for clash patterns in the chart."""
         all_branches = [pillar_branch for _, pillar_branch in pillars.values()]
-        clash_patterns = {
+        clash_patterns: Dict[str, Any] = {
             "six_clash": [],
             "six_harm": [],
             "punishments": [],  # Unified list for all punishments
@@ -298,7 +298,11 @@ class BaZiRules:
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Check for Heavenly Stem patterns (Combinations, Clashes, Control)."""
         stems = {k: v[0] for k, v in pillars.items()}  # position -> stem
-        patterns = {"combinations": [], "clashes": [], "controls": []}
+        patterns: Dict[str, List[Dict[str, Any]]] = {
+            "combinations": [],
+            "clashes": [],
+            "controls": [],
+        }
 
         pillar_names = ["year", "month", "day", "hour"]
 
@@ -358,7 +362,7 @@ class BaZiRules:
         """Check for Hidden/Dark/Arch patterns."""
         branches = {k: v[1] for k, v in pillars.items()}
         stems = [v[0] for v in pillars.values()]  # All stems for Arch check
-        patterns = {
+        patterns: Dict[str, List[Dict[str, Any]]] = {
             "arch_combinations": [],  # 拱局
             "dark_combinations": [],  # 暗合
         }
@@ -421,7 +425,7 @@ class BaZiRules:
         pillars: Dict[str, Tuple[str, str]],
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Check for single pillar patterns (Gaito, Jiejiao, Fu, Zai)."""
-        patterns = {
+        patterns: Dict[str, List[Dict[str, Any]]] = {
             "gai_tou": [],  # Stem controls Branch (盖头)
             "jie_jiao": [],  # Branch controls Stem (截脚)
             "fu": [],  # Stem generates Branch (覆 - 天生均)
@@ -495,7 +499,7 @@ class BaZiRules:
         pillars: Dict[str, Tuple[str, str]],
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Check for Fu Yin (Identical) and Fan Yin (Clashing) Pillars."""
-        patterns = {
+        patterns: Dict[str, List[Dict[str, Any]]] = {
             "fu_yin": [],  # 伏吟 (Same Pillar)
             "fan_yin": [],  # 反吟 (Clashing Pillar: Stem Clash + Branch Clash)
         }
@@ -550,13 +554,13 @@ class BaZiRules:
 
     @staticmethod
     def analyze_special_patterns(
-        pillars: Dict[str, Tuple[str, str]], birth_hour: int = None
+        pillars: Dict[str, Tuple[str, str]], birth_hour: Optional[int] = None
     ) -> Dict[str, Any]:
         """Analyze special patterns in the BaZi chart."""
         stems = [stem for stem, _ in pillars.values()]
         branches = [branch for _, branch in pillars.values()]
 
-        patterns = {}
+        patterns: Dict[str, Any] = {}
 
         # Check for special day pillar patterns
         day_stem, day_branch = pillars["day"]
@@ -677,8 +681,8 @@ class BaZiRules:
         return patterns
 
     @staticmethod
-    def _ordered_unique(items: List[str]) -> List[str]:
-        seen = set()
+    def _ordered_unique(items: Iterable[Optional[str]]) -> List[str]:
+        seen: set[str] = set()
         result: List[str] = []
         for item in items:
             if item and item not in seen:
@@ -1034,7 +1038,7 @@ class BaZiRules:
                 f"未识别高影响白名单格局，当前按日主{day_strength}做扶抑调候。",
             ]
 
-        structure_profile = {
+        structure_profile: Dict[str, Any] = {
             "dominant_structure": dominant_structure,
             "secondary_structures": secondary_structures,
             "recognized_structures": recognized_structures,
@@ -1607,7 +1611,7 @@ class BaZiRules:
         pillars1: Dict[str, Tuple[str, str]], pillars2: Dict[str, Tuple[str, str]]
     ) -> Dict[str, Any]:
         """Calculate basic compatibility score between two BaZi charts."""
-        compatibility = {
+        compatibility: Dict[str, Any] = {
             "harmony_score": 0,
             "clash_score": 0,
             "overall_score": 0,
@@ -1742,7 +1746,7 @@ class BaZiRules:
         pillars: Dict[str, Tuple[str, str]], element_analysis: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Provide life analysis based on BaZi patterns."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "personality": [],
             "career": [],
             "health": [],

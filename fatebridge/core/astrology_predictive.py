@@ -12,7 +12,7 @@ import math
 from calendar import monthrange
 from collections import Counter
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import pytz
 
@@ -31,14 +31,16 @@ try:
 except ImportError:  # pragma: no cover - optional runtime dependency
     swe = None
 
+KERYKEION_IMPORT_ERROR: Optional[ImportError] = None
 try:
     from kerykeion import AstrologicalSubjectFactory, PlanetaryReturnFactory
 except ImportError as exc:  # pragma: no cover - exercised via service error path
-    AstrologicalSubjectFactory = None
-    PlanetaryReturnFactory = None
+    # Optional dependency: rebind imported classes to None so callers can detect
+    # absence via KERYKEION_IMPORT_ERROR. mypy cannot model rebinding an imported
+    # class to None, so these assignments are explicitly ignored.
+    AstrologicalSubjectFactory = None  # type: ignore[assignment,misc]
+    PlanetaryReturnFactory = None  # type: ignore[assignment,misc]
     KERYKEION_IMPORT_ERROR = exc
-else:
-    KERYKEION_IMPORT_ERROR = None
 
 
 TROPICAL_YEAR_DAYS = 365.2425
@@ -860,7 +862,10 @@ def clean_releasing_period(
 
 
 def clean_releasing_timeline(periods: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    return [clean_releasing_period(period) for period in periods]
+    # clean_releasing_period only returns None for a None input; periods here are
+    # always real dicts, so the filter keeps every entry and satisfies the type.
+    cleaned = [clean_releasing_period(period) for period in periods]
+    return [period for period in cleaned if period is not None]
 
 
 def peak_signs_from_root(root_sign: str) -> List[Dict[str, str]]:
@@ -1000,8 +1005,8 @@ def build_subject(
         lat=latitude,
         tz_str=timezone_name,
         online=False,
-        houses_system_identifier=house_system,
-        zodiac_type=zodiac_type,
+        houses_system_identifier=cast(Any, house_system),
+        zodiac_type=cast(Any, zodiac_type),
     )
 
 
@@ -1815,6 +1820,10 @@ def build_primary_direction_hit_coordinate_context(
         coordinate_points=natal_coordinate_points,
         coordinate_lots=natal_coordinate_lots,
     )
+    # A hit always references resolvable promissor/significator coordinates, so
+    # these lookups are non-None on every real call; assert to narrow the Optional.
+    assert promissor_current is not None
+    assert significator_natal is not None
     aspect_target_degrees = normalize_angle(
         significator_natal["coordinate_degrees"] + hit["aspect_variant_degrees"]
     )
@@ -2793,7 +2802,7 @@ def build_firdaria_payload(
         for planet, years in sequence:
             start = cursor
             end = start + timedelta(days=years * TROPICAL_YEAR_DAYS)
-            main_period = {
+            main_period: Dict[str, Any] = {
                 "planet": planet,
                 "planet_label": planet_label(planet),
                 "start": start.isoformat(),
@@ -3153,7 +3162,7 @@ def _build_decennial_level_two(
     calendar_type: Optional[str],
 ) -> List[Dict[str, Any]]:
     order = _rotate_items(base_order, level_one_node["planet"])
-    nominal_segments = [
+    nominal_segments: List[Dict[str, Any]] = [
         {
             "planet": planet,
             "value": DECENNIAL_PLANET_BASE_MONTHS[planet] * DECENNIAL_MINUTES_PER_MONTH,
@@ -3264,7 +3273,7 @@ def build_decennials_payload(
         end_moment = start_moment + timedelta(minutes=l1_actual_minutes)
         start_offset = l1_nominal_minutes * index
         end_offset = start_offset + l1_nominal_minutes
-        meta = {
+        meta: Dict[str, Any] = {
             "key": f"l1_{index}",
             "planet": planet,
             "start_moment": start_moment,

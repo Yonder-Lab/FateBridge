@@ -2,8 +2,8 @@
 Five Elements analysis for BaZi calculations.
 """
 
-from collections import Counter
-from typing import Any, Dict, List, Tuple
+from collections import defaultdict
+from typing import Any, DefaultDict, Dict, List, Tuple
 
 from ..utils.data import (
     BRANCH_ELEMENTS,
@@ -70,7 +70,7 @@ class ElementAnalysis:
     @staticmethod
     def count_elements(pillars: Dict[str, Tuple[str, str]]) -> Dict[Element, float]:
         """Count the occurrence of each element in the chart."""
-        element_count = Counter()
+        element_count: DefaultDict[Element, float] = defaultdict(float)
 
         # Count stem elements
         for stem, branch in pillars.values():
@@ -130,14 +130,14 @@ class ElementAnalysis:
         element_counts = ElementAnalysis.count_elements(pillars)
 
         # Elements that support day master
-        same_element_count = element_counts.get(day_master_element, 0)
+        same_element_count = element_counts.get(day_master_element, 0.0)
         generating_element = None
         for element_enum, generated_element in GENERATION_CYCLE.items():
             if generated_element == day_master_element:
                 generating_element = element_enum
                 break
 
-        support_strength = same_element_count
+        support_strength: float = same_element_count
         if generating_element:
             support_strength += element_counts.get(generating_element, 0)
 
@@ -150,7 +150,7 @@ class ElementAnalysis:
                 element_destroying_day_master = element_enum
                 break
 
-        weaken_strength = 0
+        weaken_strength: float = 0
         if element_generated_by_day_master:
             weaken_strength += element_counts.get(element_generated_by_day_master, 0)
         if element_destroyed_by_day_master:
@@ -241,11 +241,15 @@ class ElementAnalysis:
     @staticmethod
     def get_favorable_elements(day_master_analysis: Dict[str, Any]) -> List[Element]:
         """Determine favorable elements based on day master strength."""
-        day_master_element = None
+        day_master_element: Element | None = None
         for element_enum in Element:
             if element_enum.value == day_master_analysis["day_element"]:
                 day_master_element = element_enum
                 break
+        if day_master_element is None:
+            raise ValueError(
+                f"Unknown day element: {day_master_analysis['day_element']!r}"
+            )
 
         day_master_strength_level = day_master_analysis["strength_level"]
 

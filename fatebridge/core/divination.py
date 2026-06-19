@@ -8,7 +8,7 @@ depending on an external runtime.
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from ..utils.data import EARTHLY_BRANCHES
 from .gua_meanings import (
@@ -17,7 +17,7 @@ from .gua_meanings import (
     get_trigram_meaning,
 )
 
-BAGUA_BY_NAME: Dict[str, Dict[str, object]] = {
+BAGUA_BY_NAME: Dict[str, Dict[str, Any]] = {
     "乾": {
         "name": "乾",
         "nature": "天",
@@ -165,7 +165,7 @@ HEXAGRAM_NAMES: Dict[Tuple[str, str], str] = {
 ELEMENT_GENERATES = {"木": "火", "火": "土", "土": "金", "金": "水", "水": "木"}
 ELEMENT_CONTROLS = {"木": "土", "土": "水", "水": "火", "火": "金", "金": "木"}
 
-QUESTION_DOMAIN_RULES = {
+QUESTION_DOMAIN_RULES: Dict[str, Dict[str, Any]] = {
     "career": {
         "label": "事业/项目",
         "focus": "资源调度、节奏推进与结果落地",
@@ -353,13 +353,13 @@ BODY_USE_LINE_ADJUSTMENTS = {
 }
 
 
-def _enrich_trigram(trigram: Dict[str, object]) -> Dict[str, object]:
+def _enrich_trigram(trigram: Dict[str, Any]) -> Dict[str, Any]:
     enriched = dict(trigram)
     enriched.update(get_trigram_meaning(trigram["name"]))
     return enriched
 
 
-def _enrich_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
+def _enrich_hexagram(hexagram: Dict[str, Any]) -> Dict[str, Any]:
     enriched = dict(hexagram)
     detail = get_hexagram_meaning(enriched["name"])
     enriched.update(detail)
@@ -371,7 +371,7 @@ def _enrich_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
     return enriched
 
 
-def _build_oracle_payload(hexagram: Dict[str, object]) -> Dict[str, str]:
+def _build_oracle_payload(hexagram: Dict[str, Any]) -> Dict[str, str]:
     return {
         "name": hexagram["name"],
         "theme": str(hexagram.get("theme", "")),
@@ -383,10 +383,10 @@ def _build_oracle_payload(hexagram: Dict[str, object]) -> Dict[str, str]:
 
 
 def build_moving_line_oracle(
-    hexagram: Dict[str, object],
+    hexagram: Dict[str, Any],
     moving_line: int,
     domain: Dict[str, str],
-) -> Dict[str, object]:
+) -> Dict[str, Any]:
     detail = MOVING_LINE_ORACLE_DETAILS[moving_line]
     changed_hexagram = build_changed_hexagram(hexagram, moving_line)
     line_body_use = resolve_body_use(hexagram, moving_line)
@@ -438,11 +438,11 @@ def build_moving_line_oracle(
 
 
 def build_line_oracles(
-    hexagram: Dict[str, object],
+    hexagram: Dict[str, Any],
     active_line: int,
     domain: Dict[str, str],
-) -> List[Dict[str, object]]:
-    line_oracles: List[Dict[str, object]] = []
+) -> List[Dict[str, Any]]:
+    line_oracles: List[Dict[str, Any]] = []
     for line_number in range(1, 7):
         oracle = build_moving_line_oracle(
             hexagram=hexagram,
@@ -454,7 +454,7 @@ def build_line_oracles(
     return line_oracles
 
 
-def _bagua_from_lines(lines: List[int]) -> Dict[str, object]:
+def _bagua_from_lines(lines: List[int]) -> Dict[str, Any]:
     target = ",".join(str(bit) for bit in lines)
     for item in BAGUA_BY_NAME.values():
         if ",".join(str(bit) for bit in item["lines"]) == target:
@@ -462,12 +462,12 @@ def _bagua_from_lines(lines: List[int]) -> Dict[str, object]:
     return _enrich_trigram(BAGUA_BY_NAME["乾"])
 
 
-def _bagua_from_number(number: int) -> Dict[str, object]:
+def _bagua_from_number(number: int) -> Dict[str, Any]:
     normalized = ((number - 1) % 8) + 1
     return _enrich_trigram(BAGUA_BY_NAME[BAGUA_BY_NUMBER[normalized]])
 
 
-def build_hexagram(upper_name: str, lower_name: str) -> Dict[str, object]:
+def build_hexagram(upper_name: str, lower_name: str) -> Dict[str, Any]:
     upper = _enrich_trigram(BAGUA_BY_NAME[upper_name])
     lower = _enrich_trigram(BAGUA_BY_NAME[lower_name])
     lines = [*lower["lines"], *upper["lines"]]
@@ -485,7 +485,7 @@ def build_hexagram(upper_name: str, lower_name: str) -> Dict[str, object]:
     )
 
 
-def build_mutual_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
+def build_mutual_hexagram(hexagram: Dict[str, Any]) -> Dict[str, Any]:
     lines = hexagram["lines"]
     mutual_lines = [lines[1], lines[2], lines[3], lines[2], lines[3], lines[4]]
     lower = _bagua_from_lines(mutual_lines[:3])
@@ -493,7 +493,7 @@ def build_mutual_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
     return build_hexagram(upper["name"], lower["name"])
 
 
-def build_opposite_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
+def build_opposite_hexagram(hexagram: Dict[str, Any]) -> Dict[str, Any]:
     """错卦（旁通卦）: 每爻阴阳相反。"""
     opposite_lines = [0 if bit == 1 else 1 for bit in hexagram["lines"]]
     lower = _bagua_from_lines(opposite_lines[:3])
@@ -501,7 +501,7 @@ def build_opposite_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
     return build_hexagram(upper["name"], lower["name"])
 
 
-def build_inverted_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
+def build_inverted_hexagram(hexagram: Dict[str, Any]) -> Dict[str, Any]:
     """综卦（倒颠卦）: 将原卦初爻与上爻、二爻与五爻、三爻与四爻对换 —
     即整卦 180° 倒读。当卦为"错自身"时（如乾/坤/颐/大过/中孚/小过/坎/离），
     返回的综卦即原卦。"""
@@ -512,8 +512,8 @@ def build_inverted_hexagram(hexagram: Dict[str, object]) -> Dict[str, object]:
 
 
 def build_changed_hexagram(
-    hexagram: Dict[str, object], moving_line: int
-) -> Dict[str, object]:
+    hexagram: Dict[str, Any], moving_line: int
+) -> Dict[str, Any]:
     normalized_line = 6 if moving_line % 6 == 0 else moving_line % 6
     changed_lines = list(hexagram["lines"])
     changed_lines[normalized_line - 1] = (
@@ -579,9 +579,7 @@ def detect_question_domain(question: str) -> Dict[str, str]:
     }
 
 
-def resolve_body_use(
-    hexagram: Dict[str, object], moving_line: int
-) -> Dict[str, object]:
+def resolve_body_use(hexagram: Dict[str, Any], moving_line: int) -> Dict[str, Any]:
     normalized_line = 6 if moving_line % 6 == 0 else moving_line % 6
     moving_palace = "下卦" if normalized_line <= 3 else "上卦"
     if moving_palace == "下卦":
@@ -605,8 +603,8 @@ def resolve_body_use(
 
 
 def build_meihua_interpretation(
-    meihua: Dict[str, object], question: str = ""
-) -> Dict[str, object]:
+    meihua: Dict[str, Any], question: str = ""
+) -> Dict[str, Any]:
     base = meihua["base_hexagram"]
     changed = meihua["changed_hexagram"]
     mutual = meihua["mutual_hexagram"]
@@ -708,7 +706,7 @@ def build_meihua_interpretation(
     }
 
 
-def lookup_hexagram_by_code(code: str) -> Dict[str, object]:
+def lookup_hexagram_by_code(code: str) -> Dict[str, Any]:
     normalized = "".join(ch for ch in (code or "") if ch in {"0", "1"})
     if len(normalized) != 6:
         raise ValueError("卦码必须是 6 位 0/1 字符串，例如 111111。")
@@ -726,7 +724,7 @@ def lookup_hexagram_by_code(code: str) -> Dict[str, object]:
     return hexagram
 
 
-def lookup_trigram_by_code(code: str) -> Dict[str, object]:
+def lookup_trigram_by_code(code: str) -> Dict[str, Any]:
     normalized = "".join(ch for ch in (code or "") if ch in {"0", "1"})
     if len(normalized) != 3:
         raise ValueError("八卦码必须是 3 位 0/1 字符串，例如 111。")
@@ -740,7 +738,7 @@ def lookup_trigram_by_code(code: str) -> Dict[str, object]:
     return trigram
 
 
-def lookup_hexagram_by_name(name: str) -> Dict[str, object]:
+def lookup_hexagram_by_name(name: str) -> Dict[str, Any]:
     normalized = (name or "").strip().replace("卦", "")
     candidates = {item.replace("卦", ""): item for item in HEXAGRAM_INTERPRETATIONS}
     if normalized not in candidates:
@@ -760,7 +758,7 @@ def lookup_hexagram_by_name(name: str) -> Dict[str, object]:
     raise ValueError(f"未能定位卦名对应的结构：{name}")
 
 
-def lookup_trigram_by_name(name: str) -> Dict[str, object]:
+def lookup_trigram_by_name(name: str) -> Dict[str, Any]:
     normalized = (name or "").strip().replace("卦", "")
     if normalized not in BAGUA_BY_NAME:
         raise ValueError(f"未识别的八卦名称：{name}")
@@ -774,7 +772,7 @@ def lookup_trigram_by_name(name: str) -> Dict[str, object]:
     return trigram
 
 
-def lookup_gua(query: str, lookup_mode: str = "auto") -> Dict[str, object]:
+def lookup_gua(query: str, lookup_mode: str = "auto") -> Dict[str, Any]:
     normalized_mode = (lookup_mode or "auto").strip().lower()
     if normalized_mode not in {"auto", "hexagram", "trigram"}:
         raise ValueError("lookup_mode 必须是 auto、hexagram 或 trigram。")
@@ -822,7 +820,7 @@ def derive_meihua_hexagram(
     lunar_month: int,
     lunar_day: int,
     hour_branch: str,
-) -> Dict[str, object]:
+) -> Dict[str, Any]:
     year_number = EARTHLY_BRANCHES.index(year_branch) + 1
     hour_number = EARTHLY_BRANCHES.index(hour_branch) + 1
     upper_number = (year_number + lunar_month + lunar_day) % 8 or 8

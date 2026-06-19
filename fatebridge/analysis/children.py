@@ -72,7 +72,10 @@ class ChildrenAnalysis:
 
         # 子女星：男命官杀，女命食伤；性别未知则两者并参
         if norm_gender == "male":
-            child_gods = (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER)
+            child_gods: Tuple[TenGod, ...] = (
+                TenGod.POSITIVE_OFFICER,
+                TenGod.SEVEN_KILLER,
+            )
             star_label = "官杀（男命子女星）"
         elif norm_gender == "female":
             child_gods = (TenGod.FOOD_GOD, TenGod.HURT_OFFICER)

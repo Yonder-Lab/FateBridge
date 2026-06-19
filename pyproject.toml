@@ -77,5 +77,6 @@ module = [
     "lunardate",
     "lunardate.*",
     "pytz",
+    "swisseph",
 ]
 ignore_missing_imports = true

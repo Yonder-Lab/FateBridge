@@ -8,6 +8,7 @@ from collections import Counter
 from typing import Any, Dict, List, Optional
 
 from fatebridge.core.astrology import (
+    AstroBirthInfo,
     build_astro_birth_info,
     build_core_chart_payload,
     build_midpoint_payload,
@@ -24,7 +25,7 @@ SUPPORTED_CHART_VARIANTS = {
     "india_chart",
 }
 
-PLANET_LABELS_ZH = {
+PLANET_LABELS_ZH: Dict[Any, str] = {
     "Sun": "太阳",
     "Moon": "月亮",
     "Mercury": "水星",
@@ -38,7 +39,7 @@ PLANET_LABELS_ZH = {
     "North Node": "北交点",
 }
 
-ASPECT_LABELS_ZH = {
+ASPECT_LABELS_ZH: Dict[Any, str] = {
     "conjunction": "合相",
     "sextile": "六合",
     "square": "刑相",
@@ -169,7 +170,7 @@ SIGN_INTERPRETATION = {
     },
 }
 
-HOUSE_TOPICS = {
+HOUSE_TOPICS: Dict[Any, str] = {
     1: "自我呈现、身体感受与个人启动方式",
     2: "资源、安全感与价值判断",
     3: "沟通、学习与近距离环境",
@@ -741,7 +742,7 @@ def _build_chart_snapshot(
     }
 
 
-def _build_birth_info(payload: Dict[str, Any]):
+def _build_birth_info(payload: Dict[str, Any]) -> AstroBirthInfo:
     return build_astro_birth_info(
         birth_year=payload["birth_year"],
         birth_month=payload["birth_month"],

@@ -4,7 +4,7 @@ import json
 import re
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 
 class ToolValidationError(ValueError):
@@ -89,12 +89,14 @@ QIMEN_STAR_ALIASES = {
 }
 
 
-def _data_path(name: str):
+def _data_path(name: str) -> Path:
     return Path(__file__).resolve().parents[1] / "data" / "knowledge" / name
 
 
 def _load_json(name: str) -> dict[str, Any]:
-    return json.loads(_data_path(name).read_text(encoding="utf-8"))
+    return cast(
+        "dict[str, Any]", json.loads(_data_path(name).read_text(encoding="utf-8"))
+    )
 
 
 @lru_cache(maxsize=1)
@@ -174,7 +176,7 @@ def load_knowledge_index() -> dict[str, Any]:
 def _domain_index(domain: str) -> dict[str, Any]:
     for item in load_knowledge_index().get("domains", []):
         if item.get("domain") == domain:
-            return item
+            return cast("dict[str, Any]", item)
     return {}
 
 
@@ -226,7 +228,7 @@ def _normalize_astro_key(category: str, key: str) -> str:
     reverse_labels = {
         value: one for one, value in labels.items() if isinstance(value, str)
     }
-    return reverse_labels.get(text, text)
+    return cast(str, reverse_labels.get(text, text))
 
 
 def _normalize_qimen_key(category: str, key: str) -> str:
