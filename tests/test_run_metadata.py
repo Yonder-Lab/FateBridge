@@ -42,6 +42,37 @@ def test_run_metadata_flags_approximate_astro_engine():
     assert bazi["run_metadata"]["engine_is_approximate"] is False
 
 
+def test_run_metadata_flags_silent_moshier_downgrade():
+    # swisseph backend reports a constant engine_precision/backend regardless of
+    # whether .se1 data files exist; the real model is in ephemeris_model. A
+    # silent downgrade to Moshier (or mixed) must still flag approximate=True so
+    # an agent never overstates precision to the user.
+    for model in ("moshier", "mixed"):
+        out = attach_run_metadata(
+            {
+                "chart_profile": {
+                    "engine_backend": "swisseph_api",
+                    "engine_precision": "ephemeris_runtime_model",
+                    "ephemeris_model": model,
+                }
+            },
+            tool_name="astro_chart",
+        )
+        assert out["run_metadata"]["engine_is_approximate"] is True, model
+    # Full Swiss Ephemeris data files present -> genuine full precision.
+    swieph = attach_run_metadata(
+        {
+            "chart_profile": {
+                "engine_backend": "swisseph_api",
+                "engine_precision": "ephemeris_runtime_model",
+                "ephemeris_model": "swieph",
+            }
+        },
+        tool_name="astro_chart",
+    )
+    assert swieph["run_metadata"]["engine_is_approximate"] is False
+
+
 def test_engine_is_approximate_unit():
     assert engine_is_approximate("approximate_orbital_model") is True
     assert engine_is_approximate("mixed_runtime_backends") is True
