@@ -634,7 +634,7 @@ def _build_dayun_snapshot_text(
             f"当前大运：{dayun_info.get('pillar', dayun_info.get('current_dayun', '未知'))}",
             f"大运干支：{dayun_info.get('stem', '未知')}{dayun_info.get('branch', '未知')}",
             f"起运年龄：{dayun_info.get('start_age', '未知')}",
-            f"当前运龄：{dayun_info.get('dayun_age', '未知')}",
+            f"累计行运年数(起运至今)：{dayun_info.get('dayun_age', '未知')}",
             f"本运已行年数：{dayun_info.get('years_in_period', '未知')}",
         ]
     else:
@@ -923,7 +923,7 @@ def _build_comprehensive_timing_snapshot_text(
             f"当前大运：{dayun_info.get('current_dayun', '未知')}",
             f"大运干支：{dayun_info.get('stem', '未知')}{dayun_info.get('branch', '未知')}",
             f"起运年龄：{dayun_info.get('start_age', '未知')}",
-            f"当前运龄：{dayun_info.get('dayun_age', '未知')}",
+            f"累计行运年数(起运至今)：{dayun_info.get('dayun_age', '未知')}",
             f"本运已行年数：{dayun_info.get('years_in_period', '未知')}",
             f"概览：{dayun_info.get('summary', '无')}",
         ]
