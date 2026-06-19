@@ -75,6 +75,43 @@ def engine_is_approximate(engine: str) -> bool:
     return "approximate" in lowered or lowered.startswith("mixed")
 
 
+_DOWNGRADED_EPHEMERIS_MODELS = frozenset({"moshier", "mixed"})
+
+
+def _ephemeris_is_downgraded(payload: Dict[str, Any]) -> bool:
+    """Whether any chart in the payload was served by a degraded ephemeris model.
+
+    The model actually used per run lives in ``chart_profile.ephemeris_model``
+    (derived from swisseph's ``retflag``). ``engine_backend`` /
+    ``engine_precision`` stay constant whether or not Swiss Ephemeris data files
+    were present, so a silent downgrade to the built-in Moshier model (no ``.se1``
+    files) is *only* visible here. Without consulting it, a chart computed from
+    Moshier would falsely report full precision via ``engine_is_approximate``.
+    """
+    queue: Deque[Any] = deque([payload])
+    seen_dict_ids: Set[int] = set()
+
+    while queue:
+        current = queue.popleft()
+        if isinstance(current, dict):
+            current_id = id(current)
+            if current_id in seen_dict_ids:
+                continue
+            seen_dict_ids.add(current_id)
+
+            model = current.get("ephemeris_model")
+            if isinstance(model, str) and model.lower() in _DOWNGRADED_EPHEMERIS_MODELS:
+                return True
+
+            _enqueue_children(queue, current.values())
+            continue
+
+        if isinstance(current, (list, tuple)):
+            _enqueue_children(queue, current)
+
+    return False
+
+
 def attach_run_metadata(
     payload: Dict[str, Any],
     *,
@@ -87,6 +124,10 @@ def attach_run_metadata(
     run_id = uuid4().hex
     trace_id = uuid4().hex
     engine = resolve_runtime_engine(payload)
+    # Approximate if the resolved engine name says so OR the actual ephemeris
+    # model silently downgraded to Moshier (engine_backend/precision can't show
+    # that — see _ephemeris_is_downgraded).
+    approximate = engine_is_approximate(engine) or _ephemeris_is_downgraded(payload)
     enriched = dict(payload)
     enriched["run_metadata"] = {
         "run_id": run_id,
@@ -94,6 +135,6 @@ def attach_run_metadata(
         "tool_name": tool_name,
         "generated_at": _utc_timestamp(),
         "engine": engine,
-        "engine_is_approximate": engine_is_approximate(engine),
+        "engine_is_approximate": approximate,
     }
     return enriched
