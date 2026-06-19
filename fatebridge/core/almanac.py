@@ -22,12 +22,8 @@ try:
 except ImportError:  # pragma: no cover - exercised only in misconfigured envs
     LunarDate = None
 
-try:  # pragma: no cover - optional runtime dependency
-    import swisseph as swe
-except ImportError:
-    swe = None  # type: ignore[assignment]
-
 from .divination import derive_meihua_hexagram
+from .ephemeris_runtime import swe
 
 logger = logging.getLogger(__name__)
 

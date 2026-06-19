@@ -24,12 +24,8 @@ from fatebridge.core.astrology import (
     build_astro_birth_info,
     normalize_angle,
 )
+from fatebridge.core.ephemeris_runtime import swe
 from fatebridge.utils.helpers import parse_timezone_name
-
-try:
-    import swisseph as swe
-except ImportError:  # pragma: no cover - optional runtime dependency
-    swe = None
 
 KERYKEION_IMPORT_ERROR: Optional[ImportError] = None
 try:
