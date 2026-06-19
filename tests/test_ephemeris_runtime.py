@@ -46,9 +46,60 @@ def test_configure_ephemeris_path_noop_without_path(monkeypatch):
     calls = []
     monkeypatch.setattr(swe, "set_ephe_path", lambda path: calls.append(path))
     monkeypatch.delenv("SE_EPHE_PATH", raising=False)
+    monkeypatch.setattr(ephemeris_runtime, "default_ephe_dir", lambda: None)
 
     assert configure_ephemeris_path() is None
     assert calls == []
+
+
+def test_configure_ephemeris_path_falls_back_to_default_dir(monkeypatch):
+    swe = pytest.importorskip("swisseph")
+    captured = {}
+    monkeypatch.setattr(
+        swe, "set_ephe_path", lambda path: captured.setdefault("path", path)
+    )
+    monkeypatch.delenv("SE_EPHE_PATH", raising=False)
+    monkeypatch.setattr(ephemeris_runtime, "default_ephe_dir", lambda: "/proj/ephe")
+
+    assert configure_ephemeris_path() == "/proj/ephe"
+    assert captured["path"] == "/proj/ephe"
+
+
+def test_configure_explicit_path_overrides_default_dir(monkeypatch):
+    swe = pytest.importorskip("swisseph")
+    captured = {}
+    monkeypatch.setattr(
+        swe, "set_ephe_path", lambda path: captured.setdefault("path", path)
+    )
+    monkeypatch.setenv("SE_EPHE_PATH", "/env/ephe")
+    monkeypatch.setattr(ephemeris_runtime, "default_ephe_dir", lambda: "/proj/ephe")
+
+    # An explicit argument wins over both the env var and the project directory.
+    assert configure_ephemeris_path("/explicit/ephe") == "/explicit/ephe"
+    assert captured["path"] == "/explicit/ephe"
+
+
+def test_default_ephe_dir_detects_se1_files(tmp_path, monkeypatch):
+    ephe = tmp_path / "ephe"
+    ephe.mkdir()
+    (ephe / "sepl_18.se1").write_bytes(b"SWdata")
+    monkeypatch.setattr(ephemeris_runtime, "_PROJECT_ROOT", tmp_path)
+
+    assert ephemeris_runtime.default_ephe_dir() == str(ephe)
+
+
+def test_default_ephe_dir_ignores_empty_dir(tmp_path, monkeypatch):
+    (tmp_path / "ephe").mkdir()
+    monkeypatch.setattr(ephemeris_runtime, "_PROJECT_ROOT", tmp_path)
+
+    # A directory with no .se1 files must not mask the Moshier fallback.
+    assert ephemeris_runtime.default_ephe_dir() is None
+
+
+def test_default_ephe_dir_absent(tmp_path, monkeypatch):
+    monkeypatch.setattr(ephemeris_runtime, "_PROJECT_ROOT", tmp_path)
+
+    assert ephemeris_runtime.default_ephe_dir() is None
 
 
 def test_ephemeris_model_from_retflag_maps_known_flags():
