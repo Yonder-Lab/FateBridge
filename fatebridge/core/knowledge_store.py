@@ -4,7 +4,7 @@ import json
 import re
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Callable, cast
 
 
 class ToolValidationError(ValueError):
@@ -443,6 +443,64 @@ def build_knowledge_registry(domain: str | None = None) -> dict[str, Any]:
     }
 
 
+def _resolve_category_for_key(
+    categories: dict[str, Any],
+    key: str,
+    normalizer: Callable[[str, str], str] | None = None,
+) -> list[tuple[str, str]]:
+    """Find which category/categories under a domain hold ``key``.
+
+    Returns ``(category, normalized_key)`` matches so the caller can tell apart
+    "not found" (0), "resolved" (1), and "ambiguous" (>1).
+    """
+    matches: list[tuple[str, str]] = []
+    for cat_name, entries in categories.items():
+        if not isinstance(entries, dict):
+            continue
+        candidate = normalizer(cat_name, key) if normalizer else key
+        if candidate in entries:
+            matches.append((cat_name, candidate))
+    return matches
+
+
+def _autoresolve_bare_category(domain: str, bundles: dict[str, Any], key: str) -> str:
+    """Resolve the category for a bare ``key`` lookup (category omitted).
+
+    Only the flat ``categories``-dict domains (astro, bazi, qimen) can be
+    auto-resolved; liureng keeps its own shen/house layout, so callers there
+    must still pass a category.
+    """
+    categories = bundles.get(domain, {}).get("categories", {})
+    if not categories:
+        raise ToolValidationError(
+            f"Category is required for domain '{domain}'",
+            code=f"knowledge.{domain}.category_required",
+            details={"domain": domain},
+        )
+    normalizer: Callable[[str, str], str] | None = None
+    if domain == "astro":
+
+        def normalizer(cat: str, k: str) -> str:
+            return k if cat == "aspect" else _normalize_astro_key(cat, k)
+
+    elif domain == "qimen":
+        normalizer = _normalize_qimen_key
+    matches = _resolve_category_for_key(categories, key, normalizer)
+    if len(matches) == 1:
+        return matches[0][0]
+    if not matches:
+        raise ToolValidationError(
+            f"Unknown {domain} knowledge key: {key}",
+            code=f"knowledge.{domain}.unknown_key",
+            details={"key": key, "available_categories": sorted(categories)},
+        )
+    raise ToolValidationError(
+        f"Ambiguous knowledge key '{key}' in domain '{domain}'; specify a category",
+        code=f"knowledge.{domain}.ambiguous_key",
+        details={"key": key, "candidate_categories": [c for c, _ in matches]},
+    )
+
+
 def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
     bundles = load_knowledge_bundles()
     domain = f"{payload.get('domain') or ''}".strip()
@@ -454,6 +512,8 @@ def read_knowledge_entry(payload: dict[str, Any]) -> dict[str, Any]:
             code="knowledge.unknown_domain",
             details={"domain": domain},
         )
+    if not category and key:
+        category = _autoresolve_bare_category(domain, bundles, key)
     if domain == "astro":
         bundle = bundles["astro"]
         categories = bundle.get("categories", {})
