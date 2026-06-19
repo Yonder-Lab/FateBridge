@@ -76,9 +76,11 @@ def test_horoscope_matches_iztro_oracle():
                 mismatches.append(
                     f"{label}/{scope} branch: ours={got['branch']} ref={ref['branch']}"
                 )
-            if set(got["mutagen"].values()) != set(ref["mutagen"]):
+            # ordered [化禄, 化权, 化科, 化忌]; the fixture mutagen list is in the
+            # same order, so compare as a tuple to also catch role swaps.
+            if list(got["mutagen"].values()) != list(ref["mutagen"]):
                 mismatches.append(
-                    f"{label}/{scope} 四化: ours={sorted(got['mutagen'].values())} ref={sorted(ref['mutagen'])}"
+                    f"{label}/{scope} 四化: ours={list(got['mutagen'].values())} ref={list(ref['mutagen'])}"
                 )
     assert not mismatches, "horoscope mismatches vs iztro oracle:\n" + "\n".join(
         mismatches

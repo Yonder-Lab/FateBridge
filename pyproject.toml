@@ -42,7 +42,9 @@ dev = [
     "mypy>=1.5.0",
 ]
 iztro-verify = [
-    "py-iztro>=0.1.5",
+    # pinned <0.2: the committed horoscope oracle fixture was generated with
+    # 0.1.5; a major bump could silently change reference values.
+    "py-iztro>=0.1.5,<0.2",
 ]
 
 [project.scripts]
