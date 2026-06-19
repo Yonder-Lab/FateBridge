@@ -507,11 +507,24 @@ def _build_ziwei_snapshot_text(
     for palace in ziwei_birth.get("palaces", []) or []:
         if not isinstance(palace, dict):
             continue
+        details = palace.get("stars_detail") or []
+        if details:
+            star_text = (
+                "、".join(
+                    (f"{label}({d['brightness']})" if d.get("brightness") else label)
+                    for d in details
+                    for label in (d.get("label") or d.get("name") or "?",)
+                )
+                or "无"
+            )
+        else:
+            # fallback for any caller that didn't populate stars_detail
+            star_text = "、".join(palace.get("stars", []) or []) or "无"
         palace_lines.append(
             (
                 f"{palace.get('name', '宫位')}：{palace.get('ganzhi', '无')}；"
                 f"大限：{palace.get('daxian', '无')}；"
-                f"星曜：{'、'.join(palace.get('stars', []) or []) or '无'}"
+                f"星曜：{star_text}"
             )
         )
     sections = [

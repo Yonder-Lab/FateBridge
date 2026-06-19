@@ -979,3 +979,24 @@ def test_ziwei_birth_palaces_have_stars_detail():
             if detail["mutagen"] is not None:
                 assert detail["label"] == f"{detail['name']}{detail['mutagen']}"
                 assert detail["mutagen"] in {"化禄", "化权", "化科", "化忌"}
+
+
+def test_ziwei_snapshot_text_annotates_brightness():
+    person = create_person_info(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        name="张三",
+        gender="男",
+        birth_place="上海",
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+    )
+
+    result = calculate_ziwei_birth(person)
+    snapshot = result["snapshot_text"]
+
+    # brightness should be rendered in parentheses next to at least one star,
+    # e.g. "紫微(庙)" — assert at least one bracketed brightness char appears.
+    assert any(f"({b})" in snapshot for b in ("庙", "旺", "得", "利", "平", "不", "陷"))
