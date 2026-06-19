@@ -404,8 +404,14 @@ class KnowledgeRegistryRequest(BaseModel):
 class KnowledgeReadRequest(BaseModel):
     """Request model for bundled knowledge lookup."""
 
-    domain: str = Field(description="Knowledge domain: astro, liureng, or qimen")
-    category: str = Field(description="Category within the domain")
+    domain: str = Field(description="Knowledge domain: astro, bazi, liureng, or qimen")
+    category: Optional[str] = Field(
+        default=None,
+        description=(
+            "Category within the domain. Optional: if omitted, it is auto-resolved "
+            "from `key` (astro/bazi/qimen only)."
+        ),
+    )
     key: Optional[str] = Field(default=None, description="Primary lookup key")
     selected_sections: List[str] = Field(
         default_factory=list,

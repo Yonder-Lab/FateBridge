@@ -195,7 +195,7 @@ def calculate_knowledge_registry(
 def calculate_knowledge_read(
     *,
     domain: str,
-    category: str,
+    category: Optional[str] = None,
     key: Optional[str] = None,
     selected_sections: Optional[List[str]] = None,
     aspect_degree: Optional[int | str] = None,
@@ -206,7 +206,10 @@ def calculate_knowledge_read(
     di_branch: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Read one bundled hover-knowledge entry for astrology, 六壬, or 奇门.
+    Read one bundled hover-knowledge entry for astrology, 八字, 六壬, or 奇门.
+
+    ``category`` may be omitted; when it is, the category is auto-resolved from
+    ``key`` (astro/bazi/qimen domains only).
     """
     try:
         entry = read_knowledge_entry(
