@@ -20,6 +20,7 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 | 我的感情运/姻缘走向 | `bazi_marriage` | 自动带当前大运流年，看婚姻宫与时机 |
 | 正缘/桃花什么时候来、桃花旺不旺 | `bazi_romance` | 正缘桃花专项 |
 | 我俩合不合（恋爱/结婚） | `two_person_compatibility` | 两人各一套 `--personN-*`，看综合分、五行互补、共同喜用、挑战 |
+| 宿曜看相性（谁对谁有感觉） | `sukuyo_compatibility` | 27 宿相性，按月亮经度算，有方向性：`person1_to_person2` 和 `person2_to_person1` 不一样，要分开讲 |
 | 紫微看夫妻宫 | `ziwei_birth`（取夫妻宫段） | 用 `--selected-sections` 聚焦 |
 | 两人关系的星盘视角 | `astro_relative_chart` | 西占关系盘，两人用 `--inner-birth-*`/`--outer-birth-*`（需经纬度），返回 JSON |
 | 拿不定主意（要不要表白/复合） | 转「抉择·问事」用 `meihua_analysis`/`sixyao` | |
