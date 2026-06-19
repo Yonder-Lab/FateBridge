@@ -58,6 +58,7 @@ from fatebridge.core.request_models import (
     WesternTimingModuleRequest,
     WesternTimingRequest,
     ZiweiBirthRequest,
+    ZiweiHoroscopeRequest,
     ZiweiRulesRequest,
 )
 from fatebridge.core.tool_spec import (
@@ -111,6 +112,7 @@ from fatebridge.services.metaphysics import (
     calculate_qimen_analysis,
     calculate_taiyi_analysis,
     calculate_ziwei_birth,
+    calculate_ziwei_horoscope,
     calculate_ziwei_rules,
 )
 from fatebridge.services.timing import (
@@ -575,6 +577,16 @@ CATALOG: List[ToolSpec] = [
         family="metaphysics",
         rest_path="/api/cn/ziwei/birth",
         mcp_name="ziwei_birth",
+    ),
+    ToolSpec(
+        key="ziwei_horoscope",
+        bind=person_invoke(calculate_ziwei_horoscope),
+        request_model=ZiweiHoroscopeRequest,
+        summary="紫微斗数运限（大限/小限/流年/流月/流日/流时 + 动态四化）。",
+        operation_label_zh="紫微运限",
+        family="metaphysics",
+        rest_path="/api/cn/ziwei/horoscope",
+        mcp_name="ziwei_horoscope",
     ),
     ToolSpec(
         key="ziwei_rules",

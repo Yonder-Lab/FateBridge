@@ -2122,6 +2122,127 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     }
 
 
+# 小限起始宫地支：按命盘生年地支三合局定 (iztro getAgeIndex 同义)
+_XIAOXIAN_START_BY_YEAR_BRANCH = {
+    "寅": "辰",
+    "午": "辰",
+    "戌": "辰",
+    "申": "戌",
+    "子": "戌",
+    "辰": "戌",
+    "巳": "未",
+    "酉": "未",
+    "丑": "未",
+    "亥": "丑",
+    "卯": "丑",
+    "未": "丑",
+}
+
+
+def _palace_by_branch(palaces: List[Dict[str, Any]], branch: str) -> Dict[str, Any]:
+    palace = next((p for p in palaces if p["ganzhi"][1] == branch), None)
+    if palace is None:
+        raise ValueError(f"未找到地支为 {branch!r} 的宫位")
+    return palace
+
+
+def _palace_for_nominal_age(
+    palaces: List[Dict[str, Any]], nominal_age: int
+) -> Dict[str, Any]:
+    for palace in palaces:
+        lo, hi = (int(x) for x in palace["daxian"].split("~"))
+        if lo <= nominal_age <= hi:
+            return palace
+    # 超出已排大限范围时，回退到最末大限宫（仅极端高龄出现）
+    return max(palaces, key=lambda p: int(p["daxian"].split("~")[1]))
+
+
+def _xiaoxian_branch(year_branch: str, nominal_age: int, gender: str) -> str:
+    start = _XIAOXIAN_START_BY_YEAR_BRANCH[year_branch]
+    start_idx = ZIWEI_BRANCH_SEQUENCE.index(start)
+    offset = (nominal_age - 1) % 12
+    forward = normalize_gender(gender) == "男"
+    idx = (start_idx + offset) % 12 if forward else (start_idx - offset) % 12
+    return ZIWEI_BRANCH_SEQUENCE[idx]
+
+
+def _horoscope_scope(scope: str, palace: Dict[str, Any], stem: str) -> Dict[str, Any]:
+    branch = palace["ganzhi"][1]
+    return {
+        "scope": scope,
+        "palace_name": palace["name"],
+        "branch": branch,
+        "branch_index": ZIWEI_BRANCH_SEQUENCE.index(branch),
+        "stem": stem,
+        "mutagen": dict(ZIWEI_SIHUA_RULES[stem]),
+    }
+
+
+def _bazi_year_for(target_year: int, target_year_branch: str) -> int:
+    """Return the BaZi (节气) year for a calendar date.
+
+    A date before 立春 carries the previous solar year's 年柱, so the BaZi year
+    is target_year - 1 in that case. Detected by comparing the actual 年柱 branch
+    to the branch expected for target_year.
+    """
+    expected_idx = (target_year - 4) % 12
+    if EARTHLY_BRANCHES.index(target_year_branch) == expected_idx:
+        return target_year
+    return target_year - 1
+
+
+def build_ziwei_horoscope(
+    *,
+    chart: Dict[str, Any],
+    gender: str,
+    natal_year_branch: str,
+    target_pillars: Dict[str, Any],
+    birth_year: int,
+    target_year: int,
+) -> Dict[str, Any]:
+    """Assemble the six 运限 scopes for a target date over a natal chart.
+
+    大限 selects among the chart's own (Tier-1) 大限 ranges by 虚岁; 流年/流月/流日/
+    流时 land on the palace carrying that pillar's branch with 四化 from the
+    pillar stem; 小限 uses the 三合-based start palace and the 小限 palace's 宫干
+    (iztro convention).
+
+    ``birth_year`` and ``target_year`` are calendar years; the returned
+    ``nominal_age`` (虚岁) is derived from the BaZi (节气) year, so a target
+    before 立春 maps to ``target_year - 1`` internally.
+    """
+    palaces = chart["palaces"]
+    bazi_year = _bazi_year_for(target_year, target_pillars["year"][1])
+    nominal_age = bazi_year - birth_year + 1
+
+    daxian_palace = _palace_for_nominal_age(palaces, nominal_age)
+    daxian = _horoscope_scope("大限", daxian_palace, daxian_palace["ganzhi"][0])
+
+    xiao_palace = _palace_by_branch(
+        palaces, _xiaoxian_branch(natal_year_branch, nominal_age, gender)
+    )
+    # 小限 四化 follows the 宫干 of the 小限 palace (iztro convention), not the 流年 stem.
+    xiaoxian = _horoscope_scope("小限", xiao_palace, xiao_palace["ganzhi"][0])
+
+    flowing = []
+    for scope, key in (
+        ("流年", "year"),
+        ("流月", "month"),
+        ("流日", "day"),
+        ("流时", "hour"),
+    ):
+        stem, branch = target_pillars[key]
+        flowing.append(
+            _horoscope_scope(scope, _palace_by_branch(palaces, branch), stem)
+        )
+
+    return {
+        "engine": "fatebridge-offline",
+        "nominal_age": nominal_age,
+        "scopes": [daxian, xiaoxian, *flowing],
+    }
+
+
 def build_ziwei_rules(year_stem: Optional[str] = None) -> Dict[str, Any]:
     catalogue = {
         "palace_sequence": ZIWEI_PALACE_SEQUENCE,

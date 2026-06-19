@@ -20,6 +20,7 @@ from fatebridge.core.metaphysics import (
     build_liureng_runyear,
     build_taiyi_board,
     build_ziwei_chart,
+    build_ziwei_horoscope,
     build_ziwei_rules,
 )
 from fatebridge.core.phase2_local import (
@@ -574,6 +575,45 @@ def _build_ziwei_snapshot_text(
     return _render_snapshot_text(sections)
 
 
+def _build_ziwei_horoscope_snapshot_text(
+    *,
+    seed: MetaphysicsSeed,
+    target_seed: MetaphysicsSeed,
+    horoscope: Dict[str, Any],
+) -> str:
+    def _mutagen_line(mut: Dict[str, Any]) -> str:
+        return (
+            f"化禄={mut.get('化禄', '无')}；化权={mut.get('化权', '无')}；"
+            f"化科={mut.get('化科', '无')}；化忌={mut.get('化忌', '无')}"
+        )
+
+    sections = [
+        (
+            "起盘信息",
+            _join_snapshot_lines(
+                [
+                    f"出生：{seed.calendar_context['solar_datetime']}",
+                    f"目标：{target_seed.calendar_context['solar_datetime']}",
+                    f"虚岁：{horoscope.get('nominal_age', '无')}",
+                ]
+            ),
+        )
+    ]
+    for s in horoscope.get("scopes", []) or []:
+        sections.append(
+            (
+                str(s.get("scope", "运限")),
+                _join_snapshot_lines(
+                    [
+                        f"宫位：{s.get('palace_name', '无')}（{s.get('stem', '')}{s.get('branch', '')}）",
+                        f"四化：{_mutagen_line(s.get('mutagen', {}) or {})}",
+                    ]
+                ),
+            )
+        )
+    return _render_snapshot_text(sections)
+
+
 def _build_ziwei_rules_snapshot_text(payload: Dict[str, Any]) -> str:
     rule_catalogue = (
         payload.get("rule_catalogue", {}) if isinstance(payload, dict) else {}
@@ -673,6 +713,67 @@ def calculate_ziwei_birth(
         }
     except Exception as exc:
         return handle_calculation_error(exc, "紫微斗数命盘")
+
+
+def calculate_ziwei_horoscope(
+    person: PersonInfo,
+    *,
+    target_year: int,
+    target_month: int,
+    target_day: int,
+    target_hour: int,
+    selected_sections: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    try:
+        seed = _build_person_seed(person)
+        chart = build_ziwei_chart(seed, person.gender or "未知")
+        target_seed = _build_analysis_seed(
+            analysis_year=target_year,
+            analysis_month=target_month,
+            analysis_day=target_day,
+            analysis_hour=target_hour,
+        )
+        horoscope = build_ziwei_horoscope(
+            chart=chart,
+            gender=person.gender or "未知",
+            natal_year_branch=seed.pillars["year"][1],
+            target_pillars=target_seed.pillars,
+            birth_year=person.birth_year,
+            target_year=target_year,
+        )
+        # engine 已由 build_ziwei_horoscope 标记，无需在此重复盖章
+        # （与 calculate_ziwei_birth 不同：build_ziwei_chart 不自带 engine）。
+        snapshot_text = _build_ziwei_horoscope_snapshot_text(
+            seed=seed, target_seed=target_seed, horoscope=horoscope
+        )
+        snapshot_export = _build_snapshot_export(
+            technique="ziwei_horoscope",
+            snapshot_text=snapshot_text,
+            selected_sections=selected_sections,
+        )
+        return {
+            "analysis_type": "紫微斗数运限",
+            "person_info": {
+                "name": person.name or "未提供",
+                "birth_datetime": format_birth_datetime_display(
+                    seed.input_datetime, include_minutes=True
+                ),
+                "normalized_birth_datetime": format_birth_datetime_display(
+                    seed.corrected_datetime, include_minutes=True
+                ),
+                "gender": person.gender or "未知",
+                "birth_place": person.birth_place or "未提供",
+                "birth_timezone": seed.timezone,
+                "birth_longitude": seed.longitude,
+                "time_algorithm": "真太阳时" if seed.applied_true_solar else "直接时间",
+            },
+            "analysis_context": _analysis_context_payload(seed),
+            "ziwei_horoscope": horoscope,
+            "snapshot_text": snapshot_text,
+            "snapshot_export": snapshot_export,
+        }
+    except Exception as exc:  # noqa: BLE001
+        return handle_calculation_error(exc, "紫微斗数运限")
 
 
 def calculate_ziwei_rules(

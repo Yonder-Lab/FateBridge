@@ -1002,3 +1002,100 @@ def test_ziwei_snapshot_text_annotates_brightness():
     # parentheses immediately after a star name (e.g. "紫微(庙)", "廉贞化禄(利)"),
     # not merely somewhere in the text.
     assert re.search(r"[一-鿿]+\([庙旺得利平不陷]\)", snapshot)
+
+
+def test_ziwei_horoscope_request_requires_target_datetime():
+    from fatebridge.core.request_models import ZiweiHoroscopeRequest
+
+    req = ZiweiHoroscopeRequest(
+        gender="男",
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        target_year=2026,
+        target_month=6,
+        target_day=19,
+        target_hour=14,
+    )
+    payload = req.model_dump()
+    assert payload["target_year"] == 2026
+    assert payload["target_month"] == 6
+    assert payload["target_day"] == 19
+    assert payload["target_hour"] == 14
+
+    import pytest as _pytest
+    from pydantic import ValidationError
+
+    with _pytest.raises(ValidationError):
+        ZiweiHoroscopeRequest(  # missing target_* → invalid
+            gender="男",
+            birth_year=1994,
+            birth_month=8,
+            birth_day=23,
+            birth_hour=14,
+        )
+
+
+def test_calculate_ziwei_horoscope_returns_six_scopes_and_snapshot():
+    from fatebridge.services.metaphysics import calculate_ziwei_horoscope
+
+    person = create_person_info(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        gender="男",
+    )
+    result = calculate_ziwei_horoscope(
+        person,
+        target_year=2026,
+        target_month=6,
+        target_day=19,
+        target_hour=14,
+    )
+    assert result["analysis_type"] == "紫微斗数运限"
+    h = result["ziwei_horoscope"]
+    assert h["engine"] == "fatebridge-offline"
+    assert h["nominal_age"] == 2026 - 1994 + 1  # 虚岁 drives 大限 selection
+    assert {s["scope"] for s in h["scopes"]} == {
+        "大限",
+        "小限",
+        "流年",
+        "流月",
+        "流日",
+        "流时",
+    }
+    assert "[起盘信息]" in result["snapshot_text"]
+    assert "[流年]" in result["snapshot_text"]
+    assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
+
+
+def test_calculate_ziwei_horoscope_supports_selected_sections():
+    from fatebridge.services.metaphysics import calculate_ziwei_horoscope
+
+    person = create_person_info(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        gender="男",
+    )
+    result = calculate_ziwei_horoscope(
+        person,
+        target_year=2026,
+        target_month=6,
+        target_day=19,
+        target_hour=14,
+        selected_sections=["流年"],
+    )
+    assert result["snapshot_export"]["selected_sections"] == ["流年"]
+    assert "[流年]" in result["snapshot_export"]["export_text"]
+    assert "[起盘信息]" not in result["snapshot_export"]["export_text"]
+
+
+def test_ziwei_horoscope_registered_on_all_surfaces():
+    from fatebridge.services.tool_catalog import mcp_specs, rest_specs
+
+    assert any(getattr(s, "key", None) == "ziwei_horoscope" for s in rest_specs())
+    assert any(getattr(s, "mcp_name", None) == "ziwei_horoscope" for s in mcp_specs())
