@@ -366,6 +366,17 @@ REST_POST_CASES = {
         "birth_hour": 14,
         "selected_sections": ["起盘信息", "宫位总览"],
     },
+    "/api/cn/ziwei/horoscope": lambda: {
+        **_birth_payload(name="张三", gender="男"),
+        "birth_year": 1994,
+        "birth_month": 8,
+        "birth_day": 23,
+        "birth_hour": 14,
+        "target_year": 2026,
+        "target_month": 6,
+        "target_day": 19,
+        "target_hour": 14,
+    },
     "/api/cn/ziwei/rules": lambda: {
         "year_stem": "甲",
         "selected_sections": ["规则概览", "当前天干四化"],
@@ -684,6 +695,20 @@ MCP_CASES = {
             "birth_day": 23,
             "birth_hour": 14,
             "selected_sections": ["起盘信息", "宫位总览"],
+        },
+    ),
+    "ziwei_horoscope": (
+        "ziwei_horoscope",
+        lambda: {
+            **_birth_payload(name="张三", gender="男"),
+            "birth_year": 1994,
+            "birth_month": 8,
+            "birth_day": 23,
+            "birth_hour": 14,
+            "target_year": 2026,
+            "target_month": 6,
+            "target_day": 19,
+            "target_hour": 14,
         },
     ),
     "ziwei_rules": (

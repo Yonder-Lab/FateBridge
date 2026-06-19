@@ -1092,3 +1092,10 @@ def test_calculate_ziwei_horoscope_supports_selected_sections():
     assert result["snapshot_export"]["selected_sections"] == ["流年"]
     assert "[流年]" in result["snapshot_export"]["export_text"]
     assert "[起盘信息]" not in result["snapshot_export"]["export_text"]
+
+
+def test_ziwei_horoscope_registered_on_all_surfaces():
+    from fatebridge.services.tool_catalog import mcp_specs, rest_specs
+
+    assert any(getattr(s, "key", None) == "ziwei_horoscope" for s in rest_specs())
+    assert any(getattr(s, "mcp_name", None) == "ziwei_horoscope" for s in mcp_specs())
