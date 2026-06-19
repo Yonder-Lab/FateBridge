@@ -37,7 +37,7 @@ fatebridge <tool> [参数...]
 
 | 形态 | 谁是这种（已实测核对） | 怎么读 |
 |------|---------|--------|
-| **`snapshot_text` 即主依据** | `bazi_birth` / `bazi_direct` / `analyze_destiny`、时运全系、紫微、梅花、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类 | 直接读 `snapshot_text`，它已经是结构化的中文事实（四柱/十神/格局/神煞/大运流年）。 |
+| **`snapshot_text` 即主依据** | `bazi_birth` / `analyze_destiny`、时运全系、紫微、梅花、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类 | 直接读 `snapshot_text`，它已经是结构化的中文事实（四柱/十神/格局/神煞/大运流年）。 |
 | **`snapshot_text` 是摘要，细节看结构化字段** | **八字 9 大专项**（`bazi_marriage`/`romance`/`career`/`wealth`/`health`/`children`/`education`/`personality`/`relatives`）、`two_person_compatibility`、`sukuyo_compatibility`、`astro_relative_chart` | 快速看 `snapshot_text` 抓要点；要精确字段（分数/落点/相位）再读下面的业务字段。`astro_relative_chart` 的 `snapshot_text` 只摘 关系画像/互动相位/配合度，完整盘在结构化字段里。 |
 
 **结构化字段怎么读（snapshot_text 之外要精确时）：**
@@ -124,7 +124,6 @@ python3 -m fatebridge.cli --no-metadata bazi_romance <出生参数> \
 | 工具 | 用途 |
 |------|------|
 | `bazi_birth` | 完整命盘：四柱三元、纳音、十神、藏干、格局调候、十二长生、当前大运流年、神煞 |
-| `bazi_direct` | 八字直断（要点速读版） |
 | `analyze_destiny` | 综合命理：八字+喜用+格局，一站式 |
 | `calculate_legacy` | 兼容旧版扁平命盘结构 |
 

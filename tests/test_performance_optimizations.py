@@ -32,7 +32,7 @@ def _build_person():
 
 @pytest.mark.parametrize(
     "service",
-    [bazi_module.calculate_bazi_birth, bazi_module.calculate_bazi_direct],
+    [bazi_module.calculate_bazi_birth],
 )
 def test_bazi_services_reuse_shared_birth_context(monkeypatch, service):
     person = _build_person()

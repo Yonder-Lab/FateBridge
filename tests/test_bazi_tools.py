@@ -4,9 +4,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import BaziBirthRequest, BaziDirectRequest
-from fastmcp_server import bazi_birth, bazi_direct
-from fatebridge.services.bazi import calculate_bazi_birth, calculate_bazi_direct
+from api import BaziBirthRequest
+from fastmcp_server import bazi_birth
+from fatebridge.services.bazi import calculate_bazi_birth
 from fatebridge.utils.helpers import create_person_info
 
 
@@ -37,7 +37,7 @@ def test_bazi_request_models_accept_birth_and_analysis_fields():
         birth_timezone="Asia/Shanghai",
         selected_sections=["起盘信息", "四柱与三元"],
     )
-    direct_request = BaziDirectRequest(
+    analysis_request = BaziBirthRequest(
         name="张三",
         gender="男",
         birth_year=1994,
@@ -54,14 +54,14 @@ def test_bazi_request_models_accept_birth_and_analysis_fields():
     )
 
     birth_payload = birth_request.model_dump()
-    direct_payload = direct_request.model_dump()
+    analysis_payload = analysis_request.model_dump()
 
     assert birth_payload["birth_timezone"] == "Asia/Shanghai"
     assert birth_payload["selected_sections"] == ["起盘信息", "四柱与三元"]
-    assert direct_payload["analysis_year"] == 2028
-    assert direct_payload["analysis_month"] == 4
-    assert direct_payload["analysis_day"] == 1
-    assert direct_payload["selected_sections"] == ["起盘信息", "流年行运概略"]
+    assert analysis_payload["analysis_year"] == 2028
+    assert analysis_payload["analysis_month"] == 4
+    assert analysis_payload["analysis_day"] == 1
+    assert analysis_payload["selected_sections"] == ["起盘信息", "流年行运概略"]
 
 
 def test_calculate_bazi_birth_returns_snapshot_sections():
@@ -92,8 +92,8 @@ def test_calculate_bazi_birth_returns_snapshot_sections():
     assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
 
 
-def test_calculate_bazi_direct_supports_selected_export_sections():
-    result = calculate_bazi_direct(
+def test_calculate_bazi_birth_supports_selected_export_sections():
+    result = calculate_bazi_birth(
         _build_person(),
         analysis_year=2028,
         analysis_month=4,
@@ -101,13 +101,13 @@ def test_calculate_bazi_direct_supports_selected_export_sections():
         selected_sections=["起盘信息", "流年行运概略"],
     )
 
-    assert result["analysis_type"] == "八字直断"
-    assert result["bazi_direct"]["engine"] == "fatebridge-offline"
-    assert result["bazi_direct"]["analysis_date"] == "2028-04-01"
-    assert result["bazi_direct"]["timing_overview"]["liuyue"]["pillar"] == "乙卯"
-    assert result["bazi_direct"]["timing_overview"]["liuri"]["pillar"] == "丙辰"
-    assert result["bazi_direct"]["timing_overview"]["liushi"]["pillar"]
-    assert "structure_profile" in result["bazi_direct"]
+    assert result["analysis_type"] == "八字命盘"
+    assert result["bazi_birth"]["engine"] == "fatebridge-offline"
+    assert result["bazi_birth"]["analysis_date"] == "2028-04-01"
+    assert result["bazi_birth"]["timing_overview"]["liuyue"]["pillar"] == "乙卯"
+    assert result["bazi_birth"]["timing_overview"]["liuri"]["pillar"] == "丙辰"
+    assert result["bazi_birth"]["timing_overview"]["liushi"]["pillar"]
+    assert "structure_profile" in result["bazi_birth"]
     assert result["snapshot_export"]["selected_sections"] == [
         "起盘信息",
         "流年行运概略",
@@ -119,15 +119,12 @@ def test_calculate_bazi_direct_supports_selected_export_sections():
 
 def test_fastmcp_bazi_tools_expose_parameters():
     birth_properties = bazi_birth.parameters["properties"]
-    direct_properties = bazi_direct.parameters["properties"]
 
     assert "selected_sections" in birth_properties
     assert "compact" in birth_properties
     assert "include_snapshot_text" in birth_properties
     assert "analysis_year" in birth_properties
     assert "analysis_month" in birth_properties
-    assert "compact" in direct_properties
-    assert "include_snapshot_text" in direct_properties
 
 
 def test_fastmcp_bazi_birth_compact_mode_can_drop_snapshot_text():
@@ -157,7 +154,6 @@ def test_fastmcp_bazi_birth_compact_mode_can_drop_snapshot_text():
 
 def test_fastmcp_bazi_birth_pretty_mode_keeps_snapshot_text():
     birth_properties = bazi_birth.parameters["properties"]
-    direct_properties = bazi_direct.parameters["properties"]
 
     rendered = bazi_birth.fn(
         birth_year=1994,
@@ -181,7 +177,6 @@ def test_fastmcp_bazi_birth_pretty_mode_keeps_snapshot_text():
     assert "snapshot_text" in payload
     assert "\n" in rendered
     assert "analysis_day" in birth_properties
-    assert "analysis_year" in direct_properties
-    assert "analysis_month" in direct_properties
-    assert "analysis_day" in direct_properties
-    assert "selected_sections" in direct_properties
+    assert "analysis_year" in birth_properties
+    assert "analysis_month" in birth_properties
+    assert "selected_sections" in birth_properties
