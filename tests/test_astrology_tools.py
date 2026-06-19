@@ -266,6 +266,17 @@ def test_core_chart_prefers_local_ephemeris_runtime_when_available():
 
     assert chart["chart_profile"]["engine_precision"] == "ephemeris_runtime_model"
     assert chart["chart_profile"]["engine_backend"] == "swisseph_api"
+    # The runtime honestly reports which ephemeris model actually served the
+    # positions. "swieph"/"jpl" when data files are installed; "moshier" when
+    # swisseph silently downgraded to its built-in model because no .se1 files
+    # are present; "mixed" when (as with no data files) the analytical lunar node
+    # resolves via swieph while the planets fall back to moshier.
+    assert chart["chart_profile"]["ephemeris_model"] in {
+        "swieph",
+        "moshier",
+        "jpl",
+        "mixed",
+    }
     assert sun["longitude"] == pytest.approx(expected_sun[0], abs=0.001)
     assert sun["latitude"] == pytest.approx(expected_sun[1], abs=0.001)
     assert moon["longitude"] == pytest.approx(expected_moon[0], abs=0.001)

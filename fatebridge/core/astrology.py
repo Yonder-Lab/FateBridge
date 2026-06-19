@@ -16,12 +16,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from fatebridge.core.ephemeris_runtime import (
+    ephemeris_model_from_retflag,
+    swe,
+)
 from fatebridge.utils.helpers import parse_timezone_name, resolve_birth_place_context
-
-try:
-    import swisseph as swe
-except ImportError:  # pragma: no cover - optional runtime dependency
-    swe = None
 
 logger = logging.getLogger(__name__)
 
@@ -955,39 +954,59 @@ def _planet_set(chart_variant: str) -> List[str]:
 def _swisseph_planet_state(
     planet: str,
     julian_day: float,
-) -> Optional[Dict[str, float]]:
+) -> Optional[Tuple[Dict[str, float], str]]:
+    """Return ``(state, ephemeris_model)`` for a planet, or ``None`` on failure.
+
+    ``ephemeris_model`` reports the model swisseph *actually* used ("swieph" when
+    data files are present, "moshier" when it silently downgraded to the built-in
+    analytical model). A ``retflag < 0`` is treated as a failure so it falls
+    through to the offline approximation engine instead of being accepted as a
+    valid position.
+    """
     if swe is None:
         return None
     planet_id = PLANET_SWISSEPH_IDS.get(planet)
     if planet_id is None:
         return None
     try:
-        coordinates, _ = swe.calc_ut(julian_day, planet_id, swe.FLG_SWIEPH)
+        coordinates, retflag = swe.calc_ut(julian_day, planet_id, swe.FLG_SWIEPH)
     except Exception as error:
         _log_swe_runtime_failure("calc_ut", error)
         return None
-    return {
+    if retflag < 0:
+        _log_swe_runtime_failure("calc_ut", RuntimeError(f"retflag={retflag}"))
+        return None
+    state = {
         "longitude": normalize_angle(float(coordinates[0])),
         "latitude": float(coordinates[1]),
     }
+    return state, ephemeris_model_from_retflag(retflag)
 
 
 def _build_planet_states(
     chart_variant: str,
     julian_day: float,
     day_number: float,
-) -> Tuple[Dict[str, Dict[str, float]], str, str]:
+) -> Tuple[Dict[str, Dict[str, float]], str, str, str]:
     planet_names = _planet_set(chart_variant)
     if swe is not None:
         ephemeris_states: Dict[str, Dict[str, float]] = {}
+        models: set[str] = set()
         for planet in planet_names:
-            state = _swisseph_planet_state(planet, julian_day)
-            if state is None:
+            result = _swisseph_planet_state(planet, julian_day)
+            if result is None:
                 ephemeris_states = {}
                 break
+            state, model = result
             ephemeris_states[planet] = state
+            models.add(model)
         if ephemeris_states:
-            return ephemeris_states, "ephemeris_runtime_model", "swisseph_api"
+            return (
+                ephemeris_states,
+                "ephemeris_runtime_model",
+                "swisseph_api",
+                _consolidate_ephemeris_model(models),
+            )
 
     sun_state = _sun_state(day_number)
     return (
@@ -997,7 +1016,22 @@ def _build_planet_states(
         },
         "approximate_orbital_model",
         "fatebridge_approximate_orbital_model",
+        "none",
     )
+
+
+def _consolidate_ephemeris_model(models: set[str]) -> str:
+    """Collapse the per-planet ephemeris models into one chart-level label.
+
+    All bodies in a chart normally resolve through the same model; "mixed" only
+    appears if a build genuinely served some planets from data files and others
+    from Moshier.
+    """
+    if not models:
+        return "unknown"
+    if len(models) == 1:
+        return next(iter(models))
+    return "mixed"
 
 
 def _derive_engine_profile(
@@ -1282,7 +1316,12 @@ def build_core_chart_payload(
     house_cusps = (
         None if house_system_info["key"] == "whole_sign" else layout["house_cusps"]
     )
-    planet_states, engine_precision, engine_backend = _build_planet_states(
+    (
+        planet_states,
+        engine_precision,
+        engine_backend,
+        ephemeris_model,
+    ) = _build_planet_states(
         chart_variant,
         julian_day,
         day_number,
@@ -1327,6 +1366,7 @@ def build_core_chart_payload(
             "tradition": chart_variant in {"hellen_chart", "guolao_chart"},
             "engine_precision": engine_precision,
             "engine_backend": engine_backend,
+            "ephemeris_model": ephemeris_model,
         },
         "angles": {
             "ascendant": {
