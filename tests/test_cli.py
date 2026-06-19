@@ -9,11 +9,26 @@ from fatebridge.services.tool_catalog import CATALOG
 
 def test_nested_model_tool_gives_hint_not_crash(capsys):
     # astro_relative uses a nested request model -> CLI-unsupported, but should
-    # print a helpful hint (pointing at the flat variant) and exit 2.
+    # print a helpful hint (pointing at the flat variant) and exit 2. The hint
+    # is JSON on stdout so a json.loads(stdout) consumer parses it cleanly.
     code = run(["astro_relative"])
-    err = capsys.readouterr().err
+    out = capsys.readouterr().out
+    payload = json.loads(out)
     assert code == 2
-    assert "astro_relative_chart" in err
+    assert payload["error_code"] == "cli_unsupported"
+    assert "astro_relative_chart" in payload["error"]
+
+
+def test_missing_required_flag_emits_json_on_stdout(capsys):
+    # A missing required flag is an argparse-level error. It must still land on
+    # stdout as valid JSON (not an empty stdout + usage text on stderr), so an
+    # agent that parses stdout gets actionable feedback instead of a PARSE-ERR.
+    code = run(["bazi_wealth", "--birth-year", "1990"])  # missing month/day/hour
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert code == 2
+    assert payload["error_code"] == "usage_error"
+    assert "birth" in payload["error"]
 
 
 def test_result_is_error_honors_error_is_fatal():
@@ -184,16 +199,18 @@ def test_describe_nested_tool_still_describes_with_hint(capsys):
 
 def test_describe_unknown_tool_returns_nonzero(capsys):
     code = run(["describe", "no_such_tool"])
-    err = capsys.readouterr().err
+    payload = json.loads(capsys.readouterr().out)
     assert code == 2
-    assert "no_such_tool" in err
+    assert payload["error_code"] == "unknown_tool"
+    assert "no_such_tool" in payload["error"]
 
 
 def test_describe_without_tool_returns_usage(capsys):
     code = run(["describe"])
-    err = capsys.readouterr().err
+    payload = json.loads(capsys.readouterr().out)
     assert code == 2
-    assert "describe" in err
+    assert payload["error_code"] == "usage_error"
+    assert "describe" in payload["error"]
 
 
 def test_cli_validation_error_returns_nonzero(capsys):
@@ -211,9 +228,13 @@ def test_cli_validation_error_returns_nonzero(capsys):
             "10",
         ]
     )
-    err = capsys.readouterr().err
+    # The structured error shares stdout with success output (see
+    # _JsonErrorParser / _emit_error): a json.loads(stdout) consumer never sees
+    # an empty stdout and so never raises "Expecting value: line 1 column 1".
+    out = capsys.readouterr().out
+    payload = json.loads(out)
     assert code == 1
-    assert "error" in err
+    assert payload["error_code"] == "validation_error"
 
 
 def test_cli_invalid_input_renders_clean_error_shape(capsys):
@@ -232,8 +253,8 @@ def test_cli_invalid_input_renders_clean_error_shape(capsys):
             "10",
         ]
     )
-    err = capsys.readouterr().err
+    out = capsys.readouterr().out
     assert code == 1
-    payload = json.loads(err)
+    payload = json.loads(out)
     assert payload["status_code"] == 400
     assert payload["error_code"] == "validation_error"
