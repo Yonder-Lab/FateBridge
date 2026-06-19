@@ -401,6 +401,68 @@ BRANCH_TRIPLE_COMBINATIONS = {
     "巳酉丑": "金局",  # 巳酉丑三合金局
 }
 
+# 地支六害关系（穿）
+BRANCH_HARMS = {
+    "子": "未",
+    "未": "子",  # 子未害
+    "丑": "午",
+    "午": "丑",  # 丑午害
+    "寅": "巳",
+    "巳": "寅",  # 寅巳害
+    "卯": "辰",
+    "辰": "卯",  # 卯辰害
+    "申": "亥",
+    "亥": "申",  # 申亥害
+    "酉": "戌",
+    "戌": "酉",  # 酉戌害
+}
+
+# 地支三刑关系。每组互刑：
+#   寅巳申（无恩之刑）、丑戌未（恃势之刑）、子卯（无礼之刑，互刑）
+BRANCH_THREE_PUNISHMENTS = (
+    ("寅", "巳", "申"),
+    ("丑", "戌", "未"),
+    ("子", "卯"),
+)
+# 自刑地支（同支重见为刑）
+BRANCH_SELF_PUNISHMENTS = frozenset({"辰", "午", "酉", "亥"})
+
+# 地支三会方局（同方位三支聚气，力量最强）
+BRANCH_SEASONAL_COMBINATIONS = {
+    "寅卯辰": "木局",  # 东方木
+    "巳午未": "火局",  # 南方火
+    "申酉戌": "金局",  # 西方金
+    "亥子丑": "水局",  # 北方水
+}
+
+# 局名 → 五行（供三合 / 三会计分复用，避免重复解析 "水局" 字符串）
+BUREAU_ELEMENT = {
+    "水局": Element.WATER,
+    "木局": Element.WOOD,
+    "火局": Element.FIRE,
+    "金局": Element.METAL,
+    "土局": Element.EARTH,
+}
+
+# 六合化气：地支对（frozenset）→ 化神五行。
+# 午未合化土沿用本仓 BRANCH_COMBINATIONS 注释的既定取向（午未合土）。
+BRANCH_COMBINATION_ELEMENT = {
+    frozenset({"子", "丑"}): Element.EARTH,
+    frozenset({"寅", "亥"}): Element.WOOD,
+    frozenset({"卯", "戌"}): Element.FIRE,
+    frozenset({"辰", "酉"}): Element.METAL,
+    frozenset({"巳", "申"}): Element.WATER,
+    frozenset({"午", "未"}): Element.EARTH,
+}
+
+# 三合局旺神（中神）。半合须含旺神方成立：旺+生 或 旺+库。
+TRIPLE_COMBINATION_PEAK = {
+    "申子辰": "子",
+    "亥卯未": "卯",
+    "寅午戌": "午",
+    "巳酉丑": "酉",
+}
+
 # 十神关系映射（用于快速查找）
 SHISHEN_RELATIONS = {
     ("甲", "甲"): "比肩",
