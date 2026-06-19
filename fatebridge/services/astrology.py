@@ -260,6 +260,9 @@ def _build_planet_lines(planets: List[Dict[str, Any]]) -> str:
     lines: List[str] = []
     for item in planets:
         extras: List[str] = []
+        dignity = item.get("dignity")
+        if dignity and dignity.get("dignity") != "peregrine":
+            extras.append(f"{dignity['status_zh']}（{dignity['dignity']}）")
         if "sector13" in item:
             extras.append(f"13扇区 {item['sector13']}")
         if item.get("nakshatra"):

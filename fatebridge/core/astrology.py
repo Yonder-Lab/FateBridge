@@ -175,6 +175,58 @@ MODALITY_BY_SIGN = {
     "Pisces": "Mutable",
 }
 
+# 本质尊贵 (essential dignity)。仅古典七曜有庙旺落陷之分；天王 / 海王 / 冥王及
+# 交点等无古典本质尊贵，dignity 记为 None。
+# 入庙(domicile)：行星所主之宫；入旺(exaltation)：曜升之宫；
+# 落陷(detriment)：庙之对宫；失势(fall)：旺之对宫。
+DOMICILE_RULERS = {
+    "Sun": ("Leo",),
+    "Moon": ("Cancer",),
+    "Mercury": ("Gemini", "Virgo"),
+    "Venus": ("Taurus", "Libra"),
+    "Mars": ("Aries", "Scorpio"),
+    "Jupiter": ("Sagittarius", "Pisces"),
+    "Saturn": ("Capricorn", "Aquarius"),
+}
+EXALTATION_SIGNS = {
+    "Sun": "Aries",
+    "Moon": "Taurus",
+    "Mercury": "Virgo",
+    "Venus": "Pisces",
+    "Mars": "Capricorn",
+    "Jupiter": "Cancer",
+    "Saturn": "Libra",
+}
+DIGNITY_LABELS_ZH = {
+    "rulership": "庙",
+    "exaltation": "旺",
+    "detriment": "陷",
+    "fall": "弱",
+    "peregrine": "平",
+}
+
+
+def _opposite_sign(sign: str) -> str:
+    return SIGNS[(SIGNS.index(sign) + 6) % 12]
+
+
+def _essential_dignity(planet: str, sign: str) -> Optional[Dict[str, str]]:
+    """古典七曜在某星座的本质尊贵；非古典星体返回 None。"""
+    if planet not in DOMICILE_RULERS:
+        return None
+    if sign in DOMICILE_RULERS[planet]:
+        dignity = "rulership"
+    elif sign == EXALTATION_SIGNS[planet]:
+        dignity = "exaltation"
+    elif sign in {_opposite_sign(s) for s in DOMICILE_RULERS[planet]}:
+        dignity = "detriment"
+    elif sign == _opposite_sign(EXALTATION_SIGNS[planet]):
+        dignity = "fall"
+    else:
+        dignity = "peregrine"
+    return {"dignity": dignity, "status_zh": DIGNITY_LABELS_ZH[dignity]}
+
+
 RULER_BY_SIGN = {
     "Aries": "Mars",
     "Taurus": "Venus",
@@ -1122,6 +1174,7 @@ def _build_planet_record(
         ),
         "element": ELEMENT_BY_SIGN[sign],
         "modality": MODALITY_BY_SIGN[sign],
+        "dignity": _essential_dignity(planet, sign),
     }
     if include_sector13:
         record["sector13"] = _sector13_for_longitude(effective_longitude, ascendant)
