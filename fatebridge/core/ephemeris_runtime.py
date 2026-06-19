@@ -17,6 +17,7 @@ that touches the ephemeris (charts, almanac, predictive directions):
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Optional
 
 try:  # pragma: no cover - optional runtime dependency
@@ -24,21 +25,43 @@ try:  # pragma: no cover - optional runtime dependency
 except ImportError:  # pragma: no cover - exercised only in minimal installs
     swe = None  # type: ignore[assignment]
 
+# Repo root that holds the optional ``ephe/`` data directory. Module lives at
+# ``<root>/fatebridge/core/ephemeris_runtime.py``, so the root is two parents up.
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def default_ephe_dir() -> Optional[str]:
+    """Return the project-local ``ephe/`` directory when it holds data files.
+
+    Lets a checkout that ran ``python -m fatebridge.fetch_ephe`` pick up full
+    precision with zero configuration — no environment variable required. The
+    directory is only reported when it actually contains ``.se1`` files, so an
+    empty folder does not mask the Moshier fallback.
+    """
+    candidate = _PROJECT_ROOT / "ephe"
+    if candidate.is_dir() and any(candidate.glob("*.se1")):
+        return str(candidate)
+    return None
+
 
 def configure_ephemeris_path(path: Optional[str] = None) -> Optional[str]:
-    """Point Swiss Ephemeris at user-supplied ``.se1`` data files.
+    """Point Swiss Ephemeris at ``.se1`` data files, if any can be located.
 
-    Reads the explicit ``path`` argument when given, otherwise the
-    ``SE_EPHE_PATH`` environment variable. Returns the path that was applied, or
-    ``None`` when no path was configured (or swisseph is unavailable), in which
-    case swisseph keeps using its built-in Moshier model.
+    Resolution order: the explicit ``path`` argument, then the ``SE_EPHE_PATH``
+    environment variable, then a project-local ``ephe/`` directory (see
+    :func:`default_ephe_dir`). Returns the path that was applied, or ``None``
+    when none was found (or swisseph is unavailable), in which case swisseph
+    keeps using its built-in Moshier model.
 
     ``swe.set_ephe_path`` mutates global C state, so a single call anywhere in
     the process is enough for every module that imports ``swe`` from here.
     """
     if swe is None:
         return None
-    resolved = path if path is not None else os.environ.get("SE_EPHE_PATH")
+    if path is not None:
+        resolved: Optional[str] = path
+    else:
+        resolved = os.environ.get("SE_EPHE_PATH") or default_ephe_dir()
     if resolved:
         swe.set_ephe_path(resolved)
         return resolved
