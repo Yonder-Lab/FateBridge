@@ -1002,3 +1002,36 @@ def test_ziwei_snapshot_text_annotates_brightness():
     # parentheses immediately after a star name (e.g. "紫微(庙)", "廉贞化禄(利)"),
     # not merely somewhere in the text.
     assert re.search(r"[一-鿿]+\([庙旺得利平不陷]\)", snapshot)
+
+
+def test_ziwei_horoscope_request_requires_target_datetime():
+    from fatebridge.core.request_models import ZiweiHoroscopeRequest
+
+    req = ZiweiHoroscopeRequest(
+        gender="男",
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        target_year=2026,
+        target_month=6,
+        target_day=19,
+        target_hour=14,
+    )
+    payload = req.model_dump()
+    assert payload["target_year"] == 2026
+    assert payload["target_month"] == 6
+    assert payload["target_day"] == 19
+    assert payload["target_hour"] == 14
+
+    import pytest as _pytest
+    from pydantic import ValidationError
+
+    with _pytest.raises(ValidationError):
+        ZiweiHoroscopeRequest(  # missing target_* → invalid
+            gender="男",
+            birth_year=1994,
+            birth_month=8,
+            birth_day=23,
+            birth_hour=14,
+        )

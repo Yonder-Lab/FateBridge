@@ -651,6 +651,19 @@ class ZiweiBirthRequest(FateBridgeRequest):
     )
 
 
+class ZiweiHoroscopeRequest(FateBridgeRequest):
+    """Request model for 紫微斗数 horoscope (运限) at a target date-time."""
+
+    target_year: int = Field(description="Target year, e.g., 2026")
+    target_month: int = Field(ge=1, le=12, description="Target month (1-12)")
+    target_day: int = Field(ge=1, le=31, description="Target day (1-31)")
+    target_hour: int = Field(ge=0, le=23, description="Target hour (0-23)")
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+
+
 class ZiweiRulesRequest(BaseModel):
     """Request model for Zi Wei rule catalogue lookup."""
 
