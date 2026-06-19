@@ -940,3 +940,42 @@ def test_fastmcp_tools_expose_new_parameters():
     assert "selected_sections" in taiyi.parameters["properties"]
     assert "di_fen" in jinkou.parameters["properties"]
     assert "selected_sections" in jinkou.parameters["properties"]
+
+
+def test_ziwei_birth_palaces_have_stars_detail():
+    person = create_person_info(
+        birth_year=1994,
+        birth_month=8,
+        birth_day=23,
+        birth_hour=14,
+        name="张三",
+        gender="男",
+        birth_place="上海",
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+    )
+
+    result = calculate_ziwei_birth(person)
+    palaces = result["ziwei_birth"]["palaces"]
+
+    for palace in palaces:
+        # additive: legacy `stars` list is preserved unchanged
+        assert "stars" in palace
+        assert "stars_detail" in palace
+        # a star-less palace must still carry stars_detail as an empty list
+        assert isinstance(palace["stars_detail"], list)
+        assert len(palace["stars_detail"]) == len(palace["stars"])
+        for legacy, detail in zip(palace["stars"], palace["stars_detail"]):
+            assert legacy == detail["label"]
+            assert set(detail.keys()) == {"name", "label", "brightness", "mutagen"}
+
+    # at least one major star must carry a non-null brightness
+    all_details = [d for p in palaces for d in p["stars_detail"]]
+    assert any(d["brightness"] is not None for d in all_details)
+
+    # mutagen parsing: any 化X suffix in legacy stars surfaces in detail.mutagen
+    for palace in palaces:
+        for detail in palace["stars_detail"]:
+            if detail["mutagen"] is not None:
+                assert detail["label"] == f"{detail['name']}{detail['mutagen']}"
+                assert detail["mutagen"] in {"化禄", "化权", "化科", "化忌"}

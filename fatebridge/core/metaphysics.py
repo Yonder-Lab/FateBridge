@@ -29,6 +29,10 @@ from .almanac import (
 )
 from .calendar import BaZiCalendar, resolve_bazi_effective_date
 from .divination import build_hexagram
+from .ziwei_tables import (
+    lookup_star_brightness,
+    split_star_mutagen,
+)
 
 # 五行局数字与标签 (紫微斗数): 水二局 / 木三局 / 金四局 / 土五局 / 火六局
 _WUXING_JU_NUMBER_BY_ELEMENT: Dict[str, int] = {
@@ -2074,6 +2078,24 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     sihua = _apply_sihua_to_palaces(palaces, year_stem)
     for palace in palaces:
         palace["stars"] = sorted(dict.fromkeys(palace["stars"]))
+
+    # --- Tier 1: attach brightness + parsed mutagen as an additive field ---
+    # `palace["stars"]` (legacy) stays a list[str] of mutagen-suffixed labels;
+    # `stars_detail` mirrors it 1:1 with structured data.
+    for palace in palaces:
+        palace_branch = palace["ganzhi"][1]
+        detail: List[Dict[str, Any]] = []
+        for label in palace["stars"]:
+            base_name, mutagen = split_star_mutagen(label)
+            detail.append(
+                {
+                    "name": base_name,
+                    "label": label,
+                    "brightness": lookup_star_brightness(base_name, palace_branch),
+                    "mutagen": mutagen,
+                }
+            )
+        palace["stars_detail"] = detail
 
     ming_palace = next(palace for palace in palaces if palace["name"] == "命宫")
     shen_palace = next(
