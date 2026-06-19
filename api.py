@@ -35,7 +35,6 @@ from fatebridge.core.request_models import (  # noqa: F401
     BaziBirthRequest,
     BaziCareerRequest,
     BaziChildrenRequest,
-    BaziDirectRequest,
     BaziEducationRequest,
     BaziHealthRequest,
     BaziMarriageRequest,

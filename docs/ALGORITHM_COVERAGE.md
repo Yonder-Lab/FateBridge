@@ -13,7 +13,7 @@
 
 | 域 | 能力 | 状态 | 说明 |
 | --- | --- | --- | --- |
-| 核心命理 | 单人八字分析、八字命盘、八字直断 | Implemented | 由 `fatebridge.services.calculation`、`fatebridge.services.bazi` 提供 |
+| 核心命理 | 单人八字分析、八字命盘 | Implemented | 由 `fatebridge.services.calculation`、`fatebridge.services.bazi` 提供 |
 | 配合度 | 双人配合分析 | Implemented | 复用两份个人分析结果做组合分析 |
 | 时运 | 综合时运、大运、流年、流月、流日、节气时间轴 | Implemented | 统一支持结构化结果；多项工具支持 `snapshot_export` |
 | Calendar helper | 节气年盘、农历换算 | Implemented | 基于本地历法辅助逻辑，不依赖外部服务 |
@@ -87,7 +87,7 @@
 
 下列能力族已经把 `snapshot_text + snapshot_export` 视为公共合同：
 
-- `bazi_birth` / `bazi_direct`
+- `bazi_birth`
 - `timing_analysis` / `dayun_analysis` / `liunian_analysis` / `liuyue_analysis` / `liuri_analysis` / `jieqi_timeline_analysis`
 - `knowledge_registry` / `knowledge_read`
 - `gua_lookup` / `gua_meiyi`

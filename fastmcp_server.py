@@ -20,19 +20,18 @@ Provides Chinese metaphysics and offline astrology functionality via FastMCP:
 13. otherbu - Local astrology-dice output
 14. sanshiunited - Local Sanshi aggregation output
 15. bazi_birth - Standalone BaZi birth chart snapshot
-16. bazi_direct - Standalone BaZi direct timing snapshot
-17. liushi_analysis - Standalone flow-hour timing snapshot
-18. solarreturn - Standalone solar return snapshot
-19. lunarreturn - Standalone lunar return snapshot
-20. transit - Standalone transit snapshot
-21. solararc - Standalone solar arc snapshot
-22. givenyear - Standalone given-year chart snapshot
-23. profection - Standalone annual profection snapshot
-24. pd - Standalone primary-directions snapshot
-25. pdchart - Standalone primary-direction chart snapshot
-26. zr - Standalone zodiacal releasing snapshot
-27. firdaria - Standalone firdaria snapshot
-28. decennials - Standalone decennials snapshot
+16. liushi_analysis - Standalone flow-hour timing snapshot
+17. solarreturn - Standalone solar return snapshot
+18. lunarreturn - Standalone lunar return snapshot
+19. transit - Standalone transit snapshot
+20. solararc - Standalone solar arc snapshot
+21. givenyear - Standalone given-year chart snapshot
+22. profection - Standalone annual profection snapshot
+23. pd - Standalone primary-directions snapshot
+24. pdchart - Standalone primary-direction chart snapshot
+25. zr - Standalone zodiacal releasing snapshot
+26. firdaria - Standalone firdaria snapshot
+27. decennials - Standalone decennials snapshot
 """
 
 import asyncio

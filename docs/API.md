@@ -186,7 +186,6 @@ REST 端通常返回：
 | --- | --- | --- |
 | `POST` | `/api/calculate` | 单人命理分析 |
 | `POST` | `/api/cn/bazi/birth` | 独立八字命盘 |
-| `POST` | `/api/cn/bazi/direct` | 独立八字直断 |
 | `POST` | `/api/compatibility` | 双人配合分析 |
 
 ### 4.2 时运分析
@@ -398,7 +397,6 @@ python fastmcp_server.py
 - `liuri_analysis`
 - `jieqi_timeline_analysis`
 - `bazi_birth`
-- `bazi_direct`
 
 #### Calendar / export / knowledge helper
 

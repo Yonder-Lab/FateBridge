@@ -77,10 +77,6 @@ class BaziBirthRequest(FateBridgeRequest):
     )
 
 
-class BaziDirectRequest(BaziBirthRequest):
-    """Request model for standalone BaZi direct output."""
-
-
 class TwoPersonCompatibilityRequest(BaseModel):
     """Request model for two-person compatibility analysis."""
 

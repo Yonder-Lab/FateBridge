@@ -196,12 +196,6 @@ def _export_content() -> str:
 REST_POST_CASES = {
     "/api/calculate": lambda: _birth_payload(),
     "/api/cn/bazi/birth": lambda: _birth_payload(),
-    "/api/cn/bazi/direct": lambda: {
-        **_birth_payload(),
-        "analysis_year": 2028,
-        "analysis_month": 4,
-        "analysis_day": 1,
-    },
     "/api/cn/bazi/marriage": lambda: {
         **_birth_payload(),
         "dayun_pillar": "壬戌",
@@ -465,15 +459,6 @@ REST_GET_CASES = {
 MCP_CASES = {
     "analyze_destiny": ("analyze_destiny", _birth_payload),
     "bazi_birth": ("bazi_birth", _birth_payload),
-    "bazi_direct": (
-        "bazi_direct",
-        lambda: {
-            **_birth_payload(),
-            "analysis_year": 2028,
-            "analysis_month": 4,
-            "analysis_day": 1,
-        },
-    ),
     "bazi_marriage": (
         "bazi_marriage",
         lambda: {**_birth_payload(), "dayun_pillar": "壬戌", "liunian_pillar": "丁卯"},

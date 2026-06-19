@@ -904,54 +904,6 @@ def calculate_bazi_birth(
         return handle_calculation_error(exc, "八字命盘")
 
 
-def calculate_bazi_direct(
-    person: PersonInfo,
-    *,
-    analysis_year: Optional[int] = None,
-    analysis_month: Optional[int] = None,
-    analysis_day: Optional[int] = None,
-    selected_sections: Optional[List[str]] = None,
-) -> Dict[str, Any]:
-    try:
-        analysis_date = _resolve_analysis_date(
-            analysis_year, analysis_month, analysis_day
-        )
-        payload = _build_base_bazi_payload(person=person, analysis_date=analysis_date)
-        base_analysis = payload["base_analysis"]
-        snapshot_text = payload["snapshot_text"]
-        snapshot_export = parse_export_content(
-            technique="bazi",
-            content=snapshot_text,
-            selected_sections=selected_sections,
-        )
-
-        return {
-            "analysis_type": "八字直断",
-            "bazi_direct": {
-                "engine": "fatebridge-offline",
-                "time_algorithm": (
-                    "真太阳时"
-                    if payload["normalized_birth_time"].applied
-                    else "直接时间"
-                ),
-                "analysis_date": analysis_date.strftime("%Y-%m-%d"),
-                "person_info": base_analysis["person_info"],
-                "four_pillars": base_analysis["four_pillars"],
-                "three_origins": payload["three_origins"],
-                "timing_overview": payload["timing_overview"],
-                "shensha": payload["shensha_entries"],
-                "calendar_context": base_analysis["calendar_context"],
-                "analysis_calendar_context": payload["analysis_calendar_context"],
-                "structure_profile": base_analysis["structure_profile"],
-                "patterns": base_analysis["patterns"],
-            },
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "八字直断")
-
-
 # =============================================================================
 # 八字专项分析服务（财运 / 健康 / 子女 / 学业）
 #
