@@ -20,12 +20,11 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
-    BRANCH_HIDDEN_STEMS,
     STEM_ELEMENTS,
     Element,
     Polarity,
     TenGod,
-    get_ten_god,
+    count_ten_gods,
 )
 
 ELEMENT_NATURE = {
@@ -116,12 +115,7 @@ class PersonalityAnalysis:
     def _dominant_traits(
         pillars: Dict[str, Tuple[str, str]], day_stem: str
     ) -> Dict[str, Any]:
-        counts: Dict[TenGod, float] = {tg: 0.0 for tg in TenGod}
-        for p_name, (stem, branch) in pillars.items():
-            if p_name != "day":
-                counts[get_ten_god(day_stem, stem)] += 1.0
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                counts[get_ten_god(day_stem, hidden)] += 0.5
+        counts = count_ten_gods(pillars, day_stem)
         ranked = sorted(counts.items(), key=lambda x: x[1], reverse=True)
         top = [(g, c) for g, c in ranked if c > 0][:3]
         return {

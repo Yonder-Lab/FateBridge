@@ -22,11 +22,11 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
-    BRANCH_HIDDEN_STEMS,
     TenGod,
     check_branch_combination,
     check_branch_conflict,
     get_ten_god,
+    iter_pillar_gods,
     normalize_gender,
 )
 
@@ -118,31 +118,18 @@ class ChildrenAnalysis:
         """定位子女星及其力量。"""
         positions: List[Dict[str, Any]] = []
         weight = 0.0
-        for p_name, (stem, branch) in pillars.items():
-            if p_name != "day":
-                god = get_ten_god(day_stem, stem)
-                if god in child_gods:
-                    positions.append(
-                        {
-                            "pillar": p_name,
-                            "location": "天干",
-                            "char": stem,
-                            "ten_god": god.value,
-                        }
-                    )
-                    weight += 1.0
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                h_god = get_ten_god(day_stem, hidden)
-                if h_god in child_gods:
-                    positions.append(
-                        {
-                            "pillar": p_name,
-                            "location": "地支藏干",
-                            "char": hidden,
-                            "ten_god": h_god.value,
-                        }
-                    )
-                    weight += 0.5
+        for e in iter_pillar_gods(pillars, day_stem):
+            if e.ten_god not in child_gods:
+                continue
+            positions.append(
+                {
+                    "pillar": e.pillar,
+                    "location": e.location,
+                    "char": e.char,
+                    "ten_god": e.ten_god.value,
+                }
+            )
+            weight += e.weight
 
         weight = round(weight, 1)
         if weight == 0:

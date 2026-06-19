@@ -30,6 +30,7 @@ from ..utils.data import (
     check_branch_conflict,
     count_element_distribution,
     get_ten_god,
+    iter_pillar_gods,
 )
 
 # 财库：辰戌丑未对应所藏之财（墓库）
@@ -126,37 +127,21 @@ class WealthAnalysis:
         zheng_count = 0.0
         pian_count = 0.0
 
-        for p_name, (stem, branch) in pillars.items():
-            if p_name != "day":
-                god = get_ten_god(day_stem, stem)
-                if god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                    positions.append(
-                        {
-                            "pillar": p_name,
-                            "location": "天干",
-                            "char": stem,
-                            "ten_god": god.value,
-                        }
-                    )
-                    if god == TenGod.POSITIVE_WEALTH:
-                        zheng_count += 1.0
-                    else:
-                        pian_count += 1.0
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                h_god = get_ten_god(day_stem, hidden)
-                if h_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                    positions.append(
-                        {
-                            "pillar": p_name,
-                            "location": "地支藏干",
-                            "char": hidden,
-                            "ten_god": h_god.value,
-                        }
-                    )
-                    if h_god == TenGod.POSITIVE_WEALTH:
-                        zheng_count += 0.5
-                    else:
-                        pian_count += 0.5
+        for e in iter_pillar_gods(pillars, day_stem):
+            if e.ten_god not in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
+                continue
+            positions.append(
+                {
+                    "pillar": e.pillar,
+                    "location": e.location,
+                    "char": e.char,
+                    "ten_god": e.ten_god.value,
+                }
+            )
+            if e.ten_god == TenGod.POSITIVE_WEALTH:
+                zheng_count += e.weight
+            else:
+                pian_count += e.weight
 
         total = round(zheng_count + pian_count, 1)
         if total == 0:
@@ -335,14 +320,11 @@ class WealthAnalysis:
         risks: List[str] = []
 
         # 比劫数量
-        bijie = 0.0
-        for p_name, (stem, branch) in pillars.items():
-            if p_name != "day":
-                if get_ten_god(day_stem, stem) in (TenGod.COMPARE, TenGod.ROB_WEALTH):
-                    bijie += 1.0
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                if get_ten_god(day_stem, hidden) in (TenGod.COMPARE, TenGod.ROB_WEALTH):
-                    bijie += 0.5
+        bijie = sum(
+            e.weight
+            for e in iter_pillar_gods(pillars, day_stem)
+            if e.ten_god in (TenGod.COMPARE, TenGod.ROB_WEALTH)
+        )
 
         if bijie >= 2.5:
             risks.append("比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保")

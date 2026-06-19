@@ -26,6 +26,7 @@ from ..utils.data import (
     STEM_ELEMENTS,
     TenGod,
     get_ten_god,
+    iter_pillar_gods,
     normalize_gender,
 )
 
@@ -169,35 +170,21 @@ class MarriageAnalysis:
             spouse_label = "官星"
             spouse_label_alt = "七杀"
 
-        # 在四柱中查找配偶星
+        # 在四柱中查找配偶星（婚姻同 career，跳过整个日柱）
         spouse_star_positions: List[Dict[str, Any]] = []
-        for pillar_name, (stem, branch) in pillars.items():
-            if pillar_name == "day":
+        for e in iter_pillar_gods(pillars, day_stem, skip_day_pillar=True):
+            if e.ten_god != spouse_god and e.ten_god != spouse_god_alt:
                 continue
-            god = get_ten_god(day_stem, stem)
-            if god == spouse_god or god == spouse_god_alt:
-                spouse_star_positions.append(
-                    {
-                        "position": pillar_name,
-                        "stem": stem,
-                        "branch": branch,
-                        "ten_god": god.value,
-                        "is_primary": god == spouse_god,
-                    }
-                )
-            # 检查藏干
-            for hidden_stem in BRANCH_HIDDEN_STEMS.get(branch, []):
-                hidden_god = get_ten_god(day_stem, hidden_stem)
-                if hidden_god == spouse_god or hidden_god == spouse_god_alt:
-                    spouse_star_positions.append(
-                        {
-                            "position": f"{pillar_name}_hidden",
-                            "stem": hidden_stem,
-                            "branch": branch,
-                            "ten_god": hidden_god.value,
-                            "is_primary": hidden_god == spouse_god,
-                        }
-                    )
+            is_stem = e.location == "天干"
+            spouse_star_positions.append(
+                {
+                    "position": e.pillar if is_stem else f"{e.pillar}_hidden",
+                    "stem": e.char,
+                    "branch": e.branch,
+                    "ten_god": e.ten_god.value,
+                    "is_primary": e.ten_god == spouse_god,
+                }
+            )
 
         # 配偶星旺衰判断
         spouse_star_strength = "未现"
@@ -356,36 +343,21 @@ class MarriageAnalysis:
         if not is_male:
             has_shangguan = False
             has_zhengguan = False
-            for p_name, (stem, branch) in pillars.items():
-                if p_name == "day":
-                    continue
-                god = get_ten_god(day_stem, stem)
-                if god == TenGod.HURT_OFFICER:
+            for e in iter_pillar_gods(pillars, day_stem, skip_day_pillar=True):
+                if e.ten_god == TenGod.HURT_OFFICER:
                     has_shangguan = True
-                if god == TenGod.POSITIVE_OFFICER:
+                if e.ten_god == TenGod.POSITIVE_OFFICER:
                     has_zhengguan = True
-                for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                    h_god = get_ten_god(day_stem, hidden)
-                    if h_god == TenGod.HURT_OFFICER:
-                        has_shangguan = True
-                    if h_god == TenGod.POSITIVE_OFFICER:
-                        has_zhengguan = True
             if has_shangguan and has_zhengguan:
                 score -= 10
                 notes.append("女命伤官见官，婚姻易生波折")
 
         # 5. 比劫重重扣分
-        bijie_count: float = 0
-        for p_name, (stem, branch) in pillars.items():
-            if p_name == "day":
-                continue
-            god = get_ten_god(day_stem, stem)
-            if god in (TenGod.COMPARE, TenGod.ROB_WEALTH):
-                bijie_count += 1
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                h_god = get_ten_god(day_stem, hidden)
-                if h_god in (TenGod.COMPARE, TenGod.ROB_WEALTH):
-                    bijie_count += 0.5
+        bijie_count = sum(
+            e.weight
+            for e in iter_pillar_gods(pillars, day_stem, skip_day_pillar=True)
+            if e.ten_god in (TenGod.COMPARE, TenGod.ROB_WEALTH)
+        )
         if bijie_count >= 3:
             score -= 8
             notes.append("比劫重重，婚姻中竞争或第三者风险增加")

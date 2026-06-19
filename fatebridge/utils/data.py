@@ -3,7 +3,7 @@ Basic data structures and constants for BaZi calculations.
 """
 
 from enum import Enum
-from typing import Dict, Mapping, Optional, Tuple
+from typing import Dict, Iterator, Mapping, NamedTuple, Optional, Tuple
 
 # 天干 (Heavenly Stems)
 HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
@@ -535,3 +535,80 @@ def normalize_gender(gender: Optional[str]) -> Optional[str]:
     if token in GENDER_FEMALE_TOKENS:
         return "female"
     return None
+
+
+# 十神扫描原语 (Ten-god scan primitive)
+# 各维度分析此前都手写同一段"遍历四柱天干 + 地支藏干，用 get_ten_god 归类、天干计 1.0
+# 地支藏干计 0.5"的循环，但归类方式各异（直方图 / 过滤定位 / 分桶 / 计权）。这里抽出
+# 一个**低层迭代器**，由各调用方自行过滤、塑形——而不是一个无所不包的大函数。
+#
+# 关键差异由 ``skip_day_pillar`` 表达：
+#   - career / marriage 跳过**整个日柱**（连日支藏干也不计）；
+#   - personality / wealth / education / relatives / children 仅跳过**日干本身**，
+#     仍计入日支藏干。
+# 两类共同点：日干自身从不计入（它对自身是比肩，无分析意义）。
+# 与原循环一致，本原语**不吞** get_ten_god 抛出的异常（仅 life_dimensions 另行吞错，
+# 故不迁移它）。
+
+
+class PillarGod(NamedTuple):
+    """四柱扫描中的单个十神条目（一个天干，或一个地支藏干）。"""
+
+    pillar: str  # 柱位 key：year / month / day / hour（或胎元等）
+    branch: str  # 该柱的地支（天干条目与藏干条目都携带所属柱的地支）
+    location: str  # "天干" 或 "地支藏干"
+    char: str  # 被归类的天干字（藏干时为藏干天干）
+    ten_god: TenGod  # 相对日干的十神
+    weight: float  # 天干 1.0，地支藏干 0.5
+
+
+def iter_pillar_gods(
+    pillars: Mapping[str, Tuple[str, str]],
+    day_stem: str,
+    *,
+    skip_day_pillar: bool = False,
+    stem_weight: float = 1.0,
+    hidden_weight: float = 0.5,
+) -> Iterator[PillarGod]:
+    """遍历四柱，逐个产出天干与地支藏干的十神条目。
+
+    Args:
+        pillars: 四柱 ``{label: (stem, branch)}``，须含 ``"day"`` 柱。
+        day_stem: 日主天干（取十神的基准）。
+        skip_day_pillar: True 则跳过整个日柱（career / marriage）；
+            False（默认）跳过日干本身但仍计入日支藏干。
+        stem_weight / hidden_weight: 天干 / 地支藏干的计权，默认 1.0 / 0.5。
+    """
+    for pillar, (stem, branch) in pillars.items():
+        is_day = pillar == "day"
+        if is_day and skip_day_pillar:
+            continue
+        if not is_day:
+            yield PillarGod(
+                pillar, branch, "天干", stem, get_ten_god(day_stem, stem), stem_weight
+            )
+        for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
+            yield PillarGod(
+                pillar,
+                branch,
+                "地支藏干",
+                hidden,
+                get_ten_god(day_stem, hidden),
+                hidden_weight,
+            )
+
+
+def count_ten_gods(
+    pillars: Mapping[str, Tuple[str, str]],
+    day_stem: str,
+    *,
+    skip_day_pillar: bool = False,
+) -> Dict[TenGod, float]:
+    """汇总四柱十神直方图（含全部十神 key，未出现者为 0.0）。
+
+    用于只需"各十神总权重"的调用方（如 career / personality）。
+    """
+    counts: Dict[TenGod, float] = {tg: 0.0 for tg in TenGod}
+    for entry in iter_pillar_gods(pillars, day_stem, skip_day_pillar=skip_day_pillar):
+        counts[entry.ten_god] += entry.weight
+    return counts

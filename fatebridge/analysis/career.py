@@ -25,7 +25,9 @@ from ..utils.data import (
     Element,
     TenGod,
     count_element_distribution,
+    count_ten_gods,
     get_ten_god,
+    iter_pillar_gods,
 )
 
 # 五行对应行业
@@ -252,16 +254,8 @@ class CareerAnalysis:
         day_stem: str,
     ) -> Dict[str, Any]:
         """分析命局中主导的十神，确定事业类型。"""
-        god_counts: Dict[TenGod, float] = {tg: 0.0 for tg in TenGod}
-
-        for p_name, (stem, branch) in pillars.items():
-            if p_name == "day" and stem == day_stem:
-                continue
-            god = get_ten_god(day_stem, stem)
-            god_counts[god] += 1.0
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                h_god = get_ten_god(day_stem, hidden)
-                god_counts[h_god] += 0.5
+        # career 跳过整个日柱（连日支藏干也不计）
+        god_counts = count_ten_gods(pillars, day_stem, skip_day_pillar=True)
 
         # 排序取前三
         sorted_gods = sorted(god_counts.items(), key=lambda x: x[1], reverse=True)
@@ -352,20 +346,11 @@ class CareerAnalysis:
         # 1. 官印相生 → 事业格局高
         has_officer = False
         has_seal = False
-        for p_name, (stem, branch) in pillars.items():
-            if p_name == "day":
-                continue
-            god = get_ten_god(day_stem, stem)
-            if god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
+        for e in iter_pillar_gods(pillars, day_stem, skip_day_pillar=True):
+            if e.ten_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
                 has_officer = True
-            if god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
+            if e.ten_god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
                 has_seal = True
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                h_god = get_ten_god(day_stem, hidden)
-                if h_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
-                    has_officer = True
-                if h_god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
-                    has_seal = True
 
         if has_officer and has_seal:
             score += 15
@@ -432,14 +417,9 @@ class CareerAnalysis:
 
         # 统计十神
         god_counts: Dict[str, float] = {}
-        for p_name, (stem, branch) in pillars.items():
-            if p_name == "day" and stem == day_stem:
-                continue
-            god = get_ten_god(day_stem, stem).value
-            god_counts[god] = god_counts.get(god, 0) + 1
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                h_god = get_ten_god(day_stem, hidden).value
-                god_counts[h_god] = god_counts.get(h_god, 0) + 0.5
+        for e in iter_pillar_gods(pillars, day_stem, skip_day_pillar=True):
+            key = e.ten_god.value
+            god_counts[key] = god_counts.get(key, 0) + e.weight
 
         # 偏星多 → 创业倾向
         partial_stars = sum(
