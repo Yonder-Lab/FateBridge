@@ -10,6 +10,7 @@ import json
 from fatebridge.services import run_metadata
 from fatebridge.services.run_metadata import (
     attach_run_metadata,
+    engine_is_approximate,
     resolve_runtime_engine,
 )
 
@@ -17,6 +18,35 @@ from fatebridge.services.run_metadata import (
 def test_attach_run_metadata_uses_explicit_name():
     out = attach_run_metadata({"x": 1}, tool_name="bazi_wealth")
     assert out["run_metadata"]["tool_name"] == "bazi_wealth"
+
+
+def test_run_metadata_flags_approximate_astro_engine():
+    # Approximate / mixed astro backends -> degraded precision flag is True.
+    approx = attach_run_metadata(
+        {"chart_profile": {"engine_backend": "fatebridge_approximate_orbital_model"}},
+        tool_name="astro_chart",
+    )
+    assert approx["run_metadata"]["engine_is_approximate"] is True
+    mixed = attach_run_metadata(
+        {"chart_profile": {"engine_precision": "mixed_precision_runtime_model"}},
+        tool_name="astro_chart",
+    )
+    assert mixed["run_metadata"]["engine_is_approximate"] is True
+
+    # Swiss-ephemeris precision and non-astro deterministic tools -> False.
+    precise = attach_run_metadata(
+        {"chart_profile": {"engine_backend": "swisseph_api"}}, tool_name="astro_chart"
+    )
+    assert precise["run_metadata"]["engine_is_approximate"] is False
+    bazi = attach_run_metadata({"x": 1}, tool_name="bazi_wealth")
+    assert bazi["run_metadata"]["engine_is_approximate"] is False
+
+
+def test_engine_is_approximate_unit():
+    assert engine_is_approximate("approximate_orbital_model") is True
+    assert engine_is_approximate("mixed_runtime_backends") is True
+    assert engine_is_approximate("ephemeris_runtime_model") is False
+    assert engine_is_approximate(run_metadata.DEFAULT_ENGINE) is False
 
 
 def test_attach_run_metadata_is_idempotent():

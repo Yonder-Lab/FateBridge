@@ -62,6 +62,19 @@ def resolve_runtime_engine(payload: Dict[str, Any]) -> str:
     return DEFAULT_ENGINE
 
 
+def engine_is_approximate(engine: str) -> bool:
+    """Whether an astro result fell back to the offline approximation engine.
+
+    Lets an agent branch on degraded precision without string-matching the
+    backend name or the Chinese precision label. Non-astro tools report
+    ``DEFAULT_ENGINE`` and are deterministic in their own domain, so they are
+    not "approximate"; only the orbital-approximation and mixed-precision astro
+    backends are flagged.
+    """
+    lowered = engine.lower()
+    return "approximate" in lowered or lowered.startswith("mixed")
+
+
 def attach_run_metadata(
     payload: Dict[str, Any],
     *,
@@ -73,12 +86,14 @@ def attach_run_metadata(
 
     run_id = uuid4().hex
     trace_id = uuid4().hex
+    engine = resolve_runtime_engine(payload)
     enriched = dict(payload)
     enriched["run_metadata"] = {
         "run_id": run_id,
         "trace_id": trace_id,
         "tool_name": tool_name,
         "generated_at": _utc_timestamp(),
-        "engine": resolve_runtime_engine(payload),
+        "engine": engine,
+        "engine_is_approximate": engine_is_approximate(engine),
     }
     return enriched
