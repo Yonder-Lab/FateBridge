@@ -317,6 +317,12 @@ PLANET_SEQUENCE = [
     "North Node",
 ]
 
+# 月亮交点（虚点）。元素 / 模式平衡按行星本体统计，不计交点。
+NODE_BODIES = frozenset({"North Node", "South Node"})
+
+# 元素 / 模式平衡的统计口径说明（随盘面输出，供解读时标明基准）。
+BALANCE_BASIS = "行星本体计入；月亮交点（虚点）不计入元素/模式统计"
+
 PLANET_SWISSEPH_IDS = (
     {
         "Sun": swe.SUN,
@@ -1247,7 +1253,11 @@ def _build_aspects(
 
 
 def _balance(planets: Iterable[Dict[str, Any]], key: str) -> Dict[str, int]:
-    counter = Counter(item[key] for item in planets)
+    # 元素 / 模式平衡只统计行星本体；月亮交点是计算虚点（且仅排北交、不排南交，
+    # 计入会造成不对称偏置），故排除在外。交点仍保留在 planets 列表中。
+    counter = Counter(
+        item[key] for item in planets if item.get("id") not in NODE_BODIES
+    )
     return dict(counter)
 
 
@@ -1442,6 +1452,7 @@ def build_core_chart_payload(
         "aspects": aspects,
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
+        "balance_basis": BALANCE_BASIS,
         "summary": _summary(
             chart_variant,
             planets,
@@ -1666,6 +1677,7 @@ def _composite_chart(
         "aspects": aspects,
         "element_balance": _balance(composite_planets, "element"),
         "modality_balance": _balance(composite_planets, "modality"),
+        "balance_basis": BALANCE_BASIS,
         "summary": [
             f"已生成 FateBridge 组合盘{_precision_label_zh(engine_profile['engine_precision'])}层。",
             f"行星数量：{len(composite_planets)}。",
@@ -2172,6 +2184,7 @@ def _rehouse_chart_payload(
         "aspects": _build_aspects(planets),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
+        "balance_basis": BALANCE_BASIS,
     }
 
 
@@ -2390,6 +2403,7 @@ def _build_chart_from_positions(
         "aspects": aspects,
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
+        "balance_basis": BALANCE_BASIS,
         "summary": [
             summary_prefix,
             f"行星数量：{len(planets)}。",
