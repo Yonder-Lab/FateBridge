@@ -20,11 +20,10 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
-    BRANCH_HIDDEN_STEMS,
     TenGod,
     check_branch_combination,
     check_branch_conflict,
-    get_ten_god,
+    iter_pillar_gods,
 )
 
 
@@ -56,13 +55,9 @@ class RelativesAnalysis:
     def _star_weight(
         pillars: Dict[str, Tuple[str, str]], day_stem: str, gods: Tuple[TenGod, ...]
     ) -> float:
-        weight = 0.0
-        for p_name, (stem, branch) in pillars.items():
-            if p_name != "day" and get_ten_god(day_stem, stem) in gods:
-                weight += 1.0
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                if get_ten_god(day_stem, hidden) in gods:
-                    weight += 0.5
+        weight = sum(
+            e.weight for e in iter_pillar_gods(pillars, day_stem) if e.ten_god in gods
+        )
         return round(weight, 1)
 
     @staticmethod

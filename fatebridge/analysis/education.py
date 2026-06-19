@@ -22,10 +22,10 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
-    BRANCH_HIDDEN_STEMS,
     Element,
     TenGod,
     get_ten_god,
+    iter_pillar_gods,
 )
 
 # 文昌贵人：以日干（或年干）查地支
@@ -101,27 +101,15 @@ class EducationAnalysis:
     ) -> Dict[str, Any]:
         """统计印星、食伤、官星、财星力量（学业关键十神）。"""
         seal = food_hurt = officer = wealth = 0.0
-        for p_name, (stem, branch) in pillars.items():
-            if p_name != "day":
-                g = get_ten_god(day_stem, stem)
-                seal += 1.0 if g in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL) else 0
-                food_hurt += 1.0 if g in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER) else 0
-                officer += (
-                    1.0 if g in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER) else 0
-                )
-                wealth += (
-                    1.0 if g in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH) else 0
-                )
-            for hidden in BRANCH_HIDDEN_STEMS.get(branch, []):
-                g = get_ten_god(day_stem, hidden)
-                seal += 0.5 if g in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL) else 0
-                food_hurt += 0.5 if g in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER) else 0
-                officer += (
-                    0.5 if g in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER) else 0
-                )
-                wealth += (
-                    0.5 if g in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH) else 0
-                )
+        for e in iter_pillar_gods(pillars, day_stem):
+            if e.ten_god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
+                seal += e.weight
+            elif e.ten_god in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER):
+                food_hurt += e.weight
+            elif e.ten_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
+                officer += e.weight
+            elif e.ten_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
+                wealth += e.weight
 
         return {
             "seal_weight": round(seal, 1),
