@@ -40,6 +40,35 @@ class ElementAnalysis:
     # 故在普通五行计数（天干1 / 本气1 / 藏干0.5）之外额外加权约两个单位。
     MONTH_COMMAND_WEIGHT = 2.0
 
+    # element_distribution 的统计口径说明：它是结构计数，不是旺衰强弱。
+    DISTRIBUTION_BASIS = (
+        "结构计数（天干1 / 本气1 / 藏干0.5，四柱等权）；"
+        "不含月令旺衰加权，亦不含刑冲合化。月令旺衰另见 element_seasonal_phase。"
+    )
+
+    @staticmethod
+    def seasonal_phases(month_branch: str) -> Dict[str, str]:
+        """各五行相对月令的旺衰相位（旺 / 相 / 休 / 囚 / 死）。
+
+        经典确定映射，无主观加权：与月令同类为旺；月令所生为相；生月令者为休；
+        月令所克者为囚；克月令者为死。补足 element_distribution 缺失的旺衰维度。
+        """
+        month_element = BRANCH_ELEMENTS[month_branch][0]
+        phases: Dict[str, str] = {}
+        for element in Element:
+            if element == month_element:
+                phase = "旺"
+            elif GENERATION_CYCLE[month_element] == element:
+                phase = "相"
+            elif GENERATION_CYCLE[element] == month_element:
+                phase = "休"
+            elif DESTRUCTION_CYCLE[month_element] == element:
+                phase = "囚"
+            else:  # 克月令者
+                phase = "死"
+            phases[element.value] = phase
+        return phases
+
     @staticmethod
     def get_pillar_elements(
         pillars: Dict[str, Tuple[str, str]],
@@ -205,6 +234,8 @@ class ElementAnalysis:
                 for element_enum, count in adjusted_counts.items()
             },
             "element_relations": element_relations,
+            "element_distribution_basis": ElementAnalysis.DISTRIBUTION_BASIS,
+            "element_seasonal_phase": ElementAnalysis.seasonal_phases(month_branch),
         }
 
     @staticmethod
