@@ -43,3 +43,28 @@ jobs:
 
       - name: Run type checks
         run: mypy fatebridge/ api.py fastmcp_server.py
+
+  floor:
+    # Install every direct dependency at its declared minimum so a too-low
+    # version floor surfaces here instead of in a user's environment. The main
+    # `test` job always resolves to the latest releases and would never catch it.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies at declared minimums
+        run: uv pip install --system --resolution lowest-direct -e ".[dev]"
+
+      - name: Run tests
+        run: pytest -q
