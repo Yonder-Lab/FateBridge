@@ -3,6 +3,7 @@
 `full_surface` 契约测试与 `golden-master` 数值锁都从这里取输入，确保两套
 回归用的是同一组确定性夹具。
 """
+
 from __future__ import annotations
 
 

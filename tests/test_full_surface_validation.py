@@ -9,7 +9,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import fatebridge.api as api_module
 import fatebridge.mcp_server as mcp_module
-
 from tests.fixtures.surface_payloads import (
     MCP_CASES,
     REST_GET_CASES,
