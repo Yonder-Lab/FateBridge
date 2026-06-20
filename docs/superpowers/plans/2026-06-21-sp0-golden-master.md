@@ -109,9 +109,10 @@ def test_drops_volatile_generated_at():
 
 
 def test_rounds_floats_to_fixed_precision():
-    a = {"deg": 123.123456781}
-    b = {"deg": 123.123456789}
-    assert canonical_json(a) == canonical_json(b)  # 8 位精度后相等
+    # 第 9 位起的差异被 8 位精度吸收 → 视为相等
+    assert canonical_json({"deg": 123.12345678123}) == canonical_json({"deg": 123.12345678456})
+    # 但第 8 位的真实差异必须保留 → 精度恰为 8，既不过粗也不过细
+    assert canonical_json({"deg": 123.12345678}) != canonical_json({"deg": 123.12345679})
 
 
 def test_sorts_keys_stably():
