@@ -1,0 +1,33 @@
+"""Golden-master 输出规范化：把工具响应压成确定性的 JSON 文本。
+
+规范化做三件事，让「同一份计算」永远得到逐字节相同的快照：
+1. 剔除易变字段（如 ``run_metadata.generated_at`` 这种每次都变的时间戳）；
+2. 浮点统一 round 到固定精度，吸收跨 Python 版本的末位浮点噪声；
+3. 键排序后序列化。
+"""
+from __future__ import annotations
+
+import json
+from typing import Any
+
+#: 每次重算都会变、与命理计算无关的字段，冻结前一律剔除。
+VOLATILE_KEYS = frozenset({"generated_at"})
+
+#: 浮点保留精度。远高于任何命理意义阈值，仅用于吸收末位浮点噪声。
+FLOAT_PRECISION = 8
+
+
+def _scrub(value: Any) -> Any:
+    """递归剔除易变字段并规整浮点。"""
+    if isinstance(value, dict):
+        return {k: _scrub(v) for k, v in value.items() if k not in VOLATILE_KEYS}
+    if isinstance(value, list):
+        return [_scrub(item) for item in value]
+    if isinstance(value, float):
+        return round(value, FLOAT_PRECISION)
+    return value
+
+
+def canonical_json(payload: Any) -> str:
+    """把响应对象压成确定性 JSON 文本（剔易变字段、定浮点精度、排序键）。"""
+    return json.dumps(_scrub(payload), sort_keys=True, ensure_ascii=False, indent=2)
