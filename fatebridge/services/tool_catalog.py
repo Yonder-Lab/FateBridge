@@ -14,8 +14,13 @@ from typing import Any, Callable, Dict, List, Tuple
 from fatebridge.core.request_models import (
     AstroChartPolyRequest,
     AstroChartRequest,
+    AstroDistributionsRequest,
+    AstroHarmonicRequest,
+    AstroLunationPhaseRequest,
+    AstroPlanetaryAgesRequest,
     AstroRelativeFlatRequest,
     AstroRelativeRequest,
+    AstroTriplicityRulersRequest,
     BaziBirthRequest,
     BaziCareerRequest,
     BaziChildrenRequest,
@@ -125,6 +130,13 @@ from fatebridge.services.timing import (
     calculate_liushi_analysis,
     calculate_liuyue_analysis,
     calculate_nongli_time,
+)
+from fatebridge.services.western_lifespan import (
+    calculate_distributions,
+    calculate_harmonic_chart,
+    calculate_lunation_phase,
+    calculate_planetary_ages,
+    calculate_triplicity_rulers,
 )
 from fatebridge.services.western_timing import calculate_western_timing_analysis
 from fatebridge.services.western_timing_tools import (
@@ -268,6 +280,20 @@ def _western_module_spec(name: str, service: Any, label: str) -> ToolSpec:
         family="western_timing_tool",
         rest_path=f"/api/astro/timing/{name}",
         mcp_name=name,
+    )
+
+
+def _western_lifespan_spec(name: str, service: Any, model: Any, label: str) -> ToolSpec:
+    """Register a single-natal-chart western lifespan technique tool."""
+    return ToolSpec(
+        key=f"astro_{name}",
+        bind=raw_invoke(service),
+        request_model=model,
+        summary=f"生成{label}（读取单张本命盘的全生命周期技法）。",
+        operation_label_zh=label,
+        family="western_lifespan",
+        rest_path=f"/api/astro/lifespan/{name}",
+        mcp_name=f"astro_{name}",
     )
 
 
@@ -797,6 +823,34 @@ CATALOG: List[ToolSpec] = [
     _western_module_spec("zr", calculate_zr, "西占黄道释放"),
     _western_module_spec("firdaria", calculate_firdaria, "西占法达星限"),
     _western_module_spec("decennials", calculate_decennials, "西占十年星限"),
+    # --- Western lifespan techniques (single natal chart, whole-life) ------
+    _western_lifespan_spec(
+        "harmonic", calculate_harmonic_chart, AstroHarmonicRequest, "调波盘"
+    ),
+    _western_lifespan_spec(
+        "planetary_ages",
+        calculate_planetary_ages,
+        AstroPlanetaryAgesRequest,
+        "行星年龄",
+    ),
+    _western_lifespan_spec(
+        "triplicity_rulers",
+        calculate_triplicity_rulers,
+        AstroTriplicityRulersRequest,
+        "三分主星推运",
+    ),
+    _western_lifespan_spec(
+        "lunation_phase",
+        calculate_lunation_phase,
+        AstroLunationPhaseRequest,
+        "月相推运",
+    ),
+    _western_lifespan_spec(
+        "distributions",
+        calculate_distributions,
+        AstroDistributionsRequest,
+        "界推运",
+    ),
 ]
 
 

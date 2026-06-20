@@ -18,6 +18,11 @@ triggers:
   - 最近为什么不顺
   - 运势起伏
 engine_tools:
+  - astro_distributions
+  - astro_harmonic
+  - astro_lunation_phase
+  - astro_planetary_ages
+  - astro_triplicity_rulers
   - decennials
   - firdaria
   - jieqi_timeline_analysis
