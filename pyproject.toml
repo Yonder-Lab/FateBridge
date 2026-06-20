@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "fatebridge-mcp"
 version = "0.1.0"
 description = "FateBridge - A Model Context Protocol (MCP) server bridging ancient Chinese fortune telling wisdom with modern technology"
-authors = [{name = "User", email = "user@example.com"}]
+authors = [{name = "thomas-yanxin", email = "yx20001210@163.com"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10"
