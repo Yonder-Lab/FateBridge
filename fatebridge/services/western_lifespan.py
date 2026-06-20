@@ -16,8 +16,10 @@ import json
 from typing import Any, Dict, List, Optional, Tuple
 
 from fatebridge.core.astrology_lifespan import (
+    build_balbillus_payload,
     build_distributions_payload,
     build_harmonic_payload,
+    build_keypoints_payload,
     build_lunation_phase_payload,
     build_planetary_ages_payload,
     build_triplicity_rulers_payload,
@@ -419,6 +421,133 @@ def calculate_distributions(
         return _envelope(
             analysis_type="西占界推运",
             tool_name="distributions",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+# ---------------------------------------------------------------------------
+# 6. Balbillus 129年系统 (astro_balbillus).
+# ---------------------------------------------------------------------------
+
+
+def calculate_balbillus(
+    *,
+    start_planet: str = "Sun",
+    mode: str = "nearest",
+    max_age_years: float = 120.0,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成 Balbillus 129 年系统主限与子限时间轴。"""
+    label = "Balbillus 129年系统"
+    try:
+        birth_info, _subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type=zodiac_type, **birth_kwargs
+        )
+        payload = build_balbillus_payload(
+            natal_reference,
+            start_planet=start_planet,
+            mode=mode,
+            max_age_years=max_age_years,
+        )
+        summary = (
+            f"Balbillus 129 年系统（{payload['mode_label']}）：自"
+            f"{payload['start_planet_label']}起，{max_age_years} 岁内"
+            f"共 {len(payload['periods'])} 段主限。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        sections = [
+            ("起盘信息", _json_block(context)),
+            (
+                "系统设置",
+                _json_block(
+                    {
+                        "start_planet": payload["start_planet"],
+                        "mode": payload["mode"],
+                        "mode_label": payload["mode_label"],
+                        "zodiacal_order": payload["zodiacal_order"],
+                        "max_age_years": payload["max_age_years"],
+                    }
+                ),
+            ),
+            ("主限·子限时间轴", _json_block(payload["periods"])),
+        ]
+        return _envelope(
+            analysis_type="西占Balbillus 129年系统",
+            tool_name="balbillus",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+# ---------------------------------------------------------------------------
+# 7. 数字相位推运 (astro_keypoints).
+# ---------------------------------------------------------------------------
+
+
+def calculate_keypoints(
+    *,
+    release_mode: str = "soul",
+    max_age_years: int = 120,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成数字相位推运（120 年关键点）激活时间轴。"""
+    label = "数字相位推运"
+    try:
+        birth_info, _subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type=zodiac_type, **birth_kwargs
+        )
+        payload = build_keypoints_payload(
+            natal_reference, release_mode=release_mode, max_age_years=max_age_years
+        )
+        summary = (
+            f"数字相位推运（释放点={payload['release_mode_label']}）："
+            f"共 {len(payload['activations'])} 个激活年。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        sections = [
+            ("起盘信息", _json_block(context)),
+            (
+                "星位挂钩",
+                _json_block(
+                    {
+                        "release_mode": payload["release_mode"],
+                        "release_mode_label": payload["release_mode_label"],
+                        "positions": payload["positions"],
+                    }
+                ),
+            ),
+            ("激活时间轴", _json_block(payload["activations"])),
+        ]
+        return _envelope(
+            analysis_type="西占数字相位推运",
+            tool_name="keypoints",
             context=context,
             natal_reference=natal_reference,
             payload=payload,

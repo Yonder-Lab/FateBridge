@@ -7,22 +7,25 @@ target date. None of them needs an external "analysis moment" — they are pure
 functions of the natal positions plus a fixed table or a fixed progression rate,
 which makes them deterministic and cheap to verify.
 
-The five techniques:
+The techniques:
 
 * :func:`build_harmonic_payload` — 调波盘 (harmonic chart): natal longitudes
   multiplied by an integer ``harmonic`` number, then re-read for conjunctions.
 * :func:`build_planetary_ages_payload` — 行星年龄 (Ptolemy's seven ages):
   a fixed age table mapping each life band to its ruling planet.
 * :func:`build_triplicity_rulers_payload` — 三分主星推运: the sect light's
-  triplicity rulers, ordered by sect, divide life into three qualitative stages.
+  triplicity rulers, ordered by sect, divide life into stages.
 * :func:`build_lunation_phase_payload` — 月相推运: the natal Sun–Moon
   elongation advanced at the secondary synodic rate across the eight lunar phases.
 * :func:`build_distributions_payload` — 界推运 / 分配法: the Ascendant directed
   through the Egyptian bounds, each bound's lord governing one period.
+* :func:`build_balbillus_payload` — Balbillus 129年系统: small-year periods
+  shortened by each planet's distance from its exaltation, in zodiacal order.
+* :func:`build_keypoints_payload` — 数字相位推运 (120-year keypoints): planets
+  activated by year when it is a multiple of their position- or period-number.
 
-Every builder takes an already-built kerykeion ``subject`` (and, where a real
-calendar age matters, the :class:`AstroBirthInfo`) and returns a plain ``dict``.
-Envelope assembly and snapshot rendering live in the service layer, mirroring
+Each builder takes the natal points dict and returns a plain ``dict``. Envelope
+assembly and snapshot rendering live in the service layer, mirroring
 ``western_timing_tools`` — this module stays computation-only.
 """
 
@@ -553,15 +556,301 @@ def build_distributions_payload(
     }
 
 
+# ---------------------------------------------------------------------------
+# 6. Balbillus 129年系统 (旺距削减主限).
+# ---------------------------------------------------------------------------
+
+# Seven-planet "small years" of the Balbillus 129-year system (Σ = 129).
+BALBILLUS_SMALL_YEARS: Dict[str, int] = {
+    "Sun": 19,
+    "Moon": 25,
+    "Saturn": 30,
+    "Jupiter": 12,
+    "Mars": 15,
+    "Venus": 8,
+    "Mercury": 20,
+}
+# Traditional exaltation degrees (absolute ecliptic longitude).
+BALBILLUS_EXALTATION: Dict[str, float] = {
+    "Sun": 19.0,  # Aries 19°
+    "Moon": 33.0,  # Taurus 3°
+    "Saturn": 201.0,  # Libra 21°
+    "Jupiter": 105.0,  # Cancer 15°
+    "Mars": 298.0,  # Capricorn 28°
+    "Venus": 357.0,  # Pisces 27°
+    "Mercury": 165.0,  # Virgo 15°
+}
+# Empirical reduction fit (nearest mode only): d = a·ecl + b. Sun/Moon/Mars use
+# a tuned linear map of the nearest ecliptic distance; the other four are the
+# raw nearest distance (a = 1, b = 0). Mirrors the Horosa reference exactly.
+BALBILLUS_REDUCTION_FIT: Dict[str, tuple[float, float]] = {
+    "Sun": (0.9431, 19.47),
+    "Moon": (0.9592, 14.76),
+    "Mars": (0.9268, 24.39),
+}
+BALBILLUS_PLANET_ORDER = [
+    "Sun",
+    "Moon",
+    "Saturn",
+    "Jupiter",
+    "Mars",
+    "Venus",
+    "Mercury",
+]
+BALBILLUS_MODES = {"nearest": "最近角距", "forward": "顺黄道距"}
+
+
+def _balbillus_distance(longitude: float, exaltation: float, mode: str) -> float:
+    """Angular distance from a natal longitude to its exaltation degree."""
+    raw = _wrap360(longitude - exaltation)
+    if mode == "forward":
+        return raw
+    return min(raw, 360.0 - raw)
+
+
+def _balbillus_period_years(
+    planet: str, longitude: Optional[float], mode: str
+) -> float:
+    """Major-period length (years) = small-year × (1 − distance/360)."""
+    small_year = BALBILLUS_SMALL_YEARS[planet]
+    if longitude is None:
+        return float(small_year)
+    distance = _balbillus_distance(longitude, BALBILLUS_EXALTATION[planet], mode)
+    fit = BALBILLUS_REDUCTION_FIT.get(planet)
+    if fit is not None and mode == "nearest":
+        distance = fit[0] * distance + fit[1]
+    distance = max(0.0, min(360.0, distance))
+    return small_year * (1.0 - distance / 360.0)
+
+
+def _balbillus_order(
+    longitudes: Dict[str, Optional[float]], start_planet: str
+) -> List[str]:
+    """Seven planets sorted by natal longitude, rotated to ``start_planet``."""
+    present = [p for p in BALBILLUS_PLANET_ORDER if longitudes.get(p) is not None]
+    ordered = sorted(present, key=lambda p: _wrap360(float(longitudes[p])))  # type: ignore[arg-type]
+    if not ordered:
+        ordered = list(BALBILLUS_PLANET_ORDER)
+    if start_planet in ordered:
+        pivot = ordered.index(start_planet)
+        ordered = ordered[pivot:] + ordered[:pivot]
+    return ordered
+
+
+def build_balbillus_payload(
+    natal_reference: Dict[str, Dict[str, Any]],
+    *,
+    start_planet: str = "Sun",
+    mode: str = "nearest",
+    max_age_years: float = 120.0,
+) -> Dict[str, Any]:
+    """
+    Build the Balbillus 129-year time-lord table. Each planet's major period is
+    its small-year shortened by how far its natal longitude sits from its
+    exaltation; periods run in zodiacal order from ``start_planet`` and each is
+    sub-divided (one level, the month-scale handover) by the same order.
+    """
+    if mode not in BALBILLUS_MODES:
+        mode = "nearest"
+    if start_planet not in BALBILLUS_SMALL_YEARS:
+        start_planet = "Sun"
+
+    longitudes: Dict[str, Optional[float]] = {
+        p: (
+            float(natal_reference[p.lower()]["absolute_degree"])
+            if p.lower() in natal_reference
+            else None
+        )
+        for p in BALBILLUS_PLANET_ORDER
+    }
+    order = _balbillus_order(longitudes, start_planet)
+
+    periods: List[Dict[str, Any]] = []
+    cursor = 0.0
+    guard = 0
+    while cursor < max_age_years and guard < 200:
+        planet = order[guard % len(order)]
+        duration = _balbillus_period_years(planet, longitudes[planet], mode)
+        if duration <= 0:
+            break
+        # One level of sub-periods: month-scale (parent order rotated to parent).
+        sub_order = order[order.index(planet) :] + order[: order.index(planet)]
+        parent_end = cursor + duration
+        sub_periods: List[Dict[str, Any]] = []
+        sub_cursor = cursor
+        for index, sub_planet in enumerate(sub_order):
+            if index == len(sub_order) - 1:
+                sub_duration = max(0.0, parent_end - sub_cursor)
+            else:
+                sub_duration = (
+                    _balbillus_period_years(sub_planet, longitudes[sub_planet], mode)
+                    / 12.0
+                )
+                sub_duration = min(sub_duration, parent_end - sub_cursor)
+            if sub_duration <= 0:
+                break
+            sub_periods.append(
+                {
+                    "planet": sub_planet,
+                    "planet_label": planet_label(sub_planet),
+                    "start_age_years": round(sub_cursor, 4),
+                    "duration_years": round(sub_duration, 4),
+                }
+            )
+            sub_cursor += sub_duration
+        periods.append(
+            {
+                "planet": planet,
+                "planet_label": planet_label(planet),
+                "start_age_years": round(cursor, 4),
+                "duration_years": round(duration, 4),
+                "sub_periods": sub_periods,
+            }
+        )
+        cursor = parent_end
+        guard += 1
+
+    return {
+        "system": "balbillus_129",
+        "system_label": "Balbillus 129年系统（旺距削减主限）",
+        "start_planet": start_planet,
+        "start_planet_label": planet_label(start_planet),
+        "mode": mode,
+        "mode_label": BALBILLUS_MODES[mode],
+        "max_age_years": max_age_years,
+        "zodiacal_order": order,
+        "periods": periods,
+    }
+
+
+# ---------------------------------------------------------------------------
+# 7. 数字相位推运 (120年关键点 / keypoints).
+# ---------------------------------------------------------------------------
+
+# Seven-planet period numbers for the keypoints (数字相位) technique.
+KEYPOINTS_PERIOD_NUMBERS: Dict[str, int] = {
+    "Saturn": 3,
+    "Mercury": 8,
+    "Sun": 18,
+    "Venus": 5,
+    "Mars": 7,
+    "Jupiter": 9,
+    "Moon": 13,
+}
+KEYPOINTS_RELEASE_MODES = {"soul": "身（月亮起）", "body": "命（上升起）"}
+KEYPOINTS_PLANETS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"]
+
+
+def _factor_pairs(number: int) -> List[List[int]]:
+    """Non-trivial factor pairs [a, b] with a ≤ b (empty for primes)."""
+    pairs: List[List[int]] = []
+    factor = 2
+    while factor * factor <= number:
+        if number % factor == 0:
+            pairs.append([factor, number // factor])
+        factor += 1
+    return pairs
+
+
+def build_keypoints_payload(
+    natal_reference: Dict[str, Dict[str, Any]],
+    *,
+    release_mode: str = "soul",
+    max_age_years: int = 120,
+) -> Dict[str, Any]:
+    """
+    Build the 120-year keypoints timeline. Each planet carries a position-number
+    ``k`` (signs from the release point) and a period-number; a year activates a
+    planet when it is a multiple of that planet's ``k`` (position transfer) or of
+    its period-number (table activation).
+    """
+    if release_mode not in KEYPOINTS_RELEASE_MODES:
+        release_mode = "soul"
+    max_age = max(1, min(120, int(max_age_years)))
+
+    release_key = "ascendant" if release_mode == "body" else "moon"
+    release_point = natal_reference.get(release_key, {})
+    release_longitude = release_point.get("absolute_degree")
+    if release_longitude is None:
+        return {
+            "system": "keypoints_120",
+            "system_label": "数字相位推运（120年关键点）",
+            "release_mode": release_mode,
+            "release_mode_label": KEYPOINTS_RELEASE_MODES[release_mode],
+            "positions": [],
+            "activations": [],
+        }
+
+    release_sign = int(_wrap360(float(release_longitude)) // 30)
+    positions: List[Dict[str, Any]] = []
+    for planet in KEYPOINTS_PLANETS:
+        point = natal_reference.get(planet.lower())
+        if point is None:
+            continue
+        sign_index = int(_wrap360(float(point["absolute_degree"])) // 30)
+        position_number = ((sign_index - release_sign) % 12 + 12) % 12 + 1
+        positions.append(
+            {
+                "planet": planet,
+                "planet_label": planet_label(planet),
+                "position_number": position_number,
+                "period_number": KEYPOINTS_PERIOD_NUMBERS[planet],
+            }
+        )
+
+    activations: List[Dict[str, Any]] = []
+    for age in range(1, max_age + 1):
+        position_active = [
+            {"planet": pos["planet"], "planet_label": pos["planet_label"]}
+            for pos in positions
+            if age % pos["position_number"] == 0
+        ]
+        period_active = [
+            {
+                "planet": planet,
+                "planet_label": planet_label(planet),
+                "period_number": KEYPOINTS_PERIOD_NUMBERS[planet],
+            }
+            for planet in KEYPOINTS_PLANETS
+            if age % KEYPOINTS_PERIOD_NUMBERS[planet] == 0
+        ]
+        if not position_active and not period_active:
+            continue
+        activations.append(
+            {
+                "age": age,
+                "house": ((age - 1) % 12) + 1,
+                "factors": _factor_pairs(age),
+                "position_active": position_active,
+                "period_active": period_active,
+            }
+        )
+
+    return {
+        "system": "keypoints_120",
+        "system_label": "数字相位推运（120年关键点）",
+        "release_mode": release_mode,
+        "release_mode_label": KEYPOINTS_RELEASE_MODES[release_mode],
+        "release_sign_index": release_sign,
+        "positions": positions,
+        "activations": activations,
+    }
+
+
 __all__ = [
     "build_harmonic_payload",
     "build_planetary_ages_payload",
     "build_triplicity_rulers_payload",
     "build_lunation_phase_payload",
     "build_distributions_payload",
+    "build_balbillus_payload",
+    "build_keypoints_payload",
     "PTOLEMY_SEVEN_AGES",
     "DOROTHEAN_TRIPLICITY_RULERS",
     "LUNAR_PHASES",
     "SECONDARY_SYNODIC_RATE_DEG_PER_YEAR",
     "DISTRIBUTION_TIME_KEY_RATES",
+    "BALBILLUS_SMALL_YEARS",
+    "BALBILLUS_EXALTATION",
+    "KEYPOINTS_PERIOD_NUMBERS",
 ]

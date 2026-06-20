@@ -12,10 +12,12 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Tuple
 
 from fatebridge.core.request_models import (
+    AstroBalbillusRequest,
     AstroChartPolyRequest,
     AstroChartRequest,
     AstroDistributionsRequest,
     AstroHarmonicRequest,
+    AstroKeypointsRequest,
     AstroLunationPhaseRequest,
     AstroPlanetaryAgesRequest,
     AstroRelativeFlatRequest,
@@ -132,8 +134,10 @@ from fatebridge.services.timing import (
     calculate_nongli_time,
 )
 from fatebridge.services.western_lifespan import (
+    calculate_balbillus,
     calculate_distributions,
     calculate_harmonic_chart,
+    calculate_keypoints,
     calculate_lunation_phase,
     calculate_planetary_ages,
     calculate_triplicity_rulers,
@@ -850,6 +854,18 @@ CATALOG: List[ToolSpec] = [
         calculate_distributions,
         AstroDistributionsRequest,
         "界推运",
+    ),
+    _western_lifespan_spec(
+        "balbillus",
+        calculate_balbillus,
+        AstroBalbillusRequest,
+        "Balbillus 129年系统",
+    ),
+    _western_lifespan_spec(
+        "keypoints",
+        calculate_keypoints,
+        AstroKeypointsRequest,
+        "数字相位推运",
     ),
 ]
 
