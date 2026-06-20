@@ -4,8 +4,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import GuaMeiyiRequest, JieqiYearRequest, NongliTimeRequest
-from fastmcp_server import gua_meiyi, jieqi_year, nongli_time
+from fatebridge.api import GuaMeiyiRequest, JieqiYearRequest, NongliTimeRequest
+from fatebridge.mcp_server import gua_meiyi, jieqi_year, nongli_time
 from fatebridge.services.divination import calculate_gua_meiyi
 from fatebridge.services.timing import calculate_jieqi_year, calculate_nongli_time
 

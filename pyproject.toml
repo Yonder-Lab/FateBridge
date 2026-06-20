@@ -50,8 +50,8 @@ iztro-verify = [
 
 [project.scripts]
 fatebridge = "fatebridge.cli:main"
-fatebridge-api = "api:main"
-fatebridge-mcp = "fastmcp_server:main"
+fatebridge-api = "fatebridge.api:main"
+fatebridge-mcp = "fatebridge.mcp_server:main"
 
 [tool.setuptools.packages.find]
 include = ["fatebridge*"]

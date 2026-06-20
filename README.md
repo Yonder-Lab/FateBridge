@@ -74,7 +74,7 @@ API_KEY_HEADER_NAME=X-API-Key
 ### 3. 启动 REST API
 
 ```bash
-python api.py
+python -m fatebridge.api
 # 或
 fatebridge-api
 ```
@@ -90,7 +90,7 @@ fatebridge-api
 ### 4. 启动 FastMCP
 
 ```bash
-python fastmcp_server.py
+python -m fatebridge.mcp_server
 # 或
 fatebridge-mcp
 ```
@@ -214,8 +214,8 @@ curl -X POST http://localhost:8010/api/calculate \
 
 所有工具（约 60 个）现在只在中央目录 `fatebridge/services/tool_catalog.py` 中以 `ToolSpec` **声明一次**，由注册器自动挂载到三个接口：
 
-- **REST**（`api.py` → `register_rest`）：FastAPI HTTP 端点
-- **MCP**（`fastmcp_server.py` → `register_mcp`）：FastMCP 工具
+- **REST**（`fatebridge/api.py` → `register_rest`）：FastAPI HTTP 端点
+- **MCP**（`fatebridge/mcp_server.py` → `register_mcp`）：FastMCP 工具
 - **CLI**（`fatebridge/cli.py`）：命令行子命令，面向 Agentic/脚本化使用
 
 新增一个工具或分析维度只需在目录中追加一个 `ToolSpec`，无需改动任何接口文件。
@@ -307,9 +307,10 @@ fatebridge bazi_birth --birth-year 1990 --birth-month 6 --birth-day 15 \
 
 ```text
 FateBridge/
-├── api.py
-├── fastmcp_server.py
 ├── fatebridge/
+│   ├── api.py          # REST (FastAPI) 入口
+│   ├── mcp_server.py   # MCP (FastMCP) 入口
+│   ├── cli.py          # CLI 入口
 │   ├── analysis/
 │   ├── core/
 │   ├── data/
@@ -324,8 +325,8 @@ FateBridge/
 
 几个关键目录的职责：
 
-- `api.py`: FastAPI 路由、Pydantic 请求模型、HTTP 错误处理
-- `fastmcp_server.py`: FastMCP 工具定义与 JSON 输出封装
+- `fatebridge/api.py`: FastAPI 路由、Pydantic 请求模型、HTTP 错误处理
+- `fatebridge/mcp_server.py`: FastMCP 工具定义与 JSON 输出封装
 - `fatebridge/core`: 核心算法、历法、占星、占术、导出合同
 - `fatebridge/services`: 面向 API/MCP 的编排层与快照拼装层
 - `fatebridge/analysis`: 高层分析逻辑，如配合度与时运影响、婚姻分析、事业分析
@@ -354,9 +355,9 @@ FateBridge/
 pytest -q
 pytest tests/test_api_alignment.py -q
 
-black --check api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py tests
-isort --check-only api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py tests
-mypy --follow-imports=silent api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py
+black --check fatebridge scripts tests
+isort --check-only fatebridge scripts tests
+mypy fatebridge/
 ```
 
 更细的开发说明见 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)。

@@ -10,9 +10,9 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import api as api_module
-import fastmcp_server
-from api import (
+import fatebridge.api as api_module
+from fatebridge import mcp_server as fastmcp_server
+from fatebridge.api import (
     FateBridgeRequest,
     WesternTimingRequest,
     calculate_destiny,

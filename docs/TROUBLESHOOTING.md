@@ -58,7 +58,7 @@ lsof -i :8010
 或者临时换端口：
 
 ```bash
-API_PORT=8011 python api.py
+API_PORT=8011 python -m fatebridge.api
 ```
 
 ### 2.2 `/health` 不通
@@ -66,7 +66,7 @@ API_PORT=8011 python api.py
 确认服务是否真的启动在预期端口：
 
 ```bash
-python api.py
+python -m fatebridge.api
 curl http://localhost:8010/health
 ```
 
@@ -77,7 +77,7 @@ curl http://localhost:8010/health
 确认使用的是仓库根目录，并直接运行：
 
 ```bash
-python fastmcp_server.py
+python -m fatebridge.mcp_server
 ```
 
 如果 host 侧仍然连不上，优先检查：
@@ -220,16 +220,16 @@ FateBridge 里有一条 legacy 兼容规则：
 ALLOWED_ORIGINS=http://localhost:3000
 ```
 
-修改后重启 `python api.py`。
+修改后重启 `python -m fatebridge.api`。
 
-当前 `api.py` 使用 `ALLOWED_ORIGINS` 环境变量，并默认只放行 `http://localhost:3000`。
+当前 `fatebridge/api.py` 使用 `ALLOWED_ORIGINS` 环境变量，并默认只放行 `http://localhost:3000`。
 
 ## 7. 文档和代码不一致时怎么办
 
 优先以代码为准，然后检查：
 
-- `api.py`
-- `fastmcp_server.py`
+- `fatebridge/api.py`
+- `fatebridge/mcp_server.py`
 - `tests/test_api_alignment.py`
 - `docs/API.md`
 - `docs/ALGORITHM_COVERAGE.md`
@@ -242,7 +242,7 @@ ALLOWED_ORIGINS=http://localhost:3000
 ## 8. 最小诊断命令
 
 ```bash
-python api.py
+python -m fatebridge.api
 curl http://localhost:8010/health
 pytest tests/test_api_alignment.py -q
 ```

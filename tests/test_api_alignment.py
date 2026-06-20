@@ -9,8 +9,8 @@ from fastapi import HTTPException
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import api as api_module
-from api import (
+import fatebridge.api as api_module
+from fatebridge.api import (
     AstroChartRequest,
     AstroRelativePartyRequest,
     AstroRelativeRequest,
@@ -44,7 +44,7 @@ from api import (
     knowledge_read_helper,
     knowledge_registry_helper,
 )
-from fastmcp_server import (
+from fatebridge.mcp_server import (
     astro_chart,
     astro_relative_chart,
     dayun_analysis,

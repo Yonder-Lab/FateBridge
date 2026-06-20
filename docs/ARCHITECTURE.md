@@ -6,8 +6,8 @@
 
 ```mermaid
 flowchart LR
-    Client["HTTP Client / Script / Agent Host"] --> REST["FastAPI<br/>api.py"]
-    Client --> MCP["FastMCP<br/>fastmcp_server.py"]
+    Client["HTTP Client / Script / Agent Host"] --> REST["FastAPI<br/>fatebridge/api.py"]
+    Client --> MCP["FastMCP<br/>fatebridge/mcp_server.py"]
 
     REST --> Models["Pydantic 请求模型"]
     MCP --> Args["Tool 参数归一化"]
@@ -25,7 +25,7 @@ flowchart LR
 
 ### 核心结论
 
-- `api.py` 和 `fastmcp_server.py` 是两层 transport adapter，不承担核心算法
+- `fatebridge/api.py` 和 `fatebridge/mcp_server.py` 是两层 transport adapter，不承担核心算法
 - 两层 transport 已开始共享 `fatebridge/services/tool_registry.py`，用来收敛部分 tool name / service binding / 描述定义
 - `fatebridge/services` 是服务编排层，负责把 transport 输入转换成核心算法调用
 - `fatebridge/core` 是主要算法层
@@ -37,7 +37,7 @@ flowchart LR
 
 | 层 | 主要文件 | 职责 |
 | --- | --- | --- |
-| 传输层 | `api.py`, `fastmcp_server.py` | 路由、工具定义、请求模型、HTTP/MCP 错误包装 |
+| 传输层 | `fatebridge/api.py`, `fatebridge/mcp_server.py` | 路由、工具定义、请求模型、HTTP/MCP 错误包装 |
 | 服务层 | `fatebridge/services/*.py` | 编排核心算法、拼装响应、生成 `snapshot_text` / `snapshot_export` |
 | 分析层 | `fatebridge/analysis/*.py` | 复合分析逻辑，如配合度和时运影响 |
 | 核心层 | `fatebridge/core/*.py` | 历法、八字、占星、占术、导出解析、知识索引 |
@@ -49,11 +49,11 @@ flowchart LR
 
 ### 3.1 Transport
 
-- `api.py`
+- `fatebridge/api.py`
   - 定义 FastAPI app、CORS、中英文 request model
   - 暴露 54 个 REST 路由（含 `/health`、`/ready`、`/metrics`）
   - 负责把 Pydantic 模型转为 service 参数
-- `fastmcp_server.py`
+- `fatebridge/mcp_server.py`
   - 定义 FastMCP app
   - 暴露 50 个 MCP 工具
   - 返回 JSON 字符串，适合 Agent host 直接消费
@@ -101,7 +101,7 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant API as api.py
+    participant API as fatebridge/api.py
     participant H as helpers.py
     participant S as services/calculation.py
     participant CAL as core/calendar.py
@@ -139,7 +139,7 @@ flowchart TD
 
 ### 5.1 双 transport，单核心
 
-FateBridge 没有为 REST 和 MCP 分别维护两套领域逻辑。`api.py` 与 `fastmcp_server.py` 只负责接入层差异，真正算法都下沉到 `services` / `core`。当前首批 transport 定义已经通过共享 registry 收敛在 `fatebridge/services/tool_registry.py`，并继续按工具家族逐步迁移。
+FateBridge 没有为 REST 和 MCP 分别维护两套领域逻辑。`fatebridge/api.py` 与 `fatebridge/mcp_server.py` 只负责接入层差异，真正算法都下沉到 `services` / `core`。当前首批 transport 定义已经通过共享 registry 收敛在 `fatebridge/services/tool_registry.py`，并继续按工具家族逐步迁移。
 
 好处：
 
@@ -188,13 +188,13 @@ FateBridge 没有为 REST 和 MCP 分别维护两套领域逻辑。`api.py` 与 
 
 ## 6. 运行时与配置
 
-默认运行参数来自 `api.py`：
+默认运行参数来自 `fatebridge/api.py`：
 
 - `API_HOST=0.0.0.0`
 - `API_PORT=8010`
 - `ALLOWED_ORIGINS=http://localhost:3000`
 
-`fastmcp_server.py` 则通过 `app.run()` 启动 FastMCP 服务。
+`fatebridge/mcp_server.py` 则通过 `app.run()` 启动 FastMCP 服务。
 
 ## 7. 测试策略
 
@@ -213,8 +213,8 @@ FateBridge 没有为 REST 和 MCP 分别维护两套领域逻辑。`api.py` 与 
 
 1. 在 `core` 实现或补充底层算法
 2. 在 `services` 中封装领域返回结构
-3. 在 `api.py` 增加 request model 和 REST 路由
-4. 在 `fastmcp_server.py` 增加对应 MCP 工具
+3. 在 `fatebridge/api.py` 增加 request model 和 REST 路由
+4. 在 `fatebridge/mcp_server.py` 增加对应 MCP 工具
 5. 在 `tests/` 增加能力测试与 API/MCP 对齐测试
 6. 更新 [API.md](API.md) 和 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)
 

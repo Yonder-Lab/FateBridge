@@ -178,8 +178,8 @@ async def test_heavy_api_routes_honor_shared_concurrency_limit(monkeypatch):
     if sys.version_info < (3, 10):
         pytest.skip("api.py requires Python 3.10+ to import")
 
-    import api as api_module
-    from api import TimingAnalysisRequest
+    import fatebridge.api as api_module
+    from fatebridge.api import TimingAnalysisRequest
 
     api_module._reset_runtime_state_for_tests()
     api_module.HEAVY_CALC_SEMAPHORE = asyncio.Semaphore(2)

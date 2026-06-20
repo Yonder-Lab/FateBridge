@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import (
+from fatebridge.api import (
     GuaLookupRequest,
     GuaMeiyiRequest,
     MeihuaAnalysisRequest,
@@ -14,7 +14,9 @@ from api import (
     SuZhanRequest,
     TongSheFaRequest,
 )
-from fastmcp_server import (
+from fatebridge.core import astrology as astrology_core
+from fatebridge.core.phase2_local import build_pseudo_chart
+from fatebridge.mcp_server import (
     export_registry,
     gua_lookup,
     gua_meiyi,
@@ -25,8 +27,6 @@ from fastmcp_server import (
     suzhan,
     tongshefa,
 )
-from fatebridge.core import astrology as astrology_core
-from fatebridge.core.phase2_local import build_pseudo_chart
 from fatebridge.services.divination import (
     calculate_gua_lookup,
     calculate_gua_meiyi,

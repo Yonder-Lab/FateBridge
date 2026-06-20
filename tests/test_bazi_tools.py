@@ -4,8 +4,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import BaziBirthRequest
-from fastmcp_server import bazi_birth
+from fatebridge.api import BaziBirthRequest
+from fatebridge.mcp_server import bazi_birth
 from fatebridge.services.bazi import calculate_bazi_birth
 from fatebridge.utils.helpers import create_person_info
 

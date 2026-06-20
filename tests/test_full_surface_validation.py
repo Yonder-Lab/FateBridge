@@ -7,8 +7,8 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import api as api_module
-import fastmcp_server as mcp_module
+import fatebridge.api as api_module
+import fatebridge.mcp_server as mcp_module
 
 
 def _birth_payload(
