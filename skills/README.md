@@ -32,15 +32,18 @@ skills/
 │   ├── fatebridge-engine.md   计算层：CLI 调用、全量工具地图、字段字典、怎么读 snapshot
 │   └── onda-counsel.md        解读层：Onda 声音、人味儿规则、凶象翻译、红线、收尾自检
 ├── onda-yuanfen/              缘分 · 感情合婚
+│   ├── SKILL.md               给人读：问什么、调哪个工具、怎么共情
+│   └── agents/interface.yaml  给机器读：场景、工具清单、必填输入、输出契约
 ├── onda-shiye/                事业 · 财运
 ├── onda-jiankang/             健康 · 身心
 ├── onda-shiyun/               人生时运 · 择时
 ├── onda-zhanbu/               抉择 · 问事占卜
 ├── onda-mingge/               认识自己 · 性格天赋
 └── onda-xingpan/              星盘 · 占星自观
+                               （每个 onda-* 都含 SKILL.md + agents/interface.yaml）
 ```
 
-每个场景 Skill 的 `SKILL.md` 都很薄：负责「问什么、调哪个工具、怎么共情」，计算与声音两层共用 `_shared/`。
+每个场景 Skill 有两份契约：`SKILL.md` 给人读（薄，负责「问什么、调哪个工具、怎么共情」），`agents/interface.yaml` 给 agent 运行时读（机器可发现：场景触发词、调用的引擎工具、必填出生字段、输出契约）。计算与声音两层共用 `_shared/`。两份描述都被 `tests/test_skills_interface_contract.py` 锁到引擎 catalog 与 SKILL.md 上——任一方漂移，CI 失败。
 
 ---
 
@@ -54,8 +57,13 @@ skills/
   python3 -m fatebridge.cli list
   python3 -m fatebridge.cli describe <tool>
   ```
+- 改了某个 skill 的工具/输入，**同步更新它的 `agents/interface.yaml`**：`engine_tools` 必须与 SKILL.md 里反引号引用的工具完全一致，否则 `tests/test_skills_interface_contract.py` 会失败。
 
 ---
+
+## 许可与发布
+
+本套件随 FateBridge 仓库以 **Apache License 2.0** 发布（见仓库根 `LICENSE`）。每个 `agents/interface.yaml` 标注的 `license` 与 `version` 与项目一致，并由契约测试校验，确保对外分发时声明与实际不漂移。
 
 ## 边界声明
 

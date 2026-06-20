@@ -1,0 +1,43 @@
+# Machine-readable interface for the onda-shiye skill.
+# Enforced by tests/test_skills_interface_contract.py against the FateBridge
+# engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
+name: onda-shiye
+version: 0.1.0
+scenario: 事业 · 财运
+summary: 用 FateBridge 引擎看事业、财运、求职、创业、跳槽、合伙、求财方向，Onda 河狸把盘讲成能落地的建议
+triggers:
+  - 事业运
+  - 财运
+  - 工作
+  - 跳槽
+  - 要不要创业
+  - 合伙靠不靠谱
+  - 今年财运
+  - 求职方向
+  - 升职
+  - 生意
+  - 偏财正财
+  - 破财
+engine_tools:
+  - analyze_destiny
+  - bazi_career
+  - bazi_wealth
+  - liunian_analysis
+  - timing_analysis
+  - two_person_compatibility
+required_inputs:
+  - birth_year
+  - birth_month
+  - birth_day
+  - birth_hour
+  - gender
+  - birth_place
+reads:
+  - ../../_shared/fatebridge-engine.md
+  - ../../_shared/onda-counsel.md
+output:
+  kind: interpretation        # 人类可读解读，非原始命盘字段
+  grounding: engine_fields    # 结论溯源到引擎字段，AI 不手算
+  voice: onda-counsel
+boundary: 传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。
+license: Apache-2.0

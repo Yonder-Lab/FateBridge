@@ -1,0 +1,46 @@
+# Machine-readable interface for the onda-yuanfen skill.
+# Enforced by tests/test_skills_interface_contract.py against the FateBridge
+# engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
+name: onda-yuanfen
+version: 0.1.0
+scenario: 缘分 · 感情合婚
+summary: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘，Onda 河狸陪你把盘讲成人话
+triggers:
+  - 感情运
+  - 姻缘
+  - 桃花运
+  - 什么时候脱单
+  - 八字合婚
+  - 两人合不合
+  - 配对
+  - 夫妻宫
+  - 正缘何时到
+  - 复合
+  - 暧昧
+  - 要不要在一起
+engine_tools:
+  - astro_relative_chart
+  - bazi_marriage
+  - bazi_romance
+  - liunian_analysis
+  - liuyue_analysis
+  - meihua_analysis
+  - sukuyo_compatibility
+  - two_person_compatibility
+  - ziwei_birth
+required_inputs:
+  - birth_year
+  - birth_month
+  - birth_day
+  - birth_hour
+  - gender
+  - birth_place
+reads:
+  - ../../_shared/fatebridge-engine.md
+  - ../../_shared/onda-counsel.md
+output:
+  kind: interpretation        # 人类可读解读，非原始命盘字段
+  grounding: engine_fields    # 结论溯源到引擎字段，AI 不手算
+  voice: onda-counsel
+boundary: 传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。
+license: Apache-2.0
