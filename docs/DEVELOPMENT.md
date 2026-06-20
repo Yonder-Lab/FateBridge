@@ -101,6 +101,9 @@ pytest tests/test_astrology_tools.py -q
 pytest tests/test_chinese_metaphysics.py -q
 ```
 
+> [!IMPORTANT]
+> **测试必须在装了 `.[dev]` 的 Python 3.10–3.13 环境里跑**（对齐 CI 矩阵），别用系统自带的解释器。少了 dev 依赖会出**伪失败**——例如异步测试在缺 `pytest-asyncio` 时不会执行，而是直接被报成 `FAILED`，报错写着 `async def functions are not natively supported`。这类失败是环境问题，不是代码缺陷：先确认 `pip install -e ".[dev]"` 装在当前解释器里，再判断测试本身。同理 `black`/`isort`/`mypy` 也都来自 `.[dev]`，系统解释器里没有。
+
 ### 格式化与静态检查
 
 ```bash
