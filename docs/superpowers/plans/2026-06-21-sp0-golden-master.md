@@ -408,4 +408,7 @@ git add -A && git commit -m "style(golden): 格式化" || echo "无需格式化"
 - **跨 Python 版本浮点**：基线本地在 3.13 冻结，CI 跑 3.10–3.13。8 位浮点规范化吸收末位差异；纯 Python 与 C 扩展（pyswisseph/kerykeion）的计算跨版本应一致。首个 PR 的 CI 会立即暴露任何跨版本漂移；若出现，降低 `FLOAT_PRECISION` 或定位真实差异源。
 - **基线冻结既有行为，不保证命理正确**：golden 只锁「重构零漂移」。若后续发现既有 bug，单列修正项、显式声明输出变更、用 runner 重生成基线。
 - **CI 是否纳入 golden**：golden 测试随 `pytest -q` 默认收集执行，自动进入 CI 四门禁的 pytest 门，无需改 `ci.yml`。
-- **66 vs 68 口径**：catalog 共 68 个 `ToolSpec`，对外独立暴露的 REST 工具 66 个；差额 2 个是 catalog 里**有意保留的 alias/aggregator**（多口径审计已确认，非遗漏），不产生独立输出，故不单独冻结。Task 5 Step 1 应顺带断言 `len(compute_outputs()) == len(REST_POST_CASES) == 66`，把这个口径显式钉死。
+- **66 vs 68 口径（已更新）**：catalog 共 68 个 `ToolSpec`，66 个有 `rest_path`，差额 2 个中：
+  - `astro_relative_chart`：经验证为真正的 alias（不产生独立输出），不单独冻结。
+  - `analyze_destiny`：原计划误判为 alias，实为绑定 `calculate_destiny_analysis` 的独立工具，已通过 MCP 面补入黄金覆盖（slug `mcp_analyze_destiny`）。
+  当前黄金 case 总数：**67**（66 REST + 1 MCP）。`test_golden_covers_all_cases` 断言快照集与 `compute_outputs()` 返回集完全一致。
