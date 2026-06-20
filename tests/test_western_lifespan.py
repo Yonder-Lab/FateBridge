@@ -14,17 +14,24 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.core.astrology_lifespan import (
+    BALBILLUS_EXALTATION,
+    BALBILLUS_SMALL_YEARS,
     DOROTHEAN_TRIPLICITY_RULERS,
+    KEYPOINTS_PERIOD_NUMBERS,
     SECONDARY_SYNODIC_RATE_DEG_PER_YEAR,
+    build_balbillus_payload,
     build_distributions_payload,
     build_harmonic_payload,
+    build_keypoints_payload,
     build_lunation_phase_payload,
     build_planetary_ages_payload,
     build_triplicity_rulers_payload,
 )
 from fatebridge.services.western_lifespan import (
+    calculate_balbillus,
     calculate_distributions,
     calculate_harmonic_chart,
+    calculate_keypoints,
     calculate_lunation_phase,
     calculate_planetary_ages,
     calculate_triplicity_rulers,
@@ -215,6 +222,99 @@ def test_distributions_first_period_starts_at_ascendant_bound():
     assert abs(contacts["Sun"] - 18.0) < 1e-6
 
 
+def _seven_planet_natal(longitudes: dict) -> dict:
+    """Build a natal_reference stub from {planet: absolute_degree}."""
+    from fatebridge.core.astrology import SIGNS
+
+    natal = {}
+    for planet, lon in longitudes.items():
+        sign = SIGNS[int(lon % 360 // 30)]
+        natal[planet.lower()] = _point(lon, sign=sign)
+    return natal
+
+
+def test_balbillus_small_years_sum_to_129():
+    assert sum(BALBILLUS_SMALL_YEARS.values()) == 129
+
+
+def test_balbillus_period_full_small_year_at_exaltation_no_fit():
+    # Venus has no reduction fit; placed exactly at its exaltation -> distance 0
+    # -> period = full small year (8.0).
+    lons = {p: BALBILLUS_EXALTATION[p] for p in BALBILLUS_SMALL_YEARS}
+    natal = _seven_planet_natal(lons)
+    payload = build_balbillus_payload(natal, start_planet="Venus", mode="nearest")
+    venus = payload["periods"][0]
+    assert venus["planet"] == "Venus"
+    assert venus["duration_years"] == 8.0
+
+
+def test_balbillus_order_sorts_by_longitude_then_rotates():
+    lons = {
+        "Sun": 10.0,
+        "Moon": 50.0,
+        "Mercury": 100.0,
+        "Venus": 150.0,
+        "Mars": 200.0,
+        "Jupiter": 250.0,
+        "Saturn": 300.0,
+    }
+    payload = build_balbillus_payload(_seven_planet_natal(lons), start_planet="Mercury")
+    # Ascending by longitude is Sun..Saturn; rotated to start at Mercury.
+    assert payload["zodiacal_order"] == [
+        "Mercury",
+        "Venus",
+        "Mars",
+        "Jupiter",
+        "Saturn",
+        "Sun",
+        "Moon",
+    ]
+
+
+def test_balbillus_subperiods_fill_parent_span():
+    lons = {p: BALBILLUS_EXALTATION[p] for p in BALBILLUS_SMALL_YEARS}
+    payload = build_balbillus_payload(_seven_planet_natal(lons), mode="nearest")
+    first = payload["periods"][0]
+    sub_total = sum(s["duration_years"] for s in first["sub_periods"])
+    assert abs(sub_total - first["duration_years"]) < 1e-3
+
+
+def test_keypoints_period_numbers_table():
+    assert KEYPOINTS_PERIOD_NUMBERS == {
+        "Saturn": 3,
+        "Mercury": 8,
+        "Sun": 18,
+        "Venus": 5,
+        "Mars": 7,
+        "Jupiter": 9,
+        "Moon": 13,
+    }
+
+
+def test_keypoints_position_number_and_activation():
+    # Release = Moon at 0° Aries (sign 0). Sun at 60° Gemini (sign 2) -> k = 3.
+    natal = _seven_planet_natal(
+        {
+            "Sun": 60.0,
+            "Moon": 0.0,
+            "Mercury": 0.0,
+            "Venus": 0.0,
+            "Mars": 0.0,
+            "Jupiter": 0.0,
+            "Saturn": 0.0,
+        }
+    )
+    payload = build_keypoints_payload(natal, release_mode="soul", max_age_years=20)
+    sun_pos = next(p for p in payload["positions"] if p["planet"] == "Sun")
+    assert sun_pos["position_number"] == 3
+    assert sun_pos["period_number"] == 18
+    by_age = {row["age"]: row for row in payload["activations"]}
+    # Age 3 = multiple of k(3) -> Sun position-active.
+    assert any(x["planet"] == "Sun" for x in by_age[3]["position_active"])
+    # Age 18 = multiple of Sun's period (18) -> Sun period-active.
+    assert any(x["planet"] == "Sun" for x in by_age[18]["period_active"])
+
+
 # ---------------------------------------------------------------------------
 # Service envelope contract.
 # ---------------------------------------------------------------------------
@@ -231,6 +331,8 @@ def test_services_return_envelope_with_snapshot_and_no_error():
         (calculate_triplicity_rulers, {}, "triplicity_rulers"),
         (calculate_lunation_phase, {}, "lunation_phase"),
         (calculate_distributions, {}, "distributions"),
+        (calculate_balbillus, {}, "balbillus"),
+        (calculate_keypoints, {}, "keypoints"),
     ]
     for fn, extra, key in cases:
         result = fn(**BIRTH, **extra)

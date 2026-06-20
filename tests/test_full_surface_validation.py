@@ -434,6 +434,8 @@ REST_POST_CASES = {
     "/api/astro/lifespan/triplicity_rulers": _astro_payload,
     "/api/astro/lifespan/lunation_phase": _astro_payload,
     "/api/astro/lifespan/distributions": _astro_payload,
+    "/api/astro/lifespan/balbillus": _astro_payload,
+    "/api/astro/lifespan/keypoints": _astro_payload,
     "/api/timing/liuyue": lambda: {
         **_birth_payload(),
         "analysis_year": 2028,
@@ -803,6 +805,8 @@ MCP_CASES = {
     "astro_triplicity_rulers": ("astro_triplicity_rulers", _astro_payload),
     "astro_lunation_phase": ("astro_lunation_phase", _astro_payload),
     "astro_distributions": ("astro_distributions", _astro_payload),
+    "astro_balbillus": ("astro_balbillus", _astro_payload),
+    "astro_keypoints": ("astro_keypoints", _astro_payload),
 }
 
 
