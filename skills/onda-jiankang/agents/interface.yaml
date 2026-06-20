@@ -1,0 +1,38 @@
+# Machine-readable interface for the onda-jiankang skill.
+# Enforced by tests/test_skills_interface_contract.py against the FateBridge
+# engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
+name: onda-jiankang
+version: 0.1.0
+scenario: 健康 · 身心
+summary: 用 FateBridge 引擎看健康倾向与身心状态，Onda 河狸只谈作息与养护方向、绝不诊断
+triggers:
+  - 健康运
+  - 身体哪里弱
+  - 五行养生
+  - 今年要注意什么
+  - 容易累
+  - 睡不好
+  - 情绪内耗
+  - 调理方向
+engine_tools:
+  - analyze_destiny
+  - bazi_birth
+  - bazi_health
+  - liunian_analysis
+  - timing_analysis
+required_inputs:
+  - birth_year
+  - birth_month
+  - birth_day
+  - birth_hour
+  - gender
+  - birth_place
+reads:
+  - ../../_shared/fatebridge-engine.md
+  - ../../_shared/onda-counsel.md
+output:
+  kind: interpretation        # 人类可读解读，非原始命盘字段
+  grounding: engine_fields    # 结论溯源到引擎字段，AI 不手算
+  voice: onda-counsel
+boundary: 传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。
+license: Apache-2.0

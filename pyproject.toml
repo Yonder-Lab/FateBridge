@@ -7,13 +7,13 @@ name = "fatebridge-mcp"
 version = "0.1.0"
 description = "FateBridge - A Model Context Protocol (MCP) server bridging ancient Chinese fortune telling wisdom with modern technology"
 authors = [{name = "User", email = "user@example.com"}]
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -40,6 +40,7 @@ dev = [
     "black>=23.0.0",
     "isort>=5.12.0",
     "mypy>=1.5.0",
+    "pyyaml>=6.0",  # test_skills_interface_contract parses agents/interface.yaml
 ]
 iztro-verify = [
     # pinned <0.2: the committed horoscope oracle fixture was generated with

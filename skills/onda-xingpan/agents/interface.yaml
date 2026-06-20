@@ -1,0 +1,49 @@
+# Machine-readable interface for the onda-xingpan skill.
+# Enforced by tests/test_skills_interface_contract.py against the FateBridge
+# engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
+name: onda-xingpan
+version: 0.1.0
+scenario: 星盘 · 占星自观
+summary: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希腊/果老/印度/13星座等流派），Onda 河狸把行星宫位讲成你能照见自己的话
+triggers:
+  - 占星
+  - 星盘
+  - 出生盘
+  - 本命盘
+  - 上升星座
+  - 太阳月亮
+  - 行星落宫
+  - 相位
+  - 合盘
+  - 关系盘
+  - 希腊占星
+  - 古典占星
+  - 印度占星
+  - 果老星宗
+engine_tools:
+  - astro_chart
+  - astro_chart13
+  - astro_germany_chart
+  - astro_guolao_chart
+  - astro_hellen_chart
+  - astro_india_chart
+  - astro_relative_chart
+  - profection
+  - solarreturn
+  - transit
+required_inputs:
+  - birth_year
+  - birth_month
+  - birth_day
+  - birth_hour
+  - birth_latitude
+  - birth_longitude
+reads:
+  - ../../_shared/fatebridge-engine.md
+  - ../../_shared/onda-counsel.md
+output:
+  kind: interpretation        # 人类可读解读，非原始命盘字段
+  grounding: engine_fields    # 结论溯源到引擎字段，AI 不手算
+  voice: onda-counsel
+boundary: 传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。
+license: Apache-2.0
