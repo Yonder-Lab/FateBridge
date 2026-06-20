@@ -954,6 +954,90 @@ class WesternTimingModuleRequest(WesternTimingRequest):
     )
 
 
+class AstroLifespanRequest(AstroBirthRequest):
+    """Shared base for western *lifespan* techniques cast from a single natal chart."""
+
+    house_system: str = Field(
+        default="P", description="House system identifier, e.g. P for Placidus"
+    )
+    zodiac_type: str = Field(
+        default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
+    )
+
+
+class AstroHarmonicRequest(AstroLifespanRequest):
+    """Request model for the 调波盘 (harmonic chart) tool."""
+
+    harmonic: int = Field(
+        default=9,
+        ge=1,
+        le=360,
+        description="Harmonic number H (1-360); natal longitudes are multiplied by H mod 360",
+    )
+    orb: float = Field(
+        default=2.0,
+        ge=0,
+        le=15,
+        description="Conjunction orb in degrees for detecting 同频合相 (harmonic conjunctions)",
+    )
+
+
+class AstroPlanetaryAgesRequest(AstroLifespanRequest):
+    """Request model for the 行星年龄 (Ptolemy seven ages) tool."""
+
+    analysis_year: Optional[int] = Field(
+        default=None,
+        description="Reference year; with month/day, flags the active age band (omit to list all bands)",
+    )
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Reference month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Reference day (1-31)"
+    )
+
+
+class AstroTriplicityRulersRequest(AstroLifespanRequest):
+    """Request model for the 三分主星推运 (triplicity rulers) tool."""
+
+    lifespan: float = Field(
+        default=75.0,
+        gt=0,
+        le=200,
+        description="Nominal lifespan (years) the stages divide — a dividing convention, not a prediction",
+    )
+    division: str = Field(
+        default="thirds",
+        description="Stage split: 'thirds' (three equal stages) or 'halves' (main/secondary halves + participating throughout)",
+    )
+
+
+class AstroLunationPhaseRequest(AstroLifespanRequest):
+    """Request model for the 月相推运 (progressed lunation phase) tool."""
+
+    max_age_years: float = Field(
+        default=90.0,
+        gt=0,
+        le=200,
+        description="Upper age bound (years) for the phase-ingress timeline",
+    )
+
+
+class AstroDistributionsRequest(AstroLifespanRequest):
+    """Request model for the 界推运 / 分配法 (distributions) tool."""
+
+    time_key: str = Field(
+        default="Ptolemy",
+        description="Time key for directing the Ascendant: Ptolemy (1°/yr) or Naibod",
+    )
+    max_age_years: float = Field(
+        default=90.0,
+        gt=0,
+        le=200,
+        description="Upper age bound (years) for the distribution timeline",
+    )
+
+
 class BaziMarriageRequest(BaziDimensionRequest):
     """Request model for BaZi marriage analysis."""
 

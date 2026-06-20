@@ -24,8 +24,11 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` |
 | 西占视角的年运 | `solarreturn`（太阳返照）、`profection`（年小限）、`transit`（行运） |
 | 西占长周期/古典推运 | `zr`（黄道释放）、`firdaria`（法达）、`decennials`（十年星限）、`solararc`、`pd`（主限） |
+| 西占全生命周期技法（读单张本命盘） | `astro_planetary_ages`（行星年龄·七分期）、`astro_triplicity_rulers`（三分主星·人生三阶段）、`astro_lunation_phase`（月相推运）、`astro_distributions`（界推运/分配法）、`astro_harmonic`（调波盘） |
 
 中式与西占可以互相印证，但别强行拼。先用一套讲清楚，另一套作旁证。
+
+「全生命周期技法」不挑某一年，而是把整张本命盘摊成一生的分期或共振结构——讲「人生大段落」时用它，讲「今年具体怎样」时用上面的年运工具。`astro_planetary_ages` 可传 `--analysis-year/month/day` 标出当前所处年龄段。
 
 ## 怎么收信息
 出生 年月日时 + 性别 + 城市（西占要经纬度 `--birth-latitude/longitude`）。问清想看哪一年/哪一段（`--target-year` / `--analysis-year` / `--analysis-age`）。
@@ -50,4 +53,14 @@ python3 -m fatebridge.cli --no-metadata liunian_analysis \
 python3 -m fatebridge.cli --no-metadata profection \
   --name 我 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-minute 30 \
   --birth-latitude 39.90 --birth-longitude 116.40 --birth-place 北京 --analysis-year 2026
+
+# 全生命周期：行星年龄（标出当前所处段），可只取 summary
+python3 -m fatebridge.cli --no-metadata astro_planetary_ages --fields summary \
+  --name 我 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-minute 30 \
+  --birth-latitude 39.90 --birth-longitude 116.40 --birth-place 北京 --analysis-year 2026
+
+# 月相推运：本命月相 + 八相时间轴（默认看到 90 岁）
+python3 -m fatebridge.cli --no-metadata astro_lunation_phase \
+  --name 我 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-minute 30 \
+  --birth-latitude 39.90 --birth-longitude 116.40 --birth-place 北京
 ```

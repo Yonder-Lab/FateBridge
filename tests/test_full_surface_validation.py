@@ -429,6 +429,11 @@ REST_POST_CASES = {
     "/api/astro/timing/zr": _western_payload,
     "/api/astro/timing/firdaria": _western_payload,
     "/api/astro/timing/decennials": _western_payload,
+    "/api/astro/lifespan/harmonic": _astro_payload,
+    "/api/astro/lifespan/planetary_ages": _astro_payload,
+    "/api/astro/lifespan/triplicity_rulers": _astro_payload,
+    "/api/astro/lifespan/lunation_phase": _astro_payload,
+    "/api/astro/lifespan/distributions": _astro_payload,
     "/api/timing/liuyue": lambda: {
         **_birth_payload(),
         "analysis_year": 2028,
@@ -793,6 +798,11 @@ MCP_CASES = {
     "zr": ("zr", _western_payload),
     "firdaria": ("firdaria", _western_payload),
     "decennials": ("decennials", _western_payload),
+    "astro_harmonic": ("astro_harmonic", _astro_payload),
+    "astro_planetary_ages": ("astro_planetary_ages", _astro_payload),
+    "astro_triplicity_rulers": ("astro_triplicity_rulers", _astro_payload),
+    "astro_lunation_phase": ("astro_lunation_phase", _astro_payload),
+    "astro_distributions": ("astro_distributions", _astro_payload),
 }
 
 
