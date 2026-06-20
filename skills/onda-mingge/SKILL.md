@@ -32,9 +32,10 @@ description: 用 FateBridge 引擎看性格、天赋、学业、原生家庭与�
 ## 工作流
 1. 问清他想更懂的是哪一块（自己 / 孩子 / 跟谁的关系）。
 2. 调引擎（性格＝`bazi_personality`，学业＝`bazi_education`，紫微＝`ziwei_birth`）。
-3. 读结果（`bazi_personality`/`education`/`relatives`/`children` 为 JSON，读 `<dim>_analysis` 段；`ziwei_birth`/`analyze_destiny`/`bazi_birth` 为 snapshot_text）：格局/十神/日主旺衰，讲成「你大概是个怎样的人、这套性格的长处和容易卡的地方」。白描，别贴标签式拔高。
-4. 性格类**多讲接纳、少讲改造**——帮他理解自己，不是开诊断书。
-5. 收尾落到一件具体的自我相处的小事，每次不一样。
+3. **问性格/天赋/整体命局这类大问题时，别只跑一套**：八字性格 + 紫微，必要时叠西占（`astro_chart`，要经纬度），按 [跨体系交叉印证](../_shared/fatebridge-engine.md#六跨体系交叉印证提高可信度) 横向比对——多套独立指向同一处才下重话，只此一家的当倾向，两套打架处讲成内在张力。
+4. 读结果（`bazi_personality`/`education`/`relatives`/`children` 为 JSON，读 `<dim>_analysis` 段；`ziwei_birth`/`analyze_destiny`/`bazi_birth` 为 snapshot_text）：格局/十神/日主旺衰，讲成「你大概是个怎样的人、这套性格的长处和容易卡的地方」。白描，别贴标签式拔高。
+5. 性格类**多讲接纳、少讲改造**——帮他理解自己，不是开诊断书。
+6. 收尾落到一件具体的自我相处的小事，每次不一样。
 
 ## 红线
 - 不给人贴死标签（「你就是渣/没出息」）。讲倾向与长短处。
