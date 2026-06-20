@@ -1,0 +1,44 @@
+# Machine-readable interface for the onda-zige skill.
+# Enforced by tests/test_skills_interface_contract.py against the FateBridge
+# engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
+name: onda-zige
+version: 0.1.0
+scenario: 全面自我画像
+summary: 用 FateBridge 引擎做一次全面的自我画像：八字+紫微+西占三套交叉印证，覆盖性格、事业、姻缘、健康、六亲、时运
+triggers:
+  - 我是一个什么样的人
+  - 帮我全面分析一下
+  - 告诉我我的全部
+  - 做一个完整的人生说明书
+  - 综合看看我
+  - 全面自我分析
+  - 完整命盘解读
+  - 三套交叉印证
+engine_tools:
+  - analyze_destiny
+  - astro_chart
+  - bazi_birth
+  - bazi_career
+  - bazi_health
+  - bazi_personality
+  - bazi_relatives
+  - bazi_romance
+  - dayun_analysis
+  - timing_analysis
+  - ziwei_birth
+required_inputs:
+  - birth_year
+  - birth_month
+  - birth_day
+  - birth_hour
+  - gender
+  - birth_place
+reads:
+  - ../../_shared/fatebridge-engine.md
+  - ../../_shared/onda-counsel.md
+output:
+  kind: interpretation        # 人类可读解读，非原始命盘字段
+  grounding: engine_fields    # 结论溯源到引擎字段，AI 不手算
+  voice: onda-counsel
+boundary: 传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。
+license: Apache-2.0

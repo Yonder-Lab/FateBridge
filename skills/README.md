@@ -19,8 +19,9 @@
 | 卡在一个决定、要不要做某事、求一卦 | [`onda-zhanbu`](./onda-zhanbu/SKILL.md) | 梅花/六爻/奇门/六壬/金口/太乙/宿占/三式 |
 | 我是谁、性格天赋、学业、家人、孩子 | [`onda-mingge`](./onda-mingge/SKILL.md) | 八字性格/学业/子女/六亲、命盘综合、紫微 |
 | 占星、出生盘、合盘、各流派星盘 | [`onda-xingpan`](./onda-xingpan/SKILL.md) | 标准/希腊/果老/印度/13星座盘、关系盘 |
+| 我是一个什么样的人、全面自我分析 | [`onda-zige`](./onda-zige/SKILL.md) | 八字+紫微+西占三套交叉印证，11 张盘一次拉通 |
 
-> 60+ 工具全部在这 7 个场景里有归属；完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
+> 60+ 工具全部在这 8 个场景里有归属；完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
 ---
 
@@ -39,7 +40,8 @@ skills/
 ├── onda-shiyun/               人生时运 · 择时
 ├── onda-zhanbu/               抉择 · 问事占卜
 ├── onda-mingge/               认识自己 · 性格天赋
-└── onda-xingpan/              星盘 · 占星自观
+├── onda-xingpan/              星盘 · 占星自观
+└── onda-zige/                 全面自我画像 · 三套交叉印证
                                （每个 onda-* 都含 SKILL.md + agents/interface.yaml）
 ```
 
