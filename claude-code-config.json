@@ -2,7 +2,7 @@
   "mcpServers": {
     "fatebridge": {
       "command": "python",
-      "args": ["/Users/thomas/Desktop/FateBridge/fastmcp_server.py"],
+      "args": ["-m", "fatebridge.mcp_server"],
       "env": {
         "PYTHONPATH": "/Users/thomas/Desktop/FateBridge"
       }

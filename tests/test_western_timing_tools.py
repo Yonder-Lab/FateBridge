@@ -5,8 +5,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import WesternTimingModuleRequest
-from fastmcp_server import (
+from fatebridge.api import WesternTimingModuleRequest
+from fatebridge.core import astrology_predictive
+from fatebridge.mcp_server import (
     decennials,
     firdaria,
     givenyear,
@@ -19,7 +20,6 @@ from fastmcp_server import (
     transit,
     zr,
 )
-from fatebridge.core import astrology_predictive
 from fatebridge.services.western_timing_tools import (
     calculate_decennials,
     calculate_firdaria,

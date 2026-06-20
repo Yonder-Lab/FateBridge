@@ -100,7 +100,7 @@ def test_payload_inference_heuristics_are_removed():
 
 
 def test_render_does_not_guess_tool_name_from_payload_shape():
-    from fastmcp_server import _render_tool_response
+    from fatebridge.mcp_server import _render_tool_response
 
     # A payload whose shape the OLD guesser would have mapped to "chart13".
     misleading = {"chart_profile": {"chart_type": "chart13"}}

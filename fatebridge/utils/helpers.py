@@ -1,6 +1,7 @@
 """
 Shared utility functions and models for FateBridge.
-This module centralizes common functions used across api.py and fastmcp_server.py.
+This module centralizes common functions used across fatebridge/api.py and
+fatebridge/mcp_server.py.
 """
 
 import json

@@ -6,13 +6,15 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import (
+from fatebridge.api import (
     AstroChartRequest,
     AstroRelativePartyRequest,
     AstroRelativeRequest,
 )
-from api import calculate_relative_chart as calculate_relative_chart_endpoint
-from fastmcp_server import (
+from fatebridge.api import calculate_relative_chart as calculate_relative_chart_endpoint
+from fatebridge.core import astrology as astrology_core
+from fatebridge.core.astrology import _julian_day, build_astro_birth_info
+from fatebridge.mcp_server import (
     astro_chart,
     astro_chart13,
     astro_germany_chart,
@@ -20,8 +22,6 @@ from fastmcp_server import (
     astro_india_chart,
     astro_relative_chart,
 )
-from fatebridge.core import astrology as astrology_core
-from fatebridge.core.astrology import _julian_day, build_astro_birth_info
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
     calculate_germany_chart_analysis,

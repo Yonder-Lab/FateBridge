@@ -6,8 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import WesternTimingRequest
-from fastmcp_server import western_timing_analysis
+from fatebridge.api import WesternTimingRequest
 from fatebridge.core import astrology as astrology_core
 from fatebridge.core.astrology_predictive import (
     build_lot_payloads,
@@ -23,6 +22,7 @@ from fatebridge.core.astrology_predictive import (
     semiarc_degrees_for_declination,
 )
 from fatebridge.core.astrology_predictive import swe as predictive_swe
+from fatebridge.mcp_server import western_timing_analysis
 from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis
 from fatebridge.utils.helpers import parse_timezone_name

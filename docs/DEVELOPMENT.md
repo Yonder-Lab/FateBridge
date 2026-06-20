@@ -42,9 +42,10 @@ LOG_LEVEL=INFO
 
 ```text
 FateBridge/
-├── api.py
-├── fastmcp_server.py
 ├── fatebridge/
+│   ├── api.py          # REST (FastAPI) 入口
+│   ├── mcp_server.py   # MCP (FastMCP) 入口
+│   ├── cli.py          # CLI 入口
 │   ├── analysis/
 │   ├── core/
 │   ├── data/
@@ -61,8 +62,8 @@ FateBridge/
 
 | 路径 | 职责 |
 | --- | --- |
-| `api.py` | REST 路由、Pydantic request model、HTTP 层错误处理 |
-| `fastmcp_server.py` | MCP 工具定义与 JSON 文本封装 |
+| `fatebridge/api.py` | REST 路由、Pydantic request model、HTTP 层错误处理 |
+| `fatebridge/mcp_server.py` | MCP 工具定义与 JSON 文本封装 |
 | `fatebridge/core` | 核心算法与合同 |
 | `fatebridge/services` | transport-facing 编排层 |
 | `fatebridge/analysis` | 复合分析逻辑 |
@@ -75,13 +76,13 @@ FateBridge/
 ### 启动 REST API
 
 ```bash
-python api.py
+python -m fatebridge.api
 ```
 
 ### 启动 FastMCP
 
 ```bash
-python fastmcp_server.py
+python -m fatebridge.mcp_server
 ```
 
 ### 健康检查
@@ -107,17 +108,17 @@ pytest tests/test_chinese_metaphysics.py -q
 ### 格式化与静态检查
 
 ```bash
-black fatebridge/ api.py fastmcp_server.py
-isort fatebridge/ api.py fastmcp_server.py
-mypy fatebridge/ api.py
+black fatebridge/ scripts tests
+isort fatebridge/ scripts tests
+mypy fatebridge/
 ```
 
 ### 只做检查、不改文件
 
 ```bash
-black --check fatebridge/ api.py fastmcp_server.py
-isort --check-only fatebridge/ api.py fastmcp_server.py
-mypy fatebridge/ api.py
+black --check fatebridge/ scripts tests
+isort --check-only fatebridge/ scripts tests
+mypy fatebridge/
 ```
 
 ## 5. 推荐开发流程
@@ -128,8 +129,8 @@ mypy fatebridge/ api.py
 
 1. 先改 `fatebridge/core/*` 或 `fatebridge/analysis/*`
 2. 在 `fatebridge/services/*` 封装 transport 友好的返回结构
-3. 在 `api.py` 暴露 REST 路由
-4. 在 `fastmcp_server.py` 暴露 MCP 工具
+3. 在 `fatebridge/api.py` 暴露 REST 路由
+4. 在 `fatebridge/mcp_server.py` 暴露 MCP 工具
 5. 在 `tests/` 增加能力测试与 API/MCP 对齐测试
 6. 更新 `docs/API.md` 与 `docs/ALGORITHM_COVERAGE.md`
 
@@ -166,7 +167,7 @@ mypy fatebridge/ api.py
 
 ### 6.3 REST 和 MCP 应共享 service 层
 
-新增能力时，尽量不要把领域逻辑直接写进 `api.py` 或 `fastmcp_server.py`。这两处应尽量保持为 adapter，而不是业务实现层。
+新增能力时，尽量不要把领域逻辑直接写进 `fatebridge/api.py` 或 `fatebridge/mcp_server.py`。这两处应尽量保持为 adapter，而不是业务实现层。
 
 ## 7. 测试策略
 

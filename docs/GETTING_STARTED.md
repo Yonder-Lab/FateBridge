@@ -62,7 +62,7 @@ API_KEY_HEADER_NAME=X-API-Key
 ## 4. 启动 REST API
 
 ```bash
-python api.py
+python -m fatebridge.api
 # 或
 fatebridge-api
 ```
@@ -158,7 +158,7 @@ curl -X POST http://localhost:8010/api/astro/chart \
 如果你不是通过 HTTP，而是要让 Agent 直接把 FateBridge 当工具箱使用：
 
 ```bash
-python fastmcp_server.py
+python -m fatebridge.mcp_server
 ```
 
 FastMCP 启动后，可把它注册到你的 MCP host 中。对应工具清单见 [API.md](API.md)。

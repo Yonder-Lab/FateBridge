@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from api import (
+from fatebridge.api import (
     DayunAnalysisRequest,
     FateBridgeRequest,
     JieqiTimelineRequest,
@@ -16,7 +16,8 @@ from api import (
     LiuyueAnalysisRequest,
     TimingAnalysisRequest,
 )
-from fastmcp_server import (
+from fatebridge.core.timing import TimingAnalysis
+from fatebridge.mcp_server import (
     analyze_destiny,
     dayun_analysis,
     jieqi_timeline_analysis,
@@ -27,7 +28,6 @@ from fastmcp_server import (
     timing_analysis,
     two_person_compatibility,
 )
-from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,

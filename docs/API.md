@@ -3,7 +3,7 @@
 本文档按“能力域”描述 FateBridge 当前对外接口，而不是按历史模块拆散说明。当前仓库同时提供：
 
 - REST API：FastAPI，默认 `http://localhost:8010`
-- FastMCP：`python fastmcp_server.py` 启动的 MCP 工具面
+- FastMCP：`python -m fatebridge.mcp_server` 启动的 MCP 工具面
 
 > 当前实际暴露 54 个 REST 路由（含 `/health`、`/ready`、`/metrics`）和 51 个 FastMCP 工具。
 
@@ -18,7 +18,7 @@
 
 ### FastMCP
 
-- 启动命令：`python fastmcp_server.py`
+- 启动命令：`python -m fatebridge.mcp_server`
 - 返回格式：多数工具返回 JSON 字符串，而不是原生 Python dict
 - 设计目标：让 Agent 宿主可以直接把 FateBridge 视作工具箱使用
 
@@ -381,7 +381,7 @@ curl -X POST http://localhost:8010/api/export/parse \
 ### 6.1 启动
 
 ```bash
-python fastmcp_server.py
+python -m fatebridge.mcp_server
 ```
 
 ### 6.2 MCP 工具分组

@@ -232,7 +232,7 @@ POST /api/batch-calculate
 - [ ] 代码遵循项目编码规范
 - [ ] 已运行测试：`pytest tests/`
 - [ ] 代码已格式化：`black` 和 `isort`
-- [ ] 类型检查通过：`mypy --follow-imports=silent api.py fastmcp_server.py fatebridge/utils/helpers.py fatebridge/utils/runtime.py`
+- [ ] 类型检查通过：`mypy fatebridge/`
 - [ ] 添加了新功能的测试
 - [ ] 更新了相关文档
 - [ ] 提交信息清晰和有描述性

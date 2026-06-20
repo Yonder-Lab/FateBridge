@@ -36,13 +36,13 @@ jobs:
         run: pytest -q
 
       - name: Check formatting
-        run: black --check fatebridge api.py fastmcp_server.py scripts tests
+        run: black --check fatebridge scripts tests
 
       - name: Check import order
-        run: isort --check-only fatebridge api.py fastmcp_server.py scripts tests
+        run: isort --check-only fatebridge scripts tests
 
       - name: Run type checks
-        run: mypy fatebridge/ api.py fastmcp_server.py
+        run: mypy fatebridge/
 
   floor:
     # Install every direct dependency at its declared minimum so a too-low
