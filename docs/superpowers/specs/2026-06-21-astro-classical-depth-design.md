@@ -1,8 +1,21 @@
 # Design: 西占古典深度段 [古典]/[古典格局] — horosa parity (multi-phase)
 
 - **Date:** 2026-06-21
-- **Status:** **Phase 1 (#72) + Phase 2 (#73) + Phase 3 (#74) merged; Phase 4
-  implemented** (`feat/astro-classical-phase4`). Overarching project spec.
+- **Status:** **Phase 1 (#72) + Phase 2 (#73) + Phase 3 (#74) + Phase 4 (#75)
+  merged; western charts default to true solar time (#76); Phase 5 implemented**
+  (`feat/astro-classical-phase5`). Overarching project spec.
+  - **Phase 5 shipped:** **dodekatemoria (12分度)** + **melothesia (身体部位** +
+    早/中/晚 band) per planet, and chart-level **temperament (气质)** (Lilly-style
+    qualities tally → humor). Tables (body parts / planet qualities) ported
+    verbatim from horosa `data/signs.js` + `data/planets.js`. `classical.planets[]`
+    gains `dodekatemorion` + `melothesia`; `classical.temperament`; snapshot adds
+    `[体质]`. **Deferred to Phase 5b: monomoiria / ninth-part / Darijan** (extra
+    degree-ruler tables) and the **28 lunar mansions** (FB already has nakshatra/
+    su28; classical 28-mansion mapping pending).
+  - **Remaining ephemeris cut (2b/3b/4b):** retrograde, out-of-bounds, Almuten
+    figuris (syzygy), fixed stars, planetary hours, translation/collection of
+    light, doryphory, nodal bending — all need planetary speed / declination /
+    sunrise / star catalog. One focused PR once that plumbing lands.
   - **Phase 4 shipped (`classical_patterns` = [古典格局]):** aversion (no
     whole-sign aspect), overcoming (superior dexter square / 10th sign),
     besiegement & enclosure by body (immediate longitude neighbours), and

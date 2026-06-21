@@ -604,6 +604,112 @@ def build_classical_patterns(
     }
 
 
+# ── Phase 5: dodekatemoria (12分度) + melothesia (身体部位) + temperament (气质) ──
+
+# Sign → governed body parts (head-to-foot). Ported verbatim from horosa
+# data/signs.js body_parts (卜卦构建清单 §1.6).
+SIGN_BODY_PARTS: Dict[str, List[str]] = {
+    "Aries": ["头", "脸", "眼", "鼻", "耳"],
+    "Taurus": ["喉", "颈", "甲状腺"],
+    "Gemini": ["手臂", "肩", "肺", "神经", "气管"],
+    "Cancer": ["胃", "胸", "子宫", "卵巢", "牙"],
+    "Leo": ["心脏", "脊椎", "背", "脊髓"],
+    "Virgo": ["小肠", "胰", "脾", "腹", "十二指肠"],
+    "Libra": ["下背", "肾", "静脉", "卵巢"],
+    "Scorpio": ["生殖", "排泄", "结肠", "膀胱", "摄护腺"],
+    "Sagittarius": ["大腿", "臀", "坐骨神经", "肝", "动脉"],
+    "Capricorn": ["膝", "关节", "胆囊", "头发", "皮肤"],
+    "Aquarius": ["小腿", "踝", "血液循环", "脊髓"],
+    "Pisces": ["脚掌", "淋巴"],
+}
+
+# Classical primary qualities. Sign qualities follow the element; planet
+# qualities ported from horosa data/planets.js (Mercury = common/neutral).
+ELEMENT_QUALITIES: Dict[str, List[str]] = {
+    "Fire": ["hot", "dry"],
+    "Earth": ["cold", "dry"],
+    "Air": ["hot", "moist"],
+    "Water": ["cold", "moist"],
+}
+PLANET_QUALITIES: Dict[str, List[str]] = {
+    "Sun": ["hot", "dry"],
+    "Moon": ["cold", "moist"],
+    "Mercury": [],  # common / takes on what it is connected to
+    "Venus": ["cold", "moist"],
+    "Mars": ["hot", "dry"],
+    "Jupiter": ["hot", "moist"],
+    "Saturn": ["cold", "dry"],
+}
+# Humor by dominant (thermal, hygral) quality pair.
+_HUMORS = {
+    ("hot", "moist"): {"humor": "sanguine", "cn": "多血质（风）"},
+    ("hot", "dry"): {"humor": "choleric", "cn": "胆汁质（火）"},
+    ("cold", "dry"): {"humor": "melancholic", "cn": "忧郁质（土）"},
+    ("cold", "moist"): {"humor": "phlegmatic", "cn": "粘液质（水）"},
+}
+
+
+def dodekatemorion(sign: str, degree_in_sign: float) -> Optional[str]:
+    """12分度: the sign reached by advancing ``floor(degree / 2.5)`` signs from
+    the planet's own sign (each 30° sign carries all 12 in 2.5° steps)."""
+    if sign not in _SIGN_INDEX:
+        return None
+    step = int((degree_in_sign % 30.0) // 2.5)
+    return SIGNS[(_SIGN_INDEX[sign] + step) % 12]
+
+
+def _degree_position(degree_in_sign: float) -> str:
+    deg = degree_in_sign % 30.0
+    if deg < 10:
+        return "上方"
+    if deg < 20:
+        return "中间"
+    return "下方"
+
+
+def melothesia(sign: str, degree_in_sign: float) -> Dict[str, Any]:
+    """Body parts governed by the sign + the early/middle/late degree band."""
+    return {
+        "body_parts": SIGN_BODY_PARTS.get(sign, []),
+        "position": _degree_position(degree_in_sign),
+    }
+
+
+def build_temperament(
+    asc_sign: Optional[str],
+    asc_ruler: Optional[str],
+    sun_sign: Optional[str],
+    moon_sign: Optional[str],
+) -> Dict[str, Any]:
+    """Simplified Lilly-style qualities tally → dominant humor.
+
+    Tallies the primary qualities of the Ascendant / Sun / Moon signs (by
+    element) plus the planetary qualities of the Ascendant ruler, Sun and Moon.
+    The dominant thermal (hot/cold) and hygral (dry/moist) pair names the humor.
+    """
+    tally = {"hot": 0, "cold": 0, "dry": 0, "moist": 0}
+
+    def add_sign(sign: Optional[str]) -> None:
+        for quality in ELEMENT_QUALITIES.get(ELEMENT_BY_SIGN.get(sign or "", ""), []):
+            tally[quality] += 1
+
+    def add_planet(planet: Optional[str]) -> None:
+        for quality in PLANET_QUALITIES.get(planet or "", []):
+            tally[quality] += 1
+
+    add_sign(asc_sign)
+    add_sign(sun_sign)
+    add_sign(moon_sign)
+    add_planet(asc_ruler)
+    add_planet("Sun")
+    add_planet("Moon")
+
+    thermal = "hot" if tally["hot"] >= tally["cold"] else "cold"
+    hygral = "moist" if tally["moist"] >= tally["dry"] else "dry"
+    humor = _HUMORS[(thermal, hygral)]
+    return {"tally": tally, "thermal": thermal, "hygral": hygral, **humor}
+
+
 def build_planet_classical(
     *,
     planet: str,
@@ -630,4 +736,6 @@ def build_planet_classical(
         "sect_placement": sect_placement(planet, chart_sect, orient),
         "in_halb": in_halb(planet, chart_sect, above, orient),
         "joy": planetary_joy(planet, house),
+        "dodekatemorion": dodekatemorion(sign, degree_in_sign),
+        "melothesia": melothesia(sign, degree_in_sign),
     }

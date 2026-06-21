@@ -732,6 +732,32 @@ def _build_classical_patterns_lines(payload: Dict[str, Any]) -> str:
     return "\n".join(lines).strip()
 
 
+def _build_temperament_lines(payload: Dict[str, Any]) -> str:
+    """``[体质]`` section: humor (温/湿 tally) + each traditional planet's 12分度."""
+    classical = payload.get("classical", {})
+    temperament = classical.get("temperament")
+    if not temperament:
+        return "无"
+    tally = temperament.get("tally", {})
+    lines = [
+        f"气质：{temperament.get('cn', '?')}"
+        f"（热{tally.get('hot', 0)}寒{tally.get('cold', 0)} "
+        f"燥{tally.get('dry', 0)}湿{tally.get('moist', 0)}）"
+    ]
+    dodeka = []
+    for planet in _CLASSICAL_PLANET_ORDER:
+        entry = (classical.get("planets") or {}).get(planet)
+        if not entry or not entry.get("dodekatemorion"):
+            continue
+        dodeka.append(
+            f"{PLANET_LABELS_ZH.get(planet, planet)}"
+            f"→{SIGN_LABELS_ZH.get(entry['dodekatemorion'], entry['dodekatemorion'])}"
+        )
+    if dodeka:
+        lines.append("12分度：" + " ".join(dodeka))
+    return "\n".join(lines).strip()
+
+
 def _build_topic_almuten_line(payload: Dict[str, Any]) -> str:
     topic = payload.get("classical", {}).get("topic_almutens", {})
     if not topic:
@@ -811,6 +837,7 @@ def _build_standard_chart_snapshot_sections(
         ("宫主星", _build_topic_almuten_line(payload)),
         ("阿拉伯点", _build_lots_lines(payload)),
         ("古典格局", _build_classical_patterns_lines(payload)),
+        ("体质", _build_temperament_lines(payload)),
         ("希腊点", "\n".join(greek_lines).strip()),
         (
             "可能性",

@@ -1335,6 +1335,7 @@ def _build_classical_layer(
         build_dispositor_layer,
         build_lots_layer,
         build_planet_classical,
+        build_temperament,
         build_topic_almutens,
     )
 
@@ -1342,6 +1343,8 @@ def _build_classical_layer(
     is_day = chart_sect == "day"
     sun = next((item for item in planets if item["id"] == "Sun"), None)
     sun_longitude = sun["longitude"] if sun else None
+    moon = next((item for item in planets if item["id"] == "Moon"), None)
+    asc_sign = _sign_name(ascendant)
 
     planet_layer: Dict[str, Any] = {}
     placements: Dict[str, str] = {}
@@ -1379,6 +1382,12 @@ def _build_classical_layer(
         "dispositors": build_dispositor_layer(placements),
         "topic_almutens": build_topic_almutens(houses_for_almuten, is_day),
         "lots": build_lots_layer(lons, is_day),
+        "temperament": build_temperament(
+            asc_sign,
+            RULER_BY_SIGN.get(asc_sign),
+            sun["sign"] if sun else None,
+            moon["sign"] if moon else None,
+        ),
     }
 
 
