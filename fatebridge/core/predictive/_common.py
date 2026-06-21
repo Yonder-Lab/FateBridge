@@ -144,10 +144,10 @@ SWISSEPH_PLANET_IDS = {
 EGYPTIAN_BOUNDS_BY_SIGN = {
     "Aries": [
         ("Jupiter", 0.0, 6.0),
-        ("Venus", 6.0, 14.0),
-        ("Mercury", 14.0, 21.0),
-        ("Mars", 21.0, 26.0),
-        ("Saturn", 26.0, 30.0),
+        ("Venus", 6.0, 12.0),
+        ("Mercury", 12.0, 20.0),
+        ("Mars", 20.0, 25.0),
+        ("Saturn", 25.0, 30.0),
     ],
     "Taurus": [
         ("Venus", 0.0, 8.0),
@@ -171,11 +171,11 @@ EGYPTIAN_BOUNDS_BY_SIGN = {
         ("Saturn", 26.0, 30.0),
     ],
     "Leo": [
-        ("Saturn", 0.0, 6.0),
-        ("Mercury", 6.0, 13.0),
-        ("Venus", 13.0, 19.0),
-        ("Jupiter", 19.0, 25.0),
-        ("Mars", 25.0, 30.0),
+        ("Jupiter", 0.0, 6.0),
+        ("Venus", 6.0, 11.0),
+        ("Saturn", 11.0, 18.0),
+        ("Mercury", 18.0, 24.0),
+        ("Mars", 24.0, 30.0),
     ],
     "Virgo": [
         ("Mercury", 0.0, 7.0),
