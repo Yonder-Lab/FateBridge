@@ -1072,6 +1072,45 @@ class AstroKeypointsRequest(AstroLifespanRequest):
     )
 
 
+class AstroYearSystem129Request(AstroLifespanRequest):
+    """Request model for the 129年系统 tool."""
+
+    start_planet: str = Field(
+        default="Sun",
+        description="Starting planet for the small-year rotation (Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn)",
+    )
+    max_age_years: float = Field(
+        default=129.0,
+        gt=0,
+        le=200,
+        description="Upper age bound (years) for the rotation timeline",
+    )
+
+
+class AstroPlanetaryArcRequest(AstroLifespanRequest):
+    """Request model for the 行星弧方向 (planetary arc directions) tool."""
+
+    arc_source: str = Field(
+        default="Moon",
+        description="Body whose secondary-progressed arc directs the whole chart (default Moon)",
+    )
+    orb: float = Field(
+        default=1.0,
+        ge=0,
+        le=15,
+        description="Aspect orb in degrees for directed-to-natal hits",
+    )
+    analysis_year: Optional[int] = Field(
+        default=None, description="Direction target year (omit for current date)"
+    )
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Direction target month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Direction target day (1-31)"
+    )
+
+
 class BaziMarriageRequest(BaziDimensionRequest):
     """Request model for BaZi marriage analysis."""
 

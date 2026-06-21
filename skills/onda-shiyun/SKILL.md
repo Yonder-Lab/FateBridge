@@ -24,7 +24,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` |
 | 西占视角的年运 | `solarreturn`（太阳返照）、`profection`（年小限）、`transit`（行运） |
 | 西占长周期/古典推运 | `zr`（黄道释放）、`firdaria`（法达）、`decennials`（十年星限）、`solararc`、`pd`（主限） |
-| 西占全生命周期技法（读单张本命盘） | `astro_planetary_ages`（行星年龄·七分期）、`astro_triplicity_rulers`（三分主星·人生三阶段）、`astro_lunation_phase`（月相推运）、`astro_distributions`（界推运/分配法）、`astro_harmonic`（调波盘）、`astro_balbillus`（Balbillus 129年系统·主限）、`astro_keypoints`（数字相位推运·120年关键点） |
+| 西占全生命周期技法（读单张本命盘） | `astro_planetary_ages`（行星年龄·七分期）、`astro_triplicity_rulers`（三分主星·人生三阶段）、`astro_lunation_phase`（月相推运）、`astro_distributions`（界推运/分配法）、`astro_harmonic`（调波盘）、`astro_balbillus`（Balbillus 129年系统·主限）、`astro_keypoints`（数字相位推运·120年关键点）、`astro_yearsystem129`（129年系统·七星小年轮值）、`astro_planetaryarc`（行星弧方向） |
 
 中式与西占可以互相印证，但别强行拼。先用一套讲清楚，另一套作旁证。
 

@@ -22,14 +22,18 @@ from fatebridge.core.astrology_lifespan import (
     build_keypoints_payload,
     build_lunation_phase_payload,
     build_planetary_ages_payload,
+    build_planetary_arc_payload,
     build_triplicity_rulers_payload,
+    build_yearsystem129_payload,
 )
 from fatebridge.core.astrology_predictive import (
     build_analysis_datetime,
     build_natal_subject,
     build_predictive_birth_info,
+    build_secondary_progression_payload,
     calculate_age_years,
     determine_sect,
+    extract_reference_longitudes,
     extract_reference_points,
     sect_label,
 )
@@ -548,6 +552,152 @@ def calculate_keypoints(
         return _envelope(
             analysis_type="西占数字相位推运",
             tool_name="keypoints",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+# ---------------------------------------------------------------------------
+# 8. 129年系统 (astro_yearsystem129).
+# ---------------------------------------------------------------------------
+
+
+def calculate_yearsystem129(
+    *,
+    start_planet: str = "Sun",
+    max_age_years: float = 129.0,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成 129 年系统（七星小年轮值）时间轴。"""
+    label = "129年系统"
+    try:
+        birth_info, _subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type=zodiac_type, **birth_kwargs
+        )
+        payload = build_yearsystem129_payload(
+            natal_reference, start_planet=start_planet, max_age_years=max_age_years
+        )
+        summary = (
+            f"129 年系统：自{payload['start_planet_label']}起，"
+            f"{max_age_years} 岁内共 {len(payload['periods'])} 段小年轮值"
+            f"（{payload['sequence_model_label']}）。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        sections = [
+            ("起盘信息", _json_block(context)),
+            (
+                "系统设置",
+                _json_block(
+                    {
+                        "start_planet": payload["start_planet"],
+                        "sequence_model": payload["sequence_model"],
+                        "total_cycle_years": payload["total_cycle_years"],
+                        "zodiacal_order": payload["zodiacal_order"],
+                        "max_age_years": payload["max_age_years"],
+                    }
+                ),
+            ),
+            ("小年轮值时间轴", _json_block(payload["periods"])),
+        ]
+        return _envelope(
+            analysis_type="西占129年系统",
+            tool_name="yearsystem129",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+# ---------------------------------------------------------------------------
+# 9. 行星弧方向 (astro_planetaryarc).
+# ---------------------------------------------------------------------------
+
+
+def calculate_planetary_arc(
+    *,
+    arc_source: str = "Moon",
+    orb: float = 1.0,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成行星弧方向盘（以 arc_source 的次限弧推动全盘）。"""
+    label = "行星弧方向"
+    try:
+        birth_info, natal_subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type=zodiac_type, **birth_kwargs
+        )
+        analysis_datetime = build_analysis_datetime(
+            birth_info,
+            analysis_year=analysis_year,
+            analysis_month=analysis_month,
+            analysis_day=analysis_day,
+        )
+        progression = build_secondary_progression_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        payload = build_planetary_arc_payload(
+            extract_reference_longitudes(natal_subject),
+            extract_reference_longitudes(progression["subject"]),
+            arc_source=arc_source,
+            orb=orb,
+        )
+        age_years = calculate_age_years(birth_info, analysis_datetime)
+        summary = (
+            f"行星弧方向：以{payload['arc_source_label']}次限弧 "
+            f"{payload['arc_degrees']}° 推动全盘（约 {round(age_years, 1)} 岁）。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        context["analysis_datetime"] = analysis_datetime.isoformat()
+        context["age_years"] = round(age_years, 4)
+        sections = [
+            ("起盘信息", _json_block(context)),
+            (
+                "方向设置",
+                _json_block(
+                    {
+                        "arc_source": payload["arc_source"],
+                        "arc_degrees": payload["arc_degrees"],
+                        "orb": payload["orb"],
+                        "positions": payload["positions"],
+                    }
+                ),
+            ),
+            ("相位", _json_block(payload["hits"])),
+        ]
+        return _envelope(
+            analysis_type="西占行星弧方向",
+            tool_name="planetary_arc",
             context=context,
             natal_reference=natal_reference,
             payload=payload,

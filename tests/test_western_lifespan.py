@@ -25,7 +25,9 @@ from fatebridge.core.astrology_lifespan import (
     build_keypoints_payload,
     build_lunation_phase_payload,
     build_planetary_ages_payload,
+    build_planetary_arc_payload,
     build_triplicity_rulers_payload,
+    build_yearsystem129_payload,
 )
 from fatebridge.services.western_lifespan import (
     calculate_balbillus,
@@ -34,8 +36,11 @@ from fatebridge.services.western_lifespan import (
     calculate_keypoints,
     calculate_lunation_phase,
     calculate_planetary_ages,
+    calculate_planetary_arc,
     calculate_triplicity_rulers,
+    calculate_yearsystem129,
 )
+from fatebridge.services.western_timing_tools import calculate_solararc
 
 # A fixed birth used across the service-level tests.
 BIRTH = dict(
@@ -315,6 +320,47 @@ def test_keypoints_position_number_and_activation():
     assert any(x["planet"] == "Sun" for x in by_age[18]["period_active"])
 
 
+def test_yearsystem129_uses_full_small_years_in_balbillus_order():
+    lons = {
+        "Sun": 10.0,
+        "Moon": 50.0,
+        "Mercury": 100.0,
+        "Venus": 150.0,
+        "Mars": 200.0,
+        "Jupiter": 250.0,
+        "Saturn": 300.0,
+    }
+    payload = build_yearsystem129_payload(_seven_planet_natal(lons), start_planet="Sun")
+    # Full small-years, no exaltation reduction.
+    first = payload["periods"][0]
+    assert first["planet"] == "Sun"
+    assert first["duration_years"] == float(BALBILLUS_SMALL_YEARS["Sun"])
+    assert payload["total_cycle_years"] == 129
+    # Same zodiacal ordering primitive as Balbillus.
+    assert payload["zodiacal_order"][0] == "Sun"
+    assert payload["sequence_model"] == "zodiacal"
+
+
+def test_planetary_arc_directs_whole_chart_by_source_arc():
+    natal = {"Sun": 10.0, "Moon": 100.0, "Mars": 200.0}
+    progressed = {"Sun": 40.0, "Moon": 130.0, "Mars": 250.0}
+    # arc_source=Moon -> arc = 130-100 = 30; every point advances 30°.
+    payload = build_planetary_arc_payload(natal, progressed, arc_source="Moon", orb=1.0)
+    assert payload["arc_degrees"] == 30.0
+    assert payload["positions"]["sun"]["absolute_degree"] == 40.0
+    assert payload["positions"]["mars"]["absolute_degree"] == 230.0
+
+
+def test_planetary_arc_with_sun_source_equals_solar_arc():
+    """planetaryarc(arc_source=Sun) must reproduce FateBridge's own solar arc."""
+    common = dict(analysis_year=2025, analysis_month=4, analysis_day=6)
+    pa = calculate_planetary_arc(**BIRTH, arc_source="Sun", **common)
+    sa = calculate_solararc(**BIRTH, **common)
+    assert (
+        abs(pa["planetary_arc"]["arc_degrees"] - sa["solararc"]["arc_degrees"]) < 1e-6
+    )
+
+
 # ---------------------------------------------------------------------------
 # Service envelope contract.
 # ---------------------------------------------------------------------------
@@ -333,6 +379,8 @@ def test_services_return_envelope_with_snapshot_and_no_error():
         (calculate_distributions, {}, "distributions"),
         (calculate_balbillus, {}, "balbillus"),
         (calculate_keypoints, {}, "keypoints"),
+        (calculate_yearsystem129, {}, "yearsystem129"),
+        (calculate_planetary_arc, {}, "planetary_arc"),
     ]
     for fn, extra, key in cases:
         result = fn(**BIRTH, **extra)

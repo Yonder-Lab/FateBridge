@@ -432,6 +432,8 @@ REST_POST_CASES = {
     "/api/astro/lifespan/distributions": _astro_payload,
     "/api/astro/lifespan/balbillus": _astro_payload,
     "/api/astro/lifespan/keypoints": _astro_payload,
+    "/api/astro/lifespan/yearsystem129": _astro_payload,
+    "/api/astro/lifespan/planetaryarc": _astro_payload,
     "/api/timing/liuyue": lambda: {
         **_birth_payload(),
         "analysis_year": 2028,
@@ -803,4 +805,6 @@ MCP_CASES = {
     "astro_distributions": ("astro_distributions", _astro_payload),
     "astro_balbillus": ("astro_balbillus", _astro_payload),
     "astro_keypoints": ("astro_keypoints", _astro_payload),
+    "astro_yearsystem129": ("astro_yearsystem129", _astro_payload),
+    "astro_planetaryarc": ("astro_planetaryarc", _astro_payload),
 }

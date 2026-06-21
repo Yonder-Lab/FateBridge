@@ -20,9 +20,11 @@ from fatebridge.core.request_models import (
     AstroKeypointsRequest,
     AstroLunationPhaseRequest,
     AstroPlanetaryAgesRequest,
+    AstroPlanetaryArcRequest,
     AstroRelativeFlatRequest,
     AstroRelativeRequest,
     AstroTriplicityRulersRequest,
+    AstroYearSystem129Request,
     BaziBirthRequest,
     BaziCareerRequest,
     BaziChildrenRequest,
@@ -140,7 +142,9 @@ from fatebridge.services.western_lifespan import (
     calculate_keypoints,
     calculate_lunation_phase,
     calculate_planetary_ages,
+    calculate_planetary_arc,
     calculate_triplicity_rulers,
+    calculate_yearsystem129,
 )
 from fatebridge.services.western_timing import calculate_western_timing_analysis
 from fatebridge.services.western_timing_tools import (
@@ -866,6 +870,18 @@ CATALOG: List[ToolSpec] = [
         calculate_keypoints,
         AstroKeypointsRequest,
         "数字相位推运",
+    ),
+    _western_lifespan_spec(
+        "yearsystem129",
+        calculate_yearsystem129,
+        AstroYearSystem129Request,
+        "129年系统",
+    ),
+    _western_lifespan_spec(
+        "planetaryarc",
+        calculate_planetary_arc,
+        AstroPlanetaryArcRequest,
+        "行星弧方向",
     ),
 ]
 
