@@ -16,6 +16,7 @@ from fatebridge.core.request_models import (
     AstroChartPolyRequest,
     AstroChartRequest,
     AstroDistributionsRequest,
+    AstroElectionRequest,
     AstroExtraReturnsRequest,
     AstroHarmonicRequest,
     AstroHoraryRequest,
@@ -138,6 +139,7 @@ from fatebridge.services.timing import (
     calculate_liuyue_analysis,
     calculate_nongli_time,
 )
+from fatebridge.services.western_election import calculate_election
 from fatebridge.services.western_events import (
     calculate_extrareturns,
     calculate_mundane,
@@ -922,6 +924,12 @@ CATALOG: List[ToolSpec] = [
         calculate_horary,
         AstroHoraryRequest,
         "卜卦判断",
+    ),
+    _western_event_spec(
+        "election",
+        calculate_election,
+        AstroElectionRequest,
+        "择日",
     ),
 ]
 

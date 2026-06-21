@@ -20,6 +20,7 @@ triggers:
 engine_tools:
   - astro_balbillus
   - astro_distributions
+  - astro_election
   - astro_extrareturns
   - astro_harmonic
   - astro_keypoints
