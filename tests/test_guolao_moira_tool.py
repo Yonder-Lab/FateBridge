@@ -80,6 +80,16 @@ def test_compute_god_signidx_guolao_qili():
     }
 
 
+def test_ming_zuo_liangqi_near_su_boundary():
+    """命坐两歧 近宿界（FB 等分宿口径）：命度近宿界但不近宫界亦应点亮。"""
+    # 等分宿界 1*(360/28)=12.857°；asc=12.9 近宿界(0.04°)，但 12.9 不近宫界(12.9°)。
+    near_su = guolao_moira.calculate({"asc_lon": 12.9, "planet_signidx": {}})
+    assert any(p["name"] == "命坐两歧" for p in near_su)
+    # 远离宫界与宿界：命度居中（如 18° → 宫界 18°、宿界距 12.857/25.714 均 >1°）不点亮。
+    clear = guolao_moira.calculate({"asc_lon": 18.0, "planet_signidx": {}})
+    assert not any(p["name"] == "命坐两歧" for p in clear)
+
+
 def test_god_patterns_fire_when_positions_supplied():
     """供入神煞位置时，日月拱贵人 / 命登岁驾 应能点亮（Phase 2a）。"""
     # 命登岁驾：命度(ASC)与岁驾同宫。

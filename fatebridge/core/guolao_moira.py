@@ -15,8 +15,9 @@ Scope notes (see docs/superpowers/specs/2026-06-21-guolao-moira-engine-design.md
 * **紫炁 (木余) is not yet computed.** It feeds no pattern *directly*, but
   ``孤月独明`` counts shared-sign bodies over the full 11-body ``MOIRA_PLANET_ORDER``
   which includes 炁; with 炁 absent that count omits it. Faithful once Phase 4 adds 紫炁.
-* **命坐两歧** ships its 近宫界 half only; 近宿界 needs a real 宿度 table FB lacks
-  (``_su28`` is equal-spaced) — deferred to Phase 3.
+* **命坐两歧 (Phase 3)**：近宫界 + 近宿界 均已实现。宿界以 FB 等分宿口径（360/28，与
+  ``core.astrology._su28`` 同源）判定——内部自洽，但非 horosa 后端真实（不等）宿度，故
+  近宿界临界判定不与 horosa 字节对照（近宫界仍与 JS 逐字一致）。
 
 The remaining patterns (八杀朝天/日月拱官/金水相涵/日月失所/官福失垣/孛犯太阳/罗犯太阳/
 孛罗交战) match ``guolaoMoira.js`` byte-for-byte given identical chart inputs, and are
@@ -255,6 +256,20 @@ def _near_sign_boundary(lon: Optional[float]) -> bool:
     return val <= 1 or val >= 29
 
 
+# 二十八宿等分步长（与 core.astrology._su28 同口径：360/28）。FateBridge 以等分宿度
+# 标注星曜所在宿，故 命坐两歧 的「近宿界」亦以同一等分口径判定——内部自洽，但非 horosa
+# 后端的真实（不等）宿度，两者在宿界附近的临界判定可能不同。
+_SU28_STEP = 360.0 / 28.0
+
+
+def _near_su_boundary(lon: Optional[float]) -> bool:
+    """命度是否近二十八宿界（FB 等分宿口径，距宿界 <= 1°）。"""
+    if lon is None:
+        return False
+    offset = ((lon % _SU28_STEP) + _SU28_STEP) % _SU28_STEP
+    return offset <= 1 or offset >= _SU28_STEP - 1
+
+
 # --- 主入口 ------------------------------------------------------------------
 
 
@@ -427,10 +442,15 @@ def calculate(facts: Dict[str, Any]) -> List[Dict[str, Any]]:
     if _same(north_node, dark_moon):
         _add(patterns, "孛罗交战", "bad", "2.2.0", "政余忌格：罗孛同宫。", "?{罗孛遇}")
 
-    # 命坐两歧（忌）：命度近宫界（近宿界 half 见 Phase 3，FB 无真实宿度表）。
-    if _near_sign_boundary(asc_lon):
+    # 命坐两歧（忌）：命度近宫界 或 近宿界（宿界以 FB 等分宿口径判定，见 _near_su_boundary）。
+    if _near_sign_boundary(asc_lon) or _near_su_boundary(asc_lon):
         _add(
-            patterns, "命坐两歧", "bad", "2.0.4", "政余忌格：命度近宫界。", "?{命宫歧}"
+            patterns,
+            "命坐两歧",
+            "bad",
+            "2.0.4",
+            "政余忌格：命度近宫界或宿界。",
+            "?{命宫歧} | ?{命宿歧}",
         )
 
     def _level_rank(level: str) -> int:
