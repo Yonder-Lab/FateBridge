@@ -23,6 +23,7 @@ from fatebridge.core.astrology import (
     ELEMENT_BY_SIGN,
     EXALTATION_SIGNS,
     RULER_BY_SIGN,
+    SIGNS,
     _opposite_sign,
 )
 from fatebridge.core.predictive import EGYPTIAN_BOUNDS_BY_SIGN
@@ -414,6 +415,85 @@ def build_topic_almutens(
         result = almuten_of(sign, degree, is_day)
         topic[str(house_number)] = {"sign": sign, "winner": result["winner"]}
     return topic
+
+
+# ── Phase 3: Arabic lots (parts) ──
+
+# Lot formulas: lon = (a + b − c) mod 360, with day/night reversal. Marker keys
+# index into the longitude table (asc / sun / moon / planets / eighth cusp).
+# Ported verbatim from horosa data/lots.js (卜卦构建清单 §1.5).
+LOTS: Dict[str, Dict[str, Any]] = {
+    "fortune": {
+        "cn": "福点",
+        "use": "财富·失物·方位·身体",
+        "day": ["asc", "moon", "sun"],
+        "night": ["asc", "sun", "moon"],
+    },
+    "spirit": {
+        "cn": "精神点",
+        "use": "心智·事业·名望",
+        "day": ["asc", "sun", "moon"],
+        "night": ["asc", "moon", "sun"],
+    },
+    "marriage": {
+        "cn": "婚姻点",
+        "use": "婚姻（七宫）",
+        "day": ["asc", "venus", "saturn"],
+        "night": ["asc", "saturn", "venus"],
+    },
+    "children": {
+        "cn": "子女点",
+        "use": "子嗣（五宫）",
+        "day": ["asc", "jupiter", "saturn"],
+        "night": ["asc", "saturn", "jupiter"],
+    },
+    "death": {
+        "cn": "死亡点",
+        "use": "八宫·危难",
+        "day": ["eighth", "saturn", "moon"],
+        "night": ["eighth", "saturn", "moon"],
+    },
+}
+
+
+def _sign_of_longitude(longitude: float) -> str:
+    return SIGNS[int((longitude % 360.0) // 30.0)]
+
+
+def compute_lot(formula: List[str], lons: Dict[str, float]) -> Optional[float]:
+    """``lon = (a + b − c) mod 360`` from the longitude table; None if a marker missing."""
+    a = lons.get(formula[0])
+    b = lons.get(formula[1])
+    c = lons.get(formula[2])
+    if a is None or b is None or c is None:
+        return None
+    return ((a + b - c) % 360.0 + 360.0) % 360.0
+
+
+def lot_dispositor(lot_longitude: float) -> Optional[str]:
+    """Domicile ruler of the sign a lot falls in (its dispositor / 定位星)."""
+    return RULER_BY_SIGN.get(_sign_of_longitude(lot_longitude))
+
+
+def build_lots_layer(lons: Dict[str, float], is_day: bool) -> Dict[str, Any]:
+    """Each Arabic lot's position + its domicile dispositor and weighted almuten."""
+    out: Dict[str, Any] = {}
+    for lot_id, definition in LOTS.items():
+        formula = definition["day"] if is_day else definition["night"]
+        lon = compute_lot(formula, lons)
+        if lon is None:
+            continue
+        sign = _sign_of_longitude(lon)
+        degree = lon % 30.0
+        out[lot_id] = {
+            "cn": definition["cn"],
+            "longitude": round(lon, 4),
+            "sign": sign,
+            "degree_in_sign": round(degree, 4),
+            "dispositor": RULER_BY_SIGN.get(sign),
+            "almuten": almuten_of(sign, degree, is_day)["winner"],
+        }
+    return out
 
 
 def build_planet_classical(

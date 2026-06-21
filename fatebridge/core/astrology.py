@@ -1296,7 +1296,9 @@ def _sect(planets: List[Dict[str, Any]]) -> str:
 
 
 def _build_classical_layer(
-    planets: List[Dict[str, Any]], houses: List[Dict[str, Any]]
+    planets: List[Dict[str, Any]],
+    houses: List[Dict[str, Any]],
+    ascendant: float,
 ) -> Dict[str, Any]:
     """Hellenistic/medieval condition layer — the chart's ``classical`` block.
 
@@ -1308,6 +1310,7 @@ def _build_classical_layer(
     """
     from fatebridge.core.classical_western import (
         build_dispositor_layer,
+        build_lots_layer,
         build_planet_classical,
         build_topic_almutens,
     )
@@ -1319,6 +1322,7 @@ def _build_classical_layer(
 
     planet_layer: Dict[str, Any] = {}
     placements: Dict[str, str] = {}
+    lons: Dict[str, float] = {}
     for item in planets:
         planet_layer[item["id"]] = build_planet_classical(
             planet=item["id"],
@@ -1330,6 +1334,7 @@ def _build_classical_layer(
             chart_sect=chart_sect,
         )
         placements[item["id"]] = item["sign"]
+        lons[item["id"].lower()] = item["longitude"]
 
     houses_for_almuten = {
         house["house"]: {
@@ -1339,11 +1344,18 @@ def _build_classical_layer(
         for house in houses
         if house.get("sign") is not None
     }
+    # Lot longitude markers: the EXACT ascendant (not the whole-sign 1st cusp, so
+    # Fortune matches _fortune_lot) + the 8th cusp.
+    lons["asc"] = float(ascendant)
+    for house in houses:
+        if house["house"] == 8:
+            lons["eighth"] = float(house["cusp_longitude"])
     return {
         "sect": chart_sect,
         "planets": planet_layer,
         "dispositors": build_dispositor_layer(placements),
         "topic_almutens": build_topic_almutens(houses_for_almuten, is_day),
+        "lots": build_lots_layer(lons, is_day),
     }
 
 
@@ -1503,7 +1515,7 @@ def build_core_chart_payload(
         "houses": house_list,
         "planets": planets,
         "aspects": aspects,
-        "classical": _build_classical_layer(planets, house_list),
+        "classical": _build_classical_layer(planets, house_list, effective_ascendant),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
         "balance_basis": BALANCE_BASIS,

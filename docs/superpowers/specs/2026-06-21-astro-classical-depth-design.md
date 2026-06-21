@@ -1,9 +1,14 @@
 # Design: 西占古典深度段 [古典]/[古典格局] — horosa parity (multi-phase)
 
 - **Date:** 2026-06-21
-- **Status:** **Phase 1 (#72, merged) + Phase 2 implemented** (Phase 2 on
-  `feat/astro-classical-phase2`). Overarching project spec — ~5 phased PRs;
-  Phases 3–5 are scoped outlines, detailed when reached.
+- **Status:** **Phase 1 (#72) + Phase 2 (#73) merged; Phase 3 implemented**
+  (`feat/astro-classical-phase3`). Overarching project spec — ~5 phased PRs.
+  - **Phase 3 shipped:** **Arabic lots** (福/精神/婚姻/子女/死亡 5 lots) with
+    day/night reversal, each lot's domicile dispositor + weighted almuten; chart
+    gains `classical.lots`, snapshot adds `[阿拉伯点]`. `lots.fortune` shares the
+    EXACT-ascendant formula with the pre-existing `_fortune_lot` (single source,
+    verified equal). Fixed stars + planetary hours **deferred to Phase 3b** (need
+    star catalog/precession + sunrise → ephemeris, like Phase 2b).
   - **Phase 2 shipped:** dispositor chains (主宰星链, with mutual-reception / loop
     detection + final dispositors) and per-house **topic almutens** (weighted
     essential-dignity winner of each cusp), via new `almuten_of` /
