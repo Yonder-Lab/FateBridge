@@ -256,7 +256,9 @@ def test_core_chart_prefers_local_ephemeris_runtime_when_available():
     birth_payload = _build_birth_payload()
 
     chart = calculate_core_chart_analysis(chart_variant="chart", **birth_payload)
-    birth_info = build_astro_birth_info(**birth_payload)
+    # The core chart now defaults to true solar time; build the reference birth
+    # info the same way so the expected Swiss-Ephemeris positions line up.
+    birth_info = build_astro_birth_info(**birth_payload, use_true_solar_time=True)
     julian_day = _julian_day(birth_info.utc_datetime)
     expected_sun, _ = swe.calc_ut(julian_day, swe.SUN, swe.FLG_SWIEPH)
     expected_moon, _ = swe.calc_ut(julian_day, swe.MOON, swe.FLG_SWIEPH)

@@ -13,14 +13,19 @@ import logging
 import math
 from collections import Counter
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from fatebridge.core.ephemeris_runtime import (
     ephemeris_model_from_retflag,
     swe,
 )
-from fatebridge.utils.helpers import parse_timezone_name, resolve_birth_place_context
+from fatebridge.utils.helpers import (
+    SOLAR_TIME_STRATEGY_APPARENT,
+    calculate_solar_time_adjustment,
+    parse_timezone_name,
+    resolve_birth_place_context,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -544,6 +549,8 @@ class AstroBirthInfo:
     latitude: float
     local_datetime: datetime
     utc_datetime: datetime
+    applied_true_solar: bool = False
+    solar_correction_minutes: float = 0.0
 
 
 def build_astro_birth_info(
@@ -558,6 +565,7 @@ def build_astro_birth_info(
     birth_latitude: Optional[float] = None,
     name: Optional[str] = None,
     birth_place: Optional[str] = None,
+    use_true_solar_time: bool = False,
 ) -> AstroBirthInfo:
     place_context = resolve_birth_place_context(birth_place)
     timezone_name = birth_timezone or place_context.timezone or "UTC"
@@ -583,6 +591,19 @@ def build_astro_birth_info(
         birth_minute,
         tzinfo=tzinfo,
     )
+    # True solar time: rebase the civil clock onto the apparent Sun (longitude +
+    # equation of time), the same correction the BaZi engine applies, so western
+    # and Chinese charts share one notion of the birth instant.
+    correction_minutes = 0.0
+    if use_true_solar_time:
+        adjustment = calculate_solar_time_adjustment(
+            datetime(birth_year, birth_month, birth_day, birth_hour, birth_minute),
+            timezone_name,
+            effective_longitude,
+            strategy=SOLAR_TIME_STRATEGY_APPARENT,
+        )
+        correction_minutes = adjustment["total_correction_minutes"]
+        local_datetime = local_datetime + timedelta(minutes=correction_minutes)
     utc_datetime = local_datetime.astimezone(parse_timezone_name("UTC"))
     return AstroBirthInfo(
         name=(name or "未提供").strip() or "未提供",
@@ -592,6 +613,8 @@ def build_astro_birth_info(
         latitude=effective_latitude,
         local_datetime=local_datetime,
         utc_datetime=utc_datetime,
+        applied_true_solar=use_true_solar_time,
+        solar_correction_minutes=round(correction_minutes, 4),
     )
 
 
@@ -1494,6 +1517,10 @@ def build_core_chart_payload(
             "birth_latitude": birth_info.latitude,
             "birth_datetime": birth_info.local_datetime.isoformat(),
             "utc_datetime": birth_info.utc_datetime.isoformat(),
+            "true_solar": {
+                "applied": birth_info.applied_true_solar,
+                "correction_minutes": birth_info.solar_correction_minutes,
+            },
         },
         "chart_profile": {
             "chart_type": chart_variant,
