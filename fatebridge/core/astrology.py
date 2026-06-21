@@ -1050,7 +1050,9 @@ def _swisseph_planet_state(
     if planet_id is None:
         return None
     try:
-        coordinates, retflag = swe.calc_ut(julian_day, planet_id, swe.FLG_SWIEPH)
+        coordinates, retflag = swe.calc_ut(
+            julian_day, planet_id, swe.FLG_SWIEPH | swe.FLG_SPEED
+        )
     except Exception as error:
         _log_swe_runtime_failure("calc_ut", error)
         return None
@@ -1060,7 +1062,20 @@ def _swisseph_planet_state(
     state = {
         "longitude": normalize_angle(float(coordinates[0])),
         "latitude": float(coordinates[1]),
+        "longitude_speed": float(coordinates[3]),
     }
+    # Second pass in equatorial coordinates: ``coordinates[1]`` becomes the
+    # declination, which drives the out-of-bounds flag. A soft failure here only
+    # costs the declination key — the ecliptic position above is still valid, so
+    # the planet still places and out-of-bounds simply reports "unknown".
+    try:
+        equatorial, eq_retflag = swe.calc_ut(
+            julian_day, planet_id, swe.FLG_SWIEPH | swe.FLG_EQUATORIAL
+        )
+        if eq_retflag >= 0:
+            state["declination"] = float(equatorial[1])
+    except Exception as error:  # pragma: no cover - defensive, ecliptic still usable
+        _log_swe_runtime_failure("calc_ut(equatorial)", error)
     return state, ephemeris_model_from_retflag(retflag)
 
 
@@ -1318,10 +1333,83 @@ def _sect(planets: List[Dict[str, Any]]) -> str:
     return "day" if sun["house"] >= 7 else "night"
 
 
+# Mean synodic elongation rate (Moon − Sun), degrees/day — the first guess for
+# the syzygy search before Newton refinement on the true rate.
+_MEAN_ELONGATION_RATE = 12.190749
+
+
+def _luminary_lon_speed(
+    julian_day: float, body_id: int
+) -> Optional[Tuple[float, float]]:
+    """``(longitude, longitude_speed)`` of a luminary, or None on swe failure."""
+    try:
+        coordinates, retflag = swe.calc_ut(
+            julian_day, body_id, swe.FLG_SWIEPH | swe.FLG_SPEED
+        )
+    except Exception as error:  # pragma: no cover - defensive
+        _log_swe_runtime_failure("calc_ut(syzygy)", error)
+        return None
+    if retflag < 0:
+        return None
+    return normalize_angle(float(coordinates[0])), float(coordinates[3])
+
+
+def _prenatal_syzygy(julian_day: float) -> Optional[Dict[str, Any]]:
+    """The last New or Full Moon strictly before birth (prenatal lunation).
+
+    Used as the fifth hylegic point of the Almuten Figuris. The Sun–Moon
+    elongation rises ~12.19°/day; a New Moon sits at elongation 0°, a Full Moon
+    at 180°. We seed from the mean rate, then Newton-refine on the true
+    elongation speed until the lunation instant is pinned. The syzygy *point* is
+    the conjunction degree (New Moon) or the Moon's degree (Full Moon).
+
+    Returns ``None`` when swisseph is unavailable — the offline approximate
+    engine cannot run the backward search, so the Almuten Figuris simply elects
+    over the four points it does have.
+    """
+    if swe is None:
+        return None
+    here = _luminary_lon_speed(julian_day, swe.SUN)
+    moon_here = _luminary_lon_speed(julian_day, swe.MOON)
+    if here is None or moon_here is None:
+        return None
+    elongation = (moon_here[0] - here[0]) % 360.0
+    is_full = elongation >= 180.0
+    target = 180.0 if is_full else 0.0
+    # Step back by the elongation already accrued past the last syzygy.
+    estimate = julian_day - (elongation - target) / _MEAN_ELONGATION_RATE
+    for _ in range(40):
+        sun = _luminary_lon_speed(estimate, swe.SUN)
+        moon = _luminary_lon_speed(estimate, swe.MOON)
+        if sun is None or moon is None:
+            return None
+        # Signed distance of current elongation from the target, folded to (−180, 180].
+        offset = (moon[0] - sun[0] - target + 540.0) % 360.0 - 180.0
+        rate = moon[1] - sun[1]
+        if abs(offset) < 1e-9 or rate == 0.0:
+            break
+        estimate -= offset / rate
+    sun = _luminary_lon_speed(estimate, swe.SUN)
+    moon = _luminary_lon_speed(estimate, swe.MOON)
+    if sun is None or moon is None:
+        return None
+    longitude = moon[0] if is_full else sun[0]
+    return {
+        "type": "full" if is_full else "new",
+        "longitude": round(longitude, 4),
+        "sign": _sign_name(longitude),
+        "degree_in_sign": round(_degree_in_sign(longitude), 4),
+        "julian_day": round(estimate, 6),
+    }
+
+
 def _build_classical_layer(
     planets: List[Dict[str, Any]],
     houses: List[Dict[str, Any]],
     ascendant: float,
+    *,
+    states: Optional[Dict[str, Dict[str, float]]] = None,
+    julian_day: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Hellenistic/medieval condition layer — the chart's ``classical`` block.
 
@@ -1332,6 +1420,7 @@ def _build_classical_layer(
     module's dignity tables).
     """
     from fatebridge.core.classical_western import (
+        build_almuten_figuris,
         build_dispositor_layer,
         build_lots_layer,
         build_planet_classical,
@@ -1339,6 +1428,7 @@ def _build_classical_layer(
         build_topic_almutens,
     )
 
+    states = states or {}
     chart_sect = _sect(planets)
     is_day = chart_sect == "day"
     sun = next((item for item in planets if item["id"] == "Sun"), None)
@@ -1350,6 +1440,7 @@ def _build_classical_layer(
     placements: Dict[str, str] = {}
     lons: Dict[str, float] = {}
     for item in planets:
+        state = states.get(item["id"], {})
         planet_layer[item["id"]] = build_planet_classical(
             planet=item["id"],
             sign=item["sign"],
@@ -1358,6 +1449,8 @@ def _build_classical_layer(
             house=item.get("house"),
             sun_longitude=sun_longitude,
             chart_sect=chart_sect,
+            longitude_speed=state.get("longitude_speed"),
+            declination=state.get("declination"),
         )
         placements[item["id"]] = item["sign"]
         lons[item["id"].lower()] = item["longitude"]
@@ -1376,12 +1469,32 @@ def _build_classical_layer(
     for house in houses:
         if house["house"] == 8:
             lons["eighth"] = float(house["cusp_longitude"])
+
+    lots = build_lots_layer(lons, is_day)
+    syzygy = _prenatal_syzygy(julian_day) if julian_day is not None else None
+    fortune = lots.get("fortune")
+    figuris_points: Dict[str, Dict[str, Any]] = {}
+    if sun:
+        figuris_points["Sun"] = sun
+    if moon:
+        figuris_points["Moon"] = moon
+    figuris_points["Ascendant"] = {
+        "sign": asc_sign,
+        "degree_in_sign": round(ascendant % 30.0, 4),
+    }
+    if fortune:
+        figuris_points["fortune"] = fortune
+    if syzygy:
+        figuris_points["syzygy"] = syzygy
+
     return {
         "sect": chart_sect,
         "planets": planet_layer,
         "dispositors": build_dispositor_layer(placements),
         "topic_almutens": build_topic_almutens(houses_for_almuten, is_day),
-        "lots": build_lots_layer(lons, is_day),
+        "lots": lots,
+        "syzygy": syzygy,
+        "almuten_figuris": build_almuten_figuris(figuris_points, is_day),
         "temperament": build_temperament(
             asc_sign,
             RULER_BY_SIGN.get(asc_sign),
@@ -1561,7 +1674,13 @@ def build_core_chart_payload(
         "houses": house_list,
         "planets": planets,
         "aspects": aspects,
-        "classical": _build_classical_layer(planets, house_list, effective_ascendant),
+        "classical": _build_classical_layer(
+            planets,
+            house_list,
+            effective_ascendant,
+            states=planet_states,
+            julian_day=julian_day,
+        ),
         "classical_patterns": _build_classical_patterns(planets, aspects),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),

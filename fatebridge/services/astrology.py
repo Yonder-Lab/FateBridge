@@ -637,6 +637,10 @@ def _build_classical_lines(payload: Dict[str, Any]) -> str:
             parts.append("得宗派")
         if entry.get("combustion"):
             parts.append(_COMBUSTION_ZH.get(entry["combustion"], entry["combustion"]))
+        if entry.get("retrograde"):
+            parts.append("逆行")
+        if entry.get("out_of_bounds"):
+            parts.append("出界")
         if entry.get("joy"):
             parts.append("喜乐宫")
         lines.append(" ".join(part for part in parts if part))
@@ -769,6 +773,52 @@ def _build_topic_almuten_line(payload: Dict[str, Any]) -> str:
     return " ".join(parts)
 
 
+_FIGURIS_POINT_ZH = {
+    "Sun": "日",
+    "Moon": "月",
+    "Ascendant": "命",
+    "fortune": "福",
+    "syzygy": "朔",
+}
+_SYZYGY_TYPE_ZH = {"new": "新月", "full": "满月"}
+
+
+def _build_almuten_figuris_line(payload: Dict[str, Any]) -> str:
+    """``[命主]`` section: the Almuten Figuris + its five hylegic points + 朔望."""
+    classical = payload.get("classical", {})
+    figuris = classical.get("almuten_figuris") or {}
+    winner = figuris.get("winner")
+    if not winner:
+        return "无"
+    totals = figuris.get("totals", {})
+    lines = [
+        f"命主：{PLANET_LABELS_ZH.get(winner, winner)}（{totals.get(winner, 0)}分）"
+    ]
+    points = figuris.get("points", {})
+    point_parts = []
+    for point_id in ("Sun", "Moon", "Ascendant", "fortune", "syzygy"):
+        info = points.get(point_id)
+        if not info:
+            continue
+        ruler = info.get("winner")
+        point_parts.append(
+            f"{_FIGURIS_POINT_ZH.get(point_id, point_id)}→"
+            f"{PLANET_LABELS_ZH.get(ruler, ruler or '—')}"
+        )
+    if point_parts:
+        lines.append("点主：" + " ".join(point_parts))
+    syzygy = classical.get("syzygy")
+    if isinstance(syzygy, dict):
+        sign = str(syzygy.get("sign") or "?")
+        syzygy_type = str(syzygy.get("type") or "?")
+        type_zh = _SYZYGY_TYPE_ZH.get(syzygy_type, syzygy_type)
+        sign_zh = SIGN_LABELS_ZH.get(sign, sign)
+        lines.append(
+            f"朔望：{type_zh} {sign_zh}{_format_degree(syzygy.get('degree_in_sign'))}"
+        )
+    return "\n".join(lines).strip()
+
+
 def _build_standard_chart_snapshot_sections(
     payload: Dict[str, Any], *, chart_variant: str
 ) -> List[tuple[str, str]]:
@@ -834,6 +884,7 @@ def _build_standard_chart_snapshot_sections(
         ("行星", _build_planet_lines(payload.get("planets", []))),
         ("古典", _build_classical_lines(payload)),
         ("主宰", _build_dispositor_lines(payload)),
+        ("命主", _build_almuten_figuris_line(payload)),
         ("宫主星", _build_topic_almuten_line(payload)),
         ("阿拉伯点", _build_lots_lines(payload)),
         ("古典格局", _build_classical_patterns_lines(payload)),

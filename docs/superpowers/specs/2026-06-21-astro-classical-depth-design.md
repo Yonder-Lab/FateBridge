@@ -12,10 +12,21 @@
     `[体质]`. **Deferred to Phase 5b: monomoiria / ninth-part / Darijan** (extra
     degree-ruler tables) and the **28 lunar mansions** (FB already has nakshatra/
     su28; classical 28-mansion mapping pending).
-  - **Remaining ephemeris cut (2b/3b/4b):** retrograde, out-of-bounds, Almuten
-    figuris (syzygy), fixed stars, planetary hours, translation/collection of
-    light, doryphory, nodal bending — all need planetary speed / declination /
-    sunrise / star catalog. One focused PR once that plumbing lands.
+  - **Phase 2b shipped (`feat/astro-ephemeris-phase2b`):** the chart now exposes
+    per-planet **speed** + **declination** (a second `FLG_EQUATORIAL` pass), so
+    `classical.planets[]` gains **retrograde** (speed < 0) + **out_of_bounds**
+    (|declination| > 23.4367°); a backward Newton search on Sun−Moon elongation
+    finds the prenatal **syzygy** (新月/满月), and **Almuten Figuris** (命主) is
+    elected over the five hylegic points (Sun/Moon/Asc/Fortune/syzygy) by summing
+    `almuten_of` tallies. New `classical.syzygy` + `classical.almuten_figuris`;
+    snapshot `[古典]` gains 逆行/出界, plus a new `[命主]` section. All flags are
+    `None`/absent on the offline approximate engine (honest "unknown"). Pinned by
+    classical invariants + real-sky facts (Dec-2000 Jupiter+Saturn retrograde,
+    2000-11-25 prenatal New Moon).
+  - **Remaining ephemeris cut (3b/4b):** fixed stars, planetary hours,
+    translation/collection of light, doryphory, nodal bending — still need a star
+    catalog / sunrise / applying-separating speed. Phase 3b (fixed stars +
+    planetary hours) is next.
   - **Phase 4 shipped (`classical_patterns` = [古典格局]):** aversion (no
     whole-sign aspect), overcoming (superior dexter square / 10th sign),
     besiegement & enclosure by body (immediate longitude neighbours), and
