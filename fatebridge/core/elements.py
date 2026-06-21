@@ -131,14 +131,16 @@ class ElementAnalysis:
             percentage = (count / total) * 100
             percentages[element.value] = round(percentage, 1)
 
-        # Ensure total is exactly 100% (handle rounding errors)
-        current_total = sum(percentages.values())
-        if abs(current_total - 100.0) > 0.1:  # Allow 0.1% tolerance
-            # Adjust the largest percentage to make total exactly 100%
+        # 把各项凑齐到 100%（吸收四舍五入误差）。
+        # 用「四舍五入后的残差」判断，而不是 abs(sum-100) > 0.1 的浮点刀刃：
+        # CPython 3.12 起 sum() 改用 Neumaier 补偿求和，会让 99.9 这类 0.1 倍数
+        # 的浮点和在 3.11/3.12 间落到刀刃两侧，导致补偿是否触发随版本翻转。
+        # round(残差, 1) 把比较拉回 0.1 量化网格，跨版本确定。
+        residual = round(100.0 - sum(percentages.values()), 1)
+        if residual:
+            # 把残差并到占比最大的元素上，使总和恰为 100%。
             max_key = max(percentages.keys(), key=lambda k: percentages[k])
-            percentages[max_key] = round(
-                percentages[max_key] + (100.0 - current_total), 1
-            )
+            percentages[max_key] = round(percentages[max_key] + residual, 1)
 
         return percentages
 
