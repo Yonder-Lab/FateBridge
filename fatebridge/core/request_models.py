@@ -1194,6 +1194,50 @@ class AstroHoraryRequest(BaseModel):
     )
 
 
+class AstroElectionRequest(BaseModel):
+    """Request model for the 择日 (electional) tool — chart cast at the candidate moment."""
+
+    name: Optional[str] = Field(default=None, description="Optional chart name")
+    candidate_year: int = Field(
+        description="Year of the candidate moment being evaluated"
+    )
+    candidate_month: int = Field(
+        ge=1, le=12, description="Month of the candidate moment (1-12)"
+    )
+    candidate_day: int = Field(
+        ge=1, le=31, description="Day of the candidate moment (1-31)"
+    )
+    candidate_hour: int = Field(
+        ge=0, le=23, description="Hour of the candidate moment (0-23)"
+    )
+    candidate_minute: int = Field(
+        default=0, ge=0, le=59, description="Minute of the candidate moment"
+    )
+    timezone_name: str = Field(
+        default="+08:00",
+        description="Candidate-moment timezone (IANA name or UTC offset)",
+    )
+    longitude: float = Field(
+        ge=-180, le=180, description="Longitude where the act will take place"
+    )
+    latitude: float = Field(
+        ge=-90, le=90, description="Latitude where the act will take place"
+    )
+    topic_id: str = Field(
+        default="marriage",
+        description=(
+            "Undertaking type, selecting the rule pack: marriage/business/move_in/"
+            "buy_property/trade/buy_car/contract/surgery/travel/job_hunt/general"
+        ),
+    )
+    house_system: str = Field(
+        default="R", description="House system; Regiomontanus (R) is traditional"
+    )
+    zodiac_type: str = Field(
+        default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
+    )
+
+
 class BaziMarriageRequest(BaziDimensionRequest):
     """Request model for BaZi marriage analysis."""
 
