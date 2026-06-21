@@ -24,12 +24,12 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from fatebridge.core.astrology import (
-    ELEMENT_BY_SIGN,
     EXALTATION_SIGNS,
     RULER_BY_SIGN,
 )
+from fatebridge.core.classical_western import bound_lord as _bound_lord
+from fatebridge.core.classical_western import triplicity_members
 from fatebridge.core.predictive import (
-    EGYPTIAN_BOUNDS_BY_SIGN,
     normalize_sign_name,
     planet_label,
     sign_label,
@@ -152,33 +152,19 @@ def _planet_state(subject: Any, planet: str) -> Dict[str, Any]:
     }
 
 
-def _bound_lord(sign: str, degree_in_sign: float) -> Optional[str]:
-    for lord, start, end in EGYPTIAN_BOUNDS_BY_SIGN.get(sign, []):
-        if start <= degree_in_sign < end:
-            return lord
-    return None
-
-
-def _triplicity_element_lords(sign: str) -> List[str]:
-    # Lightweight Dorothean triplicity (day/night/participating), used only to
-    # flag reception, so order does not matter here.
-    element_lords = {
-        "Fire": ["Sun", "Jupiter", "Saturn"],
-        "Earth": ["Venus", "Moon", "Mars"],
-        "Air": ["Saturn", "Mercury", "Jupiter"],
-        "Water": ["Venus", "Mars", "Moon"],
-    }
-    return element_lords.get(ELEMENT_BY_SIGN.get(sign, ""), [])
-
-
 def _dignities(planet: str, sign: str, degree_in_sign: float) -> List[str]:
-    """Which essential dignities ``planet`` holds at this sign+degree."""
+    """Which essential dignities ``planet`` holds at this sign+degree.
+
+    Membership-style (triplicity = any of the three Dorothean rulers), kept
+    byte-identical to the pre-extraction horary behaviour; the bound and
+    triplicity primitives now live in :mod:`fatebridge.core.classical_western`.
+    """
     found: List[str] = []
     if RULER_BY_SIGN.get(sign) == planet:
         found.append("rulership")
     if EXALTATION_SIGNS.get(planet) == sign:
         found.append("exaltation")
-    if planet in _triplicity_element_lords(sign):
+    if planet in triplicity_members(sign):
         found.append("triplicity")
     if _bound_lord(sign, degree_in_sign) == planet:
         found.append("bound")
