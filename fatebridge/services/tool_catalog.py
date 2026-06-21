@@ -18,6 +18,7 @@ from fatebridge.core.request_models import (
     AstroDistributionsRequest,
     AstroExtraReturnsRequest,
     AstroHarmonicRequest,
+    AstroHoraryRequest,
     AstroKeypointsRequest,
     AstroLunationPhaseRequest,
     AstroMundaneRequest,
@@ -141,6 +142,7 @@ from fatebridge.services.western_events import (
     calculate_extrareturns,
     calculate_mundane,
 )
+from fatebridge.services.western_horary import calculate_horary
 from fatebridge.services.western_lifespan import (
     calculate_balbillus,
     calculate_distributions,
@@ -914,6 +916,12 @@ CATALOG: List[ToolSpec] = [
         calculate_extrareturns,
         AstroExtraReturnsRequest,
         "多重回归",
+    ),
+    _western_event_spec(
+        "horary",
+        calculate_horary,
+        AstroHoraryRequest,
+        "卜卦判断",
     ),
 ]
 

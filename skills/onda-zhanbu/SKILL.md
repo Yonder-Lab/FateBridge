@@ -26,8 +26,9 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 | 太乙 / 宿占 / 其他卜法 | `taiyi` / `suzhan` / `otherbu` | |
 | 大事多式互参 | `sanshiunited` | 三式合参 |
 | 只查卦义 | `gua_lookup` / `gua_meiyi` | |
+| 西洋卜卦（horary，占者懂点占星时） | `astro_horary` | 提问时刻 `--question-year/month/day/hour` + 地点 `--longitude/--latitude` + 问题类别 `--category`（marriage/wealth/career/health/...） |
 
-不知道选哪个：默认 `meihua_analysis`，它最轻、一句 `--question` 就能起。
+不知道选哪个：默认 `meihua_analysis`，它最轻、一句 `--question` 就能起。中式卜法与西洋卜卦可二选一，别强行拼。
 
 ## 怎么收信息
 - 最关键的是**一个清楚的问题**。帮用户把「我最近好烦」收敛成「我该不该接这份 offer」。一卦只问一事。
@@ -52,4 +53,9 @@ python3 -m fatebridge.cli --no-metadata meihua_analysis --question "下周该不
 
 python3 -m fatebridge.cli --no-metadata qimen \
   --analysis-year 2026 --analysis-month 6 --analysis-day 18 --analysis-hour 15
+
+# 西洋卜卦：提问时刻 + 地点 + 类别（这里问婚姻）
+python3 -m fatebridge.cli --no-metadata astro_horary --category marriage \
+  --question-year 2026 --question-month 6 --question-day 18 --question-hour 15 \
+  --longitude 116.40 --latitude 39.90 --timezone-name Asia/Shanghai --fields summary
 ```

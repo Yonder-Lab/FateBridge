@@ -82,6 +82,20 @@ def _mundane_payload() -> dict:
     }
 
 
+def _horary_payload() -> dict:
+    return {
+        "question_year": 2024,
+        "question_month": 6,
+        "question_day": 1,
+        "question_hour": 14,
+        "question_minute": 30,
+        "timezone_name": "Asia/Shanghai",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "category": "marriage",
+    }
+
+
 def _metaphysics_payload() -> dict:
     return {
         "analysis_year": 2026,
@@ -446,6 +460,7 @@ REST_POST_CASES = {
     "/api/astro/lifespan/planetaryarc": _astro_payload,
     "/api/astro/event/mundane": _mundane_payload,
     "/api/astro/event/extrareturns": _astro_payload,
+    "/api/astro/event/horary": _horary_payload,
     "/api/timing/liuyue": lambda: {
         **_birth_payload(),
         "analysis_year": 2028,
@@ -821,4 +836,5 @@ MCP_CASES = {
     "astro_planetaryarc": ("astro_planetaryarc", _astro_payload),
     "astro_mundane": ("astro_mundane", _mundane_payload),
     "astro_extrareturns": ("astro_extrareturns", _astro_payload),
+    "astro_horary": ("astro_horary", _horary_payload),
 }
