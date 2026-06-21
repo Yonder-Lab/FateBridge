@@ -1044,6 +1044,113 @@ def build_persian_directed_payload(
     }
 
 
+# ---------------------------------------------------------------------------
+# 11. 年龄推进点 (Age Point / Huber).
+# ---------------------------------------------------------------------------
+
+# Huber 年龄推进点 traverses the 12 Koch houses from the Ascendant, 6 years per
+# house, returning to the Ascendant after a full 72-year cycle (12 × 6).
+AGE_POINT_YEARS_PER_HOUSE = 6.0
+AGE_POINT_CYCLE_YEARS = 72.0
+
+
+def _house_containing(longitude: float, koch_cusps: List[float]) -> tuple[int, float]:
+    """Return (0-indexed house, fractional position within it) for ``longitude``.
+
+    Houses partition the circle, so exactly one Koch segment ``[cusp_h, cusp_{h+1})``
+    contains the point; the fraction is how far along that segment the point sits.
+    """
+    point = longitude % 360.0
+    for house_index in range(12):
+        start = koch_cusps[house_index] % 360.0
+        end = koch_cusps[(house_index + 1) % 12] % 360.0
+        arc = (end - start) % 360.0
+        offset = (point - start) % 360.0
+        if arc > 0 and offset < arc:
+            return house_index, offset / arc
+    return 0, 0.0
+
+
+def build_age_point_payload(
+    natal_longitudes: Dict[str, float],
+    koch_cusps: List[float],
+    *,
+    max_age_years: float = 72.0,
+) -> Dict[str, Any]:
+    """
+    年龄推进点 / Age Point (Huber).
+
+    Reconstruction of the public Huber technique — 星阙/horosa computes this in a
+    closed backend with no readable source or fixture, so this is verified by the
+    technique's own geometric invariants (age 0 = Ascendant, age 6 = 2nd cusp, age 72
+    = back to the Ascendant, monotone progress through the Koch houses) plus
+    ground-truth on a real chart, NOT byte-parity against 星阙.
+
+    The age point leaves the Ascendant and sweeps the 12 Koch houses in zodiacal
+    order, spending exactly 6 years in each (linear in time within a house, so the
+    angular speed varies with each Koch house's width). ``contacts`` gives the exact
+    age at which the point conjoins each natal body; ``points`` is the per-year
+    timeline (position + house), tagged with any conjunction landing that year.
+    """
+    cusps = [lon % 360.0 for lon in koch_cusps]
+
+    # Exact conjunction ages: where the swept point crosses each natal longitude.
+    contacts: List[Dict[str, Any]] = []
+    for body, longitude in natal_longitudes.items():
+        house_index, fraction = _house_containing(longitude, cusps)
+        base_age = (house_index + fraction) * AGE_POINT_YEARS_PER_HOUSE
+        cycle = 0
+        while base_age + cycle * AGE_POINT_CYCLE_YEARS <= max_age_years:
+            age = base_age + cycle * AGE_POINT_CYCLE_YEARS
+            if age > 0:
+                contacts.append(
+                    {
+                        "age": round(age, 2),
+                        "body": body,
+                        "body_label": planet_label(body),
+                        "longitude": round(longitude % 360.0, 4),
+                    }
+                )
+            cycle += 1
+    contacts.sort(key=lambda contact: contact["age"])
+
+    # Per-year timeline: position + house, tagged with a conjunction landing that year.
+    points: List[Dict[str, Any]] = []
+    for age in range(int(max_age_years) + 1):
+        cycle_pos = age % AGE_POINT_CYCLE_YEARS
+        house_index = int(cycle_pos // AGE_POINT_YEARS_PER_HOUSE)
+        within = (cycle_pos - house_index * AGE_POINT_YEARS_PER_HOUSE) / (
+            AGE_POINT_YEARS_PER_HOUSE
+        )
+        start = cusps[house_index]
+        arc = (cusps[(house_index + 1) % 12] - start) % 360.0
+        longitude = (start + within * arc) % 360.0
+        point = longitude_to_point_dict("AgePoint", longitude)
+        aspect_to = next((c["body"] for c in contacts if round(c["age"]) == age), None)
+        points.append(
+            {
+                "age": age,
+                "longitude": point["absolute_degree"],
+                "sign": point["sign"],
+                "sign_label": point["sign_label"],
+                "signlon": point["degree"],
+                "house": house_index + 1,
+                "aspect_to": aspect_to,
+                "aspect_to_label": planet_label(aspect_to) if aspect_to else None,
+            }
+        )
+
+    return {
+        "system": "age_point",
+        "system_label": "年龄推进点",
+        "years_per_house": AGE_POINT_YEARS_PER_HOUSE,
+        "cycle_years": AGE_POINT_CYCLE_YEARS,
+        "max_age_years": max_age_years,
+        "contacts": contacts,
+        "points": points,
+    }
+
+
 __all__ = [
     "build_harmonic_payload",
     "build_planetary_ages_payload",
@@ -1055,6 +1162,9 @@ __all__ = [
     "build_yearsystem129_payload",
     "build_planetary_arc_payload",
     "build_persian_directed_payload",
+    "build_age_point_payload",
+    "AGE_POINT_YEARS_PER_HOUSE",
+    "AGE_POINT_CYCLE_YEARS",
     "PERSIAN_MOVERS",
     "PERSIAN_ASPECTS",
     "PERSIAN_RATE_DEG_PER_YEAR",

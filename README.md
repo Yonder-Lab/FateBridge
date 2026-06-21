@@ -2,7 +2,7 @@
 
 FateBridge 是一个面向命理、占术与离线占星场景的 Python 后端仓库。当前仓库只包含服务端与核心算法，不包含前端应用；同一套领域能力通过 FastAPI、FastMCP 与命令行（`fatebridge` CLI）三类接口对外暴露，便于 Web 集成、脚本调用与 Agent 工具接入。三类接口均由中央工具目录（`fatebridge/services/tool_catalog.py`）统一声明、自动注册。
 
-> 当前仓库默认提供 77 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）、77 个 FastMCP 工具，以及对应的 `fatebridge` CLI 子命令。以上数字均由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定，避免与代码漂移。
+> 当前仓库默认提供 78 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）、78 个 FastMCP 工具，以及对应的 `fatebridge` CLI 子命令。以上数字均由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定，避免与代码漂移。
 
 ## 项目定位
 
@@ -212,7 +212,7 @@ curl -X POST http://localhost:8010/api/calculate \
 
 ### 统一工具目录与三大接口
 
-所有工具（77 个）现在只在中央目录 `fatebridge/services/tool_catalog.py` 中以 `ToolSpec` **声明一次**，由注册器自动挂载到三个接口：
+所有工具（78 个）现在只在中央目录 `fatebridge/services/tool_catalog.py` 中以 `ToolSpec` **声明一次**，由注册器自动挂载到三个接口：
 
 - **REST**（`fatebridge/api.py` → `register_rest`）：FastAPI HTTP 端点
 - **MCP**（`fatebridge/mcp_server.py` → `register_mcp`）：FastMCP 工具

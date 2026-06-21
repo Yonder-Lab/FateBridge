@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Tuple
 
 from fatebridge.core.request_models import (
+    AstroAgePointRequest,
     AstroBalbillusRequest,
     AstroChartPolyRequest,
     AstroChartRequest,
@@ -151,6 +152,7 @@ from fatebridge.services.western_events import (
 )
 from fatebridge.services.western_horary import calculate_horary
 from fatebridge.services.western_lifespan import (
+    calculate_age_point,
     calculate_balbillus,
     calculate_distributions,
     calculate_harmonic_chart,
@@ -938,6 +940,12 @@ CATALOG: List[ToolSpec] = [
         calculate_persian_directed,
         AstroPersianDirectedRequest,
         "波斯向运",
+    ),
+    _western_lifespan_spec(
+        "agepoint",
+        calculate_age_point,
+        AstroAgePointRequest,
+        "年龄推进点",
     ),
     _western_event_spec(
         "mundane",
