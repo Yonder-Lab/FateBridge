@@ -834,6 +834,32 @@
       "Fire": 2,
       "Water": 2
     },
+    "fixed_stars": [
+      {
+        "cn": "轩辕十四",
+        "gloss": "王者之星·北方守护，权位荣登而忌骄败",
+        "nature": [
+          "Mars",
+          "Jupiter"
+        ],
+        "orb": 0.2593,
+        "point": "Moon",
+        "star": "Regulus",
+        "star_longitude": 149.6929
+      },
+      {
+        "cn": "织女一",
+        "gloss": "艺术、魅力与理想主义",
+        "nature": [
+          "Venus",
+          "Mercury"
+        ],
+        "orb": 0.6197,
+        "point": "Neptune",
+        "star": "Vega",
+        "star_longitude": 285.1642
+      }
+    ],
     "houses": [
       {
         "cusp_longitude": 85.1776,

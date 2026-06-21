@@ -820,6 +820,25 @@ def _build_almuten_figuris_line(payload: Dict[str, Any]) -> str:
     return "\n".join(lines).strip()
 
 
+def _build_fixed_stars_lines(payload: Dict[str, Any]) -> str:
+    """``[恒星]`` section: each catalogue star conjunct a chart point (orb ≤ 1°)."""
+    hits = payload.get("fixed_stars")
+    if not isinstance(hits, list) or not hits:
+        return "无"
+    point_zh = {**PLANET_LABELS_ZH, "Ascendant": "上升", "Midheaven": "中天"}
+    lines = []
+    for hit in hits:
+        point = point_zh.get(hit.get("point"), hit.get("point", "?"))
+        nature = "/".join(
+            PLANET_LABELS_ZH.get(planet, planet) for planet in hit.get("nature", [])
+        )
+        lines.append(
+            f"{hit.get('cn', '')}({hit.get('star', '?')}) 合 {point}"
+            f" {_format_degree(hit.get('orb'))}　[{nature}] {hit.get('gloss', '')}"
+        )
+    return "\n".join(lines).strip()
+
+
 def _build_planetary_hours_line(payload: Dict[str, Any]) -> str:
     """``[行星时]`` section: the birth's planetary hour + the planetary day ruler."""
     hours = payload.get("planetary_hours")
@@ -904,6 +923,7 @@ def _build_standard_chart_snapshot_sections(
         ("宫主星", _build_topic_almuten_line(payload)),
         ("阿拉伯点", _build_lots_lines(payload)),
         ("古典格局", _build_classical_patterns_lines(payload)),
+        ("恒星", _build_fixed_stars_lines(payload)),
         ("行星时", _build_planetary_hours_line(payload)),
         ("体质", _build_temperament_lines(payload)),
         ("希腊点", "\n".join(greek_lines).strip()),

@@ -1635,6 +1635,25 @@ def _build_classical_layer(
     }
 
 
+def _build_fixed_stars(
+    planets: List[Dict[str, Any]],
+    ascendant: float,
+    midheaven: float,
+    julian_day: float,
+) -> List[Dict[str, Any]]:
+    """``fixed_stars`` block — catalogue stars conjunct planets / Asc / MC.
+
+    Pure computation off the vendored J2000 catalogue (no ephemeris file), so it
+    runs on every engine. Lazy import keeps the classical_western ↔ astrology
+    cycle broken."""
+    from fatebridge.core.classical_western import build_fixed_star_hits
+
+    points = {planet["id"]: planet["longitude"] for planet in planets}
+    points["Ascendant"] = normalize_angle(ascendant)
+    points["Midheaven"] = normalize_angle(midheaven)
+    return build_fixed_star_hits(points, julian_day)
+
+
 def _build_classical_patterns(
     planets: List[Dict[str, Any]], aspects: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
@@ -1818,6 +1837,9 @@ def build_core_chart_payload(
             birth_info.longitude,
             birth_info.latitude,
             birth_info.timezone,
+        ),
+        "fixed_stars": _build_fixed_stars(
+            planets, effective_ascendant, effective_midheaven, julian_day
         ),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),

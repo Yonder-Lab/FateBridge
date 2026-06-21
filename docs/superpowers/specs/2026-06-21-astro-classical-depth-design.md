@@ -32,12 +32,17 @@
     `hour_ruler` / `hour_number`); snapshot adds `[行星时]`. `None` on polar
     no-rise / when swe is absent. Pinned by the Dec-2000 chart (Sunday → Sun
     day-ruler; 4th day hour → Moon).
-  - **Phase 3b-ii deferred — fixed stars (恒星).** Blocked on data, not code:
-    `fixstar_ut` needs the `sefstars.txt` catalog (only Spica is hard-coded in
-    swisseph), which is the same optional-AGPL data the repo never ships. So it
-    would be dormant ("unavailable") in CI and default installs, lighting up only
-    after a `fetch_ephe` that also pulls `sefstars.txt` (text file → needs a
-    non-`.se1` fetch path). Pending a product call on whether to add it.
+  - **Phase 3b-ii shipped (`feat/astro-fixed-stars`): fixed stars (恒星).**
+    Rather than depend on swisseph's AGPL `sefstars.txt` (dormant in CI), a
+    curated 20-star catalogue (15 Behenian + 5 notable) is **vendored** —
+    J2000 tropical longitudes *extracted from* the swisseph catalogue (a star's
+    position is public fact; the data file is never shipped, same stance as the
+    `.se1`s) — and precessed in pure Python (~50.29″/yr). Conjunctions to planets
+    / Asc / MC within a 1° orb. New top-level `chart["fixed_stars"]`; snapshot
+    adds `[恒星]` (传统中文星名 + Ptolemaic 性质 + 简释). Pure → works on every
+    engine incl. CI. A swe-gated calibration test pins the vendored table to
+    authoritative `fixstar_ut` (< 0.05° across ±150 yr). Real-sky check: the
+    Dec-2000 chart shows Antares☌Mercury 0.11°, Algol☌Saturn 0.30°.
   - **Remaining ephemeris cut (4b):** translation/collection of light,
     doryphory, nodal bending — need applying/separating speed.
   - **Phase 4 shipped (`classical_patterns` = [古典格局]):** aversion (no
