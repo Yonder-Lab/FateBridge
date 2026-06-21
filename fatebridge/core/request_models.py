@@ -1152,6 +1152,48 @@ class AstroExtraReturnsRequest(AstroLifespanRequest):
     )
 
 
+class AstroHoraryRequest(BaseModel):
+    """Request model for the 卜卦 (horary) tool — chart cast at the question moment."""
+
+    name: Optional[str] = Field(default=None, description="Optional chart name")
+    question_year: int = Field(description="Year the question was asked")
+    question_month: int = Field(
+        ge=1, le=12, description="Month the question was asked (1-12)"
+    )
+    question_day: int = Field(
+        ge=1, le=31, description="Day the question was asked (1-31)"
+    )
+    question_hour: int = Field(
+        ge=0, le=23, description="Hour the question was asked (0-23)"
+    )
+    question_minute: int = Field(
+        default=0, ge=0, le=59, description="Minute the question was asked"
+    )
+    timezone_name: str = Field(
+        default="+08:00", description="Question timezone (IANA name or UTC offset)"
+    )
+    longitude: float = Field(
+        ge=-180, le=180, description="Longitude where the question was asked"
+    )
+    latitude: float = Field(
+        ge=-90, le=90, description="Latitude where the question was asked"
+    )
+    category: str = Field(
+        default="general",
+        description=(
+            "Question topic, selecting the quesited house: general/wealth/family/"
+            "property/pregnancy/health/marriage/lawsuit/theft/travel/career/hope/enemy/death"
+        ),
+    )
+    house_system: str = Field(
+        default="R",
+        description="House system; Regiomontanus (R) is traditional for horary",
+    )
+    zodiac_type: str = Field(
+        default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
+    )
+
+
 class BaziMarriageRequest(BaziDimensionRequest):
     """Request model for BaZi marriage analysis."""
 

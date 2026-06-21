@@ -21,6 +21,7 @@ triggers:
   - 抽签
   - 这事吉凶
 engine_tools:
+  - astro_horary
   - gua_lookup
   - gua_meiyi
   - jinkou
