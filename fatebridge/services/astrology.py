@@ -689,6 +689,49 @@ def _build_lots_lines(payload: Dict[str, Any]) -> str:
     return "\n".join(lines).strip()
 
 
+_BESIEGE_ZH = {"besieged_by_malefics": "凶星围攻", "enclosed_by_benefics": "吉星拱卫"}
+
+
+def _build_classical_patterns_lines(payload: Dict[str, Any]) -> str:
+    """``[古典格局]`` section: sect benefics + overcoming + besiegement + 吉凶化."""
+    patterns = payload.get("classical_patterns", {})
+    if not patterns:
+        return "无"
+
+    def zh(planet: str) -> str:
+        return PLANET_LABELS_ZH.get(planet, planet)
+
+    lines = [
+        f"宗派吉星：{zh(patterns.get('sect_benefic'))}　宗派凶星：{zh(patterns.get('sect_malefic'))}"
+    ]
+    overcoming = patterns.get("overcoming", [])
+    if overcoming:
+        lines.append(
+            "制胜（上弦刑凌驾）："
+            + "；".join(
+                f"{zh(o['overcomer'])}凌驾{zh(o['overcome'])}" for o in overcoming
+            )
+        )
+    besiegement = patterns.get("besiegement", {})
+    if besiegement:
+        lines.append(
+            "围攻："
+            + "；".join(
+                f"{zh(p)}{_BESIEGE_ZH.get(s, s)}" for p, s in besiegement.items()
+            )
+        )
+    bonification = patterns.get("bonification", {})
+    for planet, info in bonification.items():
+        parts = []
+        if info["bonified_by"]:
+            parts.append("吉化←" + "·".join(zh(p) for p in info["bonified_by"]))
+        if info["maltreated_by"]:
+            parts.append("凶伤←" + "·".join(zh(p) for p in info["maltreated_by"]))
+        if parts:
+            lines.append(f"{zh(planet)}：{'　'.join(parts)}")
+    return "\n".join(lines).strip()
+
+
 def _build_topic_almuten_line(payload: Dict[str, Any]) -> str:
     topic = payload.get("classical", {}).get("topic_almutens", {})
     if not topic:
@@ -767,6 +810,7 @@ def _build_standard_chart_snapshot_sections(
         ("主宰", _build_dispositor_lines(payload)),
         ("宫主星", _build_topic_almuten_line(payload)),
         ("阿拉伯点", _build_lots_lines(payload)),
+        ("古典格局", _build_classical_patterns_lines(payload)),
         ("希腊点", "\n".join(greek_lines).strip()),
         (
             "可能性",

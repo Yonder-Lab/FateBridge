@@ -496,6 +496,114 @@ def build_lots_layer(lons: Dict[str, float], is_day: bool) -> Dict[str, Any]:
     return out
 
 
+# ── Phase 4: [古典格局] relational patterns (no speed → no translation/collection) ──
+
+BENEFICS = frozenset({"Jupiter", "Venus"})
+MALEFICS = frozenset({"Mars", "Saturn"})
+# Of-sect benefic/malefic: by day Jupiter/Saturn are the diurnal pair, by night
+# Venus/Mars the nocturnal pair (the of-sect benefic helps most, of-sect malefic
+# harms least).
+_SECT_BENEFIC = {"day": "Jupiter", "night": "Venus"}
+_SECT_MALEFIC = {"day": "Saturn", "night": "Mars"}
+
+_SIGN_INDEX = {sign: index for index, sign in enumerate(SIGNS)}
+# Whole-sign aspect by sign distance (both directions fold to the same aspect).
+_WHOLE_SIGN_ASPECT = {
+    0: "conjunction",
+    2: "sextile",
+    10: "sextile",
+    3: "square",
+    9: "square",
+    4: "trine",
+    8: "trine",
+    6: "opposition",
+}
+
+
+def whole_sign_aspect(sign_a: str, sign_b: str) -> Optional[str]:
+    """Classical whole-sign aspect between two signs (None = aversion)."""
+    if sign_a not in _SIGN_INDEX or sign_b not in _SIGN_INDEX:
+        return None
+    distance = (_SIGN_INDEX[sign_b] - _SIGN_INDEX[sign_a]) % 12
+    return _WHOLE_SIGN_ASPECT.get(distance)
+
+
+def overcomes(sign_a: str, sign_b: str) -> bool:
+    """True if A overcomes B — A in the 10th sign from B (superior dexter square)."""
+    if sign_a not in _SIGN_INDEX or sign_b not in _SIGN_INDEX:
+        return False
+    return (_SIGN_INDEX[sign_a] - _SIGN_INDEX[sign_b]) % 12 == 9
+
+
+def build_classical_patterns(
+    planet_positions: List[Dict[str, Any]],
+    aspects: List[Dict[str, Any]],
+    chart_sect: Optional[str],
+) -> Dict[str, Any]:
+    """``[古典格局]`` relational layer over the seven traditional planets.
+
+    Covers aversion, overcoming (superior square), besiegement/enclosure by body,
+    and bonification/maltreatment. Translation & collection of light are deferred
+    (they need applying/separating, i.e. planetary speed the offline chart lacks).
+    """
+    trad = [p for p in planet_positions if p["id"] in TRADITIONAL_PLANETS]
+    by_id = {p["id"]: p for p in trad}
+
+    # --- aversion: pairs sharing no whole-sign aspect ---
+    aversions: List[List[str]] = []
+    overcoming: List[Dict[str, str]] = []
+    ids = [p["id"] for p in trad]
+    for i, a in enumerate(ids):
+        for b in ids[i + 1 :]:
+            if whole_sign_aspect(by_id[a]["sign"], by_id[b]["sign"]) is None:
+                aversions.append([a, b])
+        # overcoming is directional — check both orders
+        for b in ids:
+            if a != b and overcomes(by_id[a]["sign"], by_id[b]["sign"]):
+                overcoming.append({"overcomer": a, "overcome": b})
+
+    # --- besiegement / enclosure by body (immediate longitude neighbours) ---
+    ordered = sorted(trad, key=lambda p: p["longitude"])
+    besiegement: Dict[str, str] = {}
+    n = len(ordered)
+    for index, planet in enumerate(ordered):
+        if planet["id"] in BENEFICS or planet["id"] in MALEFICS:
+            continue
+        prev_id = ordered[(index - 1) % n]["id"]
+        next_id = ordered[(index + 1) % n]["id"]
+        if prev_id in MALEFICS and next_id in MALEFICS:
+            besiegement[planet["id"]] = "besieged_by_malefics"
+        elif prev_id in BENEFICS and next_id in BENEFICS:
+            besiegement[planet["id"]] = "enclosed_by_benefics"
+
+    # --- bonification / maltreatment by aspect to benefics / malefics ---
+    bonification: Dict[str, Dict[str, List[str]]] = {
+        pid: {"bonified_by": [], "maltreated_by": []} for pid in ids
+    }
+    for aspect in aspects:
+        a, b = aspect.get("planet_a"), aspect.get("planet_b")
+        for source, target in ((a, b), (b, a)):
+            if target not in bonification:
+                continue
+            if source in BENEFICS:
+                bonification[target]["bonified_by"].append(source)
+            elif source in MALEFICS:
+                bonification[target]["maltreated_by"].append(source)
+
+    return {
+        "sect_benefic": _SECT_BENEFIC.get(chart_sect or ""),
+        "sect_malefic": _SECT_MALEFIC.get(chart_sect or ""),
+        "aversions": aversions,
+        "overcoming": overcoming,
+        "besiegement": besiegement,
+        "bonification": {
+            k: v
+            for k, v in bonification.items()
+            if v["bonified_by"] or v["maltreated_by"]
+        },
+    }
+
+
 def build_planet_classical(
     *,
     planet: str,

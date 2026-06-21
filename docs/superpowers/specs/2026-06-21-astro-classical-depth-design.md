@@ -1,8 +1,15 @@
 # Design: 西占古典深度段 [古典]/[古典格局] — horosa parity (multi-phase)
 
 - **Date:** 2026-06-21
-- **Status:** **Phase 1 (#72) + Phase 2 (#73) merged; Phase 3 implemented**
-  (`feat/astro-classical-phase3`). Overarching project spec — ~5 phased PRs.
+- **Status:** **Phase 1 (#72) + Phase 2 (#73) + Phase 3 (#74) merged; Phase 4
+  implemented** (`feat/astro-classical-phase4`). Overarching project spec.
+  - **Phase 4 shipped (`classical_patterns` = [古典格局]):** aversion (no
+    whole-sign aspect), overcoming (superior dexter square / 10th sign),
+    besiegement & enclosure by body (immediate longitude neighbours), and
+    bonification / maltreatment (aspected by benefic / malefic) + sect
+    benefic/malefic. New `chart["classical_patterns"]`; snapshot adds `[古典格局]`.
+    **Deferred to Phase 4b: translation & collection of light** (need
+    applying/separating ⇒ planetary speed) and **doryphory / nodal bending**.
   - **Phase 3 shipped:** **Arabic lots** (福/精神/婚姻/子女/死亡 5 lots) with
     day/night reversal, each lot's domicile dispositor + weighted almuten; chart
     gains `classical.lots`, snapshot adds `[阿拉伯点]`. `lots.fortune` shares the
