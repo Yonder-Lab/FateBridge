@@ -1295,6 +1295,34 @@ def _sect(planets: List[Dict[str, Any]]) -> str:
     return "day" if sun["house"] >= 7 else "night"
 
 
+def _build_classical_layer(planets: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Per-planet Hellenistic/medieval condition — the chart's ``classical`` block.
+
+    Phase 1 of the 西占古典深度段 layer (see
+    ``docs/superpowers/specs/2026-06-21-astro-classical-depth-design.md``).
+    Imported lazily to avoid an import cycle (classical_western reuses this
+    module's dignity tables).
+    """
+    from fatebridge.core.classical_western import build_planet_classical
+
+    chart_sect = _sect(planets)
+    sun = next((item for item in planets if item["id"] == "Sun"), None)
+    sun_longitude = sun["longitude"] if sun else None
+
+    planet_layer: Dict[str, Any] = {}
+    for item in planets:
+        planet_layer[item["id"]] = build_planet_classical(
+            planet=item["id"],
+            sign=item["sign"],
+            degree_in_sign=item["degree_in_sign"],
+            longitude=item["longitude"],
+            house=item.get("house"),
+            sun_longitude=sun_longitude,
+            chart_sect=chart_sect,
+        )
+    return {"sect": chart_sect, "planets": planet_layer}
+
+
 def _fortune_lot(planets: List[Dict[str, Any]], ascendant: float) -> Dict[str, Any]:
     sun = next(item for item in planets if item["id"] == "Sun")
     moon = next(item for item in planets if item["id"] == "Moon")
@@ -1450,6 +1478,7 @@ def build_core_chart_payload(
         ),
         "planets": planets,
         "aspects": aspects,
+        "classical": _build_classical_layer(planets),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
         "balance_basis": BALANCE_BASIS,

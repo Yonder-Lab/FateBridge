@@ -601,6 +601,48 @@ def _augment_core_chart_reading(
     }
 
 
+_CLASSICAL_PLANET_ORDER = [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+]
+_ANGULARITY_ZH = {"angular": "角宫", "succedent": "续宫", "cadent": "果宫"}
+_COMBUSTION_ZH = {"cazimi": "日心", "combust": "焦伤", "under_beams": "日下"}
+
+
+def _build_classical_lines(payload: Dict[str, Any]) -> str:
+    """One readable line per traditional planet for the ``[古典]`` section."""
+    classical = payload.get("classical", {})
+    planets = classical.get("planets", {})
+    if not planets:
+        return "无"
+    lines: List[str] = []
+    for planet in _CLASSICAL_PLANET_ORDER:
+        entry = planets.get(planet)
+        if not entry:
+            continue
+        essential = entry.get("essential") or {}
+        labels = essential.get("labels_zh") or ["平"]
+        score = essential.get("score", 0)
+        parts = [
+            PLANET_LABELS_ZH.get(planet, planet),
+            f"{'·'.join(labels)}({score:+d})",
+            _ANGULARITY_ZH.get(entry.get("angularity"), ""),
+        ]
+        if entry.get("sect_placement") == "of_sect":
+            parts.append("得宗派")
+        if entry.get("combustion"):
+            parts.append(_COMBUSTION_ZH.get(entry["combustion"], entry["combustion"]))
+        if entry.get("joy"):
+            parts.append("喜乐宫")
+        lines.append(" ".join(part for part in parts if part))
+    return "\n".join(lines).strip() or "无"
+
+
 def _build_standard_chart_snapshot_sections(
     payload: Dict[str, Any], *, chart_variant: str
 ) -> List[tuple[str, str]]:
@@ -664,6 +706,7 @@ def _build_standard_chart_snapshot_sections(
         ("信息", "\n".join(detail_lines).strip()),
         ("相位", _build_aspect_lines(payload.get("aspects", []))),
         ("行星", _build_planet_lines(payload.get("planets", []))),
+        ("古典", _build_classical_lines(payload)),
         ("希腊点", "\n".join(greek_lines).strip()),
         (
             "可能性",

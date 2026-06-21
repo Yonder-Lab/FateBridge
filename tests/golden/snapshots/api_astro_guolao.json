@@ -71,6 +71,172 @@
     "zodiac_label_zh": "回归黄道",
     "zodiacal": 0
   },
+  "classical": {
+    "planets": {
+      "Jupiter": {
+        "above_horizon": false,
+        "angularity": "succedent",
+        "combustion": null,
+        "essential": {
+          "bound_lord": "Mars",
+          "debilities": [],
+          "dignities": [
+            "exaltation"
+          ],
+          "face_lord": "Venus",
+          "labels_zh": [
+            "旺"
+          ],
+          "peregrine": false,
+          "score": 4,
+          "triplicity_ruler": "Venus"
+        },
+        "in_halb": false,
+        "joy": false,
+        "orientality": "occidental",
+        "sect_placement": "of_sect"
+      },
+      "Mars": {
+        "above_horizon": true,
+        "angularity": "cadent",
+        "combustion": null,
+        "essential": {
+          "bound_lord": "Jupiter",
+          "debilities": [],
+          "dignities": [],
+          "face_lord": "Mercury",
+          "labels_zh": [
+            "平"
+          ],
+          "peregrine": true,
+          "score": 0,
+          "triplicity_ruler": "Saturn"
+        },
+        "in_halb": false,
+        "joy": false,
+        "orientality": "oriental",
+        "sect_placement": "contrary_to_sect"
+      },
+      "Mercury": {
+        "above_horizon": true,
+        "angularity": "cadent",
+        "combustion": "under_beams",
+        "essential": {
+          "bound_lord": "Venus",
+          "debilities": [],
+          "dignities": [
+            "face"
+          ],
+          "face_lord": "Mercury",
+          "labels_zh": [
+            "面"
+          ],
+          "peregrine": false,
+          "score": 1,
+          "triplicity_ruler": "Venus"
+        },
+        "in_halb": false,
+        "joy": false,
+        "orientality": "occidental",
+        "sect_placement": "contrary_to_sect"
+      },
+      "Moon": {
+        "above_horizon": false,
+        "angularity": "cadent",
+        "combustion": null,
+        "essential": {
+          "bound_lord": "Mars",
+          "debilities": [],
+          "dignities": [],
+          "face_lord": "Mars",
+          "labels_zh": [
+            "平"
+          ],
+          "peregrine": true,
+          "score": 0,
+          "triplicity_ruler": "Sun"
+        },
+        "in_halb": false,
+        "joy": true,
+        "orientality": "occidental",
+        "sect_placement": "contrary_to_sect"
+      },
+      "Saturn": {
+        "above_horizon": true,
+        "angularity": "succedent",
+        "combustion": null,
+        "essential": {
+          "bound_lord": "Saturn",
+          "debilities": [],
+          "dignities": [
+            "rulership",
+            "bound"
+          ],
+          "face_lord": "Sun",
+          "labels_zh": [
+            "庙",
+            "界"
+          ],
+          "peregrine": false,
+          "score": 7,
+          "triplicity_ruler": "Venus"
+        },
+        "in_halb": true,
+        "joy": false,
+        "orientality": "oriental",
+        "sect_placement": "of_sect"
+      },
+      "Sun": {
+        "above_horizon": true,
+        "angularity": "succedent",
+        "combustion": null,
+        "essential": {
+          "bound_lord": "Mercury",
+          "debilities": [],
+          "dignities": [
+            "exaltation",
+            "triplicity",
+            "face"
+          ],
+          "face_lord": "Sun",
+          "labels_zh": [
+            "旺",
+            "三分",
+            "面"
+          ],
+          "peregrine": false,
+          "score": 8,
+          "triplicity_ruler": "Sun"
+        },
+        "in_halb": true,
+        "joy": false,
+        "orientality": null,
+        "sect_placement": "of_sect"
+      },
+      "Venus": {
+        "above_horizon": true,
+        "angularity": "cadent",
+        "combustion": null,
+        "essential": {
+          "bound_lord": "Saturn",
+          "debilities": [],
+          "dignities": [],
+          "face_lord": "Moon",
+          "labels_zh": [
+            "平"
+          ],
+          "peregrine": true,
+          "score": 0,
+          "triplicity_ruler": "Saturn"
+        },
+        "in_halb": false,
+        "joy": false,
+        "orientality": "oriental",
+        "sect_placement": "contrary_to_sect"
+      }
+    },
+    "sect": "day"
+  },
   "element_balance": {
     "Air": 2,
     "Earth": 2,
