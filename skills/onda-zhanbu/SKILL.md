@@ -24,6 +24,7 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 | 大六壬课 | `liureng_gods` | 起课时间 |
 | 金口诀（快断） | `jinkou` | `--di-fen` 地分 + 时间 |
 | 太乙 / 宿占 / 其他卜法 | `taiyi` / `suzhan` / `otherbu` | |
+| 邵子参评数 / 金锁银匙（按生辰起数断条文） | `canping` | 出生 `--date/--time` + `--gender` + 取法 `--method ming/gu` |
 | 大事多式互参 | `sanshiunited` | 三式合参 |
 | 只查卦义 | `gua_lookup` / `gua_meiyi` | |
 | 西洋卜卦（horary，占者懂点占星时） | `astro_horary` | 提问时刻 `--question-year/month/day/hour` + 地点 `--longitude/--latitude` + 问题类别 `--category`（marriage/wealth/career/health/...） |
@@ -58,4 +59,9 @@ python3 -m fatebridge.cli --no-metadata qimen \
 python3 -m fatebridge.cli --no-metadata astro_horary --category marriage \
   --question-year 2026 --question-month 6 --question-day 18 --question-hour 15 \
   --longitude 116.40 --latitude 39.90 --timezone-name Asia/Shanghai --fields summary
+
+# 邵子参评数 / 金锁银匙：按生辰起数，看本命/大运条文（--method ming 明法 / gu 古法）
+python3 -m fatebridge.cli --no-metadata canping \
+  --date 1990-06-15 --time 09:33:00 --gender 男 --method ming \
+  --fields element ming_gong benming.verses.textShun
 ```

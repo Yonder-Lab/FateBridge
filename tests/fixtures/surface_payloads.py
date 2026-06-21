@@ -359,6 +359,11 @@ REST_POST_CASES = {
         "gpsLat": 31.2,
         "gpsLon": 121.4,
     },
+    "/api/divination/canping": lambda: {
+        **_local_base(),
+        "gender": "男",
+        "method": "ming",
+    },
     "/api/divination/suzhan": lambda: {
         **_local_base(),
         "szchart": 1,
@@ -673,6 +678,10 @@ MCP_CASES = {
         },
     ),
     "sixyao": ("sixyao", lambda: {**_local_base(), "gps_lat": 31.2, "gps_lon": 121.4}),
+    "canping": (
+        "canping",
+        lambda: {**_local_base(), "gender": "男", "method": "ming"},
+    ),
     "suzhan": (
         "suzhan",
         lambda: {
