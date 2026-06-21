@@ -72,6 +72,16 @@ def _western_payload() -> dict:
     }
 
 
+def _mundane_payload() -> dict:
+    return {
+        "year": 2026,
+        "ingress_term": "春分",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "timezone_name": "Asia/Shanghai",
+    }
+
+
 def _metaphysics_payload() -> dict:
     return {
         "analysis_year": 2026,
@@ -434,6 +444,8 @@ REST_POST_CASES = {
     "/api/astro/lifespan/keypoints": _astro_payload,
     "/api/astro/lifespan/yearsystem129": _astro_payload,
     "/api/astro/lifespan/planetaryarc": _astro_payload,
+    "/api/astro/event/mundane": _mundane_payload,
+    "/api/astro/event/extrareturns": _astro_payload,
     "/api/timing/liuyue": lambda: {
         **_birth_payload(),
         "analysis_year": 2028,
@@ -807,4 +819,6 @@ MCP_CASES = {
     "astro_keypoints": ("astro_keypoints", _astro_payload),
     "astro_yearsystem129": ("astro_yearsystem129", _astro_payload),
     "astro_planetaryarc": ("astro_planetaryarc", _astro_payload),
+    "astro_mundane": ("astro_mundane", _mundane_payload),
+    "astro_extrareturns": ("astro_extrareturns", _astro_payload),
 }

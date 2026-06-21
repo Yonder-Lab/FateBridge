@@ -1111,6 +1111,47 @@ class AstroPlanetaryArcRequest(AstroLifespanRequest):
     )
 
 
+class AstroMundaneRequest(BaseModel):
+    """Request model for the 世俗入宫盘 (mundane ingress) tool — cast at a solar ingress, no birth data."""
+
+    name: Optional[str] = Field(default=None, description="Optional chart name")
+    year: int = Field(description="Civil year of the ingress, e.g. 2026")
+    ingress_term: str = Field(
+        default="春分",
+        description="Cardinal ingress: 春分 (spring equinox) / 夏至 / 秋分 / 冬至",
+    )
+    longitude: float = Field(
+        ge=-180,
+        le=180,
+        description="Observation longitude (e.g. capital / place of interest)",
+    )
+    latitude: float = Field(ge=-90, le=90, description="Observation latitude")
+    timezone_name: str = Field(
+        default="+08:00", description="Observation timezone (IANA name or UTC offset)"
+    )
+    house_system: str = Field(
+        default="P", description="House system identifier, e.g. P for Placidus"
+    )
+    zodiac_type: str = Field(
+        default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
+    )
+
+
+class AstroExtraReturnsRequest(AstroLifespanRequest):
+    """Request model for the 多重回归 (Saturn/Jupiter/node returns) tool."""
+
+    analysis_year: Optional[int] = Field(
+        default=None,
+        description="Reference year for the returns (omit for current date)",
+    )
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Reference month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Reference day (1-31)"
+    )
+
+
 class BaziMarriageRequest(BaziDimensionRequest):
     """Request model for BaZi marriage analysis."""
 
