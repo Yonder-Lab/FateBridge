@@ -8,10 +8,10 @@ FateBridge can supply (planet sign positions + ASC + 孛/罗 + 昼夜/季节).
 
 Scope notes (see docs/superpowers/specs/2026-06-21-guolao-moira-engine-design.md):
 
-* **神煞 gods are not yet supplied** (``_GOD_SIGNS`` is empty), so the two
-  god-dependent patterns — 日月拱贵人 (天贵/玉贵) and 命登岁驾 (岁驾) — are inert here,
-  exactly as in horosa's *offline* skill (``guolaoGods`` is not returned by its
-  offline ``/chart`` either). They light up once Phase 2 ports the 神煞 起例.
+* **神煞 (Phase 2a)**：天贵/玉贵/岁驾 三神煞由 :func:`compute_god_signidx` 依年柱算出，
+  驱动 日月拱贵人 / 命登岁驾 两格局。贵人阳/阴(昼/夜)定向流派有别，故以单一权威源
+  《三命通会》为准（见常量注释）；岁驾=太岁=年支。无 horosa 字节对照 → golden 锁定。其余
+  64+36 神煞（per-宫 显示表）留待 Phase 2b。``god_signidx`` 缺省时两格局自然失效。
 * **紫炁 (木余) is not yet computed.** It feeds no pattern *directly*, but
   ``孤月独明`` counts shared-sign bodies over the full 11-body ``MOIRA_PLANET_ORDER``
   which includes 炁; with 炁 absent that count omits it. Faithful once Phase 4 adds 紫炁.
@@ -67,8 +67,71 @@ _OVERCOMING = {
     "计": "木",
 }
 
-# Phase 1：神煞未供（与 horosa 离线版一致），天贵/玉贵/岁驾 等查表恒空。
-_GOD_SIGNS: Dict[str, int] = {}
+# 地支 → 星座序号（七政四余 戌将盘；SZConst.ZiSign 之逆）。
+_ZI_TO_SIGNIDX = {
+    "子": 10,
+    "丑": 9,
+    "寅": 8,
+    "卯": 7,
+    "辰": 6,
+    "巳": 5,
+    "午": 4,
+    "未": 3,
+    "申": 2,
+    "酉": 1,
+    "戌": 0,
+    "亥": 11,
+}
+
+# 七政四余 神煞 起例（Phase 2a，键以年干/年支起例）。无 horosa 字节对照，且 贵人 之阳/阴
+# (昼/夜) 定向流派有别（《三命通会》与《三历会同》互异，FateBridge 既有 rules.py 日贵格亦为
+# 混用），故统一以 **单一权威源《三命通会》** 为准：
+#   阳贵(昼/天贵)：甲加丑「逆行」—— 甲丑 乙子 丙亥 丁酉 戊丑 己申 庚未 辛午 壬巳 癸卯
+#   阴贵(夜/玉贵)：甲加未「顺行」—— 甲未 乙申 丙酉 丁亥 戊未 己子 庚丑 辛寅 壬卯 癸巳
+# 戊从甲（戊土寄宫）。十干两贵地支对仍与既有 TIAN_YI_TARGETS（天乙贵人）逐干同对，仅此处
+# 明确昼/夜定向。注：与 rules.py 日贵格(丁亥昼/丁酉夜)在丁干上不同口径——后者为独立 BaZi
+# 格局、流派混用，不在本段统一范围内。岁驾=太岁=年支本位。
+_TIANGUI_BY_YEAR_STEM = {  # 阳贵（昼/天贵）——《三命通会》甲加丑逆行
+    "甲": "丑",
+    "乙": "子",
+    "丙": "亥",
+    "丁": "酉",
+    "戊": "丑",
+    "己": "申",
+    "庚": "未",
+    "辛": "午",
+    "壬": "巳",
+    "癸": "卯",
+}
+_YUGUI_BY_YEAR_STEM = {  # 阴贵（夜/玉贵）——《三命通会》甲加未顺行
+    "甲": "未",
+    "乙": "申",
+    "丙": "酉",
+    "丁": "亥",
+    "戊": "未",
+    "己": "子",
+    "庚": "丑",
+    "辛": "寅",
+    "壬": "卯",
+    "癸": "巳",
+}
+
+
+def compute_god_signidx(year_stem: str, year_branch: str) -> Dict[str, int]:
+    """依《三命通会》起例，由年柱干支算出 Phase 2a 三神煞的星座序号。
+
+    天贵(昼/阳贵)、玉贵(夜/阴贵) 以年干起例（《三命通会》甲加丑逆/甲加未顺，单一权威源，
+    见上方常量注释）；岁驾(太岁) 即年支本位。地支经 戌将盘 ``_ZI_TO_SIGNIDX`` 映射为
+    星座序号。缺值回退 -1（对应格局自然失效）。
+    """
+    gods: Dict[str, int] = {}
+    tian = _TIANGUI_BY_YEAR_STEM.get(year_stem)
+    yu = _YUGUI_BY_YEAR_STEM.get(year_stem)
+    gods["天贵"] = _ZI_TO_SIGNIDX.get(tian, -1) if tian else -1
+    gods["玉贵"] = _ZI_TO_SIGNIDX.get(yu, -1) if yu else -1
+    gods["岁驾"] = _ZI_TO_SIGNIDX.get(year_branch, -1)
+    return gods
+
 
 # 命宫起十二宫的次序偏移（localMoiraHouseSign）。
 _HOUSE_OFFSET = {
@@ -146,19 +209,24 @@ class _Resolver:
     """localSignOfCn：把宫名/行星/地支/神煞名解析为星座序号（与 JS 同序）。"""
 
     def __init__(
-        self, planet_signidx: Dict[str, int], life_sign_idx: int, self_sign_idx: int
+        self,
+        planet_signidx: Dict[str, int],
+        life_sign_idx: int,
+        self_sign_idx: int,
+        god_signidx: Dict[str, int],
     ) -> None:
         self._planets = planet_signidx
         self._life = life_sign_idx
         self._self = self_sign_idx
+        self._gods = god_signidx
 
     def __call__(self, name: str) -> int:
         if name in _HOUSE_OFFSET:
             return _house_sign(self._life, _HOUSE_OFFSET[name])
         if name == "身":
             return self._self
-        if name in _GOD_SIGNS:
-            return _GOD_SIGNS[name]
+        if name in self._gods and self._gods[name] >= 0:
+            return self._gods[name]
         if name in self._planets:
             return self._planets[name]
         try:
@@ -200,20 +268,25 @@ def calculate(facts: Dict[str, Any]) -> List[Dict[str, Any]]:
           "planet_signidx": {"日": int, "月": int, "金": int, "水": int,
                               "火": int, "木": int, "土": int,
                               "孛": int, "罗": int, "计": int, "炁": int},  # 缺省 -1
+          "god_signidx": {"天贵": int, "玉贵": int, "岁驾": int},  # 神煞星座序号，缺省 -1
           "is_day": bool,                       # 昼生（6<=hour<18）
           "is_winter": bool,                    # 冬令（月 ∈ {11,12,1}）
         }
 
+    ``god_signidx`` 由 :func:`compute_god_signidx` 依年柱算出（Phase 2a 起 天贵/玉贵/岁驾）；
+    留空则相应神煞格局（日月拱贵人/命登岁驾）失效，与 horosa 离线版一致。
+
     返回排序后的格局列表（good 在前、bad 在后），结构与 JS 一致。
     """
     planet_signidx = {k: v for k, v in (facts.get("planet_signidx") or {}).items()}
+    god_signidx = {k: v for k, v in (facts.get("god_signidx") or {}).items()}
     asc_lon = facts.get("asc_lon")
     life_sign_idx = -1 if asc_lon is None else int(asc_lon // 30) % 12
     self_sign_idx = planet_signidx.get("月", -1)
     is_day = bool(facts.get("is_day", True))
     is_winter = bool(facts.get("is_winter", False))
 
-    signof = _Resolver(planet_signidx, life_sign_idx, self_sign_idx)
+    signof = _Resolver(planet_signidx, life_sign_idx, self_sign_idx, god_signidx)
 
     sun = signof("日")
     moon = signof("月")

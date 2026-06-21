@@ -676,6 +676,11 @@
     }
   ],
   "guolao": {
+    "god_sign_index": {
+      "天贵": 3,
+      "岁驾": 4,
+      "玉贵": 9
+    },
     "lunar_mansion_system": "su28",
     "moira_patterns": [
       {

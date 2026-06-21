@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from fatebridge.core import guolao_moira
+from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.ephemeris_runtime import (
     ephemeris_model_from_retflag,
     swe,
@@ -1873,10 +1874,15 @@ def build_core_chart_payload(
             if item["id"] in _GUOLAO_PLANET_CN
         }
         planet_signidx.update(si_yu)
+        year_stem, year_branch = BaZiCalendar.get_four_pillars(
+            birth_info.local_datetime, birth_info.timezone
+        )["year"]
+        god_signidx = guolao_moira.compute_god_signidx(year_stem, year_branch)
         moira_patterns = guolao_moira.calculate(
             {
                 "asc_lon": effective_ascendant,
                 "planet_signidx": planet_signidx,
+                "god_signidx": god_signidx,
                 "is_day": 6 <= birth_info.local_datetime.hour < 18,
                 "is_winter": birth_info.local_datetime.month in (11, 12, 1),
             }
@@ -1892,6 +1898,7 @@ def build_core_chart_payload(
                 None,
             ),
             "si_yu_sign_index": si_yu,
+            "god_sign_index": god_signidx,
             "moira_patterns": moira_patterns,
         }
     if chart_variant == "india_chart":

@@ -46,11 +46,58 @@ def test_good_patterns_sort_before_bad():
 
 
 def test_god_dependent_patterns_inert_without_gods():
-    """日月拱贵人 / 命登岁驾 require 神煞 (not supplied in Phase 1) → never fire."""
+    """日月拱贵人 / 命登岁驾 stay inert when 神煞 positions are absent (oracle cases)."""
     for case in _CASES:
         names = {p["name"] for p in guolao_moira.calculate(case["facts"])}
         assert "日月拱贵人" not in names
         assert "命登岁驾" not in names
+
+
+def test_compute_god_signidx_guolao_qili():
+    """《三命通会》起例锁：天贵(阳/昼)以年干、玉贵(阴/夜)以年干、岁驾(太岁)以年支；戌将盘映射。
+
+    阳贵(昼/天贵) 甲加丑逆行：甲丑 乙子 丙亥 丁酉 戊丑 己申 庚未 辛午 壬巳 癸卯。
+    阴贵(夜/玉贵) 甲加未顺行：甲未 乙申 丙酉 丁亥 戊未 己子 庚丑 辛寅 壬卯 癸巳。
+    地支→星座序号：子10 丑9 寅8 卯7 辰6 巳5 午4 未3 申2 酉1 戌0 亥11。
+    """
+    # 庚辰（用户本命年柱）：天贵未(3)、玉贵丑(9)、岁驾辰(6)。
+    assert guolao_moira.compute_god_signidx("庚", "辰") == {
+        "天贵": 3,
+        "玉贵": 9,
+        "岁驾": 6,
+    }
+    # 甲子：天贵丑(9)、玉贵未(3)、岁驾子(10)。
+    assert guolao_moira.compute_god_signidx("甲", "子") == {
+        "天贵": 9,
+        "玉贵": 3,
+        "岁驾": 10,
+    }
+    # 癸亥：天贵卯(7)、玉贵巳(5)、岁驾亥(11)。
+    assert guolao_moira.compute_god_signidx("癸", "亥") == {
+        "天贵": 7,
+        "玉贵": 5,
+        "岁驾": 11,
+    }
+
+
+def test_god_patterns_fire_when_positions_supplied():
+    """供入神煞位置时，日月拱贵人 / 命登岁驾 应能点亮（Phase 2a）。"""
+    # 命登岁驾：命度(ASC)与岁驾同宫。
+    dengsuijia = guolao_moira.calculate(
+        {"asc_lon": 6 * 30 + 15, "planet_signidx": {}, "god_signidx": {"岁驾": 6}}
+    )
+    assert any(p["name"] == "命登岁驾" for p in dengsuijia)
+
+    # 日月拱贵人（昼取天贵）：日=天贵+4、月=天贵-4。
+    gongguiren = guolao_moira.calculate(
+        {
+            "asc_lon": 100,
+            "planet_signidx": {"日": 4, "月": 8},
+            "god_signidx": {"天贵": 0},
+            "is_day": True,
+        }
+    )
+    assert any(p["name"] == "日月拱贵人" for p in gongguiren)
 
 
 def test_section_text_format():
