@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from fatebridge.core.astrology_predictive import (
+from fatebridge.core.predictive import (
     build_analysis_datetime,
     build_predictive_birth_info,
     build_western_timing_module_payload,

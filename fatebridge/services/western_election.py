@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from fatebridge.core.astrology_election import TOPIC_MASTER, build_election_payload
-from fatebridge.core.astrology_predictive import build_subject
+from fatebridge.core.predictive import build_subject
 from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
 
 

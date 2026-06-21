@@ -21,7 +21,7 @@ from fatebridge.core.astrology_events import (
     find_planet_returns,
     planet_longitude_at_utc,
 )
-from fatebridge.core.astrology_predictive import (
+from fatebridge.core.predictive import (
     build_analysis_datetime,
     build_natal_subject,
     build_predictive_birth_info,

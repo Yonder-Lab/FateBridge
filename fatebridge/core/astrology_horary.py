@@ -28,7 +28,7 @@ from fatebridge.core.astrology import (
     EXALTATION_SIGNS,
     RULER_BY_SIGN,
 )
-from fatebridge.core.astrology_predictive import (
+from fatebridge.core.predictive import (
     EGYPTIAN_BOUNDS_BY_SIGN,
     normalize_sign_name,
     planet_label,

@@ -16,7 +16,7 @@ from fatebridge.core.astrology_horary import (
     HOUSE_BY_CATEGORY,
     build_horary_payload,
 )
-from fatebridge.core.astrology_predictive import build_subject
+from fatebridge.core.predictive import build_subject
 from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
 
 
