@@ -25,6 +25,7 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 | 金口诀（快断） | `jinkou` | `--di-fen` 地分 + 时间 |
 | 太乙 / 宿占 / 其他卜法 | `taiyi` / `suzhan` / `otherbu` | |
 | 邵子参评数 / 金锁银匙（按生辰起数断条文） | `canping` | 出生 `--date/--time` + `--gender` + 取法 `--method ming/gu` |
+| 河洛理数（先后天卦 + 命运篇 + 大限岁运） | `heluo` | 出生 `--date/--time` + `--gender` |
 | 大事多式互参 | `sanshiunited` | 三式合参 |
 | 只查卦义 | `gua_lookup` / `gua_meiyi` | |
 | 西洋卜卦（horary，占者懂点占星时） | `astro_horary` | 提问时刻 `--question-year/month/day/hour` + 地点 `--longitude/--latitude` + 问题类别 `--category`（marriage/wealth/career/health/...） |
@@ -64,4 +65,9 @@ python3 -m fatebridge.cli --no-metadata astro_horary --category marriage \
 python3 -m fatebridge.cli --no-metadata canping \
   --date 1990-06-15 --time 09:33:00 --gender 男 --method ming \
   --fields element ming_gong benming.verses.textShun
+
+# 河洛理数：按生辰起先天/后天卦，看命运篇与大限岁运
+python3 -m fatebridge.cli --no-metadata heluo \
+  --date 2000-05-15 --time 09:33:00 --gender 男 \
+  --fields chart.xian.name chart.hou.name judge.xie
 ```

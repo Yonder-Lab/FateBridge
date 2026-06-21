@@ -78,6 +78,7 @@ AI_EXPORT_TECHNIQUES = [
     {"key": "suzhan", "label": "宿占"},
     {"key": "sixyao", "label": "易卦"},
     {"key": "canping", "label": "邵子参评数"},
+    {"key": "heluo", "label": "河洛理数"},
     {"key": "tongshefa", "label": "统摄法"},
     {"key": "liureng", "label": "六壬"},
     {"key": "jinkou", "label": "金口诀"},
@@ -179,6 +180,7 @@ AI_EXPORT_PRESET_SECTIONS = {
     "suzhan": ["起盘信息", "宿盘宫位与二十八宿星曜"],
     "sixyao": ["起盘信息", "卦象", "六爻与动爻", "卦辞与断语"],
     "canping": ["起盘", "本命", "大运·歲運"],
+    "heluo": ["起命", "命运篇", "大限·岁运"],
     "tongshefa": ["本卦", "六爻", "潜藏", "亲和"],
     "liureng": [
         "起盘信息",

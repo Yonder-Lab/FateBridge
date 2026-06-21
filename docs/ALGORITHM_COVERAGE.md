@@ -91,7 +91,7 @@
 - `timing_analysis` / `dayun_analysis` / `liunian_analysis` / `liuyue_analysis` / `liuri_analysis` / `jieqi_timeline_analysis`
 - `knowledge_registry` / `knowledge_read`
 - `gua_lookup` / `gua_meiyi`
-- `suzhan` / `otherbu` / `sanshiunited` / `canping`
+- `suzhan` / `otherbu` / `sanshiunited` / `canping` / `heluo`
 - `ziwei_birth` / `ziwei_rules` / `liureng_gods` / `liureng_runyear` / `qimen` / `taiyi` / `jinkou`
 - 占星独立 technique 与 chart 家族
 
