@@ -2,12 +2,12 @@
   "chart": {
     "angles": {
       "ascendant": {
-        "longitude": 51.472,
+        "longitude": 46.1508,
         "sign": "Taurus",
         "sign_zh": "金牛"
       },
       "midheaven": {
-        "longitude": 308.5784,
+        "longitude": 305.8701,
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       }
@@ -15,97 +15,97 @@
     "aspects": [
       {
         "aspect": "sextile",
-        "orb": 0.566,
+        "orb": 0.5583,
         "planet_a": "Mercury",
         "planet_b": "Mars"
       },
       {
         "aspect": "square",
-        "orb": 0.6491,
+        "orb": 0.7366,
         "planet_a": "Moon",
         "planet_b": "Venus"
       },
       {
         "aspect": "square",
-        "orb": 1.4898,
+        "orb": 1.5036,
         "planet_a": "Mercury",
         "planet_b": "Neptune"
       },
       {
-        "aspect": "square",
-        "orb": 1.6776,
-        "planet_a": "Mercury",
-        "planet_b": "Uranus"
-      },
-      {
         "aspect": "conjunction",
-        "orb": 1.705,
+        "orb": 1.607,
         "planet_a": "Moon",
         "planet_b": "Pluto"
       },
       {
         "aspect": "square",
-        "orb": 2.3541,
+        "orb": 1.6639,
+        "planet_a": "Mercury",
+        "planet_b": "Uranus"
+      },
+      {
+        "aspect": "square",
+        "orb": 2.3436,
         "planet_a": "Venus",
         "planet_b": "Pluto"
       },
       {
         "aspect": "opposition",
-        "orb": 2.5554,
+        "orb": 2.5577,
         "planet_a": "Jupiter",
         "planet_b": "Saturn"
       },
       {
         "aspect": "conjunction",
-        "orb": 3.1674,
+        "orb": 3.1675,
         "planet_a": "Uranus",
         "planet_b": "Neptune"
       },
       {
         "aspect": "sextile",
-        "orb": 3.2148,
+        "orb": 3.3132,
         "planet_a": "Moon",
         "planet_b": "North Node"
       },
       {
         "aspect": "sextile",
-        "orb": 3.6594,
+        "orb": 3.6597,
         "planet_a": "Neptune",
         "planet_b": "Pluto"
       },
       {
         "aspect": "sextile",
-        "orb": 3.8351,
+        "orb": 3.8263,
         "planet_a": "Sun",
         "planet_b": "North Node"
       },
       {
         "aspect": "sextile",
-        "orb": 4.9815,
+        "orb": 4.9889,
         "planet_a": "Sun",
         "planet_b": "Saturn"
       },
       {
         "aspect": "sextile",
-        "orb": 5.3644,
+        "orb": 5.2667,
         "planet_a": "Moon",
         "planet_b": "Neptune"
       },
       {
         "aspect": "trine",
-        "orb": 7.0499,
+        "orb": 7.1395,
         "planet_a": "Sun",
         "planet_b": "Moon"
       },
       {
         "aspect": "trine",
-        "orb": 7.5369,
+        "orb": 7.5466,
         "planet_a": "Sun",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "opposition",
-        "orb": 7.993,
+        "orb": 7.9853,
         "planet_a": "Mars",
         "planet_b": "Jupiter"
       }
@@ -217,7 +217,7 @@
     },
     "planets": [
       {
-        "degree_in_sign": 28.8369,
+        "degree_in_sign": 28.8286,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -226,13 +226,13 @@
         "house": 11,
         "id": "Sun",
         "latitude": 0.0,
-        "longitude": 358.8369,
+        "longitude": 358.8286,
         "modality": "Mutable",
         "sign": "Pisces",
         "sign_zh": "双鱼"
       },
       {
-        "degree_in_sign": 21.787,
+        "degree_in_sign": 21.6891,
         "dignity": {
           "dignity": "fall",
           "status_zh": "弱"
@@ -240,14 +240,14 @@
         "element": "Water",
         "house": 7,
         "id": "Moon",
-        "latitude": 0.8156,
-        "longitude": 231.787,
+        "latitude": 0.8065,
+        "longitude": 231.6891,
         "modality": "Fixed",
         "sign": "Scorpio",
         "sign_zh": "天蝎"
       },
       {
-        "degree_in_sign": 14.9328,
+        "degree_in_sign": 14.9188,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -255,14 +255,14 @@
         "element": "Fire",
         "house": 12,
         "id": "Mercury",
-        "latitude": 0.9257,
-        "longitude": 14.9328,
+        "latitude": 0.9239,
+        "longitude": 14.9188,
         "modality": "Cardinal",
         "sign": "Aries",
         "sign_zh": "白羊"
       },
       {
-        "degree_in_sign": 22.4361,
+        "degree_in_sign": 22.4257,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -270,14 +270,14 @@
         "element": "Air",
         "house": 10,
         "id": "Venus",
-        "latitude": 0.0866,
-        "longitude": 322.4361,
+        "latitude": 0.0869,
+        "longitude": 322.4257,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 14.3668,
+        "degree_in_sign": 14.3605,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -285,14 +285,14 @@
         "element": "Air",
         "house": 10,
         "id": "Mars",
-        "latitude": -1.1439,
-        "longitude": 314.3668,
+        "latitude": -1.1438,
+        "longitude": 314.3605,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 6.3738,
+        "degree_in_sign": 6.3752,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -301,13 +301,13 @@
         "house": 4,
         "id": "Jupiter",
         "latitude": 0.73,
-        "longitude": 126.3738,
+        "longitude": 126.3752,
         "modality": "Fixed",
         "sign": "Leo",
         "sign_zh": "狮子"
       },
       {
-        "degree_in_sign": 3.8184,
+        "degree_in_sign": 3.8175,
         "dignity": {
           "dignity": "rulership",
           "status_zh": "庙"
@@ -315,56 +315,56 @@
         "element": "Air",
         "house": 10,
         "id": "Saturn",
-        "latitude": -0.2298,
-        "longitude": 303.8184,
+        "latitude": -0.2297,
+        "longitude": 303.8175,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 13.2552,
+        "degree_in_sign": 13.2549,
         "dignity": null,
         "element": "Earth",
         "house": 9,
         "id": "Uranus",
         "latitude": -0.3407,
-        "longitude": 283.2552,
+        "longitude": 283.2549,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "degree_in_sign": 16.4226,
+        "degree_in_sign": 16.4224,
         "dignity": null,
         "element": "Earth",
         "house": 9,
         "id": "Neptune",
         "latitude": 0.7964,
-        "longitude": 286.4226,
+        "longitude": 286.4224,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "degree_in_sign": 20.082,
+        "degree_in_sign": 20.0821,
         "dignity": null,
         "element": "Water",
         "house": 7,
         "id": "Pluto",
-        "latitude": 15.4706,
-        "longitude": 230.082,
+        "latitude": 15.4705,
+        "longitude": 230.0821,
         "modality": "Fixed",
         "sign": "Scorpio",
         "sign_zh": "天蝎"
       },
       {
-        "degree_in_sign": 25.0018,
+        "degree_in_sign": 25.0023,
         "dignity": null,
         "element": "Earth",
         "house": 9,
         "id": "North Node",
         "latitude": 0.0,
-        "longitude": 295.0018,
+        "longitude": 295.0023,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
@@ -379,18 +379,18 @@
   "compatibility": {
     "element_harmony_score": 57,
     "modality_balance_score": 57,
-    "overall_score": 69,
-    "synastry_aspect_score": 94
+    "overall_score": 71,
+    "synastry_aspect_score": 98
   },
   "composite_chart": {
     "angles": {
       "ascendant": {
-        "longitude": 51.472,
+        "longitude": 46.1508,
         "sign": "Taurus",
         "sign_zh": "金牛"
       },
       "midheaven": {
-        "longitude": 308.5784,
+        "longitude": 305.8701,
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       }
@@ -398,97 +398,97 @@
     "aspects": [
       {
         "aspect": "sextile",
-        "orb": 0.566,
+        "orb": 0.5583,
         "planet_a": "Mercury",
         "planet_b": "Mars"
       },
       {
         "aspect": "square",
-        "orb": 0.6491,
+        "orb": 0.7366,
         "planet_a": "Moon",
         "planet_b": "Venus"
       },
       {
         "aspect": "square",
-        "orb": 1.4898,
+        "orb": 1.5036,
         "planet_a": "Mercury",
         "planet_b": "Neptune"
       },
       {
-        "aspect": "square",
-        "orb": 1.6776,
-        "planet_a": "Mercury",
-        "planet_b": "Uranus"
-      },
-      {
         "aspect": "conjunction",
-        "orb": 1.705,
+        "orb": 1.607,
         "planet_a": "Moon",
         "planet_b": "Pluto"
       },
       {
         "aspect": "square",
-        "orb": 2.3541,
+        "orb": 1.6639,
+        "planet_a": "Mercury",
+        "planet_b": "Uranus"
+      },
+      {
+        "aspect": "square",
+        "orb": 2.3436,
         "planet_a": "Venus",
         "planet_b": "Pluto"
       },
       {
         "aspect": "opposition",
-        "orb": 2.5554,
+        "orb": 2.5577,
         "planet_a": "Jupiter",
         "planet_b": "Saturn"
       },
       {
         "aspect": "conjunction",
-        "orb": 3.1674,
+        "orb": 3.1675,
         "planet_a": "Uranus",
         "planet_b": "Neptune"
       },
       {
         "aspect": "sextile",
-        "orb": 3.2148,
+        "orb": 3.3132,
         "planet_a": "Moon",
         "planet_b": "North Node"
       },
       {
         "aspect": "sextile",
-        "orb": 3.6594,
+        "orb": 3.6597,
         "planet_a": "Neptune",
         "planet_b": "Pluto"
       },
       {
         "aspect": "sextile",
-        "orb": 3.8351,
+        "orb": 3.8263,
         "planet_a": "Sun",
         "planet_b": "North Node"
       },
       {
         "aspect": "sextile",
-        "orb": 4.9815,
+        "orb": 4.9889,
         "planet_a": "Sun",
         "planet_b": "Saturn"
       },
       {
         "aspect": "sextile",
-        "orb": 5.3644,
+        "orb": 5.2667,
         "planet_a": "Moon",
         "planet_b": "Neptune"
       },
       {
         "aspect": "trine",
-        "orb": 7.0499,
+        "orb": 7.1395,
         "planet_a": "Sun",
         "planet_b": "Moon"
       },
       {
         "aspect": "trine",
-        "orb": 7.5369,
+        "orb": 7.5466,
         "planet_a": "Sun",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "opposition",
-        "orb": 7.993,
+        "orb": 7.9853,
         "planet_a": "Mars",
         "planet_b": "Jupiter"
       }
@@ -600,7 +600,7 @@
     },
     "planets": [
       {
-        "degree_in_sign": 28.8369,
+        "degree_in_sign": 28.8286,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -609,13 +609,13 @@
         "house": 11,
         "id": "Sun",
         "latitude": 0.0,
-        "longitude": 358.8369,
+        "longitude": 358.8286,
         "modality": "Mutable",
         "sign": "Pisces",
         "sign_zh": "双鱼"
       },
       {
-        "degree_in_sign": 21.787,
+        "degree_in_sign": 21.6891,
         "dignity": {
           "dignity": "fall",
           "status_zh": "弱"
@@ -623,14 +623,14 @@
         "element": "Water",
         "house": 7,
         "id": "Moon",
-        "latitude": 0.8156,
-        "longitude": 231.787,
+        "latitude": 0.8065,
+        "longitude": 231.6891,
         "modality": "Fixed",
         "sign": "Scorpio",
         "sign_zh": "天蝎"
       },
       {
-        "degree_in_sign": 14.9328,
+        "degree_in_sign": 14.9188,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -638,14 +638,14 @@
         "element": "Fire",
         "house": 12,
         "id": "Mercury",
-        "latitude": 0.9257,
-        "longitude": 14.9328,
+        "latitude": 0.9239,
+        "longitude": 14.9188,
         "modality": "Cardinal",
         "sign": "Aries",
         "sign_zh": "白羊"
       },
       {
-        "degree_in_sign": 22.4361,
+        "degree_in_sign": 22.4257,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -653,14 +653,14 @@
         "element": "Air",
         "house": 10,
         "id": "Venus",
-        "latitude": 0.0866,
-        "longitude": 322.4361,
+        "latitude": 0.0869,
+        "longitude": 322.4257,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 14.3668,
+        "degree_in_sign": 14.3605,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -668,14 +668,14 @@
         "element": "Air",
         "house": 10,
         "id": "Mars",
-        "latitude": -1.1439,
-        "longitude": 314.3668,
+        "latitude": -1.1438,
+        "longitude": 314.3605,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 6.3738,
+        "degree_in_sign": 6.3752,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -684,13 +684,13 @@
         "house": 4,
         "id": "Jupiter",
         "latitude": 0.73,
-        "longitude": 126.3738,
+        "longitude": 126.3752,
         "modality": "Fixed",
         "sign": "Leo",
         "sign_zh": "狮子"
       },
       {
-        "degree_in_sign": 3.8184,
+        "degree_in_sign": 3.8175,
         "dignity": {
           "dignity": "rulership",
           "status_zh": "庙"
@@ -698,56 +698,56 @@
         "element": "Air",
         "house": 10,
         "id": "Saturn",
-        "latitude": -0.2298,
-        "longitude": 303.8184,
+        "latitude": -0.2297,
+        "longitude": 303.8175,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 13.2552,
+        "degree_in_sign": 13.2549,
         "dignity": null,
         "element": "Earth",
         "house": 9,
         "id": "Uranus",
         "latitude": -0.3407,
-        "longitude": 283.2552,
+        "longitude": 283.2549,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "degree_in_sign": 16.4226,
+        "degree_in_sign": 16.4224,
         "dignity": null,
         "element": "Earth",
         "house": 9,
         "id": "Neptune",
         "latitude": 0.7964,
-        "longitude": 286.4226,
+        "longitude": 286.4224,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "degree_in_sign": 20.082,
+        "degree_in_sign": 20.0821,
         "dignity": null,
         "element": "Water",
         "house": 7,
         "id": "Pluto",
-        "latitude": 15.4706,
-        "longitude": 230.082,
+        "latitude": 15.4705,
+        "longitude": 230.0821,
         "modality": "Fixed",
         "sign": "Scorpio",
         "sign_zh": "天蝎"
       },
       {
-        "degree_in_sign": 25.0018,
+        "degree_in_sign": 25.0023,
         "dignity": null,
         "element": "Earth",
         "house": 9,
         "id": "North Node",
         "latitude": 0.0,
-        "longitude": 295.0018,
+        "longitude": 295.0023,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
@@ -766,22 +766,22 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 0.7979,
+          "delta": 0.8232,
           "id": "Venus"
         },
         {
           "aspect": "sextile",
-          "delta": 2.3492,
+          "delta": 2.5741,
           "id": "Moon"
         },
         {
           "aspect": "sextile",
-          "delta": 3.0228,
+          "delta": 3.027,
           "id": "Saturn"
         },
         {
           "aspect": "sextile",
-          "delta": 6.1573,
+          "delta": 6.1738,
           "id": "Mars"
         }
       ]
@@ -791,7 +791,7 @@
       "objects": [
         {
           "aspect": "conjunction",
-          "delta": 9.4949,
+          "delta": 9.4703,
           "id": "Jupiter"
         }
       ]
@@ -801,7 +801,7 @@
       "objects": [
         {
           "aspect": "trine",
-          "delta": 6.485,
+          "delta": 6.4839,
           "id": "Jupiter"
         }
       ]
@@ -811,17 +811,17 @@
       "objects": [
         {
           "aspect": "conjunction",
-          "delta": 3.6929,
+          "delta": 3.7177,
           "id": "Venus"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.2442,
+          "delta": 5.4686,
           "id": "Moon"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.9178,
+          "delta": 5.9215,
           "id": "Saturn"
         }
       ]
@@ -831,17 +831,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 6.0926,
+          "delta": 6.0947,
           "id": "Jupiter"
         },
         {
-          "aspect": "square",
-          "delta": 6.397,
-          "id": "Mercury"
-        },
-        {
           "aspect": "trine",
-          "delta": 8.3483,
+          "delta": 8.3292,
           "id": "Sun"
         }
       ]
@@ -851,7 +846,7 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 2.2688,
+          "delta": 2.2372,
           "id": "Mercury"
         }
       ]
@@ -859,7 +854,7 @@
   ],
   "inToOutCAnti": [
     {
-      "delta": 2.3262,
+      "delta": 2.3429,
       "idA": "Sun",
       "idB": "Sun"
     }
@@ -868,230 +863,230 @@
     "Jupiter": [
       {
         "aspect": "trine",
-        "delta": 0.0581,
+        "delta": 0.0349,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Mars",
-          "longitude": 333.3856
+          "longitude": 333.3627
         }
       },
       {
         "aspect": "trine",
-        "delta": 1.6254,
+        "delta": 1.6083,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Saturn",
-          "longitude": 334.9529
+          "longitude": 334.9361
         }
       },
       {
         "aspect": "trine",
-        "delta": 1.9621,
+        "delta": 1.8347,
         "midpoint": {
           "idA": "Moon",
           "idB": "Mercury",
-          "longitude": 335.2896
+          "longitude": 335.1625
         }
       },
       {
         "aspect": "trine",
-        "delta": 2.7378,
+        "delta": 2.7102,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Venus",
-          "longitude": 336.0653
+          "longitude": 336.038
         }
       }
     ],
     "Mars": [
       {
         "aspect": "trine",
-        "delta": 0.7177,
+        "delta": 0.7338,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Jupiter",
-          "longitude": 78.1753
+          "longitude": 78.1608
         }
       }
     ],
     "Mercury": [
       {
         "aspect": "sextile",
-        "delta": 0.4505,
+        "delta": 0.4241,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Mars",
-          "longitude": 333.3856
+          "longitude": 333.3627
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.0178,
+        "delta": 1.9975,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Saturn",
-          "longitude": 334.9529
+          "longitude": 334.9361
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.3545,
+        "delta": 2.2239,
         "midpoint": {
           "idA": "Moon",
           "idB": "Mercury",
-          "longitude": 335.2896
+          "longitude": 335.1625
         }
       }
     ],
     "Moon": [
       {
         "aspect": "opposition",
-        "delta": 1.4872,
+        "delta": 1.5353,
         "midpoint": {
           "idA": "Sun",
           "idB": "Venus",
-          "longitude": 328.438
+          "longitude": 328.4169
         }
       },
       {
         "aspect": "opposition",
-        "delta": 2.2629,
+        "delta": 2.4107,
         "midpoint": {
           "idA": "Sun",
           "idB": "Moon",
-          "longitude": 327.6623
+          "longitude": 327.5415
         }
       },
       {
         "aspect": "opposition",
-        "delta": 2.5997,
+        "delta": 2.6372,
         "midpoint": {
           "idA": "Sun",
           "idB": "Saturn",
-          "longitude": 327.3255
+          "longitude": 327.315
         }
       },
       {
         "aspect": "square",
-        "delta": 2.6151,
+        "delta": 2.6525,
         "midpoint": {
           "idA": "Venus",
           "idB": "Jupiter",
-          "longitude": 237.3101
+          "longitude": 237.2997
         }
       }
     ],
     "Saturn": [
       {
         "aspect": "sextile",
-        "delta": 0.0313,
+        "delta": 0.0374,
         "midpoint": {
           "idA": "Mars",
           "idB": "Jupiter",
-          "longitude": 234.6304
+          "longitude": 234.6244
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.5359,
+        "delta": 1.536,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 236.1976
+          "longitude": 236.1978
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.8727,
+        "delta": 1.7625,
         "midpoint": {
           "idA": "Moon",
           "idB": "Jupiter",
-          "longitude": 236.5344
+          "longitude": 236.4243
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.6484,
+        "delta": 2.6379,
         "midpoint": {
           "idA": "Venus",
           "idB": "Jupiter",
-          "longitude": 237.3101
+          "longitude": 237.2997
         }
       }
     ],
     "Sun": [
       {
         "aspect": "sextile",
-        "delta": 1.5736,
+        "delta": 1.6987,
         "midpoint": {
           "idA": "Moon",
           "idB": "Venus",
-          "longitude": 314.4244
+          "longitude": 314.3014
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.9104,
+        "delta": 1.9251,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 314.0876
+          "longitude": 314.075
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.1773,
+        "delta": 2.1607,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Jupiter",
-          "longitude": 78.1753
+          "longitude": 78.1608
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.686,
+        "delta": 2.8006,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 313.312
+          "longitude": 313.1995
         }
       }
     ],
     "Venus": [
       {
         "aspect": "conjunction",
-        "delta": 1.2342,
+        "delta": 1.2575,
         "midpoint": {
           "idA": "Sun",
           "idB": "Venus",
-          "longitude": 328.438
+          "longitude": 328.4169
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 2.0099,
+        "delta": 2.1329,
         "midpoint": {
           "idA": "Sun",
           "idB": "Moon",
-          "longitude": 327.6623
+          "longitude": 327.5415
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 2.3467,
+        "delta": 2.3594,
         "midpoint": {
           "idA": "Sun",
           "idB": "Saturn",
-          "longitude": 327.3255
+          "longitude": 327.315
         }
       },
       {
         "aspect": "square",
-        "delta": 2.3621,
+        "delta": 2.3747,
         "midpoint": {
           "idA": "Venus",
           "idB": "Jupiter",
-          "longitude": 237.3101
+          "longitude": 237.2997
         }
       }
     ]
@@ -1103,22 +1098,22 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 0.7979,
+          "delta": 0.8232,
           "id": "Venus"
         },
         {
           "aspect": "sextile",
-          "delta": 2.3492,
+          "delta": 2.5741,
           "id": "Moon"
         },
         {
           "aspect": "sextile",
-          "delta": 3.0228,
+          "delta": 3.027,
           "id": "Saturn"
         },
         {
           "aspect": "sextile",
-          "delta": 6.1573,
+          "delta": 6.1738,
           "id": "Mars"
         }
       ]
@@ -1128,7 +1123,7 @@
       "objects": [
         {
           "aspect": "conjunction",
-          "delta": 9.4949,
+          "delta": 9.4703,
           "id": "Jupiter"
         }
       ]
@@ -1138,7 +1133,7 @@
       "objects": [
         {
           "aspect": "trine",
-          "delta": 6.485,
+          "delta": 6.4839,
           "id": "Jupiter"
         }
       ]
@@ -1148,17 +1143,17 @@
       "objects": [
         {
           "aspect": "conjunction",
-          "delta": 3.6929,
+          "delta": 3.7177,
           "id": "Venus"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.2442,
+          "delta": 5.4686,
           "id": "Moon"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.9178,
+          "delta": 5.9215,
           "id": "Saturn"
         }
       ]
@@ -1168,17 +1163,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 6.0926,
+          "delta": 6.0947,
           "id": "Jupiter"
         },
         {
-          "aspect": "square",
-          "delta": 6.397,
-          "id": "Mercury"
-        },
-        {
           "aspect": "trine",
-          "delta": 8.3483,
+          "delta": 8.3292,
           "id": "Sun"
         }
       ]
@@ -1188,7 +1178,7 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 2.2688,
+          "delta": 2.2372,
           "id": "Mercury"
         }
       ]
@@ -1196,7 +1186,7 @@
   ],
   "in_to_out_contra_antiscia": [
     {
-      "delta": 2.3262,
+      "delta": 2.3429,
       "idA": "Sun",
       "idB": "Sun"
     }
@@ -1205,230 +1195,230 @@
     "Jupiter": [
       {
         "aspect": "trine",
-        "delta": 0.0581,
+        "delta": 0.0349,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Mars",
-          "longitude": 333.3856
+          "longitude": 333.3627
         }
       },
       {
         "aspect": "trine",
-        "delta": 1.6254,
+        "delta": 1.6083,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Saturn",
-          "longitude": 334.9529
+          "longitude": 334.9361
         }
       },
       {
         "aspect": "trine",
-        "delta": 1.9621,
+        "delta": 1.8347,
         "midpoint": {
           "idA": "Moon",
           "idB": "Mercury",
-          "longitude": 335.2896
+          "longitude": 335.1625
         }
       },
       {
         "aspect": "trine",
-        "delta": 2.7378,
+        "delta": 2.7102,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Venus",
-          "longitude": 336.0653
+          "longitude": 336.038
         }
       }
     ],
     "Mars": [
       {
         "aspect": "trine",
-        "delta": 0.7177,
+        "delta": 0.7338,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Jupiter",
-          "longitude": 78.1753
+          "longitude": 78.1608
         }
       }
     ],
     "Mercury": [
       {
         "aspect": "sextile",
-        "delta": 0.4505,
+        "delta": 0.4241,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Mars",
-          "longitude": 333.3856
+          "longitude": 333.3627
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.0178,
+        "delta": 1.9975,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Saturn",
-          "longitude": 334.9529
+          "longitude": 334.9361
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.3545,
+        "delta": 2.2239,
         "midpoint": {
           "idA": "Moon",
           "idB": "Mercury",
-          "longitude": 335.2896
+          "longitude": 335.1625
         }
       }
     ],
     "Moon": [
       {
         "aspect": "opposition",
-        "delta": 1.4872,
+        "delta": 1.5353,
         "midpoint": {
           "idA": "Sun",
           "idB": "Venus",
-          "longitude": 328.438
+          "longitude": 328.4169
         }
       },
       {
         "aspect": "opposition",
-        "delta": 2.2629,
+        "delta": 2.4107,
         "midpoint": {
           "idA": "Sun",
           "idB": "Moon",
-          "longitude": 327.6623
+          "longitude": 327.5415
         }
       },
       {
         "aspect": "opposition",
-        "delta": 2.5997,
+        "delta": 2.6372,
         "midpoint": {
           "idA": "Sun",
           "idB": "Saturn",
-          "longitude": 327.3255
+          "longitude": 327.315
         }
       },
       {
         "aspect": "square",
-        "delta": 2.6151,
+        "delta": 2.6525,
         "midpoint": {
           "idA": "Venus",
           "idB": "Jupiter",
-          "longitude": 237.3101
+          "longitude": 237.2997
         }
       }
     ],
     "Saturn": [
       {
         "aspect": "sextile",
-        "delta": 0.0313,
+        "delta": 0.0374,
         "midpoint": {
           "idA": "Mars",
           "idB": "Jupiter",
-          "longitude": 234.6304
+          "longitude": 234.6244
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.5359,
+        "delta": 1.536,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 236.1976
+          "longitude": 236.1978
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.8727,
+        "delta": 1.7625,
         "midpoint": {
           "idA": "Moon",
           "idB": "Jupiter",
-          "longitude": 236.5344
+          "longitude": 236.4243
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.6484,
+        "delta": 2.6379,
         "midpoint": {
           "idA": "Venus",
           "idB": "Jupiter",
-          "longitude": 237.3101
+          "longitude": 237.2997
         }
       }
     ],
     "Sun": [
       {
         "aspect": "sextile",
-        "delta": 1.5736,
+        "delta": 1.6987,
         "midpoint": {
           "idA": "Moon",
           "idB": "Venus",
-          "longitude": 314.4244
+          "longitude": 314.3014
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.9104,
+        "delta": 1.9251,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 314.0876
+          "longitude": 314.075
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.1773,
+        "delta": 2.1607,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Jupiter",
-          "longitude": 78.1753
+          "longitude": 78.1608
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.686,
+        "delta": 2.8006,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 313.312
+          "longitude": 313.1995
         }
       }
     ],
     "Venus": [
       {
         "aspect": "conjunction",
-        "delta": 1.2342,
+        "delta": 1.2575,
         "midpoint": {
           "idA": "Sun",
           "idB": "Venus",
-          "longitude": 328.438
+          "longitude": 328.4169
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 2.0099,
+        "delta": 2.1329,
         "midpoint": {
           "idA": "Sun",
           "idB": "Moon",
-          "longitude": 327.6623
+          "longitude": 327.5415
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 2.3467,
+        "delta": 2.3594,
         "midpoint": {
           "idA": "Sun",
           "idB": "Saturn",
-          "longitude": 327.3255
+          "longitude": 327.315
         }
       },
       {
         "aspect": "square",
-        "delta": 2.3621,
+        "delta": 2.3747,
         "midpoint": {
           "idA": "Venus",
           "idB": "Jupiter",
-          "longitude": 237.3101
+          "longitude": 237.2997
         }
       }
     ]
@@ -1437,12 +1427,12 @@
     "chart": {
       "angles": {
         "ascendant": {
-          "longitude": 84.4478,
+          "longitude": 85.1776,
           "sign": "Gemini",
           "sign_zh": "双子"
         },
         "midheaven": {
-          "longitude": 337.0866,
+          "longitude": 337.9096,
           "sign": "Pisces",
           "sign_zh": "双鱼"
         }
@@ -1450,73 +1440,73 @@
       "aspects": [
         {
           "aspect": "conjunction",
-          "orb": 0.6736,
+          "orb": 0.4529,
           "planet_a": "Moon",
           "planet_b": "Saturn"
         },
         {
           "aspect": "conjunction",
-          "orb": 1.3532,
+          "orb": 1.3535,
           "planet_a": "Uranus",
           "planet_b": "Neptune"
         },
         {
           "aspect": "conjunction",
-          "orb": 1.5513,
+          "orb": 1.7509,
           "planet_a": "Moon",
           "planet_b": "Venus"
         },
         {
           "aspect": "conjunction",
-          "orb": 2.2249,
+          "orb": 2.2038,
           "planet_a": "Venus",
           "planet_b": "Saturn"
         },
         {
           "aspect": "opposition",
-          "orb": 2.2557,
+          "orb": 2.2345,
           "planet_a": "Sun",
           "planet_b": "Jupiter"
         },
         {
           "aspect": "trine",
-          "orb": 2.844,
+          "orb": 2.8454,
           "planet_a": "Jupiter",
           "planet_b": "North Node"
         },
         {
           "aspect": "conjunction",
-          "orb": 3.1345,
+          "orb": 3.1468,
           "planet_a": "Mars",
           "planet_b": "Saturn"
         },
         {
           "aspect": "conjunction",
-          "orb": 3.8081,
+          "orb": 3.5997,
           "planet_a": "Moon",
           "planet_b": "Mars"
         },
         {
           "aspect": "trine",
-          "orb": 3.985,
+          "orb": 3.9534,
           "planet_a": "Mercury",
           "planet_b": "Pluto"
         },
         {
           "aspect": "sextile",
-          "orb": 5.0997,
+          "orb": 5.0799,
           "planet_a": "Sun",
           "planet_b": "North Node"
         },
         {
           "aspect": "sextile",
-          "orb": 5.2717,
+          "orb": 5.2897,
           "planet_a": "Sun",
           "planet_b": "Uranus"
         },
         {
           "aspect": "conjunction",
-          "orb": 5.3594,
+          "orb": 5.3506,
           "planet_a": "Venus",
           "planet_b": "Mars"
         }
@@ -1620,17 +1610,21 @@
         "Mutable": 3
       },
       "person_info": {
-        "birth_datetime": "1990-04-06T09:33:00+08:00",
+        "birth_datetime": "1990-04-06T09:36:05.368792+08:00",
         "birth_latitude": 31.2167,
         "birth_longitude": 121.4667,
         "birth_place": "上海",
         "birth_timezone": "Asia/Shanghai",
         "name": "甲受乙影响",
-        "utc_datetime": "1990-04-06T01:33:00+00:00"
+        "true_solar": {
+          "applied": true,
+          "correction_minutes": 3.0895
+        },
+        "utc_datetime": "1990-04-06T01:36:05.368792+00:00"
       },
       "planets": [
         {
-          "degree_in_sign": 11.6758,
+          "degree_in_sign": 11.657,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -1639,13 +1633,13 @@
           "house": 10,
           "id": "Sun",
           "latitude": 0.0,
-          "longitude": 341.6758,
+          "longitude": 341.657,
           "modality": "Mutable",
           "sign": "Pisces",
           "sign_zh": "双鱼"
         },
         {
-          "degree_in_sign": 13.6488,
+          "degree_in_sign": 13.426,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -1653,14 +1647,14 @@
           "element": "Air",
           "house": 9,
           "id": "Moon",
-          "latitude": 2.963,
-          "longitude": 313.6488,
+          "latitude": 2.947,
+          "longitude": 313.426,
           "modality": "Fixed",
           "sign": "Aquarius",
           "sign_zh": "水瓶"
         },
         {
-          "degree_in_sign": 26.9305,
+          "degree_in_sign": 26.899,
           "dignity": {
             "dignity": "detriment",
             "status_zh": "陷"
@@ -1668,14 +1662,14 @@
           "element": "Water",
           "house": 10,
           "id": "Mercury",
-          "latitude": 0.1838,
-          "longitude": 356.9305,
+          "latitude": 0.1799,
+          "longitude": 356.899,
           "modality": "Mutable",
           "sign": "Pisces",
           "sign_zh": "双鱼"
         },
         {
-          "degree_in_sign": 15.2001,
+          "degree_in_sign": 15.1769,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -1683,14 +1677,14 @@
           "element": "Air",
           "house": 9,
           "id": "Venus",
-          "latitude": -0.6093,
-          "longitude": 315.2001,
+          "latitude": -0.6085,
+          "longitude": 315.1769,
           "modality": "Fixed",
           "sign": "Aquarius",
           "sign_zh": "水瓶"
         },
         {
-          "degree_in_sign": 9.8407,
+          "degree_in_sign": 9.8263,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -1698,14 +1692,14 @@
           "element": "Air",
           "house": 9,
           "id": "Mars",
-          "latitude": -1.0388,
-          "longitude": 309.8407,
+          "latitude": -1.0386,
+          "longitude": 309.8263,
           "modality": "Fixed",
           "sign": "Aquarius",
           "sign_zh": "水瓶"
         },
         {
-          "degree_in_sign": 9.4201,
+          "degree_in_sign": 9.4225,
           "dignity": {
             "dignity": "detriment",
             "status_zh": "陷"
@@ -1714,13 +1708,13 @@
           "house": 4,
           "id": "Jupiter",
           "latitude": 1.3757,
-          "longitude": 159.4201,
+          "longitude": 159.4225,
           "modality": "Mutable",
           "sign": "Virgo",
           "sign_zh": "处女"
         },
         {
-          "degree_in_sign": 12.9752,
+          "degree_in_sign": 12.9731,
           "dignity": {
             "dignity": "rulership",
             "status_zh": "庙"
@@ -1728,56 +1722,56 @@
           "element": "Air",
           "house": 9,
           "id": "Saturn",
-          "latitude": -0.656,
-          "longitude": 312.9752,
+          "latitude": -0.6559,
+          "longitude": 312.9731,
           "modality": "Fixed",
           "sign": "Aquarius",
           "sign_zh": "水瓶"
         },
         {
-          "degree_in_sign": 16.9475,
+          "degree_in_sign": 16.9467,
           "dignity": null,
           "element": "Earth",
           "house": 8,
           "id": "Uranus",
           "latitude": -0.382,
-          "longitude": 286.9475,
+          "longitude": 286.9467,
           "modality": "Cardinal",
           "sign": "Capricorn",
           "sign_zh": "摩羯"
         },
         {
-          "degree_in_sign": 18.3007,
+          "degree_in_sign": 18.3002,
           "dignity": null,
           "element": "Earth",
           "house": 8,
           "id": "Neptune",
           "latitude": 0.7318,
-          "longitude": 288.3007,
+          "longitude": 288.3002,
           "modality": "Cardinal",
           "sign": "Capricorn",
           "sign_zh": "摩羯"
         },
         {
-          "degree_in_sign": 22.9455,
+          "degree_in_sign": 22.9456,
           "dignity": null,
           "element": "Water",
           "house": 6,
           "id": "Pluto",
-          "latitude": 14.9914,
-          "longitude": 232.9455,
+          "latitude": 14.9913,
+          "longitude": 232.9456,
           "modality": "Fixed",
           "sign": "Scorpio",
           "sign_zh": "天蝎"
         },
         {
-          "degree_in_sign": 6.5761,
+          "degree_in_sign": 6.5771,
           "dignity": null,
           "element": "Earth",
           "house": 8,
           "id": "North Node",
           "latitude": 0.0,
-          "longitude": 276.5761,
+          "longitude": 276.5771,
           "modality": "Cardinal",
           "sign": "Capricorn",
           "sign_zh": "摩羯"
@@ -1810,12 +1804,12 @@
   "inner_chart": {
     "angles": {
       "ascendant": {
-        "longitude": 84.4478,
+        "longitude": 85.1776,
         "sign": "Gemini",
         "sign_zh": "双子"
       },
       "midheaven": {
-        "longitude": 337.0866,
+        "longitude": 337.9096,
         "sign": "Pisces",
         "sign_zh": "双鱼"
       }
@@ -1823,31 +1817,31 @@
     "aspects": [
       {
         "aspect": "opposition",
-        "orb": 0.253,
+        "orb": 0.2778,
         "planet_a": "Moon",
         "planet_b": "Venus"
       },
       {
         "aspect": "sextile",
-        "orb": 0.3924,
+        "orb": 0.3892,
         "planet_a": "Mercury",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "square",
-        "orb": 1.4535,
+        "orb": 1.4556,
         "planet_a": "Sun",
         "planet_b": "Neptune"
       },
       {
         "aspect": "square",
-        "orb": 1.6745,
+        "orb": 1.6761,
         "planet_a": "Mars",
         "planet_b": "Pluto"
       },
       {
         "aspect": "sextile",
-        "orb": 2.5705,
+        "orb": 2.5727,
         "planet_a": "Sun",
         "planet_b": "North Node"
       },
@@ -1859,37 +1853,37 @@
       },
       {
         "aspect": "sextile",
-        "orb": 2.895,
+        "orb": 2.8945,
         "planet_a": "Sun",
         "planet_b": "Mars"
       },
       {
         "aspect": "trine",
-        "orb": 3.0099,
+        "orb": 2.9864,
         "planet_a": "Moon",
         "planet_b": "Mercury"
       },
       {
         "aspect": "sextile",
-        "orb": 3.2629,
+        "orb": 3.2642,
         "planet_a": "Mercury",
         "planet_b": "Venus"
       },
       {
         "aspect": "sextile",
-        "orb": 3.4023,
+        "orb": 3.3756,
         "planet_a": "Moon",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "trine",
-        "orb": 3.6553,
+        "orb": 3.6534,
         "planet_a": "Venus",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "square",
-        "orb": 3.791,
+        "orb": 3.7911,
         "planet_a": "Pluto",
         "planet_b": "North Node"
       },
@@ -1901,13 +1895,13 @@
       },
       {
         "aspect": "conjunction",
-        "orb": 5.4655,
+        "orb": 5.4672,
         "planet_a": "Mars",
         "planet_b": "North Node"
       },
       {
         "aspect": "opposition",
-        "orb": 6.2355,
+        "orb": 6.2352,
         "planet_a": "Jupiter",
         "planet_b": "Uranus"
       }
@@ -2010,17 +2004,21 @@
       "Fixed": 5
     },
     "person_info": {
-      "birth_datetime": "1990-04-06T09:33:00+08:00",
+      "birth_datetime": "1990-04-06T09:36:05.368792+08:00",
       "birth_latitude": 31.2167,
       "birth_longitude": 121.4667,
       "birth_place": "上海",
       "birth_timezone": "Asia/Shanghai",
       "name": "甲",
-      "utc_datetime": "1990-04-06T01:33:00+00:00"
+      "true_solar": {
+        "applied": true,
+        "correction_minutes": 3.0895
+      },
+      "utc_datetime": "1990-04-06T01:36:05.368792+00:00"
     },
     "planets": [
       {
-        "degree_in_sign": 15.998,
+        "degree_in_sign": 16.0001,
         "dignity": {
           "dignity": "exaltation",
           "status_zh": "旺"
@@ -2029,13 +2027,13 @@
         "house": 11,
         "id": "Sun",
         "latitude": -0.0,
-        "longitude": 15.998,
+        "longitude": 16.0001,
         "modality": "Cardinal",
         "sign": "Aries",
         "sign_zh": "白羊"
       },
       {
-        "degree_in_sign": 29.9252,
+        "degree_in_sign": 29.9522,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -2043,14 +2041,14 @@
         "element": "Fire",
         "house": 3,
         "id": "Moon",
-        "latitude": -1.3318,
-        "longitude": 149.9252,
+        "latitude": -1.3341,
+        "longitude": 149.9522,
         "modality": "Fixed",
         "sign": "Leo",
         "sign_zh": "狮子"
       },
       {
-        "degree_in_sign": 2.9351,
+        "degree_in_sign": 2.9386,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -2058,14 +2056,14 @@
         "element": "Earth",
         "house": 12,
         "id": "Mercury",
-        "latitude": 1.6676,
-        "longitude": 32.9351,
+        "latitude": 1.668,
+        "longitude": 32.9386,
         "modality": "Fixed",
         "sign": "Taurus",
         "sign_zh": "金牛"
       },
       {
-        "degree_in_sign": 29.6722,
+        "degree_in_sign": 29.6744,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -2073,14 +2071,14 @@
         "element": "Air",
         "house": 9,
         "id": "Venus",
-        "latitude": 0.7825,
-        "longitude": 329.6722,
+        "latitude": 0.7823,
+        "longitude": 329.6744,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 18.893,
+        "degree_in_sign": 18.8946,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -2088,14 +2086,14 @@
         "element": "Air",
         "house": 9,
         "id": "Mars",
-        "latitude": -1.2489,
-        "longitude": 318.893,
+        "latitude": -1.249,
+        "longitude": 318.8946,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 3.3275,
+        "degree_in_sign": 3.3278,
         "dignity": {
           "dignity": "exaltation",
           "status_zh": "旺"
@@ -2104,13 +2102,13 @@
         "house": 2,
         "id": "Jupiter",
         "latitude": 0.0843,
-        "longitude": 93.3275,
+        "longitude": 93.3278,
         "modality": "Cardinal",
         "sign": "Cancer",
         "sign_zh": "巨蟹"
       },
       {
-        "degree_in_sign": 24.6617,
+        "degree_in_sign": 24.6618,
         "dignity": {
           "dignity": "rulership",
           "status_zh": "庙"
@@ -2119,7 +2117,7 @@
         "house": 8,
         "id": "Saturn",
         "latitude": 0.1965,
-        "longitude": 294.6617,
+        "longitude": 294.6618,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
@@ -2161,13 +2159,13 @@
         "sign_zh": "天蝎"
       },
       {
-        "degree_in_sign": 13.4275,
+        "degree_in_sign": 13.4274,
         "dignity": null,
         "element": "Air",
         "house": 9,
         "id": "North Node",
         "latitude": 0.0,
-        "longitude": 313.4275,
+        "longitude": 313.4274,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
@@ -2186,7 +2184,7 @@
       "objects": [
         {
           "aspect": "trine",
-          "delta": 8.3483,
+          "delta": 8.3292,
           "id": "Jupiter"
         }
       ]
@@ -2196,12 +2194,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 2.3492,
+          "delta": 2.5741,
           "id": "Sun"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.2442,
+          "delta": 5.4686,
           "id": "Mars"
         }
       ]
@@ -2211,13 +2209,8 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 2.2688,
+          "delta": 2.2372,
           "id": "Saturn"
-        },
-        {
-          "aspect": "square",
-          "delta": 6.397,
-          "id": "Jupiter"
         }
       ]
     },
@@ -2226,12 +2219,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 0.7979,
+          "delta": 0.8232,
           "id": "Sun"
         },
         {
           "aspect": "conjunction",
-          "delta": 3.6929,
+          "delta": 3.7177,
           "id": "Mars"
         }
       ]
@@ -2241,7 +2234,7 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 6.1573,
+          "delta": 6.1738,
           "id": "Sun"
         }
       ]
@@ -2251,17 +2244,17 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 6.0926,
+          "delta": 6.0947,
           "id": "Jupiter"
         },
         {
           "aspect": "trine",
-          "delta": 6.485,
+          "delta": 6.4839,
           "id": "Mercury"
         },
         {
           "aspect": "conjunction",
-          "delta": 9.4949,
+          "delta": 9.4703,
           "id": "Moon"
         }
       ]
@@ -2271,12 +2264,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 3.0228,
+          "delta": 3.027,
           "id": "Sun"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.9178,
+          "delta": 5.9215,
           "id": "Mars"
         }
       ]
@@ -2284,7 +2277,7 @@
   ],
   "outToInCAnti": [
     {
-      "delta": 2.3262,
+      "delta": 2.3429,
       "idA": "Sun",
       "idB": "Sun"
     }
@@ -2293,167 +2286,167 @@
     "Jupiter": [
       {
         "aspect": "sextile",
-        "delta": 2.8734,
+        "delta": 2.8845,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       }
     ],
     "Mars": [
       {
         "aspect": "conjunction",
-        "delta": 2.3262,
+        "delta": 2.3418,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 312.1669
+          "longitude": 312.1681
         }
       },
       {
         "aspect": "square",
-        "delta": 2.4528,
+        "delta": 2.4807,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       }
     ],
     "Mercury": [
       {
         "aspect": "conjunction",
-        "delta": 1.0165,
+        "delta": 0.9824,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Mars",
-          "longitude": 355.914
+          "longitude": 355.9166
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.2678,
+        "delta": 2.2351,
         "midpoint": {
           "idA": "Sun",
           "idB": "Jupiter",
-          "longitude": 54.6627
+          "longitude": 54.6639
         }
       },
       {
         "aspect": "trine",
-        "delta": 2.5214,
+        "delta": 2.4756,
         "midpoint": {
           "idA": "Moon",
           "idB": "Mars",
-          "longitude": 234.4091
+          "longitude": 234.4234
         }
       },
       {
         "aspect": "trine",
-        "delta": 2.8682,
+        "delta": 2.9143,
         "midpoint": {
           "idA": "Moon",
           "idB": "Venus",
-          "longitude": 239.7987
+          "longitude": 239.8133
         }
       }
     ],
     "Moon": [
       {
         "aspect": "sextile",
-        "delta": 0.3458,
+        "delta": 0.5688,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 13.9946
+          "longitude": 13.9948
         }
       },
       {
         "aspect": "square",
-        "delta": 1.3553,
+        "delta": 1.119,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 1.4819,
+        "delta": 1.2579,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 312.1669
+          "longitude": 312.1681
         }
       }
     ],
     "Saturn": [
       {
         "aspect": "square",
-        "delta": 0.6817,
+        "delta": 0.6661,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 0.8083,
+        "delta": 0.805,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 312.1669
+          "longitude": 312.1681
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.0194,
+        "delta": 1.0217,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 13.9946
+          "longitude": 13.9948
         }
       }
     ],
     "Sun": [
       {
         "aspect": "trine",
-        "delta": 0.6177,
+        "delta": 0.65,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 2.1226,
+        "delta": 2.1432,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Saturn",
-          "longitude": 343.7984
+          "longitude": 343.8002
         }
       }
     ],
     "Venus": [
       {
         "aspect": "sextile",
-        "delta": 1.2055,
+        "delta": 1.1821,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 13.9946
+          "longitude": 13.9948
         }
       },
       {
         "aspect": "square",
-        "delta": 2.9066,
+        "delta": 2.8699,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       }
     ]
@@ -2465,7 +2458,7 @@
       "objects": [
         {
           "aspect": "trine",
-          "delta": 8.3483,
+          "delta": 8.3292,
           "id": "Jupiter"
         }
       ]
@@ -2475,12 +2468,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 2.3492,
+          "delta": 2.5741,
           "id": "Sun"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.2442,
+          "delta": 5.4686,
           "id": "Mars"
         }
       ]
@@ -2490,13 +2483,8 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 2.2688,
+          "delta": 2.2372,
           "id": "Saturn"
-        },
-        {
-          "aspect": "square",
-          "delta": 6.397,
-          "id": "Jupiter"
         }
       ]
     },
@@ -2505,12 +2493,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 0.7979,
+          "delta": 0.8232,
           "id": "Sun"
         },
         {
           "aspect": "conjunction",
-          "delta": 3.6929,
+          "delta": 3.7177,
           "id": "Mars"
         }
       ]
@@ -2520,7 +2508,7 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 6.1573,
+          "delta": 6.1738,
           "id": "Sun"
         }
       ]
@@ -2530,17 +2518,17 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 6.0926,
+          "delta": 6.0947,
           "id": "Jupiter"
         },
         {
           "aspect": "trine",
-          "delta": 6.485,
+          "delta": 6.4839,
           "id": "Mercury"
         },
         {
           "aspect": "conjunction",
-          "delta": 9.4949,
+          "delta": 9.4703,
           "id": "Moon"
         }
       ]
@@ -2550,12 +2538,12 @@
       "objects": [
         {
           "aspect": "sextile",
-          "delta": 3.0228,
+          "delta": 3.027,
           "id": "Sun"
         },
         {
           "aspect": "conjunction",
-          "delta": 5.9178,
+          "delta": 5.9215,
           "id": "Mars"
         }
       ]
@@ -2563,7 +2551,7 @@
   ],
   "out_to_in_contra_antiscia": [
     {
-      "delta": 2.3262,
+      "delta": 2.3429,
       "idA": "Sun",
       "idB": "Sun"
     }
@@ -2572,167 +2560,167 @@
     "Jupiter": [
       {
         "aspect": "sextile",
-        "delta": 2.8734,
+        "delta": 2.8845,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       }
     ],
     "Mars": [
       {
         "aspect": "conjunction",
-        "delta": 2.3262,
+        "delta": 2.3418,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 312.1669
+          "longitude": 312.1681
         }
       },
       {
         "aspect": "square",
-        "delta": 2.4528,
+        "delta": 2.4807,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       }
     ],
     "Mercury": [
       {
         "aspect": "conjunction",
-        "delta": 1.0165,
+        "delta": 0.9824,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Mars",
-          "longitude": 355.914
+          "longitude": 355.9166
         }
       },
       {
         "aspect": "sextile",
-        "delta": 2.2678,
+        "delta": 2.2351,
         "midpoint": {
           "idA": "Sun",
           "idB": "Jupiter",
-          "longitude": 54.6627
+          "longitude": 54.6639
         }
       },
       {
         "aspect": "trine",
-        "delta": 2.5214,
+        "delta": 2.4756,
         "midpoint": {
           "idA": "Moon",
           "idB": "Mars",
-          "longitude": 234.4091
+          "longitude": 234.4234
         }
       },
       {
         "aspect": "trine",
-        "delta": 2.8682,
+        "delta": 2.9143,
         "midpoint": {
           "idA": "Moon",
           "idB": "Venus",
-          "longitude": 239.7987
+          "longitude": 239.8133
         }
       }
     ],
     "Moon": [
       {
         "aspect": "sextile",
-        "delta": 0.3458,
+        "delta": 0.5688,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 13.9946
+          "longitude": 13.9948
         }
       },
       {
         "aspect": "square",
-        "delta": 1.3553,
+        "delta": 1.119,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 1.4819,
+        "delta": 1.2579,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 312.1669
+          "longitude": 312.1681
         }
       }
     ],
     "Saturn": [
       {
         "aspect": "square",
-        "delta": 0.6817,
+        "delta": 0.6661,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 0.8083,
+        "delta": 0.805,
         "midpoint": {
           "idA": "Venus",
           "idB": "Saturn",
-          "longitude": 312.1669
+          "longitude": 312.1681
         }
       },
       {
         "aspect": "sextile",
-        "delta": 1.0194,
+        "delta": 1.0217,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 13.9946
+          "longitude": 13.9948
         }
       }
     ],
     "Sun": [
       {
         "aspect": "trine",
-        "delta": 0.6177,
+        "delta": 0.65,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       },
       {
         "aspect": "conjunction",
-        "delta": 2.1226,
+        "delta": 2.1432,
         "midpoint": {
           "idA": "Mercury",
           "idB": "Saturn",
-          "longitude": 343.7984
+          "longitude": 343.8002
         }
       }
     ],
     "Venus": [
       {
         "aspect": "sextile",
-        "delta": 1.2055,
+        "delta": 1.1821,
         "midpoint": {
           "idA": "Jupiter",
           "idB": "Saturn",
-          "longitude": 13.9946
+          "longitude": 13.9948
         }
       },
       {
         "aspect": "square",
-        "delta": 2.9066,
+        "delta": 2.8699,
         "midpoint": {
           "idA": "Moon",
           "idB": "Saturn",
-          "longitude": 222.2935
+          "longitude": 222.307
         }
       }
     ]
@@ -2741,12 +2729,12 @@
     "chart": {
       "angles": {
         "ascendant": {
-          "longitude": 18.4962,
+          "longitude": 7.124,
           "sign": "Aries",
           "sign_zh": "白羊"
         },
         "midheaven": {
-          "longitude": 280.0703,
+          "longitude": 273.8306,
           "sign": "Capricorn",
           "sign_zh": "摩羯"
         }
@@ -2754,31 +2742,31 @@
       "aspects": [
         {
           "aspect": "opposition",
-          "orb": 0.253,
+          "orb": 0.2778,
           "planet_a": "Moon",
           "planet_b": "Venus"
         },
         {
           "aspect": "sextile",
-          "orb": 0.3924,
+          "orb": 0.3892,
           "planet_a": "Mercury",
           "planet_b": "Jupiter"
         },
         {
           "aspect": "square",
-          "orb": 1.4535,
+          "orb": 1.4556,
           "planet_a": "Sun",
           "planet_b": "Neptune"
         },
         {
           "aspect": "square",
-          "orb": 1.6745,
+          "orb": 1.6761,
           "planet_a": "Mars",
           "planet_b": "Pluto"
         },
         {
           "aspect": "sextile",
-          "orb": 2.5705,
+          "orb": 2.5727,
           "planet_a": "Sun",
           "planet_b": "North Node"
         },
@@ -2790,37 +2778,37 @@
         },
         {
           "aspect": "sextile",
-          "orb": 2.895,
+          "orb": 2.8945,
           "planet_a": "Sun",
           "planet_b": "Mars"
         },
         {
           "aspect": "trine",
-          "orb": 3.0099,
+          "orb": 2.9864,
           "planet_a": "Moon",
           "planet_b": "Mercury"
         },
         {
           "aspect": "sextile",
-          "orb": 3.2629,
+          "orb": 3.2642,
           "planet_a": "Mercury",
           "planet_b": "Venus"
         },
         {
           "aspect": "sextile",
-          "orb": 3.4023,
+          "orb": 3.3756,
           "planet_a": "Moon",
           "planet_b": "Jupiter"
         },
         {
           "aspect": "trine",
-          "orb": 3.6553,
+          "orb": 3.6534,
           "planet_a": "Venus",
           "planet_b": "Jupiter"
         },
         {
           "aspect": "square",
-          "orb": 3.791,
+          "orb": 3.7911,
           "planet_a": "Pluto",
           "planet_b": "North Node"
         },
@@ -2832,13 +2820,13 @@
         },
         {
           "aspect": "conjunction",
-          "orb": 5.4655,
+          "orb": 5.4672,
           "planet_a": "Mars",
           "planet_b": "North Node"
         },
         {
           "aspect": "opposition",
-          "orb": 6.2355,
+          "orb": 6.2352,
           "planet_a": "Jupiter",
           "planet_b": "Uranus"
         }
@@ -2942,17 +2930,21 @@
         "Fixed": 5
       },
       "person_info": {
-        "birth_datetime": "1992-03-02T08:18:00+08:00",
+        "birth_datetime": "1992-03-02T07:50:57.864402+08:00",
         "birth_latitude": 39.9042,
         "birth_longitude": 116.4074,
         "birth_place": "北京",
         "birth_timezone": "Asia/Shanghai",
         "name": "乙受甲影响",
-        "utc_datetime": "1992-03-02T00:18:00+00:00"
+        "true_solar": {
+          "applied": true,
+          "correction_minutes": -27.0356
+        },
+        "utc_datetime": "1992-03-01T23:50:57.864402+00:00"
       },
       "planets": [
         {
-          "degree_in_sign": 15.998,
+          "degree_in_sign": 16.0001,
           "dignity": {
             "dignity": "exaltation",
             "status_zh": "旺"
@@ -2961,13 +2953,13 @@
           "house": 1,
           "id": "Sun",
           "latitude": -0.0,
-          "longitude": 15.998,
+          "longitude": 16.0001,
           "modality": "Cardinal",
           "sign": "Aries",
           "sign_zh": "白羊"
         },
         {
-          "degree_in_sign": 29.9252,
+          "degree_in_sign": 29.9522,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -2975,14 +2967,14 @@
           "element": "Fire",
           "house": 5,
           "id": "Moon",
-          "latitude": -1.3318,
-          "longitude": 149.9252,
+          "latitude": -1.3341,
+          "longitude": 149.9522,
           "modality": "Fixed",
           "sign": "Leo",
           "sign_zh": "狮子"
         },
         {
-          "degree_in_sign": 2.9351,
+          "degree_in_sign": 2.9386,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -2990,14 +2982,14 @@
           "element": "Earth",
           "house": 2,
           "id": "Mercury",
-          "latitude": 1.6676,
-          "longitude": 32.9351,
+          "latitude": 1.668,
+          "longitude": 32.9386,
           "modality": "Fixed",
           "sign": "Taurus",
           "sign_zh": "金牛"
         },
         {
-          "degree_in_sign": 29.6722,
+          "degree_in_sign": 29.6744,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -3005,14 +2997,14 @@
           "element": "Air",
           "house": 11,
           "id": "Venus",
-          "latitude": 0.7825,
-          "longitude": 329.6722,
+          "latitude": 0.7823,
+          "longitude": 329.6744,
           "modality": "Fixed",
           "sign": "Aquarius",
           "sign_zh": "水瓶"
         },
         {
-          "degree_in_sign": 18.893,
+          "degree_in_sign": 18.8946,
           "dignity": {
             "dignity": "peregrine",
             "status_zh": "平"
@@ -3020,14 +3012,14 @@
           "element": "Air",
           "house": 11,
           "id": "Mars",
-          "latitude": -1.2489,
-          "longitude": 318.893,
+          "latitude": -1.249,
+          "longitude": 318.8946,
           "modality": "Fixed",
           "sign": "Aquarius",
           "sign_zh": "水瓶"
         },
         {
-          "degree_in_sign": 3.3275,
+          "degree_in_sign": 3.3278,
           "dignity": {
             "dignity": "exaltation",
             "status_zh": "旺"
@@ -3036,13 +3028,13 @@
           "house": 4,
           "id": "Jupiter",
           "latitude": 0.0843,
-          "longitude": 93.3275,
+          "longitude": 93.3278,
           "modality": "Cardinal",
           "sign": "Cancer",
           "sign_zh": "巨蟹"
         },
         {
-          "degree_in_sign": 24.6617,
+          "degree_in_sign": 24.6618,
           "dignity": {
             "dignity": "rulership",
             "status_zh": "庙"
@@ -3051,7 +3043,7 @@
           "house": 10,
           "id": "Saturn",
           "latitude": 0.1965,
-          "longitude": 294.6617,
+          "longitude": 294.6618,
           "modality": "Cardinal",
           "sign": "Capricorn",
           "sign_zh": "摩羯"
@@ -3093,13 +3085,13 @@
           "sign_zh": "天蝎"
         },
         {
-          "degree_in_sign": 13.4275,
+          "degree_in_sign": 13.4274,
           "dignity": null,
           "element": "Air",
           "house": 11,
           "id": "North Node",
           "latitude": 0.0,
-          "longitude": 313.4275,
+          "longitude": 313.4274,
           "modality": "Fixed",
           "sign": "Aquarius",
           "sign_zh": "水瓶"
@@ -3132,12 +3124,12 @@
   "outer_chart": {
     "angles": {
       "ascendant": {
-        "longitude": 18.4962,
+        "longitude": 7.124,
         "sign": "Aries",
         "sign_zh": "白羊"
       },
       "midheaven": {
-        "longitude": 280.0703,
+        "longitude": 273.8306,
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       }
@@ -3145,73 +3137,73 @@
     "aspects": [
       {
         "aspect": "conjunction",
-        "orb": 0.6736,
+        "orb": 0.4529,
         "planet_a": "Moon",
         "planet_b": "Saturn"
       },
       {
         "aspect": "conjunction",
-        "orb": 1.3532,
+        "orb": 1.3535,
         "planet_a": "Uranus",
         "planet_b": "Neptune"
       },
       {
         "aspect": "conjunction",
-        "orb": 1.5513,
+        "orb": 1.7509,
         "planet_a": "Moon",
         "planet_b": "Venus"
       },
       {
         "aspect": "conjunction",
-        "orb": 2.2249,
+        "orb": 2.2038,
         "planet_a": "Venus",
         "planet_b": "Saturn"
       },
       {
         "aspect": "opposition",
-        "orb": 2.2557,
+        "orb": 2.2345,
         "planet_a": "Sun",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "trine",
-        "orb": 2.844,
+        "orb": 2.8454,
         "planet_a": "Jupiter",
         "planet_b": "North Node"
       },
       {
         "aspect": "conjunction",
-        "orb": 3.1345,
+        "orb": 3.1468,
         "planet_a": "Mars",
         "planet_b": "Saturn"
       },
       {
         "aspect": "conjunction",
-        "orb": 3.8081,
+        "orb": 3.5997,
         "planet_a": "Moon",
         "planet_b": "Mars"
       },
       {
         "aspect": "trine",
-        "orb": 3.985,
+        "orb": 3.9534,
         "planet_a": "Mercury",
         "planet_b": "Pluto"
       },
       {
         "aspect": "sextile",
-        "orb": 5.0997,
+        "orb": 5.0799,
         "planet_a": "Sun",
         "planet_b": "North Node"
       },
       {
         "aspect": "sextile",
-        "orb": 5.2717,
+        "orb": 5.2897,
         "planet_a": "Sun",
         "planet_b": "Uranus"
       },
       {
         "aspect": "conjunction",
-        "orb": 5.3594,
+        "orb": 5.3506,
         "planet_a": "Venus",
         "planet_b": "Mars"
       }
@@ -3314,17 +3306,21 @@
       "Mutable": 3
     },
     "person_info": {
-      "birth_datetime": "1992-03-02T08:18:00+08:00",
+      "birth_datetime": "1992-03-02T07:50:57.864402+08:00",
       "birth_latitude": 39.9042,
       "birth_longitude": 116.4074,
       "birth_place": "北京",
       "birth_timezone": "Asia/Shanghai",
       "name": "乙",
-      "utc_datetime": "1992-03-02T00:18:00+00:00"
+      "true_solar": {
+        "applied": true,
+        "correction_minutes": -27.0356
+      },
+      "utc_datetime": "1992-03-01T23:50:57.864402+00:00"
     },
     "planets": [
       {
-        "degree_in_sign": 11.6758,
+        "degree_in_sign": 11.657,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -3333,13 +3329,13 @@
         "house": 12,
         "id": "Sun",
         "latitude": 0.0,
-        "longitude": 341.6758,
+        "longitude": 341.657,
         "modality": "Mutable",
         "sign": "Pisces",
         "sign_zh": "双鱼"
       },
       {
-        "degree_in_sign": 13.6488,
+        "degree_in_sign": 13.426,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -3347,14 +3343,14 @@
         "element": "Air",
         "house": 11,
         "id": "Moon",
-        "latitude": 2.963,
-        "longitude": 313.6488,
+        "latitude": 2.947,
+        "longitude": 313.426,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 26.9305,
+        "degree_in_sign": 26.899,
         "dignity": {
           "dignity": "detriment",
           "status_zh": "陷"
@@ -3362,14 +3358,14 @@
         "element": "Water",
         "house": 12,
         "id": "Mercury",
-        "latitude": 0.1838,
-        "longitude": 356.9305,
+        "latitude": 0.1799,
+        "longitude": 356.899,
         "modality": "Mutable",
         "sign": "Pisces",
         "sign_zh": "双鱼"
       },
       {
-        "degree_in_sign": 15.2001,
+        "degree_in_sign": 15.1769,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -3377,14 +3373,14 @@
         "element": "Air",
         "house": 11,
         "id": "Venus",
-        "latitude": -0.6093,
-        "longitude": 315.2001,
+        "latitude": -0.6085,
+        "longitude": 315.1769,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 9.8407,
+        "degree_in_sign": 9.8263,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -3392,14 +3388,14 @@
         "element": "Air",
         "house": 11,
         "id": "Mars",
-        "latitude": -1.0388,
-        "longitude": 309.8407,
+        "latitude": -1.0386,
+        "longitude": 309.8263,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 9.4201,
+        "degree_in_sign": 9.4225,
         "dignity": {
           "dignity": "detriment",
           "status_zh": "陷"
@@ -3408,13 +3404,13 @@
         "house": 6,
         "id": "Jupiter",
         "latitude": 1.3757,
-        "longitude": 159.4201,
+        "longitude": 159.4225,
         "modality": "Mutable",
         "sign": "Virgo",
         "sign_zh": "处女"
       },
       {
-        "degree_in_sign": 12.9752,
+        "degree_in_sign": 12.9731,
         "dignity": {
           "dignity": "rulership",
           "status_zh": "庙"
@@ -3422,56 +3418,56 @@
         "element": "Air",
         "house": 11,
         "id": "Saturn",
-        "latitude": -0.656,
-        "longitude": 312.9752,
+        "latitude": -0.6559,
+        "longitude": 312.9731,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 16.9475,
+        "degree_in_sign": 16.9467,
         "dignity": null,
         "element": "Earth",
         "house": 10,
         "id": "Uranus",
         "latitude": -0.382,
-        "longitude": 286.9475,
+        "longitude": 286.9467,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "degree_in_sign": 18.3007,
+        "degree_in_sign": 18.3002,
         "dignity": null,
         "element": "Earth",
         "house": 10,
         "id": "Neptune",
         "latitude": 0.7318,
-        "longitude": 288.3007,
+        "longitude": 288.3002,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "degree_in_sign": 22.9455,
+        "degree_in_sign": 22.9456,
         "dignity": null,
         "element": "Water",
         "house": 8,
         "id": "Pluto",
-        "latitude": 14.9914,
-        "longitude": 232.9455,
+        "latitude": 14.9913,
+        "longitude": 232.9456,
         "modality": "Fixed",
         "sign": "Scorpio",
         "sign_zh": "天蝎"
       },
       {
-        "degree_in_sign": 6.5761,
+        "degree_in_sign": 6.5771,
         "dignity": null,
         "element": "Earth",
         "house": 10,
         "id": "North Node",
         "latitude": 0.0,
-        "longitude": 276.5761,
+        "longitude": 276.5771,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
@@ -3517,7 +3513,7 @@
     "tool_name": "astro_relative_chart"
   },
   "snapshot_export": {
-    "export_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.7979\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2688\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.3492\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.0228\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.6929\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.2442\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9178\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0926\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1573\n- inner=Jupiter，outer=Mercury，aspect=square，orb=6.397\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.485\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3483\n…（共 13 条，余略）\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：94\n综合分：69\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：69。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
+    "export_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
     "filtered_text": "",
     "missing_selected_sections": [
       "关系起盘信息",
@@ -3533,7 +3529,7 @@
       "影响图盘-星盘A",
       "影响图盘-星盘B"
     ],
-    "raw_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.7979\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2688\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.3492\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.0228\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.6929\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.2442\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9178\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0926\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1573\n- inner=Jupiter，outer=Mercury，aspect=square，orb=6.397\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.485\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3483\n…（共 13 条，余略）\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：94\n综合分：69\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：69。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
+    "raw_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
     "section_titles_detected": [
       "概要",
       "关系画像",
@@ -3559,24 +3555,24 @@
         "title": "关系画像"
       },
       {
-        "body": "- inner=Sun，outer=Venus，aspect=sextile，orb=0.7979\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2688\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.3492\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.0228\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.6929\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.2442\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9178\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0926\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1573\n- inner=Jupiter，outer=Mercury，aspect=square，orb=6.397\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.485\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3483\n…（共 13 条，余略）",
-        "content": "[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.7979\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2688\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.3492\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.0228\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.6929\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.2442\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9178\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0926\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1573\n- inner=Jupiter，outer=Mercury，aspect=square，orb=6.397\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.485\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3483\n…（共 13 条，余略）",
+        "body": "- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703",
+        "content": "[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703",
         "included": false,
         "index": 3,
         "raw_title": "互动相位",
         "title": "互动相位"
       },
       {
-        "body": "element_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：94\n综合分：69",
-        "content": "[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：94\n综合分：69",
+        "body": "element_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71",
+        "content": "[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71",
         "included": false,
         "index": 4,
         "raw_title": "配合度",
         "title": "配合度"
       },
       {
-        "body": "- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：69。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
-        "content": "[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：69。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
+        "body": "- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
+        "content": "[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
         "included": false,
         "index": 5,
         "raw_title": "小结",
@@ -3689,93 +3685,87 @@
       "小结"
     ]
   },
-  "snapshot_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.7979\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2688\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.3492\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.0228\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.6929\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.2442\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9178\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0926\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1573\n- inner=Jupiter，outer=Mercury，aspect=square，orb=6.397\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.485\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3483\n…（共 13 条，余略）\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：94\n综合分：69\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：69。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
+  "snapshot_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
   "summary": [
     "已生成 FateBridge 组合盘分析。",
     "合成盘行星数量：11。",
     "A对B相位主体数：6。",
     "A对B中点相位命中：24。",
     "A对B映点命中：0。",
-    "综合分：69。",
+    "综合分：71。",
     "影响图盘、中点相位与映点/反映点均已提供离线高精度结果。"
   ],
   "synastry_aspects": [
     {
       "aspect": "sextile",
       "inner": "Sun",
-      "orb": 0.7979,
+      "orb": 0.8232,
       "outer": "Venus"
     },
     {
       "aspect": "sextile",
       "inner": "Saturn",
-      "orb": 2.2688,
+      "orb": 2.2372,
       "outer": "Mercury"
     },
     {
       "aspect": "sextile",
       "inner": "Sun",
-      "orb": 2.3492,
+      "orb": 2.5741,
       "outer": "Moon"
     },
     {
       "aspect": "sextile",
       "inner": "Sun",
-      "orb": 3.0228,
+      "orb": 3.027,
       "outer": "Saturn"
     },
     {
       "aspect": "conjunction",
       "inner": "Mars",
-      "orb": 3.6929,
+      "orb": 3.7177,
       "outer": "Venus"
     },
     {
       "aspect": "conjunction",
       "inner": "Mars",
-      "orb": 5.2442,
+      "orb": 5.4686,
       "outer": "Moon"
     },
     {
       "aspect": "conjunction",
       "inner": "Mars",
-      "orb": 5.9178,
+      "orb": 5.9215,
       "outer": "Saturn"
     },
     {
       "aspect": "sextile",
       "inner": "Jupiter",
-      "orb": 6.0926,
+      "orb": 6.0947,
       "outer": "Jupiter"
     },
     {
       "aspect": "sextile",
       "inner": "Sun",
-      "orb": 6.1573,
+      "orb": 6.1738,
       "outer": "Mars"
-    },
-    {
-      "aspect": "square",
-      "inner": "Jupiter",
-      "orb": 6.397,
-      "outer": "Mercury"
     },
     {
       "aspect": "trine",
       "inner": "Mercury",
-      "orb": 6.485,
+      "orb": 6.4839,
       "outer": "Jupiter"
     },
     {
       "aspect": "trine",
       "inner": "Jupiter",
-      "orb": 8.3483,
+      "orb": 8.3292,
       "outer": "Sun"
     },
     {
       "aspect": "conjunction",
       "inner": "Moon",
-      "orb": 9.4949,
+      "orb": 9.4703,
       "outer": "Jupiter"
     }
   ]

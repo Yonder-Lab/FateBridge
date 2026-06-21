@@ -885,6 +885,15 @@ class AstroChartRequest(AstroBirthRequest):
             "0=tropical and 1=sidereal(Lahiri-like)"
         ),
     )
+    use_true_solar_time: bool = Field(
+        default=True,
+        alias="useTrueSolarTime",
+        description=(
+            "Rebase the birth clock onto true solar time (longitude + equation of "
+            "time), matching the BaZi engine. Default on; set false for the raw "
+            "civil-clock chart."
+        ),
+    )
 
 
 class AstroRelativePartyRequest(AstroBirthRequest):

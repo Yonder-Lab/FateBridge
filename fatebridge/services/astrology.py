@@ -905,6 +905,7 @@ def _build_birth_info(payload: Dict[str, Any]) -> AstroBirthInfo:
         birth_latitude=payload.get("birth_latitude"),
         name=payload.get("name"),
         birth_place=payload.get("birth_place"),
+        use_true_solar_time=payload.get("use_true_solar_time", True),
     )
 
 
@@ -923,6 +924,7 @@ def calculate_core_chart_analysis(
     birth_place: Optional[str] = None,
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    use_true_solar_time: bool = True,
 ) -> Dict[str, Any]:
     """
     Build an offline core astrology chart family payload.
@@ -949,6 +951,7 @@ def calculate_core_chart_analysis(
                 "birth_latitude": birth_latitude,
                 "name": name,
                 "birth_place": birth_place,
+                "use_true_solar_time": use_true_solar_time,
             }
         )
         result = build_core_chart_payload(
@@ -978,6 +981,7 @@ def calculate_germany_chart_analysis(
     birth_place: Optional[str] = None,
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
+    use_true_solar_time: bool = True,
 ) -> Dict[str, Any]:
     """
     Build the FateBridge midpoint/germany chart payload.
@@ -995,6 +999,7 @@ def calculate_germany_chart_analysis(
                 "birth_latitude": birth_latitude,
                 "name": name,
                 "birth_place": birth_place,
+                "use_true_solar_time": use_true_solar_time,
             }
         )
         return build_midpoint_payload(

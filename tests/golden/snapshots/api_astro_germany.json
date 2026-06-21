@@ -2,12 +2,12 @@
   "base_chart": {
     "angles": {
       "ascendant": {
-        "longitude": 84.4478,
+        "longitude": 85.1776,
         "sign": "Gemini",
         "sign_zh": "双子"
       },
       "midheaven": {
-        "longitude": 337.0866,
+        "longitude": 337.9096,
         "sign": "Pisces",
         "sign_zh": "双鱼"
       }
@@ -15,31 +15,31 @@
     "aspects": [
       {
         "aspect": "opposition",
-        "orb": 0.253,
+        "orb": 0.2778,
         "planet_a": "Moon",
         "planet_b": "Venus"
       },
       {
         "aspect": "sextile",
-        "orb": 0.3924,
+        "orb": 0.3892,
         "planet_a": "Mercury",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "square",
-        "orb": 1.4535,
+        "orb": 1.4556,
         "planet_a": "Sun",
         "planet_b": "Neptune"
       },
       {
         "aspect": "square",
-        "orb": 1.6745,
+        "orb": 1.6761,
         "planet_a": "Mars",
         "planet_b": "Pluto"
       },
       {
         "aspect": "sextile",
-        "orb": 2.5705,
+        "orb": 2.5727,
         "planet_a": "Sun",
         "planet_b": "North Node"
       },
@@ -51,37 +51,37 @@
       },
       {
         "aspect": "sextile",
-        "orb": 2.895,
+        "orb": 2.8945,
         "planet_a": "Sun",
         "planet_b": "Mars"
       },
       {
         "aspect": "trine",
-        "orb": 3.0099,
+        "orb": 2.9864,
         "planet_a": "Moon",
         "planet_b": "Mercury"
       },
       {
         "aspect": "sextile",
-        "orb": 3.2629,
+        "orb": 3.2642,
         "planet_a": "Mercury",
         "planet_b": "Venus"
       },
       {
         "aspect": "sextile",
-        "orb": 3.4023,
+        "orb": 3.3756,
         "planet_a": "Moon",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "trine",
-        "orb": 3.6553,
+        "orb": 3.6534,
         "planet_a": "Venus",
         "planet_b": "Jupiter"
       },
       {
         "aspect": "square",
-        "orb": 3.791,
+        "orb": 3.7911,
         "planet_a": "Pluto",
         "planet_b": "North Node"
       },
@@ -93,13 +93,13 @@
       },
       {
         "aspect": "conjunction",
-        "orb": 5.4655,
+        "orb": 5.4672,
         "planet_a": "Mars",
         "planet_b": "North Node"
       },
       {
         "aspect": "opposition",
-        "orb": 6.2355,
+        "orb": 6.2352,
         "planet_a": "Jupiter",
         "planet_b": "Uranus"
       }
@@ -227,41 +227,41 @@
         "children": {
           "almuten": "Jupiter",
           "cn": "子女点",
-          "degree_in_sign": 3.1136,
+          "degree_in_sign": 3.8436,
           "dispositor": "Jupiter",
-          "longitude": 243.1136,
+          "longitude": 243.8436,
           "sign": "Sagittarius"
         },
         "death": {
           "almuten": "Mercury",
           "cn": "死亡点",
-          "degree_in_sign": 19.1843,
+          "degree_in_sign": 19.8872,
           "dispositor": "Mercury",
-          "longitude": 79.1843,
+          "longitude": 79.8872,
           "sign": "Gemini"
         },
         "fortune": {
           "almuten": "Mars",
           "cn": "福点",
-          "degree_in_sign": 8.375,
+          "degree_in_sign": 9.1297,
           "dispositor": "Mars",
-          "longitude": 218.375,
+          "longitude": 219.1297,
           "sign": "Scorpio"
         },
         "marriage": {
-          "almuten": "Moon",
+          "almuten": "Sun",
           "cn": "婚姻点",
-          "degree_in_sign": 29.4583,
-          "dispositor": "Moon",
-          "longitude": 119.4583,
-          "sign": "Cancer"
+          "degree_in_sign": 0.1902,
+          "dispositor": "Sun",
+          "longitude": 120.1902,
+          "sign": "Leo"
         },
         "spirit": {
           "almuten": "Saturn",
           "cn": "精神点",
-          "degree_in_sign": 10.5206,
+          "degree_in_sign": 11.2255,
           "dispositor": "Saturn",
-          "longitude": 310.5206,
+          "longitude": 311.2255,
           "sign": "Aquarius"
         }
       },
@@ -386,7 +386,7 @@
         },
         "Saturn": {
           "above_horizon": true,
-          "angularity": "succedent",
+          "angularity": "angular",
           "combustion": null,
           "essential": {
             "bound_lord": "Saturn",
@@ -619,73 +619,73 @@
     },
     "houses": [
       {
-        "cusp_longitude": 84.4478,
+        "cusp_longitude": 85.1776,
         "house": 1,
         "sign": "Gemini",
         "sign_zh": "双子"
       },
       {
-        "cusp_longitude": 114.4478,
+        "cusp_longitude": 115.1776,
         "house": 2,
         "sign": "Cancer",
         "sign_zh": "巨蟹"
       },
       {
-        "cusp_longitude": 144.4478,
+        "cusp_longitude": 145.1776,
         "house": 3,
         "sign": "Leo",
         "sign_zh": "狮子"
       },
       {
-        "cusp_longitude": 174.4478,
+        "cusp_longitude": 175.1776,
         "house": 4,
         "sign": "Virgo",
         "sign_zh": "处女"
       },
       {
-        "cusp_longitude": 204.4478,
+        "cusp_longitude": 205.1776,
         "house": 5,
         "sign": "Libra",
         "sign_zh": "天秤"
       },
       {
-        "cusp_longitude": 234.4478,
+        "cusp_longitude": 235.1776,
         "house": 6,
         "sign": "Scorpio",
         "sign_zh": "天蝎"
       },
       {
-        "cusp_longitude": 264.4478,
+        "cusp_longitude": 265.1776,
         "house": 7,
         "sign": "Sagittarius",
         "sign_zh": "射手"
       },
       {
-        "cusp_longitude": 294.4478,
+        "cusp_longitude": 295.1776,
         "house": 8,
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "cusp_longitude": 324.4478,
+        "cusp_longitude": 325.1776,
         "house": 9,
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "cusp_longitude": 354.4478,
+        "cusp_longitude": 355.1776,
         "house": 10,
         "sign": "Pisces",
         "sign_zh": "双鱼"
       },
       {
-        "cusp_longitude": 24.4478,
+        "cusp_longitude": 25.1776,
         "house": 11,
         "sign": "Aries",
         "sign_zh": "白羊"
       },
       {
-        "cusp_longitude": 54.4478,
+        "cusp_longitude": 55.1776,
         "house": 12,
         "sign": "Taurus",
         "sign_zh": "金牛"
@@ -696,17 +696,21 @@
       "Fixed": 5
     },
     "person_info": {
-      "birth_datetime": "1990-04-06T09:33:00+08:00",
+      "birth_datetime": "1990-04-06T09:36:05.368792+08:00",
       "birth_latitude": 31.2167,
       "birth_longitude": 121.4667,
       "birth_place": "上海",
       "birth_timezone": "Asia/Shanghai",
       "name": "测试者",
-      "utc_datetime": "1990-04-06T01:33:00+00:00"
+      "true_solar": {
+        "applied": true,
+        "correction_minutes": 3.0895
+      },
+      "utc_datetime": "1990-04-06T01:36:05.368792+00:00"
     },
     "planets": [
       {
-        "degree_in_sign": 15.998,
+        "degree_in_sign": 16.0001,
         "dignity": {
           "dignity": "exaltation",
           "status_zh": "旺"
@@ -715,13 +719,13 @@
         "house": 10,
         "id": "Sun",
         "latitude": -0.0,
-        "longitude": 15.998,
+        "longitude": 16.0001,
         "modality": "Cardinal",
         "sign": "Aries",
         "sign_zh": "白羊"
       },
       {
-        "degree_in_sign": 29.9252,
+        "degree_in_sign": 29.9522,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -729,14 +733,14 @@
         "element": "Fire",
         "house": 3,
         "id": "Moon",
-        "latitude": -1.3318,
-        "longitude": 149.9252,
+        "latitude": -1.3341,
+        "longitude": 149.9522,
         "modality": "Fixed",
         "sign": "Leo",
         "sign_zh": "狮子"
       },
       {
-        "degree_in_sign": 2.9351,
+        "degree_in_sign": 2.9386,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -744,14 +748,14 @@
         "element": "Earth",
         "house": 11,
         "id": "Mercury",
-        "latitude": 1.6676,
-        "longitude": 32.9351,
+        "latitude": 1.668,
+        "longitude": 32.9386,
         "modality": "Fixed",
         "sign": "Taurus",
         "sign_zh": "金牛"
       },
       {
-        "degree_in_sign": 29.6722,
+        "degree_in_sign": 29.6744,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -759,14 +763,14 @@
         "element": "Air",
         "house": 9,
         "id": "Venus",
-        "latitude": 0.7825,
-        "longitude": 329.6722,
+        "latitude": 0.7823,
+        "longitude": 329.6744,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 18.893,
+        "degree_in_sign": 18.8946,
         "dignity": {
           "dignity": "peregrine",
           "status_zh": "平"
@@ -774,14 +778,14 @@
         "element": "Air",
         "house": 8,
         "id": "Mars",
-        "latitude": -1.2489,
-        "longitude": 318.893,
+        "latitude": -1.249,
+        "longitude": 318.8946,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
       },
       {
-        "degree_in_sign": 3.3275,
+        "degree_in_sign": 3.3278,
         "dignity": {
           "dignity": "exaltation",
           "status_zh": "旺"
@@ -790,22 +794,22 @@
         "house": 1,
         "id": "Jupiter",
         "latitude": 0.0843,
-        "longitude": 93.3275,
+        "longitude": 93.3278,
         "modality": "Cardinal",
         "sign": "Cancer",
         "sign_zh": "巨蟹"
       },
       {
-        "degree_in_sign": 24.6617,
+        "degree_in_sign": 24.6618,
         "dignity": {
           "dignity": "rulership",
           "status_zh": "庙"
         },
         "element": "Earth",
-        "house": 8,
+        "house": 7,
         "id": "Saturn",
         "latitude": 0.1965,
-        "longitude": 294.6617,
+        "longitude": 294.6618,
         "modality": "Cardinal",
         "sign": "Capricorn",
         "sign_zh": "摩羯"
@@ -847,13 +851,13 @@
         "sign_zh": "天蝎"
       },
       {
-        "degree_in_sign": 13.4275,
+        "degree_in_sign": 13.4274,
         "dignity": null,
         "element": "Air",
         "house": 8,
         "id": "North Node",
         "latitude": 0.0,
-        "longitude": 313.4275,
+        "longitude": 313.4274,
         "modality": "Fixed",
         "sign": "Aquarius",
         "sign_zh": "水瓶"
@@ -863,7 +867,7 @@
       "已生成 chart 的 离线高精度星盘。",
       "太阳落在 白羊，宫位 10。",
       "月亮落在 狮子，宫位 3。",
-      "Moon 与 Venus 形成 opposition，容许度 0.253。"
+      "Moon 与 Venus 形成 opposition，容许度 0.2778。"
     ]
   },
   "chart_profile": {
@@ -883,272 +887,272 @@
     {
       "aspect": "sextile",
       "midpoint": "Moon/Mercury",
-      "orb": 1.5049,
+      "orb": 1.4932,
       "planet": "Moon"
     },
     {
       "aspect": "square",
       "midpoint": "Moon/Venus",
-      "orb": 0.1265,
+      "orb": 0.1389,
       "planet": "Moon"
     },
     {
       "aspect": "trine",
       "midpoint": "Venus/Jupiter",
-      "orb": 1.5746,
+      "orb": 1.5489,
       "planet": "Moon"
     },
     {
       "aspect": "sextile",
       "midpoint": "Moon/Mercury",
-      "orb": 1.505,
+      "orb": 1.4932,
       "planet": "Mercury"
     },
     {
       "aspect": "square",
       "midpoint": "Moon/Jupiter",
-      "orb": 1.3087,
+      "orb": 1.2986,
       "planet": "Mercury"
     },
     {
       "aspect": "conjunction",
       "midpoint": "Venus/Jupiter",
-      "orb": 1.4353,
+      "orb": 1.4375,
       "planet": "Mercury"
     },
     {
       "aspect": "trine",
       "midpoint": "Moon/Mercury",
-      "orb": 1.7579,
+      "orb": 1.771,
       "planet": "Venus"
     },
     {
       "aspect": "square",
       "midpoint": "Moon/Venus",
-      "orb": 0.1265,
+      "orb": 0.1389,
       "planet": "Venus"
     },
     {
       "aspect": "sextile",
       "midpoint": "Venus/Jupiter",
-      "orb": 1.8276,
+      "orb": 1.8267,
       "planet": "Venus"
     },
     {
       "aspect": "conjunction",
       "midpoint": "Moon/Mercury",
-      "orb": 1.8974,
+      "orb": 1.8824,
       "planet": "Jupiter"
     },
     {
       "aspect": "sextile",
       "midpoint": "Venus/Jupiter",
-      "orb": 1.8277,
+      "orb": 1.8267,
       "planet": "Jupiter"
     },
     {
       "aspect": "square",
       "midpoint": "Sun/Mercury",
-      "orb": 0.1952,
+      "orb": 0.1925,
       "planet": "Saturn"
     },
     {
       "aspect": "sextile",
       "midpoint": "Sun/Venus",
-      "orb": 1.8266,
+      "orb": 1.8246,
       "planet": "Saturn"
     },
     {
       "aspect": "trine",
       "midpoint": "Sun/Jupiter",
-      "orb": 0.001,
+      "orb": 0.0021,
       "planet": "Saturn"
     },
     {
       "aspect": "sextile",
       "midpoint": "Moon/Mars",
-      "orb": 0.2526,
+      "orb": 0.2384,
       "planet": "Saturn"
     },
     {
       "aspect": "sextile",
       "midpoint": "Mercury/Mars",
-      "orb": 1.2523,
+      "orb": 1.2548,
       "planet": "Saturn"
     },
     {
       "aspect": "square",
       "midpoint": "Mars/Jupiter",
-      "orb": 1.4485,
+      "orb": 1.4494,
       "planet": "Saturn"
     }
   ],
   "midpoints": [
     {
-      "degree_in_sign": 22.9616,
+      "degree_in_sign": 22.9762,
       "id_a": "Sun",
       "id_b": "Moon",
-      "longitude": 82.9616,
+      "longitude": 82.9762,
       "sign": "Gemini",
       "sign_zh": "双子"
     },
     {
-      "degree_in_sign": 24.4665,
+      "degree_in_sign": 24.4693,
       "id_a": "Sun",
       "id_b": "Mercury",
-      "longitude": 24.4665,
+      "longitude": 24.4693,
       "sign": "Aries",
       "sign_zh": "白羊"
     },
     {
-      "degree_in_sign": 22.8351,
+      "degree_in_sign": 22.8372,
       "id_a": "Sun",
       "id_b": "Venus",
-      "longitude": 352.8351,
+      "longitude": 352.8372,
       "sign": "Pisces",
       "sign_zh": "双鱼"
     },
     {
-      "degree_in_sign": 17.4455,
+      "degree_in_sign": 17.4474,
       "id_a": "Sun",
       "id_b": "Mars",
-      "longitude": 347.4455,
+      "longitude": 347.4474,
       "sign": "Pisces",
       "sign_zh": "双鱼"
     },
     {
-      "degree_in_sign": 24.6627,
+      "degree_in_sign": 24.6639,
       "id_a": "Sun",
       "id_b": "Jupiter",
-      "longitude": 54.6627,
+      "longitude": 54.6639,
       "sign": "Taurus",
       "sign_zh": "金牛"
     },
     {
-      "degree_in_sign": 5.3299,
+      "degree_in_sign": 5.331,
       "id_a": "Sun",
       "id_b": "Saturn",
-      "longitude": 335.3299,
+      "longitude": 335.331,
       "sign": "Pisces",
       "sign_zh": "双鱼"
     },
     {
-      "degree_in_sign": 1.4301,
+      "degree_in_sign": 1.4454,
       "id_a": "Moon",
       "id_b": "Mercury",
-      "longitude": 91.4301,
+      "longitude": 91.4454,
       "sign": "Cancer",
       "sign_zh": "巨蟹"
     },
     {
-      "degree_in_sign": 29.7987,
+      "degree_in_sign": 29.8133,
       "id_a": "Moon",
       "id_b": "Venus",
-      "longitude": 239.7987,
+      "longitude": 239.8133,
       "sign": "Scorpio",
       "sign_zh": "天蝎"
     },
     {
-      "degree_in_sign": 24.4091,
+      "degree_in_sign": 24.4234,
       "id_a": "Moon",
       "id_b": "Mars",
-      "longitude": 234.4091,
+      "longitude": 234.4234,
       "sign": "Scorpio",
       "sign_zh": "天蝎"
     },
     {
-      "degree_in_sign": 1.6264,
+      "degree_in_sign": 1.64,
       "id_a": "Moon",
       "id_b": "Jupiter",
-      "longitude": 121.6264,
+      "longitude": 121.64,
       "sign": "Leo",
       "sign_zh": "狮子"
     },
     {
-      "degree_in_sign": 12.2935,
+      "degree_in_sign": 12.307,
       "id_a": "Moon",
       "id_b": "Saturn",
-      "longitude": 222.2935,
+      "longitude": 222.307,
       "sign": "Scorpio",
       "sign_zh": "天蝎"
     },
     {
-      "degree_in_sign": 1.3036,
+      "degree_in_sign": 1.3065,
       "id_a": "Mercury",
       "id_b": "Venus",
-      "longitude": 1.3036,
+      "longitude": 1.3065,
       "sign": "Aries",
       "sign_zh": "白羊"
     },
     {
-      "degree_in_sign": 25.914,
+      "degree_in_sign": 25.9166,
       "id_a": "Mercury",
       "id_b": "Mars",
-      "longitude": 355.914,
+      "longitude": 355.9166,
       "sign": "Pisces",
       "sign_zh": "双鱼"
     },
     {
-      "degree_in_sign": 3.1313,
+      "degree_in_sign": 3.1332,
       "id_a": "Mercury",
       "id_b": "Jupiter",
-      "longitude": 63.1313,
+      "longitude": 63.1332,
       "sign": "Gemini",
       "sign_zh": "双子"
     },
     {
-      "degree_in_sign": 13.7984,
+      "degree_in_sign": 13.8002,
       "id_a": "Mercury",
       "id_b": "Saturn",
-      "longitude": 343.7984,
+      "longitude": 343.8002,
       "sign": "Pisces",
       "sign_zh": "双鱼"
     },
     {
-      "degree_in_sign": 24.2826,
+      "degree_in_sign": 24.2845,
       "id_a": "Venus",
       "id_b": "Mars",
-      "longitude": 324.2826,
+      "longitude": 324.2845,
       "sign": "Aquarius",
       "sign_zh": "水瓶"
     },
     {
-      "degree_in_sign": 1.4998,
+      "degree_in_sign": 1.5011,
       "id_a": "Venus",
       "id_b": "Jupiter",
-      "longitude": 31.4998,
+      "longitude": 31.5011,
       "sign": "Taurus",
       "sign_zh": "金牛"
     },
     {
-      "degree_in_sign": 12.1669,
+      "degree_in_sign": 12.1681,
       "id_a": "Venus",
       "id_b": "Saturn",
-      "longitude": 312.1669,
+      "longitude": 312.1681,
       "sign": "Aquarius",
       "sign_zh": "水瓶"
     },
     {
-      "degree_in_sign": 26.1102,
+      "degree_in_sign": 26.1112,
       "id_a": "Mars",
       "id_b": "Jupiter",
-      "longitude": 26.1102,
+      "longitude": 26.1112,
       "sign": "Aries",
       "sign_zh": "白羊"
     },
     {
-      "degree_in_sign": 6.7773,
+      "degree_in_sign": 6.7782,
       "id_a": "Mars",
       "id_b": "Saturn",
-      "longitude": 306.7773,
+      "longitude": 306.7782,
       "sign": "Aquarius",
       "sign_zh": "水瓶"
     },
     {
-      "degree_in_sign": 13.9946,
+      "degree_in_sign": 13.9948,
       "id_a": "Jupiter",
       "id_b": "Saturn",
-      "longitude": 13.9946,
+      "longitude": 13.9948,
       "sign": "Aries",
       "sign_zh": "白羊"
     }
