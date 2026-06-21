@@ -69,8 +69,10 @@ def test_catalogue_is_well_formed():
     assert len(FIXED_STARS) == 20
     for star, data in FIXED_STARS.items():
         assert 0.0 <= data["lon2000"] < 360.0
-        assert data["nature"]  # at least one Ptolemaic nature
-        assert data["cn"] and data["gloss"]
+        assert data["nature"]  # at least one Ptolemaic nature (traditional attr)
+        assert data["cn"]  # traditional Chinese name
+        # No interpretive prose in the engine — that's the skills layer's job.
+        assert "gloss" not in data
 
 
 def test_precession_is_zero_at_j2000_and_advances_forward():
