@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from fatebridge.core import guolao_moira
 from fatebridge.core.ephemeris_runtime import (
     ephemeris_model_from_retflag,
     swe,
@@ -355,6 +356,17 @@ TRADITIONAL_PLANETS = [
     "Jupiter",
     "Saturn",
 ]
+
+# 七政（不含四余）英文名 → 政余格局所用中文键（见 core.guolao_moira）。
+_GUOLAO_PLANET_CN = {
+    "Sun": "日",
+    "Moon": "月",
+    "Mercury": "水",
+    "Venus": "金",
+    "Mars": "火",
+    "Jupiter": "木",
+    "Saturn": "土",
+}
 
 ASPECTS = [
     ("conjunction", 0.0),
@@ -1079,6 +1091,44 @@ def _swisseph_planet_state(
     return state, ephemeris_model_from_retflag(retflag)
 
 
+def _guolao_si_yu_signidx(
+    julian_day: float,
+    sidereal: bool,
+    ayanamsha: float,
+) -> Dict[str, int]:
+    """七政四余 之 四余（孛/罗/计）的星座序号（0=白羊…11=双鱼）。
+
+    孛 = 月亮平均远地点（swisseph ``MEAN_APOG``）；罗 = 月亮平交点（``MEAN_NODE``）；
+    计 = 罗 + 180°。星历缺失时回退 -1（格局相应判据自然失效）。紫炁（木余）无
+    swisseph 对应、亦无 horosa 字节对照，留待 Phase 4 以古典步紫气公式补入。
+    """
+    result = {"孛": -1, "罗": -1, "计": -1}
+    if swe is None:
+        return result
+
+    def _sign_idx(body_id: int) -> int:
+        try:
+            coordinates, retflag = swe.calc_ut(julian_day, body_id, swe.FLG_SWIEPH)
+        except Exception as error:  # pragma: no cover - swe runtime guard
+            _log_swe_runtime_failure("calc_ut", error)
+            return -1
+        if retflag < 0:
+            return -1
+        lon = float(coordinates[0])
+        effective = (
+            normalize_angle(lon - ayanamsha) if sidereal else normalize_angle(lon)
+        )
+        return int(effective // 30) % 12
+
+    apogee_id = getattr(swe, "MEAN_APOG", 12)
+    result["孛"] = _sign_idx(apogee_id)
+    node_idx = _sign_idx(swe.MEAN_NODE)
+    result["罗"] = node_idx
+    if node_idx >= 0:
+        result["计"] = (node_idx + 6) % 12
+    return result
+
+
 def _build_planet_states(
     chart_variant: str,
     julian_day: float,
@@ -1706,6 +1756,22 @@ def build_core_chart_payload(
             ],
         }
     if chart_variant == "guolao_chart":
+        si_yu = _guolao_si_yu_signidx(julian_day, sidereal, ayanamsha)
+        planet_signidx = {
+            _GUOLAO_PLANET_CN[item["id"]]: int(normalize_angle(item["longitude"]) // 30)
+            % 12
+            for item in planets
+            if item["id"] in _GUOLAO_PLANET_CN
+        }
+        planet_signidx.update(si_yu)
+        moira_patterns = guolao_moira.calculate(
+            {
+                "asc_lon": effective_ascendant,
+                "planet_signidx": planet_signidx,
+                "is_day": 6 <= birth_info.local_datetime.hour < 18,
+                "is_winter": birth_info.local_datetime.month in (11, 12, 1),
+            }
+        )
         result["guolao"] = {
             "lunar_mansion_system": "su28",
             "weekday_ruler": _week_ruler(birth_info.local_datetime),
@@ -1716,6 +1782,8 @@ def build_core_chart_payload(
                 (item["su28"] for item in planets if item["id"] == "Moon"),
                 None,
             ),
+            "si_yu_sign_index": si_yu,
+            "moira_patterns": moira_patterns,
         }
     if chart_variant == "india_chart":
         result["india"] = {

@@ -1195,7 +1195,8 @@
       "preset_sections": [
         "起盘信息",
         "七政四余宫位与二十八宿星曜",
-        "神煞"
+        "神煞",
+        "政余格局"
       ],
       "settings_template": {
         "astroMeaning": {
@@ -1208,7 +1209,8 @@
         "sections": [
           "起盘信息",
           "七政四余宫位与二十八宿星曜",
-          "神煞"
+          "神煞",
+          "政余格局"
         ]
       },
       "supports_astro_meaning": true,
