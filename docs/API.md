@@ -5,7 +5,7 @@
 - REST API：FastAPI，默认 `http://localhost:8010`
 - FastMCP：`python -m fatebridge.mcp_server` 启动的 MCP 工具面
 
-> 当前实际暴露 78 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）和 78 个 FastMCP 工具。两个数字由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定。
+> 当前实际暴露 80 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）和 80 个 FastMCP 工具。两个数字由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定。
 
 ## 1. 基础信息
 

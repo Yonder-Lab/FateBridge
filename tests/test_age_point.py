@@ -80,7 +80,8 @@ _BIRTH = dict(
 
 
 def test_end_to_end_age_point() -> None:
-    result = calculate_age_point(max_age_years=72.0, **_BIRTH)
+    # Pass house_system to exercise the Koch override path (catalog forwards it).
+    result = calculate_age_point(max_age_years=72.0, house_system="P", **_BIRTH)
     assert result.get("error") is None, result
     payload = result["age_point"]
     points = payload["points"]

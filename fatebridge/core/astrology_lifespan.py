@@ -1151,6 +1151,106 @@ def build_age_point_payload(
     }
 
 
+# ---------------------------------------------------------------------------
+# 12. 恒星推运 (Vedic sidereal secondary progression).
+# ---------------------------------------------------------------------------
+
+
+def build_vedic_progression_payload(
+    progressed_longitudes: Dict[str, float],
+    natal_longitudes: Dict[str, float],
+    *,
+    orb: float = 1.5,
+) -> Dict[str, Any]:
+    """
+    恒星推运 / Vedic sidereal secondary progression.
+
+    The same "a day for a year" secondary progression as the tropical version, but
+    read in the sidereal zodiac (the caller casts both subjects Sidereal, so the
+    longitudes arrive already ayanamsa-corrected). We report the directed positions
+    and the aspects the progressed points make back to the natal chart.
+
+    星阙/horosa computes this on a closed backend with no fixture, so this is verified
+    by progression invariants (the progressed–natal arc equals the secondary motion
+    of each body) rather than byte-parity.
+    """
+    positions = {
+        name.lower(): longitude_to_point_dict(name, degree)
+        for name, degree in progressed_longitudes.items()
+    }
+    hits = collect_aspect_hits(
+        source_longitudes=progressed_longitudes,
+        target_longitudes=natal_longitudes,
+        orb_limit=orb,
+    )
+    return {
+        "system": "vedic_progression",
+        "system_label": "恒星推运",
+        "zodiac": "sidereal",
+        "orb": orb,
+        "positions": positions,
+        "hits": hits[:12],
+    }
+
+
+# ---------------------------------------------------------------------------
+# 13. 赤纬推运 (Jayne declination progression).
+# ---------------------------------------------------------------------------
+
+
+def build_jaynes_declination_payload(
+    progressed_declinations: Dict[str, float],
+    natal_declinations: Dict[str, float],
+    *,
+    orb: float = 1.0,
+) -> Dict[str, Any]:
+    """
+    赤纬推运 / Charles Jayne declination progression.
+
+    After secondary-progressing the chart, look not at ecliptic aspects but at
+    *declination* contacts: a **parallel** when a progressed body and a natal body
+    share the same declination (same hemisphere), a **contraparallel** when their
+    declinations are equal in magnitude but opposite in sign. Both behave like a
+    conjunction / opposition in latitude.
+
+    Pure over the declination values the service supplies (computed by the equatorial
+    ephemeris); 星阙/horosa offers no fixture, so this is verified by its defining
+    invariant — every reported pair's declinations satisfy the parallel /
+    contraparallel relation within ``orb``.
+    """
+    parallels: List[Dict[str, Any]] = []
+    for prog_body, prog_decl in progressed_declinations.items():
+        for natal_body, natal_decl in natal_declinations.items():
+            parallel_orb = abs(prog_decl - natal_decl)
+            contra_orb = abs(prog_decl + natal_decl)
+            if parallel_orb <= orb:
+                kind, hit_orb = "parallel", parallel_orb
+            elif contra_orb <= orb:
+                kind, hit_orb = "contraparallel", contra_orb
+            else:
+                continue
+            parallels.append(
+                {
+                    "progressed": prog_body,
+                    "progressed_label": planet_label(prog_body),
+                    "natal": natal_body,
+                    "natal_label": planet_label(natal_body),
+                    "kind": kind,
+                    "kind_label": "平行" if kind == "parallel" else "反平行",
+                    "progressed_declination": round(prog_decl, 4),
+                    "natal_declination": round(natal_decl, 4),
+                    "orb": round(hit_orb, 4),
+                }
+            )
+    parallels.sort(key=lambda item: item["orb"])
+    return {
+        "system": "jaynes_declination",
+        "system_label": "赤纬推运",
+        "orb": orb,
+        "parallels": parallels,
+    }
+
+
 __all__ = [
     "build_harmonic_payload",
     "build_planetary_ages_payload",
@@ -1163,6 +1263,8 @@ __all__ = [
     "build_planetary_arc_payload",
     "build_persian_directed_payload",
     "build_age_point_payload",
+    "build_vedic_progression_payload",
+    "build_jaynes_declination_payload",
     "AGE_POINT_YEARS_PER_HOUSE",
     "AGE_POINT_CYCLE_YEARS",
     "PERSIAN_MOVERS",

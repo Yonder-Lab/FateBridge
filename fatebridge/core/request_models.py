@@ -1214,6 +1214,47 @@ class AstroAgePointRequest(AstroLifespanRequest):
     )
 
 
+class AstroVedicProgRequest(AstroLifespanRequest):
+    """Request model for the 恒星推运 (Vedic sidereal secondary progression) tool.
+
+    The technique is read sidereally, so the tool always casts Sidereal regardless
+    of ``zodiac_type``; the inherited field is accepted but ignored.
+    """
+
+    orb: float = Field(
+        default=1.5,
+        ge=0,
+        le=15,
+        description="Aspect orb (degrees) for progressed→natal hits",
+    )
+    analysis_year: Optional[int] = Field(
+        default=None, description="Progression target year (omit for current date)"
+    )
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Progression target month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Progression target day (1-31)"
+    )
+
+
+class AstroJaynesProgRequest(AstroLifespanRequest):
+    """Request model for the 赤纬推运 (Jayne declination progression) tool."""
+
+    orb: float = Field(
+        default=1.0, ge=0, le=5, description="Declination orb (degrees) for parallels"
+    )
+    analysis_year: Optional[int] = Field(
+        default=None, description="Progression target year (omit for current date)"
+    )
+    analysis_month: Optional[int] = Field(
+        default=None, ge=1, le=12, description="Progression target month (1-12)"
+    )
+    analysis_day: Optional[int] = Field(
+        default=None, ge=1, le=31, description="Progression target day (1-31)"
+    )
+
+
 class AstroMundaneRequest(BaseModel):
     """Request model for the 世俗入宫盘 (mundane ingress) tool — cast at a solar ingress, no birth data."""
 
