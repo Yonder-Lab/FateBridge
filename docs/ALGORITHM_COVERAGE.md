@@ -21,7 +21,7 @@
 | Divination | 梅花、统摄法、六爻、宿占、占星骰子、三式合一 | Implemented | 均为本地离线服务面，可直接通过 REST / MCP 调用 |
 | 中国术数独立盘 | 紫微、六壬、奇门、太乙、金口诀 | Implemented | 统一支持 `snapshot_text + snapshot_export` |
 | 导出协议 | `export_registry`、`export_parse` | Implemented | FateBridge 内部导出合同与 section 过滤面 |
-| 知识 helper | `knowledge_registry`、`knowledge_read` | Implemented | 当前知识域为 `astro`、`liureng`、`qimen` |
+| 知识 helper | `knowledge_registry`、`knowledge_read` | Implemented | 当前知识域为 `astro`、`bazi`、`liureng`、`qimen` |
 | 核心占星盘 | `chart` / `chart13` / `hellen` / `guolao` / `india` / `germany` | Implemented | 运行时精度取决于本地 ephemeris 可用性 |
 | 关系盘 | `compare` / `composite` / `influence` / `timespace` / `marks` | Implemented | 各主模式都有实装主层；精度同样依赖 chart backend |
 | 西占总览推运 | `western_timing_analysis` | Implemented | 依赖 `kerykeion` / Swiss Ephemeris 运行时 |
