@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pytest
 
+from fatebridge.api import app
 from fatebridge.services.tool_catalog import mcp_specs, rest_specs
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -68,3 +69,22 @@ def test_documented_count_matches_catalog(
 def test_rest_and_mcp_counts_are_plausible() -> None:
     """守一道下限，防止目录被意外清空时上面的相等断言变得无意义。"""
     assert LIVE_REST > 0 and LIVE_MCP > 0
+
+
+def test_api_md_documents_every_live_rest_route() -> None:
+    """API.md 必须列出每一个真实 ``/api`` 路由——新增工具忘记写文档即 CI 失败。
+
+    历史上 API.md 漏掉过 20+ 个真实端点（八字九大专项、astro event/lifespan 族等），
+    Agent 只读文档便发现不了它们。这里把「文档覆盖全部路由」固化为断言。
+    """
+    live_routes = {
+        r.path for r in app.routes if getattr(r, "path", "").startswith("/api")
+    }
+    api_md = (REPO_ROOT / "docs/API.md").read_text(encoding="utf-8")
+    documented = set(re.findall(r"/api/[A-Za-z0-9_/]+", api_md))
+    missing = sorted(p for p in live_routes if p not in documented)
+    assert (
+        not missing
+    ), "docs/API.md 漏列以下真实 REST 路由，请补到对应 §4 端点表：\n  " + "\n  ".join(
+        missing
+    )

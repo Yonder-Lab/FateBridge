@@ -187,6 +187,23 @@ REST 端通常返回：
 | `POST` | `/api/calculate` | 单人命理分析 |
 | `POST` | `/api/cn/bazi/birth` | 独立八字命盘 |
 | `POST` | `/api/compatibility` | 双人配合分析 |
+| `POST` | `/api/compatibility/sukuyo` | 宿曜双人相性分析（三九の秘法，二十七宿） |
+
+### 4.1.1 八字九大专项维度
+
+> 九个维度均同时提供 REST / MCP / CLI。大运、流年缺省由命盘 + 分析日期内部推算，也可传 `dayun_pillar` / `liunian_pillar` 覆盖以输出时机信号（详见 README）。
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| `POST` | `/api/cn/bazi/marriage` | 八字婚姻分析 |
+| `POST` | `/api/cn/bazi/career` | 八字事业分析 |
+| `POST` | `/api/cn/bazi/wealth` | 八字财运分析 |
+| `POST` | `/api/cn/bazi/health` | 八字健康分析 |
+| `POST` | `/api/cn/bazi/children` | 八字子女分析 |
+| `POST` | `/api/cn/bazi/education` | 八字学业分析 |
+| `POST` | `/api/cn/bazi/personality` | 八字性格分析 |
+| `POST` | `/api/cn/bazi/relatives` | 八字六亲分析 |
+| `POST` | `/api/cn/bazi/romance` | 八字正缘桃花分析 |
 
 ### 4.2 时运分析
 
@@ -231,6 +248,7 @@ REST 端通常返回：
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
 | `POST` | `/api/cn/ziwei/birth` | 紫微斗数命盘 |
+| `POST` | `/api/cn/ziwei/horoscope` | 紫微斗数运限（大限/小限/流年/流月/流日/流时 + 动态四化） |
 | `POST` | `/api/cn/ziwei/rules` | 紫微规则库 |
 | `POST` | `/api/cn/liureng/gods` | 六壬起课 |
 | `POST` | `/api/cn/liureng/runyear` | 六壬行年 |
@@ -267,7 +285,38 @@ REST 端通常返回：
 | `POST` | `/api/astro/timing/firdaria` | 法达 |
 | `POST` | `/api/astro/timing/decennials` | 十年星限 |
 
-### 4.8 健康检查
+### 4.8 事件占星（事件盘）
+
+求解天文时刻后起盘的一组事件类工具。
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| `POST` | `/api/astro/event/mundane` | 世俗入宫盘 |
+| `POST` | `/api/astro/event/extrareturns` | 多重回归 |
+| `POST` | `/api/astro/event/horary` | 卜卦判断 |
+| `POST` | `/api/astro/event/election` | 择日 |
+
+### 4.9 全生命周期 / 寿命技法
+
+读取单张本命盘的一组全生命周期（寿命）技法。
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| `POST` | `/api/astro/lifespan/harmonic` | 调波盘 |
+| `POST` | `/api/astro/lifespan/planetary_ages` | 行星年龄 |
+| `POST` | `/api/astro/lifespan/triplicity_rulers` | 三分主星推运 |
+| `POST` | `/api/astro/lifespan/lunation_phase` | 月相推运 |
+| `POST` | `/api/astro/lifespan/distributions` | 界推运 |
+| `POST` | `/api/astro/lifespan/balbillus` | Balbillus 129 年系统 |
+| `POST` | `/api/astro/lifespan/keypoints` | 数字相位推运 |
+| `POST` | `/api/astro/lifespan/yearsystem129` | 129 年系统 |
+| `POST` | `/api/astro/lifespan/planetaryarc` | 行星弧方向 |
+| `POST` | `/api/astro/lifespan/persiandirected` | 波斯向运 |
+| `POST` | `/api/astro/lifespan/agepoint` | 年龄推进点 (age point) |
+| `POST` | `/api/astro/lifespan/vedicprog` | 恒星推运 |
+| `POST` | `/api/astro/lifespan/jaynesprog` | 赤纬推运 |
+
+### 4.10 健康检查
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
