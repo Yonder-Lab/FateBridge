@@ -342,47 +342,6 @@ class ExampleClass:
         return {}
 ```
 
-### TypeScript/React 代码风格
-
-```typescript
-// ✅ 好的代码
-interface AnalysisProps {
-  data: AnalysisResult;
-  onUpdate?: (result: AnalysisResult) => void;
-}
-
-const AnalysisComponent: React.FC<AnalysisProps> = ({ data, onUpdate }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleUpdate = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const result = await fetchAnalysis(data);
-      onUpdate?.(result);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [data, onUpdate]);
-
-  return <div>{/* 组件内容 */}</div>;
-};
-
-// ❌ 避免
-const AnalysisComponent = (props: any) => {
-  const [loading, setLoading] = useState(false);
-
-  const handle = () => {
-    setLoading(true);
-    fetchAnalysis(props.data).then(r => {
-      props.onUpdate && props.onUpdate(r);
-      setLoading(false);
-    });
-  };
-
-  return <div></div>;
-};
-```
-
 ### 注释和文档
 
 ```python
