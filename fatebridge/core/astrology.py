@@ -1295,21 +1295,30 @@ def _sect(planets: List[Dict[str, Any]]) -> str:
     return "day" if sun["house"] >= 7 else "night"
 
 
-def _build_classical_layer(planets: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Per-planet Hellenistic/medieval condition — the chart's ``classical`` block.
+def _build_classical_layer(
+    planets: List[Dict[str, Any]], houses: List[Dict[str, Any]]
+) -> Dict[str, Any]:
+    """Hellenistic/medieval condition layer — the chart's ``classical`` block.
 
-    Phase 1 of the 西占古典深度段 layer (see
-    ``docs/superpowers/specs/2026-06-21-astro-classical-depth-design.md``).
+    Phase 1 (per-planet essential + accidental status) + Phase 2 (dispositor
+    chains 主宰星链 + per-house topic almutens). See
+    ``docs/superpowers/specs/2026-06-21-astro-classical-depth-design.md``.
     Imported lazily to avoid an import cycle (classical_western reuses this
     module's dignity tables).
     """
-    from fatebridge.core.classical_western import build_planet_classical
+    from fatebridge.core.classical_western import (
+        build_dispositor_layer,
+        build_planet_classical,
+        build_topic_almutens,
+    )
 
     chart_sect = _sect(planets)
+    is_day = chart_sect == "day"
     sun = next((item for item in planets if item["id"] == "Sun"), None)
     sun_longitude = sun["longitude"] if sun else None
 
     planet_layer: Dict[str, Any] = {}
+    placements: Dict[str, str] = {}
     for item in planets:
         planet_layer[item["id"]] = build_planet_classical(
             planet=item["id"],
@@ -1320,7 +1329,22 @@ def _build_classical_layer(planets: List[Dict[str, Any]]) -> Dict[str, Any]:
             sun_longitude=sun_longitude,
             chart_sect=chart_sect,
         )
-    return {"sect": chart_sect, "planets": planet_layer}
+        placements[item["id"]] = item["sign"]
+
+    houses_for_almuten = {
+        house["house"]: {
+            "sign": house["sign"],
+            "degree_in_sign": round(float(house["cusp_longitude"]) % 30.0, 4),
+        }
+        for house in houses
+        if house.get("sign") is not None
+    }
+    return {
+        "sect": chart_sect,
+        "planets": planet_layer,
+        "dispositors": build_dispositor_layer(placements),
+        "topic_almutens": build_topic_almutens(houses_for_almuten, is_day),
+    }
 
 
 def _fortune_lot(planets: List[Dict[str, Any]], ascendant: float) -> Dict[str, Any]:
@@ -1434,6 +1458,11 @@ def build_core_chart_payload(
         for planet in _planet_set(chart_variant)
     ]
     aspects = _build_aspects(planets)
+    house_list = _build_houses(
+        effective_ascendant,
+        house_system_info["key"],
+        house_cusps=house_cusps,
+    )
     result: Dict[str, Any] = {
         "person_info": {
             "name": birth_info.name,
@@ -1471,14 +1500,10 @@ def build_core_chart_payload(
                 "sign_zh": SIGN_LABELS_ZH[_sign_name(effective_midheaven)],
             },
         },
-        "houses": _build_houses(
-            effective_ascendant,
-            house_system_info["key"],
-            house_cusps=house_cusps,
-        ),
+        "houses": house_list,
         "planets": planets,
         "aspects": aspects,
-        "classical": _build_classical_layer(planets),
+        "classical": _build_classical_layer(planets, house_list),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
         "balance_basis": BALANCE_BASIS,
