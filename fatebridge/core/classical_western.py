@@ -595,7 +595,7 @@ def build_lots_layer(lons: Dict[str, float], is_day: bool) -> Dict[str, Any]:
     return out
 
 
-# ── Phase 4: [古典格局] relational patterns (no speed → no translation/collection) ──
+# ── Phase 4 / 4b: [古典格局] relational patterns ──────────────────────────────
 
 BENEFICS = frozenset({"Jupiter", "Venus"})
 MALEFICS = frozenset({"Mars", "Saturn"})
@@ -634,19 +634,67 @@ def overcomes(sign_a: str, sign_b: str) -> bool:
     return (_SIGN_INDEX[sign_a] - _SIGN_INDEX[sign_b]) % 12 == 9
 
 
+# Exact Ptolemaic aspect angles, keyed by the aspect names ``_build_aspects`` emits.
+_ASPECT_ANGLES = {
+    "conjunction": 0.0,
+    "sextile": 60.0,
+    "square": 90.0,
+    "trine": 120.0,
+    "opposition": 180.0,
+}
+# A planet within this orb of a square to the nodal axis sits "at the bending".
+NODE_BENDING_ORB = 3.0
+# Small forward step (days) for the applying/separating test.
+_APPLY_PROBE_DAYS = 0.05
+
+
+def _aspect_is_applying(
+    lon_a: float,
+    speed_a: Optional[float],
+    lon_b: float,
+    speed_b: Optional[float],
+    exact_angle: float,
+) -> Optional[bool]:
+    """Whether an aspect is applying (separation nearing exact) vs separating.
+
+    Steps both bodies forward a fraction of a day at their true (signed) speeds
+    and asks whether the gap to the exact aspect angle shrank. ``None`` when a
+    speed is unknown (offline engine) — applying/separating is then undefined.
+    """
+    if speed_a is None or speed_b is None:
+        return None
+    now = abs(_angular_distance(lon_a, lon_b) - exact_angle)
+    later = abs(
+        _angular_distance(
+            lon_a + speed_a * _APPLY_PROBE_DAYS, lon_b + speed_b * _APPLY_PROBE_DAYS
+        )
+        - exact_angle
+    )
+    return later < now
+
+
 def build_classical_patterns(
     planet_positions: List[Dict[str, Any]],
     aspects: List[Dict[str, Any]],
     chart_sect: Optional[str],
+    *,
+    speeds: Optional[Dict[str, float]] = None,
+    node_longitude: Optional[float] = None,
 ) -> Dict[str, Any]:
     """``[古典格局]`` relational layer over the seven traditional planets.
 
-    Covers aversion, overcoming (superior square), besiegement/enclosure by body,
-    and bonification/maltreatment. Translation & collection of light are deferred
-    (they need applying/separating, i.e. planetary speed the offline chart lacks).
+    Phase 4: aversion, overcoming (superior square), besiegement/enclosure by
+    body, bonification/maltreatment. Phase 4b (needs ``speeds`` /
+    ``node_longitude``, both from the ephemeris): translation & collection of
+    light (applying/separating) and nodal bending. The 4b blocks stay empty when
+    the inputs are absent (offline engine) rather than guessing.
+
+    Only structural configurations are emitted — *which* planets, *what* relation.
+    What a configuration signifies is the skills layer's job, not the engine's.
     """
     trad = [p for p in planet_positions if p["id"] in TRADITIONAL_PLANETS]
     by_id = {p["id"]: p for p in trad}
+    speeds = speeds or {}
 
     # --- aversion: pairs sharing no whole-sign aspect ---
     aversions: List[List[str]] = []
@@ -689,12 +737,102 @@ def build_classical_patterns(
             elif source in MALEFICS:
                 bonification[target]["maltreated_by"].append(source)
 
+    # --- Phase 4b: translation & collection of light (need applying/separating) ---
+    # Aspect angle between two traditional planets, keyed by the unordered pair.
+    pair_angle: Dict[frozenset, float] = {}
+    for aspect in aspects:
+        a, b = aspect.get("planet_a"), aspect.get("planet_b")
+        angle = _ASPECT_ANGLES.get(str(aspect.get("aspect") or ""))
+        if a in by_id and b in by_id and angle is not None:
+            pair_angle[frozenset((a, b))] = angle
+
+    def faster(p: str, q: str) -> bool:
+        """``p`` outpaces ``q`` in longitude (by absolute speed)."""
+        return abs(speeds.get(p, 0.0)) > abs(speeds.get(q, 0.0))
+
+    def applying(source: str, target: str) -> Optional[bool]:
+        angle = pair_angle.get(frozenset((source, target)))
+        if angle is None:
+            return None
+        return _aspect_is_applying(
+            by_id[source]["longitude"],
+            speeds.get(source),
+            by_id[target]["longitude"],
+            speeds.get(target),
+            angle,
+        )
+
+    translation: List[Dict[str, str]] = []
+    collection: List[Dict[str, Any]] = []
+    if all(speeds.get(pid) is not None for pid in ids):
+        # Translation: a faster Z separates from X and applies to Y, where X and
+        # Y are in aversion (no mutual aspect) — Z carries light from X to Y.
+        for translator in ids:
+            for source in ids:
+                for sink in ids:
+                    if len({translator, source, sink}) < 3:
+                        continue
+                    if frozenset((source, sink)) in pair_angle:
+                        continue
+                    if frozenset((translator, source)) not in pair_angle:
+                        continue
+                    if frozenset((translator, sink)) not in pair_angle:
+                        continue
+                    if not (faster(translator, source) and faster(translator, sink)):
+                        continue
+                    if applying(translator, source) is False and applying(
+                        translator, sink
+                    ):
+                        translation.append(
+                            {"translator": translator, "from": source, "to": sink}
+                        )
+        # Collection: a slower Z is applied to by two faster planets that are in
+        # aversion to each other — Z gathers their light.
+        for collector in ids:
+            contributors = [
+                other
+                for other in ids
+                if other != collector
+                and frozenset((collector, other)) in pair_angle
+                and faster(other, collector)
+                and applying(other, collector)
+            ]
+            for i, first in enumerate(contributors):
+                for second in contributors[i + 1 :]:
+                    if frozenset((first, second)) in pair_angle:
+                        continue
+                    collection.append(
+                        {"collector": collector, "from": sorted((first, second))}
+                    )
+
+    # --- Phase 4b: nodal bending (a planet square the nodal axis) ---
+    nodal_bending: List[Dict[str, Any]] = []
+    if node_longitude is not None:
+        bending_points = {
+            "north": (node_longitude + 90.0) % 360.0,
+            "south": (node_longitude - 90.0) % 360.0,
+        }
+        for planet in trad:
+            for side, point in bending_points.items():
+                separation = _angular_distance(planet["longitude"], point)
+                if separation <= NODE_BENDING_ORB:
+                    nodal_bending.append(
+                        {
+                            "planet": planet["id"],
+                            "bending": side,
+                            "orb": round(separation, 4),
+                        }
+                    )
+
     return {
         "sect_benefic": _SECT_BENEFIC.get(chart_sect or ""),
         "sect_malefic": _SECT_MALEFIC.get(chart_sect or ""),
         "aversions": aversions,
         "overcoming": overcoming,
         "besiegement": besiegement,
+        "translation_of_light": translation,
+        "collection_of_light": collection,
+        "nodal_bending": nodal_bending,
         "bonification": {
             k: v
             for k, v in bonification.items()

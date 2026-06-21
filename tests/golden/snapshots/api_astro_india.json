@@ -820,6 +820,8 @@
         "maltreated_by": []
       }
     },
+    "collection_of_light": [],
+    "nodal_bending": [],
     "overcoming": [
       {
         "overcome": "Jupiter",
@@ -835,7 +837,8 @@
       }
     ],
     "sect_benefic": "Jupiter",
-    "sect_malefic": "Saturn"
+    "sect_malefic": "Saturn",
+    "translation_of_light": []
   },
   "element_balance": {
     "Air": 3,
