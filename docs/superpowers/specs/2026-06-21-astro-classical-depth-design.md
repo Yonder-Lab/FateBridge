@@ -23,10 +23,23 @@
     `None`/absent on the offline approximate engine (honest "unknown"). Pinned by
     classical invariants + real-sky facts (Dec-2000 Jupiter+Saturn retrograde,
     2000-11-25 prenatal New Moon).
-  - **Remaining ephemeris cut (3b/4b):** fixed stars, planetary hours,
-    translation/collection of light, doryphory, nodal bending — still need a star
-    catalog / sunrise / applying-separating speed. Phase 3b (fixed stars +
-    planetary hours) is next.
+  - **Phase 3b-i shipped (`feat/astro-ephemeris-phase3b`): planetary hours
+    (行星时).** `rise_trans` (Moshier-capable) bracets the sunrise→sunset /
+    sunset→sunrise arcs into 12 unequal hours each; the planetary-day ruler is
+    the weekday of the opening sunrise (so a pre-dawn birth belongs to the prior
+    day), and `planetary_hour_sequence` chains the Chaldean order from there.
+    New top-level `chart["planetary_hours"]` (`is_day` / `day_ruler` /
+    `hour_ruler` / `hour_number`); snapshot adds `[行星时]`. `None` on polar
+    no-rise / when swe is absent. Pinned by the Dec-2000 chart (Sunday → Sun
+    day-ruler; 4th day hour → Moon).
+  - **Phase 3b-ii deferred — fixed stars (恒星).** Blocked on data, not code:
+    `fixstar_ut` needs the `sefstars.txt` catalog (only Spica is hard-coded in
+    swisseph), which is the same optional-AGPL data the repo never ships. So it
+    would be dormant ("unavailable") in CI and default installs, lighting up only
+    after a `fetch_ephe` that also pulls `sefstars.txt` (text file → needs a
+    non-`.se1` fetch path). Pending a product call on whether to add it.
+  - **Remaining ephemeris cut (4b):** translation/collection of light,
+    doryphory, nodal bending — need applying/separating speed.
   - **Phase 4 shipped (`classical_patterns` = [古典格局]):** aversion (no
     whole-sign aspect), overcoming (superior dexter square / 10th sign),
     besiegement & enclosure by body (immediate longitude neighbours), and

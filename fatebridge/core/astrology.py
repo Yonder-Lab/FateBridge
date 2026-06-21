@@ -1403,6 +1403,87 @@ def _prenatal_syzygy(julian_day: float) -> Optional[Dict[str, Any]]:
     }
 
 
+def _sun_event(
+    julian_day: float, longitude: float, latitude: float, rising: bool
+) -> Optional[float]:
+    """Julian day of the next sunrise (``rising``) or sunset after ``julian_day``.
+
+    ``None`` when swisseph reports no event (polar day/night) or a soft failure.
+    Disc-centre crossing keeps day/night symmetric with the classical horizon.
+    """
+    flag = (swe.CALC_RISE if rising else swe.CALC_SET) | swe.BIT_DISC_CENTER
+    try:
+        retflag, times = swe.rise_trans(
+            julian_day, swe.SUN, flag, (longitude, latitude, 0.0)
+        )
+    except Exception as error:  # pragma: no cover - defensive
+        _log_swe_runtime_failure("rise_trans", error)
+        return None
+    if retflag < 0:
+        return None
+    return float(times[0])
+
+
+def _planetary_hours(
+    julian_day: float, longitude: float, latitude: float, timezone_name: str
+) -> Optional[Dict[str, Any]]:
+    """Planetary hour of the birth instant + the ruler of the planetary day.
+
+    The day runs sunrise→sunset (12 unequal *day* hours) and sunset→next sunrise
+    (12 *night* hours). Hour 1 is ruled by the weekday's planet — fixed by the
+    sunrise that opened the current planetary day — and rulers step through the
+    Chaldean order from there (see :func:`planetary_hour_sequence`).
+
+    ``None`` when swisseph is unavailable or the Sun neither rises nor sets
+    (polar latitudes) — the day/night arcs are then undefined.
+    """
+    if swe is None:
+        return None
+    from fatebridge.core.classical_western import planetary_hour_sequence
+
+    next_rise = _sun_event(julian_day, longitude, latitude, rising=True)
+    next_set = _sun_event(julian_day, longitude, latitude, rising=False)
+    # The sunrise that opened the current planetary day fixes the weekday ruler,
+    # for both day and night births (search back a full day to bracket it).
+    prev_rise = _sun_event(julian_day - 1.0, longitude, latitude, rising=True)
+    if next_rise is None or next_set is None or prev_rise is None:
+        return None
+
+    is_day = next_set < next_rise
+    if is_day:
+        arc_start, arc_end = prev_rise, next_set
+    else:
+        prev_set = _sun_event(julian_day - 1.0, longitude, latitude, rising=False)
+        if prev_set is None:
+            return None
+        arc_start, arc_end = prev_set, next_rise
+    arc_length = arc_end - arc_start
+    if arc_length <= 0:
+        return None
+
+    hour_length = arc_length / 12.0
+    index = int((julian_day - arc_start) / hour_length)
+    index = max(0, min(11, index))  # clamp boundary rounding into the valid 12
+
+    # Weekday ruler of the planetary day = weekday at the opening sunrise, taken
+    # in local civil time so a pre-dawn birth correctly belongs to the prior day.
+    year, month, day, ut_hour = swe.revjul(prev_rise)
+    rise_utc = datetime(
+        year, month, day, tzinfo=parse_timezone_name("UTC")
+    ) + timedelta(hours=ut_hour)
+    day_ruler = _week_ruler(rise_utc.astimezone(parse_timezone_name(timezone_name)))
+
+    sequence = planetary_hour_sequence(day_ruler)
+    sequence_index = index if is_day else index + 12
+    hour_ruler = sequence[sequence_index] if sequence else None
+    return {
+        "is_day": is_day,
+        "day_ruler": day_ruler,
+        "hour_ruler": hour_ruler,
+        "hour_number": index + 1,
+    }
+
+
 def _build_classical_layer(
     planets: List[Dict[str, Any]],
     houses: List[Dict[str, Any]],
@@ -1682,6 +1763,12 @@ def build_core_chart_payload(
             julian_day=julian_day,
         ),
         "classical_patterns": _build_classical_patterns(planets, aspects),
+        "planetary_hours": _planetary_hours(
+            julian_day,
+            birth_info.longitude,
+            birth_info.latitude,
+            birth_info.timezone,
+        ),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
         "balance_basis": BALANCE_BASIS,

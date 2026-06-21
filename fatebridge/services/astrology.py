@@ -819,6 +819,21 @@ def _build_almuten_figuris_line(payload: Dict[str, Any]) -> str:
     return "\n".join(lines).strip()
 
 
+def _build_planetary_hours_line(payload: Dict[str, Any]) -> str:
+    """``[行星时]`` section: the birth's planetary hour + the planetary day ruler."""
+    hours = payload.get("planetary_hours")
+    if not isinstance(hours, dict) or not hours.get("hour_ruler"):
+        return "无"
+    period = "昼" if hours.get("is_day") else "夜"
+    hour_ruler = PLANET_LABELS_ZH.get(hours["hour_ruler"], hours["hour_ruler"])
+    day_ruler = hours.get("day_ruler")
+    day_ruler_zh = PLANET_LABELS_ZH.get(day_ruler, day_ruler or "—")
+    return (
+        f"生时主星：{hour_ruler}（{period}第{hours.get('hour_number', '?')}时）"
+        f"  当日主星：{day_ruler_zh}"
+    )
+
+
 def _build_standard_chart_snapshot_sections(
     payload: Dict[str, Any], *, chart_variant: str
 ) -> List[tuple[str, str]]:
@@ -888,6 +903,7 @@ def _build_standard_chart_snapshot_sections(
         ("宫主星", _build_topic_almuten_line(payload)),
         ("阿拉伯点", _build_lots_lines(payload)),
         ("古典格局", _build_classical_patterns_lines(payload)),
+        ("行星时", _build_planetary_hours_line(payload)),
         ("体质", _build_temperament_lines(payload)),
         ("希腊点", "\n".join(greek_lines).strip()),
         (
