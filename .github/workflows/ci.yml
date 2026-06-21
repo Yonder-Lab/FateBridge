@@ -9,7 +9,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # 固定到 ubuntu-24.04（而非 ubuntu-latest）：golden 基线是平台相关的字节锁，
+    # runner OS 升级会改变 libm/星历浮点，必须与基线冻结平台锁步。
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -48,7 +50,7 @@ jobs:
     # Install every direct dependency at its declared minimum so a too-low
     # version floor surfaces here instead of in a user's environment. The main
     # `test` job always resolves to the latest releases and would never catch it.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,4 +69,8 @@ jobs:
         run: uv pip install --system --resolution lowest-direct -e ".[dev]"
 
       - name: Run tests
+        # 最低依赖版本的星历输出与「最新版」基线不同口径，关闭 golden 字节比对；
+        # floor 只为守 API 下限，数值锁由 test 作业负责。
+        env:
+          FATEBRIDGE_SKIP_GOLDEN_DIFF: "1"
         run: pytest -q

@@ -1,0 +1,393 @@
+{
+  "analysis_type": "六爻 / 易卦",
+  "changed_code": "100011",
+  "changed_hexagram": {
+    "binary_code": "100011",
+    "caution": "忌平均用力、无差别补贴",
+    "code": "100011",
+    "favorable": "扶持、投入、扩张有效资源",
+    "guidance": "利投入与扶持，越能成人越能成己。",
+    "image": "风雷相益，增损有方，越助人越得势。",
+    "judgement": "利于加码投入，但要投在对的位置。",
+    "lines": [
+      1,
+      0,
+      0,
+      0,
+      1,
+      1
+    ],
+    "lower": {
+      "caution": "惊扰、冒进、节奏乱",
+      "element": "木",
+      "favorable": "启动、破局、提速",
+      "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+      "image": "雷动初发，主惊醒与突破。",
+      "keywords": "发动、突破、惊醒",
+      "lines": [
+        1,
+        0,
+        0
+      ],
+      "name": "震",
+      "nature": "雷",
+      "symbol": "☳",
+      "theme": "发动突破"
+    },
+    "name": "风雷益",
+    "summary": "风雷益：增益扩张。利于加码投入，但要投在对的位置。上卦巽(渗透、谋划、柔入)，下卦震(发动、突破、惊醒)。利投入与扶持，越能成人越能成己。宜扶持、投入、扩张有效资源，忌忌平均用力、无差别补贴。",
+    "symbol": "☴☳",
+    "theme": "增益扩张",
+    "upper": {
+      "caution": "犹疑、拖延、立场飘",
+      "element": "木",
+      "favorable": "铺垫、布局、柔进",
+      "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+      "image": "风行入物，主渗透与筹划。",
+      "keywords": "渗透、谋划、柔入",
+      "lines": [
+        0,
+        1,
+        1
+      ],
+      "name": "巽",
+      "nature": "风",
+      "symbol": "☴",
+      "theme": "渗透筹谋"
+    }
+  },
+  "current_code": "101010",
+  "current_hexagram": {
+    "binary_code": "101010",
+    "caution": "忌庆功太早、忽略后续风险",
+    "code": "101010",
+    "favorable": "稳成果、建维护机制、守纪律",
+    "guidance": "局面已成，关键在稳住与防后续失衡。",
+    "image": "水火得位，表面已成，后续最怕失衡。",
+    "judgement": "已经成局，更难的是守成。",
+    "lines": [
+      1,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "lower": {
+      "caution": "虚火、急躁、表强里弱",
+      "element": "火",
+      "favorable": "表达、曝光、识别",
+      "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+      "image": "火光附丽，主显明与辨析。",
+      "keywords": "光明、表达、洞察",
+      "lines": [
+        1,
+        0,
+        1
+      ],
+      "name": "离",
+      "nature": "火",
+      "symbol": "☲",
+      "theme": "明辨显化"
+    },
+    "name": "水火既济",
+    "summary": "水火既济：既成须守。已经成局，更难的是守成。上卦坎(流动、隐忧、险中求通)，下卦离(光明、表达、洞察)。局面已成，关键在稳住与防后续失衡。宜稳成果、建维护机制、守纪律，忌忌庆功太早、忽略后续风险。",
+    "symbol": "☵☲",
+    "theme": "既成须守",
+    "upper": {
+      "caution": "反复、焦虑、陷被动",
+      "element": "水",
+      "favorable": "防险、复盘、留后手",
+      "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+      "image": "重水有险，主试炼与通关。",
+      "keywords": "流动、隐忧、险中求通",
+      "lines": [
+        0,
+        1,
+        0
+      ],
+      "name": "坎",
+      "nature": "水",
+      "symbol": "☵",
+      "theme": "险中求通"
+    }
+  },
+  "descriptions": {
+    "100011": {
+      "caution": "忌平均用力、无差别补贴",
+      "code": "100011",
+      "favorable": "扶持、投入、扩张有效资源",
+      "guidance": "利投入与扶持，越能成人越能成己。",
+      "name": "风雷益",
+      "raw": {
+        "binary_code": "100011",
+        "caution": "忌平均用力、无差别补贴",
+        "code": "100011",
+        "favorable": "扶持、投入、扩张有效资源",
+        "guidance": "利投入与扶持，越能成人越能成己。",
+        "image": "风雷相益，增损有方，越助人越得势。",
+        "judgement": "利于加码投入，但要投在对的位置。",
+        "lines": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "lower": {
+          "caution": "惊扰、冒进、节奏乱",
+          "element": "木",
+          "favorable": "启动、破局、提速",
+          "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+          "image": "雷动初发，主惊醒与突破。",
+          "keywords": "发动、突破、惊醒",
+          "lines": [
+            1,
+            0,
+            0
+          ],
+          "name": "震",
+          "nature": "雷",
+          "symbol": "☳",
+          "theme": "发动突破"
+        },
+        "name": "风雷益",
+        "summary": "风雷益：增益扩张。利于加码投入，但要投在对的位置。上卦巽(渗透、谋划、柔入)，下卦震(发动、突破、惊醒)。利投入与扶持，越能成人越能成己。宜扶持、投入、扩张有效资源，忌忌平均用力、无差别补贴。",
+        "symbol": "☴☳",
+        "theme": "增益扩张",
+        "upper": {
+          "caution": "犹疑、拖延、立场飘",
+          "element": "木",
+          "favorable": "铺垫、布局、柔进",
+          "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+          "image": "风行入物，主渗透与筹划。",
+          "keywords": "渗透、谋划、柔入",
+          "lines": [
+            0,
+            1,
+            1
+          ],
+          "name": "巽",
+          "nature": "风",
+          "symbol": "☴",
+          "theme": "渗透筹谋"
+        }
+      },
+      "summary": "风雷益：增益扩张。利于加码投入，但要投在对的位置。上卦巽(渗透、谋划、柔入)，下卦震(发动、突破、惊醒)。利投入与扶持，越能成人越能成己。宜扶持、投入、扩张有效资源，忌忌平均用力、无差别补贴。",
+      "theme": "增益扩张",
+      "卦辞": "利于加码投入，但要投在对的位置。",
+      "象曰": "风雷相益，增损有方，越助人越得势。"
+    },
+    "101010": {
+      "caution": "忌庆功太早、忽略后续风险",
+      "code": "101010",
+      "favorable": "稳成果、建维护机制、守纪律",
+      "guidance": "局面已成，关键在稳住与防后续失衡。",
+      "name": "水火既济",
+      "raw": {
+        "binary_code": "101010",
+        "caution": "忌庆功太早、忽略后续风险",
+        "code": "101010",
+        "favorable": "稳成果、建维护机制、守纪律",
+        "guidance": "局面已成，关键在稳住与防后续失衡。",
+        "image": "水火得位，表面已成，后续最怕失衡。",
+        "judgement": "已经成局，更难的是守成。",
+        "lines": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "lower": {
+          "caution": "虚火、急躁、表强里弱",
+          "element": "火",
+          "favorable": "表达、曝光、识别",
+          "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+          "image": "火光附丽，主显明与辨析。",
+          "keywords": "光明、表达、洞察",
+          "lines": [
+            1,
+            0,
+            1
+          ],
+          "name": "离",
+          "nature": "火",
+          "symbol": "☲",
+          "theme": "明辨显化"
+        },
+        "name": "水火既济",
+        "summary": "水火既济：既成须守。已经成局，更难的是守成。上卦坎(流动、隐忧、险中求通)，下卦离(光明、表达、洞察)。局面已成，关键在稳住与防后续失衡。宜稳成果、建维护机制、守纪律，忌忌庆功太早、忽略后续风险。",
+        "symbol": "☵☲",
+        "theme": "既成须守",
+        "upper": {
+          "caution": "反复、焦虑、陷被动",
+          "element": "水",
+          "favorable": "防险、复盘、留后手",
+          "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+          "image": "重水有险，主试炼与通关。",
+          "keywords": "流动、隐忧、险中求通",
+          "lines": [
+            0,
+            1,
+            0
+          ],
+          "name": "坎",
+          "nature": "水",
+          "symbol": "☵",
+          "theme": "险中求通"
+        }
+      },
+      "summary": "水火既济：既成须守。已经成局，更难的是守成。上卦坎(流动、隐忧、险中求通)，下卦离(光明、表达、洞察)。局面已成，关键在稳住与防后续失衡。宜稳成果、建维护机制、守纪律，忌忌庆功太早、忽略后续风险。",
+      "theme": "既成须守",
+      "卦辞": "已经成局，更难的是守成。",
+      "象曰": "水火得位，表面已成，后续最怕失衡。"
+    }
+  },
+  "hexagram_info": {
+    "changed_palace": "巽",
+    "changed_palace_element": "木",
+    "changed_position": "三世",
+    "current_palace": "坎",
+    "current_palace_element": "水",
+    "current_position": "三世",
+    "shi_line": 3,
+    "ying_line": 6
+  },
+  "input_normalized": {
+    "changed_code": "100011",
+    "date": "2028-04-06",
+    "gpsLat": 31.2,
+    "gpsLon": 121.4,
+    "gua_code": "101010",
+    "lat": "31n13",
+    "lon": "121e28",
+    "question": null,
+    "time": "09:33:00",
+    "zone": "+08:00"
+  },
+  "lines": [
+    {
+      "branch": "卯",
+      "change": false,
+      "changed_branch": "子",
+      "changed_liuqin": "兄弟",
+      "element": "木",
+      "god": "白虎",
+      "liuqin": "子孙",
+      "liushen": "白虎",
+      "name": "初爻",
+      "position": 1,
+      "shi_ying": "",
+      "value": 1
+    },
+    {
+      "branch": "丑",
+      "change": false,
+      "changed_branch": "寅",
+      "changed_liuqin": "子孙",
+      "element": "土",
+      "god": "玄武",
+      "liuqin": "官鬼",
+      "liushen": "玄武",
+      "name": "二爻",
+      "position": 2,
+      "shi_ying": "",
+      "value": 0
+    },
+    {
+      "branch": "亥",
+      "change": true,
+      "changed_branch": "辰",
+      "changed_liuqin": "官鬼",
+      "element": "水",
+      "god": "青龙",
+      "liuqin": "兄弟",
+      "liushen": "青龙",
+      "name": "三爻",
+      "position": 3,
+      "shi_ying": "世",
+      "value": 1
+    },
+    {
+      "branch": "申",
+      "change": false,
+      "changed_branch": "未",
+      "changed_liuqin": "官鬼",
+      "element": "金",
+      "god": "朱雀",
+      "liuqin": "父母",
+      "liushen": "朱雀",
+      "name": "四爻",
+      "position": 4,
+      "shi_ying": "",
+      "value": 0
+    },
+    {
+      "branch": "戌",
+      "change": false,
+      "changed_branch": "巳",
+      "changed_liuqin": "妻财",
+      "element": "土",
+      "god": "勾陈",
+      "liuqin": "官鬼",
+      "liushen": "勾陈",
+      "name": "五爻",
+      "position": 5,
+      "shi_ying": "",
+      "value": 1
+    },
+    {
+      "branch": "子",
+      "change": true,
+      "changed_branch": "卯",
+      "changed_liuqin": "子孙",
+      "element": "水",
+      "god": "腾蛇",
+      "liuqin": "兄弟",
+      "liushen": "腾蛇",
+      "name": "上爻",
+      "position": 6,
+      "shi_ying": "应",
+      "value": 0
+    }
+  ],
+  "moving_lines": [
+    3,
+    6
+  ],
+  "nongli": {
+    "birth": "2028-04-06 09:33:00",
+    "day": "十二",
+    "dayGanZi": "辛酉",
+    "dayInt": 12,
+    "jiedelta": "清明后第2天",
+    "jieqi": "清明",
+    "leap": false,
+    "month": "三月",
+    "monthGanZi": "丙辰",
+    "monthInt": 3,
+    "nongli": "三月十二",
+    "time": "癸巳",
+    "year": "戊申",
+    "yearGanZi": "戊申",
+    "yearJieqi": "戊申"
+  },
+  "pattern_flags": {
+    "liuchong_base": false,
+    "liuchong_changed": false,
+    "liuhe_base": false,
+    "liuhe_changed": false
+  },
+  "patterns": [],
+  "question": null,
+  "run_metadata": {
+    "engine": "fatebridge-offline",
+    "engine_is_approximate": false,
+    "tool_name": "sixyao"
+  },
+  "snapshot_text": "[起盘信息]\n日期：2028-04-06 09:33:00\n时区：+08:00\n经纬度：121e28 31n13\n起卦时间：2028-04-06 09:33:00\n干支：年戊申 月丙辰 日辛酉 时癸巳\n\n[卦象]\n本卦：水火既济\n之卦：风雷益\n\n[六爻与动爻]\n第1爻：阳爻（静），六神:白虎，爻名:初爻\n第2爻：阴爻（静），六神:玄武，爻名:二爻\n第3爻：阳爻（动），六神:青龙，爻名:三爻\n第4爻：阴爻（静），六神:朱雀，爻名:四爻\n第5爻：阳爻（静），六神:勾陈，爻名:五爻\n第6爻：阴爻（动），六神:腾蛇，爻名:上爻\n\n[卦辞与断语]\n本卦：水火既济\n卦辞：已经成局，更难的是守成。\n之卦：风雷益\n之卦卦辞：利于加码投入，但要投在对的位置。",
+  "summary": "已生成易卦 / 六爻输出。本卦编码：101010。之卦编码：100011。"
+}
