@@ -398,16 +398,21 @@ def build_dispositor_layer(placements: Dict[str, str]) -> Dict[str, Any]:
 
 def build_topic_almutens(
     houses: Dict[int, Dict[str, Any]], is_day: bool
-) -> Dict[int, Dict[str, Any]]:
-    """Almuten of each house cusp — the topic ruler of that house's matters."""
-    topic: Dict[int, Dict[str, Any]] = {}
+) -> Dict[str, Dict[str, Any]]:
+    """Almuten of each house cusp — the topic ruler of that house's matters.
+
+    Keyed by the house number as a **string** so the structure round-trips
+    identically through JSON (REST) and in-process (MCP) transports — JSON object
+    keys are always strings, and the two surfaces must stay byte-identical.
+    """
+    topic: Dict[str, Dict[str, Any]] = {}
     for house_number, cusp in houses.items():
         sign = cusp.get("sign")
         degree = cusp.get("degree_in_sign")
         if not sign or degree is None:
             continue
         result = almuten_of(sign, degree, is_day)
-        topic[house_number] = {"sign": sign, "winner": result["winner"]}
+        topic[str(house_number)] = {"sign": sign, "winner": result["winner"]}
     return topic
 
 
