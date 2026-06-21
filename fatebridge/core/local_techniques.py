@@ -365,23 +365,15 @@ def _detect_sixyao_patterns(
     patterns: List[Dict[str, str]] = []
     # 本卦六冲 / 六合
     if current_code in _LIUCHONG_HEXAGRAM_CODES:
-        patterns.append(
-            {"name": "本卦六冲", "basis": "本卦为八纯冲卦，事主聚散快、易有决断。"}
-        )
+        patterns.append({"name": "本卦六冲", "basis": "本卦为八纯冲卦。"})
     if current_code in _LIUHE_HEXAGRAM_CODES:
-        patterns.append(
-            {"name": "本卦六合", "basis": "本卦为六合卦，事主和合、凝聚、需圆融。"}
-        )
+        patterns.append({"name": "本卦六合", "basis": "本卦为六合卦。"})
     # 之卦六冲 / 六合
     if current_code != changed_code:
         if changed_code in _LIUCHONG_HEXAGRAM_CODES:
-            patterns.append(
-                {"name": "变卦六冲", "basis": "之卦转为六冲，后续多变散、不守恒。"}
-            )
+            patterns.append({"name": "变卦六冲", "basis": "之卦转为六冲。"})
         if changed_code in _LIUHE_HEXAGRAM_CODES:
-            patterns.append(
-                {"name": "变卦六合", "basis": "之卦归六合，结局趋于和谐收敛。"}
-            )
+            patterns.append({"name": "变卦六合", "basis": "之卦归六合。"})
 
     # 伏吟 / 反吟 (只在动爻上判断, 避开 changed_branch 为空的静爻)
     fu_count = 0
@@ -401,25 +393,23 @@ def _detect_sixyao_patterns(
         patterns.append(
             {
                 "name": "伏吟",
-                "basis": "动爻所变支全与本支同 (伏而不动)，主压抑、旧事重来。",
+                "basis": "动爻所变支全与本支同 (伏而不动)。",
             }
         )
     elif fu_count:
         patterns.append(
             {
                 "name": "局部伏吟",
-                "basis": f"{fu_count}个动爻之支与原支相同，该爻所主之事停滞。",
+                "basis": f"{fu_count}个动爻之支与原支相同。",
             }
         )
     if fan_count and fan_count == len(moving_indices):
-        patterns.append(
-            {"name": "反吟", "basis": "动爻所变支全与本支相冲，主反复、事有大转折。"}
-        )
+        patterns.append({"name": "反吟", "basis": "动爻所变支全与本支相冲。"})
     elif fan_count:
         patterns.append(
             {
                 "name": "局部反吟",
-                "basis": f"{fan_count}个动爻之支与原支相冲，该爻反复。",
+                "basis": f"{fan_count}个动爻之支与原支相冲。",
             }
         )
 
