@@ -6,11 +6,16 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.knowledge_store import (
     ToolValidationError,
     build_knowledge_registry,
     read_knowledge_entry,
+)
+from fatebridge.services.snapshot_builders import (
+    build_snapshot_export as _build_snapshot_export,
+)
+from fatebridge.services.snapshot_builders import (
+    render_snapshot_lines as _render_snapshot_text,
 )
 from fatebridge.utils.helpers import handle_calculation_error
 
@@ -36,30 +41,6 @@ _QUERY_LABELS = {
     "tian_branch": "天盘地支",
     "di_branch": "地盘地支",
 }
-
-
-def _render_snapshot_text(sections: List[tuple[str, List[str]]]) -> str:
-    blocks: list[str] = []
-    for title, lines in sections:
-        body = "\n".join(line for line in lines if line is not None).strip()
-        if body:
-            blocks.append(f"[{title}]\n{body}")
-        else:
-            blocks.append(f"[{title}]")
-    return "\n\n".join(blocks).strip()
-
-
-def _build_snapshot_export(
-    *,
-    technique: str = "knowledge",
-    snapshot_text: str,
-    selected_sections: Optional[List[str]] = None,
-) -> Dict[str, Any]:
-    return parse_export_content(
-        technique=technique,
-        content=snapshot_text,
-        selected_sections=selected_sections,
-    )
 
 
 def _build_knowledge_registry_snapshot_text(

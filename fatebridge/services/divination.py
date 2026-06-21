@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional
 from fatebridge.core.almanac import build_calendar_context
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.divination import build_meihua_interpretation, lookup_gua
-from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.local_techniques import (
     build_canping_result,
     build_heluo_result,
@@ -21,36 +20,18 @@ from fatebridge.core.local_techniques import (
     build_tongshefa_result,
 )
 from fatebridge.core.sukuyo import su28_to_su27, sukuyo_relation
+from fatebridge.services.snapshot_builders import (
+    build_snapshot_export as _build_snapshot_export,
+)
+from fatebridge.services.snapshot_builders import (
+    render_snapshot_lines as _render_snapshot_text,
+)
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     create_pillar_dict,
     handle_calculation_error,
 )
-
-
-def _build_snapshot_export(
-    *,
-    technique: str,
-    snapshot_text: str,
-    selected_sections: Optional[List[str]] = None,
-) -> Dict[str, Any]:
-    return parse_export_content(
-        technique=technique,
-        content=snapshot_text,
-        selected_sections=selected_sections,
-    )
-
-
-def _render_snapshot_text(sections: List[tuple[str, List[str]]]) -> str:
-    blocks: list[str] = []
-    for title, lines in sections:
-        body = "\n".join(line for line in lines if line is not None).strip()
-        if body:
-            blocks.append(f"[{title}]\n{body}")
-        else:
-            blocks.append(f"[{title}]")
-    return "\n\n".join(blocks).strip()
 
 
 def _build_gua_lookup_snapshot_text(

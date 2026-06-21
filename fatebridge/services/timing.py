@@ -11,11 +11,16 @@ from fatebridge.analysis.life_dimensions import LifeDimensionAnalysis
 from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
 from fatebridge.core.almanac import build_calendar_context, get_jieqi_year_grid
 from fatebridge.core.calendar import BaZiCalendar
-from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.calculation import (
     BirthComputationContext,
     _build_birth_computation_context,
+)
+from fatebridge.services.snapshot_builders import (
+    build_snapshot_export as _build_snapshot_export,
+)
+from fatebridge.services.snapshot_builders import (
+    render_snapshot_lines as _render_snapshot_text,
 )
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
@@ -342,30 +347,6 @@ def _enrich_jieqi_timeline(
             f"流日{liuri_pillar['pillar']}，{node_effect['overall_effect']}"
         )
     return jieqi_timeline
-
-
-def _build_snapshot_export(
-    *,
-    technique: str,
-    snapshot_text: str,
-    selected_sections: Optional[List[str]] = None,
-) -> Dict[str, Any]:
-    return parse_export_content(
-        technique=technique,
-        content=snapshot_text,
-        selected_sections=selected_sections,
-    )
-
-
-def _render_snapshot_text(sections: List[tuple[str, List[str]]]) -> str:
-    blocks: list[str] = []
-    for title, lines in sections:
-        body = "\n".join(line for line in lines if line is not None).strip()
-        if body:
-            blocks.append(f"[{title}]\n{body}")
-        else:
-            blocks.append(f"[{title}]")
-    return "\n\n".join(blocks).strip()
 
 
 def _format_location_line(

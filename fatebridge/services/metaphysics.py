@@ -12,7 +12,6 @@ from fatebridge.core.almanac import (
     build_calendar_context,
 )
 from fatebridge.core.calendar import BaZiCalendar
-from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.local_techniques import (
     build_qimen_snapshot_text,
     build_qimen_with_options,
@@ -26,6 +25,12 @@ from fatebridge.core.metaphysics import (
     build_ziwei_chart,
     build_ziwei_horoscope,
     build_ziwei_rules,
+)
+from fatebridge.services.snapshot_builders import (
+    build_snapshot_export as _build_snapshot_export,
+)
+from fatebridge.services.snapshot_builders import (
+    render_snapshot_text as _render_snapshot_text,
 )
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
@@ -142,31 +147,8 @@ def _analysis_context_payload(seed: MetaphysicsSeed) -> Dict[str, Any]:
     }
 
 
-def _build_snapshot_export(
-    *,
-    technique: str,
-    snapshot_text: str,
-    selected_sections: Optional[List[str]] = None,
-) -> Dict[str, Any]:
-    return parse_export_content(
-        technique=technique,
-        content=snapshot_text,
-        selected_sections=selected_sections,
-    )
-
-
 def _join_snapshot_lines(lines: List[str]) -> str:
     return "\n".join(line for line in lines if line).strip()
-
-
-def _render_snapshot_text(sections: List[tuple[str, str]]) -> str:
-    blocks: List[str] = []
-    for title, body in sections:
-        blocks.append(f"[{title}]")
-        if body:
-            blocks.append(body.strip())
-        blocks.append("")
-    return "\n".join(blocks).strip()
 
 
 def _build_taiyi_snapshot_text(

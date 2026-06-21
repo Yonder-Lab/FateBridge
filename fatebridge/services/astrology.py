@@ -16,6 +16,9 @@ from fatebridge.core.astrology import (
     build_relative_payload,
 )
 from fatebridge.core.export_parser import parse_export_content
+from fatebridge.services.snapshot_builders import (
+    render_snapshot_text as _render_snapshot_text,
+)
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.utils.helpers import handle_calculation_error
 
@@ -217,16 +220,6 @@ def _format_degree(value: Any) -> str:
         return f"{float(value):.2f}°"
     except (TypeError, ValueError):
         return "—"
-
-
-def _render_snapshot_text(sections: List[tuple[str, str]]) -> str:
-    blocks: List[str] = []
-    for title, body in sections:
-        blocks.append(f"[{title}]")
-        if body.strip():
-            blocks.append(body)
-        blocks.append("")
-    return "\n".join(blocks).strip()
 
 
 def _build_balance_line(balance: Dict[str, Any], labels: Dict[str, str]) -> str:
