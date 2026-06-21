@@ -8,6 +8,9 @@ import json
 from typing import Any, Dict, Optional
 
 from fatebridge.core.export_parser import parse_export_content
+from fatebridge.services.snapshot_builders import (
+    render_snapshot_text as _render_snapshot_text,
+)
 from fatebridge.services.western_timing import (
     calculate_western_timing_module_analysis,
 )
@@ -314,16 +317,6 @@ def _build_sections(
         ]
 
     raise ValueError(f"Unsupported section kind: {section_kind}")
-
-
-def _render_snapshot_text(sections: list[tuple[str, str]]) -> str:
-    blocks = []
-    for title, body in sections:
-        text = f"[{title}]"
-        if body.strip():
-            text = f"{text}\n{body}"
-        blocks.append(text)
-    return "\n\n".join(blocks).strip()
 
 
 def _calculate_tool(

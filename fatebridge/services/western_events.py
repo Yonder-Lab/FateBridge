@@ -30,6 +30,9 @@ from fatebridge.core.predictive import (
     longitude_to_point_dict,
     planet_label,
 )
+from fatebridge.services.snapshot_builders import (
+    render_snapshot_text as _render_snapshot_text,
+)
 from fatebridge.utils.helpers import (
     handle_calculation_error,
     normalize_house_system,
@@ -39,16 +42,6 @@ from fatebridge.utils.helpers import (
 
 def _json_block(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, indent=2, default=str)
-
-
-def _render_snapshot_text(sections: List[Tuple[str, str]]) -> str:
-    blocks: List[str] = []
-    for title, body in sections:
-        blocks.append(f"[{title}]")
-        if body.strip():
-            blocks.append(body)
-        blocks.append("")
-    return "\n".join(blocks).strip()
 
 
 # ---------------------------------------------------------------------------
