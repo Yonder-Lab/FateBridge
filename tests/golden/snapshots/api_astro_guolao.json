@@ -72,6 +72,75 @@
     "zodiacal": 0
   },
   "classical": {
+    "dispositors": {
+      "chains": {
+        "Jupiter": {
+          "chain": [
+            "Jupiter",
+            "Moon",
+            "Sun",
+            "Mars",
+            "Saturn"
+          ],
+          "terminal": "Saturn",
+          "terminal_type": "domicile"
+        },
+        "Mars": {
+          "chain": [
+            "Mars",
+            "Saturn"
+          ],
+          "terminal": "Saturn",
+          "terminal_type": "domicile"
+        },
+        "Mercury": {
+          "chain": [
+            "Mercury",
+            "Venus",
+            "Saturn"
+          ],
+          "terminal": "Saturn",
+          "terminal_type": "domicile"
+        },
+        "Moon": {
+          "chain": [
+            "Moon",
+            "Sun",
+            "Mars",
+            "Saturn"
+          ],
+          "terminal": "Saturn",
+          "terminal_type": "domicile"
+        },
+        "Saturn": {
+          "chain": [
+            "Saturn"
+          ],
+          "terminal": "Saturn",
+          "terminal_type": "domicile"
+        },
+        "Sun": {
+          "chain": [
+            "Sun",
+            "Mars",
+            "Saturn"
+          ],
+          "terminal": "Saturn",
+          "terminal_type": "domicile"
+        },
+        "Venus": {
+          "chain": [
+            "Venus",
+            "Saturn"
+          ],
+          "terminal": "Saturn",
+          "terminal_type": "domicile"
+        }
+      },
+      "final_dispositors": [
+        "Saturn"
+      ]
+    },
     "planets": {
       "Jupiter": {
         "above_horizon": false,
@@ -235,7 +304,57 @@
         "sect_placement": "contrary_to_sect"
       }
     },
-    "sect": "day"
+    "sect": "day",
+    "topic_almutens": {
+      "1": {
+        "sign": "Gemini",
+        "winner": "Mercury"
+      },
+      "10": {
+        "sign": "Pisces",
+        "winner": "Venus"
+      },
+      "11": {
+        "sign": "Aries",
+        "winner": "Sun"
+      },
+      "12": {
+        "sign": "Taurus",
+        "winner": "Venus"
+      },
+      "2": {
+        "sign": "Cancer",
+        "winner": "Moon"
+      },
+      "3": {
+        "sign": "Leo",
+        "winner": "Sun"
+      },
+      "4": {
+        "sign": "Virgo",
+        "winner": "Mercury"
+      },
+      "5": {
+        "sign": "Libra",
+        "winner": "Saturn"
+      },
+      "6": {
+        "sign": "Scorpio",
+        "winner": "Mars"
+      },
+      "7": {
+        "sign": "Sagittarius",
+        "winner": "Jupiter"
+      },
+      "8": {
+        "sign": "Capricorn",
+        "winner": "Saturn"
+      },
+      "9": {
+        "sign": "Aquarius",
+        "winner": "Saturn"
+      }
+    }
   },
   "element_balance": {
     "Air": 2,

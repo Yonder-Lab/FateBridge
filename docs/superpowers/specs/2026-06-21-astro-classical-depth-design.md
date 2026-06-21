@@ -1,14 +1,20 @@
 # Design: 西占古典深度段 [古典]/[古典格局] — horosa parity (multi-phase)
 
 - **Date:** 2026-06-21
-- **Status:** **Phase 1 implemented** on `feat/astro-classical-phase1`.
-  Overarching project spec — decomposes into ~5 phased PRs. Phases 2–5 are scoped
-  outlines, detailed when reached.
-  - **Deferred from Phase 1** (need new ephemeris plumbing the core chart lacks):
-    **retrograde** (no per-planet speed in the offline chart record) and
-    **out-of-bounds** (no declination). Folded into a Phase 1b / Phase 2 once the
-    chart exposes speed + declination. Everything derivable from
-    sign/degree/house/sun-longitude shipped in Phase 1.
+- **Status:** **Phase 1 (#72, merged) + Phase 2 implemented** (Phase 2 on
+  `feat/astro-classical-phase2`). Overarching project spec — ~5 phased PRs;
+  Phases 3–5 are scoped outlines, detailed when reached.
+  - **Phase 2 shipped:** dispositor chains (主宰星链, with mutual-reception / loop
+    detection + final dispositors) and per-house **topic almutens** (weighted
+    essential-dignity winner of each cusp), via new `almuten_of` /
+    `dignity_lords_at` / `dispositor_chain` in `classical_western.py` (almuten
+    weights = horosa `lifespanEngine.js` `DIG_W`). Chart gains
+    `classical.dispositors` + `classical.topic_almutens`; snapshot adds
+    `[主宰]` + `[宫主星]`.
+  - **Deferred to Phase 2b** (all need ephemeris plumbing the offline chart
+    lacks): **Almuten figuris** (needs the prenatal **syzygy** point),
+    **retrograde** (per-planet speed), **out-of-bounds** (declination). Bundle
+    these once the chart exposes speed + declination + syzygy.
 - **Source capability:** horosa-skill chart family `[古典] (Classical)` +
   `[古典格局] (Classical patterns)` sections (README_EN "Classical astrology
   completion v2.6.7"), on natal / 13-house / Hellenistic / India / mundane charts.

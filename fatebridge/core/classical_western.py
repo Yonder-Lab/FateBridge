@@ -22,6 +22,7 @@ from fatebridge.core.astrology import (
     DOMICILE_RULERS,
     ELEMENT_BY_SIGN,
     EXALTATION_SIGNS,
+    RULER_BY_SIGN,
     _opposite_sign,
 )
 from fatebridge.core.predictive import EGYPTIAN_BOUNDS_BY_SIGN
@@ -295,6 +296,119 @@ def in_halb(
 
 def planetary_joy(planet: str, house: Optional[int]) -> bool:
     return bool(house) and PLANETARY_JOYS.get(planet) == house
+
+
+# ── Phase 2: almuten (essential-dignity rulership of a degree) + dispositors ──
+
+# Reverse of EXALTATION_SIGNS: sign → the planet exalted there (7 of 12 signs).
+EXALT_RULER_BY_SIGN: Dict[str, str] = {
+    sign: planet for planet, sign in EXALTATION_SIGNS.items()
+}
+
+# Five essential-dignity weights used to score an almuten (Lilly / Ibn Ezra).
+_ALMUTEN_WEIGHTS = {
+    "domicile": DIGNITY_SCORE["rulership"],
+    "exaltation": DIGNITY_SCORE["exaltation"],
+    "triplicity": DIGNITY_SCORE["triplicity"],
+    "term": DIGNITY_SCORE["bound"],
+    "face": DIGNITY_SCORE["face"],
+}
+
+
+def dignity_lords_at(
+    sign: str, degree_in_sign: float, is_day: bool
+) -> Dict[str, Optional[str]]:
+    """The five essential-dignity lords of a point (domicile/exalt/trip/term/face)."""
+    return {
+        "domicile": RULER_BY_SIGN.get(sign),
+        "exaltation": EXALT_RULER_BY_SIGN.get(sign),
+        "triplicity": triplicity_ruler(sign, is_day),
+        "term": bound_lord(sign, degree_in_sign),
+        "face": face_lord(sign, degree_in_sign),
+    }
+
+
+def almuten_of(sign: str, degree_in_sign: float, is_day: bool) -> Dict[str, Any]:
+    """Almuten of a degree: the planet with the most weighted essential dignity.
+
+    Sums the 5 dignity weights (5/4/3/2/1) each planet earns over the point;
+    the winner is the strongest ruler. Ties resolve to the heavier dignity then
+    the traditional Chaldean order (slowest first) for determinism.
+    """
+    lords = dignity_lords_at(sign, degree_in_sign, is_day)
+    totals: Dict[str, int] = {}
+    for dignity, weight in _ALMUTEN_WEIGHTS.items():
+        lord = lords[dignity]
+        if lord:
+            totals[lord] = totals.get(lord, 0) + weight
+    winner: Optional[str] = None
+    if totals:
+        # Deterministic tie-break: higher score, then Chaldean (slowest-first) order.
+        order = ["Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"]
+        winner = max(
+            totals, key=lambda p: (totals[p], -order.index(p) if p in order else 0)
+        )
+    return {"winner": winner, "totals": totals, "lords": lords}
+
+
+def domicile_ruler(sign: str) -> Optional[str]:
+    """Traditional domicile ruler of a sign (for dispositor chains)."""
+    return RULER_BY_SIGN.get(sign)
+
+
+def dispositor_chain(planet: str, placements: Dict[str, str]) -> Dict[str, Any]:
+    """Follow the domicile-dispositor chain from ``planet``.
+
+    ``placements`` maps planet → the sign it occupies. Each planet is disposited
+    by the ruler of its sign; the chain walks rulers until it reaches a planet in
+    its own domicile (final dispositor) or revisits a planet (mutual-reception /
+    longer loop). Returns the visited chain + terminal info.
+    """
+    chain: List[str] = [planet]
+    seen = {planet}
+    current = planet
+    while True:
+        sign = placements.get(current)
+        ruler = domicile_ruler(sign) if sign else None
+        if ruler is None:
+            return {"chain": chain, "terminal": None, "terminal_type": "unknown"}
+        if ruler == current:
+            return {"chain": chain, "terminal": current, "terminal_type": "domicile"}
+        if ruler in seen:
+            # Loop: a planet rules its own dispositor (mutual reception if length 2).
+            kind = "mutual_reception" if ruler == planet and len(chain) == 2 else "loop"
+            return {"chain": chain + [ruler], "terminal": ruler, "terminal_type": kind}
+        chain.append(ruler)
+        seen.add(ruler)
+        current = ruler
+
+
+def build_dispositor_layer(placements: Dict[str, str]) -> Dict[str, Any]:
+    """Per-planet dispositor chains + the chart's final dispositor(s)."""
+    chains = {planet: dispositor_chain(planet, placements) for planet in placements}
+    finals = sorted(
+        {
+            info["terminal"]
+            for info in chains.values()
+            if info["terminal_type"] == "domicile" and info["terminal"]
+        }
+    )
+    return {"chains": chains, "final_dispositors": finals}
+
+
+def build_topic_almutens(
+    houses: Dict[int, Dict[str, Any]], is_day: bool
+) -> Dict[int, Dict[str, Any]]:
+    """Almuten of each house cusp — the topic ruler of that house's matters."""
+    topic: Dict[int, Dict[str, Any]] = {}
+    for house_number, cusp in houses.items():
+        sign = cusp.get("sign")
+        degree = cusp.get("degree_in_sign")
+        if not sign or degree is None:
+            continue
+        result = almuten_of(sign, degree, is_day)
+        topic[house_number] = {"sign": sign, "winner": result["winner"]}
+    return topic
 
 
 def build_planet_classical(

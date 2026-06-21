@@ -643,6 +643,46 @@ def _build_classical_lines(payload: Dict[str, Any]) -> str:
     return "\n".join(lines).strip() or "无"
 
 
+_TERMINAL_ZH = {
+    "domicile": "入庙自主",
+    "mutual_reception": "互含",
+    "loop": "循环",
+    "unknown": "未定",
+}
+
+
+def _build_dispositor_lines(payload: Dict[str, Any]) -> str:
+    """``[主宰]`` section: final dispositor(s) + each traditional planet's chain."""
+    classical = payload.get("classical", {})
+    dispositors = classical.get("dispositors", {})
+    chains = dispositors.get("chains", {})
+    if not chains:
+        return "无"
+    finals = dispositors.get("final_dispositors", [])
+    finals_zh = (
+        "、".join(PLANET_LABELS_ZH.get(p, p) for p in finals) or "无（多为互含/循环）"
+    )
+    lines = [f"终极主宰：{finals_zh}"]
+    for planet in _CLASSICAL_PLANET_ORDER:
+        info = chains.get(planet)
+        if not info:
+            continue
+        arrow = "→".join(PLANET_LABELS_ZH.get(p, p) for p in info.get("chain", []))
+        lines.append(f"{arrow}（{_TERMINAL_ZH.get(info.get('terminal_type'), '')}）")
+    return "\n".join(lines).strip()
+
+
+def _build_topic_almuten_line(payload: Dict[str, Any]) -> str:
+    topic = payload.get("classical", {}).get("topic_almutens", {})
+    if not topic:
+        return "无"
+    parts = []
+    for house in sorted(topic, key=lambda h: int(h)):
+        winner = topic[house].get("winner")
+        parts.append(f"{house}宫{PLANET_LABELS_ZH.get(winner, winner or '—')}")
+    return " ".join(parts)
+
+
 def _build_standard_chart_snapshot_sections(
     payload: Dict[str, Any], *, chart_variant: str
 ) -> List[tuple[str, str]]:
@@ -707,6 +747,8 @@ def _build_standard_chart_snapshot_sections(
         ("相位", _build_aspect_lines(payload.get("aspects", []))),
         ("行星", _build_planet_lines(payload.get("planets", []))),
         ("古典", _build_classical_lines(payload)),
+        ("主宰", _build_dispositor_lines(payload)),
+        ("宫主星", _build_topic_almuten_line(payload)),
         ("希腊点", "\n".join(greek_lines).strip()),
         (
             "可能性",
