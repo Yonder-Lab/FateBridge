@@ -62,8 +62,11 @@ FateBridge/
 
 | 路径 | 职责 |
 | --- | --- |
-| `fatebridge/api.py` | REST 路由、Pydantic request model、HTTP 层错误处理 |
-| `fatebridge/mcp_server.py` | MCP 工具定义与 JSON 文本封装 |
+| `fatebridge/services/tool_catalog.py` | 中央工具目录（`ToolSpec` / `CATALOG`），REST/MCP/CLI 三端唯一信源 |
+| `fatebridge/core/tool_spec.py` | `ToolSpec` 定义与 `register_rest` / `register_mcp` 注册器 |
+| `fatebridge/api.py` | 从目录派生 REST 路由、HTTP 层错误处理 |
+| `fatebridge/mcp_server.py` | 从目录派生 MCP 工具、JSON 文本封装 |
+| `fatebridge/cli.py` | 从目录派生 CLI 子命令、`list` / `describe` 自助发现 |
 | `fatebridge/core` | 核心算法与合同 |
 | `fatebridge/services` | transport-facing 编排层 |
 | `fatebridge/analysis` | 复合分析逻辑 |
@@ -129,19 +132,19 @@ mypy fatebridge/
 
 1. 先改 `fatebridge/core/*` 或 `fatebridge/analysis/*`
 2. 在 `fatebridge/services/*` 封装 transport 友好的返回结构
-3. 在 `fatebridge/api.py` 暴露 REST 路由
-4. 在 `fatebridge/mcp_server.py` 暴露 MCP 工具
-5. 在 `tests/` 增加能力测试与 API/MCP 对齐测试
-6. 更新 `docs/API.md` 与 `docs/ALGORITHM_COVERAGE.md`
+3. 在 `fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型
+4. **在 `fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`** —— REST / MCP / CLI 三端自动派生，无需改动 `api.py` / `mcp_server.py` / `cli.py`
+5. 在 `tests/` 增加能力测试；三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性 payload fixture
+6. 更新 `docs/API.md` 与 `docs/ALGORITHM_COVERAGE.md`（工具计数由 `tests/test_doc_tool_counts.py` 锁定）
 
-### 只改 transport，不改算法
+### 只改 transport 行为，不改算法
 
-如果只是补入口或修参数对齐，也建议补：
+如果只是调整某端的绑定（如自定义 REST 绑定、CLI 不支持嵌套模型时的降级提示），改动应集中在 `fatebridge/core/tool_spec.py` 的注册器或 `tool_catalog.py` 的命名绑定处，并补：
 
 - request model 验证用例
-- API/MCP parity test
+- `tests/test_full_surface_validation.py` 覆盖的三端 parity
 
-这样可以防止两套接入层继续漂移。
+这样可以防止三端接入层继续漂移。
 
 ## 6. 设计约束
 
@@ -165,9 +168,9 @@ mypy fatebridge/
 
 不要自己发明另一套 section 过滤格式。
 
-### 6.3 REST 和 MCP 应共享 service 层
+### 6.3 三端应共享 service 层与中央目录
 
-新增能力时，尽量不要把领域逻辑直接写进 `fatebridge/api.py` 或 `fatebridge/mcp_server.py`。这两处应尽量保持为 adapter，而不是业务实现层。
+新增能力时，不要把领域逻辑直接写进 `fatebridge/api.py`、`fatebridge/mcp_server.py` 或 `fatebridge/cli.py`。这三处都只是从 `tool_catalog.py` 派生的 adapter，业务实现应留在 `services` / `core`，工具声明应留在 `CATALOG`。
 
 ## 7. 测试策略
 
@@ -222,8 +225,8 @@ mypy fatebridge/
 
 1. `pytest -q` 至少跑过相关子集
 2. `black --check` / `isort --check-only` / `mypy` 通过
-3. REST 与 MCP 新增入口是否都补齐
-4. 文档是否更新了端口、能力名、section 名
+3. 新工具是否已在 `tool_catalog.py` 的 `CATALOG` 声明（三端由此派生），并补了 `test_full_surface_validation.py` 的代表性 payload
+4. 文档是否更新了端口、能力名、section 名；若工具计数变化，`tests/test_doc_tool_counts.py` 是否仍通过
 5. 是否错误地把近似实现写成了高精度实现
 
 ## 11. 常用入口
