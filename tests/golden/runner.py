@@ -106,7 +106,7 @@ _DATETIME_PATCH_TARGETS = [
     "fatebridge.analysis.timing_effects.datetime",
     "fatebridge.utils.helpers.datetime",
     "fatebridge.core.timing.datetime",
-    "fatebridge.core.astrology_predictive.datetime",
+    "fatebridge.core.predictive._common.datetime",
 ]
 
 # analyze_destiny 是唯一没有 rest_path 的独立工具，通过 MCP 面覆盖。

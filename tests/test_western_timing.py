@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.api import WesternTimingRequest
 from fatebridge.core import astrology as astrology_core
-from fatebridge.core.astrology_predictive import (
+from fatebridge.core.predictive import (
     build_lot_payloads,
     build_natal_subject,
     build_predictive_birth_info,
@@ -21,7 +21,7 @@ from fatebridge.core.astrology_predictive import (
     project_absolute_degree_to_equatorial,
     semiarc_degrees_for_declination,
 )
-from fatebridge.core.astrology_predictive import swe as predictive_swe
+from fatebridge.core.predictive import swe as predictive_swe
 from fatebridge.mcp_server import western_timing_analysis
 from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis

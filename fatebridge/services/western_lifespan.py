@@ -26,7 +26,7 @@ from fatebridge.core.astrology_lifespan import (
     build_triplicity_rulers_payload,
     build_yearsystem129_payload,
 )
-from fatebridge.core.astrology_predictive import (
+from fatebridge.core.predictive import (
     build_analysis_datetime,
     build_natal_subject,
     build_predictive_birth_info,

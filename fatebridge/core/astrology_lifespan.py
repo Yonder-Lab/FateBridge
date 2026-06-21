@@ -34,7 +34,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from fatebridge.core.astrology import ELEMENT_BY_SIGN
-from fatebridge.core.astrology_predictive import (
+from fatebridge.core.predictive import (
     TIMING_POINT_NAMES,
     collect_aspect_hits,
     longitude_to_point_dict,

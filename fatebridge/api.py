@@ -23,7 +23,7 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
 from fatebridge.core import astrology as astrology_core
-from fatebridge.core import astrology_predictive as astrology_predictive_core
+from fatebridge.core import predictive as astrology_predictive_core
 
 # Re-exported so callers and tests can import request models from `api`
 # directly (the canonical definitions live in fatebridge.core.request_models).
