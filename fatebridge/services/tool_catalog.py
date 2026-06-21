@@ -16,9 +16,11 @@ from fatebridge.core.request_models import (
     AstroChartPolyRequest,
     AstroChartRequest,
     AstroDistributionsRequest,
+    AstroExtraReturnsRequest,
     AstroHarmonicRequest,
     AstroKeypointsRequest,
     AstroLunationPhaseRequest,
+    AstroMundaneRequest,
     AstroPlanetaryAgesRequest,
     AstroPlanetaryArcRequest,
     AstroRelativeFlatRequest,
@@ -134,6 +136,10 @@ from fatebridge.services.timing import (
     calculate_liushi_analysis,
     calculate_liuyue_analysis,
     calculate_nongli_time,
+)
+from fatebridge.services.western_events import (
+    calculate_extrareturns,
+    calculate_mundane,
 )
 from fatebridge.services.western_lifespan import (
     calculate_balbillus,
@@ -301,6 +307,20 @@ def _western_lifespan_spec(name: str, service: Any, model: Any, label: str) -> T
         operation_label_zh=label,
         family="western_lifespan",
         rest_path=f"/api/astro/lifespan/{name}",
+        mcp_name=f"astro_{name}",
+    )
+
+
+def _western_event_spec(name: str, service: Any, model: Any, label: str) -> ToolSpec:
+    """Register a western ephemeris-event technique (ingress chart / planetary return)."""
+    return ToolSpec(
+        key=f"astro_{name}",
+        bind=raw_invoke(service),
+        request_model=model,
+        summary=f"生成{label}（求解天文时刻后起盘）。",
+        operation_label_zh=label,
+        family="western_event",
+        rest_path=f"/api/astro/event/{name}",
         mcp_name=f"astro_{name}",
     )
 
@@ -882,6 +902,18 @@ CATALOG: List[ToolSpec] = [
         calculate_planetary_arc,
         AstroPlanetaryArcRequest,
         "行星弧方向",
+    ),
+    _western_event_spec(
+        "mundane",
+        calculate_mundane,
+        AstroMundaneRequest,
+        "世俗入宫盘",
+    ),
+    _western_event_spec(
+        "extrareturns",
+        calculate_extrareturns,
+        AstroExtraReturnsRequest,
+        "多重回归",
     ),
 ]
 

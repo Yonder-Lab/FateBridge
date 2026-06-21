@@ -20,9 +20,11 @@ triggers:
 engine_tools:
   - astro_balbillus
   - astro_distributions
+  - astro_extrareturns
   - astro_harmonic
   - astro_keypoints
   - astro_lunation_phase
+  - astro_mundane
   - astro_planetary_ages
   - astro_planetaryarc
   - astro_triplicity_rulers
