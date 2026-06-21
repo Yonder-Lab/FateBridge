@@ -13,19 +13,28 @@ prepares the natal chart, dispatches to the right builder, and renders output.
 from __future__ import annotations
 
 import json
+from datetime import timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
+from fatebridge.core.astrology import (
+    PLANET_SWISSEPH_IDS,
+    _ayanamsha,
+    _julian_day,
+    _swisseph_planet_state,
+)
 from fatebridge.core.astrology_lifespan import (
     build_age_point_payload,
     build_balbillus_payload,
     build_distributions_payload,
     build_harmonic_payload,
+    build_jaynes_declination_payload,
     build_keypoints_payload,
     build_lunation_phase_payload,
     build_persian_directed_payload,
     build_planetary_ages_payload,
     build_planetary_arc_payload,
     build_triplicity_rulers_payload,
+    build_vedic_progression_payload,
     build_yearsystem129_payload,
 )
 from fatebridge.core.predictive import (
@@ -63,6 +72,9 @@ _PERSIAN_TARGET_BODIES = [
     "Neptune",
     "Pluto",
 ]
+# Bodies carried by the declination progression (赤纬推运) — the ten visible planets;
+# nodes/angles sit on the ecliptic and aren't used for declination parallels.
+_DECLINATION_BODIES = [name for name in PLANET_SWISSEPH_IDS if name != "North Node"]
 # Ordered Koch house cusps (1st-12th) — 年龄推进点 sweeps these; index 0 = Ascendant.
 _HOUSE_CUSP_POINTS = [
     "First_House",
@@ -895,6 +907,170 @@ def calculate_age_point(
         return _envelope(
             analysis_type="西占年龄推进点",
             tool_name="age_point",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+def calculate_vedicprog(
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    orb: float = 1.5,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成恒星推运盘（恒星黄道二次推运，推运点对本命的相位）。
+
+    技法恒以恒星黄道读取，故输出固定 Sidereal；请求里的 ``zodiac_type`` 被接收但忽略。
+
+    实现上**以热带黄道排盘再整体减去 ayanamsa** 转恒星：推运相位是 推运点−本命点 的
+    经差，对二者减去同一 ayanamsa 后不变，故相位与热带一致；唯落座（星座）随 ayanamsa
+    平移到恒星黄道。这样既得到恒星位置，又避开了 kerykeion 在依赖下限版本对恒星宫位
+    计算的回归 bug（热带排盘在 floor 上稳定，与 ``planetaryarc`` 同路径）。
+    采用 FateBridge 自带的 Lahiri 式 ``_ayanamsha``（吠陀标准），确定且不依赖 kerykeion
+    的恒星模式默认值。
+    """
+    label = "恒星推运"
+    try:
+        # Cast tropical (floor-safe), then offset to sidereal by the ayanamsa below.
+        birth_info, natal_subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type="Tropic", **birth_kwargs
+        )
+        analysis_datetime = build_analysis_datetime(
+            birth_info,
+            analysis_year=analysis_year,
+            analysis_month=analysis_month,
+            analysis_day=analysis_day,
+        )
+        age_years = calculate_age_years(birth_info, analysis_datetime)
+        progression = build_secondary_progression_payload(
+            birth_info,
+            natal_subject,
+            analysis_datetime=analysis_datetime,
+            house_system=house_system,
+            zodiac_type="Tropic",
+        )
+        # Secondary progression advances the chart one day per year of life.
+        progressed_ayanamsha = _ayanamsha(
+            _julian_day(birth_info.utc_datetime + timedelta(days=age_years))
+        )
+        natal_ayanamsha = _ayanamsha(_julian_day(birth_info.utc_datetime))
+        progressed_sidereal = {
+            body: (lon - progressed_ayanamsha) % 360.0
+            for body, lon in extract_reference_longitudes(
+                progression["subject"]
+            ).items()
+        }
+        natal_sidereal = {
+            body: (lon - natal_ayanamsha) % 360.0
+            for body, lon in extract_reference_longitudes(natal_subject).items()
+        }
+        payload = build_vedic_progression_payload(
+            progressed_sidereal,
+            natal_sidereal,
+            orb=orb,
+        )
+        summary = (
+            f"恒星推运：恒星黄道二次推运（约 {round(age_years, 1)} 岁），"
+            f"检出 {len(payload['hits'])} 个推运相位（容许度 {orb}°）。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type="Sidereal",  # output zodiac (tropical cast offset by ayanamsa)
+        )
+        context["ayanamsha"] = "Lahiri-like (FateBridge offset)"
+        context["analysis_datetime"] = analysis_datetime.isoformat()
+        context["age_years"] = round(age_years, 4)
+        sections = [
+            ("起盘信息", _json_block(context)),
+            ("推运位置", _json_block(payload["positions"])),
+            ("推运相位", _json_block(payload["hits"])),
+        ]
+        return _envelope(
+            analysis_type="西占恒星推运",
+            tool_name="vedic_progression",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+def _body_declinations(utc_datetime: Any) -> Dict[str, float]:
+    """Equatorial declination of each tracked body at a UTC moment (swisseph)."""
+    julian_day = _julian_day(utc_datetime)
+    declinations: Dict[str, float] = {}
+    for body in _DECLINATION_BODIES:
+        state = _swisseph_planet_state(body, julian_day)
+        if state is not None and state[0].get("declination") is not None:
+            declinations[body] = float(state[0]["declination"])
+    return declinations
+
+
+def calculate_jaynesprog(
+    *,
+    analysis_year: Optional[int] = None,
+    analysis_month: Optional[int] = None,
+    analysis_day: Optional[int] = None,
+    orb: float = 1.0,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成赤纬推运盘（二次推运后看赤纬平行/反平行）。"""
+    label = "赤纬推运"
+    try:
+        birth_info, _natal_subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type=zodiac_type, **birth_kwargs
+        )
+        analysis_datetime = build_analysis_datetime(
+            birth_info,
+            analysis_year=analysis_year,
+            analysis_month=analysis_month,
+            analysis_day=analysis_day,
+        )
+        age_years = calculate_age_years(birth_info, analysis_datetime)
+        # Secondary progression: a day after birth per year of life ("day for a year").
+        progressed_utc = birth_info.utc_datetime + timedelta(days=age_years)
+        payload = build_jaynes_declination_payload(
+            _body_declinations(progressed_utc),
+            _body_declinations(birth_info.utc_datetime),
+            orb=orb,
+        )
+        summary = (
+            f"赤纬推运：二次推运（约 {round(age_years, 1)} 岁）后，"
+            f"检出 {len(payload['parallels'])} 组赤纬平行/反平行（容许度 {orb}°）。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        context["analysis_datetime"] = analysis_datetime.isoformat()
+        context["age_years"] = round(age_years, 4)
+        sections = [
+            ("起盘信息", _json_block(context)),
+            ("赤纬平行/反平行", _json_block(payload["parallels"])),
+        ]
+        return _envelope(
+            analysis_type="西占赤纬推运",
+            tool_name="jaynes_declination",
             context=context,
             natal_reference=natal_reference,
             payload=payload,
