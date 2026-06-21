@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import sys
 from contextlib import contextmanager
 from datetime import datetime as _RealDatetime
 from pathlib import Path
@@ -29,14 +30,18 @@ from tests.golden.canonical import canonical_json
 SNAPSHOT_DIR = Path(__file__).resolve().parent / "snapshots"
 
 # ---------------------------------------------------------------------------
-# 平台锚定
+# 参考环境锚定（平台 + Python 版本）
 # ---------------------------------------------------------------------------
-# 星历计算（pyswisseph / kerykeion 的 Moshier 模型）走 C/libm，浮点结果随
-# CPU 架构与 libm 实现而微变（实测 macOS arm64 与 Linux x86_64 在月亮经度上
-# 差约 0.01°，且该差异渲染进 snapshot_text 字符串，浮点 round 够不着）。
-# 因此字节级基线只在「冻结它的平台」上可比；基线统一在 CI（ubuntu x86_64）
-# 冻结，其它平台（如本地 macOS）跳过字节比对，改用「同平台 regen 前后 diff」验证。
+# 字节级基线对「环境」敏感，两层原因：
+# 1. 平台：星历（pyswisseph / kerykeion 的 Moshier 模型）走 C/libm，浮点结果随
+#    CPU 架构与 libm 实现而微变（实测 macOS arm64 与 Linux x86_64 月亮经度差
+#    约 0.01°，且渲染进 snapshot_text 字符串，浮点 round 够不着）。
+# 2. Python 版本：少数派生量（如五行百分比的 0.1 归一化补偿）在 3.11→3.12 间
+#    落点不同（金 37.0 vs 37.1）——引擎此处本就非跨版本确定（已记为后续修复项）。
+# 故基线统一在「参考环境」冻结，字节比对也只在该环境生效；其它环境（本地 macOS、
+# 非参考 py 版本）跳过比对，改用「同环境 regen 前后 diff」验证重构零漂移。
 BASELINE_PLATFORM = "Linux-x86_64"
+BASELINE_PYTHON = "3.12"
 
 
 def current_platform() -> str:
@@ -44,9 +49,19 @@ def current_platform() -> str:
     return f"{platform.system()}-{platform.machine()}"
 
 
+def current_python() -> str:
+    """当前 Python 版本，如 ``3.12``。"""
+    return f"{sys.version_info.major}.{sys.version_info.minor}"
+
+
 def is_baseline_platform() -> bool:
-    """当前是否为基线冻结平台（CI）。非该平台时跳过字节比对。"""
+    """当前是否为基线冻结平台。"""
     return current_platform() == BASELINE_PLATFORM
+
+
+def is_baseline_environment() -> bool:
+    """当前是否为基线参考环境（平台 + Python 版本都吻合）。"""
+    return is_baseline_platform() and current_python() == BASELINE_PYTHON
 
 
 #: floor 作业用最低依赖版本（见 ci.yml），星历输出与「最新版」基线不同口径，
@@ -55,10 +70,10 @@ _SKIP_DIFF_ENV = "FATEBRIDGE_SKIP_GOLDEN_DIFF"
 
 
 def golden_diff_active() -> bool:
-    """golden 字节比对是否生效：须在基线平台、且未被显式关闭（如 floor 作业）。"""
+    """golden 字节比对是否生效：须在基线参考环境、且未被显式关闭（如 floor 作业）。"""
     if os.getenv(_SKIP_DIFF_ENV):
         return False
-    return is_baseline_platform()
+    return is_baseline_environment()
 
 
 def golden_diff_skip_reason() -> str:
@@ -66,8 +81,9 @@ def golden_diff_skip_reason() -> str:
     if os.getenv(_SKIP_DIFF_ENV):
         return f"{_SKIP_DIFF_ENV} 已设：当前依赖非基线口径（如 floor 最低版本），跳过字节比对"
     return (
-        f"golden 基线锁定 {BASELINE_PLATFORM}（CI 平台）；当前 {current_platform()}，"
-        "星历浮点跨平台微差，字节比对仅在基线平台进行"
+        f"golden 基线锁定参考环境 {BASELINE_PLATFORM} / Python {BASELINE_PYTHON}；"
+        f"当前 {current_platform()} / Python {current_python()}，"
+        "星历浮点与派生量跨环境微差，字节比对仅在参考环境进行"
     )
 
 

@@ -405,7 +405,11 @@ git add -A && git commit -m "style(golden): 格式化" || echo "无需格式化"
 
 ## 风险与备注
 
-- **跨 Python 版本浮点**：基线本地在 3.13 冻结，CI 跑 3.10–3.13。8 位浮点规范化吸收末位差异；纯 Python 与 C 扩展（pyswisseph/kerykeion）的计算跨版本应一致。首个 PR 的 CI 会立即暴露任何跨版本漂移；若出现，降低 `FLOAT_PRECISION` 或定位真实差异源。
+- **环境锚定（实测后修订）**：基线对环境敏感，**字节比对只在参考环境（`Linux-x86_64` + Python `3.12`）生效**，由 `golden_diff_active()` 守卫，其它环境自动 skip。两层原因（均经 PR #61 的 CI 实测）：
+  - **平台**：pyswisseph/kerykeion 的 Moshier 星历走 C/libm，浮点随架构微变（macOS arm64 vs Linux x86_64 月亮经度差 ~0.01°，渲染进 `snapshot_text`，8 位 round 够不着）。67 份基线中 33 份跨平台不同。
+  - **Python 版本**：`convert_to_percentage()` 的 0.1 归一化补偿在 3.11→3.12 间落点不同（金 37.0 vs 37.1）。
+  基线统一在参考环境（CI 的 `golden-freeze` workflow，ubuntu-24.04 + py3.12）冻结；`ci.yml` 的 test/floor 固定 `ubuntu-24.04` 与之锁步；floor 用最低依赖版本，经 `FATEBRIDGE_SKIP_GOLDEN_DIFF` 关闭比对。本地（macOS / 非参考 py）验证重构零漂移靠「同环境 regen 前后 diff」。
+- **后续修复项（非 SP0 范围）**：五行百分比的跨 Python 版本拖动（金 37.0/37.1）是引擎此处本就非确定的真实瑕疵。修复（让 `convert_to_percentage` 跨版本确定，如 Decimal 量化 + 稳定 max 取大）属引擎输出变更，应作为独立 PR、显式声明输出变更并重冻基线。
 - **基线冻结既有行为，不保证命理正确**：golden 只锁「重构零漂移」。若后续发现既有 bug，单列修正项、显式声明输出变更、用 runner 重生成基线。
 - **CI 是否纳入 golden**：golden 测试随 `pytest -q` 默认收集执行，自动进入 CI 四门禁的 pytest 门，无需改 `ci.yml`。
 - **66 vs 68 口径（已更新）**：catalog 共 68 个 `ToolSpec`，66 个有 `rest_path`，差额 2 个中：
