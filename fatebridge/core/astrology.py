@@ -1656,13 +1656,32 @@ def _build_fixed_stars(
 
 
 def _build_classical_patterns(
-    planets: List[Dict[str, Any]], aspects: List[Dict[str, Any]]
+    planets: List[Dict[str, Any]],
+    aspects: List[Dict[str, Any]],
+    states: Optional[Dict[str, Dict[str, float]]] = None,
 ) -> Dict[str, Any]:
     """The chart's ``classical_patterns`` block — [古典格局] relational layer
-    (Phase 4). Lazy import avoids the classical_western ↔ astrology cycle."""
+    (Phase 4 + 4b). ``states`` carries per-planet speed for translation/
+    collection of light; the North Node longitude drives nodal bending. Lazy
+    import avoids the classical_western ↔ astrology cycle."""
     from fatebridge.core.classical_western import build_classical_patterns
 
-    return build_classical_patterns(planets, aspects, _sect(planets))
+    states = states or {}
+    speeds = {
+        pid: state["longitude_speed"]
+        for pid, state in states.items()
+        if state.get("longitude_speed") is not None
+    }
+    node_longitude = next(
+        (p["longitude"] for p in planets if p["id"] == "North Node"), None
+    )
+    return build_classical_patterns(
+        planets,
+        aspects,
+        _sect(planets),
+        speeds=speeds,
+        node_longitude=node_longitude,
+    )
 
 
 def _fortune_lot(planets: List[Dict[str, Any]], ascendant: float) -> Dict[str, Any]:
@@ -1832,7 +1851,9 @@ def build_core_chart_payload(
             states=planet_states,
             julian_day=julian_day,
         ),
-        "classical_patterns": _build_classical_patterns(planets, aspects),
+        "classical_patterns": _build_classical_patterns(
+            planets, aspects, planet_states
+        ),
         "planetary_hours": _planetary_hours(
             julian_day,
             birth_info.longitude,

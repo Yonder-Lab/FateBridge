@@ -43,8 +43,20 @@
     engine incl. CI. A swe-gated calibration test pins the vendored table to
     authoritative `fixstar_ut` (< 0.05° across ±150 yr). Real-sky check: the
     Dec-2000 chart shows Antares☌Mercury 0.11°, Algol☌Saturn 0.30°.
-  - **Remaining ephemeris cut (4b):** translation/collection of light,
-    doryphory, nodal bending — need applying/separating speed.
+  - **Phase 4b shipped (`feat/astro-classical-phase4b`):** **translation &
+    collection of light** (a faster planet carries light between two averse
+    planets / a slower planet gathers two faster ones — both via a forward-probe
+    applying/separating test on the 2b speeds) and **nodal bending** (a planet
+    within 3° of a square to the nodal axis). `classical_patterns` gains
+    `translation_of_light` / `collection_of_light` / `nodal_bending`; snapshot
+    `[古典格局]` renders them — **structural only**, per the engine/skills layer
+    boundary (no signification prose). Empty when speed/node absent (offline).
+    **Doryphory deferred:** its definitions genuinely conflict (Valens vs
+    Antiochus vs Porphyry), so shipping one would be opinionated — left out
+    rather than guess.
+  - **Layer-boundary correction (#85):** the fixed-star `gloss` prose (#83) was
+    an engine/skills overstep; removed — engine keeps facts + the traditional
+    `nature` attribution, interpretation is the skills layer's.
   - **Phase 4 shipped (`classical_patterns` = [古典格局]):** aversion (no
     whole-sign aspect), overcoming (superior dexter square / 10th sign),
     besiegement & enclosure by body (immediate longitude neighbours), and

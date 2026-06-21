@@ -734,6 +734,23 @@ def _build_classical_patterns_lines(payload: Dict[str, Any]) -> str:
             parts.append("凶伤←" + "·".join(zh(p) for p in info["maltreated_by"]))
         if parts:
             lines.append(f"{zh(planet)}：{'　'.join(parts)}")
+    for hand in patterns.get("translation_of_light", []):
+        lines.append(
+            f"光的传递：{zh(hand['translator'])} 自 {zh(hand['from'])} 递光至 {zh(hand['to'])}"
+        )
+    for gather in patterns.get("collection_of_light", []):
+        sources = "、".join(zh(p) for p in gather["from"])
+        lines.append(f"光的聚集：{zh(gather['collector'])} 聚 {sources} 之光")
+    bending = patterns.get("nodal_bending", [])
+    if bending:
+        side_zh = {"north": "北弯", "south": "南弯"}
+        lines.append(
+            "交点弯曲："
+            + "；".join(
+                f"{zh(b['planet'])}{side_zh.get(b['bending'], b['bending'])}"
+                for b in bending
+            )
+        )
     return "\n".join(lines).strip()
 
 
