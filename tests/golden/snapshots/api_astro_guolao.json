@@ -814,6 +814,12 @@
     },
     "utc_datetime": "1990-04-06T01:36:05.368792+00:00"
   },
+  "planetary_hours": {
+    "day_ruler": "Venus",
+    "hour_number": 4,
+    "hour_ruler": "Saturn",
+    "is_day": true
+  },
   "planets": [
     {
       "degree_in_sign": 16.0001,

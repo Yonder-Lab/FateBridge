@@ -391,6 +391,23 @@ def almuten_of(sign: str, degree_in_sign: float, is_day: bool) -> Dict[str, Any]
     return {"winner": _almuten_winner(totals), "totals": totals, "lords": lords}
 
 
+def planetary_hour_sequence(day_ruler: str) -> List[str]:
+    """The 24 planetary-hour rulers of one sunrise-to-sunrise day.
+
+    Hour 1 (the first after sunrise) is ruled by ``day_ruler`` — the planet of
+    the weekday — and each subsequent hour steps through the Chaldean
+    (slowest-first) order. Indices 0–11 are the twelve day hours; 12–23 the
+    twelve night hours. Returns ``[]`` for a non-traditional ``day_ruler``.
+
+    Cycling 24 hours lands the next day's first hour on the next weekday's
+    planet — this is exactly why the days of the week run in their order.
+    """
+    if day_ruler not in _CHALDEAN_ORDER:
+        return []
+    start = _CHALDEAN_ORDER.index(day_ruler)
+    return [_CHALDEAN_ORDER[(start + offset) % 7] for offset in range(24)]
+
+
 # Almuten Figuris (命主 / Lord of the Nativity, Ibn Ezra) is elected over five
 # hylegic points. Order is fixed for deterministic JSON; ``syzygy`` is dropped on
 # the offline engine (it needs the prenatal lunation, an ephemeris search).
