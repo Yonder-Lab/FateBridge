@@ -520,6 +520,97 @@
         }
       }
     },
+    "classical_patterns": {
+      "aversions": [
+        [
+          "Sun",
+          "Mercury"
+        ],
+        [
+          "Moon",
+          "Jupiter"
+        ],
+        [
+          "Moon",
+          "Saturn"
+        ],
+        [
+          "Venus",
+          "Jupiter"
+        ],
+        [
+          "Venus",
+          "Saturn"
+        ],
+        [
+          "Mars",
+          "Jupiter"
+        ],
+        [
+          "Mars",
+          "Saturn"
+        ]
+      ],
+      "besiegement": {},
+      "bonification": {
+        "Jupiter": {
+          "bonified_by": [
+            "Venus"
+          ],
+          "maltreated_by": []
+        },
+        "Mercury": {
+          "bonified_by": [
+            "Jupiter",
+            "Venus"
+          ],
+          "maltreated_by": []
+        },
+        "Moon": {
+          "bonified_by": [
+            "Venus",
+            "Jupiter"
+          ],
+          "maltreated_by": []
+        },
+        "Sun": {
+          "bonified_by": [],
+          "maltreated_by": [
+            "Mars"
+          ]
+        },
+        "Venus": {
+          "bonified_by": [
+            "Jupiter"
+          ],
+          "maltreated_by": []
+        }
+      },
+      "overcoming": [
+        {
+          "overcome": "Jupiter",
+          "overcomer": "Sun"
+        },
+        {
+          "overcome": "Moon",
+          "overcomer": "Mercury"
+        },
+        {
+          "overcome": "Mercury",
+          "overcomer": "Venus"
+        },
+        {
+          "overcome": "Mercury",
+          "overcomer": "Mars"
+        },
+        {
+          "overcome": "Sun",
+          "overcomer": "Saturn"
+        }
+      ],
+      "sect_benefic": "Jupiter",
+      "sect_malefic": "Saturn"
+    },
     "element_balance": {
       "Air": 2,
       "Earth": 4,

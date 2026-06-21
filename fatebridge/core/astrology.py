@@ -1359,6 +1359,16 @@ def _build_classical_layer(
     }
 
 
+def _build_classical_patterns(
+    planets: List[Dict[str, Any]], aspects: List[Dict[str, Any]]
+) -> Dict[str, Any]:
+    """The chart's ``classical_patterns`` block — [古典格局] relational layer
+    (Phase 4). Lazy import avoids the classical_western ↔ astrology cycle."""
+    from fatebridge.core.classical_western import build_classical_patterns
+
+    return build_classical_patterns(planets, aspects, _sect(planets))
+
+
 def _fortune_lot(planets: List[Dict[str, Any]], ascendant: float) -> Dict[str, Any]:
     sun = next(item for item in planets if item["id"] == "Sun")
     moon = next(item for item in planets if item["id"] == "Moon")
@@ -1516,6 +1526,7 @@ def build_core_chart_payload(
         "planets": planets,
         "aspects": aspects,
         "classical": _build_classical_layer(planets, house_list, effective_ascendant),
+        "classical_patterns": _build_classical_patterns(planets, aspects),
         "element_balance": _balance(planets, "element"),
         "modality_balance": _balance(planets, "modality"),
         "balance_basis": BALANCE_BASIS,
