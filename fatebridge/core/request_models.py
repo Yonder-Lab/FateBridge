@@ -1038,6 +1038,40 @@ class AstroDistributionsRequest(AstroLifespanRequest):
     )
 
 
+class AstroBalbillusRequest(AstroLifespanRequest):
+    """Request model for the Balbillus 129年系统 tool."""
+
+    start_planet: str = Field(
+        default="Sun",
+        description="Starting planet for the period chain (Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn)",
+    )
+    mode: str = Field(
+        default="nearest",
+        description="Exaltation-distance mode: 'nearest' (with reduction fit) or 'forward'",
+    )
+    max_age_years: float = Field(
+        default=120.0,
+        gt=0,
+        le=200,
+        description="Upper age bound (years) for the period table",
+    )
+
+
+class AstroKeypointsRequest(AstroLifespanRequest):
+    """Request model for the 数字相位推运 (120-year keypoints) tool."""
+
+    release_mode: str = Field(
+        default="soul",
+        description="Release point: 'soul' (from the Moon) or 'body' (from the Ascendant)",
+    )
+    max_age_years: int = Field(
+        default=120,
+        ge=1,
+        le=120,
+        description="Upper age bound (years, capped at 120) for the activation timeline",
+    )
+
+
 class BaziMarriageRequest(BaziDimensionRequest):
     """Request model for BaZi marriage analysis."""
 
