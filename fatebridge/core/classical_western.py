@@ -299,6 +299,30 @@ def planetary_joy(planet: str, house: Optional[int]) -> bool:
     return bool(house) and PLANETARY_JOYS.get(planet) == house
 
 
+def is_retrograde(longitude_speed: Optional[float]) -> Optional[bool]:
+    """Retrograde when ecliptic longitude speed is negative.
+
+    ``None`` when the speed is unknown — the offline approximate orbital model
+    supplies no per-planet speed, so we report "unknown" rather than fabricate a
+    direction the engine never computed.
+    """
+    if longitude_speed is None:
+        return None
+    return longitude_speed < 0.0
+
+
+def out_of_bounds(declination: Optional[float]) -> Optional[bool]:
+    """A body is *out of bounds* when its declination exceeds the Sun's maximum.
+
+    Beyond ±23.44° a planet stands outside the band the Sun ever reaches, a
+    classical mark of unruly / extra-potent expression. ``None`` when declination
+    is unknown (offline engine — declination needs the equatorial ephemeris).
+    """
+    if declination is None:
+        return None
+    return abs(declination) > OUT_OF_BOUNDS_LIMIT
+
+
 # ── Phase 2: almuten (essential-dignity rulership of a degree) + dispositors ──
 
 # Reverse of EXALTATION_SIGNS: sign → the planet exalted there (7 of 12 signs).
@@ -329,6 +353,28 @@ def dignity_lords_at(
     }
 
 
+# Chaldean (slowest-first) order — the deterministic tie-break for any almuten.
+_CHALDEAN_ORDER = ["Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"]
+
+
+def _almuten_winner(totals: Dict[str, int]) -> Optional[str]:
+    """The strongest planet in a weighted-dignity tally.
+
+    Deterministic tie-break: higher score, then Chaldean (slowest-first) order —
+    so identical sums resolve to the slower planet. Shared by the per-degree
+    almuten and the whole-chart Almuten Figuris.
+    """
+    if not totals:
+        return None
+    return max(
+        totals,
+        key=lambda p: (
+            totals[p],
+            -_CHALDEAN_ORDER.index(p) if p in _CHALDEAN_ORDER else 0,
+        ),
+    )
+
+
 def almuten_of(sign: str, degree_in_sign: float, is_day: bool) -> Dict[str, Any]:
     """Almuten of a degree: the planet with the most weighted essential dignity.
 
@@ -342,14 +388,50 @@ def almuten_of(sign: str, degree_in_sign: float, is_day: bool) -> Dict[str, Any]
         lord = lords[dignity]
         if lord:
             totals[lord] = totals.get(lord, 0) + weight
-    winner: Optional[str] = None
-    if totals:
-        # Deterministic tie-break: higher score, then Chaldean (slowest-first) order.
-        order = ["Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"]
-        winner = max(
-            totals, key=lambda p: (totals[p], -order.index(p) if p in order else 0)
-        )
-    return {"winner": winner, "totals": totals, "lords": lords}
+    return {"winner": _almuten_winner(totals), "totals": totals, "lords": lords}
+
+
+# Almuten Figuris (命主 / Lord of the Nativity, Ibn Ezra) is elected over five
+# hylegic points. Order is fixed for deterministic JSON; ``syzygy`` is dropped on
+# the offline engine (it needs the prenatal lunation, an ephemeris search).
+ALMUTEN_FIGURIS_POINTS = ("Sun", "Moon", "Ascendant", "fortune", "syzygy")
+
+
+def build_almuten_figuris(
+    points: Dict[str, Dict[str, Any]], is_day: bool
+) -> Dict[str, Any]:
+    """Almuten Figuris (命主): the planet ruling the chart's hylegic points.
+
+    ``points`` maps each point id (see :data:`ALMUTEN_FIGURIS_POINTS`) to a
+    ``{"sign", "degree_in_sign"}`` placement; only the points the engine could
+    supply are passed. Each point contributes the weighted essential-dignity
+    tally of :func:`almuten_of`; summing those tallies across every point names
+    the chart's overall ruler. Same Chaldean tie-break as the per-degree almuten.
+    """
+    totals: Dict[str, int] = {}
+    per_point: Dict[str, Any] = {}
+    for point_id in ALMUTEN_FIGURIS_POINTS:
+        placement = points.get(point_id)
+        if not placement:
+            continue
+        sign = placement.get("sign")
+        degree = placement.get("degree_in_sign")
+        if not sign or degree is None:
+            continue
+        result = almuten_of(sign, float(degree), is_day)
+        per_point[point_id] = {
+            "sign": sign,
+            "degree_in_sign": round(float(degree), 4),
+            "winner": result["winner"],
+            "totals": result["totals"],
+        }
+        for planet, weight in result["totals"].items():
+            totals[planet] = totals.get(planet, 0) + weight
+    return {
+        "winner": _almuten_winner(totals),
+        "totals": totals,
+        "points": per_point,
+    }
 
 
 def domicile_ruler(sign: str) -> Optional[str]:
@@ -719,8 +801,16 @@ def build_planet_classical(
     house: Optional[int],
     sun_longitude: Optional[float],
     chart_sect: Optional[str],
+    longitude_speed: Optional[float] = None,
+    declination: Optional[float] = None,
 ) -> Dict[str, Any]:
-    """The per-planet ``classical`` entry surfaced on the chart payload."""
+    """The per-planet ``classical`` entry surfaced on the chart payload.
+
+    ``longitude_speed`` / ``declination`` come from the equatorial ephemeris and
+    drive the ``retrograde`` / ``out_of_bounds`` accidental flags; both are
+    ``None`` on the offline approximate engine, where direction and declination
+    are unknowable rather than zero.
+    """
     above = is_above_horizon(house)
     orient = None if planet == "Sun" else orientality(longitude, sun_longitude)
     return {
@@ -736,6 +826,8 @@ def build_planet_classical(
         "sect_placement": sect_placement(planet, chart_sect, orient),
         "in_halb": in_halb(planet, chart_sect, above, orient),
         "joy": planetary_joy(planet, house),
+        "retrograde": is_retrograde(longitude_speed),
+        "out_of_bounds": out_of_bounds(declination),
         "dodekatemorion": dodekatemorion(sign, degree_in_sign),
         "melothesia": melothesia(sign, degree_in_sign),
     }

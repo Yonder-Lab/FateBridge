@@ -121,6 +121,67 @@
       "zodiacal": 0
     },
     "classical": {
+      "almuten_figuris": {
+        "points": {
+          "Ascendant": {
+            "degree_in_sign": 25.1776,
+            "sign": "Gemini",
+            "totals": {
+              "Mercury": 5,
+              "Saturn": 5,
+              "Sun": 1
+            },
+            "winner": "Saturn"
+          },
+          "Moon": {
+            "degree_in_sign": 29.9522,
+            "sign": "Leo",
+            "totals": {
+              "Mars": 3,
+              "Sun": 8
+            },
+            "winner": "Sun"
+          },
+          "Sun": {
+            "degree_in_sign": 16.0001,
+            "sign": "Aries",
+            "totals": {
+              "Mars": 5,
+              "Mercury": 2,
+              "Sun": 8
+            },
+            "winner": "Sun"
+          },
+          "fortune": {
+            "degree_in_sign": 9.1297,
+            "sign": "Scorpio",
+            "totals": {
+              "Mars": 6,
+              "Venus": 5
+            },
+            "winner": "Mars"
+          },
+          "syzygy": {
+            "degree_in_sign": 5.8892,
+            "sign": "Aries",
+            "totals": {
+              "Jupiter": 2,
+              "Mars": 6,
+              "Sun": 7
+            },
+            "winner": "Sun"
+          }
+        },
+        "totals": {
+          "Jupiter": 2,
+          "Mars": 20,
+          "Mercury": 7,
+          "Saturn": 5,
+          "Sun": 24,
+          "Venus": 5
+        },
+        "winner": "Sun"
+      },
       "dispositors": {
         "chains": {
           "Jupiter": {
@@ -298,6 +359,8 @@
             "position": "上方"
           },
           "orientality": "occidental",
+          "out_of_bounds": true,
+          "retrograde": false,
           "sect_placement": "of_sect"
         },
         "Mars": {
@@ -329,6 +392,8 @@
             "position": "中间"
           },
           "orientality": "oriental",
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": "contrary_to_sect"
         },
         "Mercury": {
@@ -361,6 +426,8 @@
             "position": "上方"
           },
           "orientality": "occidental",
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": "contrary_to_sect"
         },
         "Moon": {
@@ -392,6 +459,8 @@
             "position": "下方"
           },
           "orientality": "occidental",
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": "contrary_to_sect"
         },
         "Neptune": {
@@ -413,6 +482,8 @@
             "position": "中间"
           },
           "orientality": "oriental",
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": null
         },
         "North Node": {
@@ -433,6 +504,8 @@
             "position": "中间"
           },
           "orientality": "oriental",
+          "out_of_bounds": false,
+          "retrograde": true,
           "sect_placement": null
         },
         "Pluto": {
@@ -454,6 +527,8 @@
             "position": "中间"
           },
           "orientality": "oriental",
+          "out_of_bounds": false,
+          "retrograde": true,
           "sect_placement": null
         },
         "Saturn": {
@@ -490,6 +565,8 @@
             "position": "下方"
           },
           "orientality": "oriental",
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": "of_sect"
         },
         "Sun": {
@@ -528,6 +605,8 @@
             "position": "中间"
           },
           "orientality": null,
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": "of_sect"
         },
         "Uranus": {
@@ -549,6 +628,8 @@
             "position": "上方"
           },
           "orientality": "oriental",
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": null
         },
         "Venus": {
@@ -580,10 +661,19 @@
             "position": "下方"
           },
           "orientality": "oriental",
+          "out_of_bounds": false,
+          "retrograde": false,
           "sect_placement": "contrary_to_sect"
         }
       },
       "sect": "day",
+      "syzygy": {
+        "degree_in_sign": 5.8892,
+        "julian_day": 2447977.325205,
+        "longitude": 5.8892,
+        "sign": "Aries",
+        "type": "new"
+      },
       "temperament": {
         "cn": "胆汁质（火）",
         "humor": "choleric",
