@@ -1199,6 +1199,21 @@ class AstroPersianDirectedRequest(AstroLifespanRequest):
     )
 
 
+class AstroAgePointRequest(AstroLifespanRequest):
+    """Request model for the 年龄推进点 (Age Point / Huber) tool.
+
+    Huber's Age Point is defined on Koch houses, so the tool always casts Koch
+    regardless of ``house_system``; the inherited field is accepted but ignored.
+    """
+
+    max_age_years: float = Field(
+        default=72.0,
+        gt=0,
+        le=200,
+        description="Upper age bound (years); one full Age Point cycle is 72 years",
+    )
+
+
 class AstroMundaneRequest(BaseModel):
     """Request model for the 世俗入宫盘 (mundane ingress) tool — cast at a solar ingress, no birth data."""
 
