@@ -427,7 +427,7 @@
       "month_ganzhi": "壬申",
       "next_jieqi": {
         "date_key": "19940823",
-        "datetime": "1994-08-23 16:43:45",
+        "datetime": "1994-08-23 16:43:44",
         "day_ganzhi": "辛巳",
         "name": "处暑"
       },
@@ -453,7 +453,7 @@
     },
     "next_solar_term": {
       "date_key": "19940823",
-      "datetime": "1994-08-23 16:43:45",
+      "datetime": "1994-08-23 16:43:44",
       "day_ganzhi": "辛巳",
       "name": "处暑"
     },

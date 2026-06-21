@@ -5,11 +5,11 @@
       "bazi_month_boundary": {
         "branch": "子",
         "days_since_start": 24.7885,
-        "days_until_next": 4.6828,
+        "days_until_next": 4.6827,
         "month_index": 10,
         "next_term": {
           "date_key": "20260105",
-          "datetime": "2026-01-05 16:23:10",
+          "datetime": "2026-01-05 16:23:09",
           "day_ganzhi": "己卯",
           "name": "小寒"
         },
@@ -31,7 +31,7 @@
         "day": 13,
         "day_cn": "十三",
         "day_ganzhi": "庚辰",
-        "days_until_next_jieqi": 4.6828,
+        "days_until_next_jieqi": 4.6827,
         "display": "冬月十三",
         "is_leap_month": false,
         "jiedelta": "冬至后第11天",
@@ -417,7 +417,7 @@
         "month_ganzhi": "辛巳",
         "next_jieqi": {
           "date_key": "20260105",
-          "datetime": "2026-01-05 16:23:10",
+          "datetime": "2026-01-05 16:23:09",
           "day_ganzhi": "己卯",
           "name": "小寒"
         },
@@ -443,14 +443,14 @@
       },
       "next_solar_term": {
         "date_key": "20260105",
-        "datetime": "2026-01-05 16:23:10",
+        "datetime": "2026-01-05 16:23:09",
         "day_ganzhi": "己卯",
         "name": "小寒"
       },
       "solar_datetime": "2026-01-01 00:00:00",
       "solar_term_delta": {
         "days_since_current": 10.0395,
-        "days_until_next": 4.6828,
+        "days_until_next": 4.6827,
         "description": "冬至后第11天"
       },
       "timezone": "Asia/Shanghai"
@@ -464,20 +464,20 @@
         "month_index": 3,
         "next_term": {
           "date_key": "19900606",
-          "datetime": "1990-06-06 07:46:18",
+          "datetime": "1990-06-06 07:46:17",
           "day_ganzhi": "壬寅",
           "name": "芒种"
         },
         "start_term": {
           "date_key": "19900506",
-          "datetime": "1990-05-06 03:35:26",
+          "datetime": "1990-05-06 03:35:25",
           "day_ganzhi": "辛未",
           "name": "立夏"
         }
       },
       "current_solar_term": {
         "date_key": "19900506",
-        "datetime": "1990-05-06 03:35:26",
+        "datetime": "1990-05-06 03:35:25",
         "day_ganzhi": "辛未",
         "name": "立夏"
       },
@@ -872,13 +872,13 @@
         "month_ganzhi": "辛巳",
         "next_jieqi": {
           "date_key": "19900521",
-          "datetime": "1990-05-21 16:37:24",
+          "datetime": "1990-05-21 16:37:22",
           "day_ganzhi": "丙戌",
           "name": "小满"
         },
         "previous_jieqi": {
           "date_key": "19900506",
-          "datetime": "1990-05-06 03:35:26",
+          "datetime": "1990-05-06 03:35:25",
           "day_ganzhi": "辛未",
           "name": "立夏"
         },
@@ -898,7 +898,7 @@
       },
       "next_solar_term": {
         "date_key": "19900521",
-        "datetime": "1990-05-21 16:37:24",
+        "datetime": "1990-05-21 16:37:22",
         "day_ganzhi": "丙戌",
         "name": "小满"
       },

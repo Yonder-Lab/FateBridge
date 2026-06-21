@@ -19,13 +19,13 @@
       "month_index": 1,
       "next_term": {
         "date_key": "20260405",
-        "datetime": "2026-04-05 02:39:59",
+        "datetime": "2026-04-05 02:40:00",
         "day_ganzhi": "己酉",
         "name": "清明"
       },
       "start_term": {
         "date_key": "20260305",
-        "datetime": "2026-03-05 21:58:59",
+        "datetime": "2026-03-05 21:59:00",
         "day_ganzhi": "戊寅",
         "name": "惊蛰"
       }
@@ -427,7 +427,7 @@
       "month_ganzhi": "辛卯",
       "next_jieqi": {
         "date_key": "20260405",
-        "datetime": "2026-04-05 02:39:59",
+        "datetime": "2026-04-05 02:40:00",
         "day_ganzhi": "己酉",
         "name": "清明"
       },
@@ -453,7 +453,7 @@
     },
     "next_solar_term": {
       "date_key": "20260405",
-      "datetime": "2026-04-05 02:39:59",
+      "datetime": "2026-04-05 02:40:00",
       "day_ganzhi": "己酉",
       "name": "清明"
     },

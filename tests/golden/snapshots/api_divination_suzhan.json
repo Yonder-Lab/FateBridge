@@ -83,9 +83,9 @@
       {
         "house": "House2",
         "id": "Sun",
-        "lon": 16.7842,
+        "lon": 16.7841,
         "sign": "Aries",
-        "signlon": 16.7842
+        "signlon": 16.7841
       },
       {
         "house": "House10",
@@ -132,9 +132,9 @@
       {
         "house": "House5",
         "id": "Pars Fortuna",
-        "lon": 286.8198,
+        "lon": 286.8197,
         "sign": "Capricorn",
-        "signlon": 16.8198
+        "signlon": 16.8197
       }
     ],
     "ok": true

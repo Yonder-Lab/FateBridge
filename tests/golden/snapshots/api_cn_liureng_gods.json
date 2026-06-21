@@ -25,14 +25,14 @@
       },
       "start_term": {
         "date_key": "20260405",
-        "datetime": "2026-04-05 02:39:59",
+        "datetime": "2026-04-05 02:40:00",
         "day_ganzhi": "己酉",
         "name": "清明"
       }
     },
     "current_solar_term": {
       "date_key": "20260405",
-      "datetime": "2026-04-05 02:39:59",
+      "datetime": "2026-04-05 02:40:00",
       "day_ganzhi": "己酉",
       "name": "清明"
     },
@@ -433,7 +433,7 @@
       },
       "previous_jieqi": {
         "date_key": "20260405",
-        "datetime": "2026-04-05 02:39:59",
+        "datetime": "2026-04-05 02:40:00",
         "day_ganzhi": "己酉",
         "name": "清明"
       },

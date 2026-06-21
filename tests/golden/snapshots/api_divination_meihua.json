@@ -16,20 +16,20 @@
       "month_index": 1,
       "next_term": {
         "date_key": "20280404",
-        "datetime": "2028-04-04 14:03:05",
+        "datetime": "2028-04-04 14:03:07",
         "day_ganzhi": "己未",
         "name": "清明"
       },
       "start_term": {
         "date_key": "20280305",
-        "datetime": "2028-03-05 09:24:48",
+        "datetime": "2028-03-05 09:24:49",
         "day_ganzhi": "己丑",
         "name": "惊蛰"
       }
     },
     "current_solar_term": {
       "date_key": "20280320",
-      "datetime": "2028-03-20 10:17:09",
+      "datetime": "2028-03-20 10:17:10",
       "day_ganzhi": "甲辰",
       "name": "春分"
     },
@@ -424,13 +424,13 @@
       "month_ganzhi": "乙卯",
       "next_jieqi": {
         "date_key": "20280404",
-        "datetime": "2028-04-04 14:03:05",
+        "datetime": "2028-04-04 14:03:07",
         "day_ganzhi": "己未",
         "name": "清明"
       },
       "previous_jieqi": {
         "date_key": "20280320",
-        "datetime": "2028-03-20 10:17:09",
+        "datetime": "2028-03-20 10:17:10",
         "day_ganzhi": "甲辰",
         "name": "春分"
       },
@@ -450,7 +450,7 @@
     },
     "next_solar_term": {
       "date_key": "20280404",
-      "datetime": "2028-04-04 14:03:05",
+      "datetime": "2028-04-04 14:03:07",
       "day_ganzhi": "己未",
       "name": "清明"
     },

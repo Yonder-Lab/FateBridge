@@ -14,13 +14,13 @@
   "aspects": [
     {
       "aspect": "opposition",
-      "orb": 0.2527,
+      "orb": 0.253,
       "planet_a": "Moon",
       "planet_b": "Venus"
     },
     {
       "aspect": "sextile",
-      "orb": 0.3925,
+      "orb": 0.3924,
       "planet_a": "Mercury",
       "planet_b": "Jupiter"
     },
@@ -32,7 +32,7 @@
     },
     {
       "aspect": "square",
-      "orb": 1.6746,
+      "orb": 1.6745,
       "planet_a": "Mars",
       "planet_b": "Pluto"
     },
@@ -44,7 +44,7 @@
     },
     {
       "aspect": "sextile",
-      "orb": 2.6739,
+      "orb": 2.674,
       "planet_a": "Neptune",
       "planet_b": "Pluto"
     },
@@ -56,7 +56,7 @@
     },
     {
       "aspect": "trine",
-      "orb": 3.0102,
+      "orb": 3.0099,
       "planet_a": "Moon",
       "planet_b": "Mercury"
     },
@@ -68,25 +68,25 @@
     },
     {
       "aspect": "sextile",
-      "orb": 3.4027,
+      "orb": 3.4023,
       "planet_a": "Moon",
       "planet_b": "Jupiter"
     },
     {
       "aspect": "trine",
-      "orb": 3.6554,
+      "orb": 3.6553,
       "planet_a": "Venus",
       "planet_b": "Jupiter"
     },
     {
       "aspect": "square",
-      "orb": 3.7909,
+      "orb": 3.791,
       "planet_a": "Pluto",
       "planet_b": "North Node"
     },
     {
       "aspect": "conjunction",
-      "orb": 4.9816,
+      "orb": 4.9815,
       "planet_a": "Uranus",
       "planet_b": "Neptune"
     },
@@ -98,7 +98,7 @@
     },
     {
       "aspect": "opposition",
-      "orb": 6.2353,
+      "orb": 6.2355,
       "planet_a": "Jupiter",
       "planet_b": "Uranus"
     }
@@ -109,7 +109,7 @@
     "chart_type": "india_chart",
     "engine_backend": "swisseph_api",
     "engine_precision": "ephemeris_runtime_model",
-    "ephemeris_model": "swieph",
+    "ephemeris_model": "mixed",
     "house_system": "whole_sign",
     "house_system_code": null,
     "house_system_label_zh": "整宫制",
@@ -248,7 +248,7 @@
       "sign_zh": "双鱼"
     },
     {
-      "degree_in_sign": 6.208,
+      "degree_in_sign": 6.2083,
       "dignity": {
         "dignity": "peregrine",
         "status_zh": "平"
@@ -256,8 +256,8 @@
       "element": "Fire",
       "house": 3,
       "id": "Moon",
-      "latitude": -1.3317,
-      "longitude": 126.208,
+      "latitude": -1.3318,
+      "longitude": 126.2083,
       "modality": "Fixed",
       "nakshatra": "Magha",
       "sign": "Leo",
@@ -304,7 +304,7 @@
       "element": "Earth",
       "house": 8,
       "id": "Mars",
-      "latitude": -1.249,
+      "latitude": -1.2489,
       "longitude": 295.1761,
       "modality": "Cardinal",
       "nakshatra": "Dhanishta",
@@ -312,7 +312,7 @@
       "sign_zh": "摩羯"
     },
     {
-      "degree_in_sign": 9.6107,
+      "degree_in_sign": 9.6106,
       "dignity": {
         "dignity": "detriment",
         "status_zh": "陷"
@@ -320,15 +320,15 @@
       "element": "Air",
       "house": 1,
       "id": "Jupiter",
-      "latitude": 0.0842,
-      "longitude": 69.6107,
+      "latitude": 0.0843,
+      "longitude": 69.6106,
       "modality": "Mutable",
       "nakshatra": "Ardra",
       "sign": "Gemini",
       "sign_zh": "双子"
     },
     {
-      "degree_in_sign": 0.9447,
+      "degree_in_sign": 0.9448,
       "dignity": {
         "dignity": "rulership",
         "status_zh": "庙"
@@ -337,20 +337,20 @@
       "house": 8,
       "id": "Saturn",
       "latitude": 0.1965,
-      "longitude": 270.9447,
+      "longitude": 270.9448,
       "modality": "Cardinal",
       "nakshatra": "Uttara Ashadha",
       "sign": "Capricorn",
       "sign_zh": "摩羯"
     },
     {
-      "degree_in_sign": 15.846,
+      "degree_in_sign": 15.8461,
       "dignity": null,
       "element": "Fire",
       "house": 7,
       "id": "Uranus",
       "latitude": -0.2994,
-      "longitude": 255.846,
+      "longitude": 255.8461,
       "modality": "Mutable",
       "nakshatra": "Purva Ashadha",
       "sign": "Sagittarius",
@@ -370,13 +370,13 @@
       "sign_zh": "射手"
     },
     {
-      "degree_in_sign": 23.5015,
+      "degree_in_sign": 23.5016,
       "dignity": null,
       "element": "Air",
       "house": 5,
       "id": "Pluto",
       "latitude": 15.9498,
-      "longitude": 203.5015,
+      "longitude": 203.5016,
       "modality": "Cardinal",
       "nakshatra": "Vishakha",
       "sign": "Libra",
@@ -398,7 +398,7 @@
   ],
   "run_metadata": {
     "engine": "swisseph_api",
-    "engine_is_approximate": false,
+    "engine_is_approximate": true,
     "tool_name": "astro_india_chart"
   },
   "snapshot_export": {

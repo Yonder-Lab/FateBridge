@@ -84,9 +84,9 @@
         {
           "house": "House11",
           "id": "Sun",
-          "lon": 16.7842,
+          "lon": 16.7841,
           "sign": "Aries",
-          "signlon": 16.7842,
+          "signlon": 16.7841,
           "su28": "亢"
         },
         {
@@ -148,17 +148,17 @@
         {
           "house": "House10",
           "id": "Neptune",
-          "lon": 6.7243,
+          "lon": 6.7242,
           "sign": "Aries",
-          "signlon": 6.7243,
+          "signlon": 6.7242,
           "su28": "角"
         },
         {
           "house": "House9",
           "id": "Pluto",
-          "lon": 308.5722,
+          "lon": 308.5721,
           "sign": "Aquarius",
-          "signlon": 8.5722,
+          "signlon": 8.5721,
           "su28": "星"
         },
         {
@@ -180,9 +180,9 @@
         {
           "house": "House5",
           "id": "Pars Fortuna",
-          "lon": 201.1046,
+          "lon": 201.1047,
           "sign": "Libra",
-          "signlon": 21.1046,
+          "signlon": 21.1047,
           "su28": "娄"
         }
       ],
@@ -359,17 +359,17 @@
         {
           "house": "House7",
           "id": "Neptune",
-          "lon": 6.7243,
+          "lon": 6.7242,
           "sign": "Aries",
-          "signlon": 6.7243,
+          "signlon": 6.7242,
           "su28": "角"
         },
         {
           "house": "House5",
           "id": "Pluto",
-          "lon": 308.5722,
+          "lon": 308.5721,
           "sign": "Aquarius",
-          "signlon": 8.5722,
+          "signlon": 8.5721,
           "su28": "星"
         },
         {
@@ -391,9 +391,9 @@
         {
           "house": "House1",
           "id": "Pars Fortuna",
-          "lon": 201.1046,
+          "lon": 201.1047,
           "sign": "Libra",
-          "signlon": 21.1046,
+          "signlon": 21.1047,
           "su28": "娄"
         }
       ],

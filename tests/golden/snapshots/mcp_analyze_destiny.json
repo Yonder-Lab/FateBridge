@@ -7,20 +7,20 @@
       "month_index": 3,
       "next_term": {
         "date_key": "19900606",
-        "datetime": "1990-06-06 07:46:18",
+        "datetime": "1990-06-06 07:46:17",
         "day_ganzhi": "壬寅",
         "name": "芒种"
       },
       "start_term": {
         "date_key": "19900506",
-        "datetime": "1990-05-06 03:35:26",
+        "datetime": "1990-05-06 03:35:25",
         "day_ganzhi": "辛未",
         "name": "立夏"
       }
     },
     "current_solar_term": {
       "date_key": "19900506",
-      "datetime": "1990-05-06 03:35:26",
+      "datetime": "1990-05-06 03:35:25",
       "day_ganzhi": "辛未",
       "name": "立夏"
     },
@@ -415,13 +415,13 @@
       "month_ganzhi": "辛巳",
       "next_jieqi": {
         "date_key": "19900521",
-        "datetime": "1990-05-21 16:37:24",
+        "datetime": "1990-05-21 16:37:22",
         "day_ganzhi": "丙戌",
         "name": "小满"
       },
       "previous_jieqi": {
         "date_key": "19900506",
-        "datetime": "1990-05-06 03:35:26",
+        "datetime": "1990-05-06 03:35:25",
         "day_ganzhi": "辛未",
         "name": "立夏"
       },
@@ -441,7 +441,7 @@
     },
     "next_solar_term": {
       "date_key": "19900521",
-      "datetime": "1990-05-21 16:37:24",
+      "datetime": "1990-05-21 16:37:22",
       "day_ganzhi": "丙戌",
       "name": "小满"
     },

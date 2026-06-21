@@ -5,10 +5,6 @@ name: Golden Freeze
 # 字节比对。用法：触发本工作流 → 下载 artifact → 覆盖 tests/golden/snapshots/ → 提交。
 on:
   workflow_dispatch:
-  # 临时：本分支首次冻结基线用。拿到 Linux 基线后改回仅 workflow_dispatch。
-  push:
-    branches:
-      - test/sp0-golden-master
 
 jobs:
   freeze:
