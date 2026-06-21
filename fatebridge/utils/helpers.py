@@ -1064,14 +1064,14 @@ def get_element_relationship(element1: str, element2: str) -> Dict[str, str]:
         }
 
     if element1_enum == element2_enum:
-        return {"type": "相同", "description": "同类元素，容易理解对方"}
+        return {"type": "相同", "description": "同类元素"}
     elif (
         element1_enum in GENERATION_CYCLE
         and GENERATION_CYCLE[element1_enum] == element2_enum
     ):
         return {
             "type": "相生",
-            "description": f"{element1}生{element2}，{element1}方能助{element2}方",
+            "description": f"{element1}生{element2}",
         }
     elif (
         element2_enum in GENERATION_CYCLE
@@ -1079,7 +1079,7 @@ def get_element_relationship(element1: str, element2: str) -> Dict[str, str]:
     ):
         return {
             "type": "相生",
-            "description": f"{element2}生{element1}，{element2}方能助{element1}方",
+            "description": f"{element2}生{element1}",
         }
     elif (
         element1_enum in DESTRUCTION_CYCLE
@@ -1087,7 +1087,7 @@ def get_element_relationship(element1: str, element2: str) -> Dict[str, str]:
     ):
         return {
             "type": "相克",
-            "description": f"{element1}克{element2}，{element1}方较为强势",
+            "description": f"{element1}克{element2}",
         }
     elif (
         element2_enum in DESTRUCTION_CYCLE
@@ -1095,7 +1095,7 @@ def get_element_relationship(element1: str, element2: str) -> Dict[str, str]:
     ):
         return {
             "type": "相克",
-            "description": f"{element2}克{element1}，{element2}方较为强势",
+            "description": f"{element2}克{element1}",
         }
     else:
         return {"type": "无直接关系", "description": "元素间无直接生克关系"}

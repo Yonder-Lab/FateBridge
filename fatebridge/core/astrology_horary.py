@@ -293,14 +293,14 @@ def build_horary_payload(subject: Any, *, category: str) -> Dict[str, Any]:
         strictures.append(
             {
                 "code": "ascendant_too_early",
-                "detail": f"上升 {round(asc_degree, 2)}°，过早，事情尚未成形，judgment 宜审慎。",
+                "detail": f"上升 {round(asc_degree, 2)}°，过早。",
             }
         )
     elif asc_degree > 27.0:
         strictures.append(
             {
                 "code": "ascendant_too_late",
-                "detail": f"上升 {round(asc_degree, 2)}°，过晚，事情已成定局或问得太迟。",
+                "detail": f"上升 {round(asc_degree, 2)}°，过晚。",
             }
         )
     saturn_house = getattr(subject.saturn, "house", "")
@@ -308,19 +308,17 @@ def build_horary_payload(subject: Any, *, category: str) -> Dict[str, Any]:
         strictures.append(
             {
                 "code": "saturn_in_seventh",
-                "detail": "土星落第七宫，占者(astrologer)判断易有差错。",
+                "detail": "土星落第七宫。",
             }
         )
     if saturn_house == "First_House":
-        strictures.append(
-            {"code": "saturn_in_first", "detail": "土星落第一宫，事主受困、事情多阻。"}
-        )
+        strictures.append({"code": "saturn_in_first", "detail": "土星落第一宫。"})
     moon_abs = moon_state["absolute_degree"]
     if VIA_COMBUSTA[0] <= moon_abs <= VIA_COMBUSTA[1]:
         strictures.append(
             {
                 "code": "moon_via_combusta",
-                "detail": "月亮行经燃烧之路(天秤15°–天蝎15°)，事态不稳。",
+                "detail": "月亮行经燃烧之路(天秤15°–天蝎15°)。",
             }
         )
 
@@ -331,7 +329,7 @@ def build_horary_payload(subject: Any, *, category: str) -> Dict[str, Any]:
         strictures.append(
             {
                 "code": "moon_void_of_course",
-                "detail": "月亮空亡：在离开本宫前不再完成任何主相位，多主『不成 / 无事发生』。",
+                "detail": "月亮空亡：在离开本宫前不再完成任何主相位。",
             }
         )
 
