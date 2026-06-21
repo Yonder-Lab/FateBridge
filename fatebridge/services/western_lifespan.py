@@ -16,6 +16,7 @@ import json
 from typing import Any, Dict, List, Optional, Tuple
 
 from fatebridge.core.astrology_lifespan import (
+    build_age_point_payload,
     build_balbillus_payload,
     build_distributions_payload,
     build_harmonic_payload,
@@ -41,6 +42,7 @@ from fatebridge.core.predictive import (
     point_absolute_position,
     sect_label,
 )
+from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
 
 # Natal targets FateBridge directs in 波斯向运: the ten visible bodies plus the 12
 # house cusps (added by the core builder). This is the clean subset 星阙 shares —
@@ -58,7 +60,8 @@ _PERSIAN_TARGET_BODIES = [
     "Neptune",
     "Pluto",
 ]
-_PERSIAN_HOUSE_POINTS = [
+# Ordered Koch house cusps (1st-12th) — 年龄推进点 sweeps these; index 0 = Ascendant.
+_HOUSE_CUSP_POINTS = [
     "First_House",
     "Second_House",
     "Third_House",
@@ -72,7 +75,6 @@ _PERSIAN_HOUSE_POINTS = [
     "Eleventh_House",
     "Twelfth_House",
 ]
-from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
 
 
 def _json_block(value: Any) -> str:
@@ -785,7 +787,7 @@ def calculate_persian_directed(
         )
         house_cusps = [
             point_absolute_position(natal_subject, point_name)
-            for point_name in _PERSIAN_HOUSE_POINTS
+            for point_name in _HOUSE_CUSP_POINTS
         ]
         payload = build_persian_directed_payload(
             natal_longitudes,
@@ -813,6 +815,94 @@ def calculate_persian_directed(
         return _envelope(
             analysis_type="西占波斯向运",
             tool_name="persian_directed",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+def _age_point_table(payload: Dict[str, Any]) -> str:
+    """Render the 年龄推进点 timeline as 星阙's 落座/合本命 table."""
+    points = payload.get("points", [])
+    if not points:
+        return "（本盘无年龄推进点数据）"
+    contacts = payload.get("contacts", [])
+    lines = [
+        "年龄点自上升点起，沿 Koch 宫顺行，每宫 6 年、72 年回归上升；"
+        "落于本命星处（合相）为人生关键节点。",
+    ]
+    if contacts:
+        lines.append("")
+        lines.append(
+            "关键岁数（合本命）："
+            + "；".join(f"{c['age']}岁合{c['body_label']}" for c in contacts)
+        )
+    lines.append("")
+    lines.append("| 年龄 | 落座 | 宫 | 合本命 |")
+    lines.append("| --- | --- | --- | --- |")
+    for point in points:
+        seat = f"{point['sign_label']} {point['signlon']}°"
+        aspect_to = point["aspect_to_label"] or "—"
+        lines.append(
+            f"| {point['age']}岁 | {seat} | {point['house']}宫 | {aspect_to} |"
+        )
+    return "\n".join(lines)
+
+
+def calculate_age_point(
+    *,
+    max_age_years: float = 72.0,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成年龄推进点盘（Huber Age Point，Koch 宫，6 年/宫，72 年回归上升）。
+
+    Huber 法以 Koch 分宫制为基准，故本工具固定使用 Koch 宫；请求里的 ``house_system``
+    会被接收但忽略（仅为消化统一的 lifespan 请求字段）。
+    """
+    label = "年龄推进点"
+    house_system = "K"  # Huber Age Point is defined on Koch houses (override request).
+    try:
+        birth_info, natal_subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type=zodiac_type, **birth_kwargs
+        )
+        natal_longitudes = extract_named_longitudes(
+            natal_subject, _PERSIAN_TARGET_BODIES
+        )
+        koch_cusps = [
+            point_absolute_position(natal_subject, point_name)
+            for point_name in _HOUSE_CUSP_POINTS
+        ]
+        payload = build_age_point_payload(
+            natal_longitudes,
+            koch_cusps,
+            max_age_years=max_age_years,
+        )
+        summary = (
+            f"年龄推进点：自上升点起沿 Koch 宫每宫 6 年推进，"
+            f"在 0–{round(max_age_years)} 岁内共 {len(payload['contacts'])} 次合本命。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        context["max_age_years"] = max_age_years
+        sections = [
+            ("起盘信息", _json_block(context)),
+            ("年龄推进点（Age Point / Huber）", _age_point_table(payload)),
+            ("合本命明细", _json_block(payload["contacts"])),
+        ]
+        return _envelope(
+            analysis_type="西占年龄推进点",
+            tool_name="age_point",
             context=context,
             natal_reference=natal_reference,
             payload=payload,

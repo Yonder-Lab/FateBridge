@@ -18,6 +18,7 @@ triggers:
   - 最近为什么不顺
   - 运势起伏
 engine_tools:
+  - astro_agepoint
   - astro_balbillus
   - astro_distributions
   - astro_election
