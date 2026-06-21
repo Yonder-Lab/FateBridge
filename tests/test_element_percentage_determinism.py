@@ -23,7 +23,9 @@ def test_knife_edge_chart_is_deterministic_and_sums_to_100():
     counts = _counts(金=5.0, 火=4.5, 土=3.0, 木=0.5, 水=0.5)
     result = ElementAnalysis.convert_to_percentage(counts)
     assert result["金"] == 37.1  # 残差 0.1 并入最大项（金），跨版本一致
-    assert sum(result.values()) == 100.0
+    # 各项是 0.1 量化值，其浮点和不会 bit-精确等于 100.0，且 sum() 实现跨版本
+    # 不同（正是本 bug 的根源）——故在 0.1 精度上校验总和。
+    assert round(sum(result.values()), 1) == 100.0
 
 
 def test_always_normalizes_to_exactly_100():
@@ -35,4 +37,4 @@ def test_always_normalizes_to_exactly_100():
         _counts(木=7.0, 火=1.0, 土=1.0, 金=1.0, 水=1.0),  # 单边集中
     ):
         result = ElementAnalysis.convert_to_percentage(counts)
-        assert sum(result.values()) == 100.0
+        assert round(sum(result.values()), 1) == 100.0
