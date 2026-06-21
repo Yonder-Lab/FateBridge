@@ -672,6 +672,23 @@ def _build_dispositor_lines(payload: Dict[str, Any]) -> str:
     return "\n".join(lines).strip()
 
 
+def _build_lots_lines(payload: Dict[str, Any]) -> str:
+    """``[阿拉伯点]`` section: each lot's sign/degree + domicile lord and almuten."""
+    lots = payload.get("classical", {}).get("lots", {})
+    if not lots:
+        return "无"
+    lines = []
+    for lot in lots.values():
+        sign_zh = SIGN_LABELS_ZH.get(lot.get("sign"), lot.get("sign", "?"))
+        disp = PLANET_LABELS_ZH.get(lot.get("dispositor"), lot.get("dispositor") or "—")
+        almuten = PLANET_LABELS_ZH.get(lot.get("almuten"), lot.get("almuten") or "—")
+        lines.append(
+            f"{lot.get('cn', '?')} {sign_zh}{_format_degree(lot.get('degree_in_sign'))}"
+            f" 主{disp} 力主{almuten}"
+        )
+    return "\n".join(lines).strip()
+
+
 def _build_topic_almuten_line(payload: Dict[str, Any]) -> str:
     topic = payload.get("classical", {}).get("topic_almutens", {})
     if not topic:
@@ -749,6 +766,7 @@ def _build_standard_chart_snapshot_sections(
         ("古典", _build_classical_lines(payload)),
         ("主宰", _build_dispositor_lines(payload)),
         ("宫主星", _build_topic_almuten_line(payload)),
+        ("阿拉伯点", _build_lots_lines(payload)),
         ("希腊点", "\n".join(greek_lines).strip()),
         (
             "可能性",

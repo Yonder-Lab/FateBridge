@@ -141,6 +141,48 @@
         "Saturn"
       ]
     },
+    "lots": {
+      "children": {
+        "almuten": "Jupiter",
+        "cn": "子女点",
+        "degree_in_sign": 3.1136,
+        "dispositor": "Jupiter",
+        "longitude": 243.1136,
+        "sign": "Sagittarius"
+      },
+      "death": {
+        "almuten": "Venus",
+        "cn": "死亡点",
+        "degree_in_sign": 24.7365,
+        "dispositor": "Venus",
+        "longitude": 54.7365,
+        "sign": "Taurus"
+      },
+      "fortune": {
+        "almuten": "Mars",
+        "cn": "福点",
+        "degree_in_sign": 8.375,
+        "dispositor": "Mars",
+        "longitude": 218.375,
+        "sign": "Scorpio"
+      },
+      "marriage": {
+        "almuten": "Moon",
+        "cn": "婚姻点",
+        "degree_in_sign": 29.4583,
+        "dispositor": "Moon",
+        "longitude": 119.4583,
+        "sign": "Cancer"
+      },
+      "spirit": {
+        "almuten": "Saturn",
+        "cn": "精神点",
+        "degree_in_sign": 10.5206,
+        "dispositor": "Saturn",
+        "longitude": 310.5206,
+        "sign": "Aquarius"
+      }
+    },
     "planets": {
       "Jupiter": {
         "above_horizon": false,
