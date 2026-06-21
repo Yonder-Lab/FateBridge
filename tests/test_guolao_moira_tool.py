@@ -80,6 +80,70 @@ def test_compute_god_signidx_guolao_qili():
     }
 
 
+def test_purple_clouds_matches_horosa_fixtures():
+    """紫炁(木余) horosa 对照锁：4 张 horosa 七政四余盘 fixture 的紫炁黄经，残差 <0.01°。"""
+    # (JD_UT, horosa Purple Clouds 黄经) —— chart_guolao / 1998_predictive / liureng / traditional
+    horosa_points = [
+        (2446145.583333333, 358.66910331920116),
+        (2450865.033333333, 164.80172577759032),
+        (2461135.054166667, 166.32382978206476),
+        (2461193.770833333, 168.39076),
+    ]
+    for jd, expected in horosa_points:
+        got = guolao_moira.purple_clouds_longitude(jd)
+        delta = ((got - expected + 180) % 360) - 180
+        assert (
+            abs(delta) < 0.01
+        ), f"jd={jd}: 紫炁 {got} vs horosa {expected} (Δ={delta})"
+
+
+def test_si_yu_sign_index_matches_horosa_chart():
+    """四余(孛/罗/计/炁) horosa 对照锁：chart_guolao fixture(1985-03-21 10:00 +08 上海)。
+
+    horosa 后端实测：孛 Aries(0)、罗 Taurus(1)、计 Scorpio(7)、炁 Pisces(11)。
+    """
+    from fatebridge.services.astrology import calculate_core_chart_analysis
+
+    guolao = calculate_core_chart_analysis(
+        birth_year=1985,
+        birth_month=3,
+        birth_day=21,
+        birth_hour=10,
+        birth_minute=0,
+        birth_longitude=121.47,
+        birth_latitude=31.22,
+        chart_variant="guolao_chart",
+        birth_timezone="Asia/Shanghai",
+    )["guolao"]
+    assert guolao["si_yu_sign_index"] == {"孛": 0, "罗": 1, "计": 7, "炁": 11}
+
+
+def test_gu_yue_du_ming_counts_purple_clouds():
+    """孤月独明：紫炁补齐后，同宫计数覆盖全 11 体——炁与月同宫应使月不再「独居」。"""
+    base = {
+        "日": 1,
+        "月": 5,
+        "水": 2,
+        "金": 3,
+        "火": 7,
+        "木": 8,
+        "土": 9,
+        "孛": 10,
+        "罗": 0,
+        "计": 6,
+    }
+    # 月独居（炁不在月宫）→ 点亮
+    alone = guolao_moira.calculate(
+        {"asc_lon": 75, "planet_signidx": {**base, "炁": 4}, "is_day": False}
+    )
+    assert any(p["name"] == "孤月独明" for p in alone)
+    # 炁与月同宫(5) → 月不再独居 → 不点亮
+    with_qi = guolao_moira.calculate(
+        {"asc_lon": 75, "planet_signidx": {**base, "炁": 5}, "is_day": False}
+    )
+    assert not any(p["name"] == "孤月独明" for p in with_qi)
+
+
 def test_ming_zuo_liangqi_near_su_boundary():
     """命坐两歧 近宿界（FB 等分宿口径）：命度近宿界但不近宫界亦应点亮。"""
     # 等分宿界 1*(360/28)=12.857°；asc=12.9 近宿界(0.04°)，但 12.9 不近宫界(12.9°)。

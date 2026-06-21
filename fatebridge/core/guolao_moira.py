@@ -12,9 +12,9 @@ Scope notes (see docs/superpowers/specs/2026-06-21-guolao-moira-engine-design.md
   驱动 日月拱贵人 / 命登岁驾 两格局。贵人阳/阴(昼/夜)定向流派有别，故以单一权威源
   《三命通会》为准（见常量注释）；岁驾=太岁=年支。无 horosa 字节对照 → golden 锁定。其余
   64+36 神煞（per-宫 显示表）留待 Phase 2b。``god_signidx`` 缺省时两格局自然失效。
-* **紫炁 (木余) is not yet computed.** It feeds no pattern *directly*, but
-  ``孤月独明`` counts shared-sign bodies over the full 11-body ``MOIRA_PLANET_ORDER``
-  which includes 炁; with 炁 absent that count omits it. Faithful once Phase 4 adds 紫炁.
+* **紫炁 (木余, Phase 4)**：由 :func:`purple_clouds_longitude` 以 horosa 标定的线性步紫气
+  算出（4 张 horosa fixture 最小二乘，残差 <1e-5°，周期≈28年）。补齐后 ``孤月独明`` 的同宫
+  计数覆盖全 11 体（含炁），与 horosa 一致——此前的「炁缺省」注记已消除。
 * **命坐两歧 (Phase 3)**：近宫界 + 近宿界 均已实现。宿界以 FB 等分宿口径（360/28，与
   ``core.astrology._su28`` 同源）判定——内部自洽，但非 horosa 后端真实（不等）宿度，故
   近宿界临界判定不与 horosa 字节对照（近宫界仍与 JS 逐字一致）。
@@ -116,6 +116,24 @@ _YUGUI_BY_YEAR_STEM = {  # 阴贵（夜/玉贵）——《三命通会》甲加�
     "壬": "卯",
     "癸": "巳",
 }
+
+
+# 步紫气（紫炁/木余）—— 七政四余「四余」之一，无 swisseph 天体对应。以 horosa 后端 4 张
+# 七政四余盘 fixture（1985-03-21 / 1998 / 2026，chart_guolao·1998_predictive·liureng·traditional）
+# 作最小二乘线性标定：周期 ≈ 27.9994 年（古典「紫气二十八年一周天」），4 点残差 < 1e-5°。
+# 锚点取 horosa chart_guolao fixture（1985-03-21 10:00 +08，JD_UT 2446145.5833）。横向移植故
+# 直接锚定 horosa 值（紫炁为均行虚点，黄经随时间严格线性）。
+_PURPLE_CLOUDS_ANCHOR_JD = 2446145.583333333
+_PURPLE_CLOUDS_ANCHOR_LON = 358.66910331920116
+_PURPLE_CLOUDS_RATE_DEG_PER_DAY = 0.035201691530618556
+
+
+def purple_clouds_longitude(julian_day: float) -> float:
+    """紫炁（木余）黄经（度，0–360）。horosa 标定的线性步紫气，见上方常量注释。"""
+    lon = _PURPLE_CLOUDS_ANCHOR_LON + _PURPLE_CLOUDS_RATE_DEG_PER_DAY * (
+        julian_day - _PURPLE_CLOUDS_ANCHOR_JD
+    )
+    return lon % 360.0
 
 
 def compute_god_signidx(year_stem: str, year_branch: str) -> Dict[str, int]:
