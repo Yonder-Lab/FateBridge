@@ -710,148 +710,129 @@ def build_classical_patterns(
 # from the Swiss Ephemeris star catalogue — a star's position is a public
 # astronomical fact, so the numbers are vendored here even though the AGPL data
 # file itself is never shipped (same stance as the .se1 ephemeris). ``nature`` is
-# the Ptolemaic planetary nature; ``cn`` the traditional Chinese name + a brief
-# signification, for readable output.
+# the Ptolemaic planetary nature (a cited traditional attribution, the raw
+# material for a reading); ``cn`` the traditional Chinese name. Interpretation of
+# what a conjunction *means* is the skills layer's job, not the engine's.
 FIXED_STARS: Dict[str, Dict[str, Any]] = {
     "Algol": {
         "lon2000": 56.1682,
         "lat": 22.430,
         "nature": ["Saturn", "Jupiter"],
         "cn": "大陵五",
-        "gloss": "至凶，暴烈、失序、斩首之象",
     },
     "Alcyone": {
         "lon2000": 59.9929,
         "lat": 4.051,
         "nature": ["Moon", "Mars"],
         "cn": "昴宿六",
-        "gloss": "哭泣之星，显赫或视力/悲伤之患",
     },
     "Aldebaran": {
         "lon2000": 69.7903,
         "lat": -5.468,
         "nature": ["Mars"],
         "cn": "毕宿五",
-        "gloss": "金牛之眼·东方守护，荣耀与暴烈并存",
     },
     "Rigel": {
         "lon2000": 76.8319,
         "lat": -31.124,
         "nature": ["Jupiter", "Saturn"],
         "cn": "参宿七",
-        "gloss": "技艺、荣誉与财富",
     },
     "Capella": {
         "lon2000": 81.8600,
         "lat": 22.865,
         "nature": ["Mars", "Mercury"],
         "cn": "五车二",
-        "gloss": "好奇求知、热爱自由",
     },
     "Betelgeuse": {
         "lon2000": 88.7566,
         "lat": -16.027,
         "nature": ["Mars", "Mercury"],
         "cn": "参宿四",
-        "gloss": "武功、成功与好运",
     },
     "Sirius": {
         "lon2000": 104.0853,
         "lat": -39.605,
         "nature": ["Jupiter", "Mars"],
         "cn": "天狼",
-        "gloss": "荣耀、热忱、声名显赫",
     },
     "Pollux": {
         "lon2000": 113.2175,
         "lat": 6.684,
         "nature": ["Mars"],
         "cn": "北河三",
-        "gloss": "勇武而易趋残酷、好斗",
     },
     "Procyon": {
         "lon2000": 115.7875,
         "lat": -16.019,
         "nature": ["Mercury", "Mars"],
         "cn": "南河三",
-        "gloss": "活力、骤起骤落",
     },
     "Regulus": {
         "lon2000": 149.8290,
         "lat": 0.465,
         "nature": ["Mars", "Jupiter"],
         "cn": "轩辕十四",
-        "gloss": "王者之星·北方守护，权位荣登而忌骄败",
     },
     "Denebola": {
         "lon2000": 171.6156,
         "lat": 12.266,
         "nature": ["Saturn", "Venus"],
         "cn": "五帝座一",
-        "gloss": "时运逆转、不安与变动",
     },
     "Algorab": {
         "lon2000": 193.4476,
         "lat": -12.195,
         "nature": ["Mars", "Saturn"],
         "cn": "轸宿三",
-        "gloss": "欺诈、破坏与排斥",
     },
     "Spica": {
         "lon2000": 203.8361,
         "lat": -2.054,
         "nature": ["Venus", "Mars"],
         "cn": "角宿一",
-        "gloss": "至吉，才华、福分与庇佑",
     },
     "Arcturus": {
         "lon2000": 204.2282,
         "lat": 30.733,
         "nature": ["Jupiter", "Mars"],
         "cn": "大角",
-        "gloss": "繁荣、远行与开拓",
     },
     "Alphecca": {
         "lon2000": 222.2877,
         "lat": 44.320,
         "nature": ["Venus", "Mercury"],
         "cn": "贯索四",
-        "gloss": "荣誉、尊严与艺术天赋",
     },
     "Antares": {
         "lon2000": 249.7534,
         "lat": -4.570,
         "nature": ["Mars", "Jupiter"],
         "cn": "心宿二",
-        "gloss": "天蝎之心·西方守护，激烈、军事荣耀",
     },
     "Vega": {
         "lon2000": 285.3003,
         "lat": 61.733,
         "nature": ["Venus", "Mercury"],
         "cn": "织女一",
-        "gloss": "艺术、魅力与理想主义",
     },
     "Deneb Algedi": {
         "lon2000": 323.5344,
         "lat": -2.602,
         "nature": ["Saturn", "Jupiter"],
         "cn": "垒壁阵四",
-        "gloss": "律法、智慧，仁慈与悲悯交织",
     },
     "Fomalhaut": {
         "lon2000": 333.8527,
         "lat": -21.137,
         "nature": ["Venus", "Mercury"],
         "cn": "北落师门",
-        "gloss": "南方守护，理想与声望（升华或堕落）",
     },
     "Markab": {
         "lon2000": 353.4799,
         "lat": 19.408,
         "nature": ["Mars", "Mercury"],
         "cn": "室宿一",
-        "gloss": "危难中的刚毅，须防暴烈",
     },
 }
 
@@ -895,7 +876,6 @@ def build_fixed_star_hits(
                         "orb": round(separation, 4),
                         "star_longitude": round(star_lon, 4),
                         "nature": data["nature"],
-                        "gloss": data["gloss"],
                     }
                 )
     hits.sort(key=lambda hit: (hit["orb"], hit["star"], hit["point"]))

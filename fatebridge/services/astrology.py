@@ -834,7 +834,7 @@ def _build_fixed_stars_lines(payload: Dict[str, Any]) -> str:
         )
         lines.append(
             f"{hit.get('cn', '')}({hit.get('star', '?')}) 合 {point}"
-            f" {_format_degree(hit.get('orb'))}　[{nature}] {hit.get('gloss', '')}"
+            f" {_format_degree(hit.get('orb'))}　[{nature}]"
         )
     return "\n".join(lines).strip()
 
