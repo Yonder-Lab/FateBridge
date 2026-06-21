@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.core.astrology import _resolve_offline_house_system
 from fatebridge.core.elements import ElementAnalysis
-from fatebridge.core.phase2_local import (
+from fatebridge.core.local_techniques import (
     _normalize_date_text,
     _normalize_time_text,
     build_sixyao_result,

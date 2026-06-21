@@ -1,9 +1,8 @@
 """
-Phase 2 local technique helpers for FateBridge.
+本地技法辅助模块（local technique helpers）。
 
-These helpers implement the Phase 2 local-technique surface with offline
-Python logic that fits the current FateBridge architecture and reuses the
-repo's existing local engines whenever possible.
+实现 FateBridge 本地技法层（六爻、宿占、统摄法、三式合一等），
+以纯 Python 离线逻辑为主，尽量复用本仓库现有本地引擎。
 """
 
 from __future__ import annotations
@@ -627,7 +626,7 @@ def _normalize_time_text(time_text: str) -> str:
     return f"{int(hours_text):02d}:{int(minutes_text):02d}:{int(seconds_text):02d}"
 
 
-def parse_phase2_datetime(
+def parse_local_datetime(
     date_text: str,
     time_text: str,
     timezone_name: Optional[str] = None,
@@ -725,7 +724,7 @@ def _split_degree(value: Any) -> Tuple[int, int]:
     return whole_degree, minute
 
 
-def _resolve_phase2_coordinates(
+def _resolve_coordinates(
     *,
     lat: Any = None,
     lon: Any = None,
@@ -737,7 +736,7 @@ def _resolve_phase2_coordinates(
     return latitude or 31.2167, longitude or 121.4667
 
 
-def _build_phase2_birth_info(
+def _build_birth_info(
     *,
     date_text: str,
     time_text: str,
@@ -747,8 +746,8 @@ def _build_phase2_birth_info(
     gps_lat: Optional[float] = None,
     gps_lon: Optional[float] = None,
 ) -> Tuple[AstroBirthInfo, float, float]:
-    moment = parse_phase2_datetime(date_text, time_text, timezone_name)
-    latitude, longitude = _resolve_phase2_coordinates(
+    moment = parse_local_datetime(date_text, time_text, timezone_name)
+    latitude, longitude = _resolve_coordinates(
         lat=lat,
         lon=lon,
         gps_lat=gps_lat,
@@ -774,7 +773,7 @@ def _normalize_mode(value: Any, default: int = 0) -> int:
         return default
 
 
-def _phase2_house_step(shape_mode: int) -> float:
+def _house_step(shape_mode: int) -> float:
     return -30.0 if shape_mode % 2 else 30.0
 
 
@@ -787,7 +786,7 @@ def _display_house_system_name(house_system: Any) -> Optional[str]:
     return name
 
 
-def _build_phase2_house_ring(
+def _build_house_ring(
     house1_longitude: float,
     *,
     step_degrees: float = 30.0,
@@ -807,7 +806,7 @@ def _build_phase2_house_ring(
     return houses
 
 
-def _reindex_phase2_houses(source_houses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _reindex_houses(source_houses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     houses: List[Dict[str, Any]] = []
     for index, item in enumerate(source_houses, start=1):
         longitude = round(float(item.get("lon", 0.0)), 4)
@@ -823,13 +822,13 @@ def _reindex_phase2_houses(source_houses: List[Dict[str, Any]]) -> List[Dict[str
     return houses
 
 
-def _reverse_phase2_houses(source_houses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _reverse_houses(source_houses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     if not source_houses:
         return []
-    return _reindex_phase2_houses([source_houses[0], *reversed(source_houses[1:])])
+    return _reindex_houses([source_houses[0], *reversed(source_houses[1:])])
 
 
-def _phase2_house_direction(houses: List[Dict[str, Any]]) -> str:
+def _house_direction(houses: List[Dict[str, Any]]) -> str:
     if len(houses) < 2:
         return "forward"
 
@@ -849,7 +848,7 @@ def _phase2_house_direction(houses: List[Dict[str, Any]]) -> str:
     return "reverse" if reverse_steps > forward_steps else "forward"
 
 
-def _build_phase2_houses(
+def _build_houses(
     core_payload: Dict[str, Any],
     *,
     house_start_mode: int = 1,
@@ -859,10 +858,10 @@ def _build_phase2_houses(
     ascendant = round(float(core_payload["angles"]["ascendant"]["longitude"]), 4)
     base_houses = _adapt_chart_houses(core_payload)
     if preserve_core_cusps and house_start_mode != 2 and base_houses:
-        houses = _reindex_phase2_houses(base_houses)
+        houses = _reindex_houses(base_houses)
         if shape_mode % 2:
-            houses = _reverse_phase2_houses(houses)
-        house_direction = _phase2_house_direction(houses)
+            houses = _reverse_houses(houses)
+        house_direction = _house_direction(houses)
         house_step = -30.0 if house_direction == "reverse" else 30.0
         house1_longitude = houses[0]["lon"]
         return houses, house1_longitude, house_step
@@ -872,8 +871,8 @@ def _build_phase2_houses(
     else:
         house1_longitude = base_houses[0]["lon"] if base_houses else ascendant
 
-    house_step = _phase2_house_step(shape_mode)
-    houses = _build_phase2_house_ring(house1_longitude, step_degrees=house_step)
+    house_step = _house_step(shape_mode)
+    houses = _build_house_ring(house1_longitude, step_degrees=house_step)
     return houses, house1_longitude, house_step
 
 
@@ -893,7 +892,7 @@ def _adapt_chart_houses(core_payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     return houses
 
 
-def _build_phase2_point_object(
+def _build_point_object(
     *,
     point_id: str,
     longitude: float,
@@ -903,7 +902,7 @@ def _build_phase2_point_object(
     sign = _sign_name(longitude)
     payload = {
         "id": point_id,
-        "house": _house_id_for_phase2_houses(longitude, houses),
+        "house": _house_id_for_houses(longitude, houses),
         "sign": sign,
         "signlon": round(longitude % 30.0, 4),
         "lon": round(longitude, 4),
@@ -930,7 +929,7 @@ def _adapt_chart_objects(
         longitude = round(float(item.get("longitude", 0.0)), 4)
         payload: Dict[str, Any] = {
             "id": point_id,
-            "house": _house_id_for_phase2_houses(longitude, houses),
+            "house": _house_id_for_houses(longitude, houses),
             "sign": item.get("sign"),
             "signlon": round(float(item.get("degree_in_sign", 0.0)), 4),
             "lon": longitude,
@@ -945,7 +944,7 @@ def _adapt_chart_objects(
     if north_node is not None:
         south_node_longitude = round((float(north_node["lon"]) + 180.0) % 360.0, 4)
         objects.append(
-            _build_phase2_point_object(
+            _build_point_object(
                 point_id="South Node",
                 longitude=south_node_longitude,
                 houses=houses,
@@ -969,7 +968,7 @@ def _adapt_chart_objects(
                 float(houses[0]["lon"]) + sun["lon"] - moon["lon"]
             ) % 360.0
         objects.append(
-            _build_phase2_point_object(
+            _build_point_object(
                 point_id="Pars Fortuna",
                 longitude=fortuna_longitude,
                 houses=houses,
@@ -988,7 +987,7 @@ def _reassign_chart_object_houses(
     for item in objects:
         if not isinstance(item, dict):
             continue
-        item["house"] = _house_id_for_phase2_houses(
+        item["house"] = _house_id_for_houses(
             float(item.get("lon", 0.0)),
             houses,
         )
@@ -1013,7 +1012,7 @@ def _build_local_chart_response(
     extra_params: Optional[Dict[str, Any]] = None,
     allow_extended_hsys: bool = False,
 ) -> Dict[str, Any]:
-    birth_info, latitude, longitude = _build_phase2_birth_info(
+    birth_info, latitude, longitude = _build_birth_info(
         date_text=date_text,
         time_text=time_text,
         timezone_name=timezone_name,
@@ -1027,9 +1026,7 @@ def _build_local_chart_response(
         resolved_hsys = 8 if hsys is None else int(hsys)
         resolved_zodiacal = 0 if zodiacal is None else int(zodiacal)
         if not allow_extended_hsys and resolved_hsys not in {0, 8}:
-            raise ValueError(
-                "Phase 2 本地盘当前仅支持 hsys=0(整宫制) 或 hsys=8(等宫制)。"
-            )
+            raise ValueError("本地盘当前仅支持 hsys=0(整宫制) 或 hsys=8(等宫制)。")
         core_payload = build_core_chart_payload(
             birth_info,
             chart_variant,
@@ -1038,7 +1035,7 @@ def _build_local_chart_response(
         )
     else:
         core_payload = build_core_chart_payload(birth_info, chart_variant)
-    houses, house1_longitude, house_step_degrees = _build_phase2_houses(
+    houses, house1_longitude, house_step_degrees = _build_houses(
         core_payload,
         house_start_mode=house_start_mode,
         shape_mode=shape_mode,
@@ -1105,11 +1102,11 @@ def _build_local_chart_response(
     }
 
 
-def _house_id_for_phase2_houses(longitude: float, houses: List[Dict[str, Any]]) -> str:
+def _house_id_for_houses(longitude: float, houses: List[Dict[str, Any]]) -> str:
     if not houses:
         return "House1"
 
-    ring_direction = _phase2_house_direction(houses)
+    ring_direction = _house_direction(houses)
     normalized_longitude = float(longitude) % 360.0
     for index, house in enumerate(houses):
         current = float(house.get("lon", 0.0)) % 360.0
@@ -1170,7 +1167,7 @@ def build_pseudo_chart(
     )
 
 
-def _phase2_bagua(name: str) -> Dict[str, Any]:
+def _bagua(name: str) -> Dict[str, Any]:
     source = BAGUA_BY_NAME[name]
     return {
         "name": name,
@@ -1184,14 +1181,14 @@ def _phase2_bagua(name: str) -> Dict[str, Any]:
     }
 
 
-def _phase2_bagua_from_lines(lines: List[int]) -> Dict[str, Any]:
+def _bagua_from_lines(lines: List[int]) -> Dict[str, Any]:
     for name, source in BAGUA_BY_NAME.items():
         if list(source["lines"]) == list(lines):
-            return _phase2_bagua(name)
-    return _phase2_bagua("乾")
+            return _bagua(name)
+    return _bagua("乾")
 
 
-def _phase2_hex(upper: Dict[str, Any], lower: Dict[str, Any]) -> Dict[str, Any]:
+def _hex(upper: Dict[str, Any], lower: Dict[str, Any]) -> Dict[str, Any]:
     lines = [*lower["value"], *upper["value"]]
     name = HEXAGRAM_NAMES.get(
         (upper["name"], lower["name"]), f"{upper['cname']}{lower['cname']}"
@@ -1219,19 +1216,19 @@ def _phase2_hex(upper: Dict[str, Any], lower: Dict[str, Any]) -> Dict[str, Any]:
     return payload
 
 
-def _phase2_mutual_hex(hexagram: Dict[str, Any]) -> Dict[str, Any]:
+def _mutual_hex(hexagram: Dict[str, Any]) -> Dict[str, Any]:
     lines = hexagram["lines"]
     mutual_lines = [lines[1], lines[2], lines[3], lines[2], lines[3], lines[4]]
-    lower = _phase2_bagua_from_lines(mutual_lines[:3])
-    upper = _phase2_bagua_from_lines(mutual_lines[3:])
-    return _phase2_hex(upper, lower)
+    lower = _bagua_from_lines(mutual_lines[:3])
+    upper = _bagua_from_lines(mutual_lines[3:])
+    return _hex(upper, lower)
 
 
-def _phase2_opposite_hex(hexagram: Dict[str, Any]) -> Dict[str, Any]:
+def _opposite_hex(hexagram: Dict[str, Any]) -> Dict[str, Any]:
     opposite_lines = [0 if bit == 1 else 1 for bit in hexagram["lines"]]
-    lower = _phase2_bagua_from_lines(opposite_lines[:3])
-    upper = _phase2_bagua_from_lines(opposite_lines[3:])
-    return _phase2_hex(upper, lower)
+    lower = _bagua_from_lines(opposite_lines[:3])
+    upper = _bagua_from_lines(opposite_lines[3:])
+    return _hex(upper, lower)
 
 
 def _tongshefa_relation_by_elem(left_elem: str, right_elem: str) -> str:
@@ -1305,17 +1302,17 @@ def build_tongshefa_result(
         "shaoyang": shaoyang if shaoyang in BAGUA_BY_NAME else "震",
         "shaoyin": shaoyin if shaoyin in BAGUA_BY_NAME else "震",
     }
-    taiyin_gua = _phase2_bagua(selected["taiyin"])
-    taiyang_gua = _phase2_bagua(selected["taiyang"])
-    shaoyang_gua = _phase2_bagua(selected["shaoyang"])
-    shaoyin_gua = _phase2_bagua(selected["shaoyin"])
+    taiyin_gua = _bagua(selected["taiyin"])
+    taiyang_gua = _bagua(selected["taiyang"])
+    shaoyang_gua = _bagua(selected["shaoyang"])
+    shaoyin_gua = _bagua(selected["shaoyin"])
 
-    base_left = _phase2_hex(taiyin_gua, shaoyang_gua)
-    base_right = _phase2_hex(taiyang_gua, shaoyin_gua)
-    mutual_left = _phase2_mutual_hex(base_left)
-    mutual_right = _phase2_mutual_hex(base_right)
-    opposite_left = _phase2_opposite_hex(base_left)
-    opposite_right = _phase2_opposite_hex(base_right)
+    base_left = _hex(taiyin_gua, shaoyang_gua)
+    base_right = _hex(taiyang_gua, shaoyin_gua)
+    mutual_left = _mutual_hex(base_left)
+    mutual_right = _mutual_hex(base_right)
+    opposite_left = _opposite_hex(base_left)
+    opposite_right = _opposite_hex(base_right)
     left_elem = base_left["upper"]["elem"]
     right_elem = base_right["upper"]["elem"]
     main_relation = _tongshefa_relation_by_elem(left_elem, right_elem)
@@ -1341,13 +1338,13 @@ def build_tongshefa_result(
     }
 
 
-def _build_phase2_context(
+def _build_context(
     *,
     date_text: str,
     time_text: str,
     timezone_name: Optional[str],
 ) -> Dict[str, Any]:
-    moment = parse_phase2_datetime(date_text, time_text, timezone_name)
+    moment = parse_local_datetime(date_text, time_text, timezone_name)
     timezone_value = timezone_name or DEFAULT_BIRTH_TIMEZONE
     pillars = BaZiCalendar.get_four_pillars(moment, timezone_name=timezone_value)
     calendar_context = build_calendar_context(
@@ -1381,7 +1378,7 @@ def _build_phase2_context(
     }
 
 
-def _build_phase2_metaphysics_seed(
+def _build_metaphysics_seed(
     *,
     date_text: str,
     time_text: str,
@@ -1400,7 +1397,7 @@ def _build_phase2_metaphysics_seed(
     input_datetime = localize_datetime(input_datetime_naive, timezone_value)
     corrected_datetime = input_datetime
     total_correction_minutes = 0.0
-    _, longitude = _resolve_phase2_coordinates(
+    _, longitude = _resolve_coordinates(
         lat=lat,
         lon=lon,
         gps_lat=gps_lat,
@@ -1603,7 +1600,7 @@ def build_sixyao_result(
     changed_code: Optional[str] = None,
     lines: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
-    context = _build_phase2_context(date_text=date, time_text=time, timezone_name=zone)
+    context = _build_context(date_text=date, time_text=time, timezone_name=zone)
     normalized_lines = _normalize_gua_lines(lines)
     explicit_lines_provided = bool(normalized_lines)
     if not normalized_lines:
@@ -1978,7 +1975,7 @@ def build_otherbu_result(
     dice_house1_longitude = round(
         (target_longitude - normalized_house * 30.0 - 15.0) % 360.0, 4
     )
-    dice_chart["chart"]["houses"] = _build_phase2_house_ring(
+    dice_chart["chart"]["houses"] = _build_house_ring(
         dice_house1_longitude,
         step_degrees=30.0,
     )
@@ -2584,7 +2581,7 @@ def build_sanshiunited_result(
         "liureng_is_diurnal": liureng_is_diurnal,
         "use_true_solar_time": bool(use_true_solar_time),
     }
-    seed = _build_phase2_metaphysics_seed(
+    seed = _build_metaphysics_seed(
         date_text=input_normalized["date"],
         time_text=input_normalized["time"],
         timezone_name=input_normalized["zone"],
@@ -2594,7 +2591,7 @@ def build_sanshiunited_result(
         gps_lon=gps_lon,
         use_true_solar_time=bool(use_true_solar_time),
     )
-    qimen_seed = _build_phase2_metaphysics_seed(
+    qimen_seed = _build_metaphysics_seed(
         date_text=input_normalized["date"],
         time_text=input_normalized["time"],
         timezone_name=input_normalized["zone"],

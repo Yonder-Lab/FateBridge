@@ -89,7 +89,7 @@ flowchart LR
 | `fatebridge/core/gua_meanings.py` | 八卦/六十四卦离线断辞 |
 | `fatebridge/core/astrology.py` | 核心占星盘、关系盘、近似/高精度双路径 |
 | `fatebridge/core/astrology_predictive.py` | 西占返照、推运、时间主星系统 |
-| `fatebridge/core/phase2_local.py` | 宿占、占星骰子、三式本地适配 |
+| `fatebridge/core/local_techniques.py` | 宿占、占星骰子、三式本地适配 |
 | `fatebridge/core/export_contracts.py` | section 预设、导出规则、标准化 |
 | `fatebridge/core/export_parser.py` | `snapshot_text -> snapshot_export` 解析 |
 | `fatebridge/core/knowledge_store.py` | 内置知识索引与读取 |

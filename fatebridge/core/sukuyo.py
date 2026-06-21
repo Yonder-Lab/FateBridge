@@ -19,7 +19,7 @@
 
 from typing import Any, Dict, List, Optional
 
-from .phase2_local import SU28_NAMES
+from .local_techniques import SU28_NAMES
 
 # 二十七宿循环顺序：在中式二十八宿黄道序列上去掉牛宿。
 SU27_ORDER: List[str] = [name for name in SU28_NAMES if name != "牛"]

@@ -188,7 +188,7 @@ def _relative_mcp_kwargs() -> dict:
     }
 
 
-def _phase2_base() -> dict:
+def _local_base() -> dict:
     return {
         "date": "2028-04-06",
         "time": "09:33:00",
@@ -341,12 +341,12 @@ REST_POST_CASES = {
         "shaoyin": "震",
     },
     "/api/divination/sixyao": lambda: {
-        **_phase2_base(),
+        **_local_base(),
         "gpsLat": 31.2,
         "gpsLon": 121.4,
     },
     "/api/divination/suzhan": lambda: {
-        **_phase2_base(),
+        **_local_base(),
         "szchart": 1,
         "szshape": 1,
         "house_start_mode": 2,
@@ -359,14 +359,14 @@ REST_POST_CASES = {
         "person2_time": "14:00:00",
     },
     "/api/divination/otherbu": lambda: {
-        **_phase2_base(),
+        **_local_base(),
         "sign": "Aries",
         "house": 6,
         "planet": "Sun",
         "question": "合作",
     },
     "/api/divination/sanshiunited": lambda: {
-        **_phase2_base(),
+        **_local_base(),
         "qimen_options": {"layout": "fly"},
         "taiyi_options": {"accNum": 1},
         "liureng_yue": "申",
@@ -657,11 +657,11 @@ MCP_CASES = {
             "shaoyin": "震",
         },
     ),
-    "sixyao": ("sixyao", lambda: {**_phase2_base(), "gps_lat": 31.2, "gps_lon": 121.4}),
+    "sixyao": ("sixyao", lambda: {**_local_base(), "gps_lat": 31.2, "gps_lon": 121.4}),
     "suzhan": (
         "suzhan",
         lambda: {
-            **_phase2_base(),
+            **_local_base(),
             "gps_lat": 31.2,
             "gps_lon": 121.4,
             "szchart": 1,
@@ -682,7 +682,7 @@ MCP_CASES = {
     "otherbu": (
         "otherbu",
         lambda: {
-            **_phase2_base(),
+            **_local_base(),
             "gps_lat": 31.2,
             "gps_lon": 121.4,
             "sign": "Aries",
@@ -694,7 +694,7 @@ MCP_CASES = {
     "sanshiunited": (
         "sanshiunited",
         lambda: {
-            **_phase2_base(),
+            **_local_base(),
             "gps_lat": 31.2,
             "gps_lon": 121.4,
             "qimen_options": {"layout": "fly"},
