@@ -36,6 +36,7 @@ from typing import Any, Dict, List, Optional
 from fatebridge.core.astrology import ELEMENT_BY_SIGN
 from fatebridge.core.astrology_predictive import (
     TIMING_POINT_NAMES,
+    collect_aspect_hits,
     longitude_to_point_dict,
     normalize_sign_name,
     planet_label,
@@ -837,6 +838,123 @@ def build_keypoints_payload(
     }
 
 
+# ---------------------------------------------------------------------------
+# 8. 129年系统 (yearsystem129).
+# ---------------------------------------------------------------------------
+# Shares Balbillus' seven "small years" (Σ = 129) but, unlike Balbillus, each
+# planet rules its FULL small-year — there is no exaltation-distance reduction.
+# The period order reuses Balbillus' verified zodiacal sequence (planets by natal
+# longitude, rotated to a start planet). Horosa computes this in its closed
+# backend with an ordering convention we cannot cross-check, so the sequence is
+# labelled ``sequence_model="zodiacal"`` rather than claimed as bit-parity.
+
+
+def build_yearsystem129_payload(
+    natal_reference: Dict[str, Dict[str, Any]],
+    *,
+    start_planet: str = "Sun",
+    max_age_years: float = 129.0,
+) -> Dict[str, Any]:
+    """
+    Build the 129-year system: seven planets each rule their full small-year, in
+    zodiacal order from ``start_planet``, cycling until ``max_age_years``.
+    """
+    if start_planet not in BALBILLUS_SMALL_YEARS:
+        start_planet = "Sun"
+    longitudes: Dict[str, Optional[float]] = {
+        p: (
+            float(natal_reference[p.lower()]["absolute_degree"])
+            if p.lower() in natal_reference
+            else None
+        )
+        for p in BALBILLUS_PLANET_ORDER
+    }
+    order = _balbillus_order(longitudes, start_planet)
+
+    periods: List[Dict[str, Any]] = []
+    cursor = 0.0
+    guard = 0
+    while cursor < max_age_years and guard < 200:
+        planet = order[guard % len(order)]
+        duration = float(BALBILLUS_SMALL_YEARS[planet])
+        periods.append(
+            {
+                "planet": planet,
+                "planet_label": planet_label(planet),
+                "small_year": BALBILLUS_SMALL_YEARS[planet],
+                "start_age_years": round(cursor, 4),
+                "duration_years": duration,
+            }
+        )
+        cursor += duration
+        guard += 1
+
+    return {
+        "system": "yearsystem129",
+        "system_label": "129年系统（七星小年轮值）",
+        "sequence_model": "zodiacal",
+        "sequence_model_label": "本命黄经序（与 Balbillus 同序；非 horosa 后端逐值核验）",
+        "start_planet": start_planet,
+        "start_planet_label": planet_label(start_planet),
+        "total_cycle_years": sum(BALBILLUS_SMALL_YEARS.values()),
+        "max_age_years": max_age_years,
+        "zodiacal_order": order,
+        "periods": periods,
+    }
+
+
+# ---------------------------------------------------------------------------
+# 9. 行星弧方向 (planetaryarc).
+# ---------------------------------------------------------------------------
+
+
+def build_planetary_arc_payload(
+    natal_longitudes: Dict[str, float],
+    progressed_longitudes: Dict[str, float],
+    *,
+    arc_source: str,
+    orb: float = 1.0,
+) -> Dict[str, Any]:
+    """
+    Direct the whole natal chart by a single arc: the secondary-progressed motion
+    of ``arc_source`` (default Moon). Every natal point advances by that arc, then
+    we read the aspects the directed points make back to the natal chart.
+
+    This generalises the solar arc (which always uses the Sun's progressed motion)
+    to any progressing body, and is verifiable against FateBridge's own secondary
+    progression: ``arc = progressed[arc_source] − natal[arc_source]``.
+    """
+    if arc_source not in natal_longitudes or arc_source not in progressed_longitudes:
+        arc_source = "Moon"
+    arc_degrees = (
+        progressed_longitudes[arc_source] - natal_longitudes[arc_source]
+    ) % 360.0
+
+    directed_points: Dict[str, float] = {
+        name: (longitude + arc_degrees) % 360.0
+        for name, longitude in natal_longitudes.items()
+    }
+    hits = collect_aspect_hits(
+        source_longitudes=directed_points,
+        target_longitudes=natal_longitudes,
+        orb_limit=orb,
+    )
+    positions = {
+        name.lower(): longitude_to_point_dict(name, degree)
+        for name, degree in directed_points.items()
+    }
+    return {
+        "system": "planetary_arc",
+        "system_label": "行星弧方向",
+        "arc_source": arc_source,
+        "arc_source_label": planet_label(arc_source),
+        "arc_degrees": round(arc_degrees, 4),
+        "orb": orb,
+        "positions": positions,
+        "hits": hits[:12],
+    }
+
+
 __all__ = [
     "build_harmonic_payload",
     "build_planetary_ages_payload",
@@ -845,6 +963,8 @@ __all__ = [
     "build_distributions_payload",
     "build_balbillus_payload",
     "build_keypoints_payload",
+    "build_yearsystem129_payload",
+    "build_planetary_arc_payload",
     "PTOLEMY_SEVEN_AGES",
     "DOROTHEAN_TRIPLICITY_RULERS",
     "LUNAR_PHASES",
