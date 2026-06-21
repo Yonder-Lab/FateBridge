@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import platform
 from contextlib import contextmanager
 from datetime import datetime as _RealDatetime
 from pathlib import Path
@@ -26,6 +27,49 @@ from tests.golden.canonical import canonical_json
 
 #: 冻结基线的存放目录。
 SNAPSHOT_DIR = Path(__file__).resolve().parent / "snapshots"
+
+# ---------------------------------------------------------------------------
+# 平台锚定
+# ---------------------------------------------------------------------------
+# 星历计算（pyswisseph / kerykeion 的 Moshier 模型）走 C/libm，浮点结果随
+# CPU 架构与 libm 实现而微变（实测 macOS arm64 与 Linux x86_64 在月亮经度上
+# 差约 0.01°，且该差异渲染进 snapshot_text 字符串，浮点 round 够不着）。
+# 因此字节级基线只在「冻结它的平台」上可比；基线统一在 CI（ubuntu x86_64）
+# 冻结，其它平台（如本地 macOS）跳过字节比对，改用「同平台 regen 前后 diff」验证。
+BASELINE_PLATFORM = "Linux-x86_64"
+
+
+def current_platform() -> str:
+    """当前平台标识，如 ``Linux-x86_64`` / ``Darwin-arm64``。"""
+    return f"{platform.system()}-{platform.machine()}"
+
+
+def is_baseline_platform() -> bool:
+    """当前是否为基线冻结平台（CI）。非该平台时跳过字节比对。"""
+    return current_platform() == BASELINE_PLATFORM
+
+
+#: floor 作业用最低依赖版本（见 ci.yml），星历输出与「最新版」基线不同口径，
+#: 故由它设此环境变量显式关闭字节比对——floor 只为守 API 下限，不做数值锁。
+_SKIP_DIFF_ENV = "FATEBRIDGE_SKIP_GOLDEN_DIFF"
+
+
+def golden_diff_active() -> bool:
+    """golden 字节比对是否生效：须在基线平台、且未被显式关闭（如 floor 作业）。"""
+    if os.getenv(_SKIP_DIFF_ENV):
+        return False
+    return is_baseline_platform()
+
+
+def golden_diff_skip_reason() -> str:
+    """字节比对被跳过的原因（供 skipif 展示）。"""
+    if os.getenv(_SKIP_DIFF_ENV):
+        return f"{_SKIP_DIFF_ENV} 已设：当前依赖非基线口径（如 floor 最低版本），跳过字节比对"
+    return (
+        f"golden 基线锁定 {BASELINE_PLATFORM}（CI 平台）；当前 {current_platform()}，"
+        "星历浮点跨平台微差，字节比对仅在基线平台进行"
+    )
+
 
 # ---------------------------------------------------------------------------
 # 时钟冻结

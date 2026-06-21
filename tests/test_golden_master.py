@@ -10,11 +10,17 @@ import difflib
 
 import pytest
 
-from tests.golden.runner import SNAPSHOT_DIR, compute_outputs
+from tests.golden.runner import (
+    SNAPSHOT_DIR,
+    compute_outputs,
+    golden_diff_active,
+    golden_diff_skip_reason,
+)
 
 _OUTPUTS = compute_outputs()
 
 
+@pytest.mark.skipif(not golden_diff_active(), reason=golden_diff_skip_reason())
 @pytest.mark.parametrize("slug", sorted(_OUTPUTS))
 def test_output_matches_golden(slug: str) -> None:
     snapshot = SNAPSHOT_DIR / f"{slug}.json"

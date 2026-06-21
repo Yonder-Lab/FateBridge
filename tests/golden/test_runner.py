@@ -2,12 +2,16 @@
 
 from datetime import timedelta
 
+import pytest
+
 from tests.fixtures.surface_payloads import REST_POST_CASES
 from tests.golden.runner import (
     _MCP_ONLY_CASES,
     FROZEN_NOW,
     SNAPSHOT_DIR,
     compute_outputs,
+    golden_diff_active,
+    golden_diff_skip_reason,
 )
 
 
@@ -26,6 +30,7 @@ def test_outputs_are_deterministic():
     assert compute_outputs() == compute_outputs()
 
 
+@pytest.mark.skipif(not golden_diff_active(), reason=golden_diff_skip_reason())
 def test_outputs_stable_across_simulated_clock_change():
     """时钟冻结有效性回归测试：拨动冻结时刻，时钟敏感工具的 FROZEN_NOW 输出必须与快照吻合。
 
