@@ -23,6 +23,7 @@ from fatebridge.core.request_models import (
     AstroKeypointsRequest,
     AstroLunationPhaseRequest,
     AstroMundaneRequest,
+    AstroPersianDirectedRequest,
     AstroPlanetaryAgesRequest,
     AstroPlanetaryArcRequest,
     AstroRelativeFlatRequest,
@@ -155,6 +156,7 @@ from fatebridge.services.western_lifespan import (
     calculate_harmonic_chart,
     calculate_keypoints,
     calculate_lunation_phase,
+    calculate_persian_directed,
     calculate_planetary_ages,
     calculate_planetary_arc,
     calculate_triplicity_rulers,
@@ -930,6 +932,12 @@ CATALOG: List[ToolSpec] = [
         calculate_planetary_arc,
         AstroPlanetaryArcRequest,
         "行星弧方向",
+    ),
+    _western_lifespan_spec(
+        "persiandirected",
+        calculate_persian_directed,
+        AstroPersianDirectedRequest,
+        "波斯向运",
     ),
     _western_event_spec(
         "mundane",

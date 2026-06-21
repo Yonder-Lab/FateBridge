@@ -955,6 +955,95 @@ def build_planetary_arc_payload(
     }
 
 
+# ---------------------------------------------------------------------------
+# 10. 波斯向运 (Persian Directed).
+# ---------------------------------------------------------------------------
+
+# 向运星 (promittors): only the seven classical planets advance.
+PERSIAN_MOVERS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"]
+# 触发的相位 (Ptolemaic set); 0°/180° are symmetric so they fire once, the rest twice (±).
+PERSIAN_ASPECTS = [0, 60, 90, 120, 180]
+# Symbolic rate: every mover gains 1° per year; the tropical year used to date the 应期.
+PERSIAN_RATE_DEG_PER_YEAR = 1.0
+PERSIAN_TROPICAL_YEAR_DAYS = 365.2421904
+
+
+def build_persian_directed_payload(
+    natal_longitudes: Dict[str, float],
+    house_cusps: List[float],
+    *,
+    birth_datetime: Any = None,
+    max_age_years: float = 90.0,
+    limit: int = 120,
+) -> Dict[str, Any]:
+    """
+    波斯向运 / Persian Directed (symbolic 1°/year).
+
+    Faithful port of 星阙 ``AstroPersianDirected``: every classical promittor advances
+    +1°/year while the natal chart (every body plus the 12 house cusps) stays fixed; we
+    list each age at which a directed promittor reaches a Ptolemaic aspect to a natal
+    target, capped at ``max_age_years`` and the first ``limit`` hits by age.
+
+    The arithmetic is exact and language-neutral — :mod:`tests.test_persian_directed`
+    byte-locks the structured hits against 星阙's own output on a fixed chart. The hit set
+    is bounded by the natal objects FateBridge exposes (planets + nodes + 12 cusps); it
+    does NOT include 星阙's enriched bodies (asteroids / midpoints / Arabic lots / 四余),
+    so the table is a clean subset of 星阙's, not a row-for-row match on a live chart.
+    """
+    import datetime as _dt
+
+    by_id: Dict[str, float] = {
+        name: float(lon) % 360.0 for name, lon in natal_longitudes.items()
+    }
+    targets: List[tuple[str, float]] = [(oid, lon) for oid, lon in by_id.items()]
+    for index, cusp in enumerate(house_cusps):
+        targets.append((f"{index + 1}宫头", float(cusp) % 360.0))
+
+    hits: List[Dict[str, Any]] = []
+    for promittor in PERSIAN_MOVERS:
+        mover_lon = by_id.get(promittor)
+        if mover_lon is None:
+            continue
+        for target_id, target_lon in targets:
+            if target_id == promittor:
+                continue
+            for aspect in PERSIAN_ASPECTS:
+                for sign in (1, -1):
+                    if aspect in (0, 180) and sign == -1:
+                        continue
+                    contact = (target_lon + sign * aspect) % 360.0
+                    arc = (contact - mover_lon) % 360.0
+                    age = arc / PERSIAN_RATE_DEG_PER_YEAR
+                    if not 0 < age <= max_age_years:
+                        continue
+                    date = ""
+                    if birth_datetime is not None:
+                        date = (
+                            birth_datetime
+                            + _dt.timedelta(days=age * PERSIAN_TROPICAL_YEAR_DAYS)
+                        ).strftime("%Y-%m-%d")
+                    hits.append(
+                        {
+                            "age": round(age * 100) / 100,
+                            "promittor": promittor,
+                            "promittor_label": planet_label(promittor),
+                            "aspect": aspect,
+                            "significator": target_id,
+                            "date": date,
+                        }
+                    )
+    hits.sort(key=lambda hit: hit["age"])
+    hits = hits[:limit]
+    return {
+        "system": "persian_directed",
+        "system_label": "波斯向运",
+        "rate_deg_per_year": PERSIAN_RATE_DEG_PER_YEAR,
+        "max_age_years": max_age_years,
+        "hit_count": len(hits),
+        "hits": hits,
+    }
+
+
 __all__ = [
     "build_harmonic_payload",
     "build_planetary_ages_payload",
@@ -965,6 +1054,11 @@ __all__ = [
     "build_keypoints_payload",
     "build_yearsystem129_payload",
     "build_planetary_arc_payload",
+    "build_persian_directed_payload",
+    "PERSIAN_MOVERS",
+    "PERSIAN_ASPECTS",
+    "PERSIAN_RATE_DEG_PER_YEAR",
+    "PERSIAN_TROPICAL_YEAR_DAYS",
     "PTOLEMY_SEVEN_AGES",
     "DOROTHEAN_TRIPLICITY_RULERS",
     "LUNAR_PHASES",

@@ -62,10 +62,10 @@ flowchart LR
   - 统一的字段投影（`project_fields`）、错误形状（`invalid_input_result`）与参数 schema 生成
 - `fatebridge/api.py`
   - 定义 FastAPI app、CORS，调用 `register_rest(app, rest_specs())`
-  - 暴露 76 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）
+  - 暴露 77 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）
 - `fatebridge/mcp_server.py`
   - 定义 FastMCP app，调用 `register_mcp(app, mcp_specs())`
-  - 暴露 76 个 MCP 工具，返回 JSON 字符串，适合 Agent host 直接消费
+  - 暴露 77 个 MCP 工具，返回 JSON 字符串，适合 Agent host 直接消费
 - `fatebridge/cli.py`
   - 遍历 `CATALOG` 为每个工具生成 argparse 子命令
   - 提供 `fatebridge list` / `fatebridge describe <tool>` 供 Agent 自助发现 schema 与示例
