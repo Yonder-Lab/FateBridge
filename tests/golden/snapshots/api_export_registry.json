@@ -860,6 +860,32 @@
       "astro_meaning_default": null,
       "astro_meaning_title": "",
       "forbidden_sections": [],
+      "key": "canping",
+      "label": "邵子参评数",
+      "planet_info_default": null,
+      "preset_sections": [
+        "起盘",
+        "本命",
+        "大运·歲運"
+      ],
+      "settings_template": {
+        "astroMeaning": null,
+        "planetInfo": null,
+        "sections": [
+          "起盘",
+          "本命",
+          "大运·歲運"
+        ]
+      },
+      "supports_astro_meaning": false,
+      "supports_hover_meaning": false,
+      "supports_planet_info": false
+    },
+    {
+      "astro_meaning_checkbox": "",
+      "astro_meaning_default": null,
+      "astro_meaning_title": "",
+      "forbidden_sections": [],
       "key": "tongshefa",
       "label": "统摄法",
       "planet_info_default": null,
