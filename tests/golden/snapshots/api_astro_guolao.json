@@ -276,6 +276,7 @@
           ],
           "position": "上方"
         },
+        "ninth_part": "Cancer",
         "orientality": "occidental",
         "out_of_bounds": true,
         "retrograde": false,
@@ -309,6 +310,7 @@
           ],
           "position": "中间"
         },
+        "ninth_part": "Pisces",
         "orientality": "oriental",
         "out_of_bounds": false,
         "retrograde": false,
@@ -343,6 +345,7 @@
           ],
           "position": "上方"
         },
+        "ninth_part": "Capricorn",
         "orientality": "occidental",
         "out_of_bounds": false,
         "retrograde": false,
@@ -376,6 +379,7 @@
           ],
           "position": "下方"
         },
+        "ninth_part": "Sagittarius",
         "orientality": "occidental",
         "out_of_bounds": false,
         "retrograde": false,
@@ -414,6 +418,7 @@
           ],
           "position": "下方"
         },
+        "ninth_part": "Leo",
         "orientality": "oriental",
         "out_of_bounds": false,
         "retrograde": false,
@@ -454,6 +459,7 @@
           ],
           "position": "中间"
         },
+        "ninth_part": "Leo",
         "orientality": null,
         "out_of_bounds": false,
         "retrograde": false,
@@ -487,6 +493,7 @@
           ],
           "position": "下方"
         },
+        "ninth_part": "Gemini",
         "orientality": "oriental",
         "out_of_bounds": false,
         "retrograde": false,

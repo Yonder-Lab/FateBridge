@@ -1074,6 +1074,34 @@ def dodekatemorion(sign: str, degree_in_sign: float) -> Optional[str]:
     return SIGNS[(_SIGN_INDEX[sign] + step) % 12]
 
 
+# Ninth-part (九分部 / navamsa) opening sign by triplicity — the cardinal sign of
+# the placement's own element. Fire→Aries, Earth→Capricorn, Air→Libra, Water→
+# Cancer (the dominant Parashari convention, equivalent to the Hellenistic
+# ninth-part's triplicity reset). Pure geometry; no degree-ruler doctrine.
+_NINTH_PART_START = {
+    "Fire": "Aries",
+    "Earth": "Capricorn",
+    "Air": "Libra",
+    "Water": "Cancer",
+}
+# 30° / 9 = 3°20′ per ninth-part.
+_NINTH_PART_ARC = 30.0 / 9.0
+
+
+def ninth_part(sign: str, degree_in_sign: float) -> Optional[str]:
+    """九分部 (ninth-part / navamsa): the sign of the 3°20′ division.
+
+    Each sign splits into nine 3°20′ parts; the first opens on the cardinal sign
+    of the placement's triplicity and successive parts advance one sign
+    zodiacally. ``None`` for a non-zodiacal sign.
+    """
+    start = _NINTH_PART_START.get(ELEMENT_BY_SIGN.get(sign, ""))
+    if start is None:
+        return None
+    step = int((degree_in_sign % 30.0) // _NINTH_PART_ARC)
+    return SIGNS[(_SIGN_INDEX[start] + step) % 12]
+
+
 def _degree_position(degree_in_sign: float) -> str:
     deg = degree_in_sign % 30.0
     if deg < 10:
@@ -1163,5 +1191,6 @@ def build_planet_classical(
         "retrograde": is_retrograde(longitude_speed),
         "out_of_bounds": out_of_bounds(declination),
         "dodekatemorion": dodekatemorion(sign, degree_in_sign),
+        "ninth_part": ninth_part(sign, degree_in_sign),
         "melothesia": melothesia(sign, degree_in_sign),
     }

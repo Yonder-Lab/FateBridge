@@ -767,16 +767,22 @@ def _build_temperament_lines(payload: Dict[str, Any]) -> str:
         f"燥{tally.get('dry', 0)}湿{tally.get('moist', 0)}）"
     ]
     dodeka = []
+    ninth = []
     for planet in _CLASSICAL_PLANET_ORDER:
         entry = (classical.get("planets") or {}).get(planet)
-        if not entry or not entry.get("dodekatemorion"):
+        if not entry:
             continue
-        dodeka.append(
-            f"{PLANET_LABELS_ZH.get(planet, planet)}"
-            f"→{SIGN_LABELS_ZH.get(entry['dodekatemorion'], entry['dodekatemorion'])}"
-        )
+        planet_zh = PLANET_LABELS_ZH.get(planet, planet)
+        if entry.get("dodekatemorion"):
+            sign = entry["dodekatemorion"]
+            dodeka.append(f"{planet_zh}→{SIGN_LABELS_ZH.get(sign, sign)}")
+        if entry.get("ninth_part"):
+            sign = entry["ninth_part"]
+            ninth.append(f"{planet_zh}→{SIGN_LABELS_ZH.get(sign, sign)}")
     if dodeka:
         lines.append("12分度：" + " ".join(dodeka))
+    if ninth:
+        lines.append("九分部：" + " ".join(ninth))
     return "\n".join(lines).strip()
 
 
