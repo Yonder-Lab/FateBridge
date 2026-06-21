@@ -4,6 +4,30 @@ from __future__ import annotations
 
 from ._common import *
 
+# 日盘与夜盘的行星时主顺序（planet, years）
+FIRDARIA_DAY_SEQUENCE = [
+    ("Sun", 10),
+    ("Venus", 8),
+    ("Mercury", 13),
+    ("Moon", 9),
+    ("Saturn", 11),
+    ("Jupiter", 12),
+    ("Mars", 7),
+    ("North Node", 3),
+    ("South Node", 2),
+]
+FIRDARIA_NIGHT_SEQUENCE = [
+    ("Moon", 9),
+    ("Saturn", 11),
+    ("Jupiter", 12),
+    ("Mars", 7),
+    ("Sun", 10),
+    ("Venus", 8),
+    ("Mercury", 13),
+    ("North Node", 3),
+    ("South Node", 2),
+]
+
 
 def build_firdaria_payload(
     birth_info: AstroBirthInfo,

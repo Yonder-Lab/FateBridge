@@ -132,29 +132,6 @@ ASPECT_DEGREES = [
     ("trine", "拱", 120.0),
     ("opposition", "冲", 180.0),
 ]
-PRIMARY_DIRECTION_METHOD_LABELS = {
-    "astroapp_alchabitius": "AstroAPP-Alchabitius",
-    "legacy_reference": "旧版原方法",
-    "legacy_equatorial": "旧版原方法",
-    "fatebridge_mundane_semiarc": "FateBridge-Mundane-SemiArc",
-}
-PRIMARY_DIRECTION_METHOD_COORDINATES = {
-    "astroapp_alchabitius": ("ecliptic_longitude", "Arc"),
-    "legacy_reference": ("right_ascension", "赤经"),
-    "legacy_equatorial": ("right_ascension", "赤经"),
-    "fatebridge_mundane_semiarc": ("mundane_semiarc", "SemiArc"),
-}
-PRIMARY_DIRECTION_TIME_KEY_RATES = {
-    "Ptolemy": 1.0,
-    "Naibod": 0.98564733,
-    "Cardan": 0.98666667,
-}
-PRIMARY_DIRECTION_BOUNDS_SYSTEM = "egyptian_bounds"
-PRIMARY_DIRECTION_BOUNDS_LABEL = "埃及界限"
-PRIMARY_DIRECTION_DEFAULT_ASPECTS = [0, 60, 90, 120, 180]
-PRIMARY_DIRECTION_PROMISSORS = ["Ascendant", "Medium_Coeli"]
-PRIMARY_DIRECTION_MAX_AGE_YEARS = 100.0
-PRIMARY_DIRECTION_EXACT_WINDOW_YEARS = 0.01
 SWISSEPH_PLANET_IDS = {
     "Sun": 0,
     "Moon": 1,
@@ -163,21 +140,6 @@ SWISSEPH_PLANET_IDS = {
     "Mars": 4,
     "Jupiter": 5,
     "Saturn": 6,
-}
-PRIMARY_DIRECTION_QUADRANT_LABELS = {
-    "above_east": "地平上东侧",
-    "above_west": "地平上西侧",
-    "below_west": "地平下西侧",
-    "below_east": "地平下东侧",
-    "horizon_east": "东方地平",
-    "horizon_west": "西方地平",
-    "upper_meridian": "上中天",
-    "lower_meridian": "下中天",
-}
-PRIMARY_DIRECTION_TIMING_PHASE_LABELS = {
-    "past": "已发生",
-    "future": "即将发生",
-    "exact": "当前触发",
 }
 EGYPTIAN_BOUNDS_BY_SIGN = {
     "Aries": [
@@ -266,129 +228,6 @@ EGYPTIAN_BOUNDS_BY_SIGN = {
     ],
 }
 
-FIRDARIA_DAY_SEQUENCE = [
-    ("Sun", 10),
-    ("Venus", 8),
-    ("Mercury", 13),
-    ("Moon", 9),
-    ("Saturn", 11),
-    ("Jupiter", 12),
-    ("Mars", 7),
-    ("North Node", 3),
-    ("South Node", 2),
-]
-FIRDARIA_NIGHT_SEQUENCE = [
-    ("Moon", 9),
-    ("Saturn", 11),
-    ("Jupiter", 12),
-    ("Mars", 7),
-    ("Sun", 10),
-    ("Venus", 8),
-    ("Mercury", 13),
-    ("North Node", 3),
-    ("South Node", 2),
-]
-
-# Legacy decennials constants adapted to operate on FateBridge subjects.
-DECENNIAL_START_MODE_SECT_LIGHT = "sect_light"
-DECENNIAL_ORDER_ZODIACAL = "zodiacal"
-DECENNIAL_ORDER_CHALDEAN = "chaldean"
-DECENNIAL_DAY_METHOD_VALENS = "valens"
-DECENNIAL_DAY_METHOD_HEPHAISTIO = "hephaistio"
-DECENNIAL_CALENDAR_TRADITIONAL = "calendar_360"
-DECENNIAL_CALENDAR_ACTUAL = "calendar_365_25"
-DECENNIAL_TRADITIONAL_PLANETS = [
-    "Saturn",
-    "Jupiter",
-    "Mars",
-    "Sun",
-    "Venus",
-    "Mercury",
-    "Moon",
-]
-DECENNIAL_PLANET_BASE_MONTHS = {
-    "Saturn": 30,
-    "Jupiter": 12,
-    "Mars": 15,
-    "Sun": 19,
-    "Venus": 8,
-    "Mercury": 20,
-    "Moon": 25,
-}
-DECENNIAL_HEPHAISTIO_DAY_TABLE = {
-    "Saturn": {
-        "Saturn": 210,
-        "Jupiter": 84,
-        "Mars": 105,
-        "Sun": 133,
-        "Venus": 56,
-        "Mercury": 150,
-        "Moon": 175,
-    },
-    "Jupiter": {
-        "Jupiter": 34,
-        "Saturn": 85,
-        "Mars": 42,
-        "Sun": 54,
-        "Venus": 22,
-        "Mercury": 57,
-        "Moon": 71,
-    },
-    "Mars": {
-        "Mars": 52,
-        "Sun": 66,
-        "Venus": 28,
-        "Mercury": 70,
-        "Moon": 87,
-        "Saturn": 105,
-        "Jupiter": 42,
-    },
-    "Sun": {
-        "Sun": 83,
-        "Moon": 118,
-        "Saturn": 130,
-        "Jupiter": 52,
-        "Mars": 64,
-        "Venus": 35,
-        "Mercury": 87,
-    },
-    "Venus": {
-        "Venus": 15,
-        "Sun": 36,
-        "Moon": 47,
-        "Saturn": 57,
-        "Jupiter": 22,
-        "Mars": 28,
-        "Mercury": 38,
-    },
-    "Mercury": {
-        "Mercury": 96,
-        "Sun": 90,
-        "Moon": 117,
-        "Saturn": 141,
-        "Jupiter": 56,
-        "Mars": 70,
-        "Venus": 36,
-    },
-    "Moon": {
-        "Moon": 148,
-        "Sun": 115,
-        "Saturn": 177,
-        "Jupiter": 71,
-        "Mars": 87,
-        "Venus": 47,
-        "Mercury": 119,
-    },
-}
-DECENNIAL_TOTAL_BASE_MONTHS = 129
-DECENNIAL_TOTAL_L1_DAYS = DECENNIAL_TOTAL_BASE_MONTHS * 30
-DECENNIAL_FIVE_MINUTES = 5
-DECENNIAL_MINUTES_PER_DAY = 24 * 60
-DECENNIAL_MINUTES_PER_MONTH = 30 * DECENNIAL_MINUTES_PER_DAY
-DECENNIAL_MINUTES_PER_YEAR = 12 * DECENNIAL_MINUTES_PER_MONTH
-DECENNIAL_ACTUAL_YEAR_SCALE_NUMERATOR = 1461
-DECENNIAL_ACTUAL_YEAR_SCALE_DENOMINATOR = 1440
-
 LOT_LABELS = {
     "lot_of_fortune": "幸运点",
     "lot_of_spirit": "精神点",
@@ -398,38 +237,6 @@ LOT_POINT_NAMES = {
     "lot_of_spirit": "Spirit",
 }
 LOT_KEY_BY_POINT_NAME = {value: key for key, value in LOT_POINT_NAMES.items()}
-ZR_SIGN_PERIODS = {
-    "Aries": 15,
-    "Taurus": 8,
-    "Gemini": 20,
-    "Cancer": 25,
-    "Leo": 19,
-    "Virgo": 20,
-    "Libra": 8,
-    "Scorpio": 15,
-    "Sagittarius": 12,
-    "Capricorn": 27,
-    "Aquarius": 30,
-    "Pisces": 12,
-}
-ZR_LEVEL_UNIT_DAYS = {
-    1: 360.0,
-    2: 30.0,
-    3: 2.5,
-    4: 5.0 / 24.0,
-}
-ZR_LEVEL_UNIT_LABELS = {
-    1: "years",
-    2: "months",
-    3: "weeks",
-    4: "days",
-}
-ZR_LEVEL_UNIT_LABELS_ZH = {
-    1: "年",
-    2: "月",
-    3: "周",
-    4: "日",
-}
 ZR_PHASE_LABELS = {
     "angular": "角宫",
     "succedent": "续宫",

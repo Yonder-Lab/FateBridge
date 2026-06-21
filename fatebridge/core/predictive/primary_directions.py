@@ -4,6 +4,58 @@ from __future__ import annotations
 
 from ._common import *
 
+# 方法标签与坐标系映射
+PRIMARY_DIRECTION_METHOD_LABELS = {
+    "astroapp_alchabitius": "AstroAPP-Alchabitius",
+    "legacy_reference": "旧版原方法",
+    "legacy_equatorial": "旧版原方法",
+    "fatebridge_mundane_semiarc": "FateBridge-Mundane-SemiArc",
+}
+PRIMARY_DIRECTION_METHOD_COORDINATES = {
+    "astroapp_alchabitius": ("ecliptic_longitude", "Arc"),
+    "legacy_reference": ("right_ascension", "赤经"),
+    "legacy_equatorial": ("right_ascension", "赤经"),
+    "fatebridge_mundane_semiarc": ("mundane_semiarc", "SemiArc"),
+}
+
+# 时间键推进速率
+PRIMARY_DIRECTION_TIME_KEY_RATES = {
+    "Ptolemy": 1.0,
+    "Naibod": 0.98564733,
+    "Cardan": 0.98666667,
+}
+
+# 界限系统
+PRIMARY_DIRECTION_BOUNDS_SYSTEM = "egyptian_bounds"
+PRIMARY_DIRECTION_BOUNDS_LABEL = "埃及界限"
+
+# 默认相位列表与承诺星
+PRIMARY_DIRECTION_DEFAULT_ASPECTS = [0, 60, 90, 120, 180]
+PRIMARY_DIRECTION_PROMISSORS = ["Ascendant", "Medium_Coeli"]
+
+# 年龄与窗口限制
+PRIMARY_DIRECTION_MAX_AGE_YEARS = 100.0
+PRIMARY_DIRECTION_EXACT_WINDOW_YEARS = 0.01
+
+# 宫位象限标签
+PRIMARY_DIRECTION_QUADRANT_LABELS = {
+    "above_east": "地平上东侧",
+    "above_west": "地平上西侧",
+    "below_west": "地平下西侧",
+    "below_east": "地平下东侧",
+    "horizon_east": "东方地平",
+    "horizon_west": "西方地平",
+    "upper_meridian": "上中天",
+    "lower_meridian": "下中天",
+}
+
+# 时间相位标签
+PRIMARY_DIRECTION_TIMING_PHASE_LABELS = {
+    "past": "已发生",
+    "future": "即将发生",
+    "exact": "当前触发",
+}
+
 
 def primary_direction_method_label(method_name: str) -> str:
     return PRIMARY_DIRECTION_METHOD_LABELS.get(method_name, method_name)

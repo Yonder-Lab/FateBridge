@@ -4,6 +4,116 @@ from __future__ import annotations
 
 from ._common import *
 
+# 起始模式与排序方式
+DECENNIAL_START_MODE_SECT_LIGHT = "sect_light"
+DECENNIAL_ORDER_ZODIACAL = "zodiacal"
+DECENNIAL_ORDER_CHALDEAN = "chaldean"
+
+# 日主分配方法
+DECENNIAL_DAY_METHOD_VALENS = "valens"
+DECENNIAL_DAY_METHOD_HEPHAISTIO = "hephaistio"
+
+# 历法类型
+DECENNIAL_CALENDAR_TRADITIONAL = "calendar_360"
+DECENNIAL_CALENDAR_ACTUAL = "calendar_365_25"
+
+# 七星顺序与基础月数
+DECENNIAL_TRADITIONAL_PLANETS = [
+    "Saturn",
+    "Jupiter",
+    "Mars",
+    "Sun",
+    "Venus",
+    "Mercury",
+    "Moon",
+]
+DECENNIAL_PLANET_BASE_MONTHS = {
+    "Saturn": 30,
+    "Jupiter": 12,
+    "Mars": 15,
+    "Sun": 19,
+    "Venus": 8,
+    "Mercury": 20,
+    "Moon": 25,
+}
+
+# 赫法伊斯提翁日主分配表（分钟数）
+DECENNIAL_HEPHAISTIO_DAY_TABLE = {
+    "Saturn": {
+        "Saturn": 210,
+        "Jupiter": 84,
+        "Mars": 105,
+        "Sun": 133,
+        "Venus": 56,
+        "Mercury": 150,
+        "Moon": 175,
+    },
+    "Jupiter": {
+        "Jupiter": 34,
+        "Saturn": 85,
+        "Mars": 42,
+        "Sun": 54,
+        "Venus": 22,
+        "Mercury": 57,
+        "Moon": 71,
+    },
+    "Mars": {
+        "Mars": 52,
+        "Sun": 66,
+        "Venus": 28,
+        "Mercury": 70,
+        "Moon": 87,
+        "Saturn": 105,
+        "Jupiter": 42,
+    },
+    "Sun": {
+        "Sun": 83,
+        "Moon": 118,
+        "Saturn": 130,
+        "Jupiter": 52,
+        "Mars": 64,
+        "Venus": 35,
+        "Mercury": 87,
+    },
+    "Venus": {
+        "Venus": 15,
+        "Sun": 36,
+        "Moon": 47,
+        "Saturn": 57,
+        "Jupiter": 22,
+        "Mars": 28,
+        "Mercury": 38,
+    },
+    "Mercury": {
+        "Mercury": 96,
+        "Sun": 90,
+        "Moon": 117,
+        "Saturn": 141,
+        "Jupiter": 56,
+        "Mars": 70,
+        "Venus": 36,
+    },
+    "Moon": {
+        "Moon": 148,
+        "Sun": 115,
+        "Saturn": 177,
+        "Jupiter": 71,
+        "Mars": 87,
+        "Venus": 47,
+        "Mercury": 119,
+    },
+}
+
+# 总基础月数及时间换算常量
+DECENNIAL_TOTAL_BASE_MONTHS = 129
+DECENNIAL_TOTAL_L1_DAYS = DECENNIAL_TOTAL_BASE_MONTHS * 30
+DECENNIAL_FIVE_MINUTES = 5
+DECENNIAL_MINUTES_PER_DAY = 24 * 60
+DECENNIAL_MINUTES_PER_MONTH = 30 * DECENNIAL_MINUTES_PER_DAY
+DECENNIAL_MINUTES_PER_YEAR = 12 * DECENNIAL_MINUTES_PER_MONTH
+DECENNIAL_ACTUAL_YEAR_SCALE_NUMERATOR = 1461
+DECENNIAL_ACTUAL_YEAR_SCALE_DENOMINATOR = 1440
+
 
 def _rotate_items(items: List[str], start_value: Optional[str]) -> List[str]:
     if not items or not start_value or start_value not in items:

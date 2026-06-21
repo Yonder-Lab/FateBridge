@@ -4,6 +4,42 @@ from __future__ import annotations
 
 from ._common import *
 
+# 各星座的释放年数（黄道释放法）
+ZR_SIGN_PERIODS = {
+    "Aries": 15,
+    "Taurus": 8,
+    "Gemini": 20,
+    "Cancer": 25,
+    "Leo": 19,
+    "Virgo": 20,
+    "Libra": 8,
+    "Scorpio": 15,
+    "Sagittarius": 12,
+    "Capricorn": 27,
+    "Aquarius": 30,
+    "Pisces": 12,
+}
+
+# 各层级的单位天数及标签
+ZR_LEVEL_UNIT_DAYS = {
+    1: 360.0,
+    2: 30.0,
+    3: 2.5,
+    4: 5.0 / 24.0,
+}
+ZR_LEVEL_UNIT_LABELS = {
+    1: "years",
+    2: "months",
+    3: "weeks",
+    4: "days",
+}
+ZR_LEVEL_UNIT_LABELS_ZH = {
+    1: "年",
+    2: "月",
+    3: "周",
+    4: "日",
+}
+
 
 def build_zodiacal_releasing_period(
     *,
