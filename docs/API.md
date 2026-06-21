@@ -220,6 +220,7 @@ REST 端通常返回：
 | `POST` | `/api/divination/meihua` | 梅花易数时卦 |
 | `POST` | `/api/divination/tongshefa` | 统摄法 |
 | `POST` | `/api/divination/sixyao` | 六爻 |
+| `POST` | `/api/divination/canping` | 邵子参评数 / 金锁银匙 |
 | `POST` | `/api/divination/suzhan` | 宿占 |
 | `POST` | `/api/divination/otherbu` | 占星骰子 / otherbu |
 | `POST` | `/api/divination/sanshiunited` | 三式合一 |
@@ -414,6 +415,7 @@ python -m fatebridge.mcp_server
 - `meihua_analysis`
 - `tongshefa`
 - `sixyao`
+- `canping`
 - `suzhan`
 - `otherbu`
 - `sanshiunited`

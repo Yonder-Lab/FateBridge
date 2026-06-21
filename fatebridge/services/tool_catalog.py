@@ -39,6 +39,7 @@ from fatebridge.core.request_models import (
     BaziRelativesRequest,
     BaziRomanceRequest,
     BaziWealthRequest,
+    CanpingRequest,
     DayunAnalysisRequest,
     ExportParseRequest,
     ExportRegistryRequest,
@@ -100,6 +101,7 @@ from fatebridge.services.bazi import (
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.divination import (
+    calculate_canping_analysis,
     calculate_gua_lookup,
     calculate_gua_meiyi,
     calculate_meihua_analysis,
@@ -584,6 +586,16 @@ CATALOG: List[ToolSpec] = [
         family="divination",
         rest_path="/api/divination/sixyao",
         mcp_name="sixyao",
+    ),
+    ToolSpec(
+        key="canping",
+        bind=raw_invoke(calculate_canping_analysis),
+        request_model=CanpingRequest,
+        summary="邵子参评数 / 金锁银匙（数算）。",
+        operation_label_zh="邵子参评数",
+        family="divination",
+        rest_path="/api/divination/canping",
+        mcp_name="canping",
     ),
     ToolSpec(
         key="suzhan",

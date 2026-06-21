@@ -510,6 +510,42 @@ class SuZhanRequest(BaseModel):
     )
 
 
+class CanpingRequest(BaseModel):
+    """Request model for canping (邵子参评数 / 金锁银匙)."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str = Field(description="Birth date string, e.g. 1990-06-15")
+    time: str = Field(description="Birth time string, e.g. 09:33:00")
+    zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
+    lat: Optional[str] = Field(
+        default=None, description="Latitude text or decimal (optional)"
+    )
+    lon: Optional[str] = Field(
+        default=None,
+        description="Longitude text or decimal; required when true solar time is on",
+    )
+    gps_lat: Optional[float] = Field(
+        default=None, alias="gpsLat", description="GPS latitude"
+    )
+    gps_lon: Optional[float] = Field(
+        default=None, alias="gpsLon", description="GPS longitude"
+    )
+    gender: Optional[str] = Field(
+        default="男",
+        description="Gender 男/女 — selects the 本命 verse (male/female)",
+    )
+    method: str = Field(
+        default="ming",
+        description="取法: ming 明法(月支反向取日宫支) or gu 古法(八字日支)",
+    )
+    use_true_solar_time: bool = Field(
+        default=False,
+        alias="useTrueSolarTime",
+        description="Apply true solar time correction (needs lon)",
+    )
+
+
 class SukuyoCompatibilityRequest(BaseModel):
     """Request model for 宿曜 two-person compatibility (三九の秘法).
 
