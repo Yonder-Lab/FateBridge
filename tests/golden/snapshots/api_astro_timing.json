@@ -290,8 +290,8 @@
         "lots": {
           "lot_of_fortune": {
             "absolute_degree": 121.0453,
-            "bound_lord": "Saturn",
-            "bound_lord_label": "土星",
+            "bound_lord": "Jupiter",
+            "bound_lord_label": "木星",
             "degree": 1.0453,
             "key": "lot_of_fortune",
             "label": "幸运点",
@@ -328,13 +328,13 @@
           },
           "Jupiter": {
             "absolute_degree": 134.3858,
-            "bound_lord": "Venus",
-            "bound_lord_label": "金星",
+            "bound_lord": "Saturn",
+            "bound_lord_label": "土星",
             "degree": 14.3858,
             "key": "Jupiter",
             "label": "木星",
-            "segment_end_degree": 19.0,
-            "segment_start_degree": 13.0,
+            "segment_end_degree": 18.0,
+            "segment_start_degree": 11.0,
             "sign": "Leo",
             "sign_label": "狮子座"
           },
@@ -345,19 +345,19 @@
             "degree": 24.1556,
             "key": "Mars",
             "label": "火星",
-            "segment_end_degree": 26.0,
-            "segment_start_degree": 21.0,
+            "segment_end_degree": 25.0,
+            "segment_start_degree": 20.0,
             "sign": "Aries",
             "sign_label": "白羊座"
           },
           "Medium_Coeli": {
             "absolute_degree": 127.8799,
-            "bound_lord": "Mercury",
-            "bound_lord_label": "水星",
+            "bound_lord": "Venus",
+            "bound_lord_label": "金星",
             "degree": 7.8799,
             "key": "Medium_Coeli",
             "label": "天顶",
-            "segment_end_degree": 13.0,
+            "segment_end_degree": 11.0,
             "segment_start_degree": 6.0,
             "sign": "Leo",
             "sign_label": "狮子座"

@@ -88,6 +88,112 @@ def test_dignity_score_parity_with_horosa():
         assert DIGNITY_SCORE[key] == _HOROSA_SCORE[key]
 
 
+# Canonical Egyptian terms (Ptolemy Tetrabiblos I.20 "Egyptians" / Valens), as
+# cumulative end-degrees per sign. The whole table must match this — locks the
+# Aries & Leo correction (they previously carried Ptolemaic-variant values).
+_CANONICAL_EGYPTIAN_TERMS = {
+    "Aries": [
+        ("Jupiter", 6),
+        ("Venus", 12),
+        ("Mercury", 20),
+        ("Mars", 25),
+        ("Saturn", 30),
+    ],
+    "Taurus": [
+        ("Venus", 8),
+        ("Mercury", 14),
+        ("Jupiter", 22),
+        ("Saturn", 27),
+        ("Mars", 30),
+    ],
+    "Gemini": [
+        ("Mercury", 6),
+        ("Jupiter", 12),
+        ("Venus", 17),
+        ("Mars", 24),
+        ("Saturn", 30),
+    ],
+    "Cancer": [
+        ("Mars", 7),
+        ("Venus", 13),
+        ("Mercury", 19),
+        ("Jupiter", 26),
+        ("Saturn", 30),
+    ],
+    "Leo": [
+        ("Jupiter", 6),
+        ("Venus", 11),
+        ("Saturn", 18),
+        ("Mercury", 24),
+        ("Mars", 30),
+    ],
+    "Virgo": [
+        ("Mercury", 7),
+        ("Venus", 17),
+        ("Jupiter", 21),
+        ("Mars", 28),
+        ("Saturn", 30),
+    ],
+    "Libra": [
+        ("Saturn", 6),
+        ("Mercury", 14),
+        ("Jupiter", 21),
+        ("Venus", 28),
+        ("Mars", 30),
+    ],
+    "Scorpio": [
+        ("Mars", 7),
+        ("Venus", 11),
+        ("Mercury", 19),
+        ("Jupiter", 24),
+        ("Saturn", 30),
+    ],
+    "Sagittarius": [
+        ("Jupiter", 12),
+        ("Venus", 17),
+        ("Mercury", 21),
+        ("Saturn", 26),
+        ("Mars", 30),
+    ],
+    "Capricorn": [
+        ("Mercury", 7),
+        ("Jupiter", 14),
+        ("Venus", 22),
+        ("Saturn", 26),
+        ("Mars", 30),
+    ],
+    "Aquarius": [
+        ("Mercury", 7),
+        ("Venus", 13),
+        ("Jupiter", 20),
+        ("Mars", 25),
+        ("Saturn", 30),
+    ],
+    "Pisces": [
+        ("Venus", 12),
+        ("Jupiter", 16),
+        ("Mercury", 19),
+        ("Mars", 28),
+        ("Saturn", 30),
+    ],
+}
+
+
+def test_bound_lord_matches_canonical_egyptian_terms_all_signs():
+    """Every degree's term lord == the canonical Egyptian table (whole-table lock)."""
+    for sign, table in _CANONICAL_EGYPTIAN_TERMS.items():
+
+        def expected(deg: float) -> str:
+            for planet, end in table:
+                if deg < end:
+                    return planet
+            return table[-1][0]
+
+        for tenth in range(300):  # 0.0–29.9 in 0.1° steps
+            degree = tenth / 10.0
+            assert bound_lord(sign, degree) == expected(degree), (sign, degree)
+
+
 def test_every_degree_has_exactly_one_bound_and_face_lord():
     for sign in _SIGNS:
         for degree in range(30):
