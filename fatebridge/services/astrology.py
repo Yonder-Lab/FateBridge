@@ -7,6 +7,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any, Dict, List, Optional
 
+from fatebridge.core import guolao_moira
 from fatebridge.core.astrology import (
     AstroBirthInfo,
     build_astro_birth_info,
@@ -895,6 +896,7 @@ def _build_guolao_snapshot_sections(payload: Dict[str, Any]) -> List[tuple[str, 
         ("起盘信息", "\n".join(setup_lines).strip()),
         ("七政四余宫位与二十八宿星曜", "\n".join(star_lines).strip() or "无"),
         ("神煞", "\n".join(shensha_lines).strip()),
+        ("政余格局", guolao_moira.build_section_text(guolao.get("moira_patterns", []))),
     ]
 
 
