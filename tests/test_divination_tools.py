@@ -15,7 +15,7 @@ from fatebridge.api import (
     TongSheFaRequest,
 )
 from fatebridge.core import astrology as astrology_core
-from fatebridge.core.phase2_local import build_pseudo_chart
+from fatebridge.core.local_techniques import build_pseudo_chart
 from fatebridge.mcp_server import (
     export_registry,
     gua_lookup,
@@ -56,7 +56,7 @@ def _house_id_for_longitude(houses, longitude):
     return houses[0]["id"]
 
 
-def _phase2_golden_projection():
+def _local_golden_projection():
     tongshefa_result = calculate_tongshefa_analysis(
         taiyin="巽",
         taiyang="坤",
@@ -214,7 +214,7 @@ def test_gua_meiyi_request_model_accepts_fields():
     assert payload["selected_sections"] == ["查询概览", "批量结果"]
 
 
-def test_phase2_request_models_accept_alias_and_nested_fields():
+def test_local_request_models_accept_alias_and_nested_fields():
     tongshefa_request = TongSheFaRequest(
         taiyin="巽",
         taiyang="坤",
@@ -1197,8 +1197,8 @@ def test_calculate_sanshiunited_analysis_supports_true_solar_time():
     )
 
 
-def test_phase2_offline_golden_samples_match_current_contract():
-    assert _phase2_golden_projection() == {
+def test_local_offline_golden_samples_match_current_contract():
+    assert _local_golden_projection() == {
         "tongshefa": {
             "baseLeft": "风雷益",
             "baseRight": "地雷复",
@@ -1302,7 +1302,7 @@ def test_fastmcp_gua_meiyi_tool_exposes_parameters():
     assert "selected_sections" in properties
 
 
-def test_fastmcp_phase2_tools_expose_parameters():
+def test_fastmcp_local_tools_expose_parameters():
     assert "taiyin" in tongshefa.parameters["properties"]
     assert "taiyang" in tongshefa.parameters["properties"]
 

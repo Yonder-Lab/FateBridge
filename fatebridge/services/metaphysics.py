@@ -13,6 +13,10 @@ from fatebridge.core.almanac import (
 )
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.export_parser import parse_export_content
+from fatebridge.core.local_techniques import (
+    build_qimen_snapshot_text,
+    build_qimen_with_options,
+)
 from fatebridge.core.metaphysics import (
     MetaphysicsSeed,
     build_jinkou_board,
@@ -22,10 +26,6 @@ from fatebridge.core.metaphysics import (
     build_ziwei_chart,
     build_ziwei_horoscope,
     build_ziwei_rules,
-)
-from fatebridge.core.phase2_local import (
-    build_qimen_snapshot_text,
-    build_qimen_with_options,
 )
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
