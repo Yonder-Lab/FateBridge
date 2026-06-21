@@ -1188,6 +1188,17 @@ class AstroPlanetaryArcRequest(AstroLifespanRequest):
     )
 
 
+class AstroPersianDirectedRequest(AstroLifespanRequest):
+    """Request model for the 波斯向运 (Persian Directed) tool."""
+
+    max_age_years: float = Field(
+        default=90.0,
+        gt=0,
+        le=200,
+        description="Upper age bound (years) for the symbolic 1°/year hit list",
+    )
+
+
 class AstroMundaneRequest(BaseModel):
     """Request model for the 世俗入宫盘 (mundane ingress) tool — cast at a solar ingress, no birth data."""
 

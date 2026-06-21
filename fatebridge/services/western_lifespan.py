@@ -21,6 +21,7 @@ from fatebridge.core.astrology_lifespan import (
     build_harmonic_payload,
     build_keypoints_payload,
     build_lunation_phase_payload,
+    build_persian_directed_payload,
     build_planetary_ages_payload,
     build_planetary_arc_payload,
     build_triplicity_rulers_payload,
@@ -33,14 +34,48 @@ from fatebridge.core.predictive import (
     build_secondary_progression_payload,
     calculate_age_years,
     determine_sect,
+    extract_named_longitudes,
     extract_reference_longitudes,
     extract_reference_points,
+    planet_label,
+    point_absolute_position,
     sect_label,
 )
 from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
 from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
+
+# Natal targets FateBridge directs in 波斯向运: the ten visible bodies plus the 12
+# house cusps (added by the core builder). This is the clean subset 星阙 shares —
+# it deliberately omits 星阙's enriched objects (asteroids / midpoints / Arabic lots
+# / 四余 / lunar nodes), which live in other FateBridge layers, not the natal chart.
+_PERSIAN_TARGET_BODIES = [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+]
+_PERSIAN_HOUSE_POINTS = [
+    "First_House",
+    "Second_House",
+    "Third_House",
+    "Fourth_House",
+    "Fifth_House",
+    "Sixth_House",
+    "Seventh_House",
+    "Eighth_House",
+    "Ninth_House",
+    "Tenth_House",
+    "Eleventh_House",
+    "Twelfth_House",
+]
 
 
 def _json_block(value: Any) -> str:
@@ -690,6 +725,86 @@ def calculate_planetary_arc(
         return _envelope(
             analysis_type="西占行星弧方向",
             tool_name="planetary_arc",
+            context=context,
+            natal_reference=natal_reference,
+            payload=payload,
+            summary=summary,
+            sections=sections,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, label)
+
+
+def _persian_directed_table(payload: Dict[str, Any]) -> str:
+    """Render the 波斯向运 hit list as 星阙's 应期 table."""
+    hits = payload.get("hits", [])
+    if not hits:
+        return "（本盘无波斯向运应期）"
+    lines = [
+        "黄经象征向运(1°/年)：所有行星每年 +1°，本命宫头不动；下表为向运星触及本命的应期。"
+        "（口径：10 行星 + 12 宫头；未含小行星/中点/福点/四余/交点。）",
+        "",
+        "| 年龄 | 日期 | 向运星 | 相位 | 本命对象 |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for hit in hits:
+        significator = hit["significator"]
+        sig_name = (
+            significator if "宫头" in str(significator) else planet_label(significator)
+        )
+        lines.append(
+            f"| {hit['age']} | {hit['date'] or '-'} | {hit['promittor_label']} "
+            f"| {hit['aspect']}° | {sig_name} |"
+        )
+    return "\n".join(lines)
+
+
+def calculate_persian_directed(
+    *,
+    max_age_years: float = 90.0,
+    house_system: str = "P",
+    zodiac_type: str = "Tropic",
+    **birth_kwargs: Any,
+) -> Dict[str, Any]:
+    """生成波斯向运盘（符号 1°/年，向运星触及本命的应期表）。"""
+    label = "波斯向运"
+    try:
+        birth_info, natal_subject, natal_reference, sect = _prepare_chart(
+            house_system=house_system, zodiac_type=zodiac_type, **birth_kwargs
+        )
+        natal_longitudes = extract_named_longitudes(
+            natal_subject, _PERSIAN_TARGET_BODIES
+        )
+        house_cusps = [
+            point_absolute_position(natal_subject, point_name)
+            for point_name in _PERSIAN_HOUSE_POINTS
+        ]
+        payload = build_persian_directed_payload(
+            natal_longitudes,
+            house_cusps,
+            birth_datetime=birth_info.local_datetime,
+            max_age_years=max_age_years,
+        )
+        summary = (
+            f"波斯向运：7 政向运星每年 +1° 推动，"
+            f"在 0–{round(max_age_years)} 岁内共 {payload['hit_count']} 个应期。"
+        )
+        context = _analysis_context(
+            label=label,
+            birth_info=birth_info,
+            sect=sect,
+            house_system=house_system,
+            zodiac_type=zodiac_type,
+        )
+        context["max_age_years"] = max_age_years
+        sections = [
+            ("起盘信息", _json_block(context)),
+            ("波斯向运（Persian Directed）", _persian_directed_table(payload)),
+            ("应期明细", _json_block(payload["hits"])),
+        ]
+        return _envelope(
+            analysis_type="西占波斯向运",
+            tool_name="persian_directed",
             context=context,
             natal_reference=natal_reference,
             payload=payload,
