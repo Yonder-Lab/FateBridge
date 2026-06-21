@@ -9,9 +9,15 @@
     qualities tally → humor). Tables (body parts / planet qualities) ported
     verbatim from horosa `data/signs.js` + `data/planets.js`. `classical.planets[]`
     gains `dodekatemorion` + `melothesia`; `classical.temperament`; snapshot adds
-    `[体质]`. **Deferred to Phase 5b: monomoiria / ninth-part / Darijan** (extra
-    degree-ruler tables) and the **28 lunar mansions** (FB already has nakshatra/
-    su28; classical 28-mansion mapping pending).
+    `[体质]`. **Phase 5b — ninth-part shipped (`feat/astro-ninth-part`):**
+    `classical.planets[].ninth_part` (九分部/navamsa) — each sign's nine 3°20′
+    parts open on the cardinal sign of its triplicity (dominant Parashari
+    convention = the Hellenistic ninth-part's triplicity reset); snapshot `[体质]`
+    adds a 九分部 line beside 12分度. Pure geometry, no doctrine.
+    **Still deferred (each needs a doctrine/boundary call, not engineering):**
+    *monomoiria / Darijan* (competing degree-ruler systems) and the *classical 28
+    lunar mansions* (FB already has nakshatra/su28; the Arabic manazil mapping +
+    its natures would re-raise the interpretation-in-engine boundary).
   - **Phase 2b shipped (`feat/astro-ephemeris-phase2b`):** the chart now exposes
     per-planet **speed** + **declination** (a second `FLG_EQUATORIAL` pass), so
     `classical.planets[]` gains **retrograde** (speed < 0) + **out_of_bounds**
