@@ -69,3 +69,6 @@ yarn-error.log*
 # BaZi source books (large reference PDFs/courses — not part of the codebase)
 八字/
 .bazi_src/
+
+# 本地 mimocode 工具目录（含 node_modules / 自动生成的 plans），不入库
+.mimocode/
