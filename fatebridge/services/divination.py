@@ -13,6 +13,7 @@ from fatebridge.core.divination import build_meihua_interpretation, lookup_gua
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.local_techniques import (
     build_canping_result,
+    build_heluo_result,
     build_otherbu_result,
     build_sanshiunited_result,
     build_sixyao_result,
@@ -367,6 +368,35 @@ def calculate_canping_analysis(
         )
     except Exception as exc:
         return handle_calculation_error(exc, "邵子参评数分析")
+
+
+def calculate_heluo_analysis(
+    *,
+    date: str,
+    time: str,
+    zone: Optional[str] = None,
+    lat: Optional[str] = None,
+    lon: Optional[str] = None,
+    gps_lat: Optional[float] = None,
+    gps_lon: Optional[float] = None,
+    gender: Optional[str] = None,
+    use_true_solar_time: bool = False,
+) -> Dict[str, Any]:
+    """河洛理数分析工具。"""
+    try:
+        return build_heluo_result(
+            date=date,
+            time=time,
+            zone=zone,
+            lat=lat,
+            lon=lon,
+            gps_lat=gps_lat,
+            gps_lon=gps_lon,
+            gender=gender,
+            use_true_solar_time=use_true_solar_time,
+        )
+    except Exception as exc:
+        return handle_calculation_error(exc, "河洛理数分析")
 
 
 def calculate_sixyao_analysis(

@@ -886,6 +886,32 @@
       "astro_meaning_default": null,
       "astro_meaning_title": "",
       "forbidden_sections": [],
+      "key": "heluo",
+      "label": "河洛理数",
+      "planet_info_default": null,
+      "preset_sections": [
+        "起命",
+        "命运篇",
+        "大限·岁运"
+      ],
+      "settings_template": {
+        "astroMeaning": null,
+        "planetInfo": null,
+        "sections": [
+          "起命",
+          "命运篇",
+          "大限·岁运"
+        ]
+      },
+      "supports_astro_meaning": false,
+      "supports_hover_meaning": false,
+      "supports_planet_info": false
+    },
+    {
+      "astro_meaning_checkbox": "",
+      "astro_meaning_default": null,
+      "astro_meaning_title": "",
+      "forbidden_sections": [],
       "key": "tongshefa",
       "label": "统摄法",
       "planet_info_default": null,

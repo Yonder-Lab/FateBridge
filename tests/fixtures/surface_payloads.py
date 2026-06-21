@@ -364,6 +364,14 @@ REST_POST_CASES = {
         "gender": "男",
         "method": "ming",
     },
+    "/api/divination/heluo": lambda: {
+        # mid-立夏 quarter, far from any 节气 boundary or 四立 土用 window → the
+        # 节气-coupled 命运篇 stays cross-platform deterministic for the golden.
+        **_local_base(),
+        "date": "2000-05-15",
+        "time": "09:33:00",
+        "gender": "男",
+    },
     "/api/divination/suzhan": lambda: {
         **_local_base(),
         "szchart": 1,
@@ -681,6 +689,15 @@ MCP_CASES = {
     "canping": (
         "canping",
         lambda: {**_local_base(), "gender": "男", "method": "ming"},
+    ),
+    "heluo": (
+        "heluo",
+        lambda: {
+            **_local_base(),
+            "date": "2000-05-15",
+            "time": "09:33:00",
+            "gender": "男",
+        },
     ),
     "suzhan": (
         "suzhan",

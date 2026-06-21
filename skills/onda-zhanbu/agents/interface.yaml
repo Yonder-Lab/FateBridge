@@ -25,6 +25,7 @@ engine_tools:
   - canping
   - gua_lookup
   - gua_meiyi
+  - heluo
   - jinkou
   - liureng_gods
   - liureng_runyear
