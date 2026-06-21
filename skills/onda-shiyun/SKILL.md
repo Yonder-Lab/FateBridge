@@ -24,7 +24,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` |
 | 西占视角的年运 | `solarreturn`（太阳返照）、`profection`（年小限）、`transit`（行运） |
 | 西占长周期/古典推运 | `zr`（黄道释放）、`firdaria`（法达）、`decennials`（十年星限）、`solararc`、`pd`（主限） |
-| 西占全生命周期技法（读单张本命盘） | `astro_planetary_ages`（行星年龄·七分期）、`astro_triplicity_rulers`（三分主星·人生三阶段）、`astro_lunation_phase`（月相推运）、`astro_distributions`（界推运/分配法）、`astro_harmonic`（调波盘）、`astro_balbillus`（Balbillus 129年系统·主限）、`astro_keypoints`（数字相位推运·120年关键点）、`astro_yearsystem129`（129年系统·七星小年轮值）、`astro_planetaryarc`（行星弧方向）、`astro_extrareturns`（多重回归·土/木/月交返照） |
+| 西占全生命周期技法（读单张本命盘） | `astro_planetary_ages`（行星年龄·七分期）、`astro_triplicity_rulers`（三分主星·人生三阶段）、`astro_lunation_phase`（月相推运）、`astro_distributions`（界推运/分配法）、`astro_harmonic`（调波盘）、`astro_balbillus`（Balbillus 129年系统·主限）、`astro_keypoints`（数字相位推运·120年关键点）、`astro_yearsystem129`（129年系统·七星小年轮值）、`astro_planetaryarc`（行星弧方向）、`astro_persiandirected`（波斯向运·符号1°/年应期）、`astro_extrareturns`（多重回归·土/木/月交返照） |
 | 世俗/年度大势（入宫盘，非个人盘） | `astro_mundane`（某年春分/夏至/秋分/冬至入宫时刻起盘，只需年份+节气+地点经纬度，不要出生数据）|
 | 择日（评估某候选时刻宜不宜办某事） | `astro_election`（传入候选时刻 `--candidate-year/month/day/hour` + 地点 + 用事类型 `--topic-id`：marriage/business/contract/surgery/move_in/...；输出 0–100 评分 + 吉凶因子）|
 
