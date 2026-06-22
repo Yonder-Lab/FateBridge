@@ -96,10 +96,12 @@ TRADITIONAL_PLANETS = frozenset(
     {"Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"}
 )
 
-# Combustion thresholds (degrees) — cazimi 17′, combust 8.5°, under-beams 17°.
+# Combustion thresholds (degrees) — cazimi 17′, combust 8.5°, under-beams 15°.
+# Under-the-sunbeams uses the Sun's moiety of 15° (Lilly, CA p.113); this matches
+# the solar moiety in ``astrology_horary.PLANET_MOIETIES``.
 _COMBUST_CAZIMI = 17.0 / 60.0
 _COMBUST_LIMIT = 8.5
-_UNDER_BEAMS_LIMIT = 17.0
+_UNDER_BEAMS_LIMIT = 15.0
 # Solar obliquity bound — a body beyond this declination is "out of bounds".
 OUT_OF_BOUNDS_LIMIT = 23.4367
 
@@ -230,7 +232,7 @@ def angularity(house: Optional[int]) -> Optional[str]:
 
 
 def combustion_state(planet_lon: float, sun_lon: Optional[float]) -> Optional[str]:
-    """cazimi (≤17′) · combust (<8.5°) · under_beams (<17°), else None."""
+    """cazimi (≤17′) · combust (<8.5°) · under_beams (<15°), else None."""
     if sun_lon is None:
         return None
     distance = _angular_distance(planet_lon, sun_lon)
