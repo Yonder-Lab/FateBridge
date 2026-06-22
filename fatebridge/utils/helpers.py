@@ -662,8 +662,18 @@ def _resolve_birth_place_context_cached(
     )
 
 
+def _invalid_timezone_message(value: str) -> str:
+    """Build an actionable error that names every accepted timezone format."""
+    return (
+        f"Invalid birth timezone: {value!r}. "
+        "Use an IANA name (e.g. 'Asia/Shanghai'), a UTC offset "
+        "(e.g. '+08:00' or 'UTC+8'), or a bare offset in hours "
+        "(e.g. '8', '-5', '5.5')."
+    )
+
+
 def parse_timezone_name(timezone_name: str) -> tzinfo:
-    """Parse IANA names or UTC±HH[:MM] offsets into a tzinfo."""
+    """Parse IANA names, UTC±HH[:MM] offsets, or bare hour offsets into a tzinfo."""
     timezone_name = timezone_name.strip()
     return _parse_timezone_name_cached(timezone_name)
 
@@ -675,18 +685,34 @@ def _parse_timezone_name_cached(timezone_name: str) -> tzinfo:
     if timezone_info is not None:
         return cast(tzinfo, timezone_info)
 
-    normalized_name = timezone_name.upper().replace("GMT", "UTC")
+    stripped = timezone_name.strip()
+
+    # Accept a bare numeric UTC offset in hours — e.g. "8", "+8", "-5", "5.5"
+    # ("5.5" -> +05:30, matching India). This is the most natural thing a user
+    # types for a timezone field, so treat it as UTC+N rather than rejecting it.
+    # Bound to a sane range so junk like "1e3"/"inf"/"nan" still fails loudly.
+    try:
+        offset_hours = float(stripped)
+    except ValueError:
+        pass
+    else:
+        if -15.0 <= offset_hours <= 15.0:
+            offset_seconds = int(round(offset_hours * 3600))
+            return cast(tzinfo, tz.tzoffset(stripped, offset_seconds))
+        raise ValueError(_invalid_timezone_message(timezone_name))
+
+    normalized_name = stripped.upper().replace("GMT", "UTC")
     if normalized_name.startswith(("+", "-")):
         normalized_name = f"UTC{normalized_name}"
     if normalized_name == "UTC":
         return cast(tzinfo, tz.tzutc())
 
     if not normalized_name.startswith("UTC") or len(normalized_name) < 5:
-        raise ValueError(f"Invalid birth timezone: {timezone_name}")
+        raise ValueError(_invalid_timezone_message(timezone_name))
 
     sign = normalized_name[3]
     if sign not in {"+", "-"}:
-        raise ValueError(f"Invalid birth timezone: {timezone_name}")
+        raise ValueError(_invalid_timezone_message(timezone_name))
 
     remainder = normalized_name[4:]
     if ":" in remainder:
@@ -698,7 +724,7 @@ def _parse_timezone_name_cached(timezone_name: str) -> tzinfo:
         hours = int(hour_text)
         minutes = int(minute_text)
     except ValueError as error:
-        raise ValueError(f"Invalid birth timezone: {timezone_name}") from error
+        raise ValueError(_invalid_timezone_message(timezone_name)) from error
 
     direction = 1 if sign == "+" else -1
     offset_seconds = direction * ((hours * 60 + minutes) * 60)
@@ -724,7 +750,7 @@ def calculate_solar_time_adjustment(
     aware_datetime = input_datetime.replace(tzinfo=timezone_info)
     utc_offset = aware_datetime.utcoffset()
     if utc_offset is None:
-        raise ValueError(f"Invalid birth timezone: {timezone_name}")
+        raise ValueError(_invalid_timezone_message(timezone_name))
 
     daylight_saving = aware_datetime.dst() or timedelta(0)
     standard_offset = utc_offset - daylight_saving
