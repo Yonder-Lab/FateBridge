@@ -195,6 +195,8 @@ def build_parser(
         "tool", nargs="?", help="工具命令名（见 `fatebridge list`）"
     )
 
+    _add_profile_parser(sub)
+
     for spec in CATALOG:
         if not _cli_safe(spec):
             # Register a stub so invoking it gives a helpful hint instead of
@@ -320,6 +322,185 @@ def _preload_subject(
     return path, _load_subject_file(path)
 
 
+# --- profile: run several charts for one subject in a single invocation ------
+
+DEFAULT_PROFILE_SYSTEMS = "bazi,ziwei,astro"
+
+# Friendly system tokens -> catalog command names. Raw command names also work.
+SYSTEM_ALIASES = {
+    "bazi": "bazi_birth",
+    "八字": "bazi_birth",
+    "ziwei": "ziwei_birth",
+    "紫微": "ziwei_birth",
+    "紫微斗数": "ziwei_birth",
+    "astro": "astro_chart",
+    "astrology": "astro_chart",
+    "西占": "astro_chart",
+    "占星": "astro_chart",
+    "personality": "bazi_personality",
+    "性格": "bazi_personality",
+    "career": "bazi_career",
+    "事业": "bazi_career",
+    "marriage": "bazi_marriage",
+    "婚姻": "bazi_marriage",
+    "health": "bazi_health",
+    "健康": "bazi_health",
+    "romance": "bazi_romance",
+    "桃花": "bazi_romance",
+}
+
+# Person/time inputs shared by every chart; gathered from the core specs so
+# types/help stay in sync with the models. birth_latitude lives only on astro.
+_PROFILE_PERSON_FIELDS = (
+    "name",
+    "gender",
+    "birth_year",
+    "birth_month",
+    "birth_day",
+    "birth_hour",
+    "birth_minute",
+    "birth_place",
+    "birth_longitude",
+    "birth_latitude",
+    "birth_timezone",
+    "use_true_solar_time",
+)
+_PROFILE_REQUIRED_FIELDS = ("birth_year", "birth_month", "birth_day", "birth_hour")
+
+
+def _profile_field_objects() -> Dict[str, Any]:
+    """Resolve each shared person field to a model field object from a core spec."""
+    core = ("bazi_birth", "ziwei_birth", "astro_chart")
+    specs = [s for s in CATALOG if _command_name(s) in core]
+    resolved: Dict[str, Any] = {}
+    for name in _PROFILE_PERSON_FIELDS:
+        for spec in specs:
+            field = spec.request_model.model_fields.get(name)
+            if field is not None:
+                resolved[name] = field
+                break
+    return resolved
+
+
+def _add_profile_parser(sub: Any) -> None:
+    parser = sub.add_parser(
+        "profile",
+        help="综合命盘：一次为同一命主排多套盘（默认 八字/紫微/西占）",
+    )
+    parser.add_argument(
+        "--systems",
+        default=None,
+        metavar="LIST",
+        help=(
+            "逗号分隔的体系或工具，默认 bazi,ziwei,astro。"
+            "支持别名（八字/紫微/西占/性格/事业/婚姻/健康/桃花）或直接用工具命令名。"
+        ),
+    )
+    # Person flags are never argparse-required here; requiredness is checked
+    # after merging --subject-file so the file alone can drive a profile.
+    for fname, field in _profile_field_objects().items():
+        _add_field_argument(parser, fname, field, relax_required=True)
+    parser.add_argument(
+        "--subject-file",
+        dest="subject_file",
+        default=None,
+        metavar="PATH",
+        help="从 JSON/YAML 档案读取命主信息；命令行参数优先于档案值。",
+    )
+    parser.set_defaults(_profile=True)
+
+
+def _resolve_profile_systems(
+    tokens: List[str],
+) -> "tuple[List[tuple[str, ToolSpec]], List[str]]":
+    resolved: List[tuple[str, ToolSpec]] = []
+    unknown: List[str] = []
+    for token in tokens:
+        name = SYSTEM_ALIASES.get(token.lower(), token)
+        spec = next((s for s in CATALOG if _command_name(s) == name), None)
+        if spec is None or not _cli_safe(spec):
+            unknown.append(token)
+        else:
+            resolved.append((token, spec))
+    return resolved, unknown
+
+
+def _run_profile(
+    args: argparse.Namespace, subject_data: Optional[Dict[str, Any]]
+) -> int:
+    raw = getattr(args, "systems", None) or DEFAULT_PROFILE_SYSTEMS
+    tokens = [t.strip() for t in raw.split(",") if t.strip()]
+    resolved, unknown = _resolve_profile_systems(tokens)
+    if unknown:
+        return _emit_error(
+            {
+                "error": (
+                    f"未知体系/工具: {', '.join(unknown)}；"
+                    "可用别名见 `fatebridge profile --help`，或用 `fatebridge list` 的命令名。"
+                ),
+                "error_code": "usage_error",
+                "status_code": 400,
+                "retryable": False,
+            },
+            2,
+        )
+
+    # Shared person inputs: subject-file defaults, then explicit CLI flags win.
+    inputs: Dict[str, Any] = {}
+    if subject_data:
+        inputs.update({k: v for k, v in subject_data.items() if v is not None})
+    for fname in _PROFILE_PERSON_FIELDS:
+        if fname in vars(args):  # SUPPRESS -> present only if user passed it
+            inputs[fname] = getattr(args, fname)
+
+    missing = [f for f in _PROFILE_REQUIRED_FIELDS if inputs.get(f) is None]
+    if missing:
+        flags = ", ".join("--" + f.replace("_", "-") for f in missing)
+        return _emit_error(
+            {
+                "error": (
+                    f"综合命盘缺少必填出生信息: {flags}（可由 --subject-file 提供）。"
+                ),
+                "error_code": "usage_error",
+                "status_code": 400,
+                "retryable": False,
+            },
+            2,
+        )
+
+    profile: Dict[str, Any] = {}
+    any_error = False
+    for token, spec in resolved:
+        field_names = set(spec.request_model.model_fields)
+        provided = {
+            k: v for k, v in inputs.items() if k in field_names and v is not None
+        }
+        try:
+            result = execute_spec(spec, spec.request_model(**provided))
+        except ValueError:
+            result = invalid_input_result(spec)
+        except Exception as exc:  # noqa: BLE001 - surface, don't abort the batch
+            result = {
+                "error": str(exc),
+                "error_code": "internal_error",
+                "status_code": 500,
+                "retryable": False,
+            }
+        if result_is_error(spec, result):
+            any_error = True
+        profile[token] = result
+
+    output: Dict[str, Any] = {
+        "analysis_type": "综合命盘",
+        "systems": [token for token, _ in resolved],
+        "profile": profile,
+    }
+    if not args.no_metadata:
+        output = attach_run_metadata(output, tool_name="profile")
+    print(json.dumps(output, ensure_ascii=False, indent=2, default=str))
+    return 1 if any_error else 0
+
+
 def _unsupported_hint(spec: ToolSpec) -> str:
     """Suggest a CLI-safe flat sibling (same label) or fall back to REST/MCP."""
     sibling = next(
@@ -403,6 +584,9 @@ def run(argv: Optional[List[str]] = None) -> int:
 
     if args.command == "describe":
         return _run_describe(getattr(args, "tool", None))
+
+    if getattr(args, "_profile", False):
+        return _run_profile(args, subject_data)
 
     spec: Optional[ToolSpec] = getattr(args, "_spec", None)
     if spec is None:
