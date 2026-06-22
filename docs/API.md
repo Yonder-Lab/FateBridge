@@ -26,18 +26,27 @@
 
 ### 2.1 错误格式
 
-REST 端通常返回：
+REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段一致，Agent 可在任意
+端按同一个 `error_code` 分支处理：
 
 ```json
 {
-  "detail": "无效的输入参数，请检查日期有效性"
+  "error": "无效的八字分析参数",
+  "error_code": "validation_error",
+  "retryable": false
 }
 ```
 
+常见 `error_code`：`validation_error`（400）、`authentication_required`（401）、
+`dependency_missing`（运行依赖缺失）、`internal_error`（500）。请基于 `error_code`
+而非 `error` 文案做分支判断。
+
 常见状态码：
 
-- `400`：输入参数错误、日期无效、能力依赖缺失
+- `400`：输入参数错误、日期无效
+- `401`：缺少或无效的 API key（仅在配置了密钥时）
 - `500`：服务内部异常
+- `503`：能力依赖缺失（如西占预测运行时不可用）
 
 ### 2.2 快照协议
 

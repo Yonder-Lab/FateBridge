@@ -379,7 +379,7 @@ async def instrument_request_lifecycle(
             if authenticated_key_id is None:
                 auth_response = JSONResponse(
                     status_code=401,
-                    content={"detail": _build_authentication_detail()},
+                    content=_build_authentication_detail(),
                 )
                 REQUEST_METRICS.observe(
                     method=method,
@@ -425,6 +425,35 @@ def _raise_service_http_error(result: Dict[str, Any]) -> None:
         status_code=int(result.get("status_code", 500)),
         detail=_build_error_detail(result),
     )
+
+
+@app.exception_handler(HTTPException)
+async def _http_error_envelope(request: Request, exc: HTTPException) -> JSONResponse:
+    """Render every HTTPException as a flat top-level error envelope.
+
+    REST historically nested the error under FastAPI's ``detail`` key, while MCP
+    and the CLI emit a flat ``{error, error_code, retryable}``. This handler
+    flattens the HTTP body so all three surfaces agree — an agent branches on the
+    same top-level ``error_code`` everywhere — and backfills ``error_code`` for
+    the bare-string 400/500 paths that previously carried none. The exception
+    object keeps its ``.detail`` intact for in-process callers that inspect it.
+    """
+    detail = exc.detail
+    if isinstance(detail, dict) and "error_code" in detail:
+        body = {
+            "error": detail.get("error"),
+            "error_code": detail.get("error_code", "internal_error"),
+            "retryable": detail.get("retryable", False),
+        }
+    else:
+        body = {
+            "error": detail,
+            "error_code": (
+                "validation_error" if exc.status_code == 400 else "internal_error"
+            ),
+            "retryable": False,
+        }
+    return JSONResponse(status_code=exc.status_code, content=body)
 
 
 def _get_heavy_calc_semaphore() -> asyncio.Semaphore:
