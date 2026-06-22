@@ -131,11 +131,8 @@ def test_http_smoke_endpoints_return_expected_payloads(
     response = client.post(path, json=payload)
 
     if tool_name == "solarreturn" and response.status_code == 503:
-        detail = response.json().get("detail", {})
-        if (
-            isinstance(detail, dict)
-            and detail.get("error_code") == "dependency_missing"
-        ):
+        # Error body is a flat top-level envelope (matching MCP/CLI).
+        if response.json().get("error_code") == "dependency_missing":
             pytest.skip("western predictive runtime unavailable in test environment")
 
     assert response.status_code == 200

@@ -284,7 +284,9 @@ def test_api_key_auth_rejects_missing_key_when_configured(monkeypatch):
     response = client.post("/api/divination/gua", json={"query": "乾"})
 
     assert response.status_code == 401
-    assert response.json()["detail"] == {
+    # REST errors render as a flat top-level envelope (matching MCP/CLI), not
+    # nested under FastAPI's ``detail`` key.
+    assert response.json() == {
         "error": "缺少或无效的 API key",
         "error_code": "authentication_required",
         "retryable": False,
