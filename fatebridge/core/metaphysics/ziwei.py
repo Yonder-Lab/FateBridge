@@ -10,7 +10,7 @@ brightness/mutagen tables from ``..ziwei_tables``.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from ...utils.data import (
     EARTHLY_BRANCHES,
@@ -116,6 +116,19 @@ def _branch_from_hour(hour_branch: str) -> int:
     return EARTHLY_BRANCHES.index(hour_branch) + 1
 
 
+def _lunar_year_ganzhi(lunar_year: int) -> Tuple[str, str]:
+    """紫微斗数年干支：以农历年（正月初一为界）推，不用八字的立春换年。
+
+    命盘的五虎遁宫干、四化、年支系辅煞（天马/火铃/红鸾天喜/孤辰寡宿等）
+    都随这个年干支走。立春～正月初一之间出生者，立春年比正月初一年多一位，
+    若误用八字年柱（立春界）会让整张星盘平移一宫。
+    """
+    return (
+        HEAVENLY_STEMS[(lunar_year - 4) % len(HEAVENLY_STEMS)],
+        EARTHLY_BRANCHES[(lunar_year - 4) % len(EARTHLY_BRANCHES)],
+    )
+
+
 def _apply_sihua_to_palaces(
     palaces: List[Dict[str, Any]],
     year_stem: str,
@@ -147,7 +160,13 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
             lunar_month = (lunar_month % 12) + 1
     hour_branch = seed.pillars["hour"][1]
     hour_index = _branch_from_hour(hour_branch)
-    year_stem = seed.pillars["year"][0]
+    # 年干支按农历年（正月初一为界）取，而非八字立春年柱——见 _lunar_year_ganzhi。
+    # lunar["year"] 缺失时（历法上下文不可用）退回八字年柱保持旧行为。
+    lunar_year = lunar.get("year")
+    if lunar_year is not None:
+        year_stem, year_branch = _lunar_year_ganzhi(int(lunar_year))
+    else:
+        year_stem, year_branch = seed.pillars["year"]
 
     ming_index = (lunar_month - hour_index) % 12
     shen_index = (lunar_month + hour_index - 2) % 12
@@ -275,7 +294,7 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
                 break
 
     # --- 年干 / 年支 / 生时 派生的辅煞星 ---
-    year_branch = seed.pillars["year"][1]
+    # year_stem / year_branch 已在上方按农历年（正月初一）统一确定。
     year_branch_earth_index = EARTHLY_BRANCHES.index(year_branch)
     hour_earth_index = EARTHLY_BRANCHES.index(hour_branch)
 
