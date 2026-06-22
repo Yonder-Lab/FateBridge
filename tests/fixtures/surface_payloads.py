@@ -529,6 +529,8 @@ REST_GET_CASES = {
     "/health": lambda body: body["status"] == "healthy",
     "/ready": lambda body: body["status"] == "ready",
     "/metrics": lambda body: body is None,
+    "/api/tools": lambda body: body["counts"]["total"] >= 1
+    and isinstance(body["tools"], list),
 }
 
 MCP_CASES = {

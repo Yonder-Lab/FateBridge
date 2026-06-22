@@ -17,17 +17,24 @@ from __future__ import annotations
 
 import argparse
 import json
-from typing import Any, List, NoReturn, Optional, Union, get_args, get_origin
-
-from pydantic import BaseModel
+from typing import Any, List, NoReturn, Optional, get_args, get_origin
 
 from fatebridge.core.tool_spec import (
     ToolSpec,
+    describe_spec,
     execute_spec,
+)
+from fatebridge.core.tool_spec import field_type_name as _type_name
+from fatebridge.core.tool_spec import (
     invalid_input_result,
+)
+from fatebridge.core.tool_spec import is_model_field as _is_model_field
+from fatebridge.core.tool_spec import (
     project_fields,
     result_is_error,
 )
+from fatebridge.core.tool_spec import spec_is_cli_safe as _cli_safe
+from fatebridge.core.tool_spec import unwrap_optional as _unwrap_optional
 from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.tool_catalog import CATALOG
 
@@ -78,76 +85,15 @@ def _command_name(spec: ToolSpec) -> str:
     return spec.mcp_name or spec.key
 
 
-def _unwrap_optional(annotation: Any) -> Any:
-    if get_origin(annotation) is Union:
-        non_none = [a for a in get_args(annotation) if a is not type(None)]
-        if non_none:
-            return non_none[0]
-    return annotation
-
-
-def _is_model_field(annotation: Any) -> bool:
-    base = _unwrap_optional(annotation)
-    return isinstance(base, type) and issubclass(base, BaseModel)
-
-
-def _cli_safe(spec: ToolSpec) -> bool:
-    """A spec is CLI-exposable if none of its fields are nested models."""
-    return not any(
-        _is_model_field(f.annotation) for f in spec.request_model.model_fields.values()
-    )
-
-
-def _type_name(annotation: Any) -> str:
-    """Render a field annotation as a short, agent-readable type string."""
-    base = _unwrap_optional(annotation)
-    origin = get_origin(base)
-    if origin in (list, List):
-        args = get_args(base)
-        inner = getattr(args[0], "__name__", str(args[0])) if args else "str"
-        return f"list[{inner}]"
-    if isinstance(base, type):
-        return base.__name__
-    return str(base)
-
-
 def _describe_spec(spec: ToolSpec) -> dict:
-    """Build a self-describing JSON record: surfaces, parameters, and an example.
+    """CLI view of a tool: the shared descriptor plus a copy-pasteable example.
 
-    Works for every tool — including nested-model tools the CLI can't run — so an
-    agent can discover what a tool needs and which surface to call it on.
+    The transport-agnostic schema (surfaces, parameters, family) comes from
+    :func:`describe_spec` — the same record REST serves at ``GET /api/tools`` —
+    so the CLI only adds the CLI-specific ``cli_example`` / ``cli_hint``.
     """
-    parameters = []
-    for name, field in spec.request_model.model_fields.items():
-        required = field.is_required()
-        parameters.append(
-            {
-                "name": name,
-                "flag": "--" + name.replace("_", "-"),
-                "type": _type_name(field.annotation),
-                "required": required,
-                "default": (
-                    None if required else field.get_default(call_default_factory=True)
-                ),
-                "description": field.description or "",
-                "nested_model": _is_model_field(field.annotation),
-            }
-        )
-
-    cli_supported = _cli_safe(spec)
-    info: dict = {
-        "tool": _command_name(spec),
-        "summary": spec.summary,
-        "operation_label_zh": spec.operation_label_zh,
-        "family": spec.family,
-        "surfaces": {
-            "cli": cli_supported,
-            "rest_path": spec.rest_path,
-            "mcp_name": spec.tool_name,
-        },
-        "parameters": parameters,
-    }
-    if cli_supported:
+    info = describe_spec(spec)
+    if info["surfaces"]["cli"]:
         info["cli_example"] = _cli_example(spec)
     else:
         info["cli_hint"] = _unsupported_hint(spec)

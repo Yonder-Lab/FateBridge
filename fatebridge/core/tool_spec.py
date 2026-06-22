@@ -17,9 +17,22 @@ handler signatures, and stringified annotations would break schema inference.
 
 import inspect
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
+from typing import (
+    Annotated,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from fatebridge.utils.helpers import (
     VALIDATION_ERROR_CODE,
@@ -338,6 +351,86 @@ def model_parameters(
 
 
 # ---------------------------------------------------------------------------
+# Capability discovery (shared by the CLI ``describe`` command and REST
+# ``GET /api/tools``) — one self-describing record per tool, derived from the
+# catalog so it never drifts from the live tool set.
+# ---------------------------------------------------------------------------
+
+
+def unwrap_optional(annotation: Any) -> Any:
+    """Strip a single ``Optional[...]`` / ``Union[..., None]`` wrapper."""
+    if get_origin(annotation) is Union:
+        non_none = [a for a in get_args(annotation) if a is not type(None)]
+        if non_none:
+            return non_none[0]
+    return annotation
+
+
+def is_model_field(annotation: Any) -> bool:
+    """True if the (unwrapped) annotation is a nested pydantic model."""
+    base = unwrap_optional(annotation)
+    return isinstance(base, type) and issubclass(base, BaseModel)
+
+
+def field_type_name(annotation: Any) -> str:
+    """Render a field annotation as a short, agent-readable type string."""
+    base = unwrap_optional(annotation)
+    origin = get_origin(base)
+    if origin in (list, List):
+        args = get_args(base)
+        inner = getattr(args[0], "__name__", str(args[0])) if args else "str"
+        return f"list[{inner}]"
+    if isinstance(base, type):
+        return base.__name__
+    return str(base)
+
+
+def spec_is_cli_safe(spec: "ToolSpec") -> bool:
+    """A spec is CLI-exposable only if none of its fields are nested models."""
+    return not any(
+        is_model_field(f.annotation) for f in spec.request_model.model_fields.values()
+    )
+
+
+def describe_spec(spec: "ToolSpec") -> Dict[str, Any]:
+    """Self-describing, transport-agnostic record for one tool.
+
+    The CLI ``describe`` command and the REST ``GET /api/tools`` endpoint both
+    render this, so an agent sees the same parameter schema, surfaces, and family
+    regardless of how it discovers the tool. ``surfaces.mcp_name`` is ``None`` for
+    REST-only tools so an agent never assumes an MCP tool that does not exist.
+    """
+    parameters = [
+        {
+            "name": name,
+            "flag": "--" + name.replace("_", "-"),
+            "type": field_type_name(field.annotation),
+            "required": field.is_required(),
+            "default": (
+                None
+                if field.is_required()
+                else field.get_default(call_default_factory=True)
+            ),
+            "description": field.description or "",
+            "nested_model": is_model_field(field.annotation),
+        }
+        for name, field in spec.request_model.model_fields.items()
+    ]
+    return {
+        "tool": spec.tool_name,
+        "summary": spec.summary,
+        "operation_label_zh": spec.operation_label_zh,
+        "family": spec.family,
+        "surfaces": {
+            "cli": spec_is_cli_safe(spec),
+            "rest_path": spec.rest_path,
+            "mcp_name": spec.mcp_name,
+        },
+        "parameters": parameters,
+    }
+
+
+# ---------------------------------------------------------------------------
 # REST registrar (FastAPI)
 # ---------------------------------------------------------------------------
 
@@ -429,6 +522,18 @@ def make_rest_handler(
 # MCP registrar (FastMCP)
 # ---------------------------------------------------------------------------
 
+# Descriptions for the three transport flags every MCP tool gains. Surfaced in
+# the tool schema so an agent can use them without out-of-band documentation.
+_COMPACT_FLAG_DESC = "紧凑 JSON 输出（无缩进）；设为 false 则美化缩进。默认 true。"
+_SNAPSHOT_FLAG_DESC = (
+    "是否包含人类可读的 snapshot_text 文本段（默认随工具而定）；"
+    "设为 false 可显著减少返回的 token 数。"
+)
+_FIELDS_FLAG_DESC = (
+    "仅返回选定字段以节省 token：接受顶层键（如 'snapshot_text'）或点路径"
+    "子字段（如 'bazi_birth.day_master'）。run_metadata 始终保留；留空返回全部字段。"
+)
+
 
 def register_mcp(
     app: Any,
@@ -468,16 +573,26 @@ def _make_mcp_fn(
             f"Tool '{spec.tool_name}' request model has reserved field name(s) {_clash}; "
             "these collide with MCP transport flags."
         )
+    # Annotated[..., Field(description=...)] is what FastMCP/pydantic read for
+    # per-parameter docs — inspect.Parameter has no description slot. Without
+    # these, an LLM sees three bare flags and has to guess their meaning (and the
+    # dotted-path syntax for ``fields`` lived only in CLI help).
+    compact_t = Annotated[bool, Field(description=_COMPACT_FLAG_DESC)]
+    snapshot_t = Annotated[bool, Field(description=_SNAPSHOT_FLAG_DESC)]
+    fields_t = Annotated[Optional[List[str]], Field(description=_FIELDS_FLAG_DESC)]
     params.append(
         inspect.Parameter(
-            "compact", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
+            "compact",
+            inspect.Parameter.KEYWORD_ONLY,
+            annotation=compact_t,
+            default=True,
         )
     )
     params.append(
         inspect.Parameter(
             "include_snapshot_text",
             inspect.Parameter.KEYWORD_ONLY,
-            annotation=bool,
+            annotation=snapshot_t,
             default=spec.include_snapshot_text,
         )
     )
@@ -485,15 +600,15 @@ def _make_mcp_fn(
         inspect.Parameter(
             "fields",
             inspect.Parameter.KEYWORD_ONLY,
-            annotation=Optional[List[str]],
+            annotation=fields_t,
             default=None,
         )
     )
     annotations = {
         **annotations,
-        "compact": bool,
-        "include_snapshot_text": bool,
-        "fields": Optional[List[str]],
+        "compact": compact_t,
+        "include_snapshot_text": snapshot_t,
+        "fields": fields_t,
     }
 
     def impl(**kwargs: Any) -> str:

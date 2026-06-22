@@ -316,11 +316,28 @@ REST 端通常返回：
 | `POST` | `/api/astro/lifespan/vedicprog` | 恒星推运 |
 | `POST` | `/api/astro/lifespan/jaynesprog` | 赤纬推运 |
 
-### 4.10 健康检查
+### 4.10 健康检查与能力发现
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
 | `GET` | `/health` | 服务健康检查 |
+| `GET` | `/api/tools` | 能力清单：返回每个工具的自描述记录（参数、类型、所在端、family），与 `fatebridge describe` 同源 |
+
+`/api/tools` 是给 Agent 的机读能力清单——无需抓取本文档即可枚举全部工具及调用约定。
+返回结构：`{"counts": {"rest", "mcp", "total"}, "tools": [<descriptor>, ...]}`，其中每个
+descriptor 形如：
+
+```json
+{
+  "tool": "bazi_wealth",
+  "summary": "八字财运分析（可传 dayun_pillar / liunian_pillar 输出时机信号）",
+  "family": "bazi",
+  "surfaces": {"cli": true, "rest_path": "/api/cn/bazi/wealth", "mcp_name": "bazi_wealth"},
+  "parameters": [{"name": "birth_year", "type": "int", "required": true, "description": "..."}]
+}
+```
+
+`surfaces.rest_path` / `surfaces.mcp_name` 为 `null` 表示该工具不在对应端暴露。
 
 ## 5. Representative REST 示例
 
