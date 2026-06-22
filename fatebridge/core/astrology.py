@@ -659,12 +659,19 @@ def _julian_day(target: datetime) -> float:
         + (target.hour + target.minute / 60.0 + target.second / 3600.0) / 24.0
     )
 
+    # Gregorian calendar from its 1582-10-15 introduction; Julian calendar for
+    # earlier civil dates (matching swisseph's GREG_CAL/JUL_CAL convention).
+    gregorian = (target.year, target.month, target.day) >= (1582, 10, 15)
+
     if month <= 2:
         year -= 1
         month += 12
 
-    a = year // 100
-    b = 2 - a + a // 4
+    if gregorian:
+        a = year // 100
+        b = 2 - a + a // 4
+    else:
+        b = 0
     return int(365.25 * (year + 4716)) + int(30.6001 * (month + 1)) + day + b - 1524.5
 
 
@@ -953,16 +960,18 @@ def _angles(julian_day: float, longitude: float, latitude: float) -> Dict[str, f
     epsilon = 23.439291 - 0.0130042 * ((julian_day - 2451545.0) / 36525.0)
     ascendant = _rad_to_deg(
         math.atan2(
-            -_cos_deg(armc),
-            _sin_deg(armc) * _cos_deg(epsilon)
-            + math.tan(_deg_to_rad(latitude)) * _sin_deg(epsilon),
+            _cos_deg(armc),
+            -(
+                _sin_deg(armc) * _cos_deg(epsilon)
+                + math.tan(_deg_to_rad(latitude)) * _sin_deg(epsilon)
+            ),
         )
     )
     ascendant = normalize_angle(ascendant)
     midheaven = _rad_to_deg(
         math.atan2(
-            _sin_deg(armc) * _cos_deg(epsilon),
-            _cos_deg(armc),
+            _sin_deg(armc),
+            _cos_deg(armc) * _cos_deg(epsilon),
         )
     )
     midheaven = normalize_angle(midheaven)
