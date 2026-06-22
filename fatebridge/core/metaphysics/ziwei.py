@@ -20,7 +20,7 @@ from ...utils.data import (
 )
 from ...utils.helpers import normalize_gender
 from ..ziwei_tables import lookup_star_brightness, split_star_mutagen
-from .common import MetaphysicsSeed, sexagenary_index_for
+from .common import MetaphysicsSeed, require_lunar_month_day, sexagenary_index_for
 
 _WUXING_JU_NUMBER_BY_ELEMENT: Dict[str, int] = {
     "水": 2,
@@ -139,9 +139,7 @@ def _apply_sihua_to_palaces(
 
 
 def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
-    lunar = seed.calendar_context.get("lunar_calendar") or {}
-    lunar_month = int(lunar.get("month") or 1)
-    lunar_day = int(lunar.get("day") or 1)
+    lunar, lunar_month, lunar_day = require_lunar_month_day(seed, "紫微斗数")
 
     # 紫微斗数闰月处理：以十五日为界，十五日及以前作当月算，十六日及以后作下月算
     if lunar.get("is_leap_month"):

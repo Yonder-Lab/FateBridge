@@ -173,6 +173,25 @@ class MetaphysicsSeed:
     calendar_context: Dict[str, Any]
 
 
+def require_lunar_month_day(
+    seed: "MetaphysicsSeed", technique: str
+) -> Tuple[Dict[str, Any], int, int]:
+    """Return ``(lunar_context, lunar_month, lunar_day)`` or raise loudly.
+
+    紫微 / 太乙 等技法以农历月日定盘。当离线农历换算不可用时
+    (公历超出 1900–2100 支持区间，或缺少 lunardate)，``lunar_calendar``
+    为 None，旧代码用 ``int(lunar.get("month") or 1)`` 静默回退到正月初一，
+    算出一张看似正常却整体错位的盘。这里改为显式拒绝并透传原因，让调用方
+    的 ``handle_calculation_error`` 返回 400 而不是悄悄给出错误结果。
+    """
+    lunar = seed.calendar_context.get("lunar_calendar")
+    if not lunar or lunar.get("month") is None or lunar.get("day") is None:
+        support = seed.calendar_context.get("lunar_calendar_support") or {}
+        reason = support.get("reason") or "离线农历换算不可用"
+        raise ValueError(f"{technique}需要农历月日，无法起盘：{reason}")
+    return lunar, int(lunar["month"]), int(lunar["day"])
+
+
 def rotate_sequence(
     values: Iterable[str], start_value: str, reverse: bool = False
 ) -> List[str]:

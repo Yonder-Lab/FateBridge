@@ -10,7 +10,12 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from ...utils.data import EARTHLY_BRANCHES
-from .common import SIX_HARMONY_BRANCHES, MetaphysicsSeed, chinese_numeral
+from .common import (
+    SIX_HARMONY_BRANCHES,
+    MetaphysicsSeed,
+    chinese_numeral,
+    require_lunar_month_day,
+)
 
 TAIYI_PALACE16_ORDER = [
     "巽",
@@ -44,9 +49,7 @@ TAIYI_MARKER_OFFSETS = {
 
 
 def build_taiyi_board(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
-    lunar = seed.calendar_context.get("lunar_calendar") or {}
-    lunar_month = int(lunar.get("month") or 1)
-    lunar_day = int(lunar.get("day") or 1)
+    _, lunar_month, lunar_day = require_lunar_month_day(seed, "太乙神数")
     year_branch = seed.pillars["year"][1]
     month_branch = seed.pillars["month"][1]
     day_branch = seed.pillars["day"][1]
