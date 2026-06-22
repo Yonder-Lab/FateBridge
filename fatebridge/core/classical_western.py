@@ -102,6 +102,9 @@ TRADITIONAL_PLANETS = frozenset(
 _COMBUST_CAZIMI = 17.0 / 60.0
 _COMBUST_LIMIT = 8.5
 _UNDER_BEAMS_LIMIT = 15.0
+# Max separation for enclosure/besiegement by body — flanking bodies must be
+# within this orb on each side, else nearest-neighbour over-reports.
+_ENCLOSURE_ORB = 15.0
 # Solar obliquity bound — a body beyond this declination is "out of bounds".
 OUT_OF_BOUNDS_LIMIT = 23.4367
 
@@ -712,14 +715,25 @@ def build_classical_patterns(
                 overcoming.append({"overcomer": a, "overcome": b})
 
     # --- besiegement / enclosure by body (immediate longitude neighbours) ---
+    # Enclosure by body requires the flanking bodies within ~15° on each side;
+    # nearest-neighbour alone over-reports in sparse charts.
     ordered = sorted(trad, key=lambda p: p["longitude"])
     besiegement: Dict[str, str] = {}
     n = len(ordered)
     for index, planet in enumerate(ordered):
         if planet["id"] in BENEFICS or planet["id"] in MALEFICS:
             continue
-        prev_id = ordered[(index - 1) % n]["id"]
-        next_id = ordered[(index + 1) % n]["id"]
+        prev_p = ordered[(index - 1) % n]
+        next_p = ordered[(index + 1) % n]
+        within_orb = (
+            _angular_distance(planet["longitude"], prev_p["longitude"])
+            <= _ENCLOSURE_ORB
+            and _angular_distance(planet["longitude"], next_p["longitude"])
+            <= _ENCLOSURE_ORB
+        )
+        if not within_orb:
+            continue
+        prev_id, next_id = prev_p["id"], next_p["id"]
         if prev_id in MALEFICS and next_id in MALEFICS:
             besiegement[planet["id"]] = "besieged_by_malefics"
         elif prev_id in BENEFICS and next_id in BENEFICS:
