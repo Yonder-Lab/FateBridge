@@ -84,5 +84,6 @@ module = [
     "lunardate.*",
     "pytz",
     "swisseph",
+    "yaml",
 ]
 ignore_missing_imports = true
