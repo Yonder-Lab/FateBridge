@@ -258,3 +258,109 @@ def test_cli_invalid_input_renders_clean_error_shape(capsys):
     payload = json.loads(out)
     assert payload["status_code"] == 400
     assert payload["error_code"] == "validation_error"
+
+
+def _write(path, text):
+    path.write_text(text, encoding="utf-8")
+    return str(path)
+
+
+def test_subject_file_supplies_required_and_optional_fields(tmp_path, capsys):
+    # A JSON profile alone (no birth flags on the command line) must drive a
+    # full run: required fields satisfy argparse via relaxation, and optional
+    # fields like gender reach the model instead of being shadowed by defaults.
+    subject = _write(
+        tmp_path / "lived.json",
+        json.dumps(
+            {
+                "name": "Lived",
+                "gender": "女",
+                "birth_year": 2001,
+                "birth_month": 10,
+                "birth_day": 12,
+                "birth_hour": 11,
+                "birth_minute": 40,
+                "birth_longitude": 108.71,
+                "birth_timezone": "Asia/Shanghai",
+                "use_true_solar_time": True,
+            }
+        ),
+    )
+    code = run(["bazi_birth", "--subject-file", subject])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    chart = payload["bazi_birth"]
+    assert chart["person_info"]["name"] == "Lived"
+    assert chart["person_info"]["gender"] == "女"  # optional field not shadowed
+    assert chart["time_algorithm"] == "真太阳时"
+    hour = chart["four_pillars"]["hour"]
+    assert hour["stem"] + hour["branch"] == "戊午"
+
+
+def test_cli_flag_overrides_subject_file(tmp_path, capsys):
+    subject = _write(
+        tmp_path / "s.json",
+        json.dumps(
+            {
+                "gender": "女",
+                "birth_year": 2001,
+                "birth_month": 10,
+                "birth_day": 12,
+                "birth_hour": 11,
+            }
+        ),
+    )
+    # Explicit --birth-year must win over the file's 2001.
+    code = run(["bazi_birth", "--subject-file", subject, "--birth-year", "1990"])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    year = payload["bazi_birth"]["four_pillars"]["year"]
+    assert year["stem"] + year["branch"] == "庚午"  # 1990, not 2001 (辛巳)
+
+
+def test_subject_file_reused_across_tools(tmp_path, capsys):
+    subject = _write(
+        tmp_path / "s.json",
+        json.dumps(
+            {
+                "gender": "女",
+                "birth_year": 2001,
+                "birth_month": 10,
+                "birth_day": 12,
+                "birth_hour": 11,
+                "birth_minute": 40,
+                "birth_longitude": 108.71,
+                "birth_timezone": "Asia/Shanghai",
+                "use_true_solar_time": True,
+            }
+        ),
+    )
+    code = run(["ziwei_birth", "--subject-file", subject])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert payload["ziwei_birth"]["ming_gong"]["ganzhi"] == "壬辰"
+
+
+def test_subject_file_missing_path_is_usage_error(capsys):
+    code = run(["bazi_birth", "--subject-file", "/no/such/file.json"])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 2
+    assert payload["error_code"] == "usage_error"
+
+
+def test_subject_file_yaml_is_supported(tmp_path, capsys):
+    import importlib.util
+
+    if importlib.util.find_spec("yaml") is None:  # optional dependency
+        import pytest
+
+        pytest.skip("pyyaml not installed")
+    subject = _write(
+        tmp_path / "s.yaml",
+        "gender: 女\nbirth_year: 2001\nbirth_month: 10\nbirth_day: 12\n"
+        "birth_hour: 11\n",
+    )
+    code = run(["bazi_birth", "--subject-file", subject])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert payload["bazi_birth"]["person_info"]["gender"] == "女"

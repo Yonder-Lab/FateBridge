@@ -17,7 +17,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from typing import Any, List, NoReturn, Optional, get_args, get_origin
+from pathlib import Path
+from typing import Any, Dict, List, NoReturn, Optional, get_args, get_origin
 
 from fatebridge.core.tool_spec import (
     ToolSpec,
@@ -110,11 +111,26 @@ def _cli_example(spec: ToolSpec) -> str:
     return " ".join(parts)
 
 
-def _add_field_argument(parser: argparse.ArgumentParser, name: str, field: Any) -> None:
+def _add_field_argument(
+    parser: argparse.ArgumentParser,
+    name: str,
+    field: Any,
+    *,
+    relax_required: bool = False,
+) -> None:
     annotation = _unwrap_optional(field.annotation)
     origin = get_origin(annotation)
-    required = field.is_required()
-    default = None if required else field.get_default(call_default_factory=True)
+    is_required = field.is_required()
+    # When a --subject-file supplies this field, drop the argparse-level
+    # requirement so the file value can satisfy it; pydantic still validates the
+    # merged result, so a genuinely-missing field is still reported.
+    required = is_required and not relax_required
+    # Suppress argparse-level defaults so the parsed namespace contains ONLY the
+    # flags the user actually passed. This lets a --subject-file fill optional
+    # fields (gender, birth_place, ...) without their model defaults silently
+    # shadowing the file values, while pydantic still supplies the real default
+    # for anything neither source provides.
+    default = argparse.SUPPRESS
     flag = "--" + name.replace("_", "-")
     help_text = field.description or ""
 
@@ -157,7 +173,10 @@ def _add_field_argument(parser: argparse.ArgumentParser, name: str, field: Any) 
         )
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_parser(
+    relaxed_required: Optional[set[str]] = None,
+) -> argparse.ArgumentParser:
+    relaxed = relaxed_required or set()
     parser = _JsonErrorParser(
         prog="fatebridge",
         description="FateBridge 命理/占星离线计算 CLI（数据驱动自中央工具目录）。",
@@ -190,7 +209,7 @@ def build_parser() -> argparse.ArgumentParser:
             continue
         sp = sub.add_parser(_command_name(spec), help=spec.summary)
         for fname, field in spec.request_model.model_fields.items():
-            _add_field_argument(sp, fname, field)
+            _add_field_argument(sp, fname, field, relax_required=fname in relaxed)
         _add_transport_flags(sp)
         sp.set_defaults(_spec=spec)
     return parser
@@ -212,6 +231,93 @@ def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
             "支持顶层 key 或点号子路径，如 bazi_birth.day_master"
         ),
     )
+    parser.add_argument(
+        "--subject-file",
+        dest="subject_file",
+        default=None,
+        metavar="PATH",
+        help=(
+            "从 JSON/YAML 档案读取命主信息（name/gender/birth_* 等）作为默认值，"
+            "省去多次调用时重复输入；命令行显式参数优先于档案值。"
+        ),
+    )
+
+
+def _parse_json_subject(text: str, path: str) -> Any:
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"subject 档案 {path} 不是合法 JSON：{error}") from error
+
+
+def _parse_yaml_subject(text: str, path: str) -> Any:
+    try:
+        import yaml
+    except ImportError as error:  # pyyaml is an optional dependency
+        raise ValueError(
+            f"解析 YAML subject 档案 {path} 需要 pyyaml；请 `pip install pyyaml` "
+            "或改用 JSON 档案。"
+        ) from error
+    try:
+        return yaml.safe_load(text)
+    except yaml.YAMLError as error:
+        raise ValueError(f"subject 档案 {path} 不是合法 YAML：{error}") from error
+
+
+def _load_subject_file(path: str) -> Dict[str, Any]:
+    """Load a reusable subject profile (person fields) from JSON or YAML.
+
+    JSON is parsed with the stdlib; YAML needs the optional ``pyyaml`` extra.
+    Returns a flat ``field name -> value`` mapping; the caller decides which
+    keys are relevant to the invoked tool (extras are ignored downstream).
+    """
+    file_path = Path(path).expanduser()
+    try:
+        text = file_path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise ValueError(f"无法读取 subject 档案 {path}：{error}") from error
+
+    suffix = file_path.suffix.lower()
+    if suffix in (".yaml", ".yml"):
+        data: Any = _parse_yaml_subject(text, path)
+    elif suffix == ".json":
+        data = _parse_json_subject(text, path)
+    else:
+        # Unknown extension: try strict JSON first, then fall back to YAML.
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            data = _parse_yaml_subject(text, path)
+
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"subject 档案 {path} 必须是键值映射（字段名→值），"
+            f"实际得到 {type(data).__name__}"
+        )
+    return data
+
+
+def _preload_subject(
+    argv: Optional[List[str]],
+) -> tuple[Optional[str], Optional[Dict[str, Any]]]:
+    """Peek at ``--subject-file`` before the main parse.
+
+    Returns ``(path, data)`` so the loaded fields can relax otherwise-required
+    flags. ``data`` is ``None`` when no usable ``--subject-file`` is present.
+    Raises ``ValueError`` if the referenced file cannot be loaded.
+    """
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--subject-file", dest="subject_file", default=None)
+    try:
+        pre_args, _ = pre.parse_known_args(argv)
+    except SystemExit:
+        # Malformed pre-parse (e.g. --subject-file with no value): defer to the
+        # main parser so the canonical JSON usage error is emitted.
+        return None, None
+    path = pre_args.subject_file
+    if not path:
+        return None, None
+    return path, _load_subject_file(path)
 
 
 def _unsupported_hint(spec: ToolSpec) -> str:
@@ -269,7 +375,20 @@ def _run_describe(tool_name: Optional[str]) -> int:
 
 
 def run(argv: Optional[List[str]] = None) -> int:
-    parser = build_parser()
+    try:
+        _subject_path, subject_data = _preload_subject(argv)
+    except ValueError as error:
+        return _emit_error(
+            {
+                "error": str(error),
+                "error_code": "usage_error",
+                "status_code": 400,
+                "retryable": False,
+            },
+            2,
+        )
+    relaxed = set(subject_data) if subject_data else set()
+    parser = build_parser(relaxed)
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
@@ -306,6 +425,17 @@ def run(argv: Optional[List[str]] = None) -> int:
     provided = {
         k: v for k, v in vars(args).items() if k in field_names and v is not None
     }
+
+    # A --subject-file supplies reusable person defaults so multi-tool sessions
+    # need not re-type birth data. Explicit CLI flags always win over the file.
+    if subject_data:
+        defaults = {
+            k: v
+            for k, v in subject_data.items()
+            if k in field_names and v is not None and k not in provided
+        }
+        provided = {**defaults, **provided}
+
     try:
         request = spec.request_model(**provided)
         result = execute_spec(spec, request)
