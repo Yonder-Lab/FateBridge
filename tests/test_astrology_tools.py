@@ -1002,3 +1002,37 @@ def test_fastmcp_astro_tools_expose_geo_parameters():
     assert "relative_mode" in relative_properties
     assert "hsys" in relative_properties
     assert "zodiacal" in relative_properties
+
+
+def test_offline_angles_match_swisseph_across_charts():
+    # The offline _angles fallback (used when swisseph is unavailable) must
+    # agree with the swisseph-backed angles, not be 180° / several degrees off.
+    from datetime import datetime, timezone
+
+    pytest.importorskip("swisseph")
+    cases = [
+        (1990, 6, 15, 4, 116.4, 39.9),
+        (1975, 1, 20, 22, -73.9, 40.7),
+        (2003, 9, 1, 6, 151.2, -33.8),
+        (1960, 12, 31, 12, 0.0, 51.5),
+    ]
+    for year, month, day, hour, lon, lat in cases:
+        jd = _julian_day(datetime(year, month, day, hour, tzinfo=timezone.utc))
+        offline = astrology_core._angles(jd, lon, lat)
+        truth = astrology_core._swisseph_angles(jd, lon, lat)
+        assert truth is not None
+        for key in ("ascendant", "midheaven"):
+            diff = abs((offline[key] - truth[key] + 180.0) % 360.0 - 180.0)
+            assert diff < 0.05, (key, year, offline[key], truth[key], diff)
+
+
+def test_julian_day_uses_julian_calendar_before_gregorian_cutover():
+    from datetime import datetime, timezone
+
+    swe = pytest.importorskip("swisseph")
+    # Modern dates: proleptic Gregorian, unchanged.
+    jd_modern = _julian_day(datetime(1990, 6, 15, 12, tzinfo=timezone.utc))
+    assert jd_modern == pytest.approx(swe.julday(1990, 6, 15, 12.0, swe.GREG_CAL))
+    # Before the 1582-10-15 cutover: the Julian calendar (historical convention).
+    jd_old = _julian_day(datetime(1500, 1, 1, 12, tzinfo=timezone.utc))
+    assert jd_old == pytest.approx(swe.julday(1500, 1, 1, 12.0, swe.JUL_CAL))
