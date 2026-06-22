@@ -15,8 +15,17 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 class FateBridgeRequest(BaseModel):
     """Request model for individual destiny analysis"""
 
-    name: Optional[str] = Field(default="未提供", description="Name (optional)")
-    gender: Optional[str] = Field(default="未知", description="Gender (optional)")
+    name: Optional[str] = Field(
+        default="未提供",
+        description="姓名（可选，仅用于结果快照中的标识，不参与计算）",
+    )
+    gender: Optional[str] = Field(
+        default="未知",
+        description=(
+            "性别（可选但建议提供：影响大运顺逆排布与部分六亲判断）。"
+            "接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法。"
+        ),
+    )
     birth_year: int = Field(description="Birth year, e.g., 1990")
     birth_month: int = Field(ge=1, le=12, description="Birth month (1-12)")
     birth_day: int = Field(ge=1, le=31, description="Birth day (1-31)")

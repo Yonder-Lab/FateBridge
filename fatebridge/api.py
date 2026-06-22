@@ -518,8 +518,16 @@ async def metrics_endpoint() -> PlainTextResponse:
 # the catalog — not this file.
 # ============================================================================
 
-from fatebridge.core.tool_spec import make_rest_handler, register_rest  # noqa: E402
-from fatebridge.services.tool_catalog import rest_specs  # noqa: E402
+from fatebridge.core.tool_spec import (  # noqa: E402
+    describe_spec,
+    make_rest_handler,
+    register_rest,
+)
+from fatebridge.services.tool_catalog import (  # noqa: E402
+    CATALOG,
+    mcp_specs,
+    rest_specs,
+)
 
 register_rest(
     app,
@@ -527,6 +535,27 @@ register_rest(
     execute_service=_execute_service,
     logger=logger,
 )
+
+
+@app.get("/api/tools")
+async def list_tools() -> Dict[str, Any]:
+    """Machine-readable capability manifest for agents.
+
+    Returns the same self-describing record as ``fatebridge describe`` for every
+    catalog tool — parameters, types, surfaces, family — so an agent can
+    enumerate the framework's capabilities and call conventions without scraping
+    the Markdown docs. Derived from the central ToolSpec catalog, so it never
+    drifts from the live tool set.
+    """
+    return {
+        "counts": {
+            "rest": len(rest_specs()),
+            "mcp": len(mcp_specs()),
+            "total": len(CATALOG),
+        },
+        "tools": [describe_spec(spec) for spec in CATALOG],
+    }
+
 
 # Backward-compatible direct-call handlers. Older tests / integrations call the
 # REST handlers as plain coroutines (e.g. ``await calculate_astro_chart(req)``);
