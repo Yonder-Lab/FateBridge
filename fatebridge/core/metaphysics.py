@@ -334,33 +334,6 @@ ZIWEI_STAR_OFFSETS = {
     "破军": 6,
 }
 
-AUXILIARY_STAR_RULES = {
-    "左辅": lambda lunar_month, lunar_day, hour_index, day_stem_index, day_branch_index: (
-        lunar_month - 1
-    )
-    % 12,
-    "右弼": lambda lunar_month, lunar_day, hour_index, day_stem_index, day_branch_index: (
-        12 - lunar_month
-    )
-    % 12,
-    "文昌": lambda lunar_month, lunar_day, hour_index, day_stem_index, day_branch_index: (
-        day_stem_index + 2
-    )
-    % 12,
-    "文曲": lambda lunar_month, lunar_day, hour_index, day_stem_index, day_branch_index: (
-        day_branch_index + 4
-    )
-    % 12,
-    "左辅化科引": lambda lunar_month, lunar_day, hour_index, day_stem_index, day_branch_index: (
-        hour_index + 1
-    )
-    % 12,
-    "右弼唱和": lambda lunar_month, lunar_day, hour_index, day_stem_index, day_branch_index: (
-        hour_index + 7
-    )
-    % 12,
-}
-
 QIMEN_PALACES: List[Dict[str, Any]] = [
     {"index": 1, "label": "坎一宫", "trigram": "坎"},
     {"index": 2, "label": "坤二宫", "trigram": "坤"},
@@ -1707,12 +1680,6 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
                 break
 
     # 4. Place Auxiliary Stars (Fixed Rules)
-    aux_locators = {
-        "左辅": (2 + lunar_month - 1) % 12,  # Starts from 辰 (2)
-        "右弼": (8 - (lunar_month - 1)) % 12,  # Starts from 戌 (8)
-        "文昌": (9 - (hour_index - 1)) % 12,  # Starts from 戌 (9) - Wait, let me check
-        "文曲": (3 + (hour_index - 1)) % 12,  # Starts from 辰 (3) - Wait, check
-    }
     # ZIWEI_BRANCH_SEQUENCE indexing: 寅(0), 卯(1), 辰(2), 巳(3), 午(4), 未(5),
     # 申(6), 酉(7), 戌(8), 亥(9), 子(10), 丑(11)。
     # 月系（生月起）：左辅从辰顺、右弼从戌逆。
