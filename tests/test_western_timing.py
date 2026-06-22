@@ -1145,3 +1145,39 @@ def test_zodiacal_releasing_loosing_of_bond_jumps_after_full_cycle():
     assert signs[12:14] == ["Leo", "Virgo"]
     assert loosing_flags[6] is False
     assert loosing_flags[12] is True
+
+
+def test_zodiacal_releasing_from_spirit_starts_at_spirit_sign_when_lots_coincide():
+    # When the Lots of Spirit and Fortune fall in the same sign, releasing from
+    # Spirit must still begin at Spirit's OWN sign (the two lots may share a
+    # sign — there is no rule that bumps Spirit to the next one).
+    from fatebridge.core.predictive import build_lot_payloads, build_natal_subject
+    from fatebridge.core.predictive.zodiacal_releasing import (
+        build_zodiacal_releasing_payload,
+    )
+
+    birth_info = build_predictive_birth_info(
+        birth_year=1995,
+        birth_month=7,
+        birth_day=27,
+        birth_hour=12,
+        birth_minute=0,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=116.4,
+        birth_latitude=39.9,
+        name="A",
+        birth_place="x",
+    )
+    subject = build_natal_subject(birth_info)
+    lots = build_lot_payloads(subject)
+    # Fixture precondition: this birth has both lots in the same sign.
+    assert lots["lot_of_spirit"]["sign"] == lots["lot_of_fortune"]["sign"]
+
+    payload = build_zodiacal_releasing_payload(
+        birth_info,
+        subject,
+        analysis_datetime=datetime(
+            2025, 1, 1, 12, tzinfo=parse_timezone_name("Asia/Shanghai")
+        ),
+    )
+    assert payload["spirit"]["release_start_sign"] == lots["lot_of_spirit"]["sign"]

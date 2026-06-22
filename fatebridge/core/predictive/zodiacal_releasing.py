@@ -276,9 +276,9 @@ def build_zodiacal_releasing_payload(
     analysis_datetime: datetime,
 ) -> Dict[str, Any]:
     lots = build_lot_payloads(natal_subject)
+    # Releasing from Spirit always begins at the Lot of Spirit's own sign.
+    # Spirit and Fortune may share a sign — there is no rule bumping Spirit on.
     spirit_start_sign = lots["lot_of_spirit"]["sign"]
-    if spirit_start_sign == lots["lot_of_fortune"]["sign"]:
-        spirit_start_sign = next_sign(spirit_start_sign)
     return {
         "spirit": build_zodiacal_releasing_for_lot(
             "lot_of_spirit",
