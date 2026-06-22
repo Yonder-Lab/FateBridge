@@ -122,6 +122,44 @@ def test_lunar_return_governs_analysis_instant():
     assert (analysis_utc - lunar_utc).days < 31
 
 
+def test_monthly_profection_segments_are_equal_twelfths():
+    # Hellenistic monthly profections divide the profected year into 12 EQUAL
+    # parts (~30.44 days), not unequal calendar months. Every segment must have
+    # the same duration, and exactly one must be active and agree with the
+    # annual payload's monthly lord.
+    from dateutil import parser as _dtp
+
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=8,
+        analysis_day=10,
+    )
+    segments = result["directions"]["given_year"]["monthly_profections"]
+    assert len(segments) == 12
+    durations = [
+        (_dtp.isoparse(s["end"]) - _dtp.isoparse(s["start"])).total_seconds()
+        for s in segments
+    ]
+    # All twelfths equal to within a minute (float rounding only).
+    assert max(durations) - min(durations) < 60, durations
+    active = [s for s in segments if s["active"]]
+    assert len(active) == 1
+    assert (
+        active[0]["house"]
+        == result["directions"]["given_year"]["annual_profection"]["monthly_house"]
+    )
+
+
 def test_western_timing_request_model_accepts_pd_type():
     request = WesternTimingRequest(
         name="Alice",

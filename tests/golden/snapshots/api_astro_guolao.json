@@ -319,7 +319,7 @@
       "Mercury": {
         "above_horizon": true,
         "angularity": "cadent",
-        "combustion": "under_beams",
+        "combustion": null,
         "dodekatemorion": "Gemini",
         "essential": {
           "bound_lord": "Venus",

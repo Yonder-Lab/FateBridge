@@ -5,6 +5,30 @@ from __future__ import annotations
 from ._common import *
 
 
+def monthly_profection_segment(
+    year_start: datetime, year_end: datetime, month_offset: int
+) -> tuple[datetime, datetime]:
+    """Return the [start, end) of the ``month_offset``-th equal twelfth.
+
+    The profected year is divided into 12 equal parts (~30.44 days), not into
+    calendar months. The final segment ends exactly on ``year_end`` to absorb
+    any float drift.
+    """
+    span = (year_end - year_start) / 12
+    start = year_start + span * month_offset
+    end = year_start + span * (month_offset + 1) if month_offset < 11 else year_end
+    return start, end
+
+
+def monthly_profection_index(
+    year_start: datetime, year_end: datetime, moment: datetime
+) -> int:
+    """Index (0–11) of the equal-twelfth segment that contains ``moment``."""
+    span = (year_end - year_start).total_seconds() / 12.0
+    elapsed = (moment - year_start).total_seconds()
+    return max(0, min(11, int(elapsed // span)))
+
+
 def build_annual_profection_payload(
     birth_info: AstroBirthInfo,
     natal_subject: Any,
@@ -32,12 +56,10 @@ def build_annual_profection_payload(
     else:
         last_birthday = birthday_this_year
 
-    months_since_birthday = (analysis_datetime.year - last_birthday.year) * 12 + (
-        analysis_datetime.month - last_birthday.month
+    next_birthday = add_months(last_birthday, 12)
+    months_since_birthday = monthly_profection_index(
+        last_birthday, next_birthday, analysis_datetime
     )
-    if analysis_datetime.day < last_birthday.day:
-        months_since_birthday -= 1
-    months_since_birthday = max(0, months_since_birthday)
     monthly_house = ((activated_house - 1 + months_since_birthday) % 12) + 1
     monthly_sign = SIGNS[(asc_index + monthly_house - 1) % 12]
 
@@ -85,9 +107,9 @@ def build_monthly_profections_payload(
 ) -> List[Dict[str, Any]]:
     timeline: List[Dict[str, Any]] = []
     asc_index = SIGNS.index(asc_sign)
+    year_end = add_months(year_start, 12)
     for month_offset in range(12):
-        start = add_months(year_start, month_offset)
-        end = add_months(year_start, month_offset + 1)
+        start, end = monthly_profection_segment(year_start, year_end, month_offset)
         house = ((annual_house - 1 + month_offset) % 12) + 1
         sign_name = SIGNS[(asc_index + house - 1) % 12]
         ruler = RULER_BY_SIGN[sign_name]

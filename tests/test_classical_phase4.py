@@ -51,6 +51,23 @@ def test_besiegement_by_malefics_and_enclosure_by_benefics():
     assert patterns["besiegement"].get("Mercury") == "besieged_by_malefics"
 
 
+def test_besiegement_requires_malefics_within_orb():
+    # Mercury's nearest neighbours are both malefic but ~50° away on each side.
+    # Enclosure by body requires the flanking bodies within ~15°, so this is
+    # NOT besiegement.
+    positions = [
+        _pos("Venus", "Aries", 1.0),
+        _pos("Jupiter", "Aries", 2.0),
+        _pos("Mars", "Cancer", 100.0),
+        _pos("Mercury", "Virgo", 150.0),
+        _pos("Saturn", "Libra", 200.0),
+        _pos("Sun", "Capricorn", 250.0),
+        _pos("Moon", "Capricorn", 280.0),
+    ]
+    patterns = build_classical_patterns(positions, [], "day")
+    assert patterns["besiegement"].get("Mercury") is None
+
+
 def test_bonification_and_maltreatment_from_aspects():
     positions = [
         _pos(p, "Aries", float(i))
