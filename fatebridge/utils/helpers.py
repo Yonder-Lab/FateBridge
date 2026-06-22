@@ -436,6 +436,65 @@ KNOWN_BIRTH_PLACE_ENTRIES = (
     make_birth_place_entry("西宁", 101.7782, aliases=("西宁市",)),
     make_birth_place_entry("拉萨", 91.1322, aliases=("拉萨市",)),
     make_birth_place_entry("喀什", 75.9898, aliases=("喀什地区", "喀什市")),
+    # Additional prefecture-level cities (substring match also resolves the
+    # "<city>市<district>区" forms, e.g. "咸阳市秦都区" -> 咸阳). Longitudes are
+    # city-centre values; for boundary-time births pass birth_longitude exactly.
+    make_birth_place_entry("咸阳", 108.7050, aliases=("咸阳市",)),
+    make_birth_place_entry("宝鸡", 107.2380, aliases=("宝鸡市",)),
+    make_birth_place_entry("南通", 120.8943, aliases=("南通市",)),
+    make_birth_place_entry("无锡", 120.3019, aliases=("无锡市",)),
+    make_birth_place_entry("常州", 119.9740, aliases=("常州市",)),
+    make_birth_place_entry("徐州", 117.1840, aliases=("徐州市",)),
+    make_birth_place_entry("扬州", 119.4215, aliases=("扬州市",)),
+    make_birth_place_entry("盐城", 120.1398, aliases=("盐城市",)),
+    make_birth_place_entry("镇江", 119.4250, aliases=("镇江市",)),
+    make_birth_place_entry("泰州", 119.9150, aliases=("泰州市",)),
+    make_birth_place_entry("温州", 120.6994, aliases=("温州市",)),
+    make_birth_place_entry("绍兴", 120.5820, aliases=("绍兴市",)),
+    make_birth_place_entry("嘉兴", 120.7555, aliases=("嘉兴市",)),
+    make_birth_place_entry("台州", 121.4287, aliases=("台州市",)),
+    make_birth_place_entry("金华", 119.6494, aliases=("金华市",)),
+    make_birth_place_entry("湖州", 120.0865, aliases=("湖州市",)),
+    make_birth_place_entry("大连", 121.6147, aliases=("大连市",)),
+    make_birth_place_entry("鞍山", 122.9950, aliases=("鞍山市",)),
+    make_birth_place_entry("唐山", 118.1758, aliases=("唐山市",)),
+    make_birth_place_entry("保定", 115.4646, aliases=("保定市",)),
+    make_birth_place_entry("邯郸", 114.4900, aliases=("邯郸市",)),
+    make_birth_place_entry("沧州", 116.8388, aliases=("沧州市",)),
+    make_birth_place_entry("廊坊", 116.7038, aliases=("廊坊市",)),
+    make_birth_place_entry("临沂", 118.3563, aliases=("临沂市",)),
+    make_birth_place_entry("潍坊", 119.1070, aliases=("潍坊市",)),
+    make_birth_place_entry("淄博", 118.0480, aliases=("淄博市",)),
+    make_birth_place_entry("济宁", 116.5871, aliases=("济宁市",)),
+    make_birth_place_entry("泰安", 117.0890, aliases=("泰安市",)),
+    make_birth_place_entry("烟台", 121.4479, aliases=("烟台市",)),
+    make_birth_place_entry("威海", 122.1201, aliases=("威海市",)),
+    make_birth_place_entry("洛阳", 112.4540, aliases=("洛阳市",)),
+    make_birth_place_entry("南阳", 112.5288, aliases=("南阳市",)),
+    make_birth_place_entry("开封", 114.3074, aliases=("开封市",)),
+    make_birth_place_entry("新乡", 113.9268, aliases=("新乡市",)),
+    make_birth_place_entry("许昌", 113.8260, aliases=("许昌市",)),
+    make_birth_place_entry("宜昌", 111.2865, aliases=("宜昌市",)),
+    make_birth_place_entry("襄阳", 112.1220, aliases=("襄阳市", "襄樊")),
+    make_birth_place_entry("株洲", 113.1340, aliases=("株洲市",)),
+    make_birth_place_entry("湘潭", 112.9440, aliases=("湘潭市",)),
+    make_birth_place_entry("衡阳", 112.6072, aliases=("衡阳市",)),
+    make_birth_place_entry("岳阳", 113.1290, aliases=("岳阳市",)),
+    make_birth_place_entry("泉州", 118.5894, aliases=("泉州市",)),
+    make_birth_place_entry("漳州", 117.6471, aliases=("漳州市",)),
+    make_birth_place_entry("赣州", 114.9400, aliases=("赣州市",)),
+    make_birth_place_entry("九江", 115.9920, aliases=("九江市",)),
+    make_birth_place_entry("芜湖", 118.4330, aliases=("芜湖市",)),
+    make_birth_place_entry("绵阳", 104.6790, aliases=("绵阳市",)),
+    make_birth_place_entry("宜宾", 104.6430, aliases=("宜宾市",)),
+    make_birth_place_entry("遵义", 106.9270, aliases=("遵义市",)),
+    make_birth_place_entry("桂林", 110.2900, aliases=("桂林市",)),
+    make_birth_place_entry("柳州", 109.4280, aliases=("柳州市",)),
+    make_birth_place_entry("佛山", 113.1220, aliases=("佛山市",)),
+    make_birth_place_entry("东莞", 113.7460, aliases=("东莞市",)),
+    make_birth_place_entry("珠海", 113.5530, aliases=("珠海市",)),
+    make_birth_place_entry("汕头", 116.6820, aliases=("汕头市",)),
+    make_birth_place_entry("惠州", 114.4160, aliases=("惠州市",)),
     # International cities retained from the previous version
     make_birth_place_entry(
         "纽约", -74.0060, timezone="America/New_York", aliases=("纽约市",)
@@ -855,8 +914,17 @@ def normalize_birth_time(
         )
 
     if longitude is None:
+        place = person.birth_place
+        if place and place != "未提供":
+            raise ValueError(
+                f"True solar time correction needs a longitude, but birth_place "
+                f"{place!r} is not in the offline place catalog. Pass "
+                "birth_longitude explicitly (east positive, e.g. 108.71 for 咸阳), "
+                "or use a catalogued city name."
+            )
         raise ValueError(
-            "True solar time correction requires birth_longitude or a supported birth_place"
+            "True solar time correction needs a longitude. Pass birth_longitude "
+            "explicitly (east positive), or a catalogued birth_place city name."
         )
 
     adjustment = calculate_solar_time_adjustment(

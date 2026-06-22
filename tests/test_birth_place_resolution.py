@@ -26,7 +26,8 @@ def _person(**overrides) -> PersonInfo:
 
 
 def test_province_fallback_emits_resolution_advisory():
-    nb = normalize_birth_time(_person(birth_place="江苏省南通市海安市"))
+    # 宿迁未收录于市级地名库，故按省级（江苏）近似回退，触发 advisory。
+    nb = normalize_birth_time(_person(birth_place="江苏省宿迁市宿豫区"))
     summary = nb.as_dict()
     assert nb.applied is True
     assert summary["resolved_place"] == "江苏"
@@ -34,7 +35,7 @@ def test_province_fallback_emits_resolution_advisory():
     advisory = summary.get("resolution_advisory")
     assert advisory is not None
     # 提示须可操作：点名地点、说明是省级近似、并指向 birth_longitude。
-    assert "海安" in advisory
+    assert "宿迁" in advisory
     assert "省级" in advisory
     assert "birth_longitude" in advisory
 
