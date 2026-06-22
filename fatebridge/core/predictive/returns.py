@@ -14,11 +14,13 @@ _RETURN_SEED_LOOKBACK_DAYS = {"Solar": 367, "Lunar": 31}
 
 def _analysis_julian_day(analysis_datetime: datetime) -> float:
     moment = analysis_datetime.astimezone(timezone.utc)
-    return swe.julday(
-        moment.year,
-        moment.month,
-        moment.day,
-        moment.hour + moment.minute / 60.0 + moment.second / 3600.0,
+    return float(
+        swe.julday(
+            moment.year,
+            moment.month,
+            moment.day,
+            moment.hour + moment.minute / 60.0 + moment.second / 3600.0,
+        )
     )
 
 
