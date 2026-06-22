@@ -65,6 +65,63 @@ def test_western_timing_request_model_accepts_fields():
     assert payload["show_pd_bounds"] is True
 
 
+def _governing_returns_for(analysis_month, analysis_day):
+    """Run the western timing service for a fixed natal chart at a given
+    analysis date and return (analysis_utc, solar_utc, lunar_utc)."""
+    from datetime import timezone
+
+    from dateutil import parser as _dtp
+
+    result = calculate_western_timing_analysis(
+        name="Alice",
+        birth_year=1990,
+        birth_month=5,
+        birth_day=17,
+        birth_hour=15,
+        birth_minute=30,
+        birth_place="上海",
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=121.4737,
+        birth_latitude=31.2304,
+        analysis_year=2025,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+    )
+    tz = parse_timezone_name("Asia/Shanghai")
+    analysis_utc = datetime(
+        2025, analysis_month, analysis_day, 15, 30, tzinfo=tz
+    ).astimezone(timezone.utc)
+    solar_utc = _dtp.isoparse(
+        result["returns"]["solar_return"]["return_datetime"]
+    ).astimezone(timezone.utc)
+    lunar_utc = _dtp.isoparse(
+        result["returns"]["lunar_return"]["return_datetime"]
+    ).astimezone(timezone.utc)
+    return analysis_utc, solar_utc, lunar_utc
+
+
+def test_solar_return_governs_analysis_date_before_birthday():
+    # Analysis 2025-03-01 precedes the May 17 birthday: the governing solar
+    # return is the prior birthday's (2024-05-17), NOT the upcoming 2025 one.
+    analysis_utc, solar_utc, _ = _governing_returns_for(3, 1)
+    assert solar_utc <= analysis_utc, (
+        f"solar return {solar_utc.isoformat()} is after analysis "
+        f"{analysis_utc.isoformat()} — it does not govern the analysis date"
+    )
+    assert (analysis_utc - solar_utc).days < 366
+
+
+def test_lunar_return_governs_analysis_instant():
+    # The active lunar return can fall in the previous calendar month; seeding
+    # the search at the analysis-month start wrongly skips it for the next one.
+    analysis_utc, _, lunar_utc = _governing_returns_for(3, 1)
+    assert lunar_utc <= analysis_utc, (
+        f"lunar return {lunar_utc.isoformat()} is after analysis "
+        f"{analysis_utc.isoformat()} — it does not govern the analysis instant"
+    )
+    assert (analysis_utc - lunar_utc).days < 31
+
+
 def test_western_timing_request_model_accepts_pd_type():
     request = WesternTimingRequest(
         name="Alice",
