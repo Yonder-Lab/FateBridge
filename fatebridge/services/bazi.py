@@ -311,10 +311,18 @@ def _cycle_stem(stem: str, steps: int) -> str:
     return HEAVENLY_STEMS[(HEAVENLY_STEMS.index(stem) + steps) % len(HEAVENLY_STEMS)]
 
 
-def _branch_offset(start_branch: str, end_branch: str) -> int:
-    return (
-        MONTH_HOUR_ORDER.index(end_branch) - MONTH_HOUR_ORDER.index(start_branch)
-    ) % len(MONTH_HOUR_ORDER)
+def _palace_stem(year_stem: str, position: int) -> str:
+    """五虎遁: 给定年干, 取第 ``position`` 宫 (寅=1 … 丑=12) 的天干。
+
+    命宫 / 身宫 的天干随宫位由年干起五虎遁定 (寅宫起干 = (年干序+1)*2),
+    而非由月柱「相对位移」推导——后者把地支 mod-12 的位移直接喂给天干
+    mod-10 的循环, 在宫位环绕到月支之前时会漏掉 ``12 mod 10 = 2`` 而偏 +2。
+    """
+    year_gan_index = HEAVENLY_STEMS.index(year_stem)
+    gan_index = (year_gan_index + 1) * 2 + position
+    while gan_index > 10:
+        gan_index -= 10
+    return HEAVENLY_STEMS[gan_index - 1]
 
 
 def _build_origin_payload(
@@ -338,6 +346,7 @@ def _build_origin_payload(
 def _build_three_origins(
     pillars: Dict[str, Tuple[str, str]],
 ) -> Dict[str, Dict[str, Any]]:
+    year_stem = pillars["year"][0]
     month_stem, month_branch = pillars["month"]
     day_stem = pillars["day"][0]
     hour_branch = pillars["hour"][1]
@@ -351,22 +360,24 @@ def _build_three_origins(
         day_stem=day_stem,
     )
 
+    # 月支按寅起 (寅=1 … 丑=12)。
     month_order = MONTH_HOUR_ORDER.index(month_branch) + 1
-    hour_order = MONTH_HOUR_ORDER.index(hour_branch) + 1
 
-    ming_order = 14 - (month_order + hour_order)
-    while ming_order <= 0:
-        ming_order += 12
-    ming_branch = MONTH_HOUR_ORDER[ming_order - 1]
-    ming_stem = _cycle_stem(month_stem, _branch_offset(month_branch, ming_branch))
+    # 命宫: 月支序 + 时支序 (时支同样寅起), 和 ≥14 用 26 减, 否则 14 减;
+    # 余数即命宫宫位 (寅=1)，天干由年干起五虎遁定。
+    ming_hour_order = MONTH_HOUR_ORDER.index(hour_branch) + 1
+    ming_position = month_order + ming_hour_order
+    ming_position = 26 - ming_position if ming_position >= 14 else 14 - ming_position
+    ming_branch = MONTH_HOUR_ORDER[ming_position - 1]
+    ming_stem = _palace_stem(year_stem, ming_position)
 
-    shen_order = month_order + hour_order - 2
-    while shen_order > 12:
-        shen_order -= 12
-    while shen_order <= 0:
-        shen_order += 12
-    shen_branch = MONTH_HOUR_ORDER[shen_order - 1]
-    shen_stem = _cycle_stem(month_stem, _branch_offset(month_branch, shen_branch))
+    # 身宫: 月支序 (寅起) + 时支序 (子起), 和 >12 减 12; 天干同样年干起五虎遁。
+    shen_hour_order = EARTHLY_BRANCHES.index(hour_branch) + 1
+    shen_position = month_order + shen_hour_order
+    if shen_position > 12:
+        shen_position -= 12
+    shen_branch = MONTH_HOUR_ORDER[shen_position - 1]
+    shen_stem = _palace_stem(year_stem, shen_position)
 
     return {
         "taiyuan": taiyuan,
