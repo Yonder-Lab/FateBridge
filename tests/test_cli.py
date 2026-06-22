@@ -258,3 +258,79 @@ def test_cli_invalid_input_renders_clean_error_shape(capsys):
     payload = json.loads(out)
     assert payload["status_code"] == 400
     assert payload["error_code"] == "validation_error"
+
+
+def _bool_flag_parser():
+    import argparse
+
+    from fatebridge.cli import _BooleanFlagAction
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--flag", dest="flag", action=_BooleanFlagAction, default=False)
+    return parser
+
+
+def test_bool_flag_accepts_bare_negated_and_explicit_values():
+    # Bare switch, the stdlib --no- negation, and explicit true/false (both
+    # space-separated and =value) all resolve to the right boolean.
+    parser = _bool_flag_parser()
+    assert parser.parse_args([]).flag is False  # default when absent
+    assert parser.parse_args(["--flag"]).flag is True  # bare switch
+    assert parser.parse_args(["--flag", "true"]).flag is True
+    assert parser.parse_args(["--flag", "false"]).flag is False
+    assert parser.parse_args(["--flag=false"]).flag is False
+    assert parser.parse_args(["--flag", "no"]).flag is False
+    assert parser.parse_args(["--no-flag"]).flag is False
+
+
+def test_cli_bool_flag_explicit_value_runs(capsys):
+    # The exact form the original feedback tried (`--flag true`) now works
+    # instead of dying with `unrecognized arguments: true`.
+    code = run(
+        [
+            "bazi_birth",
+            "--birth-year",
+            "2000",
+            "--birth-month",
+            "12",
+            "--birth-day",
+            "10",
+            "--birth-hour",
+            "9",
+            "--gender",
+            "male",
+            "--use-true-solar-time",
+            "false",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert code == 0
+    assert not result_is_error(
+        next(s for s in CATALOG if (s.mcp_name or s.key) == "bazi_birth"), payload
+    )
+
+
+def test_cli_bool_flag_unparseable_value_emits_json_usage_error(capsys):
+    # A non-boolean value is an argparse-level usage error: still valid JSON on
+    # stdout (exit 2), carrying an actionable hint rather than an empty stdout.
+    code = run(
+        [
+            "bazi_birth",
+            "--birth-year",
+            "2000",
+            "--birth-month",
+            "12",
+            "--birth-day",
+            "10",
+            "--birth-hour",
+            "9",
+            "--use-true-solar-time",
+            "maybe",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert code == 2
+    assert payload["error_code"] == "usage_error"
+    assert "true/false" in payload["error"]
