@@ -371,15 +371,167 @@ def normalize_house_system(house_system: Any, default: str = "P") -> str:
     return default
 
 
+# City-centre latitudes, keyed by the same canonical names used for longitudes
+# below. Latitude lives here (rather than in a separate astrology-only table)
+# so that one place resolves to longitude *and* latitude together: the BaZi
+# true-solar path only needs longitude, but the astrology engine needs both, and
+# keeping two parallel tables let them silently drift (a city had a longitude but
+# no latitude, so an otherwise-resolvable place was rejected by the chart engine).
+# Every entry in KNOWN_BIRTH_PLACE_ENTRIES must have a latitude here — enforced by
+# an assertion after the catalog is built, so a new city can't be half-resolved.
+KNOWN_BIRTH_PLACE_LATITUDES: Dict[str, float] = {
+    # Municipalities and SARs
+    "北京": 39.9042,
+    "上海": 31.2304,
+    "天津": 39.3434,
+    "重庆": 29.5630,
+    "香港": 22.3193,
+    "澳门": 22.1987,
+    "台北": 25.0330,
+    # Province-level fallbacks
+    "河北": 38.0428,
+    "山西": 37.8706,
+    "辽宁": 41.8057,
+    "吉林": 43.8171,
+    "黑龙江": 45.8038,
+    "江苏": 32.0603,
+    "浙江": 30.2741,
+    "安徽": 31.8206,
+    "福建": 26.0745,
+    "江西": 28.6829,
+    "山东": 36.6512,
+    "河南": 34.7466,
+    "湖北": 30.5454,
+    "湖南": 28.2282,
+    "广东": 23.1291,
+    "海南": 20.0440,
+    "四川": 30.5728,
+    "贵州": 26.6470,
+    "云南": 25.0389,
+    "陕西": 34.3416,
+    "甘肃": 36.0611,
+    "青海": 36.6171,
+    "台湾": 25.0330,
+    "内蒙古": 40.8426,
+    "广西": 22.8170,
+    "西藏": 29.6525,
+    "宁夏": 38.4872,
+    "新疆": 43.8256,
+    # Broader city coverage
+    "广州": 23.1291,
+    "深圳": 22.5431,
+    "杭州": 30.2741,
+    "宁波": 29.8683,
+    "南京": 32.0603,
+    "苏州": 31.2989,
+    "武汉": 30.5928,
+    "成都": 30.5728,
+    "西安": 34.3416,
+    "乌鲁木齐": 43.8256,
+    "石家庄": 38.0428,
+    "济南": 36.6512,
+    "青岛": 36.0671,
+    "郑州": 34.7473,
+    "长沙": 28.2282,
+    "福州": 26.0745,
+    "厦门": 24.4798,
+    "合肥": 31.8206,
+    "南昌": 28.6829,
+    "昆明": 25.0389,
+    "贵阳": 26.6470,
+    "南宁": 22.8170,
+    "海口": 20.0440,
+    "呼和浩特": 40.8426,
+    "银川": 38.4872,
+    "兰州": 36.0611,
+    "西宁": 36.6171,
+    "拉萨": 29.6525,
+    "喀什": 39.4704,
+    # Additional prefecture-level cities
+    "咸阳": 34.3294,
+    "宝鸡": 34.3614,
+    "南通": 31.9802,
+    "无锡": 31.4912,
+    "常州": 31.7720,
+    "徐州": 34.2058,
+    "扬州": 32.3942,
+    "盐城": 33.3496,
+    "镇江": 32.1882,
+    "泰州": 32.4558,
+    "温州": 27.9939,
+    "绍兴": 30.0023,
+    "嘉兴": 30.7522,
+    "台州": 28.6562,
+    "金华": 29.0784,
+    "湖州": 30.8927,
+    "大连": 38.9140,
+    "鞍山": 41.1086,
+    "唐山": 39.6304,
+    "保定": 38.8740,
+    "邯郸": 36.6256,
+    "沧州": 38.3045,
+    "廊坊": 39.5375,
+    "临沂": 35.1045,
+    "潍坊": 36.7069,
+    "淄博": 36.8131,
+    "济宁": 35.4154,
+    "泰安": 36.1944,
+    "烟台": 37.4638,
+    "威海": 37.5128,
+    "洛阳": 34.6197,
+    "南阳": 32.9908,
+    "开封": 34.7972,
+    "新乡": 35.3030,
+    "许昌": 34.0357,
+    "宜昌": 30.6919,
+    "襄阳": 32.0090,
+    "株洲": 27.8273,
+    "湘潭": 27.8294,
+    "衡阳": 26.8939,
+    "岳阳": 29.3570,
+    "泉州": 24.8741,
+    "漳州": 24.5130,
+    "赣州": 25.8453,
+    "九江": 29.7050,
+    "芜湖": 31.3526,
+    "绵阳": 31.4677,
+    "宜宾": 28.7513,
+    "遵义": 27.7066,
+    "桂林": 25.2736,
+    "柳州": 24.3264,
+    "佛山": 23.0218,
+    "东莞": 23.0207,
+    "珠海": 22.2710,
+    "汕头": 23.3535,
+    "惠州": 23.1117,
+    # International cities
+    "纽约": 40.7128,
+    "伦敦": 51.5074,
+    "东京": 35.6762,
+    "悉尼": -33.8688,
+}
+
+
 def make_birth_place_entry(
     canonical_name: str,
     longitude: float,
     *,
+    latitude: Optional[float] = None,
     timezone: str = DEFAULT_BIRTH_TIMEZONE,
     level: str = "city",
     aliases: Tuple[str, ...] = (),
 ) -> Dict[str, Any]:
-    """Build one offline address-resolution entry."""
+    """Build one offline address-resolution entry.
+
+    Latitude defaults to the co-located ``KNOWN_BIRTH_PLACE_LATITUDES`` table
+    keyed by ``canonical_name`` (callers may still pass an explicit ``latitude``
+    to override it for a boundary case).
+    """
+    resolved_latitude = (
+        latitude
+        if latitude is not None
+        else KNOWN_BIRTH_PLACE_LATITUDES.get(canonical_name)
+    )
     merged_aliases = tuple(
         dict.fromkeys(
             (
@@ -399,6 +551,7 @@ def make_birth_place_entry(
     return {
         "canonical_name": canonical_name,
         "longitude": longitude,
+        "latitude": resolved_latitude,
         "timezone": timezone,
         "level": level,
         "specificity": PLACE_SPECIFICITY[level],
@@ -582,6 +735,18 @@ KNOWN_BIRTH_PLACE_ENTRIES = (
     ),
 )
 
+# Drift guard: every catalogued place must resolve to a latitude too, otherwise
+# the astrology engine would reject an address the BaZi engine happily accepts.
+_PLACES_MISSING_LATITUDE = [
+    entry["canonical_name"]
+    for entry in KNOWN_BIRTH_PLACE_ENTRIES
+    if entry["latitude"] is None
+]
+assert not _PLACES_MISSING_LATITUDE, (
+    "KNOWN_BIRTH_PLACE_LATITUDES is missing entries for: "
+    f"{_PLACES_MISSING_LATITUDE}"
+)
+
 
 @dataclass(frozen=True)
 class BirthPlaceResolution:
@@ -589,6 +754,7 @@ class BirthPlaceResolution:
 
     canonical_name: Optional[str]
     longitude: Optional[float]
+    latitude: Optional[float]
     timezone: Optional[str]
     source: Optional[str]
     level: Optional[str]
@@ -766,7 +932,7 @@ def resolve_birth_place_context(
 ) -> BirthPlaceResolution:
     """Resolve longitude/timezone hints from a free-form birth place string."""
     if not birth_place or birth_place == "未提供":
-        return BirthPlaceResolution(None, None, None, None, None)
+        return BirthPlaceResolution(None, None, None, None, None, None)
 
     normalized_place = normalize_birth_place_text(birth_place)
     return _resolve_birth_place_context_cached(normalized_place)
@@ -791,12 +957,13 @@ def _resolve_birth_place_context_cached(
                     best_match = (*score, entry)
 
     if best_match is None:
-        return BirthPlaceResolution(None, None, None, None, None)
+        return BirthPlaceResolution(None, None, None, None, None, None)
 
     entry = best_match[4]
     return BirthPlaceResolution(
         canonical_name=entry["canonical_name"],
         longitude=entry["longitude"],
+        latitude=entry["latitude"],
         timezone=entry["timezone"],
         source="birth_place",
         level=entry["level"],

@@ -1055,6 +1055,7 @@ def calculate_core_chart_analysis(
     birth_timezone: Optional[str] = None,
     name: Optional[str] = None,
     birth_place: Optional[str] = None,
+    gender: Optional[str] = None,  # accepted for uniform args; unused in chart math
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
     use_true_solar_time: bool = True,
@@ -1110,6 +1111,7 @@ def calculate_germany_chart_analysis(
     birth_timezone: Optional[str] = None,
     name: Optional[str] = None,
     birth_place: Optional[str] = None,
+    gender: Optional[str] = None,  # accepted for uniform args; unused in chart math
     hsys: Optional[int] = None,
     zodiacal: Optional[int] = None,
     use_true_solar_time: bool = True,
