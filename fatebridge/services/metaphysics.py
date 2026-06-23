@@ -34,6 +34,7 @@ from fatebridge.services.snapshot_builders import (
 )
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
+    SOLAR_TIME_STRATEGY_APPARENT,
     SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
     PersonInfo,
     calculate_solar_time_adjustment,
@@ -105,9 +106,13 @@ def _build_analysis_seed(
 
 
 def _build_person_seed(person: PersonInfo) -> MetaphysicsSeed:
+    # 紫微斗数命盘的真太阳时校正采用 APPARENT 口径（经度差 + 均时差），与八字
+    # 引擎保持一致。此前用 LONGITUDE_ONLY（仅经度差、不含均时差），导致同一出生
+    # 时间在八字与紫微下校正结果相差一个均时差量（最大约 ±16 分钟），跨体系合参
+    # 时会在时辰边界附近落入不同的 hour pillar。真太阳时的严格定义本就含均时差。
     normalized_birth_time = normalize_birth_time(
         person,
-        solar_time_strategy=SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
+        solar_time_strategy=SOLAR_TIME_STRATEGY_APPARENT,
     )
     corrected_datetime = normalized_birth_time.corrected_datetime
     pillars = BaZiCalendar.get_four_pillars(
