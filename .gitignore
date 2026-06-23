@@ -72,3 +72,7 @@ yarn-error.log*
 
 # 本地 mimocode 工具目录（含 node_modules / 自动生成的 plans），不入库
 .mimocode/
+
+# superpowers 规划文档与 docs/plans — 本地工作草稿，不入库
+docs/superpowers/
+docs/plans/

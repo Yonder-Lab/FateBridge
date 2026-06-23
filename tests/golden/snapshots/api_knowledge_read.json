@@ -129,9 +129,7 @@
   },
   "snapshot_export": {
     "export_text": "[查询信息]\n领域：astro\n分类：aspect\n键：90\n标题：太阳 - 木星：刑相（90°）\n归一化主键：90\n对象 A：Sun\n对象 B：Jupiter\n\n[知识正文]\n标题：太阳 - 木星：刑相（90°）\n对象：太阳 与 木星\n相位角：90°\n冲突与张力，逼迫成长与行动。",
-    "filtered_text": "[查询信息]\n领域：astro\n分类：aspect\n键：90\n标题：太阳 - 木星：刑相（90°）\n归一化主键：90\n对象 A：Sun\n对象 B：Jupiter\n\n[知识正文]\n标题：太阳 - 木星：刑相（90°）\n对象：太阳 与 木星\n相位角：90°\n冲突与张力，逼迫成长与行动。",
     "missing_selected_sections": [],
-    "raw_text": "[查询信息]\n领域：astro\n分类：aspect\n键：90\n标题：太阳 - 木星：刑相（90°）\n归一化主键：90\n对象 A：Sun\n对象 B：Jupiter\n\n[知识正文]\n标题：太阳 - 木星：刑相（90°）\n对象：太阳 与 木星\n相位角：90°\n冲突与张力，逼迫成长与行动。\n\n[来源]\n来源：xingque_hover_docs\n引文：Xingque hover knowledge · astro/aspect/90\nBundle 版本：1\n上游标记：xingque_hover_docs\n构建时间：2026-04-05T00:31:55Z",
     "section_titles_detected": [
       "查询信息",
       "知识正文",
@@ -139,7 +137,6 @@
     ],
     "sections": [
       {
-        "body": "领域：astro\n分类：aspect\n键：90\n标题：太阳 - 木星：刑相（90°）\n归一化主键：90\n对象 A：Sun\n对象 B：Jupiter",
         "content": "[查询信息]\n领域：astro\n分类：aspect\n键：90\n标题：太阳 - 木星：刑相（90°）\n归一化主键：90\n对象 A：Sun\n对象 B：Jupiter",
         "included": true,
         "index": 1,
@@ -147,7 +144,6 @@
         "title": "查询信息"
       },
       {
-        "body": "标题：太阳 - 木星：刑相（90°）\n对象：太阳 与 木星\n相位角：90°\n冲突与张力，逼迫成长与行动。",
         "content": "[知识正文]\n标题：太阳 - 木星：刑相（90°）\n对象：太阳 与 木星\n相位角：90°\n冲突与张力，逼迫成长与行动。",
         "included": true,
         "index": 2,
@@ -155,7 +151,6 @@
         "title": "知识正文"
       },
       {
-        "body": "来源：xingque_hover_docs\n引文：Xingque hover knowledge · astro/aspect/90\nBundle 版本：1\n上游标记：xingque_hover_docs\n构建时间：2026-04-05T00:31:55Z",
         "content": "[来源]\n来源：xingque_hover_docs\n引文：Xingque hover knowledge · astro/aspect/90\nBundle 版本：1\n上游标记：xingque_hover_docs\n构建时间：2026-04-05T00:31:55Z",
         "included": false,
         "index": 3,

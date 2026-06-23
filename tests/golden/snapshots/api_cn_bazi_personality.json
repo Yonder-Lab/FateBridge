@@ -54,11 +54,9 @@
   },
   "snapshot_export": {
     "export_text": "[概要]\n类型：八字性格分析\nday_master：庚（金）\n\n[core_nature]\n五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情\n\n[dominant_traits]\ntop_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩\n\n[disposition]\n强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）\n\n[优势]\n- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖\n\n[weaknesses]\n- 过则刚硬、肃杀、不近人情\n\n[advice]\n- 性格较为均衡，扬长避短、顺势而为即可",
-    "filtered_text": "",
     "missing_selected_sections": [
       "起盘信息"
     ],
-    "raw_text": "[概要]\n类型：八字性格分析\nday_master：庚（金）\n\n[core_nature]\n五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情\n\n[dominant_traits]\ntop_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩\n\n[disposition]\n强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）\n\n[优势]\n- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖\n\n[weaknesses]\n- 过则刚硬、肃杀、不近人情\n\n[advice]\n- 性格较为均衡，扬长避短、顺势而为即可",
     "section_titles_detected": [
       "概要",
       "core_nature",
@@ -70,7 +68,6 @@
     ],
     "sections": [
       {
-        "body": "类型：八字性格分析\nday_master：庚（金）",
         "content": "[概要]\n类型：八字性格分析\nday_master：庚（金）",
         "included": false,
         "index": 1,
@@ -78,7 +75,6 @@
         "title": "概要"
       },
       {
-        "body": "五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情",
         "content": "[core_nature]\n五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情",
         "included": false,
         "index": 2,
@@ -86,7 +82,6 @@
         "title": "core_nature"
       },
       {
-        "body": "top_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩",
         "content": "[dominant_traits]\ntop_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩",
         "included": false,
         "index": 3,
@@ -94,7 +89,6 @@
         "title": "dominant_traits"
       },
       {
-        "body": "强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）",
         "content": "[disposition]\n强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）",
         "included": false,
         "index": 4,
@@ -102,7 +96,6 @@
         "title": "disposition"
       },
       {
-        "body": "- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖",
         "content": "[优势]\n- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖",
         "included": false,
         "index": 5,
@@ -110,7 +103,6 @@
         "title": "优势"
       },
       {
-        "body": "- 过则刚硬、肃杀、不近人情",
         "content": "[weaknesses]\n- 过则刚硬、肃杀、不近人情",
         "included": false,
         "index": 6,
@@ -118,7 +110,6 @@
         "title": "weaknesses"
       },
       {
-        "body": "- 性格较为均衡，扬长避短、顺势而为即可",
         "content": "[advice]\n- 性格较为均衡，扬长避短、顺势而为即可",
         "included": false,
         "index": 7,

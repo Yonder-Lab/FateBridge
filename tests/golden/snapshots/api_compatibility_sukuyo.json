@@ -42,11 +42,9 @@
   },
   "snapshot_export": {
     "export_text": "[概要]\n类型：宿曜双人相性 / 三九の秘法\nsu27_basis：su28_drop_niu\npair：友衰\n小结：甲方本命宿翼，乙方本命宿娄，互为「友衰」相性。甲方看乙方为友（中）；乙方看甲方为衰（中）。\n\n[person1]\nname：甲方\nnatal_su28：翼\nnatal_su27：翼\nmoon_longitude：338.9956\n\n[person2]\nname：乙方\nnatal_su28：娄\nnatal_su27：娄\nmoon_longitude：199.8768\n\n[person1_to_person2]\nrelation：友\npair：友衰\ndistance：中\noffset：16\nmeaning：友衰相性；亦师亦友，互相学习，相处自然。\nself_su28：翼\nother_su28：娄\nself_su27：翼\nother_su27：娄\n\n[person2_to_person1]\nrelation：衰\npair：友衰\ndistance：中\noffset：11\nmeaning：友衰相性；在磨练中彼此成长，过程偏消耗、需要付出。\nself_su28：娄\nother_su28：翼\nself_su27：娄\nother_su27：翼",
-    "filtered_text": "",
     "missing_selected_sections": [
       "起盘信息"
     ],
-    "raw_text": "[概要]\n类型：宿曜双人相性 / 三九の秘法\nsu27_basis：su28_drop_niu\npair：友衰\n小结：甲方本命宿翼，乙方本命宿娄，互为「友衰」相性。甲方看乙方为友（中）；乙方看甲方为衰（中）。\n\n[person1]\nname：甲方\nnatal_su28：翼\nnatal_su27：翼\nmoon_longitude：338.9956\n\n[person2]\nname：乙方\nnatal_su28：娄\nnatal_su27：娄\nmoon_longitude：199.8768\n\n[person1_to_person2]\nrelation：友\npair：友衰\ndistance：中\noffset：16\nmeaning：友衰相性；亦师亦友，互相学习，相处自然。\nself_su28：翼\nother_su28：娄\nself_su27：翼\nother_su27：娄\n\n[person2_to_person1]\nrelation：衰\npair：友衰\ndistance：中\noffset：11\nmeaning：友衰相性；在磨练中彼此成长，过程偏消耗、需要付出。\nself_su28：娄\nother_su28：翼\nself_su27：娄\nother_su27：翼",
     "section_titles_detected": [
       "概要",
       "person1",
@@ -56,7 +54,6 @@
     ],
     "sections": [
       {
-        "body": "类型：宿曜双人相性 / 三九の秘法\nsu27_basis：su28_drop_niu\npair：友衰\n小结：甲方本命宿翼，乙方本命宿娄，互为「友衰」相性。甲方看乙方为友（中）；乙方看甲方为衰（中）。",
         "content": "[概要]\n类型：宿曜双人相性 / 三九の秘法\nsu27_basis：su28_drop_niu\npair：友衰\n小结：甲方本命宿翼，乙方本命宿娄，互为「友衰」相性。甲方看乙方为友（中）；乙方看甲方为衰（中）。",
         "included": false,
         "index": 1,
@@ -64,7 +61,6 @@
         "title": "概要"
       },
       {
-        "body": "name：甲方\nnatal_su28：翼\nnatal_su27：翼\nmoon_longitude：338.9956",
         "content": "[person1]\nname：甲方\nnatal_su28：翼\nnatal_su27：翼\nmoon_longitude：338.9956",
         "included": false,
         "index": 2,
@@ -72,7 +68,6 @@
         "title": "person1"
       },
       {
-        "body": "name：乙方\nnatal_su28：娄\nnatal_su27：娄\nmoon_longitude：199.8768",
         "content": "[person2]\nname：乙方\nnatal_su28：娄\nnatal_su27：娄\nmoon_longitude：199.8768",
         "included": false,
         "index": 3,
@@ -80,7 +75,6 @@
         "title": "person2"
       },
       {
-        "body": "relation：友\npair：友衰\ndistance：中\noffset：16\nmeaning：友衰相性；亦师亦友，互相学习，相处自然。\nself_su28：翼\nother_su28：娄\nself_su27：翼\nother_su27：娄",
         "content": "[person1_to_person2]\nrelation：友\npair：友衰\ndistance：中\noffset：16\nmeaning：友衰相性；亦师亦友，互相学习，相处自然。\nself_su28：翼\nother_su28：娄\nself_su27：翼\nother_su27：娄",
         "included": false,
         "index": 4,
@@ -88,7 +82,6 @@
         "title": "person1_to_person2"
       },
       {
-        "body": "relation：衰\npair：友衰\ndistance：中\noffset：11\nmeaning：友衰相性；在磨练中彼此成长，过程偏消耗、需要付出。\nself_su28：娄\nother_su28：翼\nself_su27：娄\nother_su27：翼",
         "content": "[person2_to_person1]\nrelation：衰\npair：友衰\ndistance：中\noffset：11\nmeaning：友衰相性；在磨练中彼此成长，过程偏消耗、需要付出。\nself_su28：娄\nother_su28：翼\nself_su27：娄\nother_su27：翼",
         "included": false,
         "index": 5,

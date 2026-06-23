@@ -1,8 +1,6 @@
 {
   "export_text": "[起盘信息]\n排盘参数\n\n[八宫]\n这里是八宫详解内容\n\n[演卦]\n这里是奇门演卦内容",
-  "filtered_text": "[起盘信息]\n排盘参数\n\n[八宫]\n这里是八宫详解内容\n\n[演卦]\n这里是奇门演卦内容",
   "missing_selected_sections": [],
-  "raw_text": "[起盘信息]\n排盘参数\n\n[八宫]\n这里是八宫详解内容\n\n[演卦]\n这里是奇门演卦内容",
   "run_metadata": {
     "engine": "fatebridge-offline",
     "engine_is_approximate": false,
@@ -15,7 +13,6 @@
   ],
   "sections": [
     {
-      "body": "排盘参数",
       "content": "[起盘信息]\n排盘参数",
       "included": true,
       "index": 1,
@@ -23,7 +20,6 @@
       "title": "起盘信息"
     },
     {
-      "body": "这里是八宫详解内容",
       "content": "[八宫]\n这里是八宫详解内容",
       "included": true,
       "index": 2,
@@ -31,7 +27,6 @@
       "title": "八宫详解"
     },
     {
-      "body": "这里是奇门演卦内容",
       "content": "[演卦]\n这里是奇门演卦内容",
       "included": true,
       "index": 3,
