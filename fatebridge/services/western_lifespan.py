@@ -54,7 +54,11 @@ from fatebridge.core.predictive import (
 from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
-from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
+from fatebridge.utils.helpers import (
+    handle_calculation_error,
+    house_system_fields,
+    normalize_house_system,
+)
 
 # Natal targets FateBridge directs in 波斯向运: the ten visible bodies plus the 12
 # house cusps (added by the core builder). This is the clean subset 星阙 shares —
@@ -136,7 +140,7 @@ def _analysis_context(
         "tool": label,
         "birth_datetime": birth_info.local_datetime.isoformat(),
         "timezone": birth_info.timezone,
-        "house_system": normalize_house_system(house_system),
+        **house_system_fields(house_system),
         "zodiac_type": zodiac_type,
         "sect": sect,
         "sect_label": sect_label(sect),

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from fatebridge.utils.helpers import house_system_fields
+
 from ._common import *
 from .decennials import build_decennials_payload
 from .firdaria import build_firdaria_payload
@@ -60,7 +62,7 @@ def _build_western_timing_analysis_context(
         "birth_datetime": birth_info.local_datetime.isoformat(),
         "analysis_datetime": analysis_datetime.isoformat(),
         "age_years": round(age_years, 4),
-        "house_system": house_system,
+        **house_system_fields(house_system),
         "zodiac_type": zodiac_type,
         "return_location": return_location,
     }
@@ -558,7 +560,7 @@ def build_western_timing_payload(
             "birth_datetime": birth_info.local_datetime.isoformat(),
             "analysis_datetime": analysis_datetime.isoformat(),
             "age_years": round(age_years, 4),
-            "house_system": house_system,
+            **house_system_fields(house_system),
             "zodiac_type": zodiac_type,
             "return_location": {
                 "longitude": effective_return_longitude,

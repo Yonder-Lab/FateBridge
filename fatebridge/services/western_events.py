@@ -35,6 +35,7 @@ from fatebridge.services.snapshot_builders import (
 )
 from fatebridge.utils.helpers import (
     handle_calculation_error,
+    house_system_fields,
     normalize_house_system,
     parse_timezone_name,
 )
@@ -94,7 +95,7 @@ def calculate_mundane(
                 "latitude": latitude,
                 "timezone": timezone_name,
             },
-            "house_system": house_system,
+            **house_system_fields(house_system),
             "zodiac_type": zodiac_type,
             "engine": "fatebridge-offline",
         }
@@ -224,7 +225,7 @@ def calculate_extrareturns(
             "birth_datetime": birth_info.local_datetime.isoformat(),
             "timezone": birth_info.timezone,
             "reference_datetime": analysis_local.isoformat(),
-            "house_system": house_system,
+            **house_system_fields(house_system),
             "zodiac_type": zodiac_type,
             "engine": "fatebridge-offline",
         }

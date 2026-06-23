@@ -260,6 +260,51 @@ _HOUSE_SYSTEM_CODE_TO_LETTER: Dict[int, str] = {
     8: "D",  # equal_mc
 }
 
+# Swiss Ephemeris letter -> (integer code or None, key, Chinese label). The
+# label/key for the 0..8 codes mirror RELATIVE_HOUSE_SYSTEM_SPECS so the western
+# tools report a house system the same way the core/relative charts do. Letters
+# without a 0..8 code (Campanus, Porphyry, ...) still get a readable key+label
+# with code=None.
+_HOUSE_SYSTEM_LETTER_INFO: Dict[str, Tuple[Optional[int], str, str]] = {
+    "W": (0, "whole_sign", "整宫制"),
+    "B": (1, "alcabitus", "Alcabitus"),
+    "R": (2, "regiomontanus", "Regiomontanus"),
+    "P": (3, "placidus", "Placidus"),
+    "K": (4, "koch", "Koch"),
+    "V": (5, "vehlow_equal", "Vehlow Equal"),
+    "T": (6, "polich_page", "Polich Page"),
+    "S": (7, "sripati", "Sripati"),
+    "D": (8, "equal_mc", "天顶为10宫中点等宫制"),
+    "A": (None, "equal", "等宫制（上升起点）"),
+    "C": (None, "campanus", "Campanus"),
+    "O": (None, "porphyry", "Porphyry"),
+    "M": (None, "morinus", "Morinus"),
+    "H": (None, "horizontal", "Horizontal"),
+    "X": (None, "meridian", "Meridian"),
+    "Y": (None, "apc", "APC"),
+    "U": (None, "krusinski", "Krusinski"),
+}
+
+
+def house_system_fields(house_system: Any, default: str = "P") -> Dict[str, Any]:
+    """Describe a house system the same way on every surface.
+
+    Returns a dict with the resolved Swiss Ephemeris ``house_system`` letter plus
+    a numeric ``house_system_code`` (0..8, or ``None`` for letters outside that
+    set) and a Chinese ``house_system_label_zh`` — mirroring the core/relative
+    chart ``chart_profile`` keys so an agent reading any western result knows
+    exactly which system produced it, regardless of how it was requested
+    (integer code, SE letter, or key).
+    """
+    letter = normalize_house_system(house_system, default=default)
+    code, _key, label_zh = _HOUSE_SYSTEM_LETTER_INFO.get(letter, (None, letter, letter))
+    return {
+        "house_system": letter,
+        "house_system_code": code,
+        "house_system_label_zh": label_zh,
+    }
+
+
 # Valid single-letter codes per kerykeion.schemas.kr_literals.HousesSystemIdentifier
 _VALID_HOUSE_SYSTEM_CODES = frozenset(
     {
