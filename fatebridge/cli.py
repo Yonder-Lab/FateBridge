@@ -38,6 +38,10 @@ from fatebridge.core.tool_spec import spec_is_cli_safe as _cli_safe
 from fatebridge.core.tool_spec import unwrap_optional as _unwrap_optional
 from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.tool_catalog import CATALOG
+from fatebridge.utils.helpers import (
+    DEFAULT_BIRTH_TIMEZONE,
+    resolve_birth_place_context,
+)
 
 
 class _JsonErrorParser(argparse.ArgumentParser):
@@ -506,6 +510,33 @@ def _resolve_profile_systems(
     return resolved, unknown
 
 
+def _unify_birth_instant(inputs: Dict[str, Any]) -> None:
+    """Force every profile leg onto ONE birth instant.
+
+    The core models disagree on time defaults: ``astro_chart`` defaults
+    ``birth_timezone='UTC'`` + ``use_true_solar_time=True`` while
+    ``bazi_birth``/``ziwei_birth`` default ``None`` (place-derived) + ``False``.
+    Left to per-leg defaults, omitting the timezone made the western leg read a
+    China wall-clock time as UTC *and* apply a true-solar shift for an eastern
+    longitude — landing it ~8h off the Chinese legs and rotating the whole
+    chart. A综合命盘 must describe one person at one instant, so we resolve the
+    timezone and true-solar policy once here and inject them into every leg.
+
+    Mutates ``inputs`` in place. User-supplied values always win:
+    ``birth_timezone`` is only filled when absent, and ``use_true_solar_time``
+    only defaults ON when the user did not set it.
+
+    The timezone chain mirrors the BaZi normalizer exactly
+    (``explicit -> place-derived -> DEFAULT_BIRTH_TIMEZONE``; see
+    ``normalize_birth_time`` in utils/helpers) so the western leg lands on the
+    identical instant as the Chinese legs rather than its own ``UTC`` fallback.
+    """
+    if not inputs.get("birth_timezone"):
+        resolved = resolve_birth_place_context(inputs.get("birth_place"))
+        inputs["birth_timezone"] = resolved.timezone or DEFAULT_BIRTH_TIMEZONE
+    inputs.setdefault("use_true_solar_time", True)
+
+
 def _run_profile(
     args: argparse.Namespace, subject_data: Optional[Dict[str, Any]]
 ) -> int:
@@ -548,6 +579,8 @@ def _run_profile(
             },
             2,
         )
+
+    _unify_birth_instant(inputs)
 
     profile: Dict[str, Any] = {}
     any_error = False

@@ -511,6 +511,81 @@ def test_profile_cli_flag_overrides_subject(tmp_path, capsys):
     assert year["stem"] + year["branch"] == "庚午"  # 1990 wins over file's 1988
 
 
+def test_profile_legs_share_one_birth_instant_when_tz_omitted(tmp_path, capsys):
+    # Regression: the astro leg's model defaults birth_timezone='UTC' and
+    # use_true_solar_time=True, while bazi/ziwei default None/False. With those
+    # left to per-leg defaults, the western leg interpreted a China wall-clock
+    # time as UTC AND applied a true-solar shift for an eastern longitude, landing
+    # ~8h off the Chinese legs (e.g. 09:55 -> 18:0x UTC) and producing a wholly
+    # rotated, bogus chart. The profile must resolve ONE timezone (place-derived)
+    # and one true-solar policy and feed every leg the same birth instant.
+    subject = _write(
+        tmp_path / "s.json",
+        json.dumps(
+            {
+                "name": "陆遥",
+                "gender": "男",
+                "birth_year": 2000,
+                "birth_month": 12,
+                "birth_day": 10,
+                "birth_hour": 9,
+                "birth_minute": 55,
+                "birth_place": "上海",
+                "birth_longitude": 121.47,
+                "birth_latitude": 31.23,
+                # NOTE: deliberately NO birth_timezone and NO use_true_solar_time
+            }
+        ),
+    )
+    code = run(["profile", "--systems", "bazi,astro", "--subject-file", subject])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    astro_pi = payload["profile"]["astro"]["person_info"]
+    # The western leg must adopt the canonical China timezone, never the raw
+    # 'UTC' model default that caused the double offset.
+    assert astro_pi["birth_timezone"] != "UTC"
+    assert astro_pi["birth_timezone"] == "Asia/Shanghai"
+    # A 09:55 China morning is an early-UTC instant (~01-02h), never ~18h.
+    assert astro_pi["utc_datetime"].startswith("2000-12-10T01") or astro_pi[
+        "utc_datetime"
+    ].startswith("2000-12-10T02")
+    # True solar time is unified ON across the profile.
+    assert astro_pi["true_solar"]["applied"] is True
+    assert payload["profile"]["bazi"]["bazi_birth"]["time_algorithm"] == "真太阳时"
+
+
+def test_profile_unifies_instant_even_for_uncatalogued_place(tmp_path, capsys):
+    # 海安 is not in the offline place catalog, so no timezone can be derived
+    # from the name. The BaZi normalizer falls back to DEFAULT_BIRTH_TIMEZONE
+    # (Asia/Shanghai); the profile must apply the SAME fallback to the astro leg
+    # so an uncatalogued China birth does not silently leave the western leg on
+    # its 'UTC' default (the original bug for this very subject).
+    subject = _write(
+        tmp_path / "s.json",
+        json.dumps(
+            {
+                "name": "X",
+                "gender": "男",
+                "birth_year": 2000,
+                "birth_month": 12,
+                "birth_day": 10,
+                "birth_hour": 9,
+                "birth_minute": 55,
+                "birth_place": "海安",
+                "birth_longitude": 120.45,
+                "birth_latitude": 32.54,
+            }
+        ),
+    )
+    code = run(["profile", "--systems", "bazi,astro", "--subject-file", subject])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    astro_pi = payload["profile"]["astro"]["person_info"]
+    assert astro_pi["birth_timezone"] != "UTC"
+    # 09:55 +08:00 (with a small true-solar shift) is an early-UTC instant.
+    assert astro_pi["utc_datetime"].startswith("2000-12-10T0")
+
+
 def test_profile_unknown_system_is_usage_error(tmp_path, capsys):
     code = run(
         ["profile", "--systems", "bazi,foo", "--subject-file", _full_subject(tmp_path)]

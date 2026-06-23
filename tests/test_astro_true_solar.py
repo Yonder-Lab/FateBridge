@@ -57,6 +57,40 @@ def test_correction_matches_bazi_helper_single_source():
     )
 
 
+def test_core_chart_request_default_timezone_is_none():
+    # The 'UTC' default belonged to the request-model layer (REST/MCP/CLI):
+    # Pydantic filled birth_timezone='UTC' when omitted, pre-empting the
+    # place-based inference in build_astro_birth_info. The core chart model must
+    # default to None so an omitted timezone falls through to the birth place.
+    from fatebridge.core.request_models import AstroChartRequest
+
+    req = AstroChartRequest(
+        birth_year=2000, birth_month=12, birth_day=10, birth_hour=9, birth_place="上海"
+    )
+    assert req.birth_timezone is None
+
+
+def test_omitted_timezone_uses_birth_place_not_utc():
+    # End-to-end through the request layer: a known birth place with no timezone
+    # must infer the place's timezone (as BaZi does), not fall back to 'UTC' and
+    # rotate the whole chart.
+    from fatebridge.core.request_models import AstroChartRequest
+
+    req = AstroChartRequest(
+        birth_year=2000,
+        birth_month=12,
+        birth_day=10,
+        birth_hour=9,
+        birth_minute=55,
+        birth_place="上海",
+        birth_longitude=121.47,
+        birth_latitude=31.23,
+    )
+    result = calculate_core_chart_analysis(**req.model_dump())
+    assert result["person_info"]["birth_timezone"] == "Asia/Shanghai"
+    assert result["person_info"]["utc_datetime"].startswith("2000-12-10T0")
+
+
 def test_true_solar_shifts_birth_instant_and_positions():
     on = calculate_core_chart_analysis(**_BIRTH)
     off = calculate_core_chart_analysis(**_BIRTH, use_true_solar_time=False)

@@ -867,6 +867,16 @@ class AstroBirthRequest(BaseModel):
 class AstroChartRequest(AstroBirthRequest):
     """Request model for offline astrology chart generation."""
 
+    birth_timezone: Optional[str] = Field(  # type: ignore[assignment]
+        default=None,
+        description=(
+            "Birth timezone (IANA name or UTC offset). Optional: when omitted, "
+            "FateBridge infers it from birth_place (same as the BaZi/ZiWei "
+            "engines) and only falls back to UTC if no place is recognized. The "
+            "old 'UTC' default silently treated an eastern wall-clock time as UTC "
+            "and rotated the whole chart."
+        ),
+    )
     birth_longitude: Optional[float] = Field(  # type: ignore[assignment]
         default=None,
         ge=-180,
@@ -939,8 +949,10 @@ class AstroRelativeRequest(BaseModel):
         ),
     )
     hsys: int = Field(
-        default=0,
-        description="Legacy-compatible house system identifier; offline mode currently supports 0..8 via local Swiss house cusps",
+        default=8,
+        description="House system identifier (0..8 via local Swiss house cusps). "
+        "Defaults to equal_mc (8) to match the natal/suzhan/otherbu charts so a "
+        "person's natal and relative charts share one house system.",
     )
     zodiacal: int = Field(
         default=0,
@@ -1006,8 +1018,11 @@ class WesternTimingRequest(AstroBirthRequest):
     return_timezone: Optional[str] = Field(
         default=None, description="Return chart timezone (IANA name or UTC offset)"
     )
-    house_system: str = Field(
-        default="P", description="House system identifier, e.g. P for Placidus"
+    house_system: Union[int, str] = Field(
+        default="P",
+        description="House system, any convention: SE letter ('P'=Placidus, "
+        "'R'=Regiomontanus, 'W'=whole sign, 'D'=equal_mc), key ('placidus', "
+        "'equal_mc'), or integer code 0..8 (3=Placidus, 8=equal_mc).",
     )
     zodiac_type: str = Field(
         default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
@@ -1051,8 +1066,11 @@ class WesternTimingModuleRequest(WesternTimingRequest):
 class AstroLifespanRequest(AstroBirthRequest):
     """Shared base for western *lifespan* techniques cast from a single natal chart."""
 
-    house_system: str = Field(
-        default="P", description="House system identifier, e.g. P for Placidus"
+    house_system: Union[int, str] = Field(
+        default="P",
+        description="House system, any convention: SE letter ('P'=Placidus, "
+        "'R'=Regiomontanus, 'W'=whole sign, 'D'=equal_mc), key ('placidus', "
+        "'equal_mc'), or integer code 0..8 (3=Placidus, 8=equal_mc).",
     )
     zodiac_type: str = Field(
         default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
@@ -1290,8 +1308,11 @@ class AstroMundaneRequest(BaseModel):
     timezone_name: str = Field(
         default="+08:00", description="Observation timezone (IANA name or UTC offset)"
     )
-    house_system: str = Field(
-        default="P", description="House system identifier, e.g. P for Placidus"
+    house_system: Union[int, str] = Field(
+        default="P",
+        description="House system, any convention: SE letter ('P'=Placidus, "
+        "'R'=Regiomontanus, 'W'=whole sign, 'D'=equal_mc), key ('placidus', "
+        "'equal_mc'), or integer code 0..8 (3=Placidus, 8=equal_mc).",
     )
     zodiac_type: str = Field(
         default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
@@ -1346,9 +1367,10 @@ class AstroHoraryRequest(BaseModel):
             "property/pregnancy/health/marriage/lawsuit/theft/travel/career/hope/enemy/death"
         ),
     )
-    house_system: str = Field(
+    house_system: Union[int, str] = Field(
         default="R",
-        description="House system; Regiomontanus (R) is traditional for horary",
+        description="House system, any convention (SE letter / key / integer "
+        "code 0..8); Regiomontanus (R, code 2) is traditional for horary.",
     )
     zodiac_type: str = Field(
         default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
@@ -1391,8 +1413,10 @@ class AstroElectionRequest(BaseModel):
             "buy_property/trade/buy_car/contract/surgery/travel/job_hunt/general"
         ),
     )
-    house_system: str = Field(
-        default="R", description="House system; Regiomontanus (R) is traditional"
+    house_system: Union[int, str] = Field(
+        default="R",
+        description="House system, any convention (SE letter / key / integer "
+        "code 0..8); Regiomontanus (R, code 2) is traditional for elections.",
     )
     zodiac_type: str = Field(
         default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
@@ -1473,7 +1497,11 @@ class AstroRelativeFlatRequest(BaseModel):
     outer_birth_timezone: Optional[str] = Field(
         default="UTC", description="Outer timezone"
     )
-    hsys: int = Field(default=0, description="House system identifier")
+    hsys: int = Field(
+        default=8,
+        description="House system identifier (0..8). Defaults to equal_mc (8) to "
+        "match the natal/suzhan/otherbu charts.",
+    )
     zodiacal: int = Field(default=0, description="Zodiac selector")
     relationship_focus: Optional[str] = Field(
         default=None,

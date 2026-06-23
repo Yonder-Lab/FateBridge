@@ -1150,12 +1150,15 @@ def calculate_relative_chart_analysis(
     relative_mode: Any = None,
     relationship_mode: Any = None,
     relative_mode_source: Optional[str] = None,
-    hsys: int = 0,
+    hsys: int = 8,
     zodiacal: int = 0,
     relationship_focus: Any = None,
 ) -> Dict[str, Any]:
     """
     Build synastry/composite payloads for two parties.
+
+    ``hsys`` defaults to equal_mc (8), matching the natal/suzhan/otherbu charts so
+    a person's natal and relative charts agree on the house system.
     """
     try:
         inner_birth = _build_birth_info(inner_payload)
