@@ -1217,12 +1217,12 @@ def test_parse_timezone_name_rejects_invalid_with_actionable_message(value):
 def test_normalize_birth_time_accepts_bare_integer_timezone():
     # End-to-end: the bare "8" that previously raised now drives correction.
     person = create_person_info(
-        birth_year=2001,
-        birth_month=10,
-        birth_day=12,
-        birth_hour=11,
-        birth_minute=40,
-        birth_longitude=108.71,
+        birth_year=1988,
+        birth_month=8,
+        birth_day=8,
+        birth_hour=8,
+        birth_minute=8,
+        birth_longitude=120.0,
         birth_timezone="8",
         use_true_solar_time=True,
     )
@@ -1240,11 +1240,11 @@ def test_resolve_birth_place_resolves_prefecture_city_district_form():
 
 def test_normalize_birth_time_resolves_newly_catalogued_prefecture_city():
     person = create_person_info(
-        birth_year=2001,
-        birth_month=10,
-        birth_day=12,
-        birth_hour=11,
-        birth_minute=40,
+        birth_year=1988,
+        birth_month=8,
+        birth_day=8,
+        birth_hour=8,
+        birth_minute=8,
         birth_place="咸阳市秦都区",
         use_true_solar_time=True,
     )
@@ -1257,10 +1257,10 @@ def test_normalize_birth_time_resolves_newly_catalogued_prefecture_city():
 
 def test_normalize_birth_time_unknown_place_errors_actionably():
     person = create_person_info(
-        birth_year=2001,
-        birth_month=10,
-        birth_day=12,
-        birth_hour=11,
+        birth_year=1988,
+        birth_month=8,
+        birth_day=8,
+        birth_hour=8,
         birth_place="火星基地",
         use_true_solar_time=True,
     )

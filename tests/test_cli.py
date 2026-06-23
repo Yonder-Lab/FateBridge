@@ -346,17 +346,17 @@ def test_subject_file_supplies_required_and_optional_fields(tmp_path, capsys):
     # full run: required fields satisfy argparse via relaxation, and optional
     # fields like gender reach the model instead of being shadowed by defaults.
     subject = _write(
-        tmp_path / "lived.json",
+        tmp_path / "subject.json",
         json.dumps(
             {
-                "name": "Lived",
+                "name": "测试甲",
                 "gender": "女",
-                "birth_year": 2001,
-                "birth_month": 10,
-                "birth_day": 12,
-                "birth_hour": 11,
-                "birth_minute": 40,
-                "birth_longitude": 108.71,
+                "birth_year": 1988,
+                "birth_month": 8,
+                "birth_day": 8,
+                "birth_hour": 8,
+                "birth_minute": 8,
+                "birth_longitude": 120.0,
                 "birth_timezone": "Asia/Shanghai",
                 "use_true_solar_time": True,
             }
@@ -366,11 +366,11 @@ def test_subject_file_supplies_required_and_optional_fields(tmp_path, capsys):
     payload = json.loads(capsys.readouterr().out)
     assert code == 0
     chart = payload["bazi_birth"]
-    assert chart["person_info"]["name"] == "Lived"
+    assert chart["person_info"]["name"] == "测试甲"
     assert chart["person_info"]["gender"] == "女"  # optional field not shadowed
     assert chart["time_algorithm"] == "真太阳时"
     hour = chart["four_pillars"]["hour"]
-    assert hour["stem"] + hour["branch"] == "戊午"
+    assert hour["stem"] + hour["branch"] == "庚辰"
 
 
 def test_cli_flag_overrides_subject_file(tmp_path, capsys):
@@ -379,19 +379,19 @@ def test_cli_flag_overrides_subject_file(tmp_path, capsys):
         json.dumps(
             {
                 "gender": "女",
-                "birth_year": 2001,
-                "birth_month": 10,
-                "birth_day": 12,
-                "birth_hour": 11,
+                "birth_year": 1988,
+                "birth_month": 8,
+                "birth_day": 8,
+                "birth_hour": 8,
             }
         ),
     )
-    # Explicit --birth-year must win over the file's 2001.
+    # Explicit --birth-year must win over the file's 1988.
     code = run(["bazi_birth", "--subject-file", subject, "--birth-year", "1990"])
     payload = json.loads(capsys.readouterr().out)
     assert code == 0
     year = payload["bazi_birth"]["four_pillars"]["year"]
-    assert year["stem"] + year["branch"] == "庚午"  # 1990, not 2001 (辛巳)
+    assert year["stem"] + year["branch"] == "庚午"  # 1990, not 1988 (戊辰)
 
 
 def test_subject_file_reused_across_tools(tmp_path, capsys):
@@ -400,12 +400,12 @@ def test_subject_file_reused_across_tools(tmp_path, capsys):
         json.dumps(
             {
                 "gender": "女",
-                "birth_year": 2001,
-                "birth_month": 10,
-                "birth_day": 12,
-                "birth_hour": 11,
-                "birth_minute": 40,
-                "birth_longitude": 108.71,
+                "birth_year": 1988,
+                "birth_month": 8,
+                "birth_day": 8,
+                "birth_hour": 8,
+                "birth_minute": 8,
+                "birth_longitude": 120.0,
                 "birth_timezone": "Asia/Shanghai",
                 "use_true_solar_time": True,
             }
@@ -437,8 +437,8 @@ def test_subject_file_yaml_is_supported(tmp_path, capsys):
         pytest.skip("pyyaml not installed")
     subject = _write(
         tmp_path / "s.yaml",
-        "gender: 女\nbirth_year: 2001\nbirth_month: 10\nbirth_day: 12\n"
-        "birth_hour: 11\n",
+        "gender: 女\nbirth_year: 1988\nbirth_month: 8\nbirth_day: 8\n"
+        "birth_hour: 8\n",
     )
     code = run(["bazi_birth", "--subject-file", subject])
     payload = json.loads(capsys.readouterr().out)
@@ -451,16 +451,15 @@ def _full_subject(tmp_path):
         tmp_path / "subject.json",
         json.dumps(
             {
-                "name": "Lived",
+                "name": "测试甲",
                 "gender": "女",
-                "birth_year": 2001,
-                "birth_month": 10,
-                "birth_day": 12,
-                "birth_hour": 11,
-                "birth_minute": 40,
-                "birth_place": "咸阳市秦都区",
-                "birth_longitude": 108.71,
-                "birth_latitude": 34.33,
+                "birth_year": 1988,
+                "birth_month": 8,
+                "birth_day": 8,
+                "birth_hour": 8,
+                "birth_minute": 8,
+                "birth_longitude": 120.0,
+                "birth_latitude": 30.0,
                 "birth_timezone": "Asia/Shanghai",
                 "use_true_solar_time": True,
             }
@@ -477,7 +476,7 @@ def test_profile_runs_default_three_systems(tmp_path, capsys):
     chart = payload["profile"]
     # Each system carried its full result, computed from the shared subject.
     hour = chart["bazi"]["bazi_birth"]["four_pillars"]["hour"]
-    assert hour["stem"] + hour["branch"] == "戊午"
+    assert hour["stem"] + hour["branch"] == "庚辰"
     # ziwei ran from the shared subject; the exact 命宫 value is owned by the
     # dedicated ziwei engine tests (pinned to iztro), so assert structurally.
     ming_gong = chart["ziwei"]["ziwei_birth"]["ming_gong"]["ganzhi"]
@@ -509,7 +508,7 @@ def test_profile_cli_flag_overrides_subject(tmp_path, capsys):
     payload = json.loads(capsys.readouterr().out)
     assert code == 0
     year = payload["profile"]["bazi"]["bazi_birth"]["four_pillars"]["year"]
-    assert year["stem"] + year["branch"] == "庚午"  # 1990 wins over file's 2001
+    assert year["stem"] + year["branch"] == "庚午"  # 1990 wins over file's 1988
 
 
 def test_profile_unknown_system_is_usage_error(tmp_path, capsys):

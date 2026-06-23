@@ -1045,22 +1045,22 @@ def test_astro_chart_request_accepts_use_true_solar_time_by_python_name():
     and the default (True) won — so the documented off-switches did nothing."""
     assert (
         AstroChartRequest(
-            birth_year=2001, birth_month=10, birth_day=12, birth_hour=11
+            birth_year=1988, birth_month=8, birth_day=8, birth_hour=8
         ).use_true_solar_time
         is True
     )
     by_name = AstroChartRequest(
-        birth_year=2001,
-        birth_month=10,
-        birth_day=12,
-        birth_hour=11,
+        birth_year=1988,
+        birth_month=8,
+        birth_day=8,
+        birth_hour=8,
         use_true_solar_time=False,
     )
     by_alias = AstroChartRequest(
-        birth_year=2001,
-        birth_month=10,
-        birth_day=12,
-        birth_hour=11,
+        birth_year=1988,
+        birth_month=8,
+        birth_day=8,
+        birth_hour=8,
         useTrueSolarTime=False,
     )
     assert by_name.use_true_solar_time is False
@@ -1077,10 +1077,10 @@ def test_cli_no_true_solar_time_flag_actually_disables_correction():
     parser = build_parser()
     base = [
         "astro_chart",
-        "--birth-year", "2001", "--birth-month", "10", "--birth-day", "12",
-        "--birth-hour", "11", "--birth-minute", "40",
+        "--birth-year", "1988", "--birth-month", "8", "--birth-day", "8",
+        "--birth-hour", "8", "--birth-minute", "8",
         "--birth-timezone", "Asia/Shanghai",
-        "--birth-longitude", "108.71", "--birth-latitude", "34.33",
+        "--birth-longitude", "120.0", "--birth-latitude", "30.0",
     ]
 
     def _run(extra):
@@ -1096,5 +1096,5 @@ def test_cli_no_true_solar_time_flag_actually_disables_correction():
     off = _run(["--no-use-true-solar-time"])
     on = _run([])
     assert off["person_info"]["true_solar"]["applied"] is False
-    assert off["person_info"]["birth_datetime"].startswith("2001-10-12T11:40:00")
+    assert off["person_info"]["birth_datetime"].startswith("1988-08-08T08:08:00")
     assert on["person_info"]["true_solar"]["applied"] is True

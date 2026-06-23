@@ -1001,6 +1001,7 @@ def _build_houses(
     ascendant: float,
     house_system: str,
     house_cusps: Optional[List[float]] = None,
+    midheaven: Optional[float] = None,
 ) -> List[Dict[str, Any]]:
     houses: List[Dict[str, Any]] = []
     if house_cusps:
@@ -1018,6 +1019,13 @@ def _build_houses(
         return houses
     if house_system == "whole_sign":
         first_cusp = math.floor(ascendant / 30.0) * 30.0
+    elif house_system == "equal_mc" and midheaven is not None:
+        # Equal houses anchored on the midheaven (swisseph code 'D'): the MC is
+        # the 10th cusp, so the 1st cusp sits 90° later. The true ascendant is
+        # deliberately NOT the anchor here — using it silently degrades the
+        # system into plain `equal` and shifts every house by one when the
+        # ascendant and MC+90 fall in different signs.
+        first_cusp = normalize_angle(midheaven + 90.0)
     else:
         first_cusp = ascendant
     for house_number in range(1, 13):
@@ -2704,7 +2712,9 @@ def _relative_house_layout(
             midheaven = normalize_angle(midheaven - ayanamsha)
         house_cusps = [
             item["cusp_longitude"]
-            for item in _build_houses(ascendant, house_system_info["key"])
+            for item in _build_houses(
+                ascendant, house_system_info["key"], midheaven=midheaven
+            )
         ]
         return {
             "ascendant": ascendant,
