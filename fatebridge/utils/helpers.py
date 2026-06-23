@@ -743,8 +743,7 @@ _PLACES_MISSING_LATITUDE = [
     if entry["latitude"] is None
 ]
 assert not _PLACES_MISSING_LATITUDE, (
-    "KNOWN_BIRTH_PLACE_LATITUDES is missing entries for: "
-    f"{_PLACES_MISSING_LATITUDE}"
+    "KNOWN_BIRTH_PLACE_LATITUDES is missing entries for: " f"{_PLACES_MISSING_LATITUDE}"
 )
 
 
