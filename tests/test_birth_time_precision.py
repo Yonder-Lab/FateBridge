@@ -38,7 +38,11 @@ from fatebridge.services.timing import (
     calculate_liushi_analysis,
     calculate_liuyue_analysis,
 )
-from fatebridge.utils.helpers import create_person_info, normalize_birth_time
+from fatebridge.utils.helpers import (
+    create_person_info,
+    normalize_birth_time,
+    parse_timezone_name,
+)
 
 
 def test_request_model_accepts_birth_time_precision_fields():
@@ -1165,3 +1169,59 @@ def test_fastmcp_tools_expose_birth_time_precision_arguments():
     assert "selected_sections" in liushi_properties
     assert "target_year" in jieqi_properties
     assert "selected_sections" in jieqi_properties
+
+
+def _offset_hours(tzinfo) -> float:
+    delta = tzinfo.utcoffset(datetime(2001, 1, 1, 12))
+    assert delta is not None
+    return delta.total_seconds() / 3600.0
+
+
+@pytest.mark.parametrize(
+    "value, expected_hours",
+    [
+        ("8", 8.0),  # bare unsigned hour offset — the natural input that used to fail
+        ("+8", 8.0),
+        ("-5", -5.0),
+        ("5.5", 5.5),  # India-style half-hour offset
+        ("+08:00", 8.0),
+        ("UTC+8", 8.0),
+        ("GMT+8", 8.0),
+    ],
+)
+def test_parse_timezone_name_accepts_offset_forms(value, expected_hours):
+    assert _offset_hours(parse_timezone_name(value)) == pytest.approx(expected_hours)
+
+
+def test_parse_timezone_name_accepts_iana_name():
+    # IANA names still win over the numeric-offset shortcut.
+    assert parse_timezone_name("Asia/Shanghai").utcoffset(
+        datetime(2001, 1, 1, 12)
+    ) == timedelta(hours=8)
+
+
+@pytest.mark.parametrize("value", ["garbage", "1e3", "inf", "nan", "Asia/Nowhere"])
+def test_parse_timezone_name_rejects_invalid_with_actionable_message(value):
+    with pytest.raises(ValueError) as excinfo:
+        parse_timezone_name(value)
+    message = str(excinfo.value)
+    # The error must name the accepted formats so callers can self-correct.
+    assert "Asia/Shanghai" in message
+    assert "+08:00" in message or "UTC+8" in message
+    assert "bare offset" in message
+
+
+def test_normalize_birth_time_accepts_bare_integer_timezone():
+    # End-to-end: the bare "8" that previously raised now drives correction.
+    person = create_person_info(
+        birth_year=2001,
+        birth_month=10,
+        birth_day=12,
+        birth_hour=11,
+        birth_minute=40,
+        birth_longitude=108.71,
+        birth_timezone="8",
+        use_true_solar_time=True,
+    )
+    normalized = normalize_birth_time(person)
+    assert normalized.applied is True
