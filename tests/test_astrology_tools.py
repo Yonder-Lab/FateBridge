@@ -1036,3 +1036,65 @@ def test_julian_day_uses_julian_calendar_before_gregorian_cutover():
     # Before the 1582-10-15 cutover: the Julian calendar (historical convention).
     jd_old = _julian_day(datetime(1500, 1, 1, 12, tzinfo=timezone.utc))
     assert jd_old == pytest.approx(swe.julday(1500, 1, 1, 12.0, swe.JUL_CAL))
+
+
+def test_astro_chart_request_accepts_use_true_solar_time_by_python_name():
+    """Regression: ``use_true_solar_time`` carries an alias (``useTrueSolarTime``)
+    but CLI/MCP populate by the Python field name. Without
+    ``populate_by_name=True`` on the base model, the value was silently dropped
+    and the default (True) won — so the documented off-switches did nothing."""
+    assert (
+        AstroChartRequest(
+            birth_year=2001, birth_month=10, birth_day=12, birth_hour=11
+        ).use_true_solar_time
+        is True
+    )
+    by_name = AstroChartRequest(
+        birth_year=2001,
+        birth_month=10,
+        birth_day=12,
+        birth_hour=11,
+        use_true_solar_time=False,
+    )
+    by_alias = AstroChartRequest(
+        birth_year=2001,
+        birth_month=10,
+        birth_day=12,
+        birth_hour=11,
+        useTrueSolarTime=False,
+    )
+    assert by_name.use_true_solar_time is False
+    assert by_alias.use_true_solar_time is False
+
+
+def test_cli_no_true_solar_time_flag_actually_disables_correction():
+    """End-to-end CLI dispatch: ``--no-use-true-solar-time`` must leave the
+    birth clock untouched (no longitude/equation-of-time rebasing)."""
+    pytest.importorskip("swisseph")
+    from fatebridge.cli import build_parser
+    from fatebridge.core.tool_spec import execute_spec
+
+    parser = build_parser()
+    base = [
+        "astro_chart",
+        "--birth-year", "2001", "--birth-month", "10", "--birth-day", "12",
+        "--birth-hour", "11", "--birth-minute", "40",
+        "--birth-timezone", "Asia/Shanghai",
+        "--birth-longitude", "108.71", "--birth-latitude", "34.33",
+    ]
+
+    def _run(extra):
+        args = parser.parse_args(base + extra)
+        spec = getattr(args, "_spec")
+        provided = {
+            k: v
+            for k, v in vars(args).items()
+            if k in set(spec.request_model.model_fields) and v is not None
+        }
+        return execute_spec(spec, spec.request_model(**provided))
+
+    off = _run(["--no-use-true-solar-time"])
+    on = _run([])
+    assert off["person_info"]["true_solar"]["applied"] is False
+    assert off["person_info"]["birth_datetime"].startswith("2001-10-12T11:40:00")
+    assert on["person_info"]["true_solar"]["applied"] is True
