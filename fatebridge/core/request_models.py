@@ -949,10 +949,10 @@ class AstroRelativeRequest(BaseModel):
         ),
     )
     hsys: int = Field(
-        default=8,
+        default=3,
         description="House system identifier (0..8 via local Swiss house cusps). "
-        "Defaults to equal_mc (8) to match the natal/suzhan/otherbu charts so a "
-        "person's natal and relative charts share one house system.",
+        "Defaults to Placidus (3) to match the natal chart so a person's natal "
+        "and relative charts share one house system.",
     )
     zodiacal: int = Field(
         default=0,
@@ -1498,9 +1498,9 @@ class AstroRelativeFlatRequest(BaseModel):
         default="UTC", description="Outer timezone"
     )
     hsys: int = Field(
-        default=8,
-        description="House system identifier (0..8). Defaults to equal_mc (8) to "
-        "match the natal/suzhan/otherbu charts.",
+        default=3,
+        description="House system identifier (0..8). Defaults to Placidus (3) to "
+        "match the natal chart.",
     )
     zodiacal: int = Field(default=0, description="Zodiac selector")
     relationship_focus: Optional[str] = Field(

@@ -111,9 +111,9 @@
       "engine_backend": "swisseph_api",
       "engine_precision": "ephemeris_runtime_model",
       "ephemeris_model": "mixed",
-      "house_system": "equal_mc",
-      "house_system_code": 8,
-      "house_system_label_zh": "天顶为10宫中点等宫制",
+      "house_system": "placidus",
+      "house_system_code": 3,
+      "house_system_label_zh": "Placidus",
       "house_system_source": "variant_default",
       "tradition": false,
       "zodiac": "tropical",
@@ -296,9 +296,9 @@
         "death": {
           "almuten": "Mercury",
           "cn": "死亡点",
-          "degree_in_sign": 2.6192,
+          "degree_in_sign": 12.389,
           "dispositor": "Mercury",
-          "longitude": 62.6192,
+          "longitude": 72.389,
           "sign": "Gemini"
         },
         "fortune": {
@@ -469,7 +469,7 @@
         },
         "Neptune": {
           "above_horizon": true,
-          "angularity": "succedent",
+          "angularity": "angular",
           "combustion": null,
           "dodekatemorion": "Gemini",
           "essential": null,
@@ -516,7 +516,7 @@
         },
         "Pluto": {
           "above_horizon": false,
-          "angularity": "cadent",
+          "angularity": "succedent",
           "combustion": null,
           "dodekatemorion": "Taurus",
           "essential": null,
@@ -620,7 +620,7 @@
         },
         "Uranus": {
           "above_horizon": true,
-          "angularity": "succedent",
+          "angularity": "angular",
           "combustion": null,
           "dodekatemorion": "Aries",
           "essential": null,
@@ -700,7 +700,7 @@
       "topic_almutens": {
         "1": {
           "sign": "Gemini",
-          "winner": "Mercury"
+          "winner": "Saturn"
         },
         "10": {
           "sign": "Pisces",
@@ -716,7 +716,7 @@
         },
         "2": {
           "sign": "Cancer",
-          "winner": "Venus"
+          "winner": "Moon"
         },
         "3": {
           "sign": "Leo",
@@ -874,19 +874,19 @@
     ],
     "houses": [
       {
-        "cusp_longitude": 67.9096,
+        "cusp_longitude": 85.1776,
         "house": 1,
         "sign": "Gemini",
         "sign_zh": "双子"
       },
       {
-        "cusp_longitude": 97.9096,
+        "cusp_longitude": 107.6794,
         "house": 2,
         "sign": "Cancer",
         "sign_zh": "巨蟹"
       },
       {
-        "cusp_longitude": 127.9096,
+        "cusp_longitude": 130.8006,
         "house": 3,
         "sign": "Leo",
         "sign_zh": "狮子"
@@ -898,31 +898,31 @@
         "sign_zh": "处女"
       },
       {
-        "cusp_longitude": 187.9096,
+        "cusp_longitude": 191.4107,
         "house": 5,
         "sign": "Libra",
         "sign_zh": "天秤"
       },
       {
-        "cusp_longitude": 217.9096,
+        "cusp_longitude": 229.4103,
         "house": 6,
         "sign": "Scorpio",
         "sign_zh": "天蝎"
       },
       {
-        "cusp_longitude": 247.9096,
+        "cusp_longitude": 265.1776,
         "house": 7,
         "sign": "Sagittarius",
         "sign_zh": "射手"
       },
       {
-        "cusp_longitude": 277.9096,
+        "cusp_longitude": 287.6794,
         "house": 8,
         "sign": "Capricorn",
         "sign_zh": "摩羯"
       },
       {
-        "cusp_longitude": 307.9096,
+        "cusp_longitude": 310.8006,
         "house": 9,
         "sign": "Aquarius",
         "sign_zh": "水瓶"
@@ -934,13 +934,13 @@
         "sign_zh": "双鱼"
       },
       {
-        "cusp_longitude": 7.9096,
+        "cusp_longitude": 11.4107,
         "house": 11,
         "sign": "Aries",
         "sign_zh": "白羊"
       },
       {
-        "cusp_longitude": 37.9096,
+        "cusp_longitude": 49.4103,
         "house": 12,
         "sign": "Taurus",
         "sign_zh": "金牛"
@@ -1079,7 +1079,7 @@
         "degree_in_sign": 9.563,
         "dignity": null,
         "element": "Earth",
-        "house": 8,
+        "house": 7,
         "id": "Uranus",
         "latitude": -0.2994,
         "longitude": 279.563,
@@ -1091,7 +1091,7 @@
         "degree_in_sign": 14.5445,
         "dignity": null,
         "element": "Earth",
-        "house": 8,
+        "house": 7,
         "id": "Neptune",
         "latitude": 0.8609,
         "longitude": 284.5445,
@@ -1103,7 +1103,7 @@
         "degree_in_sign": 17.2185,
         "dignity": null,
         "element": "Water",
-        "house": 6,
+        "house": 5,
         "id": "Pluto",
         "latitude": 15.9498,
         "longitude": 227.2185,
@@ -1137,9 +1137,9 @@
     "chart_type": "germany",
     "engine_backend": "swisseph_api",
     "engine_precision": "ephemeris_runtime_model",
-    "house_system": "equal_mc",
-    "house_system_code": 8,
-    "house_system_label_zh": "天顶为10宫中点等宫制",
+    "house_system": "placidus",
+    "house_system_code": 3,
+    "house_system_label_zh": "Placidus",
     "zodiac": "tropical",
     "zodiac_label_zh": "回归黄道",
     "zodiacal": 0
