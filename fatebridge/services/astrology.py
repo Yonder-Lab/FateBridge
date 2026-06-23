@@ -20,7 +20,7 @@ from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
-from fatebridge.utils.helpers import handle_calculation_error
+from fatebridge.utils.helpers import calculation_guard, handle_calculation_error
 
 SUPPORTED_CHART_VARIANTS = {
     "chart",
@@ -1041,6 +1041,7 @@ def _build_birth_info(payload: Dict[str, Any]) -> AstroBirthInfo:
     )
 
 
+@calculation_guard("核心星盘分析")
 def calculate_core_chart_analysis(
     *,
     birth_year: int,
@@ -1064,41 +1065,39 @@ def calculate_core_chart_analysis(
     Core charts prefer a local Swiss Ephemeris runtime when available and fall
     back to the bundled approximate orbital model when it is not.
     """
-    try:
-        if chart_variant not in SUPPORTED_CHART_VARIANTS:
-            raise ValueError(
-                f"不支持的 chart_variant: {chart_variant}。"
-                f"可选值：{', '.join(sorted(SUPPORTED_CHART_VARIANTS))}"
-            )
-
-        birth_info = _build_birth_info(
-            {
-                "birth_year": birth_year,
-                "birth_month": birth_month,
-                "birth_day": birth_day,
-                "birth_hour": birth_hour,
-                "birth_minute": birth_minute,
-                "birth_timezone": birth_timezone,
-                "birth_longitude": birth_longitude,
-                "birth_latitude": birth_latitude,
-                "name": name,
-                "birth_place": birth_place,
-                "use_true_solar_time": use_true_solar_time,
-            }
+    if chart_variant not in SUPPORTED_CHART_VARIANTS:
+        raise ValueError(
+            f"不支持的 chart_variant: {chart_variant}。"
+            f"可选值：{', '.join(sorted(SUPPORTED_CHART_VARIANTS))}"
         )
-        result = build_core_chart_payload(
-            birth_info,
-            chart_variant,
-            hsys=hsys,
-            zodiacal=zodiacal,
-        )
-        result.update(_augment_core_chart_reading(result, chart_variant))
-        result.update(_build_chart_snapshot(result, chart_variant))
-        return result
-    except Exception as exc:
-        return handle_calculation_error(exc, "核心星盘分析")
+
+    birth_info = _build_birth_info(
+        {
+            "birth_year": birth_year,
+            "birth_month": birth_month,
+            "birth_day": birth_day,
+            "birth_hour": birth_hour,
+            "birth_minute": birth_minute,
+            "birth_timezone": birth_timezone,
+            "birth_longitude": birth_longitude,
+            "birth_latitude": birth_latitude,
+            "name": name,
+            "birth_place": birth_place,
+            "use_true_solar_time": use_true_solar_time,
+        }
+    )
+    result = build_core_chart_payload(
+        birth_info,
+        chart_variant,
+        hsys=hsys,
+        zodiacal=zodiacal,
+    )
+    result.update(_augment_core_chart_reading(result, chart_variant))
+    result.update(_build_chart_snapshot(result, chart_variant))
+    return result
 
 
+@calculation_guard("量化盘分析")
 def calculate_germany_chart_analysis(
     *,
     birth_year: int,
@@ -1118,31 +1117,29 @@ def calculate_germany_chart_analysis(
     """
     Build the FateBridge midpoint/germany chart payload.
     """
-    try:
-        birth_info = _build_birth_info(
-            {
-                "birth_year": birth_year,
-                "birth_month": birth_month,
-                "birth_day": birth_day,
-                "birth_hour": birth_hour,
-                "birth_minute": birth_minute,
-                "birth_timezone": birth_timezone,
-                "birth_longitude": birth_longitude,
-                "birth_latitude": birth_latitude,
-                "name": name,
-                "birth_place": birth_place,
-                "use_true_solar_time": use_true_solar_time,
-            }
-        )
-        return build_midpoint_payload(
-            birth_info,
-            hsys=hsys,
-            zodiacal=zodiacal,
-        )
-    except Exception as exc:
-        return handle_calculation_error(exc, "量化盘分析")
+    birth_info = _build_birth_info(
+        {
+            "birth_year": birth_year,
+            "birth_month": birth_month,
+            "birth_day": birth_day,
+            "birth_hour": birth_hour,
+            "birth_minute": birth_minute,
+            "birth_timezone": birth_timezone,
+            "birth_longitude": birth_longitude,
+            "birth_latitude": birth_latitude,
+            "name": name,
+            "birth_place": birth_place,
+            "use_true_solar_time": use_true_solar_time,
+        }
+    )
+    return build_midpoint_payload(
+        birth_info,
+        hsys=hsys,
+        zodiacal=zodiacal,
+    )
 
 
+@calculation_guard("关系星盘分析")
 def calculate_relative_chart_analysis(
     *,
     inner_payload: Dict[str, Any],
@@ -1157,54 +1154,51 @@ def calculate_relative_chart_analysis(
     """
     Build synastry/composite payloads for two parties.
     """
-    try:
-        inner_birth = _build_birth_info(inner_payload)
-        outer_birth = _build_birth_info(outer_payload)
-        resolved_mode_source = relative_mode_source
-        if resolved_mode_source not in {
-            "default",
-            "relative_mode",
-            "relationship_mode",
-        }:
-            if relative_mode not in (None, ""):
-                resolved_mode_source = "relative_mode"
-            elif relationship_mode not in (None, ""):
-                resolved_mode_source = "relationship_mode"
-            else:
-                resolved_mode_source = "default"
-        resolved_mode = (
-            relative_mode if relative_mode not in (None, "") else relationship_mode
-        )
-        payload = build_relative_payload(
-            inner_birth=inner_birth,
-            outer_birth=outer_birth,
-            relative_mode=resolved_mode,
-            relative_mode_source=resolved_mode_source,
-            hsys=hsys,
-            zodiacal=zodiacal,
-            relationship_focus=relationship_focus,
-        )
-        if isinstance(payload, dict) and "error" not in payload:
-            # Allowlist the relationship-facing summary; the raw inner/outer/
-            # composite charts and the directional aspect/midpoint dumps stay in
-            # the structured payload only (they would flood the snapshot).
-            summary_view = {
-                key: payload[key]
-                for key in (
-                    "relationship_profile",
-                    "synastry_aspects",
-                    "compatibility",
-                    "summary",
-                )
-                if key in payload
-            }
-            snapshot_text = render_structured_snapshot_text(
-                summary_view, title="关系星盘分析"
+    inner_birth = _build_birth_info(inner_payload)
+    outer_birth = _build_birth_info(outer_payload)
+    resolved_mode_source = relative_mode_source
+    if resolved_mode_source not in {
+        "default",
+        "relative_mode",
+        "relationship_mode",
+    }:
+        if relative_mode not in (None, ""):
+            resolved_mode_source = "relative_mode"
+        elif relationship_mode not in (None, ""):
+            resolved_mode_source = "relationship_mode"
+        else:
+            resolved_mode_source = "default"
+    resolved_mode = (
+        relative_mode if relative_mode not in (None, "") else relationship_mode
+    )
+    payload = build_relative_payload(
+        inner_birth=inner_birth,
+        outer_birth=outer_birth,
+        relative_mode=resolved_mode,
+        relative_mode_source=resolved_mode_source,
+        hsys=hsys,
+        zodiacal=zodiacal,
+        relationship_focus=relationship_focus,
+    )
+    if isinstance(payload, dict) and "error" not in payload:
+        # Allowlist the relationship-facing summary; the raw inner/outer/
+        # composite charts and the directional aspect/midpoint dumps stay in
+        # the structured payload only (they would flood the snapshot).
+        summary_view = {
+            key: payload[key]
+            for key in (
+                "relationship_profile",
+                "synastry_aspects",
+                "compatibility",
+                "summary",
             )
-            payload["snapshot_text"] = snapshot_text
-            payload["snapshot_export"] = parse_export_content(
-                technique="relative", content=snapshot_text
-            )
-        return payload
-    except Exception as exc:
-        return handle_calculation_error(exc, "关系星盘分析")
+            if key in payload
+        }
+        snapshot_text = render_structured_snapshot_text(
+            summary_view, title="关系星盘分析"
+        )
+        payload["snapshot_text"] = snapshot_text
+        payload["snapshot_export"] = parse_export_content(
+            technique="relative", content=snapshot_text
+        )
+    return payload

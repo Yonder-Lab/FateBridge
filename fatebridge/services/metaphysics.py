@@ -38,6 +38,7 @@ from fatebridge.utils.helpers import (
     SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
     PersonInfo,
     calculate_solar_time_adjustment,
+    calculation_guard,
     create_pillar_dict,
     format_birth_datetime_display,
     handle_calculation_error,
@@ -660,48 +661,47 @@ def _build_ziwei_rules_snapshot_text(payload: Dict[str, Any]) -> str:
     return _render_snapshot_text(sections)
 
 
+@calculation_guard("紫微斗数命盘")
 def calculate_ziwei_birth(
     person: PersonInfo,
     *,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        seed = _build_person_seed(person)
-        ziwei_birth = build_ziwei_chart(seed, person.gender or "未知")
-        ziwei_birth["engine"] = "fatebridge-offline"
-        snapshot_text = _build_ziwei_snapshot_text(seed=seed, ziwei_birth=ziwei_birth)
-        snapshot_export = _build_snapshot_export(
-            technique="ziwei",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "紫微斗数命盘",
-            "person_info": {
-                "name": person.name or "未提供",
-                "birth_datetime": format_birth_datetime_display(
-                    seed.input_datetime, include_minutes=True
-                ),
-                "normalized_birth_datetime": format_birth_datetime_display(
-                    seed.corrected_datetime, include_minutes=True
-                ),
-                "gender": person.gender or "未知",
-                "birth_place": person.birth_place or "未提供",
-                "birth_timezone": seed.timezone,
-                "birth_longitude": seed.longitude,
-                "time_algorithm": "真太阳时" if seed.applied_true_solar else "直接时间",
-            },
-            "analysis_context": _analysis_context_payload(seed),
-            "four_pillars": create_pillar_dict(seed.pillars),
-            "calendar_context": seed.calendar_context,
-            "ziwei_birth": ziwei_birth,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "紫微斗数命盘")
+    seed = _build_person_seed(person)
+    ziwei_birth = build_ziwei_chart(seed, person.gender or "未知")
+    ziwei_birth["engine"] = "fatebridge-offline"
+    snapshot_text = _build_ziwei_snapshot_text(seed=seed, ziwei_birth=ziwei_birth)
+    snapshot_export = _build_snapshot_export(
+        technique="ziwei",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "紫微斗数命盘",
+        "person_info": {
+            "name": person.name or "未提供",
+            "birth_datetime": format_birth_datetime_display(
+                seed.input_datetime, include_minutes=True
+            ),
+            "normalized_birth_datetime": format_birth_datetime_display(
+                seed.corrected_datetime, include_minutes=True
+            ),
+            "gender": person.gender or "未知",
+            "birth_place": person.birth_place or "未提供",
+            "birth_timezone": seed.timezone,
+            "birth_longitude": seed.longitude,
+            "time_algorithm": "真太阳时" if seed.applied_true_solar else "直接时间",
+        },
+        "analysis_context": _analysis_context_payload(seed),
+        "four_pillars": create_pillar_dict(seed.pillars),
+        "calendar_context": seed.calendar_context,
+        "ziwei_birth": ziwei_birth,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
+@calculation_guard("紫微斗数运限")
 def calculate_ziwei_horoscope(
     person: PersonInfo,
     *,
@@ -711,84 +711,80 @@ def calculate_ziwei_horoscope(
     target_hour: int,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        seed = _build_person_seed(person)
-        chart = build_ziwei_chart(seed, person.gender or "未知")
-        target_seed = _build_analysis_seed(
-            analysis_year=target_year,
-            analysis_month=target_month,
-            analysis_day=target_day,
-            analysis_hour=target_hour,
-        )
-        horoscope = build_ziwei_horoscope(
-            chart=chart,
-            gender=person.gender or "未知",
-            natal_year_branch=seed.pillars["year"][1],
-            target_pillars=target_seed.pillars,
-            birth_year=person.birth_year,
-            target_year=target_year,
-        )
-        # engine 已由 build_ziwei_horoscope 标记，无需在此重复盖章
-        # （与 calculate_ziwei_birth 不同：build_ziwei_chart 不自带 engine）。
-        snapshot_text = _build_ziwei_horoscope_snapshot_text(
-            seed=seed, target_seed=target_seed, horoscope=horoscope
-        )
-        snapshot_export = _build_snapshot_export(
-            technique="ziwei_horoscope",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "紫微斗数运限",
-            "person_info": {
-                "name": person.name or "未提供",
-                "birth_datetime": format_birth_datetime_display(
-                    seed.input_datetime, include_minutes=True
-                ),
-                "normalized_birth_datetime": format_birth_datetime_display(
-                    seed.corrected_datetime, include_minutes=True
-                ),
-                "gender": person.gender or "未知",
-                "birth_place": person.birth_place or "未提供",
-                "birth_timezone": seed.timezone,
-                "birth_longitude": seed.longitude,
-                "time_algorithm": "真太阳时" if seed.applied_true_solar else "直接时间",
-            },
-            "analysis_context": _analysis_context_payload(seed),
-            "ziwei_horoscope": horoscope,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:  # noqa: BLE001
-        return handle_calculation_error(exc, "紫微斗数运限")
+    seed = _build_person_seed(person)
+    chart = build_ziwei_chart(seed, person.gender or "未知")
+    target_seed = _build_analysis_seed(
+        analysis_year=target_year,
+        analysis_month=target_month,
+        analysis_day=target_day,
+        analysis_hour=target_hour,
+    )
+    horoscope = build_ziwei_horoscope(
+        chart=chart,
+        gender=person.gender or "未知",
+        natal_year_branch=seed.pillars["year"][1],
+        target_pillars=target_seed.pillars,
+        birth_year=person.birth_year,
+        target_year=target_year,
+    )
+    # engine 已由 build_ziwei_horoscope 标记，无需在此重复盖章
+    # （与 calculate_ziwei_birth 不同：build_ziwei_chart 不自带 engine）。
+    snapshot_text = _build_ziwei_horoscope_snapshot_text(
+        seed=seed, target_seed=target_seed, horoscope=horoscope
+    )
+    snapshot_export = _build_snapshot_export(
+        technique="ziwei_horoscope",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "紫微斗数运限",
+        "person_info": {
+            "name": person.name or "未提供",
+            "birth_datetime": format_birth_datetime_display(
+                seed.input_datetime, include_minutes=True
+            ),
+            "normalized_birth_datetime": format_birth_datetime_display(
+                seed.corrected_datetime, include_minutes=True
+            ),
+            "gender": person.gender or "未知",
+            "birth_place": person.birth_place or "未提供",
+            "birth_timezone": seed.timezone,
+            "birth_longitude": seed.longitude,
+            "time_algorithm": "真太阳时" if seed.applied_true_solar else "直接时间",
+        },
+        "analysis_context": _analysis_context_payload(seed),
+        "ziwei_horoscope": horoscope,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
+@calculation_guard("紫微规则库")
 def calculate_ziwei_rules(
     year_stem: Optional[str] = None,
     *,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        if year_stem is not None and year_stem not in "甲乙丙丁戊己庚辛壬癸":
-            raise ValueError("year_stem 必须是单个天干")
-        payload = build_ziwei_rules(year_stem)
-        payload["engine"] = "fatebridge-offline"
-        snapshot_text = _build_ziwei_rules_snapshot_text(payload)
-        snapshot_export = _build_snapshot_export(
-            technique="ziwei_rules",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "紫微规则库",
-            **payload,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "紫微规则库")
+    if year_stem is not None and year_stem not in "甲乙丙丁戊己庚辛壬癸":
+        raise ValueError("year_stem 必须是单个天干")
+    payload = build_ziwei_rules(year_stem)
+    payload["engine"] = "fatebridge-offline"
+    snapshot_text = _build_ziwei_rules_snapshot_text(payload)
+    snapshot_export = _build_snapshot_export(
+        technique="ziwei_rules",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "紫微规则库",
+        **payload,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
+@calculation_guard("大六壬起课")
 def calculate_liureng_gods(
     *,
     analysis_year: int,
@@ -802,38 +798,36 @@ def calculate_liureng_gods(
     use_true_solar_time: bool = False,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        seed = _build_analysis_seed(
-            analysis_year=analysis_year,
-            analysis_month=analysis_month,
-            analysis_day=analysis_day,
-            analysis_hour=analysis_hour,
-            analysis_minute=analysis_minute,
-            analysis_timezone=analysis_timezone,
-            analysis_longitude=analysis_longitude,
-            use_true_solar_time=use_true_solar_time,
-        )
-        liureng = build_liureng_board(seed, gender=gender)
-        liureng["engine"] = "fatebridge-offline"
-        snapshot_text = _build_liureng_snapshot_text(seed=seed, liureng=liureng)
-        snapshot_export = _build_snapshot_export(
-            technique="liureng",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "大六壬起课",
-            "analysis_context": _analysis_context_payload(seed),
-            "four_pillars": create_pillar_dict(seed.pillars),
-            "calendar_context": seed.calendar_context,
-            "liureng": liureng,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "大六壬起课")
+    seed = _build_analysis_seed(
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
+        analysis_timezone=analysis_timezone,
+        analysis_longitude=analysis_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+    liureng = build_liureng_board(seed, gender=gender)
+    liureng["engine"] = "fatebridge-offline"
+    snapshot_text = _build_liureng_snapshot_text(seed=seed, liureng=liureng)
+    snapshot_export = _build_snapshot_export(
+        technique="liureng",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "大六壬起课",
+        "analysis_context": _analysis_context_payload(seed),
+        "four_pillars": create_pillar_dict(seed.pillars),
+        "calendar_context": seed.calendar_context,
+        "liureng": liureng,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
+@calculation_guard("大六壬行年")
 def calculate_liureng_runyear(
     person: PersonInfo,
     *,
@@ -847,51 +841,49 @@ def calculate_liureng_runyear(
     use_true_solar_time: bool = False,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        # 大六壬行年以「分析时刻」起课，不依赖出生四柱；
-        # 仅 person.gender / person.birth_year 在下方直接使用。
-        seed = _build_analysis_seed(
-            analysis_year=analysis_year,
-            analysis_month=analysis_month,
-            analysis_day=analysis_day,
-            analysis_hour=analysis_hour,
-            analysis_minute=analysis_minute,
-            analysis_timezone=analysis_timezone,
-            analysis_longitude=analysis_longitude,
-            use_true_solar_time=use_true_solar_time,
-        )
-        liureng = build_liureng_board(seed, gender=person.gender or "未知")
-        liureng["engine"] = "fatebridge-offline"
-        runyear = build_liureng_runyear(
-            seed,
-            gender=person.gender or "未知",
-            birth_year=person.birth_year,
-        )
-        runyear["engine"] = "fatebridge-offline"
-        snapshot_text = _build_liureng_snapshot_text(
-            seed=seed,
-            liureng=liureng,
-            runyear=runyear,
-        )
-        snapshot_export = _build_snapshot_export(
-            technique="liureng",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "大六壬行年",
-            "analysis_context": _analysis_context_payload(seed),
-            "four_pillars": create_pillar_dict(seed.pillars),
-            "calendar_context": seed.calendar_context,
-            "runyear": runyear,
-            "liureng": liureng,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "大六壬行年")
+    # 大六壬行年以「分析时刻」起课，不依赖出生四柱；
+    # 仅 person.gender / person.birth_year 在下方直接使用。
+    seed = _build_analysis_seed(
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
+        analysis_timezone=analysis_timezone,
+        analysis_longitude=analysis_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+    liureng = build_liureng_board(seed, gender=person.gender or "未知")
+    liureng["engine"] = "fatebridge-offline"
+    runyear = build_liureng_runyear(
+        seed,
+        gender=person.gender or "未知",
+        birth_year=person.birth_year,
+    )
+    runyear["engine"] = "fatebridge-offline"
+    snapshot_text = _build_liureng_snapshot_text(
+        seed=seed,
+        liureng=liureng,
+        runyear=runyear,
+    )
+    snapshot_export = _build_snapshot_export(
+        technique="liureng",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "大六壬行年",
+        "analysis_context": _analysis_context_payload(seed),
+        "four_pillars": create_pillar_dict(seed.pillars),
+        "calendar_context": seed.calendar_context,
+        "runyear": runyear,
+        "liureng": liureng,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
+@calculation_guard("奇门遁甲")
 def calculate_qimen_analysis(
     *,
     analysis_year: int,
@@ -905,39 +897,37 @@ def calculate_qimen_analysis(
     qimen_options: Optional[Dict[str, Any]] = None,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        seed = _build_analysis_seed(
-            analysis_year=analysis_year,
-            analysis_month=analysis_month,
-            analysis_day=analysis_day,
-            analysis_hour=analysis_hour,
-            analysis_minute=analysis_minute,
-            analysis_timezone=analysis_timezone,
-            analysis_longitude=analysis_longitude,
-            use_true_solar_time=use_true_solar_time,
-            day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
-        )
-        qimen = build_qimen_with_options(seed, qimen_options)
-        qimen["engine"] = "fatebridge-offline"
-        snapshot_text = build_qimen_snapshot_text(seed=seed, qimen=qimen)
-        snapshot_export = _build_snapshot_export(
-            technique="qimen",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "奇门遁甲",
-            "analysis_context": _analysis_context_payload(seed),
-            "four_pillars": create_pillar_dict(seed.pillars),
-            "calendar_context": seed.calendar_context,
-            "qimen": qimen,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "奇门遁甲")
+    seed = _build_analysis_seed(
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
+        analysis_timezone=analysis_timezone,
+        analysis_longitude=analysis_longitude,
+        use_true_solar_time=use_true_solar_time,
+        day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
+    )
+    qimen = build_qimen_with_options(seed, qimen_options)
+    qimen["engine"] = "fatebridge-offline"
+    snapshot_text = build_qimen_snapshot_text(seed=seed, qimen=qimen)
+    snapshot_export = _build_snapshot_export(
+        technique="qimen",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "奇门遁甲",
+        "analysis_context": _analysis_context_payload(seed),
+        "four_pillars": create_pillar_dict(seed.pillars),
+        "calendar_context": seed.calendar_context,
+        "qimen": qimen,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
+@calculation_guard("太乙神数")
 def calculate_taiyi_analysis(
     *,
     analysis_year: int,
@@ -951,38 +941,36 @@ def calculate_taiyi_analysis(
     use_true_solar_time: bool = False,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        seed = _build_analysis_seed(
-            analysis_year=analysis_year,
-            analysis_month=analysis_month,
-            analysis_day=analysis_day,
-            analysis_hour=analysis_hour,
-            analysis_minute=analysis_minute,
-            analysis_timezone=analysis_timezone,
-            analysis_longitude=analysis_longitude,
-            use_true_solar_time=use_true_solar_time,
-        )
-        taiyi = build_taiyi_board(seed, gender=gender)
-        taiyi["engine"] = "fatebridge-offline"
-        snapshot_text = _build_taiyi_snapshot_text(seed=seed, taiyi=taiyi)
-        snapshot_export = _build_snapshot_export(
-            technique="taiyi",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "太乙神数",
-            "analysis_context": _analysis_context_payload(seed),
-            "four_pillars": create_pillar_dict(seed.pillars),
-            "calendar_context": seed.calendar_context,
-            "taiyi": taiyi,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "太乙神数")
+    seed = _build_analysis_seed(
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
+        analysis_timezone=analysis_timezone,
+        analysis_longitude=analysis_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+    taiyi = build_taiyi_board(seed, gender=gender)
+    taiyi["engine"] = "fatebridge-offline"
+    snapshot_text = _build_taiyi_snapshot_text(seed=seed, taiyi=taiyi)
+    snapshot_export = _build_snapshot_export(
+        technique="taiyi",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "太乙神数",
+        "analysis_context": _analysis_context_payload(seed),
+        "four_pillars": create_pillar_dict(seed.pillars),
+        "calendar_context": seed.calendar_context,
+        "taiyi": taiyi,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
+@calculation_guard("金口诀")
 def calculate_jinkou_analysis(
     *,
     analysis_year: int,
@@ -997,42 +985,39 @@ def calculate_jinkou_analysis(
     use_true_solar_time: bool = False,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        seed = _build_analysis_seed(
-            analysis_year=analysis_year,
-            analysis_month=analysis_month,
-            analysis_day=analysis_day,
-            analysis_hour=analysis_hour,
-            analysis_minute=analysis_minute,
-            analysis_timezone=analysis_timezone,
-            analysis_longitude=analysis_longitude,
-            use_true_solar_time=use_true_solar_time,
-        )
-        local_liureng = build_liureng_board(seed, gender=gender)
-        local_liureng["engine"] = "fatebridge-offline"
-        liureng = local_liureng
-        jinkou = build_jinkou_board(
-            seed,
-            local_liureng,
-            gender=gender,
-            di_fen=di_fen,
-        )
-        jinkou["engine"] = "fatebridge-offline"
-        snapshot_text = _build_jinkou_snapshot_text(seed=seed, jinkou=jinkou)
-        snapshot_export = _build_snapshot_export(
-            technique="jinkou",
-            snapshot_text=snapshot_text,
-            selected_sections=selected_sections,
-        )
-        return {
-            "analysis_type": "金口诀",
-            "analysis_context": _analysis_context_payload(seed),
-            "four_pillars": create_pillar_dict(seed.pillars),
-            "calendar_context": seed.calendar_context,
-            "liureng": liureng,
-            "jinkou": jinkou,
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "金口诀")
+    seed = _build_analysis_seed(
+        analysis_year=analysis_year,
+        analysis_month=analysis_month,
+        analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
+        analysis_timezone=analysis_timezone,
+        analysis_longitude=analysis_longitude,
+        use_true_solar_time=use_true_solar_time,
+    )
+    local_liureng = build_liureng_board(seed, gender=gender)
+    local_liureng["engine"] = "fatebridge-offline"
+    liureng = local_liureng
+    jinkou = build_jinkou_board(
+        seed,
+        local_liureng,
+        gender=gender,
+        di_fen=di_fen,
+    )
+    jinkou["engine"] = "fatebridge-offline"
+    snapshot_text = _build_jinkou_snapshot_text(seed=seed, jinkou=jinkou)
+    snapshot_export = _build_snapshot_export(
+        technique="jinkou",
+        snapshot_text=snapshot_text,
+        selected_sections=selected_sections,
+    )
+    return {
+        "analysis_type": "金口诀",
+        "analysis_context": _analysis_context_payload(seed),
+        "four_pillars": create_pillar_dict(seed.pillars),
+        "calendar_context": seed.calendar_context,
+        "liureng": liureng,
+        "jinkou": jinkou,
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
