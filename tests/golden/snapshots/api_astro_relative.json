@@ -3514,7 +3514,6 @@
   },
   "snapshot_export": {
     "export_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
-    "filtered_text": "",
     "missing_selected_sections": [
       "关系起盘信息",
       "A对B相位",
@@ -3529,7 +3528,6 @@
       "影响图盘-星盘A",
       "影响图盘-星盘B"
     ],
-    "raw_text": "[概要]\n类型：关系星盘分析\n\n[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0\n\n[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703\n\n[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71\n\n[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
     "section_titles_detected": [
       "概要",
       "关系画像",
@@ -3539,7 +3537,6 @@
     ],
     "sections": [
       {
-        "body": "类型：关系星盘分析",
         "content": "[概要]\n类型：关系星盘分析",
         "included": false,
         "index": 1,
@@ -3547,7 +3544,6 @@
         "title": "概要"
       },
       {
-        "body": "chart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0",
         "content": "[关系画像]\nchart_type：relative\nrelationship_mode：Composite\nrelative_mode_input：Composite\nrelative_mode_source：relative_mode\nrelative_mode_resolution：exact_alias\nrelative_mode_normalized：composite\nrelative_mode_label_zh：组合盘\nhsys：0\nhouse_system：whole_sign\nhouse_system_label_zh：整宫制\nzodiacal：0\nzodiac_mode：tropical\nzodiac_label_zh：回归黄道\nengine_precision：ephemeris_runtime_model\nengine_backend：swisseph_api\nprimary_layer：composite_chart\nmode_status：implemented\nfocus：\n  focus：general\n  focus_label_zh：泛\n  说明：未指定关系取向，未对 synastry 相位做意图过滤。\n  focused_aspect_count：0",
         "included": false,
         "index": 2,
@@ -3555,7 +3551,6 @@
         "title": "关系画像"
       },
       {
-        "body": "- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703",
         "content": "[互动相位]\n- inner=Sun，outer=Venus，aspect=sextile，orb=0.8232\n- inner=Saturn，outer=Mercury，aspect=sextile，orb=2.2372\n- inner=Sun，outer=Moon，aspect=sextile，orb=2.5741\n- inner=Sun，outer=Saturn，aspect=sextile，orb=3.027\n- inner=Mars，outer=Venus，aspect=conjunction，orb=3.7177\n- inner=Mars，outer=Moon，aspect=conjunction，orb=5.4686\n- inner=Mars，outer=Saturn，aspect=conjunction，orb=5.9215\n- inner=Jupiter，outer=Jupiter，aspect=sextile，orb=6.0947\n- inner=Sun，outer=Mars，aspect=sextile，orb=6.1738\n- inner=Mercury，outer=Jupiter，aspect=trine，orb=6.4839\n- inner=Jupiter，outer=Sun，aspect=trine，orb=8.3292\n- inner=Moon，outer=Jupiter，aspect=conjunction，orb=9.4703",
         "included": false,
         "index": 3,
@@ -3563,7 +3558,6 @@
         "title": "互动相位"
       },
       {
-        "body": "element_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71",
         "content": "[配合度]\nelement_harmony_score：57\nmodality_balance_score：57\nsynastry_aspect_score：98\n综合分：71",
         "included": false,
         "index": 4,
@@ -3571,7 +3565,6 @@
         "title": "配合度"
       },
       {
-        "body": "- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
         "content": "[小结]\n- 已生成 FateBridge 组合盘分析。\n- 合成盘行星数量：11。\n- A对B相位主体数：6。\n- A对B中点相位命中：24。\n- A对B映点命中：0。\n- 综合分：71。\n- 影响图盘、中点相位与映点/反映点均已提供离线高精度结果。",
         "included": false,
         "index": 5,

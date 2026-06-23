@@ -36,14 +36,10 @@ def split_content_sections(content: str, technique: str) -> list[dict[str, Any]]
         if not current_title and not "".join(current_lines).strip():
             current_lines = []
             return
-        body_lines = (
-            current_lines[1:] if current_title and current_lines else current_lines
-        )
         sections.append(
             {
                 "raw_title": current_raw_title,
                 "title": current_title,
-                "body": "\n".join(body_lines).strip(),
                 "content": "\n".join(current_lines).strip(),
             }
         )
@@ -128,7 +124,9 @@ def parse_export_content(
                 "raw_title": section["raw_title"],
                 "title": section["title"],
                 "included": include_section,
-                "body": section["body"],
+                # 仅保留 ``content``（含 ``[标题]`` 头）：它是 render_sections_to_text
+                # 的唯一数据源，也承载 ``export_text`` 所需的小节标题。``body`` 曾在此
+                # 双存（== content 去掉首行标题），可派生且无消费者，移除以省 token。
                 "content": section["content"],
             }
         )
@@ -184,7 +182,10 @@ def parse_export_content(
         "unknown_detected_sections": unknown_detected,
         "missing_selected_sections": missing_selected,
         "sections": filtered_sections,
-        "raw_text": raw_text,
-        "filtered_text": strict_filtered,
+        # ``raw_text`` (恒等于顶层 ``snapshot_text``) 与 ``filtered_text``
+        # (== ``strict_filtered``) 曾在此回携，但二者皆为纯重复：前者与顶层文本逐字
+        # 相同，后者的语义已由 ``export_text`` (含安全回退) 与各 section 的
+        # ``included`` 标记完整覆盖。移除以削减每次响应 token，``strict_filtered``
+        # 仍在内部参与 ``safe_export_text`` 的计算，行为不变。
         "export_text": safe_export_text,
     }

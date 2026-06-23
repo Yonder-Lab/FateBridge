@@ -7,11 +7,9 @@
   },
   "snapshot_export": {
     "export_text": "[概要]\n类型：八字财运分析\nwealth_element：木\n\n[wealth_stars]\n落点：\n  - pillar=day，location=地支藏干，char=乙，ten_god=正财\nzheng_wealth_weight：0.5\npian_wealth_weight：0.0\ntotal_weight：0.5\n显隐：以正财为主，财源稳定正当\n\n[wealth_structure]\nday_master_strength：中和\nwealth_strength：0.3\n格局：财星平常\n评分：60\n层级：财运平稳\n说明：\n  - 财星力量一般，财运平稳，宜稳健积累\n\n[wealth_storage]\nhas_storage：否\n小结：命无财库，财以流通见用，不主大额积聚\n\n[wealth_style]\nprimary_style：正财为主，适合稳定职业、固定收入与稳健理财\n建议：\n  - 正财：正业、固定收入、薪资、稳健经营（踏实积累、量入为出、财来有道）\n\n[wealth_direction]\nwealth_element：木\n方位：东方\n说明：财星五行为木，求财、置业可参考东方\n\n[wealth_risk]\nbijie_weight：4.0\n风险：\n  - 比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保\n\n[wealth_timing]\ntiming_signals：\n  - 大运壬戌见食伤，食伤生财，利于以才华、项目、副业生财\n\n[建议]\n- 财富格局：财星平常（财运平稳）\n- 正财为主，适合稳定职业、固定收入与稳健理财\n- 防破财：比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保",
-    "filtered_text": "",
     "missing_selected_sections": [
       "起盘信息"
     ],
-    "raw_text": "[概要]\n类型：八字财运分析\nwealth_element：木\n\n[wealth_stars]\n落点：\n  - pillar=day，location=地支藏干，char=乙，ten_god=正财\nzheng_wealth_weight：0.5\npian_wealth_weight：0.0\ntotal_weight：0.5\n显隐：以正财为主，财源稳定正当\n\n[wealth_structure]\nday_master_strength：中和\nwealth_strength：0.3\n格局：财星平常\n评分：60\n层级：财运平稳\n说明：\n  - 财星力量一般，财运平稳，宜稳健积累\n\n[wealth_storage]\nhas_storage：否\n小结：命无财库，财以流通见用，不主大额积聚\n\n[wealth_style]\nprimary_style：正财为主，适合稳定职业、固定收入与稳健理财\n建议：\n  - 正财：正业、固定收入、薪资、稳健经营（踏实积累、量入为出、财来有道）\n\n[wealth_direction]\nwealth_element：木\n方位：东方\n说明：财星五行为木，求财、置业可参考东方\n\n[wealth_risk]\nbijie_weight：4.0\n风险：\n  - 比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保\n\n[wealth_timing]\ntiming_signals：\n  - 大运壬戌见食伤，食伤生财，利于以才华、项目、副业生财\n\n[建议]\n- 财富格局：财星平常（财运平稳）\n- 正财为主，适合稳定职业、固定收入与稳健理财\n- 防破财：比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保",
     "section_titles_detected": [
       "概要",
       "wealth_stars",
@@ -25,7 +23,6 @@
     ],
     "sections": [
       {
-        "body": "类型：八字财运分析\nwealth_element：木",
         "content": "[概要]\n类型：八字财运分析\nwealth_element：木",
         "included": false,
         "index": 1,
@@ -33,7 +30,6 @@
         "title": "概要"
       },
       {
-        "body": "落点：\n  - pillar=day，location=地支藏干，char=乙，ten_god=正财\nzheng_wealth_weight：0.5\npian_wealth_weight：0.0\ntotal_weight：0.5\n显隐：以正财为主，财源稳定正当",
         "content": "[wealth_stars]\n落点：\n  - pillar=day，location=地支藏干，char=乙，ten_god=正财\nzheng_wealth_weight：0.5\npian_wealth_weight：0.0\ntotal_weight：0.5\n显隐：以正财为主，财源稳定正当",
         "included": false,
         "index": 2,
@@ -41,7 +37,6 @@
         "title": "wealth_stars"
       },
       {
-        "body": "day_master_strength：中和\nwealth_strength：0.3\n格局：财星平常\n评分：60\n层级：财运平稳\n说明：\n  - 财星力量一般，财运平稳，宜稳健积累",
         "content": "[wealth_structure]\nday_master_strength：中和\nwealth_strength：0.3\n格局：财星平常\n评分：60\n层级：财运平稳\n说明：\n  - 财星力量一般，财运平稳，宜稳健积累",
         "included": false,
         "index": 3,
@@ -49,7 +44,6 @@
         "title": "wealth_structure"
       },
       {
-        "body": "has_storage：否\n小结：命无财库，财以流通见用，不主大额积聚",
         "content": "[wealth_storage]\nhas_storage：否\n小结：命无财库，财以流通见用，不主大额积聚",
         "included": false,
         "index": 4,
@@ -57,7 +51,6 @@
         "title": "wealth_storage"
       },
       {
-        "body": "primary_style：正财为主，适合稳定职业、固定收入与稳健理财\n建议：\n  - 正财：正业、固定收入、薪资、稳健经营（踏实积累、量入为出、财来有道）",
         "content": "[wealth_style]\nprimary_style：正财为主，适合稳定职业、固定收入与稳健理财\n建议：\n  - 正财：正业、固定收入、薪资、稳健经营（踏实积累、量入为出、财来有道）",
         "included": false,
         "index": 5,
@@ -65,7 +58,6 @@
         "title": "wealth_style"
       },
       {
-        "body": "wealth_element：木\n方位：东方\n说明：财星五行为木，求财、置业可参考东方",
         "content": "[wealth_direction]\nwealth_element：木\n方位：东方\n说明：财星五行为木，求财、置业可参考东方",
         "included": false,
         "index": 6,
@@ -73,7 +65,6 @@
         "title": "wealth_direction"
       },
       {
-        "body": "bijie_weight：4.0\n风险：\n  - 比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保",
         "content": "[wealth_risk]\nbijie_weight：4.0\n风险：\n  - 比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保",
         "included": false,
         "index": 7,
@@ -81,7 +72,6 @@
         "title": "wealth_risk"
       },
       {
-        "body": "timing_signals：\n  - 大运壬戌见食伤，食伤生财，利于以才华、项目、副业生财",
         "content": "[wealth_timing]\ntiming_signals：\n  - 大运壬戌见食伤，食伤生财，利于以才华、项目、副业生财",
         "included": false,
         "index": 8,
@@ -89,7 +79,6 @@
         "title": "wealth_timing"
       },
       {
-        "body": "- 财富格局：财星平常（财运平稳）\n- 正财为主，适合稳定职业、固定收入与稳健理财\n- 防破财：比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保",
         "content": "[建议]\n- 财富格局：财星平常（财运平稳）\n- 正财为主，适合稳定职业、固定收入与稳健理财\n- 防破财：比劫旺而夺财，易因合伙、借贷、兄弟朋友耗财，忌合伙与担保",
         "included": false,
         "index": 9,

@@ -38,11 +38,9 @@
   },
   "snapshot_export": {
     "export_text": "[概要]\n类型：八字六亲分析\n\n[parents]\nfather_star_weight：0\nmother_star_weight：0.5\n说明：\n  - 父星（偏财）不显，与父缘较淡或聚少离多\n  - 母星（正印）不显，与母缘较淡或母操劳\n\n[siblings]\nsibling_star_weight：4.0\n说明：\n  - 比劫旺而日主强，兄弟朋友多但易竞争夺财，宜防合伙纠纷\n\n[palaces]\nyear_pillar：庚午\nmonth_pillar：辛巳\nrelations：\n  - 年/月柱六亲宫无明显冲合，六亲关系平稳\n\n[support]\nseal_weight：2.0\npeer_weight：4.0\n说明：\n  - 印星为助，长辈/贵人/师长助力明显\n  - 比劫为助，平辈/朋友/合作伙伴可借力",
-    "filtered_text": "",
     "missing_selected_sections": [
       "起盘信息"
     ],
-    "raw_text": "[概要]\n类型：八字六亲分析\n\n[parents]\nfather_star_weight：0\nmother_star_weight：0.5\n说明：\n  - 父星（偏财）不显，与父缘较淡或聚少离多\n  - 母星（正印）不显，与母缘较淡或母操劳\n\n[siblings]\nsibling_star_weight：4.0\n说明：\n  - 比劫旺而日主强，兄弟朋友多但易竞争夺财，宜防合伙纠纷\n\n[palaces]\nyear_pillar：庚午\nmonth_pillar：辛巳\nrelations：\n  - 年/月柱六亲宫无明显冲合，六亲关系平稳\n\n[support]\nseal_weight：2.0\npeer_weight：4.0\n说明：\n  - 印星为助，长辈/贵人/师长助力明显\n  - 比劫为助，平辈/朋友/合作伙伴可借力",
     "section_titles_detected": [
       "概要",
       "parents",
@@ -52,7 +50,6 @@
     ],
     "sections": [
       {
-        "body": "类型：八字六亲分析",
         "content": "[概要]\n类型：八字六亲分析",
         "included": false,
         "index": 1,
@@ -60,7 +57,6 @@
         "title": "概要"
       },
       {
-        "body": "father_star_weight：0\nmother_star_weight：0.5\n说明：\n  - 父星（偏财）不显，与父缘较淡或聚少离多\n  - 母星（正印）不显，与母缘较淡或母操劳",
         "content": "[parents]\nfather_star_weight：0\nmother_star_weight：0.5\n说明：\n  - 父星（偏财）不显，与父缘较淡或聚少离多\n  - 母星（正印）不显，与母缘较淡或母操劳",
         "included": false,
         "index": 2,
@@ -68,7 +64,6 @@
         "title": "parents"
       },
       {
-        "body": "sibling_star_weight：4.0\n说明：\n  - 比劫旺而日主强，兄弟朋友多但易竞争夺财，宜防合伙纠纷",
         "content": "[siblings]\nsibling_star_weight：4.0\n说明：\n  - 比劫旺而日主强，兄弟朋友多但易竞争夺财，宜防合伙纠纷",
         "included": false,
         "index": 3,
@@ -76,7 +71,6 @@
         "title": "siblings"
       },
       {
-        "body": "year_pillar：庚午\nmonth_pillar：辛巳\nrelations：\n  - 年/月柱六亲宫无明显冲合，六亲关系平稳",
         "content": "[palaces]\nyear_pillar：庚午\nmonth_pillar：辛巳\nrelations：\n  - 年/月柱六亲宫无明显冲合，六亲关系平稳",
         "included": false,
         "index": 4,
@@ -84,7 +78,6 @@
         "title": "palaces"
       },
       {
-        "body": "seal_weight：2.0\npeer_weight：4.0\n说明：\n  - 印星为助，长辈/贵人/师长助力明显\n  - 比劫为助，平辈/朋友/合作伙伴可借力",
         "content": "[support]\nseal_weight：2.0\npeer_weight：4.0\n说明：\n  - 印星为助，长辈/贵人/师长助力明显\n  - 比劫为助，平辈/朋友/合作伙伴可借力",
         "included": false,
         "index": 5,

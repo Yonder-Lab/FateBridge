@@ -235,9 +235,7 @@
   },
   "snapshot_export": {
     "export_text": "[目录概览]\n领域过滤：astro\n域数量：1\n来源：xingque_hover_docs\nBundle 版本：1\n\n[astro]\n域：astro\n分类数：5\nplanet：12 条；支持=read；样例=Jupiter、Mars、Mercury、Moon、Neptune、North Node、Pluto、Saturn、South Node、Sun、Uranus、Venus\nsign：12 条；支持=read；样例=Aquarius、Aries、Cancer、Capricorn、Gemini、Leo、Libra、Pisces、Sagittarius、Scorpio、Taurus、Virgo\nhouse：12 条；支持=read；样例=House1、House10、House11、House12、House2、House3、House4、House5、House6、House7、House8、House9\nlot：16 条；支持=read；样例=Pars Brothers、Pars Diseases、Pars Father、Pars Fortuna、Pars Jupiter、Pars Life、Pars Mars、Pars Mercury、Pars Mother、Pars Radix、Pars Saturn、Pars Sons、Pars Spirit、Pars Venus、Pars Wedding [Female]、Pars Wedding [Male]\naspect：9 条；支持=read；样例=0、120、135、150、180、30、45、60、90",
-    "filtered_text": "[目录概览]\n领域过滤：astro\n域数量：1\n来源：xingque_hover_docs\nBundle 版本：1\n\n[astro]\n域：astro\n分类数：5\nplanet：12 条；支持=read；样例=Jupiter、Mars、Mercury、Moon、Neptune、North Node、Pluto、Saturn、South Node、Sun、Uranus、Venus\nsign：12 条；支持=read；样例=Aquarius、Aries、Cancer、Capricorn、Gemini、Leo、Libra、Pisces、Sagittarius、Scorpio、Taurus、Virgo\nhouse：12 条；支持=read；样例=House1、House10、House11、House12、House2、House3、House4、House5、House6、House7、House8、House9\nlot：16 条；支持=read；样例=Pars Brothers、Pars Diseases、Pars Father、Pars Fortuna、Pars Jupiter、Pars Life、Pars Mars、Pars Mercury、Pars Mother、Pars Radix、Pars Saturn、Pars Sons、Pars Spirit、Pars Venus、Pars Wedding [Female]、Pars Wedding [Male]\naspect：9 条；支持=read；样例=0、120、135、150、180、30、45、60、90",
     "missing_selected_sections": [],
-    "raw_text": "[目录概览]\n领域过滤：astro\n域数量：1\n来源：xingque_hover_docs\nBundle 版本：1\n\n[astro]\n域：astro\n分类数：5\nplanet：12 条；支持=read；样例=Jupiter、Mars、Mercury、Moon、Neptune、North Node、Pluto、Saturn、South Node、Sun、Uranus、Venus\nsign：12 条；支持=read；样例=Aquarius、Aries、Cancer、Capricorn、Gemini、Leo、Libra、Pisces、Sagittarius、Scorpio、Taurus、Virgo\nhouse：12 条；支持=read；样例=House1、House10、House11、House12、House2、House3、House4、House5、House6、House7、House8、House9\nlot：16 条；支持=read；样例=Pars Brothers、Pars Diseases、Pars Father、Pars Fortuna、Pars Jupiter、Pars Life、Pars Mars、Pars Mercury、Pars Mother、Pars Radix、Pars Saturn、Pars Sons、Pars Spirit、Pars Venus、Pars Wedding [Female]、Pars Wedding [Male]\naspect：9 条；支持=read；样例=0、120、135、150、180、30、45、60、90\n\n[来源]\n来源：xingque_hover_docs\nBundle 版本：1\n上游标记：xingque_hover_docs\n构建时间：2026-04-05T00:31:55Z",
     "section_titles_detected": [
       "目录概览",
       "astro",
@@ -245,7 +243,6 @@
     ],
     "sections": [
       {
-        "body": "领域过滤：astro\n域数量：1\n来源：xingque_hover_docs\nBundle 版本：1",
         "content": "[目录概览]\n领域过滤：astro\n域数量：1\n来源：xingque_hover_docs\nBundle 版本：1",
         "included": true,
         "index": 1,
@@ -253,7 +250,6 @@
         "title": "目录概览"
       },
       {
-        "body": "域：astro\n分类数：5\nplanet：12 条；支持=read；样例=Jupiter、Mars、Mercury、Moon、Neptune、North Node、Pluto、Saturn、South Node、Sun、Uranus、Venus\nsign：12 条；支持=read；样例=Aquarius、Aries、Cancer、Capricorn、Gemini、Leo、Libra、Pisces、Sagittarius、Scorpio、Taurus、Virgo\nhouse：12 条；支持=read；样例=House1、House10、House11、House12、House2、House3、House4、House5、House6、House7、House8、House9\nlot：16 条；支持=read；样例=Pars Brothers、Pars Diseases、Pars Father、Pars Fortuna、Pars Jupiter、Pars Life、Pars Mars、Pars Mercury、Pars Mother、Pars Radix、Pars Saturn、Pars Sons、Pars Spirit、Pars Venus、Pars Wedding [Female]、Pars Wedding [Male]\naspect：9 条；支持=read；样例=0、120、135、150、180、30、45、60、90",
         "content": "[astro]\n域：astro\n分类数：5\nplanet：12 条；支持=read；样例=Jupiter、Mars、Mercury、Moon、Neptune、North Node、Pluto、Saturn、South Node、Sun、Uranus、Venus\nsign：12 条；支持=read；样例=Aquarius、Aries、Cancer、Capricorn、Gemini、Leo、Libra、Pisces、Sagittarius、Scorpio、Taurus、Virgo\nhouse：12 条；支持=read；样例=House1、House10、House11、House12、House2、House3、House4、House5、House6、House7、House8、House9\nlot：16 条；支持=read；样例=Pars Brothers、Pars Diseases、Pars Father、Pars Fortuna、Pars Jupiter、Pars Life、Pars Mars、Pars Mercury、Pars Mother、Pars Radix、Pars Saturn、Pars Sons、Pars Spirit、Pars Venus、Pars Wedding [Female]、Pars Wedding [Male]\naspect：9 条；支持=read；样例=0、120、135、150、180、30、45、60、90",
         "included": true,
         "index": 2,
@@ -261,7 +257,6 @@
         "title": "astro"
       },
       {
-        "body": "来源：xingque_hover_docs\nBundle 版本：1\n上游标记：xingque_hover_docs\n构建时间：2026-04-05T00:31:55Z",
         "content": "[来源]\n来源：xingque_hover_docs\nBundle 版本：1\n上游标记：xingque_hover_docs\n构建时间：2026-04-05T00:31:55Z",
         "included": false,
         "index": 3,
