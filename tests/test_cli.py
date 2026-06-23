@@ -444,3 +444,87 @@ def test_subject_file_yaml_is_supported(tmp_path, capsys):
     payload = json.loads(capsys.readouterr().out)
     assert code == 0
     assert payload["bazi_birth"]["person_info"]["gender"] == "女"
+
+
+def _full_subject(tmp_path):
+    return _write(
+        tmp_path / "subject.json",
+        json.dumps(
+            {
+                "name": "Lived",
+                "gender": "女",
+                "birth_year": 2001,
+                "birth_month": 10,
+                "birth_day": 12,
+                "birth_hour": 11,
+                "birth_minute": 40,
+                "birth_place": "咸阳市秦都区",
+                "birth_longitude": 108.71,
+                "birth_latitude": 34.33,
+                "birth_timezone": "Asia/Shanghai",
+                "use_true_solar_time": True,
+            }
+        ),
+    )
+
+
+def test_profile_runs_default_three_systems(tmp_path, capsys):
+    code = run(["profile", "--subject-file", _full_subject(tmp_path)])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert payload["analysis_type"] == "综合命盘"
+    assert payload["systems"] == ["bazi", "ziwei", "astro"]
+    chart = payload["profile"]
+    # Each system carried its full result, computed from the shared subject.
+    hour = chart["bazi"]["bazi_birth"]["four_pillars"]["hour"]
+    assert hour["stem"] + hour["branch"] == "戊午"
+    # ziwei ran from the shared subject; the exact 命宫 value is owned by the
+    # dedicated ziwei engine tests (pinned to iztro), so assert structurally.
+    ming_gong = chart["ziwei"]["ziwei_birth"]["ming_gong"]["ganzhi"]
+    assert isinstance(ming_gong, str) and len(ming_gong) == 2
+    assert "angles" in chart["astro"]
+
+
+def test_profile_accepts_aliases_and_subset(tmp_path, capsys):
+    code = run(
+        ["profile", "--systems", "八字,健康", "--subject-file", _full_subject(tmp_path)]
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert list(payload["profile"].keys()) == ["八字", "健康"]
+
+
+def test_profile_cli_flag_overrides_subject(tmp_path, capsys):
+    code = run(
+        [
+            "profile",
+            "--systems",
+            "bazi",
+            "--subject-file",
+            _full_subject(tmp_path),
+            "--birth-year",
+            "1990",
+        ]
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    year = payload["profile"]["bazi"]["bazi_birth"]["four_pillars"]["year"]
+    assert year["stem"] + year["branch"] == "庚午"  # 1990 wins over file's 2001
+
+
+def test_profile_unknown_system_is_usage_error(tmp_path, capsys):
+    code = run(
+        ["profile", "--systems", "bazi,foo", "--subject-file", _full_subject(tmp_path)]
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 2
+    assert payload["error_code"] == "usage_error"
+    assert "foo" in payload["error"]
+
+
+def test_profile_missing_required_is_usage_error(capsys):
+    code = run(["profile", "--systems", "bazi"])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 2
+    assert payload["error_code"] == "usage_error"
+    assert "birth" in payload["error"]
