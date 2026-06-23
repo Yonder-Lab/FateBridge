@@ -81,6 +81,81 @@ def _emit_error(payload: dict, code: int) -> int:
     return code
 
 
+_BOOL_TRUE_TOKENS = {"true", "1", "yes", "y", "on"}
+_BOOL_FALSE_TOKENS = {"false", "0", "no", "n", "off"}
+
+
+class _BooleanFlagAction(argparse.Action):
+    """Boolean flag usable as a bare switch *and* with an explicit value.
+
+    For a flag ``--use-true-solar-time`` all of these work::
+
+        --use-true-solar-time              -> True   (bare switch)
+        --use-true-solar-time true|false   -> parsed (space-separated value)
+        --use-true-solar-time=false        -> parsed (= value)
+        --no-use-true-solar-time           -> False  (negated switch)
+
+    The stdlib :class:`argparse.BooleanOptionalAction` supports only the bare
+    and negated switches; passing ``--flag true`` there dies with
+    ``unrecognized arguments: true`` — a common stumble for users used to
+    passing explicit ``true``/``false``. This action keeps both stdlib forms and
+    additionally accepts the explicit value, so neither mental model surprises
+    the caller.
+    """
+
+    def __init__(
+        self,
+        option_strings: List[str],
+        dest: str,
+        default: Any = None,
+        required: bool = False,
+        help: Optional[str] = None,
+    ) -> None:
+        expanded: List[str] = []
+        for opt in option_strings:
+            expanded.append(opt)
+            if opt.startswith("--"):
+                expanded.append("--no-" + opt[2:])
+        super().__init__(
+            option_strings=expanded,
+            dest=dest,
+            nargs="?",
+            default=default,
+            required=required,
+            help=help,
+            metavar="{true,false}",
+        )
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: Optional[str] = None,
+    ) -> None:
+        negated = option_string is not None and option_string.startswith("--no-")
+        if negated:
+            if values is not None:
+                parser.error(
+                    f"{option_string} 为关闭开关，不接受取值（直接用 {option_string}）"
+                )
+            result = False
+        elif values is None:
+            result = True
+        else:
+            token = str(values).strip().lower()
+            if token in _BOOL_TRUE_TOKENS:
+                result = True
+            elif token in _BOOL_FALSE_TOKENS:
+                result = False
+            else:
+                parser.error(
+                    f"{option_string} 的取值无法识别为布尔值：{values!r}"
+                    "（用 true/false；或省略值表示 true、用 --no- 前缀表示 false）"
+                )
+        setattr(namespace, self.dest, result)
+
+
 def _command_name(spec: ToolSpec) -> str:
     return spec.mcp_name or spec.key
 
@@ -119,12 +194,18 @@ def _add_field_argument(parser: argparse.ArgumentParser, name: str, field: Any) 
     help_text = field.description or ""
 
     if annotation is bool:
+        # argparse renders the action as "--flag, --no-flag" and does not
+        # surface that it also accepts an explicit value, so spell it out here:
+        # the explicit true/false form is exactly what trips users up.
+        no_flag = flag.replace("--", "--no-", 1)
+        bool_hint = f"开关；亦可写 {flag} true/false，关闭用 {no_flag}"
+        bool_help = f"{help_text}（{bool_hint}）" if help_text else bool_hint
         parser.add_argument(
             flag,
             dest=name,
-            action=argparse.BooleanOptionalAction,
+            action=_BooleanFlagAction,
             default=default,
-            help=help_text,
+            help=bool_help,
         )
     elif origin in (list, List):
         parser.add_argument(flag, dest=name, nargs="*", default=default, help=help_text)
