@@ -78,10 +78,14 @@ def test_offline_equal_mc_matches_swisseph(monkeypatch):
     """Offline equal_mc placements must equal the swisseph ('D') placements."""
     if astrology_core.swe is None:
         pytest.skip("swisseph not installed")
-    online = {p["id"]: p["house"] for p in calculate_core_chart_analysis(**_SYNTH)["planets"]}
+    online = {
+        p["id"]: p["house"] for p in calculate_core_chart_analysis(**_SYNTH)["planets"]
+    }
 
     monkeypatch.setattr(astrology_core, "swe", None)
-    offline = {p["id"]: p["house"] for p in calculate_core_chart_analysis(**_SYNTH)["planets"]}
+    offline = {
+        p["id"]: p["house"] for p in calculate_core_chart_analysis(**_SYNTH)["planets"]
+    }
 
     assert offline == online
 
