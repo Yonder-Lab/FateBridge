@@ -473,8 +473,8 @@ RELATIVE_MODE_FALLBACK_ALIASES = {
 }
 
 CORE_CHART_DEFAULT_HOUSE_SYSTEMS = {
-    "chart": "equal",
-    "chart13": "equal",
+    "chart": "equal_mc",
+    "chart13": "equal_mc",
     "hellen_chart": "whole_sign",
     "guolao_chart": "whole_sign",
     "india_chart": "whole_sign",
@@ -482,6 +482,7 @@ CORE_CHART_DEFAULT_HOUSE_SYSTEMS = {
 
 CORE_CHART_DEFAULT_HOUSE_LABELS_ZH = {
     "equal": "等宫制（上升起点）",
+    "equal_mc": "天顶为10宫中点等宫制",
     "whole_sign": "整宫制",
 }
 
@@ -2505,10 +2506,31 @@ def _resolve_core_chart_house_system(
 ) -> Dict[str, Any]:
     if hsys in (None, ""):
         default_house_system = CORE_CHART_DEFAULT_HOUSE_SYSTEMS[chart_variant]
+        # "equal" and "whole_sign" are Kerykeion-native and need no swisseph code.
+        if default_house_system in ("whole_sign", "equal"):
+            return {
+                "value": None,
+                "key": default_house_system,
+                "label_zh": CORE_CHART_DEFAULT_HOUSE_LABELS_ZH[default_house_system],
+                "source": "variant_default",
+            }
+        # For swisseph-backed defaults (e.g. "equal_mc"), look up the full spec so
+        # _relative_house_layout has the swisseph_code it needs.  We do NOT call
+        # _resolve_offline_house_system here because that raises when swe is None;
+        # _relative_house_layout already handles swe=None gracefully.
+        for code, spec in RELATIVE_HOUSE_SYSTEM_SPECS.items():
+            if spec["key"] == default_house_system:
+                return {
+                    "value": code,
+                    **spec,
+                    "source": "variant_default",
+                }
         return {
             "value": None,
             "key": default_house_system,
-            "label_zh": CORE_CHART_DEFAULT_HOUSE_LABELS_ZH[default_house_system],
+            "label_zh": CORE_CHART_DEFAULT_HOUSE_LABELS_ZH.get(
+                default_house_system, default_house_system
+            ),
             "source": "variant_default",
         }
     return {
