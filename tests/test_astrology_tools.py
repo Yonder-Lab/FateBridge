@@ -251,6 +251,48 @@ def test_core_chart_can_infer_coordinates_from_birth_place():
     assert "[起盘信息]" in chart["snapshot_text"]
 
 
+def test_core_chart_infers_coordinates_for_prefecture_city():
+    # "南通" had longitude in the offline catalog but no latitude, so the core
+    # chart used to reject a BaZi-resolvable place. Latitude now travels with it.
+    chart = calculate_core_chart_analysis(
+        chart_variant="chart",
+        name="测试者",
+        birth_year=1993,
+        birth_month=12,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone=None,
+        birth_longitude=None,
+        birth_latitude=None,
+        birth_place="南通",
+    )
+    assert chart["person_info"]["birth_longitude"] == pytest.approx(120.8943, abs=0.01)
+    assert chart["person_info"]["birth_latitude"] is not None
+
+
+def test_core_chart_accepts_but_ignores_gender():
+    # astro endpoints accept gender for uniform batch calling across tools, but
+    # gender never participates in the chart calculation.
+    payload = dict(
+        chart_variant="chart",
+        name="测试者",
+        birth_year=1993,
+        birth_month=12,
+        birth_day=15,
+        birth_hour=10,
+        birth_minute=30,
+        birth_timezone="Asia/Shanghai",
+        birth_longitude=116.4074,
+        birth_latitude=39.9042,
+        birth_place="北京",
+    )
+    male = calculate_core_chart_analysis(gender="男", **payload)
+    female = calculate_core_chart_analysis(gender="女", **payload)
+    assert male["angles"] == female["angles"]
+    assert male["planets"] == female["planets"]
+
+
 def test_core_chart_prefers_local_ephemeris_runtime_when_available():
     swe = pytest.importorskip("swisseph")
     birth_payload = _build_birth_payload()

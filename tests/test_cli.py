@@ -311,6 +311,36 @@ def test_cli_bool_flag_explicit_value_runs(capsys):
     )
 
 
+def test_cli_astro_chart_accepts_gender_flag(capsys):
+    # astro_chart accepts --gender for uniform batch calling (same arg set as the
+    # BaZi/ZiWei tools), even though gender is ignored in the chart math. It must
+    # not die with `unrecognized arguments: --gender`.
+    code = run(
+        [
+            "astro_chart",
+            "--birth-year",
+            "2000",
+            "--birth-month",
+            "12",
+            "--birth-day",
+            "10",
+            "--birth-hour",
+            "9",
+            "--birth-minute",
+            "55",
+            "--birth-place",
+            "南通",
+            "--gender",
+            "男",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert code == 0, payload
+    assert "error_code" not in payload or payload.get("error_code") != "usage_error"
+    assert payload.get("snapshot_text")
+
+
 def test_cli_bool_flag_unparseable_value_emits_json_usage_error(capsys):
     # A non-boolean value is an argparse-level usage error: still valid JSON on
     # stdout (exit 2), carrying an actionable hint rather than an empty stdout.

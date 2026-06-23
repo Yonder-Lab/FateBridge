@@ -1255,6 +1255,32 @@ def test_normalize_birth_time_resolves_newly_catalogued_prefecture_city():
     assert normalized.longitude == pytest.approx(108.705, abs=0.01)
 
 
+def test_resolve_birth_place_context_returns_latitude():
+    # Latitude must travel with longitude so the astrology engine can build a
+    # chart from a place name alone (same coverage as the BaZi true-solar path).
+    shanghai = resolve_birth_place_context("上海")
+    assert shanghai.longitude == pytest.approx(121.4737, abs=0.01)
+    assert shanghai.latitude == pytest.approx(31.2304, abs=0.01)
+
+    # A prefecture-level city that previously had longitude but no latitude.
+    nantong = resolve_birth_place_context("南通")
+    assert nantong.longitude == pytest.approx(120.8943, abs=0.01)
+    assert nantong.latitude is not None
+
+
+def test_every_catalogued_place_has_latitude():
+    # Drift guard: a place may not be half-resolved (longitude without latitude).
+    # If this fails, a new make_birth_place_entry is missing its latitude.
+    from fatebridge.utils.helpers import KNOWN_BIRTH_PLACE_ENTRIES
+
+    missing = [
+        entry["canonical_name"]
+        for entry in KNOWN_BIRTH_PLACE_ENTRIES
+        if entry.get("latitude") is None
+    ]
+    assert missing == [], f"places missing latitude: {missing}"
+
+
 def test_normalize_birth_time_unknown_place_errors_actionably():
     person = create_person_info(
         birth_year=1988,

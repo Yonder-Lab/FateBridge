@@ -867,6 +867,14 @@ class AstroBirthRequest(BaseModel):
 class AstroChartRequest(AstroBirthRequest):
     """Request model for offline astrology chart generation."""
 
+    gender: Optional[str] = Field(
+        default="未知",
+        description=(
+            "性别（可选，仅用于结果标识；西方星盘计算不使用性别）。接受此字段是为了让"
+            "同一套出生信息可以原样喂给八字/紫微/星盘等工具，避免批量调用时'有的工具收、"
+            "有的不收'造成的反复试错。"
+        ),
+    )
     birth_timezone: Optional[str] = Field(  # type: ignore[assignment]
         default=None,
         description=(
