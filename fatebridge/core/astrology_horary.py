@@ -145,7 +145,11 @@ def _planet_state(subject: Any, planet: str) -> Dict[str, Any]:
         "sign_label": sign_label(sign),
         "degree": round(longitude % 30.0, 4),
         "absolute_degree": round(longitude, 4),
-        "longitude": longitude,
+        # Round to 9 decimals (~3 µarcsec) so the serialized longitude is stable
+        # against sub-1e-12 float-representation noise that shifts between
+        # ephemeris dependency micro-versions; far finer than any orb tolerance,
+        # so downstream aspect math is unaffected.
+        "longitude": round(longitude, 9),
         "speed": round(speed, 5),
         "retrograde": speed < 0.0,
         "dignities": _dignities(planet, sign, longitude % 30.0),

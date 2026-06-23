@@ -1052,7 +1052,14 @@ def build_primary_directions_payload(
                             "aspect_degree": aspect_degree,
                             "aspect_variant_degrees": round(variant, 4),
                             "event_age_years": round(event_age_years, 4),
-                            "event_datetime": event_datetime.isoformat(),
+                            # Truncate to whole seconds: the directed arc is an
+                            # approximation, so sub-second precision is noise that
+                            # jitters at the microsecond level between ephemeris
+                            # dependency micro-versions and would break the golden
+                            # byte-lock without carrying any real signal.
+                            "event_datetime": event_datetime.replace(
+                                microsecond=0
+                            ).isoformat(),
                             "direction_mode": direction_mode,
                             "direction_mode_label": direction_mode_label,
                             "coordinate_system": coordinate_system,
