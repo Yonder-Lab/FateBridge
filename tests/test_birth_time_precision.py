@@ -42,6 +42,7 @@ from fatebridge.utils.helpers import (
     create_person_info,
     normalize_birth_time,
     parse_timezone_name,
+    resolve_birth_place_context,
 )
 
 
@@ -312,7 +313,9 @@ def test_normalize_birth_time_falls_back_to_province_when_city_is_unknown():
         birth_day=15,
         birth_hour=10,
         birth_minute=30,
-        birth_place="河北省保定市莲池区东风东路",
+        # 衡水 is intentionally NOT in the city catalog, so resolution must
+        # fall back to 河北 province-level coordinates.
+        birth_place="河北省衡水市桃城区东风东路",
         use_true_solar_time=True,
     )
 
@@ -1225,3 +1228,44 @@ def test_normalize_birth_time_accepts_bare_integer_timezone():
     )
     normalized = normalize_birth_time(person)
     assert normalized.applied is True
+
+
+def test_resolve_birth_place_resolves_prefecture_city_district_form():
+    # "<city>市<district>区" must resolve via the prefecture city substring.
+    resolution = resolve_birth_place_context("咸阳市秦都区")
+    assert resolution.canonical_name == "咸阳"
+    assert resolution.longitude == pytest.approx(108.705, abs=0.01)
+    assert resolution.level == "city"
+
+
+def test_normalize_birth_time_resolves_newly_catalogued_prefecture_city():
+    person = create_person_info(
+        birth_year=2001,
+        birth_month=10,
+        birth_day=12,
+        birth_hour=11,
+        birth_minute=40,
+        birth_place="咸阳市秦都区",
+        use_true_solar_time=True,
+    )
+    normalized = normalize_birth_time(person)
+    assert normalized.applied is True
+    assert normalized.longitude_source == "birth_place"
+    assert normalized.resolved_place == "咸阳"
+    assert normalized.longitude == pytest.approx(108.705, abs=0.01)
+
+
+def test_normalize_birth_time_unknown_place_errors_actionably():
+    person = create_person_info(
+        birth_year=2001,
+        birth_month=10,
+        birth_day=12,
+        birth_hour=11,
+        birth_place="火星基地",
+        use_true_solar_time=True,
+    )
+    with pytest.raises(ValueError) as excinfo:
+        normalize_birth_time(person)
+    message = str(excinfo.value)
+    assert "火星基地" in message  # names the unrecognized place
+    assert "birth_longitude" in message  # tells the caller how to fix it
