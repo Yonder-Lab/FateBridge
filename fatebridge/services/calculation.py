@@ -13,6 +13,7 @@ from fatebridge.utils.data import Element
 from fatebridge.utils.helpers import (
     NormalizedBirthTime,
     PersonInfo,
+    calculation_guard,
     create_pillar_dict,
     format_birth_datetime_display,
     handle_calculation_error,
@@ -155,11 +156,9 @@ def _render_destiny_analysis(context: BirthComputationContext) -> Dict[str, Any]
     }
 
 
+@calculation_guard("命理分析计算")
 def calculate_destiny_analysis(person: PersonInfo) -> Dict:
     """
     Calculate individual destiny analysis based on birth information.
     """
-    try:
-        return _render_destiny_analysis(_build_birth_computation_context(person))
-    except Exception as error:
-        return handle_calculation_error(error, "命理分析计算")
+    return _render_destiny_analysis(_build_birth_computation_context(person))

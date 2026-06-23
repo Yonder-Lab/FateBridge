@@ -13,8 +13,8 @@ from builtins import TimeoutError as BuiltinTimeoutError
 from calendar import monthrange
 from dataclasses import dataclass
 from datetime import datetime, timedelta, tzinfo
-from functools import lru_cache
-from typing import Any, Dict, Optional, Tuple, cast
+from functools import lru_cache, wraps
+from typing import Any, Callable, Dict, Optional, Tuple, cast
 
 from dateutil import tz
 from pydantic import BaseModel, Field, ValidationInfo, field_validator
@@ -1064,6 +1064,41 @@ def handle_calculation_error(error: Exception, operation: str) -> Dict[str, Any]
         "status_code": 500,
         "retryable": True,
     }
+
+
+def calculation_guard(
+    operation: str,
+) -> Callable[[Callable[..., Dict[str, Any]]], Callable[..., Dict[str, Any]]]:
+    """将服务函数包裹为"任何异常都转成标准错误信封"的形式。
+
+    与此前散落在 ~50 个服务调用点的手写写法在行为上完全一致::
+
+        try:
+            ...函数体...
+        except Exception as exc:
+            return handle_calculation_error(exc, operation)
+
+    只适用于"整个函数体都在 try 内、except 是最后一步"的场景；
+    若函数在 try 之前另有语句，请勿迁移（包裹整函数会吞掉本应向上抛出的异常）。
+
+    Args:
+        operation: 操作名称，原样透传给 :func:`handle_calculation_error`
+            （它是错误信封的一部分，必须与迁移前的字符串逐字一致）。
+    """
+
+    def decorator(
+        func: Callable[..., Dict[str, Any]],
+    ) -> Callable[..., Dict[str, Any]]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Dict[str, Any]:
+            try:
+                return func(*args, **kwargs)
+            except Exception as exc:  # noqa: BLE001 - 故意宽捕获，与迁移前行为一致
+                return handle_calculation_error(exc, operation)
+
+        return wrapper
+
+    return decorator
 
 
 def create_pillar_dict(

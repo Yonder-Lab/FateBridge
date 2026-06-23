@@ -40,6 +40,7 @@ from fatebridge.utils.data import (
 )
 from fatebridge.utils.helpers import (
     PersonInfo,
+    calculation_guard,
     format_birth_datetime_display,
     handle_calculation_error,
 )
@@ -862,6 +863,7 @@ def _build_base_bazi_payload(
     }
 
 
+@calculation_guard("八字命盘")
 def calculate_bazi_birth(
     person: PersonInfo,
     *,
@@ -870,49 +872,42 @@ def calculate_bazi_birth(
     analysis_day: Optional[int] = None,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    try:
-        analysis_date = _resolve_analysis_date(
-            analysis_year, analysis_month, analysis_day
-        )
-        payload = _build_base_bazi_payload(person=person, analysis_date=analysis_date)
-        base_analysis = payload["base_analysis"]
-        snapshot_text = payload["snapshot_text"]
-        snapshot_export = parse_export_content(
-            technique="bazi",
-            content=snapshot_text,
-            selected_sections=selected_sections,
-        )
+    analysis_date = _resolve_analysis_date(analysis_year, analysis_month, analysis_day)
+    payload = _build_base_bazi_payload(person=person, analysis_date=analysis_date)
+    base_analysis = payload["base_analysis"]
+    snapshot_text = payload["snapshot_text"]
+    snapshot_export = parse_export_content(
+        technique="bazi",
+        content=snapshot_text,
+        selected_sections=selected_sections,
+    )
 
-        return {
-            "analysis_type": "八字命盘",
-            "bazi_birth": {
-                "engine": "fatebridge-offline",
-                "time_algorithm": (
-                    "真太阳时"
-                    if payload["normalized_birth_time"].applied
-                    else "直接时间"
-                ),
-                "analysis_date": analysis_date.strftime("%Y-%m-%d"),
-                "person_info": base_analysis["person_info"],
-                "four_pillars": base_analysis["four_pillars"],
-                "three_origins": payload["three_origins"],
-                "day_master": base_analysis["day_master"],
-                "element_distribution": base_analysis["element_distribution"],
-                "favorable_elements": base_analysis["favorable_elements"],
-                "structure_profile": base_analysis["structure_profile"],
-                "ten_gods": base_analysis["ten_gods"],
-                "patterns": base_analysis["patterns"],
-                "calendar_context": base_analysis["calendar_context"],
-                "analysis_calendar_context": payload["analysis_calendar_context"],
-                "timing_overview": payload["timing_overview"],
-                "shensha": payload["shensha_entries"],
-                "classical": payload["classical_overview"],
-            },
-            "snapshot_text": snapshot_text,
-            "snapshot_export": snapshot_export,
-        }
-    except Exception as exc:
-        return handle_calculation_error(exc, "八字命盘")
+    return {
+        "analysis_type": "八字命盘",
+        "bazi_birth": {
+            "engine": "fatebridge-offline",
+            "time_algorithm": (
+                "真太阳时" if payload["normalized_birth_time"].applied else "直接时间"
+            ),
+            "analysis_date": analysis_date.strftime("%Y-%m-%d"),
+            "person_info": base_analysis["person_info"],
+            "four_pillars": base_analysis["four_pillars"],
+            "three_origins": payload["three_origins"],
+            "day_master": base_analysis["day_master"],
+            "element_distribution": base_analysis["element_distribution"],
+            "favorable_elements": base_analysis["favorable_elements"],
+            "structure_profile": base_analysis["structure_profile"],
+            "ten_gods": base_analysis["ten_gods"],
+            "patterns": base_analysis["patterns"],
+            "calendar_context": base_analysis["calendar_context"],
+            "analysis_calendar_context": payload["analysis_calendar_context"],
+            "timing_overview": payload["timing_overview"],
+            "shensha": payload["shensha_entries"],
+            "classical": payload["classical_overview"],
+        },
+        "snapshot_text": snapshot_text,
+        "snapshot_export": snapshot_export,
+    }
 
 
 # =============================================================================
