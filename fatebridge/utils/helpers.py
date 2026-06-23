@@ -477,10 +477,13 @@ class NormalizedBirthTime:
     daylight_saving_minutes: float
     total_correction_minutes: float
     applied: bool
+    # 仅当经度是从 birth_place 推断、且只匹配到省级中心点（而非具体市县）时填充：
+    # 告知调用方此次校正用的是省级近似经度，可能与实际地点相差数分钟。
+    resolution_advisory: Optional[str] = None
 
     def as_dict(self) -> Dict[str, Any]:
         """Return a JSON-safe summary for API responses."""
-        return {
+        summary: Dict[str, Any] = {
             "applied": self.applied,
             "timezone": self.timezone,
             "longitude": self.longitude,
@@ -492,6 +495,11 @@ class NormalizedBirthTime:
             "daylight_saving_minutes": round(self.daylight_saving_minutes, 2),
             "total_correction_minutes": round(self.total_correction_minutes, 2),
         }
+        # 仅在有提示时才加入此键：保持无歧义场景（用户显式传经度、市县级匹配）
+        # 的输出结构不变，避免给既有消费者凭空多一个 null 字段。
+        if self.resolution_advisory is not None:
+            summary["resolution_advisory"] = self.resolution_advisory
+        return summary
 
 
 # ============================================================================
@@ -837,6 +845,18 @@ def normalize_birth_time(
     total_correction_minutes = adjustment["total_correction_minutes"]
     corrected_datetime = input_datetime + timedelta(minutes=total_correction_minutes)
 
+    # 经度来自 birth_place 且只匹配到省级中心点时，校正用的是省级近似经度（如
+    # 「江苏省南通市海安市」只识别出省份「江苏」119.42°，与海安实际 ~120.47° 相差
+    # 约 1°≈4 分钟）。此时给出明确提示，让调用方知道精度限制并可改传 birth_longitude，
+    # 而不是把省级近似当成市县级精度静默使用。
+    resolution_advisory = None
+    if longitude_source != "birth_longitude" and resolution_level == "province":
+        resolution_advisory = (
+            f"出生地『{person.birth_place}』未匹配到具体市县，仅按省级"
+            f"（{resolved_place}）经度 {longitude:.2f}° 做真太阳时校正，"
+            "可能与实际地点相差数分钟；如需精确请改传 birth_longitude。"
+        )
+
     return NormalizedBirthTime(
         input_datetime=input_datetime,
         corrected_datetime=corrected_datetime,
@@ -850,6 +870,7 @@ def normalize_birth_time(
         daylight_saving_minutes=daylight_saving_minutes,
         total_correction_minutes=total_correction_minutes,
         applied=True,
+        resolution_advisory=resolution_advisory,
     )
 
 
