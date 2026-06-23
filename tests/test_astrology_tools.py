@@ -308,8 +308,8 @@ def test_core_chart_offline_options_preserve_defaults_and_allow_overrides():
         **_build_birth_payload(),
     )
 
-    assert default_chart["chart_profile"]["house_system"] == "equal"
-    assert default_chart["chart_profile"]["house_system_code"] is None
+    assert default_chart["chart_profile"]["house_system"] == "equal_mc"
+    assert default_chart["chart_profile"]["house_system_code"] == 8
     assert default_chart["chart_profile"]["house_system_source"] == "variant_default"
     assert default_chart["chart_profile"]["zodiac"] == "tropical"
     assert default_chart["chart_profile"]["zodiacal"] == 0
