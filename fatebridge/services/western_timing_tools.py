@@ -119,6 +119,8 @@ def _build_context(result: Dict[str, Any], label: str) -> Dict[str, Any]:
         "analysis_datetime": analysis_context.get("analysis_datetime"),
         "age_years": analysis_context.get("age_years"),
         "house_system": analysis_context.get("house_system"),
+        "house_system_code": analysis_context.get("house_system_code"),
+        "house_system_label_zh": analysis_context.get("house_system_label_zh"),
         "zodiac_type": analysis_context.get("zodiac_type"),
         "return_location": analysis_context.get("return_location"),
         "engine": "fatebridge-offline",

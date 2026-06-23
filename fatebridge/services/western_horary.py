@@ -20,7 +20,11 @@ from fatebridge.core.predictive import build_subject
 from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
-from fatebridge.utils.helpers import handle_calculation_error, normalize_house_system
+from fatebridge.utils.helpers import (
+    handle_calculation_error,
+    house_system_fields,
+    normalize_house_system,
+)
 
 
 def _json_block(value: Any) -> str:
@@ -73,7 +77,7 @@ def calculate_horary(
             "category": category,
             "category_label": CATEGORY_LABELS_ZH[category],
             "location": {"longitude": longitude, "latitude": latitude},
-            "house_system": house_system,
+            **house_system_fields(house_system),
             "zodiac_type": zodiac_type,
             "engine": "fatebridge-offline",
         }
