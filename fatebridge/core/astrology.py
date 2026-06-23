@@ -473,7 +473,11 @@ RELATIVE_MODE_FALLBACK_ALIASES = {
 }
 
 CORE_CHART_DEFAULT_HOUSE_SYSTEMS = {
-    "chart": "equal_mc",
+    # Placidus is the de-facto default of modern Western (tropical) astrology
+    # software, so the natal chart matches what users see elsewhere.  chart13's
+    # equal-from-MC default is intentional (its 13-sign frame is not quadrant
+    # native), and the traditional charts stay whole-sign by tradition.
+    "chart": "placidus",
     "chart13": "equal_mc",
     "hellen_chart": "whole_sign",
     "guolao_chart": "whole_sign",
@@ -483,6 +487,7 @@ CORE_CHART_DEFAULT_HOUSE_SYSTEMS = {
 CORE_CHART_DEFAULT_HOUSE_LABELS_ZH = {
     "equal": "等宫制（上升起点）",
     "equal_mc": "天顶为10宫中点等宫制",
+    "placidus": "Placidus",
     "whole_sign": "整宫制",
 }
 
@@ -3721,7 +3726,7 @@ def build_relative_payload(
     outer_birth: AstroBirthInfo,
     relative_mode: Any = None,
     relative_mode_source: str = "default",
-    hsys: int = 0,
+    hsys: int = 3,
     zodiacal: int = 0,
     relationship_focus: Any = None,
 ) -> Dict[str, Any]:

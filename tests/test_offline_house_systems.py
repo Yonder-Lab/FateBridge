@@ -58,7 +58,11 @@ def test_build_houses_equal_mc_anchors_on_midheaven():
 def test_offline_equal_mc_is_mc_anchored_not_ascendant(monkeypatch):
     """With swisseph disabled, equal_mc cusps anchor on the MC, not the ASC."""
     monkeypatch.setattr(astrology_core, "swe", None)
-    chart = calculate_core_chart_analysis(**_SYNTH)
+    # chart13 still defaults to equal_mc, so it drives the lenient offline
+    # equal_mc fallback this regression guards. (The natal `chart` default is now
+    # Placidus, which fails loud offline — covered by the test below. Explicit
+    # hsys=8 offline also fails loud, so it can't reach the MC+90 fallback.)
+    chart = calculate_core_chart_analysis(**{**_SYNTH, "chart_variant": "chart13"})
 
     profile = chart["chart_profile"]
     assert profile["house_system"] == "equal_mc"
@@ -78,13 +82,16 @@ def test_offline_equal_mc_matches_swisseph(monkeypatch):
     """Offline equal_mc placements must equal the swisseph ('D') placements."""
     if astrology_core.swe is None:
         pytest.skip("swisseph not installed")
+    # chart13 still defaults to equal_mc (the natal `chart` default is now
+    # Placidus), so it exercises the offline equal_mc fallback against swisseph.
+    synth13 = {**_SYNTH, "chart_variant": "chart13"}
     online = {
-        p["id"]: p["house"] for p in calculate_core_chart_analysis(**_SYNTH)["planets"]
+        p["id"]: p["house"] for p in calculate_core_chart_analysis(**synth13)["planets"]
     }
 
     monkeypatch.setattr(astrology_core, "swe", None)
     offline = {
-        p["id"]: p["house"] for p in calculate_core_chart_analysis(**_SYNTH)["planets"]
+        p["id"]: p["house"] for p in calculate_core_chart_analysis(**synth13)["planets"]
     }
 
     assert offline == online

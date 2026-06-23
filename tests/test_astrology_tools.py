@@ -308,8 +308,8 @@ def test_core_chart_offline_options_preserve_defaults_and_allow_overrides():
         **_build_birth_payload(),
     )
 
-    assert default_chart["chart_profile"]["house_system"] == "equal_mc"
-    assert default_chart["chart_profile"]["house_system_code"] == 8
+    assert default_chart["chart_profile"]["house_system"] == "placidus"
+    assert default_chart["chart_profile"]["house_system_code"] == 3
     assert default_chart["chart_profile"]["house_system_source"] == "variant_default"
     assert default_chart["chart_profile"]["zodiac"] == "tropical"
     assert default_chart["chart_profile"]["zodiacal"] == 0
@@ -388,11 +388,12 @@ def test_germany_chart_inherits_runtime_precision_from_base_chart():
 
 
 def test_hsys_int_family_defaults_are_consistent():
-    # The hsys-int chart family (natal, relative, suzhan, otherbu) must share one
-    # default house system. Previously the relative charts defaulted to 0
-    # (whole_sign) while the natal chart and the suzhan/otherbu charts defaulted
-    # to equal_mc — so a natal chart and its synastry chart disagreed on houses
-    # for the same person/framework. Unify on equal_mc (8).
+    # The Western tropical-quadrant charts (natal + relative/synastry) share one
+    # default house system so a person's natal chart and its synastry chart agree
+    # on houses. That default is Placidus (3), the de-facto Western convention.
+    # The 宿曜 suzhan/otherbu charts are a separate lunar-mansion tradition and
+    # keep their own neutral equal_mc (8) default — house system is incidental
+    # there, so they are intentionally NOT migrated to Placidus.
     from fatebridge.core.request_models import (
         AstroRelativeFlatRequest,
         OtherBuRequest,
@@ -415,7 +416,7 @@ def test_hsys_int_family_defaults_are_consistent():
         outer_birth_longitude=120.0,
         outer_birth_latitude=30.0,
     )
-    assert flat.hsys == 8
+    assert flat.hsys == 3
 
 
 def test_relative_chart_returns_legacy_style_layers_and_metadata():
