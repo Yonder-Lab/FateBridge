@@ -16,6 +16,10 @@
 
 - [API.md](API.md)
 
+### 我想把 FateBridge 接进应用或 Agent
+
+- [AGENT_GUIDE.md](AGENT_GUIDE.md)
+
 ### 我想理解系统结构
 
 - [ARCHITECTURE.md](ARCHITECTURE.md)
@@ -38,6 +42,7 @@
 | 文档 | 适合谁 | 主要内容 |
 | --- | --- | --- |
 | [GETTING_STARTED.md](GETTING_STARTED.md) | 新用户、集成方 | 安装、环境变量、启动 REST / MCP、第一条请求 |
+| [AGENT_GUIDE.md](AGENT_GUIDE.md) | Agent / 开发者 | 三端接入、自助发现、错误/投影/快照、host 配置、Python/JS 示例 |
 | [API.md](API.md) | 前后端/Agent 集成方 | REST 路由、FastMCP 工具、请求族、快照协议 |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 开发者、架构师 | 代码分层、数据流、设计决策、扩展路径 |
 | [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md) | 维护者、评审者 | 已实现 / 近似 / 占位 / 排除范围矩阵 |
@@ -54,9 +59,9 @@
 
 ### 路径 2：我要给 Agent 接入工具
 
-1. 先读 [API.md](API.md) 的 “FastMCP 工具面”
-2. 再看 [ARCHITECTURE.md](ARCHITECTURE.md) 的“传输层到核心层”
-3. 最后看 [TROUBLESHOOTING.md](TROUBLESHOOTING.md) 的“MCP 相关问题”
+1. 先读 [AGENT_GUIDE.md](AGENT_GUIDE.md)（自助发现、错误处理、host 配置）
+2. 需要逐工具/字段细节时查 [API.md](API.md) 的 “FastMCP 工具面”
+3. 想理解分层再看 [ARCHITECTURE.md](ARCHITECTURE.md)，遇到问题看 [TROUBLESHOOTING.md](TROUBLESHOOTING.md) 的“MCP 相关问题”
 
 ### 路径 3：我要修改代码或补新能力
 

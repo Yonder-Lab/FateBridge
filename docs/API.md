@@ -214,6 +214,24 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 | `POST` | `/api/cn/bazi/relatives` | 八字六亲分析 |
 | `POST` | `/api/cn/bazi/romance` | 八字正缘桃花分析 |
 
+#### 4.1.2 九大专项维度返回字段
+
+每个维度返回结构化分析对象，同时在 `timing_context` 中回显内部推算的大运/流年与起运年龄。各维度核心字段：
+
+| 维度 | 端点 | 主要返回字段 |
+| --- | --- | --- |
+| 婚姻 | `/api/cn/bazi/marriage` | `spouse_star`（配偶星：正/偏财为妻、正官/七杀为夫）、`spouse_palace`（配偶宫=日支稳定性）、`marriage_quality`（0–100 评分）、`marriage_timing`、`risk_factors`、`suggestions` |
+| 事业 | `/api/cn/bazi/career` | `dominant_ten_gods`（事业类型）、`industry_analysis`（喜用神行业）、`career_structure`、`entrepreneurship`（创业 vs 打工）、`career_timing`、`noble_direction`（贵人方位）、`suggestions` |
+| 财运 | `/api/cn/bazi/wealth` | `wealth_stars`（正/偏财含藏干）、`wealth_structure`（身财两停/财多身弱…）、`wealth_storage`（墓库财）、`wealth_style` / `wealth_direction`、`wealth_risk`、`wealth_timing` |
+| 健康 | `/api/cn/bazi/health` | `constitution`（强弱+调候）、`organ_analysis`（五行脏腑）、`disease_risks`、`health_timing`、`regimen`（仅命理参考，非医学诊断） |
+| 子女 | `/api/cn/bazi/children` | `child_star`（男命官杀/女命食伤）、`child_palace`（时柱）、`affinity`、`relationship`、`children_timing` |
+| 学业 | `/api/cn/bazi/education` | `study_stars`（印/食伤/官/财）、`education_level`、`wenchang`（文昌）、`subject_orientation`（文理）、`exam_timing` |
+| 性格 | `/api/cn/bazi/personality` | 日主五行心性、主导十神性格、刚柔内外向、优劣势与调适建议 |
+| 六亲 | `/api/cn/bazi/relatives` | 父母星（偏财/正印）、兄弟姐妹星（比劫）、六亲宫位、贵人助力 |
+| 正缘桃花 | `/api/cn/bazi/romance` | 桃花（咸池）、红鸾天喜、异性缘星（按性别）、桃花正邪、正缘时机（区别于侧重配偶宫的「婚姻」维度） |
+
+> **大运/流年自动推算**：缺省由命盘 + 分析日期（默认今天，或传 `analysis_year`/`analysis_month`/`analysis_day`）内部推算；如需指定，传 `dayun_pillar` / `liunian_pillar`（如 `"甲子"`）覆盖。
+
 ### 4.2 时运分析
 
 | 方法 | 路径 | 说明 |
@@ -340,11 +358,14 @@ descriptor 形如：
 {
   "tool": "bazi_wealth",
   "summary": "八字财运分析（可传 dayun_pillar / liunian_pillar 输出时机信号）",
+  "operation_label_zh": "八字财运分析",
   "family": "bazi",
   "surfaces": {"cli": true, "rest_path": "/api/cn/bazi/wealth", "mcp_name": "bazi_wealth"},
   "parameters": [{"name": "birth_year", "type": "int", "required": true, "description": "..."}]
 }
 ```
+
+> 面向 Agent / 开发者的端到端接入说明（自助发现、错误处理、字段投影、MCP host 配置、Python/JS 示例）见 [AGENT_GUIDE.md](AGENT_GUIDE.md)。
 
 `surfaces.rest_path` / `surfaces.mcp_name` 为 `null` 表示该工具不在对应端暴露。
 
@@ -463,74 +484,66 @@ python -m fatebridge.mcp_server
 
 ### 6.2 MCP 工具分组
 
-#### 基础命理与时运
+> 全部 80 个 MCP 工具按 `family` 分组如下，与 REST / CLI 一一对应。机读清单见 `GET /api/tools` 或 `fatebridge list`。
+
+#### 基础命理（family `bazi`）
 
 - `analyze_destiny`
-- `two_person_compatibility`
-- `timing_analysis`
-- `dayun_analysis`
-- `liunian_analysis`
-- `liuyue_analysis`
-- `liuri_analysis`
-- `jieqi_timeline_analysis`
 - `bazi_birth`
+- `bazi_marriage` / `bazi_career` / `bazi_wealth` / `bazi_health` / `bazi_children`
+- `bazi_education` / `bazi_personality` / `bazi_relatives` / `bazi_romance`
 
-#### Calendar / export / knowledge helper
+#### 双人配合（family `compatibility`）
 
-- `jieqi_year`
-- `nongli_time`
-- `export_registry`
-- `export_parse`
-- `knowledge_registry`
-- `knowledge_read`
-- `gua_lookup`
-- `gua_meiyi`
+- `two_person_compatibility`
+- `sukuyo_compatibility`
 
-#### Divination 与本地技法
+#### 时运与历法（family `timing`）
 
-- `meihua_analysis`
-- `tongshefa`
-- `sixyao`
-- `canping`
-- `heluo`
-- `suzhan`
-- `otherbu`
-- `sanshiunited`
+- `timing_analysis`
+- `dayun_analysis` / `liunian_analysis` / `liuyue_analysis` / `liuri_analysis` / `liushi_analysis`
+- `jieqi_timeline_analysis`
+- `jieqi_year` / `nongli_time`
 
-#### 中国术数独立盘
+#### Divination 与本地技法（family `divination`）
 
-- `ziwei_birth`
-- `ziwei_rules`
-- `liureng_gods`
-- `liureng_runyear`
-- `qimen`
-- `taiyi`
-- `jinkou`
+- `gua_lookup` / `gua_meiyi`
+- `meihua_analysis` / `tongshefa` / `sixyao`
+- `canping` / `heluo`
+- `suzhan` / `otherbu` / `sanshiunited`
 
-#### 核心占星盘
+#### 中国术数独立盘（family `metaphysics`）
 
-- `astro_chart`
-- `astro_chart13`
-- `astro_hellen_chart`
-- `astro_guolao_chart`
-- `astro_india_chart`
-- `astro_germany_chart`
+- `ziwei_birth` / `ziwei_horoscope` / `ziwei_rules`
+- `liureng_gods` / `liureng_runyear`
+- `qimen` / `taiyi` / `jinkou`
+
+#### export / knowledge helper
+
+- `export_registry` / `export_parse`
+- `knowledge_registry` / `knowledge_read`
+
+#### 核心占星盘（family `astro`）
+
+- `astro_chart` / `astro_chart13` / `astro_hellen_chart`
+- `astro_guolao_chart` / `astro_india_chart` / `astro_germany_chart`
 - `astro_relative_chart`
 
-#### 西占推运
+#### 西占推运（family `western_timing` / `western_timing_tool`）
 
 - `western_timing_analysis`
-- `solarreturn`
-- `lunarreturn`
-- `transit`
-- `solararc`
-- `givenyear`
-- `profection`
-- `pd`
-- `pdchart`
-- `zr`
-- `firdaria`
-- `decennials`
+- `solarreturn` / `lunarreturn` / `transit` / `solararc` / `givenyear`
+- `profection` / `pd` / `pdchart` / `zr` / `firdaria` / `decennials`
+
+#### 事件占星（family `western_event`）
+
+- `astro_mundane` / `astro_extrareturns` / `astro_horary` / `astro_election`
+
+#### 全生命周期 / 寿命技法（family `western_lifespan`）
+
+- `astro_harmonic` / `astro_planetary_ages` / `astro_triplicity_rulers` / `astro_lunation_phase`
+- `astro_distributions` / `astro_balbillus` / `astro_keypoints` / `astro_yearsystem129`
+- `astro_planetaryarc` / `astro_persiandirected` / `astro_agepoint` / `astro_vedicprog` / `astro_jaynesprog`
 
 ### 6.3 MCP 与 REST 的差异
 
