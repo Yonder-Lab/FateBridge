@@ -233,9 +233,31 @@ _HOUSE_SYSTEM_ALIASES: Dict[str, str] = {
     "vehlow": "V",
     "vehlowequal": "V",
     "vehlow equal": "V",
+    # Equal anchored on the MC (10th cusp = MC; the core chart's equal_mc / code 8)
+    "equalmc": "D",
+    "equalmidheaven": "D",
+    "天顶为10宫中点等宫制": "D",
+    # Sripati (core chart code 7) — was missing, so "sripati" fell back to P
+    "sripati": "S",
     # APC / Krusinski
     "apc": "Y",
     "krusinski": "U",
+}
+
+# Integer house-system codes (the ``hsys`` convention used by the core/relative
+# chart family) mapped to the Swiss Ephemeris letters the western family uses.
+# Mirrors RELATIVE_HOUSE_SYSTEM_SPECS in core/astrology.py so a single integer
+# code means the same system on every surface.
+_HOUSE_SYSTEM_CODE_TO_LETTER: Dict[int, str] = {
+    0: "W",  # whole_sign
+    1: "B",  # Alcabitus
+    2: "R",  # Regiomontanus
+    3: "P",  # Placidus
+    4: "K",  # Koch
+    5: "V",  # Vehlow Equal
+    6: "T",  # Polich Page / Topocentric
+    7: "S",  # Sripati
+    8: "D",  # equal_mc
 }
 
 # Valid single-letter codes per kerykeion.schemas.kr_literals.HousesSystemIdentifier
@@ -279,6 +301,13 @@ def normalize_house_system(house_system: Any, default: str = "P") -> str:
         return default
     token = str(house_system).strip()
     if not token:
+        return default
+    # Integer code (the ``hsys`` 0..8 convention), passed as int or digit string,
+    # so the same code resolves identically on the letter-string surfaces.
+    if token.lstrip("+-").isdigit():
+        code = int(token)
+        if code in _HOUSE_SYSTEM_CODE_TO_LETTER:
+            return _HOUSE_SYSTEM_CODE_TO_LETTER[code]
         return default
     # Single-letter code (preserves kerykeion's case-sensitive "i" vs "I")
     if len(token) == 1 and token in _VALID_HOUSE_SYSTEM_CODES:

@@ -387,6 +387,37 @@ def test_germany_chart_inherits_runtime_precision_from_base_chart():
     assert result["base_chart"]["chart_profile"]["engine_backend"] == expected_backend
 
 
+def test_hsys_int_family_defaults_are_consistent():
+    # The hsys-int chart family (natal, relative, suzhan, otherbu) must share one
+    # default house system. Previously the relative charts defaulted to 0
+    # (whole_sign) while the natal chart and the suzhan/otherbu charts defaulted
+    # to equal_mc — so a natal chart and its synastry chart disagreed on houses
+    # for the same person/framework. Unify on equal_mc (8).
+    from fatebridge.core.request_models import (
+        AstroRelativeFlatRequest,
+        OtherBuRequest,
+        SuZhanRequest,
+    )
+
+    assert SuZhanRequest(date="2000-12-10", time="09:55:00").hsys == 8
+    assert OtherBuRequest(date="2000-12-10", time="09:55:00").hsys == 8
+    flat = AstroRelativeFlatRequest(
+        inner_birth_year=2000,
+        inner_birth_month=12,
+        inner_birth_day=10,
+        inner_birth_hour=9,
+        inner_birth_longitude=120.0,
+        inner_birth_latitude=30.0,
+        outer_birth_year=1992,
+        outer_birth_month=3,
+        outer_birth_day=2,
+        outer_birth_hour=8,
+        outer_birth_longitude=120.0,
+        outer_birth_latitude=30.0,
+    )
+    assert flat.hsys == 8
+
+
 def test_relative_chart_returns_legacy_style_layers_and_metadata():
     result = calculate_relative_chart_analysis(
         inner_payload=_build_birth_payload(),
@@ -1077,10 +1108,22 @@ def test_cli_no_true_solar_time_flag_actually_disables_correction():
     parser = build_parser()
     base = [
         "astro_chart",
-        "--birth-year", "1988", "--birth-month", "8", "--birth-day", "8",
-        "--birth-hour", "8", "--birth-minute", "8",
-        "--birth-timezone", "Asia/Shanghai",
-        "--birth-longitude", "120.0", "--birth-latitude", "30.0",
+        "--birth-year",
+        "1988",
+        "--birth-month",
+        "8",
+        "--birth-day",
+        "8",
+        "--birth-hour",
+        "8",
+        "--birth-minute",
+        "8",
+        "--birth-timezone",
+        "Asia/Shanghai",
+        "--birth-longitude",
+        "120.0",
+        "--birth-latitude",
+        "30.0",
     ]
 
     def _run(extra):
