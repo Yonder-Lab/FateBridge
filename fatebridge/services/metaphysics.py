@@ -55,7 +55,12 @@ def _build_analysis_seed(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
+    # 紫微运限把「读盘日期」(流年/大限 calendar progression)交给本函数，且刻意不传
+    # analysis_longitude，所以它的 use_true_solar_time 默认关。式占(奇门/六壬)则以
+    # 起局时刻为盘，默认开（请求模型层）。无经度时按显式性区分：显式要求→报错，
+    # 吃默认→降级为钟表时间（time_algorithm 字段透出「直接时间」即为提示）。
     use_true_solar_time: bool = False,
+    true_solar_explicit: bool = True,
     day_pillar_strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
 ) -> MetaphysicsSeed:
     timezone_name = analysis_timezone or DEFAULT_BIRTH_TIMEZONE
@@ -68,11 +73,18 @@ def _build_analysis_seed(
     )
     corrected_datetime = input_datetime
     total_correction_minutes = 0.0
+    applied_true_solar = use_true_solar_time
 
-    if use_true_solar_time:
-        if analysis_longitude is None:
+    if use_true_solar_time and analysis_longitude is None:
+        if true_solar_explicit:
             raise ValueError("真太阳时修正需要 analysis_longitude")
+        # 默认开但无经度可用 → 降级为钟表时间（不报错）。
+        applied_true_solar = False
 
+    if applied_true_solar:
+        # Invariant: the graceful branch above zeroes applied_true_solar whenever
+        # analysis_longitude is None, so reaching here guarantees a longitude.
+        assert analysis_longitude is not None
         adjustment = calculate_solar_time_adjustment(
             input_datetime,
             timezone_name,
@@ -99,7 +111,7 @@ def _build_analysis_seed(
         corrected_datetime=corrected_datetime,
         timezone=timezone_name,
         longitude=analysis_longitude,
-        applied_true_solar=use_true_solar_time,
+        applied_true_solar=applied_true_solar,
         total_correction_minutes=total_correction_minutes,
         pillars=pillars,
         calendar_context=calendar_context,
@@ -795,7 +807,8 @@ def calculate_liureng_gods(
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
     gender: str = "未知",
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
+    true_solar_explicit: bool = True,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     seed = _build_analysis_seed(
@@ -807,6 +820,7 @@ def calculate_liureng_gods(
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
         use_true_solar_time=use_true_solar_time,
+        true_solar_explicit=true_solar_explicit,
     )
     liureng = build_liureng_board(seed, gender=gender)
     liureng["engine"] = "fatebridge-offline"
@@ -838,7 +852,8 @@ def calculate_liureng_runyear(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
+    true_solar_explicit: bool = True,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     # 大六壬行年以「分析时刻」起课，不依赖出生四柱；
@@ -852,6 +867,7 @@ def calculate_liureng_runyear(
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
         use_true_solar_time=use_true_solar_time,
+        true_solar_explicit=true_solar_explicit,
     )
     liureng = build_liureng_board(seed, gender=person.gender or "未知")
     liureng["engine"] = "fatebridge-offline"
@@ -893,7 +909,8 @@ def calculate_qimen_analysis(
     analysis_minute: int = 0,
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
+    true_solar_explicit: bool = True,
     qimen_options: Optional[Dict[str, Any]] = None,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
@@ -906,6 +923,7 @@ def calculate_qimen_analysis(
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
         use_true_solar_time=use_true_solar_time,
+        true_solar_explicit=true_solar_explicit,
         day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
     )
     qimen = build_qimen_with_options(seed, qimen_options)
@@ -938,7 +956,8 @@ def calculate_taiyi_analysis(
     analysis_timezone: Optional[str] = None,
     analysis_longitude: Optional[float] = None,
     gender: str = "未知",
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
+    true_solar_explicit: bool = True,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     seed = _build_analysis_seed(
@@ -950,6 +969,7 @@ def calculate_taiyi_analysis(
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
         use_true_solar_time=use_true_solar_time,
+        true_solar_explicit=true_solar_explicit,
     )
     taiyi = build_taiyi_board(seed, gender=gender)
     taiyi["engine"] = "fatebridge-offline"
@@ -982,7 +1002,8 @@ def calculate_jinkou_analysis(
     analysis_longitude: Optional[float] = None,
     gender: str = "未知",
     di_fen: Optional[str] = None,
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
+    true_solar_explicit: bool = True,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     seed = _build_analysis_seed(
@@ -994,6 +1015,7 @@ def calculate_jinkou_analysis(
         analysis_timezone=analysis_timezone,
         analysis_longitude=analysis_longitude,
         use_true_solar_time=use_true_solar_time,
+        true_solar_explicit=true_solar_explicit,
     )
     local_liureng = build_liureng_board(seed, gender=gender)
     local_liureng["engine"] = "fatebridge-offline"

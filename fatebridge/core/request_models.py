@@ -41,7 +41,12 @@ class FateBridgeRequest(BaseModel):
         default=None, ge=-180, le=180, description="Birth longitude (optional)"
     )
     use_true_solar_time: bool = Field(
-        default=False, description="Enable true solar time correction"
+        default=True,
+        description=(
+            "Rebase the birth clock onto true solar time (longitude + equation of "
+            "time). Default on: 八字/紫微 traditionally define the hour pillar / "
+            "命宫 from apparent solar time. Set false for the raw civil clock."
+        ),
     )
 
 
@@ -110,7 +115,8 @@ class TwoPersonCompatibilityRequest(BaseModel):
         default=None, ge=-180, le=180, description="First person birth longitude"
     )
     person1_use_true_solar_time: bool = Field(
-        default=False, description="Enable true solar time for first person"
+        default=True,
+        description="Enable true solar time for first person (八字 default on)",
     )
     person2_name: str = Field(description="Second person name")
     person2_birth_year: int = Field(description="Second person birth year, e.g., 1992")
@@ -133,7 +139,8 @@ class TwoPersonCompatibilityRequest(BaseModel):
         default=None, ge=-180, le=180, description="Second person birth longitude"
     )
     person2_use_true_solar_time: bool = Field(
-        default=False, description="Enable true solar time for second person"
+        default=True,
+        description="Enable true solar time for second person (八字 default on)",
     )
     relationship_type: str = Field(
         default="general", description="Relationship type, e.g. marriage or business"
@@ -549,9 +556,9 @@ class CanpingRequest(BaseModel):
         description="取法: ming 明法(月支反向取日宫支) or gu 古法(八字日支)",
     )
     use_true_solar_time: bool = Field(
-        default=False,
+        default=True,
         alias="useTrueSolarTime",
-        description="Apply true solar time correction (needs lon)",
+        description="Apply true solar time correction (needs lon); default on — 数算 derives from the BaZi pillars",
     )
 
 
@@ -581,9 +588,9 @@ class HeluoRequest(BaseModel):
         description="Gender 男/女 — affects 起命相盪 and 元堂 derivation",
     )
     use_true_solar_time: bool = Field(
-        default=False,
+        default=True,
         alias="useTrueSolarTime",
-        description="Apply true solar time correction (needs lon)",
+        description="Apply true solar time correction (needs lon); default on — 数算 derives from the BaZi pillars",
     )
 
 
@@ -710,8 +717,8 @@ class SanShiUnitedRequest(BaseModel):
         description="Optional liureng day/night override",
     )
     use_true_solar_time: bool = Field(
-        default=False,
-        description="Enable local true solar time correction before sanshi aggregation",
+        default=True,
+        description="Enable local true solar time correction before sanshi aggregation (default on — 式占 keys off the apparent-solar 时辰)",
     )
 
 
@@ -772,7 +779,8 @@ class LiuRengGodsRequest(BaseModel):
         description="Optional snapshot section titles for filtered export payload",
     )
     use_true_solar_time: bool = Field(
-        default=False, description="Enable true solar time correction"
+        default=True,
+        description="Enable true solar time correction (default on — 式占 keys off the apparent-solar 时辰)",
     )
 
 
@@ -823,7 +831,8 @@ class QimenAnalysisRequest(BaseModel):
         description="Optional snapshot section titles for filtered export payload",
     )
     use_true_solar_time: bool = Field(
-        default=False, description="Enable true solar time correction"
+        default=True,
+        description="Enable true solar time correction (default on — 奇门 定局 keys off the apparent-solar 时辰)",
     )
 
 
@@ -921,12 +930,13 @@ class AstroChartRequest(AstroBirthRequest):
         ),
     )
     use_true_solar_time: bool = Field(
-        default=True,
+        default=False,
         alias="useTrueSolarTime",
         description=(
             "Rebase the birth clock onto true solar time (longitude + equation of "
-            "time), matching the BaZi engine. Default on; set false for the raw "
-            "civil-clock chart."
+            "time). Default OFF: western astrology conventionally casts on the "
+            "recorded civil (zone) clock time. Set true to align the western chart "
+            "with the BaZi engine's apparent-solar instant."
         ),
     )
 

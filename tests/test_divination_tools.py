@@ -1166,12 +1166,14 @@ def test_calculate_sanshiunited_analysis_supports_selected_export_sections():
 
 
 def test_calculate_sanshiunited_analysis_supports_true_solar_time():
+    # 三式默认已开真太阳时；显式关掉得到钟表时间基线，与开启态对比。
     default_result = calculate_sanshiunited_analysis(
         date="2026-04-04",
         time="23:50:00",
         zone="+08:00",
         gps_lat=39.9,
         gps_lon=73.0,
+        use_true_solar_time=False,
     )
     true_solar_result = calculate_sanshiunited_analysis(
         date="2026-04-04",

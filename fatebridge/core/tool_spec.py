@@ -99,7 +99,9 @@ _PERSON_KEYWORD = (
 )
 
 
-def _build_person(data: Dict[str, Any], prefix: str = "") -> PersonInfo:
+def _build_person(
+    data: Dict[str, Any], prefix: str = "", *, true_solar_explicit: bool = True
+) -> PersonInfo:
     def g(field: str, default: Any = None) -> Any:
         return data.get(f"{prefix}{field}", default)
 
@@ -115,6 +117,7 @@ def _build_person(data: Dict[str, Any], prefix: str = "") -> PersonInfo:
         birth_timezone=g("birth_timezone"),
         birth_longitude=g("birth_longitude"),
         use_true_solar_time=g("use_true_solar_time", False),
+        true_solar_explicit=true_solar_explicit,
     )
 
 
@@ -134,7 +137,10 @@ def person_invoke(
         req: BaseModel,
     ) -> Tuple[Callable[..., ServiceResult], tuple, Dict[str, Any]]:
         data = req.model_dump()
-        person = _build_person(data)
+        # 区分「用户显式要求真太阳时」与「吃了模型默认」：缺经度时前者 fail-loud、
+        # 后者降级为钟表时间并附 advisory（见 normalize_birth_time）。
+        explicit = "use_true_solar_time" in req.model_fields_set
+        person = _build_person(data, true_solar_explicit=explicit)
         extras = {k: v for k, v in data.items() if k not in person_fields}
         for field in also_pass:
             if field in data:
@@ -155,8 +161,17 @@ def pair_invoke(
         req: BaseModel,
     ) -> Tuple[Callable[..., ServiceResult], tuple, Dict[str, Any]]:
         data = req.model_dump()
-        p1 = _build_person(data, prefix="person1_")
-        p2 = _build_person(data, prefix="person2_")
+        fields_set = req.model_fields_set
+        p1 = _build_person(
+            data,
+            prefix="person1_",
+            true_solar_explicit="person1_use_true_solar_time" in fields_set,
+        )
+        p2 = _build_person(
+            data,
+            prefix="person2_",
+            true_solar_explicit="person2_use_true_solar_time" in fields_set,
+        )
         rel = data.get(relationship_field, "general")
         return service, (p1, p2, rel), {}
 
@@ -196,6 +211,15 @@ def raw_invoke(
         data = req.model_dump()
         if accepted is not None:
             data = {k: v for k, v in data.items() if k in accepted}
+        # Thread whether the user explicitly asked for true solar time so the
+        # service can fail-loud on an explicit request that lacks a longitude,
+        # yet gracefully fall back to civil time when the flag merely defaulted
+        # on (mirrors the person path in ``person_invoke``). Only inject into
+        # services that explicitly declare the parameter — never into a
+        # ``**kwargs`` dispatcher (``accepted is None``), which would forward the
+        # unknown kwarg to an inner service that does not accept it.
+        if accepted is not None and "true_solar_explicit" in accepted:
+            data["true_solar_explicit"] = "use_true_solar_time" in req.model_fields_set
         if fixed:
             data = {**data, **fixed}
         return service, (), data

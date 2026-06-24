@@ -542,13 +542,13 @@ def test_profile_cli_flag_overrides_subject(tmp_path, capsys):
 
 
 def test_profile_legs_share_one_birth_instant_when_tz_omitted(tmp_path, capsys):
-    # Regression: the astro leg's model defaults birth_timezone='UTC' and
-    # use_true_solar_time=True, while bazi/ziwei default None/False. With those
-    # left to per-leg defaults, the western leg interpreted a China wall-clock
-    # time as UTC AND applied a true-solar shift for an eastern longitude, landing
-    # ~8h off the Chinese legs (e.g. 09:55 -> 18:0x UTC) and producing a wholly
-    # rotated, bogus chart. The profile must resolve ONE timezone (place-derived)
-    # and one true-solar policy and feed every leg the same birth instant.
+    # Regression: the astro leg's model once defaulted birth_timezone='UTC'. Left
+    # to that default, the western leg interpreted a China wall-clock time as UTC,
+    # landing ~8h off the Chinese legs (e.g. 09:55 -> 18:0x UTC) and producing a
+    # wholly rotated, bogus chart. The profile must resolve ONE timezone
+    # (place-derived) and feed every leg the same civil instant. True-solar policy
+    # is intentionally per-tradition: the Chinese legs rebase onto apparent solar
+    # time, the western leg stays on the civil clock.
     subject = _write(
         tmp_path / "s.json",
         json.dumps(
@@ -579,8 +579,10 @@ def test_profile_legs_share_one_birth_instant_when_tz_omitted(tmp_path, capsys):
     assert astro_pi["utc_datetime"].startswith("2000-12-10T01") or astro_pi[
         "utc_datetime"
     ].startswith("2000-12-10T02")
-    # True solar time is unified ON across the profile.
-    assert astro_pi["true_solar"]["applied"] is True
+    # Per-tradition true-solar policy: the western leg stays on the civil clock,
+    # while the BaZi leg rebases onto apparent solar time. They share the resolved
+    # timezone (one instant), not one correction policy.
+    assert astro_pi["true_solar"]["applied"] is False
     assert payload["profile"]["bazi"]["bazi_birth"]["time_algorithm"] == "真太阳时"
 
 

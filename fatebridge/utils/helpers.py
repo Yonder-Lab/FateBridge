@@ -823,6 +823,14 @@ class PersonInfo(BaseModel):
         default=None, ge=-180, le=180, description="出生地经度（可选）"
     )
     use_true_solar_time: bool = Field(default=False, description="是否启用真太阳时修正")
+    true_solar_explicit: bool = Field(
+        default=True,
+        description=(
+            "调用方是否「显式」要求了真太阳时（用于缺经度时的失败策略）。True=显式："
+            "缺经度则报错(fail-loud)；False=默认值：缺经度则降级为钟表时间并附 advisory。"
+            "请求层据 model_fields_set 注入；直接构造默认按显式处理。"
+        ),
+    )
 
     @field_validator("birth_day")
     @classmethod
@@ -858,6 +866,7 @@ def create_person_info(
     birth_timezone: Optional[str] = None,
     birth_longitude: Optional[float] = None,
     use_true_solar_time: bool = False,
+    true_solar_explicit: bool = True,
 ) -> PersonInfo:
     """创建PersonInfo对象的工具函数
 
@@ -889,6 +898,7 @@ def create_person_info(
         birth_timezone=birth_timezone,
         birth_longitude=birth_longitude,
         use_true_solar_time=use_true_solar_time,
+        true_solar_explicit=true_solar_explicit,
     )
 
 
@@ -1156,15 +1166,39 @@ def normalize_birth_time(
     if longitude is None:
         place = person.birth_place
         if place and place != "未提供":
-            raise ValueError(
+            uncatalogued_msg = (
                 f"True solar time correction needs a longitude, but birth_place "
                 f"{place!r} is not in the offline place catalog. Pass "
                 "birth_longitude explicitly (east positive, e.g. 108.71 for 咸阳), "
                 "or use a catalogued city name."
             )
-        raise ValueError(
-            "True solar time correction needs a longitude. Pass birth_longitude "
-            "explicitly (east positive), or a catalogued birth_place city name."
+        else:
+            uncatalogued_msg = (
+                "True solar time correction needs a longitude. Pass birth_longitude "
+                "explicitly (east positive), or a catalogued birth_place city name."
+            )
+        # 显式请求真太阳时却无经度可用 → fail-loud（与用户显式无效请求的处理一致）。
+        if person.true_solar_explicit:
+            raise ValueError(uncatalogued_msg)
+        # 真太阳时是「默认开」而非显式要求，且无经度可解 → 降级为钟表时间，并透明
+        # 提示精度损失（与省级 fallback 的 advisory 同一模式），而不是让默认路径报错。
+        return NormalizedBirthTime(
+            input_datetime=input_datetime,
+            corrected_datetime=input_datetime,
+            timezone=timezone_name,
+            longitude=longitude,
+            longitude_source=longitude_source,
+            resolved_place=resolved_place,
+            resolution_level=resolution_level,
+            longitude_correction_minutes=0.0,
+            equation_of_time_minutes=0.0,
+            daylight_saving_minutes=0.0,
+            total_correction_minutes=0.0,
+            applied=False,
+            resolution_advisory=(
+                "未提供可解析的出生地或 birth_longitude，真太阳时校正未生效，结果按"
+                "钟表（标准时区）时间计算；补出生地或经度即可启用真太阳时（经度东正）。"
+            ),
         )
 
     adjustment = calculate_solar_time_adjustment(

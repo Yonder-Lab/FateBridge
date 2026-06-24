@@ -324,7 +324,7 @@ def calculate_canping_analysis(
     gps_lon: Optional[float] = None,
     gender: Optional[str] = None,
     method: str = "ming",
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
 ) -> Dict[str, Any]:
     """邵子参评数 / 金锁银匙分析工具。"""
     return build_canping_result(
@@ -352,7 +352,7 @@ def calculate_heluo_analysis(
     gps_lat: Optional[float] = None,
     gps_lon: Optional[float] = None,
     gender: Optional[str] = None,
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
 ) -> Dict[str, Any]:
     """河洛理数分析工具。"""
     return build_heluo_result(
@@ -615,7 +615,7 @@ def calculate_sanshiunited_analysis(
     liureng_yue: Optional[str] = None,
     liureng_is_diurnal: Optional[bool] = None,
     selected_sections: Optional[List[str]] = None,
-    use_true_solar_time: bool = False,
+    use_true_solar_time: bool = True,
 ) -> Dict[str, Any]:
     """三式合一本地聚合工具。"""
     result = build_sanshiunited_result(
