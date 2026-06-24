@@ -99,6 +99,34 @@ def test_nantong_county_siblings_each_resolve_distinctly():
         assert r.level == "county", name
 
 
+def test_kaizhou_resolves_to_county_not_chongqing_centroid():
+    # 开州区是重庆下辖远郊区(原开县)，距渝中半岛约 180km。含「重庆开州」的串里
+    # 直辖市(重庆)与区(开州区)同时出现：区级更具体且别名更长，必须胜出——否则会
+    # 用重庆市中心坐标(106.55°E/29.56°N)排盘，上升/天顶偏约 1.7°。
+    for place in (
+        "开州区",
+        "开州",
+        "开县",
+        "重庆开州",
+        "重庆市开州区",
+        "中国重庆市开州区",
+    ):
+        r = resolve_birth_place_context(place)
+        assert r.canonical_name == "开州区", place
+        assert r.level == "county", place
+        assert abs(r.longitude - 108.393) < 0.1, place
+        assert abs(r.latitude - 31.178) < 0.1, place
+
+
+def test_chongqing_centroid_and_near_districts_still_resolve_to_chongqing():
+    # 安全不变式：直辖市本名及未收录的近郊区(渝中区在市中心附近)仍解析到重庆中心，
+    # 区级条目只在显式收录时夺取匹配，绝不劫持直辖市回退。
+    for place in ("重庆", "重庆市", "重庆市渝中区"):
+        r = resolve_birth_place_context(place)
+        assert r.canonical_name == "重庆", place
+        assert r.level == "municipality", place
+
+
 def test_beijing_tongzhou_not_misresolved_to_jiangsu():
     # 回归：county 级别若高于 municipality(或同级但更长别名胜出)，"北京通州区"
     # 会被错判到江苏南通。通州不入库 + county==municipality 共同守住此用例。

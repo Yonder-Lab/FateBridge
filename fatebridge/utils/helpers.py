@@ -576,6 +576,14 @@ KNOWN_BIRTH_PLACE_ENTRIES = (
     make_birth_place_entry("上海", 121.4737, level="municipality", aliases=("上海市",)),
     make_birth_place_entry("天津", 117.2000, level="municipality", aliases=("天津市",)),
     make_birth_place_entry("重庆", 106.5516, level="municipality", aliases=("重庆市",)),
+    # 重庆 is a province-sized municipality (~470km E-W); its remote districts sit
+    # far from the 渝中 centroid, so "重庆市开州区" silently塌回 the city centre
+    # (106.55°E/29.56°N) ~180km from 开州 (108.39°E/31.18°N), rotating the
+    # astrology ascendant/midheaven ~1.7°. county level + the longer canonical
+    # name ("开州区">"重庆") win the substring contest over the municipality.
+    make_birth_place_entry(
+        "开州区", 108.3930, latitude=31.1780, level="county", aliases=("开州", "开县")
+    ),
     make_birth_place_entry(
         "香港",
         114.1694,
