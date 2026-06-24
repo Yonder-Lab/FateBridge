@@ -49,6 +49,13 @@ PLACE_SPECIFICITY = {
     "special_region": 2,
     "city": 3,
     "municipality": 4,
+    # County-level units (县级市/区/县) must outscore their parent prefecture-city
+    # (3) so "南通海安" -> 海安, not 南通. They are pegged EQUAL to municipality (4),
+    # NOT above it: a 2-char county name can appear as an accidental substring of a
+    # municipality address ("上海安亭" contains "海安"; "北京通州区" contains "通州").
+    # On that tie the earlier-listed entry wins, and municipalities are listed
+    # first, so the municipality correctly keeps the match.
+    "county": 4,
 }
 
 DEFAULT_BIRTH_PLACE_ALIASES: Dict[str, Tuple[str, ...]] = {
@@ -669,6 +676,26 @@ KNOWN_BIRTH_PLACE_ENTRIES = (
     make_birth_place_entry("咸阳", 108.7050, aliases=("咸阳市",)),
     make_birth_place_entry("宝鸡", 107.2380, aliases=("宝鸡市",)),
     make_birth_place_entry("南通", 120.8943, aliases=("南通市",)),
+    # 南通下辖县级单位：此前缺录时「南通X」会静默塌回南通市区坐标
+    # (120.89°E/31.98°N)。补齐县治坐标 + county 级(specificity 最高)，使更具体的
+    # 县名在含父府的地址里胜出。坐标为县级市/区政府驻地，精度与现有市级条目同档。
+    make_birth_place_entry(
+        "海安", 120.4661, latitude=32.5350, level="county", aliases=("海安市", "海安县")
+    ),
+    make_birth_place_entry(
+        "如皋", 120.5591, latitude=32.3757, level="county", aliases=("如皋市",)
+    ),
+    make_birth_place_entry(
+        "启东", 121.6579, latitude=31.8101, level="county", aliases=("启东市",)
+    ),
+    make_birth_place_entry(
+        "海门", 121.1760, latitude=31.8966, level="county", aliases=("海门区", "海门市")
+    ),
+    # 南通通州区 deliberately NOT catalogued: its "通州区" alias collides with
+    # Beijing's far better-known 通州区 ("北京通州区" would mis-resolve to 江苏).
+    make_birth_place_entry(
+        "如东", 121.1896, latitude=32.3144, level="county", aliases=("如东县",)
+    ),
     make_birth_place_entry("无锡", 120.3019, aliases=("无锡市",)),
     make_birth_place_entry("常州", 119.9740, aliases=("常州市",)),
     make_birth_place_entry("徐州", 117.1840, aliases=("徐州市",)),
