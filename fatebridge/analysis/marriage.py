@@ -716,12 +716,7 @@ class MarriageAnalysis:
                         if e == elem:
                             spouse_stem_set.add(s)
         else:
-            # 女命官星为配偶星
-            for elem, destroyed in DESTRUCTION_CYCLE.items():
-                if destroyed == day_element:
-                    # 官杀克日主
-                    pass
-            # 正官: 克日主的同性天干
+            # 女命官杀为配偶星：克日主（即天干五行能克制日主元素）的天干。
             for s, (e, _) in STEM_ELEMENTS.items():
                 if DESTRUCTION_CYCLE.get(e) == day_element:
                     spouse_stem_set.add(s)

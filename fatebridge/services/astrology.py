@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from fatebridge.core import guolao_moira
 from fatebridge.core.astrology import (
+    SIGN_LABELS_ZH,
     AstroBirthInfo,
     build_astro_birth_info,
     build_core_chart_payload,
@@ -59,20 +60,6 @@ ELEMENT_LABELS_ZH = {
     "Water": "水",
 }
 
-SIGN_LABELS_ZH = {
-    "Aries": "白羊",
-    "Taurus": "金牛",
-    "Gemini": "双子",
-    "Cancer": "巨蟹",
-    "Leo": "狮子",
-    "Virgo": "处女",
-    "Libra": "天秤",
-    "Scorpio": "天蝎",
-    "Sagittarius": "射手",
-    "Capricorn": "摩羯",
-    "Aquarius": "水瓶",
-    "Pisces": "双鱼",
-}
 
 MODALITY_LABELS_ZH = {
     "Cardinal": "基本",
