@@ -298,9 +298,10 @@ def test_core_chart_prefers_local_ephemeris_runtime_when_available():
     birth_payload = _build_birth_payload()
 
     chart = calculate_core_chart_analysis(chart_variant="chart", **birth_payload)
-    # The core chart now defaults to true solar time; build the reference birth
-    # info the same way so the expected Swiss-Ephemeris positions line up.
-    birth_info = build_astro_birth_info(**birth_payload, use_true_solar_time=True)
+    # The core chart defaults to the civil (zone) clock per western convention;
+    # build the reference birth info the same way so the expected Swiss-Ephemeris
+    # positions line up.
+    birth_info = build_astro_birth_info(**birth_payload, use_true_solar_time=False)
     julian_day = _julian_day(birth_info.utc_datetime)
     expected_sun, _ = swe.calc_ut(julian_day, swe.SUN, swe.FLG_SWIEPH)
     expected_moon, _ = swe.calc_ut(julian_day, swe.MOON, swe.FLG_SWIEPH)
@@ -1116,29 +1117,31 @@ def test_astro_chart_request_accepts_use_true_solar_time_by_python_name():
     """Regression: ``use_true_solar_time`` carries an alias (``useTrueSolarTime``)
     but CLI/MCP populate by the Python field name. Without
     ``populate_by_name=True`` on the base model, the value was silently dropped
-    and the default (True) won — so the documented off-switches did nothing."""
+    and the default won — so the documented switches did nothing. The western
+    default is now OFF (civil clock), so both population paths must be able to
+    flip it ON."""
     assert (
         AstroChartRequest(
             birth_year=1988, birth_month=8, birth_day=8, birth_hour=8
         ).use_true_solar_time
-        is True
+        is False
     )
     by_name = AstroChartRequest(
         birth_year=1988,
         birth_month=8,
         birth_day=8,
         birth_hour=8,
-        use_true_solar_time=False,
+        use_true_solar_time=True,
     )
     by_alias = AstroChartRequest(
         birth_year=1988,
         birth_month=8,
         birth_day=8,
         birth_hour=8,
-        useTrueSolarTime=False,
+        useTrueSolarTime=True,
     )
-    assert by_name.use_true_solar_time is False
-    assert by_alias.use_true_solar_time is False
+    assert by_name.use_true_solar_time is True
+    assert by_alias.use_true_solar_time is True
 
 
 def test_cli_no_true_solar_time_flag_actually_disables_correction():
@@ -1180,7 +1183,10 @@ def test_cli_no_true_solar_time_flag_actually_disables_correction():
         return execute_spec(spec, spec.request_model(**provided))
 
     off = _run(["--no-use-true-solar-time"])
-    on = _run([])
+    on = _run(["--use-true-solar-time", "true"])
+    default = _run([])
     assert off["person_info"]["true_solar"]["applied"] is False
     assert off["person_info"]["birth_datetime"].startswith("1988-08-08T08:08:00")
     assert on["person_info"]["true_solar"]["applied"] is True
+    # Western default is the civil clock: no flag → no correction.
+    assert default["person_info"]["true_solar"]["applied"] is False

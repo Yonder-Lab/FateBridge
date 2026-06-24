@@ -511,30 +511,30 @@ def _resolve_profile_systems(
 
 
 def _unify_birth_instant(inputs: Dict[str, Any]) -> None:
-    """Force every profile leg onto ONE birth instant.
+    """Resolve ONE birth timezone for every profile leg.
 
-    The core models disagree on time defaults: ``astro_chart`` defaults
-    ``birth_timezone='UTC'`` + ``use_true_solar_time=True`` while
-    ``bazi_birth``/``ziwei_birth`` default ``None`` (place-derived) + ``False``.
-    Left to per-leg defaults, omitting the timezone made the western leg read a
-    China wall-clock time as UTC *and* apply a true-solar shift for an eastern
-    longitude — landing it ~8h off the Chinese legs and rotating the whole
-    chart. A综合命盘 must describe one person at one instant, so we resolve the
-    timezone and true-solar policy once here and inject them into every leg.
+    The legs historically disagreed on timezone defaults: ``astro_chart`` once
+    defaulted ``birth_timezone='UTC'`` while ``bazi_birth``/``ziwei_birth``
+    derived it from the place. Left alone, omitting the timezone made the
+    western leg read a China wall-clock time as UTC — landing it ~8h off the
+    Chinese legs and rotating the whole chart. We resolve the timezone once here
+    (mirroring the BaZi normalizer: ``explicit -> place-derived ->
+    DEFAULT_BIRTH_TIMEZONE``; see ``normalize_birth_time`` in utils/helpers) and
+    inject it into every leg so they share one civil instant.
 
-    Mutates ``inputs`` in place. User-supplied values always win:
-    ``birth_timezone`` is only filled when absent, and ``use_true_solar_time``
-    only defaults ON when the user did not set it.
+    True-solar policy is deliberately NOT unified: each leg keeps its own
+    tradition default — 八字/紫微 rebase onto true solar time (apparent-solar
+    时辰/命宫), western astrology casts on the recorded civil clock. The two
+    differ only by the longitude + equation-of-time offset (~minutes), not the
+    ~8h timezone gap, and the difference reflects each system's convention
+    rather than a bug. A user-supplied ``use_true_solar_time`` still wins and
+    applies uniformly to every leg.
 
-    The timezone chain mirrors the BaZi normalizer exactly
-    (``explicit -> place-derived -> DEFAULT_BIRTH_TIMEZONE``; see
-    ``normalize_birth_time`` in utils/helpers) so the western leg lands on the
-    identical instant as the Chinese legs rather than its own ``UTC`` fallback.
+    Mutates ``inputs`` in place; ``birth_timezone`` is only filled when absent.
     """
     if not inputs.get("birth_timezone"):
         resolved = resolve_birth_place_context(inputs.get("birth_place"))
         inputs["birth_timezone"] = resolved.timezone or DEFAULT_BIRTH_TIMEZONE
-    inputs.setdefault("use_true_solar_time", True)
 
 
 def _run_profile(

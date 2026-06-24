@@ -1,15 +1,15 @@
 {
   "analysis_context": {
-    "applied_true_solar": false,
-    "corrected_datetime": "2028-04-06 09:33:00",
+    "applied_true_solar": true,
+    "corrected_datetime": "2028-04-06 09:36:23",
     "current_jieqi": "清明",
     "input_datetime": "2028-04-06 09:33:00",
     "longitude": 121.46666667,
     "lunar_display": "三月十二",
     "next_jieqi": "谷雨",
-    "time_algorithm": "直接时间",
+    "time_algorithm": "真太阳时",
     "timezone": "+08:00",
-    "total_correction_minutes": 0.0
+    "total_correction_minutes": 3.39
   },
   "analysis_type": "邵子参评数 / 金锁银匙",
   "benming": {
@@ -28,8 +28,8 @@
   "calendar_context": {
     "bazi_month_boundary": {
       "branch": "辰",
-      "days_since_start": 1.8124,
-      "days_until_next": 28.9022,
+      "days_since_start": 1.8148,
+      "days_until_next": 28.8999,
       "month_index": 2,
       "next_term": {
         "date_key": "20280505",
@@ -51,11 +51,11 @@
       "name": "清明"
     },
     "lunar_calendar": {
-      "birth": "2028-04-06 09:33:00",
+      "birth": "2028-04-06 09:36:23",
       "day": 12,
       "day_cn": "十二",
       "day_ganzhi": "辛酉",
-      "days_until_next_jieqi": 13.4837,
+      "days_until_next_jieqi": 13.4813,
       "display": "三月十二",
       "is_leap_month": false,
       "jiedelta": "清明后第2天",
@@ -451,7 +451,7 @@
         "day_ganzhi": "己未",
         "name": "清明"
       },
-      "solar_datetime": "2028-04-06 09:33:00",
+      "solar_datetime": "2028-04-06 09:36:23",
       "time_ganzhi": "癸巳",
       "timezone": "+08:00",
       "year": 2028,
@@ -471,10 +471,10 @@
       "day_ganzhi": "甲戌",
       "name": "谷雨"
     },
-    "solar_datetime": "2028-04-06 09:33:00",
+    "solar_datetime": "2028-04-06 09:36:23",
     "solar_term_delta": {
-      "days_since_current": 1.8124,
-      "days_until_next": 13.4837,
+      "days_since_current": 1.8148,
+      "days_until_next": 13.4813,
       "description": "清明后第2天"
     },
     "timezone": "+08:00"
@@ -663,7 +663,7 @@
     "lon": "121e28",
     "method": "ming",
     "time": "09:33:00",
-    "use_true_solar_time": false,
+    "use_true_solar_time": true,
     "zone": "+08:00"
   },
   "liunian_series": {
