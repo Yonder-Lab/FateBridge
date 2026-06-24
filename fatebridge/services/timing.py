@@ -81,7 +81,7 @@ def _compute_life_dimensions_for_moment(
             )
             current_pillars["liushi"] = (liushi["stem"], liushi["branch"])
         except Exception:
-            logger.debug("life_dimensions: liushi 计算失败", exc_info=True)
+            logger.warning("life_dimensions: liushi 计算失败", exc_info=True)
 
         # 流日
         try:
@@ -90,7 +90,7 @@ def _compute_life_dimensions_for_moment(
             )
             current_pillars["liuri"] = (liuri["stem"], liuri["branch"])
         except Exception:
-            logger.debug("life_dimensions: liuri 计算失败", exc_info=True)
+            logger.warning("life_dimensions: liuri 计算失败", exc_info=True)
 
         # 流月
         try:
@@ -103,7 +103,7 @@ def _compute_life_dimensions_for_moment(
             )
             current_pillars["liuyue"] = (liuyue["stem"], liuyue["branch"])
         except Exception:
-            logger.debug("life_dimensions: liuyue 计算失败", exc_info=True)
+            logger.warning("life_dimensions: liuyue 计算失败", exc_info=True)
 
         # 流年
         try:
@@ -112,7 +112,7 @@ def _compute_life_dimensions_for_moment(
             )
             current_pillars["liunian"] = (liunian["stem"], liunian["branch"])
         except Exception:
-            logger.debug("life_dimensions: liunian 计算失败", exc_info=True)
+            logger.warning("life_dimensions: liunian 计算失败", exc_info=True)
 
         # 大运（依赖 gender + age）
         try:
@@ -134,7 +134,7 @@ def _compute_life_dimensions_for_moment(
             if dayun_info and dayun_info.get("stem") and dayun_info.get("branch"):
                 current_pillars["dayun"] = (dayun_info["stem"], dayun_info["branch"])
         except Exception:
-            logger.debug("life_dimensions: dayun 计算失败", exc_info=True)
+            logger.warning("life_dimensions: dayun 计算失败", exc_info=True)
 
         return LifeDimensionAnalysis.calculate_life_dimensions(
             birth_pillars=birth_context.birth_pillars,
