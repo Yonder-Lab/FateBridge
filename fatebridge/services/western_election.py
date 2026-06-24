@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from fatebridge.core.astrology_election import TOPIC_MASTER, build_election_payload
 from fatebridge.core.predictive import build_subject

@@ -23,7 +23,7 @@ tables over an already-built chart subject; chart casting lives in the service.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from fatebridge.core.astrology import (
     EXALTATION_SIGNS,

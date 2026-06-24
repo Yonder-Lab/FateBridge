@@ -31,7 +31,6 @@ from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     calculation_guard,
     create_pillar_dict,
-    handle_calculation_error,
 )
 
 

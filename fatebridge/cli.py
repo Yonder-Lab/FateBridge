@@ -18,7 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List, NoReturn, Optional, get_args, get_origin
+from typing import Any, Dict, List, NoReturn, Optional, get_origin
 
 from fatebridge.core.tool_spec import (
     ToolSpec,
@@ -28,9 +28,6 @@ from fatebridge.core.tool_spec import (
 from fatebridge.core.tool_spec import field_type_name as _type_name
 from fatebridge.core.tool_spec import (
     invalid_input_result,
-)
-from fatebridge.core.tool_spec import is_model_field as _is_model_field
-from fatebridge.core.tool_spec import (
     project_fields,
     result_is_error,
 )

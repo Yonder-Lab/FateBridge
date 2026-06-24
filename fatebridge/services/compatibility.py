@@ -17,7 +17,6 @@ from fatebridge.utils.helpers import (
     PersonInfo,
     calculation_guard,
     get_element_relationship,
-    handle_calculation_error,
 )
 
 logger = logging.getLogger(__name__)

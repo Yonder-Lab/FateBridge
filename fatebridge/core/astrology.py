@@ -1476,7 +1476,14 @@ def _planetary_hours(
 
     # Weekday ruler of the planetary day = weekday at the opening sunrise, taken
     # in local civil time so a pre-dawn birth correctly belongs to the prior day.
-    year, month, day, ut_hour = swe.revjul(prev_rise)
+    try:
+        year, month, day, ut_hour = swe.revjul(prev_rise)
+    except Exception as error:
+        # Planetary hours are explicitly optional ("None when swisseph is
+        # unavailable"); a runtime revjul failure degrades to None rather than
+        # crashing the whole chart on the tuple unpack.
+        _log_swe_runtime_failure("revjul", error)
+        return None
     rise_utc = datetime(
         year, month, day, tzinfo=parse_timezone_name("UTC")
     ) + timedelta(hours=ut_hour)
@@ -2654,12 +2661,24 @@ def _relative_house_layout(
             "ayanamsha": ayanamsha,
         }
 
-    cusps, ascmc = swe.houses_ex(
-        julian_day,
-        birth_info.latitude,
-        birth_info.longitude,
-        house_system_info["swisseph_code"],
-    )
+    try:
+        cusps, ascmc = swe.houses_ex(
+            julian_day,
+            birth_info.latitude,
+            birth_info.longitude,
+            house_system_info["swisseph_code"],
+        )
+    except Exception as error:
+        # Quadrant house systems have no honest offline equivalent: degrading to
+        # _build_houses would anchor the cusps on the ascendant while keeping the
+        # requested label, faking an approximation. Fail loud instead — mirrors
+        # the offline-mode raise in _resolve_offline_house_system.
+        _log_swe_runtime_failure("houses_ex", error)
+        raise ValueError(
+            f"swisseph 运行时计算 {house_system_info['key']} 宫位失败"
+            f"（{type(error).__name__}）：象限宫制无离线近似，"
+            "已按 fail-loud 策略中止而非伪装近似结果。"
+        ) from error
     ascendant = float(ascmc[0])
     midheaven = float(ascmc[1])
     house_cusps = [float(item) for item in cusps[:12]]

@@ -20,7 +20,7 @@ from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
-from fatebridge.utils.helpers import calculation_guard, handle_calculation_error
+from fatebridge.utils.helpers import calculation_guard
 
 SUPPORTED_CHART_VARIANTS = {
     "chart",

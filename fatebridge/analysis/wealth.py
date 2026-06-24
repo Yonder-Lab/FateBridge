@@ -22,7 +22,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
     BRANCH_ELEMENTS,
-    BRANCH_HIDDEN_STEMS,
     DESTRUCTION_CYCLE,
     STEM_ELEMENTS,
     Element,

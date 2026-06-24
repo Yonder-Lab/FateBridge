@@ -20,7 +20,6 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.data import (
-    BRANCH_HIDDEN_STEMS,
     STEM_ELEMENTS,
     Element,
     TenGod,

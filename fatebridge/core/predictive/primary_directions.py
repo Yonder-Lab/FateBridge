@@ -617,9 +617,9 @@ def primary_direction_aspect_variants(aspect_degree: int) -> List[float]:
 
 
 def primary_direction_aspect_meta(aspect_degree: int) -> tuple[str, str]:
-    for aspect_key, aspect_label_text, aspect_value in ASPECT_DEGREES:
-        if int(aspect_value) == aspect_degree:
-            return aspect_key, aspect_label_text
+    meta = ASPECT_DEGREE_TO_META.get(aspect_degree)
+    if meta is not None:
+        return meta
     return f"{aspect_degree}deg", f"{aspect_degree}°"
 
 

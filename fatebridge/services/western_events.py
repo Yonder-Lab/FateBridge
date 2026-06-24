@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 from datetime import timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from fatebridge.core.astrology_events import (
     CARDINAL_INGRESS_LABELS,

@@ -16,7 +16,6 @@ from fatebridge.utils.helpers import (
     calculation_guard,
     create_pillar_dict,
     format_birth_datetime_display,
-    handle_calculation_error,
     normalize_birth_time,
 )
 
