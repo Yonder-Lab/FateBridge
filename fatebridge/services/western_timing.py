@@ -14,7 +14,6 @@ from fatebridge.core.predictive import (
 )
 from fatebridge.utils.helpers import (
     calculation_guard,
-    handle_calculation_error,
     normalize_house_system,
 )
 

@@ -29,7 +29,6 @@ from fatebridge.utils.helpers import (
     calculation_guard,
     create_pillar_dict,
     get_current_analysis_date,
-    handle_calculation_error,
 )
 
 logger = logging.getLogger(__name__)

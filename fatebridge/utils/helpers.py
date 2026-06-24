@@ -1001,6 +1001,15 @@ def _resolve_birth_place_context_cached(
                     best_match = (*score, entry)
 
     if best_match is None:
+        # Observable, not silent: an uncatalogued place skips true-solar-time
+        # longitude correction, and silent fallback here is exactly the bug class
+        # fixed in #142/#143. Callers still get an all-None resolution; this just
+        # makes the skipped correction visible in logs.
+        logger.warning(
+            "出生地 %r 不在离线地名库中，已跳过真太阳时经度校正"
+            "（如需精确请显式传入经度）。",
+            normalized_place,
+        )
         return BirthPlaceResolution(None, None, None, None, None, None)
 
     entry = best_match[4]

@@ -132,6 +132,11 @@ ASPECT_DEGREES = [
     ("trine", "拱", 120.0),
     ("opposition", "冲", 180.0),
 ]
+# Degree → (key, label) for O(1) aspect-meta lookup. ASPECT_DEGREES above stays
+# the single source of truth; this index is derived from it once at import.
+ASPECT_DEGREE_TO_META = {
+    int(value): (key, label) for key, label, value in ASPECT_DEGREES
+}
 SWISSEPH_PLANET_IDS = {
     "Sun": 0,
     "Moon": 1,

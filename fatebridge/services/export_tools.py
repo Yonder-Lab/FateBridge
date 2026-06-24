@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from fatebridge.core.export_contracts import build_export_registry
 from fatebridge.core.export_parser import parse_export_content
-from fatebridge.utils.helpers import calculation_guard, handle_calculation_error
+from fatebridge.utils.helpers import calculation_guard
 
 
 @calculation_guard("导出注册表")
