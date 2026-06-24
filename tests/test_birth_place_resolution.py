@@ -103,7 +103,14 @@ def test_kaizhou_resolves_to_county_not_chongqing_centroid():
     # 开州区是重庆下辖远郊区(原开县)，距渝中半岛约 180km。含「重庆开州」的串里
     # 直辖市(重庆)与区(开州区)同时出现：区级更具体且别名更长，必须胜出——否则会
     # 用重庆市中心坐标(106.55°E/29.56°N)排盘，上升/天顶偏约 1.7°。
-    for place in ("开州区", "开州", "开县", "重庆开州", "重庆市开州区", "中国重庆市开州区"):
+    for place in (
+        "开州区",
+        "开州",
+        "开县",
+        "重庆开州",
+        "重庆市开州区",
+        "中国重庆市开州区",
+    ):
         r = resolve_birth_place_context(place)
         assert r.canonical_name == "开州区", place
         assert r.level == "county", place
