@@ -8,7 +8,11 @@ resolution_advisory，提示调用方改传 birth_longitude。
 均为纯字符串/历法判断，跨平台确定，无需 golden 字节锁。
 """
 
-from fatebridge.utils.helpers import PersonInfo, normalize_birth_time
+from fatebridge.utils.helpers import (
+    PersonInfo,
+    normalize_birth_time,
+    resolve_birth_place_context,
+)
 
 
 def _person(**overrides) -> PersonInfo:
@@ -59,11 +63,53 @@ def test_city_level_place_has_no_advisory():
     assert "resolution_advisory" not in summary
 
 
-def test_no_true_solar_no_advisory_even_for_province():
-    # 未启用真太阳时：不做校正，省级回退也无精度顾虑，不提示。
+def test_no_true_solar_no_advisory_even_for_uncatalogued_tail():
+    # 未启用真太阳时：不做校正，无精度顾虑，不提示。
     nb = normalize_birth_time(
         _person(birth_place="江苏省南通市海安市", use_true_solar_time=False)
     )
     summary = nb.as_dict()
     assert nb.applied is False
+    assert "resolution_advisory" not in summary
+
+
+def test_haian_resolves_to_county_not_parent_prefecture():
+    # 海安是南通下辖县级市。含「南通海安」的串里府(南通)与县(海安)同时出现，
+    # 县级更具体，必须胜出——否则会用南通市区坐标(纬度差约 0.56°)排出偏盘。
+    for place in ("海安", "海安市", "南通海安", "江苏南通海安", "中国江苏南通海安市"):
+        r = resolve_birth_place_context(place)
+        assert r.canonical_name == "海安", place
+        assert r.level == "county", place
+        assert abs(r.longitude - 120.47) < 0.1, place
+        assert abs(r.latitude - 32.54) < 0.1, place
+
+
+def test_nantong_prefecture_alone_still_resolves_to_itself():
+    r = resolve_birth_place_context("南通")
+    assert r.canonical_name == "南通"
+    assert r.level == "city"
+
+
+def test_nantong_county_siblings_each_resolve_distinctly():
+    # 同府的其它县级单位也补齐，避免「南通X」全部塌回南通市区。
+    # 通州 故意不收录：其「通州区」别名与北京通州区撞名。
+    for name in ("如皋", "启东", "海门", "如东"):
+        r = resolve_birth_place_context(f"南通{name}")
+        assert r.canonical_name == name, name
+        assert r.level == "county", name
+
+
+def test_beijing_tongzhou_not_misresolved_to_jiangsu():
+    # 回归：county 级别若高于 municipality(或同级但更长别名胜出)，"北京通州区"
+    # 会被错判到江苏南通。通州不入库 + county==municipality 共同守住此用例。
+    r = resolve_birth_place_context("北京通州区")
+    assert r.canonical_name == "北京"
+
+
+def test_haian_no_longer_emits_province_advisory():
+    # 已精确到县级 → 不再触发省级近似 advisory（对比 宿迁 仍触发）。
+    nb = normalize_birth_time(_person(birth_place="江苏省南通市海安市"))
+    summary = nb.as_dict()
+    assert summary["resolved_place"] == "海安"
+    assert summary["resolution_level"] == "county"
     assert "resolution_advisory" not in summary
