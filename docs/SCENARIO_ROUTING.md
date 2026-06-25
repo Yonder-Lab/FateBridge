@@ -171,3 +171,112 @@
 > 整合原则（按 §B）：三系一致 → 合并去重，用同一语言讲一次；三系分歧 → 显式标注「两套/三套口径不一」，各自呈现，不静默二选一，保留给用户权衡。
 > token 控制：三个工具并行时务必用 `fields` 或 `selected_sections` 裁剪，不要对每个工具裸吐完整 `snapshot_text`，避免三倍 token 膨胀。
 > 深追问：用户追问具体子域（如感情/事业/健康）时，切换到对应 §C.1–§C.7 的主证系统，不在此域重复展开专项工具。
+
+## §D 长尾 / 专家级工具触发表
+
+这些工具非日常场景默认调用，仅在特定追问或专家模式触发：
+
+| 工具 | 何时触发 |
+|---|---|
+| `astro_harmonic` `astro_planetary_ages` `astro_triplicity_rulers` `astro_lunation_phase` `astro_distributions` `astro_balbillus` `astro_keypoints` `astro_yearsystem129` `astro_planetaryarc` `astro_persiandirected` `astro_agepoint` `astro_vedicprog` `astro_jaynesprog` | 用户要西占「全生命周期/古典分阶段」推运，且点名某一技法或要求专家级深度时（默认时运用 §C.5 的聚合 `western_timing_analysis`）。 |
+| `astro_mundane` `astro_extrareturns` | 世俗/世运盘、多重回归——非个人命理，问国运/事件大盘或专家要求时。 |
+| `taiyi` | 大势/国运级判断（个人问事默认用六爻/梅花/奇门）。 |
+| `sanshiunited` | 三式合参，重大决策要奇门+六壬+太乙交叉时。 |
+
+## §E 支撑 / 元工具（非场景路由）
+
+| 工具 | 用途 |
+|---|---|
+| `gua_lookup` `gua_meiyi` | 查 64 卦义理（单卦 / 批量），为占卜类提供卦义支撑，非独立起卦。 |
+| `jieqi_year` `jieqi_timeline_analysis` `nongli_time` | 节气表 / 节气时间轴 / 公历农历换算，历法支撑。 |
+| `knowledge_registry` `knowledge_read` | 内置知识域目录与读取，解读查证用。 |
+| `export_registry` `export_parse` | 导出协议注册表 / 快照文本解析，工程支撑。 |
+| `calculate_legacy` | 旧版 `/api/calculate` 扁平结构，仅兼容老客户端，新接入用 `bazi_birth`，不进场景路由。 |
+
+## 覆盖核对清单
+
+> 不变量：以下集合必须恰好等于 `tool_catalog.CATALOG` 全集（由 `tests/test_scenario_routing_coverage.py` 在 CI 锁定）。新增工具若未在此登记，CI 失败。
+> 格式：每行 `` - `tool_key` — 归属 ``。
+
+- `analyze_destiny` — §C.1/§C.8 命格综合主证
+- `bazi_birth` — §C.1 核心命盘
+- `bazi_personality` — §C.1 命格
+- `bazi_education` — §C.1 命格
+- `bazi_children` — §C.1 命格
+- `bazi_relatives` — §C.1 命格
+- `bazi_career` — §C.2 事业
+- `bazi_wealth` — §C.2 事业
+- `bazi_marriage` — §C.3 缘分
+- `bazi_romance` — §C.3 缘分
+- `bazi_health` — §C.4 健康
+- `calculate_legacy` — §E 旧版兼容
+- `ziwei_birth` — §C.1/§C.8 紫微主证
+- `ziwei_horoscope` — §C.5 时运（紫微运限）
+- `ziwei_rules` — §C.1 查表（深）
+- `qimen` — §C.7 问事
+- `taiyi` — §C.7/§D 大势国运
+- `jinkou` — §C.7 问事（即时简断）
+- `liureng_gods` — §C.7 问事
+- `liureng_runyear` — §C.7 问事（流年）
+- `astro_chart` — §C.6/§C.8 星盘主证
+- `astro_chart13` — §C.6 星盘（13 星座流派）
+- `astro_hellen` — §C.6 星盘（希腊流派）
+- `astro_guolao` — §C.6 星盘（果老流派）
+- `astro_india` — §C.6 星盘（印度流派）
+- `astro_germany` — §C.6 星盘（德国盘）
+- `astro_relative` — §C.3/§C.6 关系盘（REST 端）
+- `astro_relative_chart` — §C.3/§C.6 关系盘（MCP 端）
+- `western_timing_analysis` — §C.5 时运聚合主证
+- `solarreturn` — §C.5 时运单技法
+- `lunarreturn` — §C.5 时运单技法
+- `transit` — §C.5 时运单技法
+- `solararc` — §C.5 时运单技法
+- `givenyear` — §C.5 时运单技法
+- `profection` — §C.5 时运单技法
+- `pd` — §C.5 时运单技法
+- `pdchart` — §C.5 时运单技法
+- `zr` — §C.5 时运单技法
+- `firdaria` — §C.5 时运单技法（法达）
+- `decennials` — §C.5 时运单技法
+- `astro_harmonic` — §D 全生命周期
+- `astro_planetary_ages` — §D 全生命周期
+- `astro_triplicity_rulers` — §D 全生命周期
+- `astro_lunation_phase` — §D 全生命周期
+- `astro_distributions` — §D 全生命周期
+- `astro_balbillus` — §D 全生命周期
+- `astro_keypoints` — §D 全生命周期
+- `astro_yearsystem129` — §D 全生命周期
+- `astro_planetaryarc` — §D 全生命周期
+- `astro_persiandirected` — §D 全生命周期
+- `astro_agepoint` — §D 全生命周期
+- `astro_vedicprog` — §D 全生命周期
+- `astro_jaynesprog` — §D 全生命周期
+- `astro_horary` — §C.7 西式卜卦
+- `astro_election` — §C.5 择日
+- `astro_mundane` — §D 世运
+- `astro_extrareturns` — §D 多重回归
+- `two_person_compatibility` — §C.3/§C.2 合婚/合作
+- `sukuyo_compatibility` — §C.3 宿曜旁证
+- `meihua_analysis` — §C.7 问事
+- `sixyao` — §C.7 问事
+- `tongshefa` — §C.7 问事
+- `suzhan` — §C.7 问事
+- `otherbu` — §C.7 西式星骰
+- `sanshiunited` — §C.7/§D 三式合参
+- `canping` — §C.1 数算（深）
+- `heluo` — §C.1 数算（深）
+- `gua_lookup` — §E 查卦义
+- `gua_meiyi` — §E 查卦义
+- `timing_analysis` — §C.5 时运聚合主证
+- `dayun_analysis` — §C.5 时运单粒度
+- `liunian_analysis` — §C.5 时运单粒度
+- `liuyue_analysis` — §C.5 时运单粒度
+- `liuri_analysis` — §C.5 时运单粒度
+- `liushi_analysis` — §C.5 时运单粒度
+- `jieqi_year` — §E 历法支撑
+- `jieqi_timeline_analysis` — §E 历法支撑
+- `nongli_time` — §E 历法支撑
+- `knowledge_registry` — §E 元工具
+- `knowledge_read` — §E 元工具
+- `export_registry` — §E 元工具
+- `export_parse` — §E 元工具
