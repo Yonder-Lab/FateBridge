@@ -16,9 +16,9 @@ triggers:
   - 调理方向
 engine_tools:
   - analyze_destiny
-  - bazi_birth
   - bazi_health
   - liunian_analysis
+  - liuyue_analysis
   - timing_analysis
 required_inputs:
   - birth_year

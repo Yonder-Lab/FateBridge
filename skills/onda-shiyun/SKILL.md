@@ -84,6 +84,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 工具 | 用途 | 优先级 |
 |------|------|--------|
 | `astro_mundane` | 某年春分/夏至/秋分/冬至入宫盘，问国运/年度大势 | 深 |
+| `astro_extrareturns` | 多重回归/事件多盘，含世俗星盘等专家级复合推运 | 深 |
 
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
 > 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。

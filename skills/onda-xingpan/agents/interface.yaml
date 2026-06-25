@@ -28,9 +28,7 @@ engine_tools:
   - astro_hellen_chart
   - astro_india_chart
   - astro_relative_chart
-  - profection
-  - solarreturn
-  - transit
+  - western_timing_analysis
 required_inputs:
   - birth_year
   - birth_month
