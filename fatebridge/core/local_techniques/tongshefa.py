@@ -45,17 +45,19 @@ def _hex(upper: Dict[str, Any], lower: Dict[str, Any]) -> Dict[str, Any]:
         "binary_code": "".join(str(bit) for bit in lines),
         "symbol": f"{upper['symbol']}{lower['symbol']}",
     }
-    try:
-        detail = lookup_hexagram_by_code(payload["binary_code"])
-        payload.update(
-            {
-                "theme": detail.get("theme"),
-                "judgement": detail.get("judgement"),
-                "image": detail.get("image"),
-            }
-        )
-    except ValueError:
-        pass
+    # binary_code 由两枚合法八卦的 6 位线值拼成，恒为合法卦码，
+    # lookup_hexagram_by_code 不会对它抛 ValueError。过去这里用
+    # ``except ValueError: pass`` 兜底，等于把「卦码构造出错」这类内部
+    # 不变量被破坏的真实 bug 静默吞掉、产出一枚缺 theme/judgement/image
+    # 的残卦。改为直接调用：真出错就大声抛，而非伪装成功。
+    detail = lookup_hexagram_by_code(payload["binary_code"])
+    payload.update(
+        {
+            "theme": detail.get("theme"),
+            "judgement": detail.get("judgement"),
+            "image": detail.get("image"),
+        }
+    )
     return payload
 
 
