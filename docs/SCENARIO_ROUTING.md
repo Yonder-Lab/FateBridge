@@ -106,9 +106,10 @@
 | 人生各阶段（全生命周期） | 深 | 深 | | | | | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | |
 
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
+> 双主证说明：本域「今年/明年运势」两个 主 是中式时运与西占推运两套传统并行，按用户语境择一为出结论口径（同 §C.8 的多主证处理），并非违反「钉一个主证」。
 > 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。
 > 择日专属：`astro_election` 是唯一择日主证，不用时运聚合工具替代。
-> 全生命周期：13 个西占单技法（`solarreturn`/`lunarreturn`/`transit`/`solararc`/`givenyear`/`profection`/`pd`/`pdchart`/`zr`/`firdaria`/`decennials` 等）仅在用户明确要「全生命周期」或专家模式时才深调。
+> 西占单技法：上列 11 个西占单技法（`solarreturn`/`lunarreturn`/`transit`/`solararc`/`givenyear`/`profection`/`pd`/`pdchart`/`zr`/`firdaria`/`decennials`）仅在用户点名某项技法或专家模式时才深调；古典「全生命周期」13 技法（`astro_harmonic`…`astro_jaynesprog`）见 §D。
 
 ### §C.6 星盘 · 西占本体（onda-xingpan）
 
