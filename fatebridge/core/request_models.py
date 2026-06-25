@@ -944,6 +944,19 @@ class AstroChartRequest(AstroBirthRequest):
 class AstroRelativePartyRequest(AstroBirthRequest):
     """One side of a relative/synastry request."""
 
+    # AstroBirthRequest defaults birth_timezone to "UTC", which silently treats
+    # an eastern wall-clock time as UTC and rotates the chart. Mirror the core
+    # AstroChartRequest fix: default to None so the engine infers the zone from
+    # birth_place and only falls back to UTC when no place is recognized.
+    birth_timezone: Optional[str] = Field(  # type: ignore[assignment]
+        default=None,
+        description=(
+            "Birth timezone (IANA name or UTC offset). Optional: when omitted, "
+            "FateBridge infers it from birth_place and only falls back to UTC if "
+            "no place is recognized."
+        ),
+    )
+
 
 class AstroRelativeRequest(BaseModel):
     """Request model for relative / synastry chart generation."""
@@ -1510,10 +1523,22 @@ class AstroRelativeFlatRequest(BaseModel):
         default=0, ge=0, le=59, description="Outer birth minute"
     )
     inner_birth_timezone: Optional[str] = Field(
-        default="UTC", description="Inner timezone"
+        default=None,
+        description=(
+            "Inner timezone (IANA name or UTC offset). Optional: when omitted, "
+            "FateBridge infers it from inner_birth_place and only falls back to "
+            "UTC if no place is recognized. A hardcoded 'UTC' default silently "
+            "treated an eastern wall-clock time as UTC and rotated the chart."
+        ),
     )
     outer_birth_timezone: Optional[str] = Field(
-        default="UTC", description="Outer timezone"
+        default=None,
+        description=(
+            "Outer timezone (IANA name or UTC offset). Optional: when omitted, "
+            "FateBridge infers it from outer_birth_place and only falls back to "
+            "UTC if no place is recognized. A hardcoded 'UTC' default silently "
+            "treated an eastern wall-clock time as UTC and rotated the chart."
+        ),
     )
     hsys: int = Field(
         default=3,

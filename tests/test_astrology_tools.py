@@ -1190,3 +1190,43 @@ def test_cli_no_true_solar_time_flag_actually_disables_correction():
     assert on["person_info"]["true_solar"]["applied"] is True
     # Western default is the civil clock: no flag → no correction.
     assert default["person_info"]["true_solar"]["applied"] is False
+
+
+def test_relative_requests_default_timezone_to_none_not_utc():
+    """关系/合盘两条入口的 birth_timezone 默认必须是 None，而非硬编码 "UTC"。
+
+    回归历史 bug：默认 "UTC" 会把东八区等墙钟时间当成 UTC，整盘旋转。改默认
+    为 None 后，引擎走 birth_place 推断时区（与核心 AstroChartRequest 一致），
+    仅在无法识别地名时回退 UTC。
+    """
+    from fatebridge.core.request_models import (
+        AstroRelativeFlatRequest,
+        AstroRelativePartyRequest,
+    )
+
+    party = AstroRelativePartyRequest(
+        birth_year=1990,
+        birth_month=4,
+        birth_day=6,
+        birth_hour=9,
+        birth_longitude=121.4667,
+        birth_latitude=31.2167,
+    )
+    assert party.birth_timezone is None
+
+    flat = AstroRelativeFlatRequest(
+        inner_birth_year=2000,
+        inner_birth_month=12,
+        inner_birth_day=10,
+        inner_birth_hour=9,
+        inner_birth_longitude=120.0,
+        inner_birth_latitude=30.0,
+        outer_birth_year=1992,
+        outer_birth_month=3,
+        outer_birth_day=2,
+        outer_birth_hour=8,
+        outer_birth_longitude=120.0,
+        outer_birth_latitude=30.0,
+    )
+    assert flat.inner_birth_timezone is None
+    assert flat.outer_birth_timezone is None
