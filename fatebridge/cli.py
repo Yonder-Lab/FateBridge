@@ -37,6 +37,7 @@ from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.tool_catalog import CATALOG
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
+    format_json_response,
     resolve_birth_place_context,
 )
 
@@ -313,6 +314,22 @@ def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
         help=(
             "只输出这些字段（token 预算控制；run_metadata 始终保留）。"
             "支持顶层 key 或点号子路径，如 bazi_birth.day_master"
+        ),
+    )
+    parser.add_argument(
+        "--compact",
+        action="store_true",
+        default=False,
+        help="紧凑 JSON 输出（无缩进），便于脚本管道；默认美化缩进。",
+    )
+    parser.add_argument(
+        "--include-snapshot-text",
+        dest="include_snapshot_text",
+        action=_BooleanFlagAction,
+        default=None,
+        help=(
+            "是否包含人类可读的 snapshot_text 文本段（默认随工具而定）；"
+            "用 --no-include-snapshot-text 关闭可显著省 token。"
         ),
     )
     parser.add_argument(
@@ -760,7 +777,20 @@ def run(argv: Optional[List[str]] = None) -> int:
     if not is_error and getattr(args, "fields", None):
         result = project_fields(result, args.fields)
 
-    print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
+    # Output shaping, mirroring REST/MCP. ``--include-snapshot-text`` defaults to
+    # None -> fall back to the spec's own default, preserving today's behavior
+    # (snapshot kept, pretty-printed). Error payloads carry no snapshot_text, so
+    # the flag is a no-op for them; --compact still applies uniformly.
+    include_snapshot_text = getattr(args, "include_snapshot_text", None)
+    if include_snapshot_text is None:
+        include_snapshot_text = spec.include_snapshot_text
+    print(
+        format_json_response(
+            result,
+            compact=getattr(args, "compact", False),
+            include_snapshot_text=include_snapshot_text,
+        )
+    )
     return 1 if is_error else 0
 
 

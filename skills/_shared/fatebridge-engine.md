@@ -75,6 +75,16 @@ python3 -m fatebridge.cli --no-metadata bazi_romance <出生参数> \
 
 路径写法跟上面「结构化字段怎么读」一致：命盘类带 `bazi_birth.` 前缀，八字 9 专项带 `<dim>_analysis.` 前缀。路径不存在不会报错，会返回空对象——按「指不到字段就别说」处理，别编。
 
+**关掉快照文本省 token（`--no-include-snapshot-text`）。** 只要结构化字段、不要那段几十 KB 的 `snapshot_text` 中文摊平时，加 `--no-include-snapshot-text`（或 `--include-snapshot-text false`）。脚本管道里想要单行紧凑 JSON 再加 `--compact`。两者默认都不改变现状（默认仍带快照、仍美化缩进），所以只在你确实要省 token 时才开。
+
+```bash
+# 只取结构化字段 + 关掉快照 + 紧凑：最省 token 的取数姿势
+python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
+  --no-include-snapshot-text --compact --fields bazi_birth.four_pillars
+```
+
+**三端等价：** 这套输出精炼在 REST / MCP / CLI 上语义一致。REST 用查询参数：`POST /api/cn/bazi/birth?include_snapshot_text=false&fields=bazi_birth.day_master&fields=...`（`fields` 可重复，等价于 CLI 的空格分隔）；MCP 工具用同名 keyword 参数 `fields` / `include_snapshot_text` / `compact`。无论哪端，`run_metadata` 始终保留。
+
 ---
 
 ## 三、参数字典（共用字段）
