@@ -22,6 +22,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
+from fatebridge import __version__ as APP_VERSION
 from fatebridge.core import astrology as astrology_core
 from fatebridge.core import predictive as astrology_predictive_core
 
@@ -109,7 +110,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="FateBridge API",
     description="API for FateBridge calculations across BaZi, divination, timing, and offline astrology charts with local ephemeris preference",
-    version="0.2.0",
+    version=APP_VERSION,
 )
 
 # ============================================================================
