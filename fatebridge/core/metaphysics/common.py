@@ -206,12 +206,6 @@ def rotate_sequence(
     return ordered[start_index:] + ordered[:start_index]
 
 
-def cyclic_get(values: List[str], index: int) -> str:
-    if not values:
-        return ""
-    return values[index % len(values)]
-
-
 def stem_element_text(stem: str) -> str:
     return STEM_ELEMENTS[stem][0].value
 

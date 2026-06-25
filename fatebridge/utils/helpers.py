@@ -164,16 +164,6 @@ def normalize_gender(gender: Any) -> str:
     return "未知"
 
 
-def is_male(gender: Any) -> bool:
-    """Convenience: True iff gender normalizes to 男."""
-    return normalize_gender(gender) == "男"
-
-
-def is_female(gender: Any) -> bool:
-    """Convenience: True iff gender normalizes to 女."""
-    return normalize_gender(gender) == "女"
-
-
 # Swiss Ephemeris 宫位系统代码 ↔ 常见英文/中文别名
 # Keys normalized via casefold + strip for lookup. Values are the
 # single-letter codes accepted by swisseph / kerykeion.

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, List, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ENV_PATH = PROJECT_ROOT / ".env"
@@ -102,24 +102,3 @@ def parse_api_keys(
         parsed[key_id] = secret
 
     return parsed
-
-
-def summarize_request_context(
-    *,
-    name: Optional[str] = None,
-    identifiers: Optional[Iterable[str | int | None]] = None,
-) -> str:
-    """
-    Return a privacy-preserving log summary for request context.
-    """
-
-    parts: List[str] = []
-    if name:
-        parts.append("named_subject")
-
-    if identifiers:
-        normalized = [str(item) for item in identifiers if item not in (None, "")]
-        if normalized:
-            parts.append(f"{len(normalized)}_identifiers")
-
-    return ", ".join(parts) if parts else "request"

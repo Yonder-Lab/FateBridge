@@ -12,7 +12,6 @@ from ..utils.data import (
     GENERATION_CYCLE,
     STEM_ELEMENTS,
     Element,
-    Polarity,
     get_ten_god,
 )
 from .element_relations import adjust_element_counts
@@ -68,34 +67,6 @@ class ElementAnalysis:
                 phase = "死"
             phases[element.value] = phase
         return phases
-
-    @staticmethod
-    def get_pillar_elements(
-        pillars: Dict[str, Tuple[str, str]],
-    ) -> Dict[str, List[Tuple[Element, Polarity]]]:
-        """Extract all elements from the four pillars."""
-        pillar_elements = {}
-
-        for pillar_name, (stem, branch) in pillars.items():
-            elements = []
-
-            # Add stem element
-            stem_element, stem_polarity = STEM_ELEMENTS[stem]
-            elements.append((stem_element, stem_polarity))
-
-            # Add branch element (main)
-            branch_element, branch_polarity = BRANCH_ELEMENTS[branch]
-            elements.append((branch_element, branch_polarity))
-
-            # Add hidden stems in branch
-            hidden_stems = BRANCH_HIDDEN_STEMS[branch]
-            for hidden_stem in hidden_stems:
-                hidden_element, hidden_polarity = STEM_ELEMENTS[hidden_stem]
-                elements.append((hidden_element, hidden_polarity))
-
-            pillar_elements[pillar_name] = elements
-
-        return pillar_elements
 
     @staticmethod
     def count_elements(pillars: Dict[str, Tuple[str, str]]) -> Dict[Element, float]:

@@ -215,14 +215,6 @@ def is_above_horizon(house: Optional[int]) -> Optional[bool]:
     return house >= 7
 
 
-def sect_of_chart(sun_house: Optional[int]) -> Optional[str]:
-    """Day chart when the Sun is above the horizon, else night."""
-    above = is_above_horizon(sun_house)
-    if above is None:
-        return None
-    return "day" if above else "night"
-
-
 def angularity(house: Optional[int]) -> Optional[str]:
     """Angular (1/4/7/10) · succedent (2/5/8/11) · cadent (3/6/9/12)."""
     if not house:

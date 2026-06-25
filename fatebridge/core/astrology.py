@@ -2579,38 +2579,6 @@ def _person_info_from_birth_info(
     }
 
 
-def _rehouse_chart_payload(
-    chart_payload: Dict[str, Any],
-    *,
-    house_system: str,
-    house_cusps: Optional[List[float]] = None,
-) -> Dict[str, Any]:
-    ascendant = chart_payload["angles"]["ascendant"]["longitude"]
-    planets = [
-        _build_planet_record(
-            item["id"],
-            item["longitude"],
-            item.get("latitude", 0.0),
-            ascendant,
-            house_system,
-            house_cusps=house_cusps,
-        )
-        for item in sorted(chart_payload["planets"], key=_planet_sort_key)
-    ]
-    chart_profile = dict(chart_payload.get("chart_profile", {}))
-    chart_profile["house_system"] = house_system
-    return {
-        **chart_payload,
-        "chart_profile": chart_profile,
-        "houses": _build_houses(ascendant, house_system, house_cusps=house_cusps),
-        "planets": planets,
-        "aspects": _build_aspects(planets),
-        "element_balance": _balance(planets, "element"),
-        "modality_balance": _balance(planets, "modality"),
-        "balance_basis": BALANCE_BASIS,
-    }
-
-
 def _house_cusp_values_from_payload(chart_payload: Dict[str, Any]) -> List[float]:
     return [
         float(item["cusp_longitude"])
@@ -2705,32 +2673,6 @@ def _chart_source_planets(chart_payload: Dict[str, Any]) -> List[Dict[str, Any]]
         }
         for item in chart_payload["planets"]
     ]
-
-
-def _relative_chart_positions(
-    chart_payload: Dict[str, Any],
-    *,
-    zodiacal_info: Dict[str, Any],
-    utc_datetime: datetime,
-) -> Tuple[List[Dict[str, Any]], float, float, Optional[float]]:
-    source_planets = _chart_source_planets(chart_payload)
-    ascendant = chart_payload["angles"]["ascendant"]["longitude"]
-    midheaven = chart_payload["angles"]["midheaven"]["longitude"]
-    ayanamsha: Optional[float] = None
-
-    if zodiacal_info["sidereal"]:
-        ayanamsha = _ayanamsha(_julian_day(utc_datetime))
-        source_planets = [
-            {
-                **item,
-                "longitude": normalize_angle(item["longitude"] - ayanamsha),
-            }
-            for item in source_planets
-        ]
-        ascendant = normalize_angle(ascendant - ayanamsha)
-        midheaven = normalize_angle(midheaven - ayanamsha)
-
-    return source_planets, ascendant, midheaven, ayanamsha
 
 
 def _build_relative_base_chart(
@@ -3590,82 +3532,6 @@ def _build_marks_relative_payload(
     }
 
 
-def _build_unimplemented_relative_payload(
-    *,
-    relative_mode_info: Dict[str, Any],
-    hsys: int,
-    zodiacal: int,
-    house_system_info: Dict[str, Any],
-    zodiacal_info: Dict[str, Any],
-    inner_chart: Dict[str, Any],
-    outer_chart: Dict[str, Any],
-    synastry_aspects: List[Dict[str, Any]],
-    compatibility: Dict[str, int],
-    composite_chart: Dict[str, Any],
-    in_to_out_aspects: List[Dict[str, Any]],
-    out_to_in_aspects: List[Dict[str, Any]],
-    in_to_out_midpoint: Dict[str, Any],
-    out_to_in_midpoint: Dict[str, Any],
-    in_to_out_antiscia: List[Dict[str, Any]],
-    out_to_in_antiscia: List[Dict[str, Any]],
-    in_to_out_contra_antiscia: List[Dict[str, Any]],
-    out_to_in_contra_antiscia: List[Dict[str, Any]],
-    inner_influence: Dict[str, Any],
-    outer_influence: Dict[str, Any],
-) -> Dict[str, Any]:
-    return {
-        "relationship_profile": {
-            **_base_relative_relationship_profile(
-                relative_mode_info,
-                hsys=hsys,
-                zodiacal=zodiacal,
-                house_system_info=house_system_info,
-                zodiacal_info=zodiacal_info,
-                source_profiles=(
-                    inner_chart.get("chart_profile", {}),
-                    outer_chart.get("chart_profile", {}),
-                    composite_chart.get("chart_profile", {}),
-                ),
-            ),
-            "primary_layer": "placeholder",
-            "mode_status": "placeholder",
-        },
-        "inner_chart": inner_chart,
-        "outer_chart": outer_chart,
-        "synastry_aspects": synastry_aspects,
-        "composite_chart": composite_chart,
-        "compatibility": compatibility,
-        "in_to_out_aspects": in_to_out_aspects,
-        "out_to_in_aspects": out_to_in_aspects,
-        "in_to_out_midpoint": in_to_out_midpoint,
-        "out_to_in_midpoint": out_to_in_midpoint,
-        "in_to_out_antiscia": in_to_out_antiscia,
-        "out_to_in_antiscia": out_to_in_antiscia,
-        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
-        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
-        "chart": {},
-        "inner": inner_influence,
-        "outer": outer_influence,
-        "inToOutAsp": in_to_out_aspects,
-        "outToInAsp": out_to_in_aspects,
-        "inToOutMidpoint": in_to_out_midpoint,
-        "outToInMidpoint": out_to_in_midpoint,
-        "inToOutAnti": in_to_out_antiscia,
-        "outToInAnti": out_to_in_antiscia,
-        "inToOutCAnti": in_to_out_contra_antiscia,
-        "outToInCAnti": out_to_in_contra_antiscia,
-        "summary": [
-            f"已生成 FateBridge {relative_mode_info['label_zh']} 占位输出。",
-            f"A对B相位主体数：{len(in_to_out_aspects)}。",
-            f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
-            f"A对B映点命中：{len(in_to_out_antiscia)}。",
-            f"综合分：{compatibility['overall_score']}。",
-            "该模式的深层图盘算法尚未实现，当前已提供兼容 contract、方向相位层、影响图盘，以及中点/映点"
-            f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
-        ],
-    }
-
-
 def build_relative_payload(
     inner_birth: AstroBirthInfo,
     outer_birth: AstroBirthInfo,
@@ -3787,8 +3653,8 @@ def build_relative_payload(
         payload = _build_marks_relative_payload(
             **shared_kwargs, marks_chart=marks_chart
         )
-    else:
-        payload = _build_unimplemented_relative_payload(**shared_kwargs)
+    else:  # pragma: no cover - _normalize_relative_mode only yields the 5 modes above
+        raise ValueError(f"未支持的关系盘模式: {normalized_mode!r}")
 
     # 关系取向解读侧重对所有盘式通用，在分发后统一附加一次。
     payload.setdefault("relationship_profile", {})["focus"] = relationship_focus_block(

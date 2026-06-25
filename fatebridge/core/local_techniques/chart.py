@@ -101,9 +101,6 @@ ZODIAC_SIGN_CN = {
 }
 
 
-TRADITIONAL_PLANETS = {"Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"}
-
-
 OUTER_PLANETS = {"Uranus", "Neptune", "Pluto"}
 
 

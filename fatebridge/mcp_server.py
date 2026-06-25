@@ -55,7 +55,6 @@ logging.basicConfig(
     level=getattr(logging, get_log_level(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
 
 
 # =============================================================================
