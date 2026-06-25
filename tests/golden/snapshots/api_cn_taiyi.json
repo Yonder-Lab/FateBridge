@@ -507,14 +507,14 @@
         "title": "起盘信息"
       },
       {
-        "content": "[太乙盘]\n太乙统宗\n太乙积年\n布盘方向：顺布\n命法：男命\n阳遁二十九局\n太乙在坤宫\n文昌在子宫\n岁君：午\n合神：未",
+        "content": "[太乙盘]\n太乙统宗\n命法积年数：10155943\n布盘方向：顺布\n命法：男命\n陽遁五十五局\n太乙在艮宫（3）\n文昌在申宫\n岁君：午\n合神：未",
         "included": false,
         "index": 2,
         "raw_title": "太乙盘",
         "title": "太乙盘"
       },
       {
-        "content": "[十六宫标记]\n巽：无\n巳：主算\n午：无\n未：无\n坤：君基、太乙\n申：臣基\n酉：无\n戌：无\n乾：民基\n亥：无\n子：文昌\n丑：无\n艮：无\n寅：始击\n卯：无\n辰：定目",
+        "content": "[十六宫标记]\n巽：客參\n巳：无\n午：太歲、陽九\n未：合神、百六\n坤：四神、定目\n申：值符、文昌、計神\n酉：主大\n戌：无\n乾：无\n亥：臣基\n子：主參、君基\n丑：无\n艮：五福、地乙、太乙、始击、客大\n寅：天乙、民基\n卯：无\n辰：无",
         "included": false,
         "index": 3,
         "raw_title": "十六宫标记",
@@ -564,52 +564,88 @@
     },
     "unknown_detected_sections": []
   },
-  "snapshot_text": "[起盘信息]\n农历：二月廿一\n直接时间：2026-04-08 09:30:00\n四柱：丙午年/壬辰月/壬子日/乙巳时\n当前节气：清明\n下个节气：谷雨\n时间算法：直接时间\n\n[太乙盘]\n太乙统宗\n太乙积年\n布盘方向：顺布\n命法：男命\n阳遁二十九局\n太乙在坤宫\n文昌在子宫\n岁君：午\n合神：未\n\n[十六宫标记]\n巽：无\n巳：主算\n午：无\n未：无\n坤：君基、太乙\n申：臣基\n酉：无\n戌：无\n乾：民基\n亥：无\n子：文昌\n丑：无\n艮：无\n寅：始击\n卯：无\n辰：定目",
+  "snapshot_text": "[起盘信息]\n农历：二月廿一\n直接时间：2026-04-08 09:30:00\n四柱：丙午年/壬辰月/壬子日/乙巳时\n当前节气：清明\n下个节气：谷雨\n时间算法：直接时间\n\n[太乙盘]\n太乙统宗\n命法积年数：10155943\n布盘方向：顺布\n命法：男命\n陽遁五十五局\n太乙在艮宫（3）\n文昌在申宫\n岁君：午\n合神：未\n\n[十六宫标记]\n巽：客參\n巳：无\n午：太歲、陽九\n未：合神、百六\n坤：四神、定目\n申：值符、文昌、計神\n酉：主大\n戌：无\n乾：无\n亥：臣基\n子：主參、君基\n丑：无\n艮：五福、地乙、太乙、始击、客大\n寅：天乙、民基\n卯：无\n辰：无",
   "taiyi": {
-    "accumulation_label": "太乙积年",
+    "accumulation_label": "命法积年数：10155943",
     "core_board": {
+      "chenji": "亥",
+      "dingmu": "坤",
+      "diyi": "艮",
+      "guest_count": 0,
+      "guest_count_des": [
+        "無天，二曜虛蝕、五緯失度、慧孛飛流、霜雹為害",
+        "無地，有崩地震、川竭蝗蝻之象",
+        "無人，口舌妖言更相殘賊，疾疫、遷移、流亡"
+      ],
+      "guest_general": 3,
+      "guest_vice_general": 9,
       "heshen": "未",
-      "main_calculation": "阳遁二十九局",
+      "jishen": "申",
+      "junji": "子",
+      "kook_number": 55,
+      "kook_year": "理天",
+      "main_calculation": "陽遁五十五局",
+      "main_count": 15,
+      "main_count_des": [],
+      "main_general": 6,
+      "main_vice_general": 8,
+      "minji": "寅",
+      "set_count": 22,
+      "shiji": "艮",
+      "sishen": "坤",
       "suijun": "午",
-      "taiyi_position": "太乙在坤宫",
-      "wenchang_position": "文昌在子宫"
+      "taiyi_position": "太乙在艮宫（3）",
+      "tianyi": "寅",
+      "wenchang_position": "文昌在申宫",
+      "wufu": 3,
+      "zhifu": "申"
     },
     "engine": "fatebridge-offline",
     "life_method": "男命",
     "palace_marks": [
       {
-        "markers": [],
+        "markers": [
+          "客參"
+        ],
         "palace": "巽"
       },
       {
-        "markers": [
-          "主算"
-        ],
+        "markers": [],
         "palace": "巳"
       },
       {
-        "markers": [],
+        "markers": [
+          "太歲",
+          "陽九"
+        ],
         "palace": "午"
       },
       {
-        "markers": [],
+        "markers": [
+          "合神",
+          "百六"
+        ],
         "palace": "未"
       },
       {
         "markers": [
-          "君基",
-          "太乙"
+          "四神",
+          "定目"
         ],
         "palace": "坤"
       },
       {
         "markers": [
-          "臣基"
+          "值符",
+          "文昌",
+          "計神"
         ],
         "palace": "申"
       },
       {
-        "markers": [],
+        "markers": [
+          "主大"
+        ],
         "palace": "酉"
       },
       {
@@ -617,18 +653,19 @@
         "palace": "戌"
       },
       {
-        "markers": [
-          "民基"
-        ],
+        "markers": [],
         "palace": "乾"
       },
       {
-        "markers": [],
+        "markers": [
+          "臣基"
+        ],
         "palace": "亥"
       },
       {
         "markers": [
-          "文昌"
+          "主參",
+          "君基"
         ],
         "palace": "子"
       },
@@ -637,12 +674,19 @@
         "palace": "丑"
       },
       {
-        "markers": [],
+        "markers": [
+          "五福",
+          "地乙",
+          "太乙",
+          "始击",
+          "客大"
+        ],
         "palace": "艮"
       },
       {
         "markers": [
-          "始击"
+          "天乙",
+          "民基"
         ],
         "palace": "寅"
       },
@@ -651,15 +695,13 @@
         "palace": "卯"
       },
       {
-        "markers": [
-          "定目"
-        ],
+        "markers": [],
         "palace": "辰"
       }
     ],
     "rotation": "顺布",
     "style_label": "太乙统宗",
-    "taiyi_palace": "坤",
-    "wenchang_palace": "子"
+    "taiyi_palace": "艮",
+    "wenchang_palace": "申"
   }
 }

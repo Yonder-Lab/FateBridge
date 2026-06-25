@@ -1014,7 +1014,7 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
     assert result["analysis_type"] == "三式合一"
     assert result["qimen"]["dun_type"] == "阳遁"
     assert result["qimen"]["ju_number"] == 6
-    assert result["taiyi"]["core_board"]["main_calculation"] == "阳遁二十三局"
+    assert result["taiyi"]["core_board"]["main_calculation"] == "陽遁五十七局"
     # 辛日巳时 昼占，LIURENG_GUIREN_DAY["辛"]="午"，午 在 GUI_REN_REVERSED_STARTS 区间 (巳午未申酉)
     # 贵人起 午 逆行 → 贵人逆行格。
     assert result["liureng"]["patterns"][0]["name"] == "贵人逆行格"
@@ -1264,8 +1264,8 @@ def test_local_offline_golden_samples_match_current_contract():
                 "reference": "门迫逢旺，先阻后成。",
             },
             "taiyi": {
-                "main_calculation": "阳遁二十三局（积数+1）",
-                "taiyi_palace": "戌",
+                "main_calculation": "陽遁五十七局（积数+1）",
+                "taiyi_palace": "寅",
                 "big_pattern": "龙德扶身格",
                 "small_pattern": "六合入局",
             },

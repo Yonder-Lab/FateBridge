@@ -778,13 +778,15 @@ def test_calculate_taiyi_analysis_returns_sixteen_palaces():
 
     assert result["analysis_type"] == "太乙神数"
     assert result["taiyi"]["style_label"]
-    # 十六宫定位：(年支 + 月支 + 日支 + 时支 + 农历日) % 16 落宫。
-    # 2026-04-04 21:12 真太阳 (辛卯月戊申日癸亥时)，农历 2月17，palace_index=45%16=13 → 寅。
-    # 文昌同 offset 下落 TAIYI_PALACE16_ORDER[(13+TAIYI_MARKER_OFFSETS["文昌"])%16] → 未。
-    assert result["taiyi"]["taiyi_palace"] == "寅"
-    assert result["taiyi"]["wenchang_palace"] == "未"
+    # 太乙統宗 人道命法 (ji_style=0)，对齐参考实现 kintaiyi。2026-04-04 21:18
+    # 真太阳 → 四柱 丙午/辛卯/戊申/癸亥，农历年 2026 → 积年数 10155943，
+    # 局数 = 10155943 % 72 = 55 → 陽遁五十五局；太乙落宫 艮、文昌(天目) 申。
+    assert result["taiyi"]["taiyi_palace"] == "艮"
+    assert result["taiyi"]["wenchang_palace"] == "申"
     assert len(result["taiyi"]["palace_marks"]) == 16
-    assert result["taiyi"]["core_board"]["main_calculation"] == "阳遁二十五局"
+    assert result["taiyi"]["core_board"]["main_calculation"] == "陽遁五十五局"
+    assert result["taiyi"]["core_board"]["kook_number"] == 55
+    assert result["taiyi"]["core_board"]["shiji"] == "艮"
     assert "[太乙盘]" in result["snapshot_text"]
     assert "[十六宫标记]" in result["snapshot_text"]
     assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
