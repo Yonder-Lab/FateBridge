@@ -1337,3 +1337,25 @@ def test_fastmcp_local_tools_expose_parameters():
     assert "liureng_yue" in sanshi_properties
     assert "liureng_is_diurnal" in sanshi_properties
     assert "use_true_solar_time" in sanshi_properties
+
+
+def test_tongshefa_hex_always_enriches_every_hexagram():
+    """_hex 必须对全部 64 卦都填上 theme/judgement/image，不再静默吞错。
+
+    回归历史 bug：_hex 用 ``except ValueError: pass`` 兜底 lookup，
+    一旦卦码构造出错就静默产出缺 theme 的残卦。binary_code 由合法八卦拼成
+    恒合法，lookup 永不抛错，故此处验证 64 卦全部被成功补全。
+    """
+    from fatebridge.core.local_techniques import tongshefa as _t
+
+    names = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
+    built = 0
+    for upper_name in names:
+        for lower_name in names:
+            hexagram = _t._hex(_t._bagua(upper_name), _t._bagua(lower_name))
+            # 三个增益键必须存在且非空——证明 lookup 一定被成功消费。
+            assert hexagram["theme"], hexagram["name"]
+            assert hexagram["judgement"], hexagram["name"]
+            assert hexagram["image"], hexagram["name"]
+            built += 1
+    assert built == 64
