@@ -14,7 +14,7 @@ description: 用 FateBridge 引擎看性格、天赋、学业、原生家庭与�
 
 **铁律：日主旺衰、十神、格局、紫微安星全部交给引擎。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 

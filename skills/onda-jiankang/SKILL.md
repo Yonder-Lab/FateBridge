@@ -12,7 +12,7 @@ description: 用 FateBridge 引擎看健康倾向与身心状态，Onda 河狸�
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
 - 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 

@@ -248,7 +248,7 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 
 ---
 
-## 七、全局调用纪律（省 token / 防重复运算）
+## 八、全局调用纪律（省 token / 防重复运算）
 
 > 权威全文与各场景的工具取舍见 `docs/SCENARIO_ROUTING.md`。本节是所有 onda 技能共享的执行铁律。
 
@@ -258,6 +258,6 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 4. **token 收口**：聚焦问题默认 `--fields` / `selected_sections` 裁剪，不裸吐整张 `snapshot_text`。
 5. **一次一项收信息**，记不清参数先 `describe`，报错先读 `error_code` 再改，不盲重试。
 
-## 八、交叉印证与去重（防矛盾）
+## 九、交叉印证与去重（防矛盾）
 
 **主证 + 旁证 + 显式分歧**：每个场景钉一个主证系统出结论，其余只作旁证（加强/修正），不单独下判断。系统间一致则合并去重；冲突则显式标注「两套口径不一」，不静默二选一。同一神煞在多个工具重复出现时，按当前场景取一个口径讲一次（如咸池在 romance=机会 / marriage=防烂桃花，合并讲一次）。各域主证分配见 `docs/SCENARIO_ROUTING.md` §B。

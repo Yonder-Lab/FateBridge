@@ -14,7 +14,7 @@ description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希�
 
 **铁律：行星位置、宫位、相位全部交给引擎（优先本地 Swiss Ephemeris，缺时回退近似模型）。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 
@@ -25,14 +25,14 @@ description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希�
 | 我的星盘/本命盘 | `astro_chart` | 主 | 标准盘，含上升·太阳·月亮·行星落宫·相位 |
 | 上升·太阳·月亮·行星落宫·相位 | `astro_chart` | 主 | |
 | 13 星座盘 | `astro_chart13` | 主 | |
-| 希腊传统星盘 | `astro_hellen` | 主 | |
-| 果老星宗盘（中式七政四余） | `astro_guolao` | 主 | |
-| 印度星盘（Jyotish） | `astro_india` | 主 | |
-| 德国占星/汉堡学派 | `astro_germany` | 主 | |
+| 希腊传统星盘 | `astro_hellen_chart` | 主 | |
+| 果老星宗盘（中式七政四余） | `astro_guolao_chart` | 主 | |
+| 印度星盘（Jyotish） | `astro_india_chart` | 主 | |
+| 德国占星/汉堡学派 | `astro_germany_chart` | 主 | |
 | 两人关系星盘/合盘 | `astro_relative_chart` | 主 | 两人用 `--inner-birth-*`/`--outer-birth-*`（需经纬度），返回 JSON |
 | 推运/流年（从星盘延伸） | `western_timing_analysis` | 深 | 衔接 §C.5 时运域 |
 
-> 流派切换：`astro_chart` 通过 `chart_variant` 参数切换流派，已知具体流派时直接用对应工具（`astro_chart13`/`astro_hellen` 等），避免重复调用。
+> 流派切换：`astro_chart` 通过 `chart_variant` 参数切换流派，已知具体流派时直接用对应工具（`astro_chart13`/`astro_hellen_chart` 等），避免重复调用。
 > 关系盘：`astro_relative_chart` 需双方经纬度，缺任一方位信息须先采集再调用。
 > 衔接时运：星盘本体分析完成后若用户追问流年走势，指向 §C.5 时运域（onda-shiyun），而非在此域重复调西占推运工具。
 

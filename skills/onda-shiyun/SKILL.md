@@ -14,7 +14,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 
 **铁律：大运起运、流年干支、节气换月、星历推运全部交给引擎。手算这些必错。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 
@@ -78,7 +78,6 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | `astro_agepoint` | 年龄推进点·Huber/Koch宫6年 | 深 |
 | `astro_vedicprog` | 恒星推运·恒星黄道二次推运 | 深 |
 | `astro_jaynesprog` | 赤纬推运·二次推运赤纬平行 | 深 |
-| `astro_extrareturns` | 多重回归·土/木/月交返照 | 深 |
 
 **世俗盘（非个人盘）**
 
@@ -89,7 +88,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
 > 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。
 > 择日专属：`astro_election` 是唯一择日主证，不用时运聚合工具替代。
-> 全生命周期：13 个西占单技法仅在用户明确要「全生命周期」或专家模式时才深调。
+> 全生命周期：13 种全生命周期技法（astro_harmonic…astro_jaynesprog）仅在用户明确要「全生命周期」或专家模式时才深调。
 
 中式与西占可以互相印证，但别强行拼。先用一套讲清楚，另一套作旁证。
 

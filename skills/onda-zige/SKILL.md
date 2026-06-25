@@ -14,7 +14,7 @@ description: 用 FateBridge 引擎做一次全面的自我画像：八字+紫微
 
 **铁律：所有排盘、干支、十神、安星、星历全部交给引擎。AI 只负责读事实、做交叉、讲人话。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 

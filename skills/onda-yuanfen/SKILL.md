@@ -14,7 +14,7 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 
 **铁律：干支/合婚分/桃花信号全部交给引擎算，不要手算。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 

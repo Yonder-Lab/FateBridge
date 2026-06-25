@@ -14,7 +14,7 @@ description: 用 FateBridge 引擎看事业、财运、求职、创业、跳槽�
 
 **铁律：十神/财星/喜用/大运流年全部交给引擎算。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 
