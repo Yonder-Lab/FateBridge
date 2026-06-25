@@ -263,6 +263,9 @@ CLI 子命令与参数同样从中央目录派生，`--help` 可查每个工具�
 
 1. **发现**：启动时拉一次 `/api/tools`（或 MCP `tools/list`），按 `family` 建立工具路由表
 2. **路由**：按用户意图选 family（八字→`bazi`，运势→`timing`，星盘→`astro`，术数→`metaphysics`/`divination`）
+
+> 场景级取舍（谁主谁次、怎么省 token、怎么不自相矛盾）见 [SCENARIO_ROUTING.md](SCENARIO_ROUTING.md)。
+
 3. **取数**：传齐出生信息；需要真太阳时就显式 `use_true_solar_time=true`
 4. **裁剪**：用 `fields` / `--fields` 或 `selected_sections` 控制 token
 5. **判错**：永远基于 `error_code` 分支；`dependency_missing` 说明环境缺西占 backend，而非入参问题
@@ -274,5 +277,6 @@ CLI 子命令与参数同样从中央目录派生，`--help` 可查每个工具�
 
 - [API.md](API.md)：全部 REST 路由、FastMCP 工具、请求族、响应字段
 - [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)：13 family / 80 工具的算法与精度/依赖矩阵
+- [SCENARIO_ROUTING.md](SCENARIO_ROUTING.md)：场景→工具路由矩阵、调用纪律、交叉印证与去重策略
 - [GETTING_STARTED.md](GETTING_STARTED.md)：从零启动服务
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)：依赖缺失、精度、快照导出等常见问题
