@@ -210,22 +210,6 @@ MONTH_BRANCHES = {
     12: "子",  # 十二月 -> 子月 (大雪-大寒)
 }
 
-# 时辰地支对应表 (Hour to Branch mapping)
-HOUR_BRANCHES = {
-    23: "子",
-    1: "丑",
-    3: "寅",
-    5: "卯",
-    7: "辰",
-    9: "巳",
-    11: "午",
-    13: "未",
-    15: "申",
-    17: "酉",
-    19: "戌",
-    21: "亥",
-}
-
 
 def get_hour_branch(hour: int) -> str:
     """Get the earthly branch for a given hour (0-23)."""
@@ -581,16 +565,6 @@ def check_branch_conflict(branch1: str, branch2: str) -> bool:
 def check_branch_combination(branch1: str, branch2: str) -> bool:
     """检查地支是否六合"""
     return BRANCH_COMBINATIONS.get(branch1) == branch2
-
-
-def check_triple_combination(branch1: str, branch2: str, branch3: str) -> Optional[str]:
-    """检查地支是否三合，返回三合局类型"""
-    branches = sorted([branch1, branch2, branch3])
-
-    for triple_key, bureau_type in BRANCH_TRIPLE_COMBINATIONS.items():
-        if sorted(list(triple_key)) == branches:
-            return bureau_type
-    return None
 
 
 # 性别归一化 (Gender normalization)

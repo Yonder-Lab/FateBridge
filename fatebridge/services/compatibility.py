@@ -2,7 +2,6 @@
 FateBridge Compatibility Services
 """
 
-import logging
 from typing import Any, Dict
 
 from fatebridge.analysis.compatibility import AdvancedCompatibility, RelationshipType
@@ -18,8 +17,6 @@ from fatebridge.utils.helpers import (
     calculation_guard,
     get_element_relationship,
 )
-
-logger = logging.getLogger(__name__)
 
 
 @calculation_guard("配合度分析")

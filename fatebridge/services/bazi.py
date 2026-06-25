@@ -298,16 +298,6 @@ def _resolve_analysis_date(
     return datetime(year, month, min(day, last_day))
 
 
-def _calculate_age(birth_datetime: datetime, analysis_date: datetime) -> int:
-    age = analysis_date.year - birth_datetime.year
-    if (analysis_date.month, analysis_date.day) < (
-        birth_datetime.month,
-        birth_datetime.day,
-    ):
-        age -= 1
-    return max(age, 0)
-
-
 def _cycle_stem(stem: str, steps: int) -> str:
     return HEAVENLY_STEMS[(HEAVENLY_STEMS.index(stem) + steps) % len(HEAVENLY_STEMS)]
 

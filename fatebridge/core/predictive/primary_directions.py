@@ -623,16 +623,6 @@ def primary_direction_aspect_meta(aspect_degree: int) -> tuple[str, str]:
     return f"{aspect_degree}deg", f"{aspect_degree}°"
 
 
-def build_primary_direction_targets(natal_subject: Any) -> List[Dict[str, Any]]:
-    coordinate_map = extract_reference_longitudes(natal_subject)
-    for lot_key, payload in build_lot_payloads(natal_subject).items():
-        coordinate_map[LOT_POINT_NAMES[lot_key]] = float(payload["absolute_degree"])
-    return build_primary_direction_targets_with_coordinates(
-        natal_subject,
-        coordinate_map=coordinate_map,
-    )
-
-
 def build_primary_direction_targets_with_coordinates(
     natal_subject: Any,
     *,

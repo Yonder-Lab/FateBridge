@@ -298,16 +298,3 @@ class BaZiCalendar:
             "day": day_pillar,
             "hour": hour_pillar,
         }
-
-    @classmethod
-    def format_pillars(cls, pillars: Dict[str, Tuple[str, str]]) -> str:
-        """Format the four pillars as a readable string."""
-        pillar_names = ["年柱", "月柱", "日柱", "时柱"]
-        pillar_keys = ["year", "month", "day", "hour"]
-
-        formatted_pillars = []
-        for name, key in zip(pillar_names, pillar_keys):
-            stem, branch = pillars[key]
-            formatted_pillars.append(f"{name}: {stem}{branch}")
-
-        return "  ".join(formatted_pillars)

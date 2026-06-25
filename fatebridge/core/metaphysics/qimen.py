@@ -62,12 +62,6 @@ QIMEN_PALACES: List[Dict[str, Any]] = [
 ]
 
 
-QIMEN_HEAVEN_STEMS = ["壬", "癸", "丁", "丙", "戊", "己", "庚", "辛", "乙"]
-
-
-QIMEN_EARTH_STEMS = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"]
-
-
 QIMEN_CN_NUMBERS = tuple("一二三四五六七八九")
 
 
@@ -134,21 +128,6 @@ QIMEN_GOD_DISPLAY = {
     "地": "九地",
     "天": "九天",
 }
-
-
-QIMEN_STARS = tuple(
-    QIMEN_STAR_DISPLAY[key]
-    for key in ("蓬", "任", "冲", "辅", "英", "芮", "柱", "心", "禽")
-)
-
-
-QIMEN_DOORS = tuple(QIMEN_DOOR_DISPLAY.get(key, "中门") for key in QIMEN_DOOR_ROUTE)
-
-
-QIMEN_GODS = tuple(
-    QIMEN_GOD_DISPLAY[key]
-    for key in ("符", "蛇", "阴", "合", "虎", "玄", "地", "天", "符")
-)
 
 
 QIMEN_FUHEAD_HEAVEN_STEM = {
@@ -270,9 +249,6 @@ QIMEN_ZHIRUN_TERM_SEQUENCE = (
     "雨水",
     "惊蛰",
 )
-
-
-QIMEN_PALACE_BY_TRIGRAM = {item["trigram"]: item for item in QIMEN_PALACES}
 
 
 QIMEN_GUA_BY_NUMERAL = dict(zip(QIMEN_CN_NUMBERS, QIMEN_GUA_SEQUENCE))
@@ -569,14 +545,6 @@ def _qimen_find_yuan(day_ganzhi: str) -> str:
     if cycle_index < 5:
         return "上元"
     if cycle_index < 10:
-        return "中元"
-    return "下元"
-
-
-def _qimen_find_yuan_from_delta(days_since_current: float) -> str:
-    if days_since_current < 5:
-        return "上元"
-    if days_since_current < 10:
         return "中元"
     return "下元"
 
