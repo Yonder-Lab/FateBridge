@@ -612,7 +612,17 @@ def _qimen_resolve_special_zhishi(
     dun_type: str,
     current_term: Optional[str] = None,
 ) -> str:
-    _ = (dun_type, current_term)
+    """天禽星作值符时的值使门——恒为「死」。
+
+    天禽是中宫之星，中宫无门；天禽寄于坤二宫，而坤宫的固定门即死门，故天禽为值符
+    时其值使门恒为死门。该结果与 ``dun_type``（阴/阳遁）、``current_term``（节气）
+    均无关——值使所落之「宫」会随之变，但门名不变。两参数沿用本模块统一的
+    上下文传参约定而保留（故意不参与计算），不再用 ``_ = (...)`` 丢弃伪装成占位。
+
+    已对照权威实现 kentang2017/kinqimen 验证：在禽为值符的多个时辰/落宫下，
+    其「值使門」均为「死」。
+    """
+    del dun_type, current_term  # 规则对二者不变；显式表明「收下但不用」
     return "死"
 
 
