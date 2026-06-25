@@ -307,3 +307,38 @@ def test_calculate_destiny_analysis_exposes_structure_profile():
     )
     assert "recognized_structures" in result["patterns"]["special"]
     assert "metadata" in result["patterns"]["special"]
+
+
+def test_comprehensive_summary_reads_normalized_score_key():
+    """traditional_analysis 维度用 normalized_score 键，摘要必须回退读取它。
+
+    回归历史 bug：_generate_comprehensive_summary 曾用 .get("score", 0)，对
+    traditional_analysis（只有 normalized_score）静默拿到 0，把它恒判为「挑战」。
+    现在该维度近中性（48 分，落在 46<score<68 区间）应既非优势也非挑战。
+    """
+    result = {
+        "overall_score": 60.0,
+        "strengths": [],
+        "challenges": [],
+        "detailed_analysis": {
+            # 近中性的传统维度：仅一处轻微六冲，归一化后 48 分。
+            "traditional_analysis": {
+                "normalized_score": 48.0,
+                "traditional_deviation": -0.2,
+                "details": ["子与午六冲"],
+            },
+            # 明确为挑战的常规维度，验证正常路径仍生效。
+            "ten_gods_relationship": {
+                "score": 40.0,
+                "details": ["十神层面存在明显克泄"],
+            },
+        },
+    }
+
+    summarized = AdvancedCompatibility._generate_comprehensive_summary(result)
+
+    # 48 分既不进 strengths（≥68）也不进 challenges（≤46）。
+    assert "子与午六冲" not in summarized["challenges"]
+    assert "子与午六冲" not in summarized["strengths"]
+    # 常规维度按真实 score 正确归入挑战，证明判定确实读到了分数而非恒 0。
+    assert "十神层面存在明显克泄" in summarized["challenges"]
