@@ -458,6 +458,10 @@ def describe_spec(spec: "ToolSpec") -> Dict[str, Any]:
 # REST registrar (FastAPI)
 # ---------------------------------------------------------------------------
 
+# Query-param names the REST handler injects for output shaping; a request model
+# field of the same name would be routed to the body and shadow the param.
+_REST_RESERVED_FIELDS = {"include_snapshot_text", "fields"}
+
 
 def register_rest(
     app: Any,
@@ -473,6 +477,17 @@ def register_rest(
     for spec in specs:
         if not spec.rest_path:
             continue
+        # Guard the output-shaping query params against a request-model field of
+        # the same name (which FastAPI would route to the body, making the query
+        # param unsettable). MCP guards these in ``_make_mcp_fn``; REST-only tools
+        # (e.g. calculate_legacy, astro_relative) never pass through that path, so
+        # enforce it here too — fail loud rather than silently shadow a flag.
+        _clash = _REST_RESERVED_FIELDS & set(spec.request_model.model_fields)
+        if _clash:
+            raise ValueError(
+                f"Tool '{spec.tool_name}' request model has reserved field name(s) "
+                f"{_clash}; these collide with REST output-shaping query params."
+            )
         app.add_api_route(
             spec.rest_path,
             make_rest_handler(
@@ -493,10 +508,31 @@ def make_rest_handler(
     http_exception: Any,
     logger: Any = None,
 ) -> Callable[..., Any]:
+    from fastapi import Query
+
     model = spec.request_model
     error_label = spec.rest_error_label or f"{spec.operation_label_zh}参数"
+    # A bare ``List`` param without ``Query()`` is read by FastAPI as a *body*
+    # field, which would force the request model to embed under ``request`` and
+    # break the flat body contract. Marking both params as Query keeps the body
+    # exactly as before (the flat request model) and exposes these as query
+    # params (``?include_snapshot_text=false&fields=a&fields=b``).
+    snapshot_t = Annotated[bool, Query(description=_SNAPSHOT_FLAG_DESC)]
+    fields_t = Annotated[Optional[List[str]], Query(description=_FIELDS_FLAG_DESC)]
 
-    async def handler(request: Any) -> Any:  # signature injected below
+    # Output-shaping query params, mirroring the MCP transport flags so a REST
+    # caller can trim a 50KB payload to the few fields it needs. Defaults
+    # reproduce the historical full payload exactly (no snapshot dropped, no
+    # projection), so existing clients and golden masters see no change.
+    # ``compact`` is intentionally omitted — HTTP/JSON serialization is FastAPI's
+    # job and is already unindented. ``request`` stays the only required param so
+    # the backward-compatible direct-call handlers (``await calculate_x(req)``)
+    # keep working.
+    async def handler(
+        request: Any,
+        include_snapshot_text: bool = spec.include_snapshot_text,
+        fields: Optional[List[str]] = None,
+    ) -> Any:  # signature injected below
         try:
             if logger is not None:
                 logger.info("Processing %s request", spec.tool_name)
@@ -511,6 +547,12 @@ def make_rest_handler(
             )
             if spec.result_transform is not None:
                 result = spec.result_transform(result)
+            # Project AFTER run_metadata is attached (execute_service did it) so
+            # provenance survives a selection; then drop snapshot_text if opted
+            # out. Order matches MCP's _render_tool_response.
+            result = project_fields(result, fields)
+            if not include_snapshot_text and "snapshot_text" in result:
+                result = {k: v for k, v in result.items() if k != "snapshot_text"}
             return result
         except ValueError:
             raise http_exception(status_code=400, detail=f"无效的{error_label}")
@@ -534,11 +576,28 @@ def make_rest_handler(
                     "request",
                     inspect.Parameter.POSITIONAL_OR_KEYWORD,
                     annotation=model,
-                )
+                ),
+                inspect.Parameter(
+                    "include_snapshot_text",
+                    inspect.Parameter.KEYWORD_ONLY,
+                    annotation=snapshot_t,
+                    default=spec.include_snapshot_text,
+                ),
+                inspect.Parameter(
+                    "fields",
+                    inspect.Parameter.KEYWORD_ONLY,
+                    annotation=fields_t,
+                    default=None,
+                ),
             ]
         ),
     )
-    handler.__annotations__ = {"request": model, "return": dict}
+    handler.__annotations__ = {
+        "request": model,
+        "include_snapshot_text": snapshot_t,
+        "fields": fields_t,
+        "return": dict,
+    }
     return handler
 
 
