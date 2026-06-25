@@ -10,18 +10,46 @@ description: 用 FateBridge 引擎看事业、财运、求职、创业、跳槽�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
+- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
 
 **铁律：十神/财星/喜用/大运流年全部交给引擎算。**
 
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+
 ## 这个场景用哪些工具
 
-| 用户想问 | 调的工具 | 要点 |
-|---------|---------|------|
-| 事业走向、适合什么路子 | `bazi_career` | 自动带大运流年，看官杀/食伤/格局 |
-| 财运、正偏财、今年钱怎么样 | `bazi_wealth` | 看财星与喜用关系、时机 |
-| 合伙/搭档靠不靠谱 | `two_person_compatibility`（relationship 取合作向） | 看互补与共同喜用 |
-| 今年/某年整体时运 | `timing_analysis` 或 `liunian_analysis` | 求职跳槽择时用 |
-| 综合命局定位（先看大局再说钱） | `analyze_destiny` | 喜用+格局一站式 |
+§C.2 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+
+| 用户想问 | 工具 | 优先级 | 要点 |
+|---------|------|--------|------|
+| 事业方向适不适合 | `bazi_career` | 主 | 自动带大运流年，看官杀/食伤/格局 |
+| 事业方向适不适合 | `analyze_destiny` | 旁 | 喜用+格局定大局 |
+| 今年财运 | `bazi_wealth` | 主 | 看财星与喜用关系、时机 |
+| 今年财运 | `timing_analysis` | 旁 | 时运大势 |
+| 今年财运 | `dayun_analysis` | 旁 | 大运段影响 |
+| 今年财运 | `liunian_analysis` | 旁 | 流年细节 |
+| 要不要跳槽 | `bazi_career` | 主 | |
+| 要不要跳槽 | `timing_analysis` | 旁 | 择时参考 |
+| 要不要跳槽 | `dayun_analysis` | 旁 | |
+| 要不要跳槽 | `liunian_analysis` | 旁 | |
+| 要不要跳槽 | `analyze_destiny` | 旁 | |
+| 要不要创业 | `bazi_career` | 主 | |
+| 要不要创业 | `bazi_wealth` | 旁 | |
+| 要不要创业 | `timing_analysis` | 旁 | |
+| 要不要创业 | `dayun_analysis` | 旁 | |
+| 要不要创业 | `analyze_destiny` | 旁 | |
+| 合伙靠不靠谱 | `bazi_career` | 主 | |
+| 合伙靠不靠谱 | `two_person_compatibility` | 旁 | 看合作契合度，不替代事业分析 |
+| 合伙靠不靠谱 | `analyze_destiny` | 旁 | |
+| 求职方向 | `bazi_career` | 主 | |
+| 求职方向 | `analyze_destiny` | 旁 | |
+| 正财偏财·破财 | `bazi_wealth` | 主 | |
+| 正财偏财·破财 | `liunian_analysis` | 旁 | |
+| 正财偏财·破财 | `analyze_destiny` | 旁 | |
+
+> 去重：时运三工具（`timing_analysis`/`dayun_analysis`/`liunian_analysis`）聚合优先，只需全景时调 `timing_analysis`，仅需大运/流年细节再单独调对应工具。
+> 主证：事业/财运以八字为主，时运类工具只作时机旁证，不单独下事业判断。
+> 合伙场景：`two_person_compatibility` 看合作契合度，不替代八字事业分析。
 
 ## 怎么收信息
 出生 年月日时 + 性别 + 城市。要看具体某年财运/事业，问清想看哪一年（`--analysis-year` / `--target-year`）。

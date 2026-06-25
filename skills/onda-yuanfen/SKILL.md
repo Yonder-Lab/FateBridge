@@ -10,20 +10,35 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
+- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
 
 **铁律：干支/合婚分/桃花信号全部交给引擎算，不要手算。**
 
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+
 ## 这个场景用哪些工具
 
-| 用户想问 | 调的工具 | 要点 |
-|---------|---------|------|
-| 我的感情运/姻缘走向 | `bazi_marriage` | 自动带当前大运流年，看婚姻宫与时机 |
-| 正缘/桃花什么时候来、桃花旺不旺 | `bazi_romance` | 正缘桃花专项 |
-| 我俩合不合（恋爱/结婚） | `two_person_compatibility` | 两人各一套 `--personN-*`，看综合分、五行互补、共同喜用、挑战 |
-| 宿曜看相性（谁对谁有感觉） | `sukuyo_compatibility` | 27 宿相性，按月亮经度算，有方向性：`person1_to_person2` 和 `person2_to_person1` 不一样，要分开讲 |
-| 紫微看夫妻宫 | `ziwei_birth`（取夫妻宫段） | 用 `--selected-sections` 聚焦 |
-| 两人关系的星盘视角 | `astro_relative_chart` | 西占关系盘，两人用 `--inner-birth-*`/`--outer-birth-*`（需经纬度），返回 JSON |
-| 拿不定主意（要不要表白/复合） | 转「抉择·问事」用 `meihua_analysis`/`sixyao` | |
+§C.3 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+
+| 用户想问 | 工具 | 优先级 | 要点 |
+|---------|------|--------|------|
+| 我的姻缘/感情走向 | `bazi_marriage` | 主 | 自动带当前大运流年，看婚姻宫与时机 |
+| 我的姻缘/感情走向 | `bazi_romance` | 旁 | |
+| 我的姻缘/感情走向 | `ziwei_birth`（夫妻宫） | 旁 | 用 `--selected-sections` 聚焦 |
+| 正缘/桃花何时来、旺不旺 | `bazi_romance` | 主 | 正缘桃花专项 |
+| 正缘/桃花何时来、旺不旺 | `bazi_marriage` | 旁 | |
+| 正缘/桃花何时来（追问到几月） | `liuyue_analysis` | 深 | 流年级→月级升级，见 §A.3 |
+| 我俩合不合（恋爱/结婚） | `two_person_compatibility` | 主 | 两人各一套 `--personN-*`，看综合分、五行互补、共同喜用、挑战 |
+| 我俩合不合（恋爱/结婚） | `sukuyo_compatibility` | 旁 | 27 宿相性，有方向性 |
+| 我俩合不合（恋爱/结婚） | `ziwei_birth`（夫妻宫） | 深 | |
+| 我俩合不合（恋爱/结婚） | `astro_relative_chart` | 深 | 需经纬度 |
+| 关系的星盘视角/互动相位 | `astro_relative_chart` | 主 | 需经纬度，两人用 `--inner-birth-*`/`--outer-birth-*` |
+| 关系的星盘视角/互动相位 | `two_person_compatibility` | 旁 | |
+| 要不要表白/要不要复合 | 转「抉择·问事」→ `meihua_analysis` / `sixyao` | 主 | 拿不定主意起卦 |
+
+> 去重：`bazi_romance` 与 `bazi_marriage` 同时跑时，咸池/红鸾等神煞会两处各出现一次且口径不同，按当前场景取一个口径讲一次（见 §B）。
+> 粒度：`romance_timing` 只到流年级，要「几月」才升级 `liuyue_analysis`（见 §A.3）。
+> 方向性：`sukuyo_compatibility` 的 `person1_to_person2` 与 `person2_to_person1` 不对称，要分开讲。
 
 ## 怎么收信息（缺什么问什么，一次一项）
 - 单人看运：出生 年月日时 + 性别 + 出生城市。时辰不知就排无时盘并说明。

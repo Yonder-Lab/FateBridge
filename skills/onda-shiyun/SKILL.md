@@ -10,23 +10,86 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
+- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
 
 **铁律：大运起运、流年干支、节气换月、星历推运全部交给引擎。手算这些必错。**
 
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第七、八节。
+
 ## 这个场景用哪些工具
 
-| 用户想问 | 调的工具 |
-|---------|---------|
-| 今年/某年整体运势 | `liunian_analysis --target-year`、`timing_analysis` |
-| 我现在走的大运、下一步运 | `dayun_analysis --analysis-age N`（**必填**，按虚岁 N 定位大运） |
-| 某月/某天的小节奏、择时 | `liuyue_analysis` / `liuri_analysis` / `liushi_analysis` |
-| 综合时运（大运+流年+流月一起看） | `timing_analysis` |
-| 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` |
-| 西占视角的年运 | `solarreturn`（太阳返照）、`profection`（年小限）、`transit`（行运） |
-| 西占长周期/古典推运 | `zr`（黄道释放）、`firdaria`（法达）、`decennials`（十年星限）、`solararc`、`pd`（主限） |
-| 西占全生命周期技法（读单张本命盘） | `astro_planetary_ages`（行星年龄·七分期）、`astro_triplicity_rulers`（三分主星·人生三阶段）、`astro_lunation_phase`（月相推运）、`astro_distributions`（界推运/分配法）、`astro_harmonic`（调波盘）、`astro_balbillus`（Balbillus 129年系统·主限）、`astro_keypoints`（数字相位推运·120年关键点）、`astro_yearsystem129`（129年系统·七星小年轮值）、`astro_planetaryarc`（行星弧方向）、`astro_persiandirected`（波斯向运·符号1°/年应期）、`astro_agepoint`（年龄推进点·Huber/Koch宫6年）、`astro_vedicprog`（恒星推运·恒星黄道二次推运）、`astro_jaynesprog`（赤纬推运·二次推运赤纬平行）、`astro_extrareturns`（多重回归·土/木/月交返照） |
-| 世俗/年度大势（入宫盘，非个人盘） | `astro_mundane`（某年春分/夏至/秋分/冬至入宫时刻起盘，只需年份+节气+地点经纬度，不要出生数据）|
-| 择日（评估某候选时刻宜不宜办某事） | `astro_election`（传入候选时刻 `--candidate-year/month/day/hour` + 地点 + 用事类型 `--topic-id`：marriage/business/contract/surgery/move_in/...；输出 0–100 评分 + 吉凶因子）|
+§C.5 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+
+**中式时运（聚合优先）**
+
+| 用户想问 | 工具 | 优先级 | 要点 |
+|---------|------|--------|------|
+| 今年/明年运势 | `timing_analysis` | 主 | 一次拿大运+流年全景 |
+| 今年/明年运势 | `liunian_analysis` | 旁 | 流年细节（全景已用 timing_analysis 时按需升级） |
+| 今年/明年运势（西占视角） | `western_timing_analysis` | 主 | 西占整体推运 |
+| 今年/明年运势（西占视角） | `solarreturn` | 深 | 太阳返照，追问才单调 |
+| 今年/明年运势（西占视角） | `transit` | 深 | 行运单技法 |
+| 大运走到哪 | `dayun_analysis` | 主 | `--analysis-age N`（虚岁必填） |
+| 人生转折点 | `timing_analysis` | 旁 | |
+| 人生转折点 | `dayun_analysis` | 旁 | |
+| 人生转折点 | `western_timing_analysis` | 旁 | |
+| 人生转折点 | `solararc` | 旁 | |
+| 人生转折点 | `pd` | 深 | 主限，专家模式 |
+| 人生转折点 | `firdaria` | 深 | 法达，专家模式 |
+| 人生转折点 | `decennials` | 深 | 十年星限，专家模式 |
+| 最近为什么不顺·本命年 | `liunian_analysis` | 主 | |
+| 最近为什么不顺·本命年 | `liuyue_analysis` | 旁 | 流月节奏 |
+| 最近为什么不顺·本命年 | `transit` | 旁 | 西占行运旁证 |
+| 什么时候适合做某事·择日 | `astro_election` | 主 | 唯一择日主证 |
+| 某月/某天的小节奏 | `liuyue_analysis` | — | 月级 |
+| 某月/某天的小节奏 | `liuri_analysis` | — | 日级 |
+| 某月/某天的小节奏 | `liushi_analysis` | — | 时级 |
+| 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` | — | 历法支撑（§E） |
+
+**西占单技法（11 种，仅追问或专家模式单独调）**
+
+| 工具 | 技法说明 | 优先级 |
+|------|---------|--------|
+| `solarreturn` | 太阳返照年运盘 | 深 |
+| `lunarreturn` | 月返盘 | 深 |
+| `transit` | 行星过境行运 | 深 |
+| `solararc` | 太阳弧方向 | 深 |
+| `givenyear` | 指定年盘 | 深 |
+| `profection` | 年小限 | 深 |
+| `pd` / `pdchart` | 主限（含图） | 深 |
+| `zr` | 黄道释放 | 深 |
+| `firdaria` | 法达星限 | 深 |
+| `decennials` | 十年星限 | 深 |
+
+**西占全生命周期技法（13 种，讲「人生大段落」时才调）**
+
+| 工具 | 技法说明 | 优先级 |
+|------|---------|--------|
+| `astro_planetary_ages` | 行星年龄·七分期 | 深 |
+| `astro_triplicity_rulers` | 三分主星·人生三阶段 | 深 |
+| `astro_lunation_phase` | 月相推运 | 深 |
+| `astro_distributions` | 界推运/分配法 | 深 |
+| `astro_harmonic` | 调波盘 | 深 |
+| `astro_balbillus` | Balbillus 129年系统·主限 | 深 |
+| `astro_keypoints` | 数字相位推运·120年关键点 | 深 |
+| `astro_yearsystem129` | 129年系统·七星小年轮值 | 深 |
+| `astro_planetaryarc` | 行星弧方向 | 深 |
+| `astro_persiandirected` | 波斯向运·符号1°/年应期 | 深 |
+| `astro_agepoint` | 年龄推进点·Huber/Koch宫6年 | 深 |
+| `astro_vedicprog` | 恒星推运·恒星黄道二次推运 | 深 |
+| `astro_jaynesprog` | 赤纬推运·二次推运赤纬平行 | 深 |
+| `astro_extrareturns` | 多重回归·土/木/月交返照 | 深 |
+
+**世俗盘（非个人盘）**
+
+| 工具 | 用途 | 优先级 |
+|------|------|--------|
+| `astro_mundane` | 某年春分/夏至/秋分/冬至入宫盘，问国运/年度大势 | 深 |
+
+> 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
+> 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。
+> 择日专属：`astro_election` 是唯一择日主证，不用时运聚合工具替代。
+> 全生命周期：13 个西占单技法仅在用户明确要「全生命周期」或专家模式时才深调。
 
 中式与西占可以互相印证，但别强行拼。先用一套讲清楚，另一套作旁证。
 
