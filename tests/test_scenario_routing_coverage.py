@@ -1,4 +1,5 @@
 """场景路由文档必须恰好覆盖 CATALOG 全部工具——防止新增工具变成无场景归属的『闲置工具』。"""
+
 import pathlib
 import re
 
@@ -17,8 +18,8 @@ def _checklist_keys() -> set[str]:
 def test_checklist_covers_every_catalog_tool_exactly():
     listed = _checklist_keys()
     catalog = {spec.key for spec in CATALOG}
-    missing = catalog - listed           # 工具存在但清单漏登记 = 新孤儿
-    extra = listed - catalog             # 清单写了不存在的工具 = 笔误/已删
+    missing = catalog - listed  # 工具存在但清单漏登记 = 新孤儿
+    extra = listed - catalog  # 清单写了不存在的工具 = 笔误/已删
     assert not missing, f"未在场景路由清单登记的工具（闲置风险）: {sorted(missing)}"
     assert not extra, f"清单里存在但 CATALOG 已无的工具: {sorted(extra)}"
 
