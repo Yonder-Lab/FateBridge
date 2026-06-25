@@ -545,7 +545,10 @@ def make_rest_handler(
                 error_is_fatal=spec.error_is_fatal,
                 **kwargs,
             )
-            if spec.result_transform is not None:
+            # Mirror the MCP/CLI path (see _render_tool_response): only reshape
+            # successful payloads so a transform keyed on a domain field can
+            # never corrupt an error envelope.
+            if spec.result_transform is not None and not result_is_error(spec, result):
                 result = spec.result_transform(result)
             # Project AFTER run_metadata is attached (execute_service did it) so
             # provenance survives a selection; then drop snapshot_text if opted

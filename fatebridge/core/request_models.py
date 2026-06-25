@@ -101,7 +101,13 @@ class TwoPersonCompatibilityRequest(BaseModel):
     )
     person1_birth_day: int = Field(ge=1, le=31, description="First person birth day")
     person1_birth_hour: int = Field(ge=0, le=23, description="First person birth hour")
-    person1_gender: str = Field(default="未知", description="First person gender")
+    person1_gender: str = Field(
+        default="未知",
+        description=(
+            "第一人性别（影响大运顺逆与部分六亲判断）。"
+            "接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法；省略默认 未知。"
+        ),
+    )
     person1_birth_place: str = Field(
         default="未提供", description="First person birth place"
     )
@@ -125,7 +131,13 @@ class TwoPersonCompatibilityRequest(BaseModel):
     )
     person2_birth_day: int = Field(ge=1, le=31, description="Second person birth day")
     person2_birth_hour: int = Field(ge=0, le=23, description="Second person birth hour")
-    person2_gender: str = Field(default="未知", description="Second person gender")
+    person2_gender: str = Field(
+        default="未知",
+        description=(
+            "第二人性别（影响大运顺逆与部分六亲判断）。"
+            "接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法；省略默认 未知。"
+        ),
+    )
     person2_birth_place: str = Field(
         default="未提供", description="Second person birth place"
     )
@@ -175,7 +187,12 @@ class TimingAnalysisRequest(FateBridgeRequest):
 class DayunAnalysisRequest(FateBridgeRequest):
     """Request model for dayun analysis."""
 
-    gender: str = Field(description="Gender used for dayun direction rules")
+    gender: str = Field(
+        description=(
+            "性别（必填：决定大运顺逆/起运方向，无法以默认值替代）。"
+            "接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法。"
+        )
+    )
     analysis_age: int = Field(ge=0, description="Analysis age")
     selected_sections: List[str] = Field(
         default_factory=list,
@@ -341,8 +358,12 @@ class NongliTimeRequest(BaseModel):
     gps_lon: Optional[float] = Field(
         default=None, alias="gpsLon", description="GPS longitude"
     )
-    gender: Optional[bool] = Field(
-        default=None, description="Optional gender flag passthrough"
+    gender: Optional[str] = Field(
+        default=None,
+        description=(
+            "性别（可选，仅作元数据透传回显，不参与农历/节气/干支计算）。"
+            "接受 男/女、male/female/m/f 等写法；省略则不回显。"
+        ),
     )
     after23_new_day: bool = Field(
         default=False,
@@ -416,7 +437,14 @@ class KnowledgeRegistryRequest(BaseModel):
 class KnowledgeReadRequest(BaseModel):
     """Request model for bundled knowledge lookup."""
 
-    domain: str = Field(description="Knowledge domain: astro, bazi, liureng, or qimen")
+    domain: str = Field(
+        description=(
+            "知识域：astro / bazi / liureng / qimen。各域适用字段不同——"
+            "astro：key 或 (object_a, object_b[, aspect_degree])；"
+            "bazi / qimen：key（category 可省略，自动解析）；"
+            "liureng：(jiang_name, tian_branch, di_branch)。"
+        )
+    )
     category: Optional[str] = Field(
         default=None,
         description=(
@@ -431,15 +459,23 @@ class KnowledgeReadRequest(BaseModel):
     )
     aspect_degree: Optional[int] = Field(
         default=None,
-        description="Optional aspect degree for astro aspect lookups",
+        description="[domain=astro] 相位角度（可选，用于 astro 相位查询）",
     )
-    object_a: Optional[str] = Field(default=None, description="First astro object")
-    object_b: Optional[str] = Field(default=None, description="Second astro object")
-    jiang_name: Optional[str] = Field(default=None, description="Liureng general name")
+    object_a: Optional[str] = Field(
+        default=None, description="[domain=astro] 第一星体（相位查询）"
+    )
+    object_b: Optional[str] = Field(
+        default=None, description="[domain=astro] 第二星体（相位查询）"
+    )
+    jiang_name: Optional[str] = Field(
+        default=None, description="[domain=liureng] 贵神名"
+    )
     tian_branch: Optional[str] = Field(
-        default=None, description="Liureng heaven branch"
+        default=None, description="[domain=liureng] 天盘地支"
     )
-    di_branch: Optional[str] = Field(default=None, description="Liureng earth branch")
+    di_branch: Optional[str] = Field(
+        default=None, description="[domain=liureng] 地盘地支"
+    )
 
 
 class TongSheFaRequest(BaseModel):
@@ -506,15 +542,21 @@ class SuZhanRequest(BaseModel):
     gps_lon: Optional[float] = Field(
         default=None, alias="gpsLon", description="GPS longitude"
     )
-    szchart: int = Field(default=0, description="Chart mode flag")
-    szshape: int = Field(default=0, description="Chart shape flag")
+    szchart: int = Field(
+        default=0, description="宿占盘模式开关（透传至宿曜引擎；默认 0）"
+    )
+    szshape: int = Field(
+        default=0, description="宿占盘形态开关（透传至宿曜引擎；默认 0）"
+    )
     house_start_mode: int = Field(
-        default=1, alias="houseStartMode", description="House start mode"
+        default=1,
+        alias="houseStartMode",
+        description="宫位起始模式（透传至宿曜引擎；默认 1）",
     )
     doubing_su28: bool = Field(
         default=True,
         alias="doubingSu28",
-        description="Whether to double-check su28 labels",
+        description="是否按斗柄(doubing)标注二十八宿(su28)；默认开启",
     )
     hsys: int = Field(
         default=8,
@@ -549,7 +591,10 @@ class CanpingRequest(BaseModel):
     )
     gender: Optional[str] = Field(
         default="男",
-        description="Gender 男/女 — selects the 本命 verse (male/female)",
+        description=(
+            "性别 男/女 — 选择本命男/女断语。接受 男/女、male/female 等写法；"
+            "省略默认按男命（男）起盘。"
+        ),
     )
     method: str = Field(
         default="ming",
@@ -585,7 +630,10 @@ class HeluoRequest(BaseModel):
     )
     gender: Optional[str] = Field(
         default="男",
-        description="Gender 男/女 — affects 起命相盪 and 元堂 derivation",
+        description=(
+            "性别 男/女 — 影响起命相盪与元堂推导。接受 男/女、male/female 等写法；"
+            "省略默认按男命（男）起盘。"
+        ),
     )
     use_true_solar_time: bool = Field(
         default=True,
@@ -773,7 +821,13 @@ class LiuRengGodsRequest(BaseModel):
     analysis_longitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description="Analysis longitude"
     )
-    gender: Optional[str] = Field(default="未知", description="Gender")
+    gender: Optional[str] = Field(
+        default="未知",
+        description=(
+            "性别（可选）。接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法；"
+            "省略默认 未知。"
+        ),
+    )
     selected_sections: List[str] = Field(
         default_factory=list,
         description="Optional snapshot section titles for filtered export payload",
@@ -839,7 +893,13 @@ class QimenAnalysisRequest(BaseModel):
 class TaiyiAnalysisRequest(QimenAnalysisRequest):
     """Request model for Taiyi analysis."""
 
-    gender: Optional[str] = Field(default="未知", description="Gender")
+    gender: Optional[str] = Field(
+        default="未知",
+        description=(
+            "性别（可选）。接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法；"
+            "省略默认 未知。"
+        ),
+    )
 
 
 class JinkouAnalysisRequest(LiuRengGodsRequest):

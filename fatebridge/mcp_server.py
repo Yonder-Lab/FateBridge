@@ -41,6 +41,7 @@ from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
+from fatebridge import __version__ as APP_VERSION
 from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.utils.helpers import format_error_response, format_json_response
 from fatebridge.utils.runtime import get_log_level, load_runtime_env
@@ -64,7 +65,7 @@ logging.basicConfig(
 app = FastMCP(
     name="fatebridge",
     instructions="中国传统八字、时运、节气/农历 helper、FateBridge 导出协议/悬浮知识 helper 与离线星盘测算工具（优先本地高精度 ephemeris，缺失时回退近似模型），提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。",
-    version="2.4.0",
+    version=APP_VERSION,
 )
 
 

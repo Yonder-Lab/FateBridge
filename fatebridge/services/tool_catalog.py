@@ -308,6 +308,8 @@ def _western_module_spec(name: str, service: Any, label: str) -> ToolSpec:
         summary=(
             f"{label}：西占行运的单项技法，读取本命盘+目标时刻只算这一种。"
             f"想一次拿到多项行运的整合结果，改用聚合工具 western_timing_analysis。"
+            "（本族 11 个西占时运工具共用 WesternTimingModuleRequest，"
+            "schema 中部分参数仅对特定技法生效，与本工具无关的可忽略。）"
         ),
         operation_label_zh=label,
         family="western_timing_tool",

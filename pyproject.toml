@@ -4,7 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fatebridge-mcp"
-version = "0.1.0"
+# Single source of truth: fatebridge/__init__.py::__version__. REST (api.py),
+# MCP (mcp_server.py) and the packaging metadata all read that one value.
+dynamic = ["version"]
 description = "FateBridge - A Model Context Protocol (MCP) server bridging ancient Chinese fortune telling wisdom with modern technology"
 authors = [{name = "thomas-yanxin", email = "yx20001210@163.com"}]
 license = {text = "Apache-2.0"}
@@ -52,6 +54,9 @@ iztro-verify = [
 fatebridge = "fatebridge.cli:main"
 fatebridge-api = "fatebridge.api:main"
 fatebridge-mcp = "fatebridge.mcp_server:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "fatebridge.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["fatebridge*"]
