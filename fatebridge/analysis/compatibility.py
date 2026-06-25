@@ -994,10 +994,17 @@ class AdvancedCompatibility:
         overall_score = result["overall_score"]
 
         for analysis_type, analysis_data in result["detailed_analysis"].items():
-            if analysis_data.get("score", 0) >= 68:
+            # 多数维度的得分键是 "score"；唯独 traditional_analysis 维度按语义
+            # 命名为 "normalized_score"（避免与外层全局 overall_score 混淆）。
+            # 此处必须回退读取该键，否则 .get("score", 0) 会静默拿到 0，把传统
+            # 维度恒判为「挑战」，与其真实得分脱节。
+            dimension_score = analysis_data.get("score")
+            if dimension_score is None:
+                dimension_score = analysis_data.get("normalized_score", 0)
+            if dimension_score >= 68:
                 if analysis_data.get("details"):
                     result["strengths"].extend(analysis_data["details"][:2])
-            elif analysis_data.get("score", 0) <= 46:
+            elif dimension_score <= 46:
                 if analysis_data.get("details"):
                     result["challenges"].extend(analysis_data["details"][:2])
 
