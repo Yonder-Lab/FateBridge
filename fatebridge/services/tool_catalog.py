@@ -305,7 +305,10 @@ def _western_module_spec(name: str, service: Any, label: str) -> ToolSpec:
         key=name,
         bind=raw_invoke(service),
         request_model=WesternTimingModuleRequest,
-        summary=f"生成独立{label}结果。",
+        summary=(
+            f"{label}：西占行运的单项技法，读取本命盘+目标时刻只算这一种。"
+            f"想一次拿到多项行运的整合结果，改用聚合工具 western_timing_analysis。"
+        ),
         operation_label_zh=label,
         family="western_timing_tool",
         rest_path=f"/api/astro/timing/{name}",
@@ -319,7 +322,10 @@ def _western_lifespan_spec(name: str, service: Any, model: Any, label: str) -> T
         key=f"astro_{name}",
         bind=raw_invoke(service),
         request_model=model,
-        summary=f"生成{label}（读取单张本命盘的全生命周期技法）。",
+        summary=(
+            f"{label}：只读单张本命盘的古典「全生命周期」技法（不需目标时刻），"
+            f"输出按年龄/时段划分的人生阶段。"
+        ),
         operation_label_zh=label,
         family="western_lifespan",
         rest_path=f"/api/astro/lifespan/{name}",
@@ -375,7 +381,7 @@ CATALOG: List[ToolSpec] = [
         key="calculate_legacy",
         bind=person_invoke(calculate_bazi_birth),
         request_model=FateBridgeRequest,
-        summary="八字命盘（兼容旧版 /api/calculate 扁平结构）。",
+        summary="八字命盘（旧版 /api/calculate 扁平结构，仅为兼容老客户端；新接入请用 bazi_birth）。",
         operation_label_zh="八字命盘",
         family="bazi",
         rest_path="/api/calculate",
@@ -388,7 +394,10 @@ CATALOG: List[ToolSpec] = [
         key="analyze_destiny",
         bind=person_invoke(calculate_destiny_analysis),
         request_model=FateBridgeRequest,
-        summary="综合命理分析（八字 + 喜用 + 格局）。",
+        summary=(
+            "八字综合命理分析：在命盘之上叠加喜用神判定与格局识别，"
+            "输出最完整的命理画像；只需四柱/十神原始命盘用 bazi_birth。"
+        ),
         operation_label_zh="命理分析",
         family="bazi",
         rest_path=None,
@@ -399,7 +408,10 @@ CATALOG: List[ToolSpec] = [
         key="bazi_birth",
         bind=person_invoke(calculate_bazi_birth),
         request_model=BaziBirthRequest,
-        summary="离线八字命盘，返回完整 snapshot_text 与可筛选 snapshot_export。",
+        summary=(
+            "八字标准命盘：返回完整 snapshot_text 与可按 section 裁剪的 "
+            "snapshot_export，是获取四柱/十神/五行的首选；要喜用+格局解读用 analyze_destiny。"
+        ),
         operation_label_zh="八字命盘",
         family="bazi",
         rest_path="/api/cn/bazi/birth",
@@ -453,7 +465,10 @@ CATALOG: List[ToolSpec] = [
         key="timing_analysis",
         bind=person_invoke(calculate_comprehensive_timing),
         request_model=TimingAnalysisRequest,
-        summary="时运综合分析（大运/流年/流月等综合影响）。",
+        summary=(
+            "时运综合分析：一次性给出大运/流年/流月等多粒度的整合影响，想要全景时用它；"
+            "只需单一粒度请用对应的 dayun/liunian/liuyue/liuri/liushi_analysis。"
+        ),
         operation_label_zh="时运综合分析",
         family="timing",
         rest_path="/api/timing/comprehensive",
@@ -464,7 +479,7 @@ CATALOG: List[ToolSpec] = [
         key="dayun_analysis",
         bind=person_invoke(calculate_dayun_analysis),
         request_model=DayunAnalysisRequest,
-        summary="大运分析。",
+        summary="单看大运（十年大运）一个粒度的运势影响；要多粒度整合用 timing_analysis。",
         operation_label_zh="大运分析",
         family="timing",
         rest_path="/api/timing/dayun",
@@ -475,7 +490,7 @@ CATALOG: List[ToolSpec] = [
         key="liunian_analysis",
         bind=person_invoke(calculate_liunian_analysis),
         request_model=LiunianAnalysisRequest,
-        summary="流年分析。",
+        summary="单看某一流年的运势影响；要多粒度整合用 timing_analysis。",
         operation_label_zh="流年分析",
         family="timing",
         rest_path="/api/timing/liunian",
@@ -486,7 +501,7 @@ CATALOG: List[ToolSpec] = [
         key="liuyue_analysis",
         bind=person_invoke(calculate_liuyue_analysis),
         request_model=LiuyueAnalysisRequest,
-        summary="流月分析。",
+        summary="单看某一流月的运势影响；要多粒度整合用 timing_analysis。",
         operation_label_zh="流月分析",
         family="timing",
         rest_path="/api/timing/liuyue",
@@ -497,7 +512,7 @@ CATALOG: List[ToolSpec] = [
         key="liuri_analysis",
         bind=person_invoke(calculate_liuri_analysis),
         request_model=LiuriAnalysisRequest,
-        summary="流日分析。",
+        summary="单看某一流日的运势影响；要多粒度整合用 timing_analysis。",
         operation_label_zh="流日分析",
         family="timing",
         rest_path="/api/timing/liuri",
@@ -508,7 +523,7 @@ CATALOG: List[ToolSpec] = [
         key="liushi_analysis",
         bind=person_invoke(calculate_liushi_analysis),
         request_model=LiushiAnalysisRequest,
-        summary="流时分析。",
+        summary="单看某一流时（时辰）的运势影响；要多粒度整合用 timing_analysis。",
         operation_label_zh="流时分析",
         family="timing",
         rest_path="/api/timing/liushi",
@@ -551,7 +566,7 @@ CATALOG: List[ToolSpec] = [
         key="gua_lookup",
         bind=raw_invoke(calculate_gua_lookup),
         request_model=GuaLookupRequest,
-        summary="卦象查询（六十四卦义理）。",
+        summary="卦象查询：传单个卦名或卦码，返回该卦的六十四卦义理；要一次查多卦用 gua_meiyi。",
         operation_label_zh="卦象查询",
         family="divination",
         rest_path="/api/divination/gua",
@@ -561,7 +576,7 @@ CATALOG: List[ToolSpec] = [
         key="gua_meiyi",
         bind=raw_invoke(calculate_gua_meiyi),
         request_model=GuaMeiyiRequest,
-        summary="卦义 helper。",
+        summary="卦义批量查询：传一组卦名/卦码（List），一次返回多卦义理；单卦查询用 gua_lookup。",
         operation_label_zh="卦义",
         family="divination",
         rest_path="/api/cn/gua/meiyi",
@@ -641,7 +656,10 @@ CATALOG: List[ToolSpec] = [
         key="otherbu",
         bind=raw_invoke(calculate_otherbu_analysis),
         request_model=OtherBuRequest,
-        summary="其他卜法分析。",
+        summary=(
+            "其他卜法：基于占星骰子（星座/宫位/行星 + 所问之事）起课的西式占卜，"
+            "区别于六爻/梅花/通蓍等中式卜法。"
+        ),
         operation_label_zh="其他卜法",
         family="divination",
         rest_path="/api/divination/otherbu",
@@ -682,7 +700,10 @@ CATALOG: List[ToolSpec] = [
         key="ziwei_rules",
         bind=raw_invoke(calculate_ziwei_rules),
         request_model=ZiweiRulesRequest,
-        summary="紫微斗数规则 helper。",
+        summary=(
+            "紫微斗数规则查表：按年干返回四化等规则参照，供解读时查证；"
+            "起命盘用 ziwei_birth，看运限用 ziwei_horoscope。"
+        ),
         operation_label_zh="紫微规则",
         family="metaphysics",
         rest_path="/api/cn/ziwei/rules",
@@ -786,7 +807,11 @@ CATALOG: List[ToolSpec] = [
         key="astro_chart",
         bind=_astro_chart_bind,
         request_model=AstroChartPolyRequest,
-        summary="离线核心星盘（可选 chart_variant 切换盘式；germany 走德国盘引擎）。",
+        summary=(
+            "离线核心星盘：默认本命盘；可选 chart_variant 切换盘式"
+            "（chart13=13星座 / hellen_chart=希腊 / guolao_chart=果老星宗 / "
+            "india_chart=印度 / germany=德国盘引擎），等价于对应的 astro_chart13 等专用工具。"
+        ),
         operation_label_zh="星盘",
         family="astro",
         rest_path="/api/astro/chart",
@@ -848,7 +873,7 @@ CATALOG: List[ToolSpec] = [
         key="astro_relative",
         bind=_astro_relative_rest_bind,
         request_model=AstroRelativeRequest,
-        summary="离线关系/合盘（嵌套 inner/outer 结构）。",
+        summary="离线关系/合盘（与 astro_relative_chart 同一计算，本工具用嵌套 inner/outer 结构，REST 端）。",
         operation_label_zh="关系星盘分析",
         family="astro",
         rest_path="/api/astro/relative",
@@ -859,7 +884,7 @@ CATALOG: List[ToolSpec] = [
         key="astro_relative_chart",
         bind=_astro_relative_flat_bind,
         request_model=AstroRelativeFlatRequest,
-        summary="离线关系/合盘（扁平 inner_/outer_ 参数）。",
+        summary="离线关系/合盘（与 astro_relative 同一计算，本工具用扁平 inner_/outer_ 参数，MCP 端）。",
         operation_label_zh="关系星盘分析",
         family="astro",
         rest_path=None,
@@ -869,7 +894,10 @@ CATALOG: List[ToolSpec] = [
         key="western_timing_analysis",
         bind=raw_invoke(calculate_western_timing_analysis),
         request_model=WesternTimingRequest,
-        summary="西占预测时运综合分析。",
+        summary=(
+            "西占预测时运的聚合分析：一次整合多种行运技法（返照/行运/太阳弧/小限/法达等）；"
+            "只要单一技法请用对应的 solarreturn/transit/… 工具。"
+        ),
         operation_label_zh="西占时运",
         family="western_timing",
         rest_path="/api/astro/timing",
