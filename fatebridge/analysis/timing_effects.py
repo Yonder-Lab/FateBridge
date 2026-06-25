@@ -416,7 +416,6 @@ class TimingEffectsAnalysis:
         birth_pillars: Dict,
         target_year: int,
         target_month: int,
-        include_dayun: bool = True,
         include_liunian: bool = True,
         target_day: int = 1,
         timezone_name: str = DEFAULT_TIMEZONE,
@@ -432,7 +431,6 @@ class TimingEffectsAnalysis:
             birth_pillars: 出生四柱
             target_year: 目标年份
             target_month: 目标月份
-            include_dayun: 是否包含大运分析
             include_liunian: 是否包含流年分析
 
         Returns:
@@ -474,12 +472,8 @@ class TimingEffectsAnalysis:
             )
             result["combination_effects"]["liuyue_liunian"] = combination_analysis
 
-        # 添加大运分析（需要额外的出生信息）
-        if include_dayun:
-            # 这里需要更多的出生信息来计算大运，暂时省略
-            result["combination_effects"][
-                "note"
-            ] = "大运分析需要完整的出生信息（性别、出生日期等）"
+        # 大运组合分析需要性别+出生日期等额外输入，本入口未提供这些参数，
+        # 故不在此层伪造。需要大运联动时由上层 analyze_dayun_effects 负责。
 
         # 生成综合总结
         result["comprehensive_summary"] = (

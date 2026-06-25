@@ -1644,7 +1644,6 @@ def calculate_liuyue_analysis(
         birth_context.birth_pillars,
         analysis_year,
         analysis_month,
-        include_dayun=False,
         include_liunian=True,
         target_day=analysis_day,
         timezone_name=normalized_birth_time.timezone,
