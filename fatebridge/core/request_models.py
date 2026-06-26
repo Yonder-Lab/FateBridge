@@ -890,15 +890,42 @@ class QimenAnalysisRequest(BaseModel):
     )
 
 
-class TaiyiAnalysisRequest(QimenAnalysisRequest):
-    """Request model for Taiyi analysis."""
+class TaiyiAnalysisRequest(BaseModel):
+    """Request model for Taiyi analysis.
 
+    太乙 does NOT take 奇门's ``qimen_options`` (layout/palaceShift) — it used to
+    inherit ``QimenAnalysisRequest`` purely to reuse the date/time fields, which
+    leaked ``qimen_options`` onto the 太乙 schema where it is meaningless. The
+    fields below are exactly what ``calculate_taiyi_analysis`` consumes.
+    """
+
+    analysis_year: int = Field(description="Analysis year, e.g., 2026")
+    analysis_month: int = Field(ge=1, le=12, description="Analysis month (1-12)")
+    analysis_day: int = Field(ge=1, le=31, description="Analysis day (1-31)")
+    analysis_hour: int = Field(ge=0, le=23, description="Analysis hour (0-23)")
+    analysis_minute: int = Field(
+        default=0, ge=0, le=59, description="Analysis minute (0-59)"
+    )
+    analysis_timezone: Optional[str] = Field(
+        default=None, description="Analysis timezone (IANA name or UTC offset)"
+    )
+    analysis_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Analysis longitude"
+    )
     gender: Optional[str] = Field(
         default="未知",
         description=(
             "性别（可选）。接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法；"
             "省略默认 未知。"
         ),
+    )
+    selected_sections: List[str] = Field(
+        default_factory=list,
+        description="Optional snapshot section titles for filtered export payload",
+    )
+    use_true_solar_time: bool = Field(
+        default=True,
+        description="Enable true solar time correction (default on — 太乙 定局 keys off the apparent-solar 时辰)",
     )
 
 
