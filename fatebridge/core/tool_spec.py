@@ -15,6 +15,7 @@ annotations`` — FastAPI/FastMCP read live annotation objects off the generated
 handler signatures, and stringified annotations would break schema inference.
 """
 
+import importlib
 import inspect
 from dataclasses import dataclass
 from typing import (
@@ -47,6 +48,58 @@ ServiceResult = Dict[str, Any]
 # directly), which keeps the *domain service* — not a wrapper — as the unit of
 # work that gets offloaded.
 Bind = Callable[[BaseModel], Tuple[Callable[..., ServiceResult], tuple, Dict[str, Any]]]
+
+
+def lazy_service(module: str, name: str) -> Callable[..., ServiceResult]:
+    """Return a proxy that imports ``module`` and resolves ``name`` on first call.
+
+    Lets the tool catalog declare a tool's service without importing the
+    (sometimes heavy — e.g. the kerykeion-backed western modules) service module
+    until that tool is actually invoked. The proxy carries an ``__fb_lazy__``
+    marker so binders that introspect the service signature (``raw_invoke``)
+    resolve the *real* function rather than the proxy's ``(*args, **kwargs)``
+    signature, which would otherwise silently disable kwargs filtering.
+    """
+    cell: List[Callable[..., ServiceResult]] = []
+
+    def _proxy(*args: Any, **kwargs: Any) -> ServiceResult:
+        if not cell:
+            cell.append(getattr(importlib.import_module(module), name))
+        return cell[0](*args, **kwargs)
+
+    _proxy.__fb_lazy__ = (module, name)  # type: ignore[attr-defined]
+    _proxy.__name__ = name
+    _proxy.__qualname__ = name
+    return _proxy
+
+
+def resolve_service(service: Callable[..., Any]) -> Callable[..., Any]:
+    """Return the real service callable, importing it if ``service`` is lazy."""
+    marker = getattr(service, "__fb_lazy__", None)
+    if marker is None:
+        return service
+    module, name = marker
+    resolved: Callable[..., Any] = getattr(importlib.import_module(module), name)
+    return resolved
+
+
+def _resolver(
+    service: Callable[..., ServiceResult],
+) -> Callable[[], Callable[..., ServiceResult]]:
+    """Memoise lazy-proxy resolution so a bind unwraps its service exactly once.
+
+    Binders return the *resolved* domain function (not the proxy) so the unit of
+    work handed to the surfaces — REST's threadpool, MCP/CLI's direct call — is
+    the real service, while the import stays deferred until the first invocation.
+    """
+    cache: List[Callable[..., ServiceResult]] = []
+
+    def get() -> Callable[..., ServiceResult]:
+        if not cache:
+            cache.append(resolve_service(service))
+        return cache[0]
+
+    return get
 
 
 @dataclass(frozen=True)
@@ -132,6 +185,7 @@ def person_invoke(
     analysis step also honours ``use_true_solar_time``).
     """
     person_fields = set(_PERSON_POSITIONAL) | set(_PERSON_KEYWORD)
+    get_service = _resolver(service)
 
     def _bind(
         req: BaseModel,
@@ -145,7 +199,7 @@ def person_invoke(
         for field in also_pass:
             if field in data:
                 extras[field] = data[field]
-        return service, (person,), extras
+        return get_service(), (person,), extras
 
     return _bind
 
@@ -156,6 +210,7 @@ def pair_invoke(
     relationship_field: str = "relationship_type",
 ) -> Bind:
     """Two-person compatibility: bind to service(person1, person2, relationship)."""
+    get_service = _resolver(service)
 
     def _bind(
         req: BaseModel,
@@ -173,7 +228,7 @@ def pair_invoke(
             true_solar_explicit="person2_use_true_solar_time" in fields_set,
         )
         rel = data.get(relationship_field, "general")
-        return service, (p1, p2, rel), {}
+        return get_service(), (p1, p2, rel), {}
 
     return _bind
 
@@ -202,12 +257,22 @@ def raw_invoke(
 
     Filtering lets a model carry inherited fields a service does not consume
     (e.g. TaiyiAnalysisRequest inherits ``qimen_options`` from its base).
+
+    The accepted-kwargs set is computed lazily on first bind (against the
+    *resolved* service, so a lazy proxy is unwrapped to its real signature) and
+    memoised — this keeps a lazily-imported service module unloaded until the
+    tool is actually invoked.
     """
-    accepted = _accepted_kwargs(service)
+    get_service = _resolver(service)
+    accepted_cache: List[Any] = []  # one-slot memo; the value itself may be None
 
     def _bind(
         req: BaseModel,
     ) -> Tuple[Callable[..., ServiceResult], tuple, Dict[str, Any]]:
+        resolved = get_service()
+        if not accepted_cache:
+            accepted_cache.append(_accepted_kwargs(resolved))
+        accepted = accepted_cache[0]
         data = req.model_dump()
         if accepted is not None:
             data = {k: v for k, v in data.items() if k in accepted}
@@ -222,7 +287,7 @@ def raw_invoke(
             data["true_solar_explicit"] = "use_true_solar_time" in req.model_fields_set
         if fixed:
             data = {**data, **fixed}
-        return service, (), data
+        return resolved, (), data
 
     return _bind
 

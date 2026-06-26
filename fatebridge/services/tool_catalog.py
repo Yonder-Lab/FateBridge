@@ -82,106 +82,243 @@ from fatebridge.core.request_models import (
 )
 from fatebridge.core.tool_spec import (
     ToolSpec,
+    lazy_service,
     pair_invoke,
     person_invoke,
     raw_invoke,
+    resolve_service,
 )
-from fatebridge.services.astrology import (
-    calculate_core_chart_analysis,
-    calculate_germany_chart_analysis,
-    calculate_relative_chart_analysis,
+
+# ---------------------------------------------------------------------------
+# Service callables are bound LAZILY: each name below is a proxy that imports
+# its service module on first invocation. The catalog itself stays cheap to
+# import (it is pure metadata), and a session only loads the engines for the
+# tools it actually calls — e.g. a bazi+ziwei session never pays the ~120ms
+# kerykeion import that the western modules pull in. The spec definitions below
+# reference these names exactly as if they were directly imported.
+# ---------------------------------------------------------------------------
+calculate_core_chart_analysis = lazy_service(
+    "fatebridge.services.astrology", "calculate_core_chart_analysis"
 )
-from fatebridge.services.bazi import (
-    calculate_bazi_birth,
-    calculate_bazi_career,
-    calculate_bazi_children,
-    calculate_bazi_education,
-    calculate_bazi_health,
-    calculate_bazi_marriage,
-    calculate_bazi_personality,
-    calculate_bazi_relatives,
-    calculate_bazi_romance,
-    calculate_bazi_wealth,
+calculate_germany_chart_analysis = lazy_service(
+    "fatebridge.services.astrology", "calculate_germany_chart_analysis"
 )
-from fatebridge.services.calculation import calculate_destiny_analysis
-from fatebridge.services.compatibility import calculate_compatibility_analysis
-from fatebridge.services.divination import (
-    calculate_canping_analysis,
-    calculate_gua_lookup,
-    calculate_gua_meiyi,
-    calculate_heluo_analysis,
-    calculate_meihua_analysis,
-    calculate_otherbu_analysis,
-    calculate_sanshiunited_analysis,
-    calculate_sixyao_analysis,
-    calculate_sukuyo_compatibility,
-    calculate_suzhan_analysis,
-    calculate_tongshefa_analysis,
+calculate_relative_chart_analysis = lazy_service(
+    "fatebridge.services.astrology", "calculate_relative_chart_analysis"
 )
-from fatebridge.services.export_tools import (
-    calculate_export_parse,
-    calculate_export_registry,
+calculate_bazi_birth = lazy_service("fatebridge.services.bazi", "calculate_bazi_birth")
+calculate_bazi_career = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_career"
 )
-from fatebridge.services.knowledge import (
-    calculate_knowledge_read,
-    calculate_knowledge_registry,
+calculate_bazi_children = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_children"
 )
-from fatebridge.services.metaphysics import (
-    calculate_jinkou_analysis,
-    calculate_liureng_gods,
-    calculate_liureng_runyear,
-    calculate_qimen_analysis,
-    calculate_taiyi_analysis,
-    calculate_ziwei_birth,
-    calculate_ziwei_horoscope,
-    calculate_ziwei_rules,
+calculate_bazi_education = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_education"
 )
-from fatebridge.services.timing import (
-    calculate_comprehensive_timing,
-    calculate_dayun_analysis,
-    calculate_jieqi_timeline_analysis,
-    calculate_jieqi_year,
-    calculate_liunian_analysis,
-    calculate_liuri_analysis,
-    calculate_liushi_analysis,
-    calculate_liuyue_analysis,
-    calculate_nongli_time,
+calculate_bazi_health = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_health"
 )
-from fatebridge.services.western_election import calculate_election
-from fatebridge.services.western_events import (
-    calculate_extrareturns,
-    calculate_mundane,
+calculate_bazi_marriage = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_marriage"
 )
-from fatebridge.services.western_horary import calculate_horary
-from fatebridge.services.western_lifespan import (
-    calculate_age_point,
-    calculate_balbillus,
-    calculate_distributions,
-    calculate_harmonic_chart,
-    calculate_jaynesprog,
-    calculate_keypoints,
-    calculate_lunation_phase,
-    calculate_persian_directed,
-    calculate_planetary_ages,
-    calculate_planetary_arc,
-    calculate_triplicity_rulers,
-    calculate_vedicprog,
-    calculate_yearsystem129,
+calculate_bazi_personality = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_personality"
 )
-from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.services.western_timing_tools import (
-    calculate_decennials,
-    calculate_firdaria,
-    calculate_givenyear,
-    calculate_lunarreturn,
-    calculate_pd,
-    calculate_pdchart,
-    calculate_profection,
-    calculate_solararc,
-    calculate_solarreturn,
-    calculate_transit,
-    calculate_zr,
+calculate_bazi_relatives = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_relatives"
 )
+calculate_bazi_romance = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_romance"
+)
+calculate_bazi_wealth = lazy_service(
+    "fatebridge.services.bazi", "calculate_bazi_wealth"
+)
+calculate_destiny_analysis = lazy_service(
+    "fatebridge.services.calculation", "calculate_destiny_analysis"
+)
+calculate_compatibility_analysis = lazy_service(
+    "fatebridge.services.compatibility", "calculate_compatibility_analysis"
+)
+calculate_canping_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_canping_analysis"
+)
+calculate_gua_lookup = lazy_service(
+    "fatebridge.services.divination", "calculate_gua_lookup"
+)
+calculate_gua_meiyi = lazy_service(
+    "fatebridge.services.divination", "calculate_gua_meiyi"
+)
+calculate_heluo_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_heluo_analysis"
+)
+calculate_meihua_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_meihua_analysis"
+)
+calculate_otherbu_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_otherbu_analysis"
+)
+calculate_sanshiunited_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_sanshiunited_analysis"
+)
+calculate_sixyao_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_sixyao_analysis"
+)
+calculate_sukuyo_compatibility = lazy_service(
+    "fatebridge.services.divination", "calculate_sukuyo_compatibility"
+)
+calculate_suzhan_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_suzhan_analysis"
+)
+calculate_tongshefa_analysis = lazy_service(
+    "fatebridge.services.divination", "calculate_tongshefa_analysis"
+)
+calculate_export_parse = lazy_service(
+    "fatebridge.services.export_tools", "calculate_export_parse"
+)
+calculate_export_registry = lazy_service(
+    "fatebridge.services.export_tools", "calculate_export_registry"
+)
+calculate_knowledge_read = lazy_service(
+    "fatebridge.services.knowledge", "calculate_knowledge_read"
+)
+calculate_knowledge_registry = lazy_service(
+    "fatebridge.services.knowledge", "calculate_knowledge_registry"
+)
+calculate_jinkou_analysis = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_jinkou_analysis"
+)
+calculate_liureng_gods = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_liureng_gods"
+)
+calculate_liureng_runyear = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_liureng_runyear"
+)
+calculate_qimen_analysis = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_qimen_analysis"
+)
+calculate_taiyi_analysis = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_taiyi_analysis"
+)
+calculate_ziwei_birth = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_ziwei_birth"
+)
+calculate_ziwei_horoscope = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_ziwei_horoscope"
+)
+calculate_ziwei_rules = lazy_service(
+    "fatebridge.services.metaphysics", "calculate_ziwei_rules"
+)
+calculate_comprehensive_timing = lazy_service(
+    "fatebridge.services.timing", "calculate_comprehensive_timing"
+)
+calculate_dayun_analysis = lazy_service(
+    "fatebridge.services.timing", "calculate_dayun_analysis"
+)
+calculate_jieqi_timeline_analysis = lazy_service(
+    "fatebridge.services.timing", "calculate_jieqi_timeline_analysis"
+)
+calculate_jieqi_year = lazy_service(
+    "fatebridge.services.timing", "calculate_jieqi_year"
+)
+calculate_liunian_analysis = lazy_service(
+    "fatebridge.services.timing", "calculate_liunian_analysis"
+)
+calculate_liuri_analysis = lazy_service(
+    "fatebridge.services.timing", "calculate_liuri_analysis"
+)
+calculate_liushi_analysis = lazy_service(
+    "fatebridge.services.timing", "calculate_liushi_analysis"
+)
+calculate_liuyue_analysis = lazy_service(
+    "fatebridge.services.timing", "calculate_liuyue_analysis"
+)
+calculate_nongli_time = lazy_service(
+    "fatebridge.services.timing", "calculate_nongli_time"
+)
+calculate_election = lazy_service(
+    "fatebridge.services.western_election", "calculate_election"
+)
+calculate_extrareturns = lazy_service(
+    "fatebridge.services.western_events", "calculate_extrareturns"
+)
+calculate_mundane = lazy_service(
+    "fatebridge.services.western_events", "calculate_mundane"
+)
+calculate_horary = lazy_service(
+    "fatebridge.services.western_horary", "calculate_horary"
+)
+calculate_age_point = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_age_point"
+)
+calculate_balbillus = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_balbillus"
+)
+calculate_distributions = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_distributions"
+)
+calculate_harmonic_chart = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_harmonic_chart"
+)
+calculate_jaynesprog = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_jaynesprog"
+)
+calculate_keypoints = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_keypoints"
+)
+calculate_lunation_phase = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_lunation_phase"
+)
+calculate_persian_directed = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_persian_directed"
+)
+calculate_planetary_ages = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_planetary_ages"
+)
+calculate_planetary_arc = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_planetary_arc"
+)
+calculate_triplicity_rulers = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_triplicity_rulers"
+)
+calculate_vedicprog = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_vedicprog"
+)
+calculate_yearsystem129 = lazy_service(
+    "fatebridge.services.western_lifespan", "calculate_yearsystem129"
+)
+calculate_western_timing_analysis = lazy_service(
+    "fatebridge.services.western_timing", "calculate_western_timing_analysis"
+)
+calculate_decennials = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_decennials"
+)
+calculate_firdaria = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_firdaria"
+)
+calculate_givenyear = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_givenyear"
+)
+calculate_lunarreturn = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_lunarreturn"
+)
+calculate_pd = lazy_service("fatebridge.services.western_timing_tools", "calculate_pd")
+calculate_pdchart = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_pdchart"
+)
+calculate_profection = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_profection"
+)
+calculate_solararc = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_solararc"
+)
+calculate_solarreturn = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_solarreturn"
+)
+calculate_transit = lazy_service(
+    "fatebridge.services.western_timing_tools", "calculate_transit"
+)
+calculate_zr = lazy_service("fatebridge.services.western_timing_tools", "calculate_zr")
 
 # ---------------------------------------------------------------------------
 # Custom invokes for the few tools whose glue does not fit a standard binder.
@@ -220,15 +357,19 @@ def _astro_chart_bind(
     data = req.model_dump()
     variant = data.pop("chart_variant", "chart")
     if variant == "germany":
-        return calculate_germany_chart_analysis, (), data
-    return calculate_core_chart_analysis, (), {**data, "chart_variant": variant}
+        return resolve_service(calculate_germany_chart_analysis), (), data
+    return (
+        resolve_service(calculate_core_chart_analysis),
+        (),
+        {**data, "chart_variant": variant},
+    )
 
 
 def _astro_relative_rest_bind(
     req: Any,
 ) -> Tuple[Callable[..., Any], Tuple[Any, ...], Dict[str, Any]]:
     return (
-        calculate_relative_chart_analysis,
+        resolve_service(calculate_relative_chart_analysis),
         (),
         {
             "inner_payload": req.inner.model_dump(),
@@ -263,7 +404,7 @@ def _astro_relative_flat_bind(
         }
 
     return (
-        calculate_relative_chart_analysis,
+        resolve_service(calculate_relative_chart_analysis),
         (),
         {
             "inner_payload": party("inner"),
