@@ -398,6 +398,16 @@ def is_model_field(annotation: Any) -> bool:
 
 def field_type_name(annotation: Any) -> str:
     """Render a field annotation as a short, agent-readable type string."""
+    # Multi-member Unions (e.g. ``house_system: Union[int, str]``) must surface
+    # every accepted type, not just the first — otherwise an agent reading the
+    # self-describe surface sees only ``int`` and never learns it may pass
+    # ``"placidus"``/``"equal_mc"``. (MCP input validation is unaffected; it
+    # binds the live annotation, but the human/agent-readable ``type`` string
+    # comes from here.)
+    if get_origin(annotation) is Union:
+        non_none = [a for a in get_args(annotation) if a is not type(None)]
+        if len(non_none) > 1:
+            return " | ".join(field_type_name(a) for a in non_none)
     base = unwrap_optional(annotation)
     origin = get_origin(base)
     if origin in (list, List):

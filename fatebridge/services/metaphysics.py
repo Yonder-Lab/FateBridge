@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from fatebridge.core.almanac import (
     DAY_GANZHI_STRATEGY_STANDARD,
+    GAN,
     build_calendar_context,
 )
 from fatebridge.core.calendar import BaZiCalendar
@@ -777,7 +778,7 @@ def calculate_ziwei_rules(
     *,
     selected_sections: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    if year_stem is not None and year_stem not in "甲乙丙丁戊己庚辛壬癸":
+    if year_stem is not None and year_stem not in set(GAN):
         raise ValueError("year_stem 必须是单个天干")
     payload = build_ziwei_rules(year_stem)
     payload["engine"] = "fatebridge-offline"
