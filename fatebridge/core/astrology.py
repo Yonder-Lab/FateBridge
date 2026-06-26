@@ -3167,7 +3167,7 @@ def _base_relative_relationship_profile(
     return profile
 
 
-def _build_compare_relative_payload(
+def _assemble_relative_payload(
     *,
     relative_mode_info: Dict[str, Any],
     hsys: int,
@@ -3189,7 +3189,19 @@ def _build_compare_relative_payload(
     out_to_in_contra_antiscia: List[Dict[str, Any]],
     inner_influence: Dict[str, Any],
     outer_influence: Dict[str, Any],
+    primary_layer: str,
+    third_chart: Dict[str, Any],
+    chart_value: Dict[str, Any],
+    summary: List[str],
 ) -> Dict[str, Any]:
+    """Assemble the relative-chart payload shared by all 5 relationship modes.
+
+    The 5 modes (compare/composite/influence/timespace/marks) produced
+    byte-identical dicts apart from four axes: ``primary_layer``, the third
+    ``source_profiles`` chart, the top-level ``chart`` value, and the bespoke
+    ``summary`` lines. Those four are parameterised; everything else (including
+    the legacy camelCase aliases) is shared here.
+    """
     return {
         "relationship_profile": {
             **_base_relative_relationship_profile(
@@ -3201,10 +3213,10 @@ def _build_compare_relative_payload(
                 source_profiles=(
                     inner_chart.get("chart_profile", {}),
                     outer_chart.get("chart_profile", {}),
-                    composite_chart.get("chart_profile", {}),
+                    third_chart.get("chart_profile", {}),
                 ),
             ),
-            "primary_layer": "directional_synastry",
+            "primary_layer": primary_layer,
             "mode_status": "implemented",
         },
         "inner_chart": inner_chart,
@@ -3220,7 +3232,7 @@ def _build_compare_relative_payload(
         "out_to_in_antiscia": out_to_in_antiscia,
         "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
         "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
-        "chart": {},
+        "chart": chart_value,
         "inner": inner_influence,
         "outer": outer_influence,
         "inToOutAsp": in_to_out_aspects,
@@ -3231,325 +3243,7 @@ def _build_compare_relative_payload(
         "outToInAnti": out_to_in_antiscia,
         "inToOutCAnti": in_to_out_contra_antiscia,
         "outToInCAnti": out_to_in_contra_antiscia,
-        "summary": [
-            "已生成 FateBridge 比较盘分析。",
-            f"A对B相位主体数：{len(in_to_out_aspects)}。",
-            f"B对A相位主体数：{len(out_to_in_aspects)}。",
-            f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
-            f"A对B映点命中：{len(in_to_out_antiscia)}。",
-            f"综合分：{compatibility['overall_score']}。",
-            "合成图盘保留在 composite_chart 兼容字段；主 chart 层在比较盘模式下当前留空。",
-            "影响图盘、中点相位与映点/反映点均已提供"
-            f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
-        ],
-    }
-
-
-def _build_composite_relative_payload(
-    *,
-    relative_mode_info: Dict[str, Any],
-    hsys: int,
-    zodiacal: int,
-    house_system_info: Dict[str, Any],
-    zodiacal_info: Dict[str, Any],
-    inner_chart: Dict[str, Any],
-    outer_chart: Dict[str, Any],
-    synastry_aspects: List[Dict[str, Any]],
-    compatibility: Dict[str, int],
-    composite_chart: Dict[str, Any],
-    in_to_out_aspects: List[Dict[str, Any]],
-    out_to_in_aspects: List[Dict[str, Any]],
-    in_to_out_midpoint: Dict[str, Any],
-    out_to_in_midpoint: Dict[str, Any],
-    in_to_out_antiscia: List[Dict[str, Any]],
-    out_to_in_antiscia: List[Dict[str, Any]],
-    in_to_out_contra_antiscia: List[Dict[str, Any]],
-    out_to_in_contra_antiscia: List[Dict[str, Any]],
-    inner_influence: Dict[str, Any],
-    outer_influence: Dict[str, Any],
-) -> Dict[str, Any]:
-    return {
-        "relationship_profile": {
-            **_base_relative_relationship_profile(
-                relative_mode_info,
-                hsys=hsys,
-                zodiacal=zodiacal,
-                house_system_info=house_system_info,
-                zodiacal_info=zodiacal_info,
-                source_profiles=(
-                    inner_chart.get("chart_profile", {}),
-                    outer_chart.get("chart_profile", {}),
-                    composite_chart.get("chart_profile", {}),
-                ),
-            ),
-            "primary_layer": "composite_chart",
-            "mode_status": "implemented",
-        },
-        "inner_chart": inner_chart,
-        "outer_chart": outer_chart,
-        "synastry_aspects": synastry_aspects,
-        "composite_chart": composite_chart,
-        "compatibility": compatibility,
-        "in_to_out_aspects": in_to_out_aspects,
-        "out_to_in_aspects": out_to_in_aspects,
-        "in_to_out_midpoint": in_to_out_midpoint,
-        "out_to_in_midpoint": out_to_in_midpoint,
-        "in_to_out_antiscia": in_to_out_antiscia,
-        "out_to_in_antiscia": out_to_in_antiscia,
-        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
-        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
-        "chart": composite_chart,
-        "inner": inner_influence,
-        "outer": outer_influence,
-        "inToOutAsp": in_to_out_aspects,
-        "outToInAsp": out_to_in_aspects,
-        "inToOutMidpoint": in_to_out_midpoint,
-        "outToInMidpoint": out_to_in_midpoint,
-        "inToOutAnti": in_to_out_antiscia,
-        "outToInAnti": out_to_in_antiscia,
-        "inToOutCAnti": in_to_out_contra_antiscia,
-        "outToInCAnti": out_to_in_contra_antiscia,
-        "summary": [
-            "已生成 FateBridge 组合盘分析。",
-            f"合成盘行星数量：{len(composite_chart.get('planets', []))}。",
-            f"A对B相位主体数：{len(in_to_out_aspects)}。",
-            f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
-            f"A对B映点命中：{len(in_to_out_antiscia)}。",
-            f"综合分：{compatibility['overall_score']}。",
-            "影响图盘、中点相位与映点/反映点均已提供"
-            f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
-        ],
-    }
-
-
-def _build_influence_relative_payload(
-    *,
-    relative_mode_info: Dict[str, Any],
-    hsys: int,
-    zodiacal: int,
-    house_system_info: Dict[str, Any],
-    zodiacal_info: Dict[str, Any],
-    inner_chart: Dict[str, Any],
-    outer_chart: Dict[str, Any],
-    synastry_aspects: List[Dict[str, Any]],
-    compatibility: Dict[str, int],
-    composite_chart: Dict[str, Any],
-    in_to_out_aspects: List[Dict[str, Any]],
-    out_to_in_aspects: List[Dict[str, Any]],
-    in_to_out_midpoint: Dict[str, Any],
-    out_to_in_midpoint: Dict[str, Any],
-    in_to_out_antiscia: List[Dict[str, Any]],
-    out_to_in_antiscia: List[Dict[str, Any]],
-    in_to_out_contra_antiscia: List[Dict[str, Any]],
-    out_to_in_contra_antiscia: List[Dict[str, Any]],
-    inner_influence: Dict[str, Any],
-    outer_influence: Dict[str, Any],
-) -> Dict[str, Any]:
-    return {
-        "relationship_profile": {
-            **_base_relative_relationship_profile(
-                relative_mode_info,
-                hsys=hsys,
-                zodiacal=zodiacal,
-                house_system_info=house_system_info,
-                zodiacal_info=zodiacal_info,
-                source_profiles=(
-                    inner_chart.get("chart_profile", {}),
-                    outer_chart.get("chart_profile", {}),
-                    composite_chart.get("chart_profile", {}),
-                ),
-            ),
-            "primary_layer": "influence_chart_pair",
-            "mode_status": "implemented",
-        },
-        "inner_chart": inner_chart,
-        "outer_chart": outer_chart,
-        "synastry_aspects": synastry_aspects,
-        "composite_chart": composite_chart,
-        "compatibility": compatibility,
-        "in_to_out_aspects": in_to_out_aspects,
-        "out_to_in_aspects": out_to_in_aspects,
-        "in_to_out_midpoint": in_to_out_midpoint,
-        "out_to_in_midpoint": out_to_in_midpoint,
-        "in_to_out_antiscia": in_to_out_antiscia,
-        "out_to_in_antiscia": out_to_in_antiscia,
-        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
-        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
-        "chart": composite_chart,
-        "inner": inner_influence,
-        "outer": outer_influence,
-        "inToOutAsp": in_to_out_aspects,
-        "outToInAsp": out_to_in_aspects,
-        "inToOutMidpoint": in_to_out_midpoint,
-        "outToInMidpoint": out_to_in_midpoint,
-        "inToOutAnti": in_to_out_antiscia,
-        "outToInAnti": out_to_in_antiscia,
-        "inToOutCAnti": in_to_out_contra_antiscia,
-        "outToInCAnti": out_to_in_contra_antiscia,
-        "summary": [
-            "已生成 FateBridge 影响盘分析。",
-            f"A视角影响图盘星体数：{len(inner_influence.get('chart', {}).get('planets', []))}。",
-            f"B视角影响图盘星体数：{len(outer_influence.get('chart', {}).get('planets', []))}。",
-            f"A对B相位主体数：{len(in_to_out_aspects)}。",
-            f"综合分：{compatibility['overall_score']}。",
-            "合成图盘保留在 chart / composite_chart 中，作为影响盘的辅助层。",
-        ],
-    }
-
-
-def _build_timespace_relative_payload(
-    *,
-    relative_mode_info: Dict[str, Any],
-    hsys: int,
-    zodiacal: int,
-    house_system_info: Dict[str, Any],
-    zodiacal_info: Dict[str, Any],
-    inner_chart: Dict[str, Any],
-    outer_chart: Dict[str, Any],
-    synastry_aspects: List[Dict[str, Any]],
-    compatibility: Dict[str, int],
-    composite_chart: Dict[str, Any],
-    timespace_chart: Dict[str, Any],
-    in_to_out_aspects: List[Dict[str, Any]],
-    out_to_in_aspects: List[Dict[str, Any]],
-    in_to_out_midpoint: Dict[str, Any],
-    out_to_in_midpoint: Dict[str, Any],
-    in_to_out_antiscia: List[Dict[str, Any]],
-    out_to_in_antiscia: List[Dict[str, Any]],
-    in_to_out_contra_antiscia: List[Dict[str, Any]],
-    out_to_in_contra_antiscia: List[Dict[str, Any]],
-    inner_influence: Dict[str, Any],
-    outer_influence: Dict[str, Any],
-) -> Dict[str, Any]:
-    return {
-        "relationship_profile": {
-            **_base_relative_relationship_profile(
-                relative_mode_info,
-                hsys=hsys,
-                zodiacal=zodiacal,
-                house_system_info=house_system_info,
-                zodiacal_info=zodiacal_info,
-                source_profiles=(
-                    inner_chart.get("chart_profile", {}),
-                    outer_chart.get("chart_profile", {}),
-                    timespace_chart.get("chart_profile", {}),
-                ),
-            ),
-            "primary_layer": "timespace_chart",
-            "mode_status": "implemented",
-        },
-        "inner_chart": inner_chart,
-        "outer_chart": outer_chart,
-        "synastry_aspects": synastry_aspects,
-        "composite_chart": composite_chart,
-        "compatibility": compatibility,
-        "in_to_out_aspects": in_to_out_aspects,
-        "out_to_in_aspects": out_to_in_aspects,
-        "in_to_out_midpoint": in_to_out_midpoint,
-        "out_to_in_midpoint": out_to_in_midpoint,
-        "in_to_out_antiscia": in_to_out_antiscia,
-        "out_to_in_antiscia": out_to_in_antiscia,
-        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
-        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
-        "chart": timespace_chart,
-        "inner": inner_influence,
-        "outer": outer_influence,
-        "inToOutAsp": in_to_out_aspects,
-        "outToInAsp": out_to_in_aspects,
-        "inToOutMidpoint": in_to_out_midpoint,
-        "outToInMidpoint": out_to_in_midpoint,
-        "inToOutAnti": in_to_out_antiscia,
-        "outToInAnti": out_to_in_antiscia,
-        "inToOutCAnti": in_to_out_contra_antiscia,
-        "outToInCAnti": out_to_in_contra_antiscia,
-        "summary": [
-            "已生成 FateBridge 时空中点盘分析。",
-            f"时空中点盘行星数量：{len(timespace_chart.get('planets', []))}。",
-            f"A对B相位主体数：{len(in_to_out_aspects)}。",
-            f"综合分：{compatibility['overall_score']}。",
-            (
-                "主 chart 层采用双方出生时间与地理位置中点生成的"
-                f"{_precision_label_zh(timespace_chart.get('chart_profile', {}).get('engine_precision', 'approximate_orbital_model'))}盘。"
-            ),
-        ],
-    }
-
-
-def _build_marks_relative_payload(
-    *,
-    relative_mode_info: Dict[str, Any],
-    hsys: int,
-    zodiacal: int,
-    house_system_info: Dict[str, Any],
-    zodiacal_info: Dict[str, Any],
-    inner_chart: Dict[str, Any],
-    outer_chart: Dict[str, Any],
-    synastry_aspects: List[Dict[str, Any]],
-    compatibility: Dict[str, int],
-    composite_chart: Dict[str, Any],
-    marks_chart: Dict[str, Any],
-    in_to_out_aspects: List[Dict[str, Any]],
-    out_to_in_aspects: List[Dict[str, Any]],
-    in_to_out_midpoint: Dict[str, Any],
-    out_to_in_midpoint: Dict[str, Any],
-    in_to_out_antiscia: List[Dict[str, Any]],
-    out_to_in_antiscia: List[Dict[str, Any]],
-    in_to_out_contra_antiscia: List[Dict[str, Any]],
-    out_to_in_contra_antiscia: List[Dict[str, Any]],
-    inner_influence: Dict[str, Any],
-    outer_influence: Dict[str, Any],
-) -> Dict[str, Any]:
-    return {
-        "relationship_profile": {
-            **_base_relative_relationship_profile(
-                relative_mode_info,
-                hsys=hsys,
-                zodiacal=zodiacal,
-                house_system_info=house_system_info,
-                zodiacal_info=zodiacal_info,
-                source_profiles=(
-                    inner_chart.get("chart_profile", {}),
-                    outer_chart.get("chart_profile", {}),
-                    marks_chart.get("chart_profile", {}),
-                ),
-            ),
-            "primary_layer": "marks_chart",
-            "mode_status": "implemented",
-        },
-        "inner_chart": inner_chart,
-        "outer_chart": outer_chart,
-        "synastry_aspects": synastry_aspects,
-        "composite_chart": composite_chart,
-        "compatibility": compatibility,
-        "in_to_out_aspects": in_to_out_aspects,
-        "out_to_in_aspects": out_to_in_aspects,
-        "in_to_out_midpoint": in_to_out_midpoint,
-        "out_to_in_midpoint": out_to_in_midpoint,
-        "in_to_out_antiscia": in_to_out_antiscia,
-        "out_to_in_antiscia": out_to_in_antiscia,
-        "in_to_out_contra_antiscia": in_to_out_contra_antiscia,
-        "out_to_in_contra_antiscia": out_to_in_contra_antiscia,
-        "chart": marks_chart,
-        "inner": inner_influence,
-        "outer": outer_influence,
-        "inToOutAsp": in_to_out_aspects,
-        "outToInAsp": out_to_in_aspects,
-        "inToOutMidpoint": in_to_out_midpoint,
-        "outToInMidpoint": out_to_in_midpoint,
-        "inToOutAnti": in_to_out_antiscia,
-        "outToInAnti": out_to_in_antiscia,
-        "inToOutCAnti": in_to_out_contra_antiscia,
-        "outToInCAnti": out_to_in_contra_antiscia,
-        "summary": [
-            "已生成 FateBridge 马克斯盘分析。",
-            f"马克斯盘行星数量：{len(marks_chart.get('planets', []))}。",
-            f"A对B相位主体数：{len(in_to_out_aspects)}。",
-            f"综合分：{compatibility['overall_score']}。",
-            (
-                "主 chart 层采用组合盘与时空中点盘之间的"
-                f"{_precision_label_zh(marks_chart.get('chart_profile', {}).get('engine_precision', 'approximate_orbital_model'))}派生结果。"
-            ),
-        ],
+        "summary": summary,
     }
 
 
@@ -3661,18 +3355,88 @@ def build_relative_payload(
 
     normalized_mode = relative_mode_info["normalized"]
     if normalized_mode == "compare":
-        payload = _build_compare_relative_payload(**shared_kwargs)
+        payload = _assemble_relative_payload(
+            **shared_kwargs,
+            primary_layer="directional_synastry",
+            third_chart=composite_chart,
+            chart_value={},
+            summary=[
+                "已生成 FateBridge 比较盘分析。",
+                f"A对B相位主体数：{len(in_to_out_aspects)}。",
+                f"B对A相位主体数：{len(out_to_in_aspects)}。",
+                f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
+                f"A对B映点命中：{len(in_to_out_antiscia)}。",
+                f"综合分：{compatibility['overall_score']}。",
+                "合成图盘保留在 composite_chart 兼容字段；主 chart 层在比较盘模式下当前留空。",
+                "影响图盘、中点相位与映点/反映点均已提供"
+                f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
+            ],
+        )
     elif normalized_mode == "composite":
-        payload = _build_composite_relative_payload(**shared_kwargs)
+        payload = _assemble_relative_payload(
+            **shared_kwargs,
+            primary_layer="composite_chart",
+            third_chart=composite_chart,
+            chart_value=composite_chart,
+            summary=[
+                "已生成 FateBridge 组合盘分析。",
+                f"合成盘行星数量：{len(composite_chart.get('planets', []))}。",
+                f"A对B相位主体数：{len(in_to_out_aspects)}。",
+                f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
+                f"A对B映点命中：{len(in_to_out_antiscia)}。",
+                f"综合分：{compatibility['overall_score']}。",
+                "影响图盘、中点相位与映点/反映点均已提供"
+                f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
+            ],
+        )
     elif normalized_mode == "influence":
-        payload = _build_influence_relative_payload(**shared_kwargs)
+        payload = _assemble_relative_payload(
+            **shared_kwargs,
+            primary_layer="influence_chart_pair",
+            third_chart=composite_chart,
+            chart_value=composite_chart,
+            summary=[
+                "已生成 FateBridge 影响盘分析。",
+                f"A视角影响图盘星体数：{len(inner_influence.get('chart', {}).get('planets', []))}。",
+                f"B视角影响图盘星体数：{len(outer_influence.get('chart', {}).get('planets', []))}。",
+                f"A对B相位主体数：{len(in_to_out_aspects)}。",
+                f"综合分：{compatibility['overall_score']}。",
+                "合成图盘保留在 chart / composite_chart 中，作为影响盘的辅助层。",
+            ],
+        )
     elif normalized_mode == "timespace":
-        payload = _build_timespace_relative_payload(
-            **shared_kwargs, timespace_chart=timespace_chart
+        payload = _assemble_relative_payload(
+            **shared_kwargs,
+            primary_layer="timespace_chart",
+            third_chart=timespace_chart,
+            chart_value=timespace_chart,
+            summary=[
+                "已生成 FateBridge 时空中点盘分析。",
+                f"时空中点盘行星数量：{len(timespace_chart.get('planets', []))}。",
+                f"A对B相位主体数：{len(in_to_out_aspects)}。",
+                f"综合分：{compatibility['overall_score']}。",
+                (
+                    "主 chart 层采用双方出生时间与地理位置中点生成的"
+                    f"{_precision_label_zh(timespace_chart.get('chart_profile', {}).get('engine_precision', 'approximate_orbital_model'))}盘。"
+                ),
+            ],
         )
     elif normalized_mode == "marks":
-        payload = _build_marks_relative_payload(
-            **shared_kwargs, marks_chart=marks_chart
+        payload = _assemble_relative_payload(
+            **shared_kwargs,
+            primary_layer="marks_chart",
+            third_chart=marks_chart,
+            chart_value=marks_chart,
+            summary=[
+                "已生成 FateBridge 马克斯盘分析。",
+                f"马克斯盘行星数量：{len(marks_chart.get('planets', []))}。",
+                f"A对B相位主体数：{len(in_to_out_aspects)}。",
+                f"综合分：{compatibility['overall_score']}。",
+                (
+                    "主 chart 层采用组合盘与时空中点盘之间的"
+                    f"{_precision_label_zh(marks_chart.get('chart_profile', {}).get('engine_precision', 'approximate_orbital_model'))}派生结果。"
+                ),
+            ],
         )
     else:  # pragma: no cover - _normalize_relative_mode only yields the 5 modes above
         raise ValueError(f"未支持的关系盘模式: {normalized_mode!r}")
