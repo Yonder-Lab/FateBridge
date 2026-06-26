@@ -23,7 +23,7 @@ from ..utils.data import (
     TenGod,
     check_branch_combination,
     check_branch_conflict,
-    iter_pillar_gods,
+    sum_ten_god_weight,
 )
 
 
@@ -55,10 +55,7 @@ class RelativesAnalysis:
     def _star_weight(
         pillars: Dict[str, Tuple[str, str]], day_stem: str, gods: Tuple[TenGod, ...]
     ) -> float:
-        weight = sum(
-            e.weight for e in iter_pillar_gods(pillars, day_stem) if e.ten_god in gods
-        )
-        return round(weight, 1)
+        return sum_ten_god_weight(pillars, day_stem, gods)
 
     @staticmethod
     def _analyze_parents(

@@ -25,8 +25,8 @@ from ..utils.data import (
     check_branch_combination,
     check_branch_conflict,
     get_ten_god,
-    iter_pillar_gods,
     normalize_gender,
+    sum_ten_god_weight,
 )
 
 # 桃花（咸池）：三合局 -> 桃花地支
@@ -171,10 +171,7 @@ class RomanceAnalysis:
             )
             basis = "财/官杀（性别未提供，兼看）"
 
-        weight = sum(
-            e.weight for e in iter_pillar_gods(pillars, day_stem) if e.ten_god in gods
-        )
-        weight = round(weight, 1)
+        weight = sum_ten_god_weight(pillars, day_stem, gods)
         if weight == 0:
             status = "异性缘星不显，感情主动性弱或缘分较晚，宜主动把握"
         elif weight >= 2.5:

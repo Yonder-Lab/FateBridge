@@ -25,7 +25,7 @@ from ..utils.data import (
     Element,
     TenGod,
     get_ten_god,
-    iter_pillar_gods,
+    sum_ten_god_weight,
 )
 
 # 文昌贵人：以日干（或年干）查地支
@@ -100,22 +100,20 @@ class EducationAnalysis:
         day_stem: str,
     ) -> Dict[str, Any]:
         """统计印星、食伤、官星、财星力量（学业关键十神）。"""
-        seal = food_hurt = officer = wealth = 0.0
-        for e in iter_pillar_gods(pillars, day_stem):
-            if e.ten_god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
-                seal += e.weight
-            elif e.ten_god in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER):
-                food_hurt += e.weight
-            elif e.ten_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
-                officer += e.weight
-            elif e.ten_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                wealth += e.weight
-
+        # 四组十神互不相交，逐组求和与原 elif 单遍累加结果一致。
         return {
-            "seal_weight": round(seal, 1),
-            "food_hurt_weight": round(food_hurt, 1),
-            "officer_weight": round(officer, 1),
-            "wealth_weight": round(wealth, 1),
+            "seal_weight": sum_ten_god_weight(
+                pillars, day_stem, (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL)
+            ),
+            "food_hurt_weight": sum_ten_god_weight(
+                pillars, day_stem, (TenGod.FOOD_GOD, TenGod.HURT_OFFICER)
+            ),
+            "officer_weight": sum_ten_god_weight(
+                pillars, day_stem, (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER)
+            ),
+            "wealth_weight": sum_ten_god_weight(
+                pillars, day_stem, (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH)
+            ),
         }
 
     @staticmethod
