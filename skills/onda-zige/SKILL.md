@@ -10,10 +10,15 @@ description: 用 FateBridge 引擎做一次全面的自我画像：八字+紫微
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
+- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
 
 **铁律：所有排盘、干支、十神、安星、星历全部交给引擎。AI 只负责读事实、做交叉、讲人话。**
 
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
+
 ## 这个场景用哪些工具
+
+§C.8 路由核心：`analyze_destiny`（八字）、`ziwei_birth`（紫微）、`astro_chart`（西占）三系同时为**主**证，并行调用、并行出结论；三系一致→合并去重，三系分歧→显式标注「两套/三套口径不一」，各自呈现，保留给用户权衡。token 控制：并行时务必用 `fields` 或 `selected_sections` 裁剪，不要对每个工具裸吐完整 `snapshot_text`。
 
 按以下顺序调用，每一步都独立跑、独立读，最后交叉印证：
 

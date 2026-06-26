@@ -10,21 +10,43 @@ description: 用 FateBridge 引擎看性格、天赋、学业、原生家庭与�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
+- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
 
 **铁律：日主旺衰、十神、格局、紫微安星全部交给引擎。**
 
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
+
 ## 这个场景用哪些工具
 
-| 用户想问 | 调的工具 |
-|---------|---------|
-| 我的性格、内核 | `bazi_personality` |
-| 天赋/适合的路、整体命局 | `analyze_destiny`、`bazi_birth` |
-| 学业/考试/读书运 | `bazi_education` |
-| 孩子的天性、亲子 | `bazi_children`（孩子出生信息） |
-| 跟父母/兄弟姐妹的关系 | `bazi_relatives` |
-| 紫微命盘看十二宫 | `ziwei_birth`（可 `--selected-sections` 取命宫/官禄/福德等） |
-| 紫微规则查询 | `ziwei_rules --year-stem` |
-| 看某个时间点的运限（大限/流年等） | `ziwei_horoscope`（要 `--target-*` 年月日时） |
+§C.1 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+
+| 用户想问 | 工具 | 优先级 |
+|---------|------|--------|
+| 我是个什么样的人（性格、内核） | `analyze_destiny` | 主 |
+| 我是个什么样的人（性格、内核） | `ziwei_birth` | 主 |
+| 我是个什么样的人（性格、内核） | `bazi_personality` | 旁 |
+| 我是个什么样的人（性格、内核） | `astro_chart` | 旁 |
+| 我的天赋适合什么 | `analyze_destiny` | 主 |
+| 我的天赋适合什么 | `bazi_personality` | 旁 |
+| 学业/考试/读书运 | `bazi_education` | 主 |
+| 学业/考试/读书运 | `ziwei_birth` | 旁 |
+| 学业/考试/读书运 | `ziwei_rules` | 深 |
+| 跟父母/兄弟姐妹的关系·原生家庭 | `bazi_relatives` | 主 |
+| 跟父母/兄弟姐妹的关系·原生家庭 | `ziwei_birth` | 旁 |
+| 跟父母/兄弟姐妹的关系·原生家庭 | `ziwei_rules` | 深 |
+| 孩子的天性、亲子 | `bazi_children` | 主 |
+| 孩子的天性、亲子 | `ziwei_birth` | 旁 |
+| 孩子的天性、亲子 | `ziwei_rules` | 深 |
+| 想要一份完整命盘 | `bazi_birth` | 主 |
+| 想要一份完整命盘 | `ziwei_birth` | 主 |
+| 想要一份完整命盘 | `astro_chart` | 旁 |
+| 想要一份完整命盘（数算）| `ziwei_rules` | 深 |
+| 想要一份完整命盘（数算）| `canping` | 深 |
+| 想要一份完整命盘（数算）| `heluo` | 深 |
+
+> 去重：`analyze_destiny` 已含命盘+喜用+格局，调过它**不要**再调 `bazi_birth`；仅当用户明确要原始四柱/十神数据时单独调 `bazi_birth`。
+> 主证：性格/天赋类由紫微（性格底色）+八字（十神格局）双主，西占仅作心理底色旁证。
+> 深调：`ziwei_rules`/`canping`/`heluo` 为专家查表工具，普通场景不默认调用；`canping`（邵子参评数/金锁银匙）与 `heluo`（河洛理数）仅在用户点名数算或专家要求完整盘时才调。
 
 ## 怎么收信息
 出生 年月日时 + 性别 + 城市。看孩子/家人就用对方的出生信息。

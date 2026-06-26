@@ -22,6 +22,7 @@ engine_tools:
   - analyze_destiny
   - bazi_career
   - bazi_wealth
+  - dayun_analysis
   - liunian_analysis
   - timing_analysis
   - two_person_compatibility

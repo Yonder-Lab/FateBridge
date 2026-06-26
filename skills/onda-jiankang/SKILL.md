@@ -10,14 +10,29 @@ description: 用 FateBridge 引擎看健康倾向与身心状态，Onda 河狸�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
+- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
+
+调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
 
 ## 这个场景用哪些工具
 
-| 用户想问 | 调的工具 | 要点 |
-|---------|---------|------|
-| 身体哪块偏弱、养护方向 | `bazi_health` | 看五行偏枯/受克对应脏腑倾向 |
-| 今年身心节奏、容易累的时段 | `timing_analysis` / `liunian_analysis` | 大运流年对精力的影响 |
-| 整体偏强偏弱、适不适合硬撑 | `analyze_destiny` / `bazi_birth` | 身强身弱 |
+§C.4 对应路由（主=出结论必调；旁=只加强/修正）：
+
+| 用户想问 | 工具 | 优先级 | 要点 |
+|---------|------|--------|------|
+| 身体哪里弱 | `bazi_health` | 主 | 看五行偏枯/受克对应脏腑倾向 |
+| 身体哪里弱 | `analyze_destiny` | 旁 | 含五行偏枯信息，补充整体框架 |
+| 今年健康要注意什么 | `bazi_health` | 主 | |
+| 今年健康要注意什么 | `timing_analysis` | 旁 | 大运流年对精力的影响 |
+| 今年健康要注意什么 | `liunian_analysis` | 旁 | 流年精细节奏 |
+| 容易累睡不好情绪内耗 | `bazi_health` | 主 | 看五行偏枯与神经/情绪倾向 |
+| 容易累睡不好情绪内耗 | `analyze_destiny` | 旁 | |
+| 五行养生调理方向 | `bazi_health` | 主 | |
+| 五行养生调理方向 | `analyze_destiny` | 旁 | |
+
+> 主证：健康场景以 `bazi_health` 为唯一主证，时运类（`timing_analysis`/`liunian_analysis`）只提示今年身心影响，不单独下健康判断。
+> 去重：`analyze_destiny` 含五行偏枯信息，调过后不重复拆讲五行，只补充未覆盖的具体健康方向。
+> 触发：西占推运不在此域出现，健康追问到季节/月份才升级 `liunian_analysis` 或 `liuyue_analysis`。
 
 ## 怎么收信息
 出生 年月日时 + 性别 + 城市。

@@ -22,10 +22,8 @@ triggers:
   - 这事吉凶
 engine_tools:
   - astro_horary
-  - canping
   - gua_lookup
   - gua_meiyi
-  - heluo
   - jinkou
   - liureng_gods
   - liureng_runyear

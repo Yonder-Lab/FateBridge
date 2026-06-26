@@ -34,21 +34,26 @@ engine_tools:
   - astro_triplicity_rulers
   - astro_vedicprog
   - astro_yearsystem129
+  - dayun_analysis
   - decennials
   - firdaria
+  - givenyear
   - jieqi_timeline_analysis
   - jieqi_year
   - liunian_analysis
   - liuri_analysis
   - liushi_analysis
   - liuyue_analysis
+  - lunarreturn
   - nongli_time
   - pd
+  - pdchart
   - profection
   - solararc
   - solarreturn
   - timing_analysis
   - transit
+  - western_timing_analysis
   - zr
 required_inputs:
   - birth_year

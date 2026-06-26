@@ -26,8 +26,11 @@ engine_tools:
   - bazi_education
   - bazi_personality
   - bazi_relatives
+  - canping
+  - heluo
   - ziwei_birth
   - ziwei_horoscope
+  - ziwei_rules
 required_inputs:
   - birth_year
   - birth_month
