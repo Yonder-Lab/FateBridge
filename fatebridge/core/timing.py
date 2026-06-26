@@ -27,6 +27,7 @@ from ..utils.helpers import normalize_gender
 from .almanac import (
     BAZI_MONTH_START_TERMS,
     DEFAULT_TIMEZONE,
+    current_local_datetime,
     get_bazi_month_boundaries,
     get_bazi_month_context,
     get_bazi_year,
@@ -1008,7 +1009,7 @@ class TimingAnalysis:
             当前大运信息
         """
         if current_date is None:
-            current_date = datetime.now()
+            current_date = current_local_datetime(timezone_name)
 
         # 计算起运年龄
         start_info = TimingAnalysis.calculate_dayun_start_details(
@@ -1078,7 +1079,7 @@ class TimingAnalysis:
             时运分析结果
         """
         if current_date is None:
-            current_date = datetime.now()
+            current_date = current_local_datetime()
 
         # 获取当前流年（传入完整 moment，使用立春边界解析 BaZi 年）
         current_liunian = TimingAnalysis.calculate_liunian(

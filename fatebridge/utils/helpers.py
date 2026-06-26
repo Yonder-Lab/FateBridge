@@ -1449,7 +1449,11 @@ def get_current_analysis_date(
     Returns:
         (年份, 月份) 元组
     """
-    current_date = datetime.now()
+    # Local import: helpers is a foundational module imported by core.almanac's
+    # consumers, so we avoid a module-level dependency back onto core.
+    from ..core.almanac import current_local_datetime
+
+    current_date = current_local_datetime()
 
     if analysis_year is None:
         analysis_year = current_date.year

@@ -17,7 +17,7 @@ from fatebridge.analysis.personality import PersonalityAnalysis
 from fatebridge.analysis.relatives import RelativesAnalysis
 from fatebridge.analysis.romance import RomanceAnalysis
 from fatebridge.analysis.wealth import WealthAnalysis
-from fatebridge.core.almanac import build_calendar_context
+from fatebridge.core.almanac import build_calendar_context, current_local_datetime
 from fatebridge.core.classical import (
     build_classical_overview,
     classical_snapshot_lines,
@@ -287,7 +287,7 @@ def _resolve_analysis_date(
     analysis_month: Optional[int],
     analysis_day: Optional[int],
 ) -> datetime:
-    now = datetime.now()
+    now = current_local_datetime()
     year = analysis_year or now.year
     month = analysis_month or now.month
     day = analysis_day or now.day

@@ -101,6 +101,9 @@ FROZEN_NOW = _RealDatetime(2026, 1, 1, 12, 0, 0)
 # 所有通过 ``from datetime import datetime`` 引入、且在输出路径上调用
 # now()/today() 的模块。新增工具若在输出路径用了 datetime.now()，须在此补记。
 _DATETIME_PATCH_TARGETS = [
+    # 默认"当前时刻"现集中在 almanac.current_local_datetime()，其内部的
+    # datetime.now(tz) 是真正落地的 now() 调用点，必须冻结。
+    "fatebridge.core.almanac.datetime",
     "fatebridge.services.bazi.datetime",
     "fatebridge.services.timing.datetime",
     "fatebridge.analysis.timing_effects.datetime",
