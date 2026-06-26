@@ -66,6 +66,53 @@ def test_longtail_summaries_carry_routing_signal():
     )
 
 
+def _section_c_present_names() -> set[str]:
+    """§C 正文里精确出现（表格单元或注释行均可）的 catalog 工具名集合。"""
+    text = DOC.read_text(encoding="utf-8")
+    cbody = text.split("## §C", 1)[1].split("## §D", 1)[0]
+    callable_names = set()
+    for spec in CATALOG:
+        callable_names.add(spec.key)
+        if getattr(spec, "mcp_name", None):
+            callable_names.add(spec.mcp_name)
+    present = set()
+    for tok in re.findall(r"[a-z][a-z0-9_]*", cbody):
+        if tok in callable_names:
+            present.add(tok)
+    return present
+
+
+def test_every_section_c_tool_appears_in_section_c_body():
+    """清单把工具归到 §C.x，但若它没出现在 §C 正文任何地方（表格或注释），
+    Agent 读矩阵时根本看不到它＝注册了却仍闲置。§D/§E 工具不要求进 §C。
+    REST/MCP 孪生工具共享 operation_label_zh，任一出现即视为该能力已路由。"""
+    text = DOC.read_text(encoding="utf-8")
+    sec = text.split("## 覆盖核对清单", 1)[1]
+    claims = dict(re.findall(r"^- `([a-z0-9_]+)` — (.+)$", sec, re.MULTILINE))
+    present = _section_c_present_names()
+    present_labels = {
+        spec.operation_label_zh
+        for spec in CATALOG
+        if spec.key in present or getattr(spec, "mcp_name", None) in present
+    }
+    specs = {spec.key: spec for spec in CATALOG}
+    missing = []
+    for key, desc in claims.items():
+        if "§C" not in desc:
+            continue
+        spec = specs[key]
+        names = {spec.key, getattr(spec, "mcp_name", None)}
+        if names & present:
+            continue
+        if spec.operation_label_zh in present_labels:
+            continue
+        missing.append(key)
+    assert not missing, (
+        "这些工具在清单里归到 §C 场景，却没出现在任何 §C 路由矩阵/注释中"
+        f"（Agent 读表看不到＝闲置）: {sorted(missing)}"
+    )
+
+
 def test_doc_notes_mcp_name_when_it_differs_from_key():
     """key≠mcp_name 的工具（如西占流派盘），其 MCP 名必须在文档里注明，
     否则技能照 §C 表抄 key 喂 MCP 会 unknown_tool。"""
