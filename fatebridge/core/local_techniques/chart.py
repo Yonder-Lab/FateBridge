@@ -632,19 +632,6 @@ def _house_id_for_houses(longitude: float, houses: List[Dict[str, Any]]) -> str:
     return str(houses[0].get("id") or "House1")
 
 
-def _house_id_for_longitude(
-    longitude: float,
-    ascendant: float,
-    *,
-    step_degrees: float = 30.0,
-) -> str:
-    if step_degrees < 0:
-        index = int(((ascendant - longitude) % 360.0) // 30.0) + 1
-    else:
-        index = int(((longitude - ascendant) % 360.0) // 30.0) + 1
-    return f"House{index}"
-
-
 def build_pseudo_chart(
     *,
     date_text: str,

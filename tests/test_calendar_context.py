@@ -44,11 +44,9 @@ def test_lichun_boundary_updates_bazi_year_and_month():
 
 def test_dayun_start_details_use_jieqi_boundary():
     birth = datetime(2028, 4, 6, 9, 33)
-    pillars = BaZiCalendar.get_four_pillars(birth, timezone_name="Asia/Shanghai")
 
     details = TimingAnalysis.calculate_dayun_start_details(
         birth,
-        pillars["month"][0],
         "男",
         timezone_name="Asia/Shanghai",
     )

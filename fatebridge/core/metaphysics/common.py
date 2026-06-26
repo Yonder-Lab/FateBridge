@@ -235,20 +235,6 @@ def kongwang_for_ganzhi(text: str) -> str:
     return KONGWANG_BY_XUN_HEAD[xun_head_for_ganzhi(text)]
 
 
-def element_relation(anchor: str, other: str) -> str:
-    if anchor == other:
-        return "同气"
-    if ELEMENT_GENERATES[anchor] == other:
-        return "生出"
-    if ELEMENT_CONTROLS[anchor] == other:
-        return "制约"
-    if ELEMENT_GENERATES[other] == anchor:
-        return "受生"
-    if ELEMENT_CONTROLS[other] == anchor:
-        return "受克"
-    return "平衡"
-
-
 def liuqin_against_day(day_element: str, target_element: str) -> str:
     if day_element == target_element:
         return "兄弟"

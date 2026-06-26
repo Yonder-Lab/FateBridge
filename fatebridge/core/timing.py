@@ -27,7 +27,6 @@ from ..utils.helpers import normalize_gender
 from .almanac import (
     BAZI_MONTH_START_TERMS,
     DEFAULT_TIMEZONE,
-    current_local_datetime,
     get_bazi_month_boundaries,
     get_bazi_month_context,
     get_bazi_year,
@@ -199,35 +198,8 @@ class TimingAnalysis:
     """
 
     @staticmethod
-    def calculate_dayun_start_age(
-        birth_date: datetime,
-        month_pillar_stem: str,
-        gender: Optional[str],
-        timezone_name: str = DEFAULT_TIMEZONE,
-    ) -> int:
-        """
-        计算起运年龄（保持向上取整的兼容接口）
-
-        Args:
-            birth_date: 出生日期
-            month_pillar_stem: 月柱天干
-            gender: 性别 ("男" 或 "女")
-
-        Returns:
-            起运年龄
-        """
-        details = TimingAnalysis.calculate_dayun_start_details(
-            birth_date,
-            month_pillar_stem,
-            gender,
-            timezone_name=timezone_name,
-        )
-        return max(1, math.ceil(float(details["start_age_precise"])))
-
-    @staticmethod
     def calculate_dayun_start_details(
         birth_date: datetime,
-        month_pillar_stem: str,
         gender: Optional[str],
         timezone_name: str = DEFAULT_TIMEZONE,
     ) -> Dict:
@@ -985,124 +957,3 @@ class TimingAnalysis:
             summary_parts.append(f"有{relation_desc}关系")
 
         return "，".join(summary_parts) + "。"
-
-    @staticmethod
-    def get_current_dayun(
-        birth_date: datetime,
-        month_pillar_stem: str,
-        month_pillar_branch: str,
-        gender: Optional[str],
-        current_date: Optional[datetime] = None,
-        timezone_name: str = DEFAULT_TIMEZONE,
-    ) -> Dict:
-        """
-        获取当前大运信息
-
-        Args:
-            birth_date: 出生日期
-            month_pillar_stem: 月柱天干
-            month_pillar_branch: 月柱地支
-            gender: 性别
-            current_date: 当前日期，默认为今天
-
-        Returns:
-            当前大运信息
-        """
-        if current_date is None:
-            current_date = current_local_datetime(timezone_name)
-
-        # 计算起运年龄
-        start_info = TimingAnalysis.calculate_dayun_start_details(
-            birth_date,
-            month_pillar_stem,
-            gender,
-            timezone_name=timezone_name,
-        )
-        start_age = start_info["start_age_precise"]
-
-        # 计算当前年龄
-        current_age = current_date.year - birth_date.year
-        if current_date.month < birth_date.month or (
-            current_date.month == birth_date.month and current_date.day < birth_date.day
-        ):
-            current_age -= 1
-
-        # 计算当前大运期数
-        if current_age < start_age:
-            return {
-                "status": "before_dayun",
-                "message": f"尚未起运，约在{start_age}岁起运",
-                "start_age": start_info["start_age_rounded"],
-                "start_age_precise": start_age,
-            }
-
-        dayun_age = round(current_age - start_age, 2)
-        current_period = int(dayun_age // 10) + 1
-
-        # 获取大运序列
-        dayun_sequence = TimingAnalysis.calculate_dayun_sequence(
-            month_pillar_stem,
-            month_pillar_branch,
-            gender,
-            birth_date.year,
-            start_age=start_age,
-            year_stem=start_info["year_stem"],
-        )
-
-        if current_period <= len(dayun_sequence):
-            current_dayun = dayun_sequence[current_period - 1]
-            current_dayun["current_age"] = current_age
-            current_dayun["dayun_age"] = dayun_age
-            current_dayun["years_in_period"] = round(
-                dayun_age - (current_period - 1) * 10, 2
-            )
-            return current_dayun
-        else:
-            return {
-                "status": "beyond_calculation",
-                "message": "超出计算范围",
-                "current_age": current_age,
-            }
-
-    @staticmethod
-    def analyze_timing_combination(
-        birth_pillars: Dict, current_date: Optional[datetime] = None
-    ) -> Dict:
-        """
-        分析时运组合（大运、流年、流月的综合影响）
-
-        Args:
-            birth_pillars: 出生四柱信息
-            current_date: 分析日期，默认为当前日期
-
-        Returns:
-            时运分析结果
-        """
-        if current_date is None:
-            current_date = current_local_datetime()
-
-        # 获取当前流年（传入完整 moment，使用立春边界解析 BaZi 年）
-        current_liunian = TimingAnalysis.calculate_liunian(
-            current_date.year, moment=current_date
-        )
-
-        # 获取当前流月
-        current_liuyue = TimingAnalysis.calculate_liuyue(
-            current_date.year,
-            current_date.month,
-            target_day=current_date.day,
-            target_date=current_date,
-        )
-
-        return {
-            "analysis_date": current_date.strftime("%Y-%m-%d"),
-            "liunian": current_liunian,
-            "liuyue": current_liuyue,
-            "liuri": TimingAnalysis.calculate_liuri(current_date),
-            "summary": {
-                "year_pillar": current_liunian["pillar"],
-                "month_pillar": current_liuyue["pillar"],
-                "day_pillar": TimingAnalysis.calculate_liuri(current_date)["pillar"],
-                "analysis": "时运分析需要结合具体命局进行详细解读",
-            },
-        }

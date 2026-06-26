@@ -479,7 +479,6 @@ def register_rest(
     *,
     execute_service: Callable[..., Any],
     logger: Any = None,
-    summarize_context: Optional[Callable[..., str]] = None,
 ) -> None:
     """Mount every spec with a ``rest_path`` as a POST route on the FastAPI app."""
     from fastapi import HTTPException

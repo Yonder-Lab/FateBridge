@@ -540,10 +540,6 @@ def _ying(p: int) -> int:
     return p + 3 if p <= 3 else p - 3
 
 
-def year_ganzhi(year: int) -> str:
-    return GAN[((year - 4) % 10 + 10) % 10] + ZHI[((year - 4) % 12 + 12) % 12]
-
-
 def da_yun(
     xian: Dict[str, Any], hou: Dict[str, Any], birth_year: int = 0
 ) -> Dict[str, Any]:
