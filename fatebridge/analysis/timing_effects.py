@@ -155,7 +155,6 @@ class TimingEffectsAnalysis:
         # 计算起运年龄
         start_info = TimingAnalysis.calculate_dayun_start_details(
             birth_date,
-            month_stem,
             gender,
             timezone_name=timezone_name,
         )
