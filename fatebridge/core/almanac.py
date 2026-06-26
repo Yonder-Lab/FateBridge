@@ -226,6 +226,23 @@ def localize_datetime(moment: datetime, timezone_name: Optional[str]) -> datetim
     return moment.astimezone(tzinfo)
 
 
+def current_local_datetime(timezone_name: Optional[str] = None) -> datetime:
+    """当前时刻的"本地墙钟"，以朴素(无 tzinfo) datetime 返回。
+
+    裸 ``datetime.now()`` 读的是*服务器*时区，因此一台部署在 UTC 的主机会
+    为"未显式给定年/月/日"的调用方解析出错误的日历日期——最明显的是临近
+    元旦 / 立春边界时 :func:`calculate_liunian` 默认的流年年份会差一年。
+    这里把默认时刻锚定到一个固定的民用时区（缺省 ``Asia/Shanghai``），
+    使"当前"无论进程跑在哪个时区都确定一致。
+
+    返回朴素 datetime 是刻意为之：下游一律把它拆成 ``.year/.month/.day``
+    或据此构造新的朴素 datetime，保持与既有"朴素本地时间"契约一致，绝不与
+    别处的 aware datetime 混用而触发 TypeError。
+    """
+    tzinfo = _parse_timezone_spec(timezone_name)
+    return datetime.now(tzinfo).replace(tzinfo=None)
+
+
 def _julian_day_number(year: int, month: int, day: int) -> int:
     a = (14 - month) // 12
     y = year + 4800 - a

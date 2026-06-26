@@ -9,7 +9,11 @@ from typing import Any, Dict, List, Optional
 
 from fatebridge.analysis.life_dimensions import LifeDimensionAnalysis
 from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
-from fatebridge.core.almanac import build_calendar_context, get_jieqi_year_grid
+from fatebridge.core.almanac import (
+    build_calendar_context,
+    current_local_datetime,
+    get_jieqi_year_grid,
+)
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.calculation import (
@@ -1596,7 +1600,7 @@ def calculate_liuyue_analysis(
     normalized_birth_time = birth_context.normalized_birth_time
     birth_date = normalized_birth_time.corrected_datetime
 
-    now = datetime.now()
+    now = current_local_datetime(normalized_birth_time.timezone)
     if analysis_year is None:
         analysis_year = now.year
     if analysis_month is None:
@@ -1750,7 +1754,7 @@ def calculate_liuri_analysis(
     normalized_birth_time = birth_context.normalized_birth_time
     birth_date = normalized_birth_time.corrected_datetime
 
-    now = datetime.now()
+    now = current_local_datetime(normalized_birth_time.timezone)
     if analysis_year is None:
         analysis_year = now.year
     if analysis_month is None:
@@ -1855,7 +1859,7 @@ def calculate_liushi_analysis(
     normalized_birth_time = birth_context.normalized_birth_time
     birth_date = normalized_birth_time.corrected_datetime
 
-    now = datetime.now()
+    now = current_local_datetime(normalized_birth_time.timezone)
     if analysis_year is None:
         analysis_year = now.year
     if analysis_month is None:
@@ -1974,7 +1978,7 @@ def calculate_jieqi_timeline_analysis(
     birth_date = normalized_birth_time.corrected_datetime
 
     if target_year is None:
-        target_year = datetime.now().year
+        target_year = current_local_datetime(normalized_birth_time.timezone).year
 
     jieqi_timeline = _enrich_jieqi_timeline(
         birth_context,

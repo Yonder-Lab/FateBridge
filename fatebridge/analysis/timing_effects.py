@@ -12,7 +12,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from ..core.almanac import DEFAULT_TIMEZONE
+from ..core.almanac import DEFAULT_TIMEZONE, current_local_datetime
 from ..core.elements import ElementAnalysis
 from ..core.timing import TimingAnalysis
 from ..utils.data import BRANCH_ELEMENTS, BRANCH_HIDDEN_STEMS, STEM_ELEMENTS, Element
@@ -617,7 +617,7 @@ class TimingEffectsAnalysis:
             综合时运分析结果
         """
         if analysis_date is None:
-            analysis_date = datetime.now()
+            analysis_date = current_local_datetime(timezone_name)
 
         # 计算当前年龄
         if current_age is None:
