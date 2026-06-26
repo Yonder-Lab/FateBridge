@@ -53,7 +53,7 @@
     "tool_name": "bazi_personality"
   },
   "snapshot_export": {
-    "export_text": "[概要]\n类型：八字性格分析\nday_master：庚（金）\n\n[core_nature]\n五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情\n\n[dominant_traits]\ntop_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩\n\n[disposition]\n强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）\n\n[优势]\n- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖\n\n[weaknesses]\n- 过则刚硬、肃杀、不近人情\n\n[advice]\n- 性格较为均衡，扬长避短、顺势而为即可",
+    "export_text": "[概要]\n类型：八字性格分析\n日主：庚（金）\n\n[core_nature]\n五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情\n\n[dominant_traits]\ntop_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩\n\n[disposition]\n强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）\n\n[优势]\n- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖\n\n[weaknesses]\n- 过则刚硬、肃杀、不近人情\n\n[advice]\n- 性格较为均衡，扬长避短、顺势而为即可",
     "missing_selected_sections": [
       "起盘信息"
     ],
@@ -68,7 +68,7 @@
     ],
     "sections": [
       {
-        "content": "[概要]\n类型：八字性格分析\nday_master：庚（金）",
+        "content": "[概要]\n类型：八字性格分析\n日主：庚（金）",
         "included": false,
         "index": 1,
         "raw_title": "概要",
@@ -162,5 +162,5 @@
       "advice"
     ]
   },
-  "snapshot_text": "[概要]\n类型：八字性格分析\nday_master：庚（金）\n\n[core_nature]\n五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情\n\n[dominant_traits]\ntop_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩\n\n[disposition]\n强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）\n\n[优势]\n- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖\n\n[weaknesses]\n- 过则刚硬、肃杀、不近人情\n\n[advice]\n- 性格较为均衡，扬长避短、顺势而为即可"
+  "snapshot_text": "[概要]\n类型：八字性格分析\n日主：庚（金）\n\n[core_nature]\n五行：金\nvirtue：义\ntraits：重义气、果断、有原则、执行力强\nshortcoming：过则刚硬、肃杀、不近人情\n\n[dominant_traits]\ntop_gods：\n  - ten_god=比肩，weight=2.0，traits=自主独立、重朋友、竞争心强、不喜依赖\n  - ten_god=劫财，weight=2.0，traits=行动力强、敢闯敢拼、好胜、理财较冲动\n  - ten_god=偏印，weight=1.5，traits=思维独特、敏感内省、有专才、孤僻多疑\nprimary：比肩\n\n[disposition]\n强弱：中和\npolarity：阳\n说明：\n  - 日主中和，性格较平衡、能屈能伸\n  - 日干为阳（刚健主动）\n\n[优势]\n- 重义气、果断、有原则、执行力强\n- 自主独立、重朋友、竞争心强、不喜依赖\n\n[weaknesses]\n- 过则刚硬、肃杀、不近人情\n\n[advice]\n- 性格较为均衡，扬长避短、顺势而为即可"
 }

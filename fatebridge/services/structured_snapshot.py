@@ -62,6 +62,15 @@ _KEY_LABELS: Dict[str, str] = {
     "relationship_profile": "关系画像",
     "synastry_aspects": "互动相位",
     "compatibility": "配合度",
+    # 八字核心结构键：未覆盖时会以英文原文漏进中文快照（_label 回退到原 key）。
+    "day_master": "日主",
+    "day_master_strength": "日主强弱",
+    "favorable_elements": "喜用神",
+    "unfavorable_elements": "忌神",
+    "ten_gods": "十神",
+    "hidden_stems": "藏干",
+    "element_distribution": "五行分布",
+    "five_elements": "五行",
 }
 
 # Envelope/structural keys never rendered as content.

@@ -83,7 +83,7 @@
     "tool_name": "bazi_marriage"
   },
   "snapshot_export": {
-    "export_text": "[概要]\n类型：八字婚姻分析\n\n[spouse_star]\nspouse_star_type：财星\nspouse_star_alt：偏财\nspouse_star_strength：未现\nspouse_element：木\npredicted_appearance：身材修长、面容清秀\n\n[spouse_palace]\nday_branch：辰\nday_branch_element：土\nday_branch_polarity：阳\nhidden_stems：\n  - 戊\n  - 乙\n  - 癸\nrelationship_to_day_master：相生（日支生日干，配偶对己身有助力）\nstability：稳定\nspouse_personality_hint：胸怀大志、包容性强\n\n[marriage_quality]\n评分：70\nquality_level：中等\n说明：\n  - 日支生日干，配偶助力\n  - 比劫重重，婚姻中竞争或第三者风险增加\n\n[marriage_shensha]\n- name=红鸾，position=年支午查，meaning=红鸾在酉，主婚恋喜事\n- name=天喜，position=年支午查，meaning=天喜在卯，主感情顺遂\n- name=咸池（桃花），position=日支辰查，meaning=咸池在酉，主异性缘佳，需防烂桃花\n- name=孤辰，position=日支辰查，meaning=孤辰在巳，主性格独立，婚姻较晚\n- name=寡宿，position=日支辰查，meaning=寡宿在丑，主内心孤独感，需主动经营感情\n\n[marriage_timing]\ntiming_signals：\n  - 流年卯为天喜到位，主感情顺遂\nmarriage_tendency：正常\n\n[risk_factors]\n- type=比劫争财，severity=中，description=男命比劫重重，婚姻中易有竞争或第三者干扰\n\n[建议]\n- 婚姻运势中等，需多沟通理解，避免因小事生嫌隙\n- 命带孤辰/寡宿，内心世界丰富但不善表达，建议主动表达感情",
+    "export_text": "[概要]\n类型：八字婚姻分析\n\n[spouse_star]\nspouse_star_type：财星\nspouse_star_alt：偏财\nspouse_star_strength：未现\nspouse_element：木\npredicted_appearance：身材修长、面容清秀\n\n[spouse_palace]\nday_branch：辰\nday_branch_element：土\nday_branch_polarity：阳\n藏干：\n  - 戊\n  - 乙\n  - 癸\nrelationship_to_day_master：相生（日支生日干，配偶对己身有助力）\nstability：稳定\nspouse_personality_hint：胸怀大志、包容性强\n\n[marriage_quality]\n评分：70\nquality_level：中等\n说明：\n  - 日支生日干，配偶助力\n  - 比劫重重，婚姻中竞争或第三者风险增加\n\n[marriage_shensha]\n- name=红鸾，position=年支午查，meaning=红鸾在酉，主婚恋喜事\n- name=天喜，position=年支午查，meaning=天喜在卯，主感情顺遂\n- name=咸池（桃花），position=日支辰查，meaning=咸池在酉，主异性缘佳，需防烂桃花\n- name=孤辰，position=日支辰查，meaning=孤辰在巳，主性格独立，婚姻较晚\n- name=寡宿，position=日支辰查，meaning=寡宿在丑，主内心孤独感，需主动经营感情\n\n[marriage_timing]\ntiming_signals：\n  - 流年卯为天喜到位，主感情顺遂\nmarriage_tendency：正常\n\n[risk_factors]\n- type=比劫争财，severity=中，description=男命比劫重重，婚姻中易有竞争或第三者干扰\n\n[建议]\n- 婚姻运势中等，需多沟通理解，避免因小事生嫌隙\n- 命带孤辰/寡宿，内心世界丰富但不善表达，建议主动表达感情",
     "missing_selected_sections": [
       "起盘信息"
     ],
@@ -113,7 +113,7 @@
         "title": "spouse_star"
       },
       {
-        "content": "[spouse_palace]\nday_branch：辰\nday_branch_element：土\nday_branch_polarity：阳\nhidden_stems：\n  - 戊\n  - 乙\n  - 癸\nrelationship_to_day_master：相生（日支生日干，配偶对己身有助力）\nstability：稳定\nspouse_personality_hint：胸怀大志、包容性强",
+        "content": "[spouse_palace]\nday_branch：辰\nday_branch_element：土\nday_branch_polarity：阳\n藏干：\n  - 戊\n  - 乙\n  - 癸\nrelationship_to_day_master：相生（日支生日干，配偶对己身有助力）\nstability：稳定\nspouse_personality_hint：胸怀大志、包容性强",
         "included": false,
         "index": 3,
         "raw_title": "spouse_palace",
@@ -201,5 +201,5 @@
       "建议"
     ]
   },
-  "snapshot_text": "[概要]\n类型：八字婚姻分析\n\n[spouse_star]\nspouse_star_type：财星\nspouse_star_alt：偏财\nspouse_star_strength：未现\nspouse_element：木\npredicted_appearance：身材修长、面容清秀\n\n[spouse_palace]\nday_branch：辰\nday_branch_element：土\nday_branch_polarity：阳\nhidden_stems：\n  - 戊\n  - 乙\n  - 癸\nrelationship_to_day_master：相生（日支生日干，配偶对己身有助力）\nstability：稳定\nspouse_personality_hint：胸怀大志、包容性强\n\n[marriage_quality]\n评分：70\nquality_level：中等\n说明：\n  - 日支生日干，配偶助力\n  - 比劫重重，婚姻中竞争或第三者风险增加\n\n[marriage_shensha]\n- name=红鸾，position=年支午查，meaning=红鸾在酉，主婚恋喜事\n- name=天喜，position=年支午查，meaning=天喜在卯，主感情顺遂\n- name=咸池（桃花），position=日支辰查，meaning=咸池在酉，主异性缘佳，需防烂桃花\n- name=孤辰，position=日支辰查，meaning=孤辰在巳，主性格独立，婚姻较晚\n- name=寡宿，position=日支辰查，meaning=寡宿在丑，主内心孤独感，需主动经营感情\n\n[marriage_timing]\ntiming_signals：\n  - 流年卯为天喜到位，主感情顺遂\nmarriage_tendency：正常\n\n[risk_factors]\n- type=比劫争财，severity=中，description=男命比劫重重，婚姻中易有竞争或第三者干扰\n\n[建议]\n- 婚姻运势中等，需多沟通理解，避免因小事生嫌隙\n- 命带孤辰/寡宿，内心世界丰富但不善表达，建议主动表达感情"
+  "snapshot_text": "[概要]\n类型：八字婚姻分析\n\n[spouse_star]\nspouse_star_type：财星\nspouse_star_alt：偏财\nspouse_star_strength：未现\nspouse_element：木\npredicted_appearance：身材修长、面容清秀\n\n[spouse_palace]\nday_branch：辰\nday_branch_element：土\nday_branch_polarity：阳\n藏干：\n  - 戊\n  - 乙\n  - 癸\nrelationship_to_day_master：相生（日支生日干，配偶对己身有助力）\nstability：稳定\nspouse_personality_hint：胸怀大志、包容性强\n\n[marriage_quality]\n评分：70\nquality_level：中等\n说明：\n  - 日支生日干，配偶助力\n  - 比劫重重，婚姻中竞争或第三者风险增加\n\n[marriage_shensha]\n- name=红鸾，position=年支午查，meaning=红鸾在酉，主婚恋喜事\n- name=天喜，position=年支午查，meaning=天喜在卯，主感情顺遂\n- name=咸池（桃花），position=日支辰查，meaning=咸池在酉，主异性缘佳，需防烂桃花\n- name=孤辰，position=日支辰查，meaning=孤辰在巳，主性格独立，婚姻较晚\n- name=寡宿，position=日支辰查，meaning=寡宿在丑，主内心孤独感，需主动经营感情\n\n[marriage_timing]\ntiming_signals：\n  - 流年卯为天喜到位，主感情顺遂\nmarriage_tendency：正常\n\n[risk_factors]\n- type=比劫争财，severity=中，description=男命比劫重重，婚姻中易有竞争或第三者干扰\n\n[建议]\n- 婚姻运势中等，需多沟通理解，避免因小事生嫌隙\n- 命带孤辰/寡宿，内心世界丰富但不善表达，建议主动表达感情"
 }

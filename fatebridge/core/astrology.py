@@ -848,6 +848,27 @@ def _midpoint(longitude_a: float, longitude_b: float) -> float:
 
 
 def _ayanamsha(julian_day: float) -> float:
+    """Lahiri ayanamsha in degrees.
+
+    Prefer Swiss Ephemeris' authoritative Lahiri model when available — it
+    includes the higher-order precession terms the linear fit below omits, so
+    it stays correct for far-historic epochs (the linear form diverges by
+    degrees pre-1000 CE, though it is accurate to <0.3′ for modern births).
+    The linear drift is only an offline fallback; when it is used (no swisseph
+    available, or a runtime failure) we log once so the degraded precision is
+    never silent.
+    """
+    if swe is not None:
+        try:
+            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+            return float(swe.get_ayanamsa_ut(julian_day))
+        except Exception as exc:  # pragma: no cover - swisseph runtime guard
+            _log_swe_runtime_failure("get_ayanamsa_ut", exc)
+    else:
+        _log_swe_runtime_failure(
+            "get_ayanamsa_ut",
+            RuntimeError("swisseph unavailable; using linear ayanamsha approximation"),
+        )
     # Lahiri-like ayanamsha: base value at J2000.0 plus precession drift.
     # J2000 baseline ≈ 23.853°, precession ≈ 50.29"/yr ≈ 1.3971°/Julian century.
     centuries_since_j2000 = (julian_day - 2451545.0) / 36525.0

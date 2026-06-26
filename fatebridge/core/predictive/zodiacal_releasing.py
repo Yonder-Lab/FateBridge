@@ -27,17 +27,21 @@ ZR_LEVEL_UNIT_DAYS = {
     3: 2.5,
     4: 5.0 / 24.0,
 }
+# Labels name the granularity of one step at each level. They must match
+# ZR_LEVEL_UNIT_DAYS above: L3 steps are 2.5 days (day-scale, NOT weeks) and L4
+# steps are 5 hours (hour-scale, NOT days) under the standard /12 fractal
+# subdivision, so calling them "weeks"/"days" misrepresented the magnitude.
 ZR_LEVEL_UNIT_LABELS = {
     1: "years",
     2: "months",
-    3: "weeks",
-    4: "days",
+    3: "days",
+    4: "hours",
 }
 ZR_LEVEL_UNIT_LABELS_ZH = {
     1: "年",
     2: "月",
-    3: "周",
-    4: "日",
+    3: "日",
+    4: "时",
 }
 
 
