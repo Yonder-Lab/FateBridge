@@ -454,17 +454,6 @@ def _lines_from_codes(
     return normalized
 
 
-def _default_sixyao_lines() -> List[Dict[str, Any]]:
-    return [
-        {"value": 1, "change": False, "god": "青龙", "name": "初爻"},
-        {"value": 0, "change": False, "god": "朱雀", "name": "二爻"},
-        {"value": 1, "change": True, "god": "勾陈", "name": "三爻"},
-        {"value": 0, "change": False, "god": "腾蛇", "name": "四爻"},
-        {"value": 1, "change": False, "god": "白虎", "name": "五爻"},
-        {"value": 0, "change": True, "god": "玄武", "name": "上爻"},
-    ]
-
-
 def _hexagram_desc_payload(code: str) -> Dict[str, Any]:
     detail = lookup_hexagram_by_code(code)
     return {
@@ -561,21 +550,28 @@ def build_sixyao_result(
     context = _build_context(date_text=date, time_text=time, timezone_name=zone)
     normalized_lines = _normalize_gua_lines(lines)
     explicit_lines_provided = bool(normalized_lines)
-    if not normalized_lines:
-        normalized_lines = _default_sixyao_lines()
+    # 六爻起卦的卦象就是占问的输入本身：要么给出六爻爻象（lines），要么给出
+    # 本卦卦码（gua_code）。两者皆无时无法起卦——必须 fail-loud，绝不能静默
+    # 塞入写死的演示卦冒充真实结果。
+    if not explicit_lines_provided and not _clean_code(gua_code):
+        raise ValueError(
+            "六爻起卦需要提供爻象（lines）或本卦卦码（gua_code）；"
+            "六爻的卦象即是占问的输入，缺失时无法起卦。"
+        )
 
     current_code = _clean_code(gua_code) or _derive_gua_code(normalized_lines)
-    next_code = _clean_code(changed_code) or _derive_changed_code(normalized_lines)
+    if explicit_lines_provided:
+        next_code = _clean_code(changed_code) or _derive_changed_code(normalized_lines)
+    else:
+        # 仅给本卦卦码而无爻象时，未指明动爻即视为无动爻，变卦等于本卦。
+        next_code = _clean_code(changed_code) or current_code
 
     if len(current_code) != 6 or len(next_code) != 6:
         raise ValueError("六爻卦码必须是 6 位 0/1 字符串。")
 
-    # When the caller supplied explicit gua_code/changed_code but no lines, the
-    # placeholder lines still carry demo-only ``change`` flags (hard-coded on
-    # lines 3 and 6). Recompute the canonical line set from the authoritative
-    # codes so moving-line detection reflects the real request instead of the
-    # default seed.
-    if (gua_code or changed_code) and not explicit_lines_provided:
+    # 仅凭卦码起卦（无显式爻象）时，从本卦/变卦码推出规范爻象，使动爻检测
+    # 反映真实卦码而非任何默认值。
+    if not explicit_lines_provided:
         normalized_lines = _lines_from_codes(current_code, next_code)
 
     input_normalized = {

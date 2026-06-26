@@ -212,6 +212,23 @@ def _local_base() -> dict:
     }
 
 
+def _sixyao_cast() -> list:
+    """A representative six-line cast (bottom→top) with one moving line.
+
+    六爻 requires the cast itself as input — the engine fails loud without it
+    rather than fabricating a hexagram — so the surface/golden fixtures must
+    supply real lines instead of relying on an absent-input default.
+    """
+    return [
+        {"value": 1, "change": False},
+        {"value": 0, "change": True},
+        {"value": 1, "change": False},
+        {"value": 0, "change": False},
+        {"value": 1, "change": False},
+        {"value": 0, "change": False},
+    ]
+
+
 def _export_content() -> str:
     return "\n".join(
         [
@@ -358,6 +375,7 @@ REST_POST_CASES = {
         **_local_base(),
         "gpsLat": 31.2,
         "gpsLon": 121.4,
+        "lines": _sixyao_cast(),
     },
     "/api/divination/canping": lambda: {
         **_local_base(),
@@ -691,7 +709,15 @@ MCP_CASES = {
             "shaoyin": "震",
         },
     ),
-    "sixyao": ("sixyao", lambda: {**_local_base(), "gps_lat": 31.2, "gps_lon": 121.4}),
+    "sixyao": (
+        "sixyao",
+        lambda: {
+            **_local_base(),
+            "gps_lat": 31.2,
+            "gps_lon": 121.4,
+            "lines": _sixyao_cast(),
+        },
+    ),
     "canping": (
         "canping",
         lambda: {**_local_base(), "gender": "男", "method": "ming"},

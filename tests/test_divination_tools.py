@@ -2,6 +2,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.api import (
@@ -15,7 +17,7 @@ from fatebridge.api import (
     TongSheFaRequest,
 )
 from fatebridge.core import astrology as astrology_core
-from fatebridge.core.local_techniques import build_pseudo_chart
+from fatebridge.core.local_techniques import build_pseudo_chart, build_sixyao_result
 from fatebridge.mcp_server import (
     export_registry,
     gua_lookup,
@@ -67,6 +69,15 @@ def _local_golden_projection():
         date="2028-04-06",
         time="09:33:00",
         zone="+08:00",
+        # 六爻起卦的卦象即输入本身；显式给出爻象（一动爻在二爻）。
+        lines=[
+            {"value": 1, "change": False},
+            {"value": 0, "change": True},
+            {"value": 1, "change": False},
+            {"value": 0, "change": False},
+            {"value": 1, "change": False},
+            {"value": 0, "change": False},
+        ],
     )
     suzhan_result = calculate_suzhan_analysis(
         date="2028-04-06",
@@ -505,23 +516,45 @@ def test_calculate_sixyao_analysis_supports_explicit_lines():
     assert "问题：合作" in result["snapshot_text"]
 
 
-def test_calculate_sixyao_analysis_uses_upstream_default_lines_when_absent():
+def test_build_sixyao_result_raises_when_no_input():
+    """六爻起卦的卦象就是输入本身。引擎层在无 lines / gua_code 时必须
+    fail-loud（不能静默塞入写死的演示卦冒充真实起卦）。"""
+    with pytest.raises(ValueError, match="爻象|卦码"):
+        build_sixyao_result(
+            date="2028-04-06",
+            time="09:33:00",
+            zone="+08:00",
+        )
+
+
+def test_calculate_sixyao_analysis_rejects_no_input_without_seeding():
+    """服务层把无输入转成标准 validation 错误信封，绝不返回写死的演示卦。"""
     result = calculate_sixyao_analysis(
         date="2028-04-06",
         time="09:33:00",
         zone="+08:00",
     )
 
-    assert result["current_code"] == "101010"
-    assert result["changed_code"] == "100011"
-    assert result["moving_lines"] == [3, 6]
-    # 2028-04-06 日干=辛，按"庚辛日起白虎"的规则，初爻六神应为白虎。
-    # 旧测试沿用的"初爻固定青龙"并非 六爻卜筮 的正确排盘方式。
-    assert result["lines"][0]["god"] == "白虎"
-    assert result["lines"][2]["change"] is True
-    assert result["lines"][5]["name"] == "上爻"
-    assert "第3爻：阳爻（动）" in result["snapshot_text"]
-    assert "第6爻：阴爻（动）" in result["snapshot_text"]
+    assert result["error_code"] == "validation_error"
+    assert result["status_code"] == 400
+    # 旧 mock 会泄漏一副写死的卦象（current_code/lines/六神）。确认全部不在。
+    assert "current_code" not in result
+    assert "lines" not in result
+    assert "青龙" not in json.dumps(result, ensure_ascii=False)
+
+
+def test_calculate_sixyao_analysis_accepts_gua_code_only_with_no_moving_lines():
+    """仅给本卦卦码、无爻象、无变卦码时，视为无动爻：变卦等于本卦。"""
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        gua_code="111000",
+    )
+
+    assert result["current_code"] == "111000"
+    assert result["changed_code"] == "111000"
+    assert result["moving_lines"] == []
 
 
 def test_calculate_sixyao_analysis_keeps_upstream_truthy_string_line_semantics():
@@ -1209,10 +1242,10 @@ def test_local_offline_golden_samples_match_current_contract():
         },
         "sixyao": {
             "current_code": "101010",
-            "changed_code": "100011",
-            "moving_lines": [3, 6],
+            "changed_code": "111010",
+            "moving_lines": [2],
             "current_name": "水火既济",
-            "changed_name": "风雷益",
+            "changed_name": "水天需",
         },
         "suzhan": {
             "chartVariant": "guolao_chart",
