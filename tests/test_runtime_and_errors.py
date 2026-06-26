@@ -371,10 +371,10 @@ def test_value_error_logged_as_warning_without_traceback(caplog):
     stack trace; that floods the error log with crash-looking noise."""
     import logging
 
-    with caplog.at_level(logging.WARNING, logger="fatebridge.utils.helpers"):
+    with caplog.at_level(logging.WARNING, logger="fatebridge.utils.errors"):
         handle_calculation_error(ValueError("未识别的六十四卦名称：ZZZ"), "卦义检索")
 
-    records = [r for r in caplog.records if r.name == "fatebridge.utils.helpers"]
+    records = [r for r in caplog.records if r.name == "fatebridge.utils.errors"]
     assert records, "expected a log record"
     for rec in records:
         assert rec.levelno == logging.WARNING
@@ -385,14 +385,14 @@ def test_internal_error_logged_at_error_with_traceback(caplog):
     """A genuine internal fault (-> 500) should still log ERROR + traceback."""
     import logging
 
-    with caplog.at_level(logging.WARNING, logger="fatebridge.utils.helpers"):
+    with caplog.at_level(logging.WARNING, logger="fatebridge.utils.errors"):
         payload = handle_calculation_error(RuntimeError("boom"), "测试操作")
 
     assert payload["error_code"] == "internal_error"
     err_records = [
         r
         for r in caplog.records
-        if r.name == "fatebridge.utils.helpers" and r.levelno == logging.ERROR
+        if r.name == "fatebridge.utils.errors" and r.levelno == logging.ERROR
     ]
     assert err_records, "expected an ERROR record for an internal fault"
     assert any(r.exc_info is not None for r in err_records)
