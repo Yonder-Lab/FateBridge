@@ -106,6 +106,7 @@
 | 人生各阶段（全生命周期） | 深 | 深 | | | | | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | 深 | |
 
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
+> 紫微运限：看大限/流年的紫微视角用 `ziwei_horoscope`（大限/小限/流年/流月/流日/流时 + 动态四化），与八字时运、西占推运并行为第三套时运体系；按 §B 多体系一致则合并、分歧则显式标出，不与中式时运重复罗列同一结论。
 > 双主证说明：本域「今年/明年运势」两个 主 是中式时运与西占推运两套传统并行，按用户语境择一为出结论口径（同 §C.8 的多主证处理），并非违反「钉一个主证」。
 > 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。
 > 择日专属：`astro_election` 是唯一择日主证，不用时运聚合工具替代。
@@ -126,6 +127,7 @@
 | 推运/流年（从星盘延伸） | | | | | | | | 深 |
 
 > 流派切换：`astro_chart` 通过 `chart_variant` 参数切换流派，已知具体流派时直接用对应工具（`astro_chart13`/`astro_hellen` 等），避免带参数的 `astro_chart` 与专用工具重复调用。
+> **MCP 名差异（照表抄名前必看）**：本表 4 个流派盘的列名是 catalog `key`，但 MCP 端工具名带 `_chart` 后缀——`astro_hellen→astro_hellen_chart`、`astro_guolao→astro_guolao_chart`、`astro_india→astro_india_chart`、`astro_germany→astro_germany_chart`；CLI/REST 用无后缀名。发现工具名仍以机读 `tools/list` 为准。
 > 关系盘：`astro_relative_chart` 需双方经纬度，缺任一方位信息须先采集再调用。
 > 衔接时运：星盘本体分析完成后若用户追问流年走势，指向 §C.5 时运域而非在此域重复调西占推运工具。
 
@@ -147,6 +149,7 @@
 
 > 何时选它（各工具触发一句话）：
 > - **梅花易数**（`meihua_analysis`）：用户当下起念、随机取数，适合即兴一问。
+> - **通蓍法**（`tongshefa`）：古法蓍草起卦，郑重问一事的传统起卦法；与梅花同为起卦取象，区别在仪式感与起卦方式，即兴随手用梅花、正式郑重用通蓍。
 > - **六爻**（`sixyao`）：问具体事能否成败，需明确一件事、一个方向。
 > - **奇门遁甲**（`qimen`）：问方位选择、行动时机、谋略布局，含趋吉避凶方位。
 > - **六壬**（`liureng_gods`）：问具体事件的细节展开与时间应验，信息量最密集。

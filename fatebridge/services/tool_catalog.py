@@ -588,7 +588,10 @@ CATALOG: List[ToolSpec] = [
         key="meihua_analysis",
         bind=raw_invoke(calculate_meihua_analysis),
         request_model=MeihuaAnalysisRequest,
-        summary="梅花易数时卦辅助。",
+        summary=(
+            "梅花易数：当下起念、随机取数的即兴一问；"
+            "问具体事成败用 sixyao，问方位时机用 qimen。"
+        ),
         operation_label_zh="梅花易数",
         family="divination",
         rest_path="/api/divination/meihua",
@@ -598,7 +601,10 @@ CATALOG: List[ToolSpec] = [
         key="tongshefa",
         bind=raw_invoke(calculate_tongshefa_analysis),
         request_model=TongSheFaRequest,
-        summary="通蓍法起卦。",
+        summary=(
+            "通蓍法起卦：古法蓍草起卦问一事；"
+            "即兴起念用 meihua_analysis，问成败用 sixyao。"
+        ),
         operation_label_zh="通蓍法",
         family="divination",
         rest_path="/api/divination/tongshefa",
@@ -608,7 +614,10 @@ CATALOG: List[ToolSpec] = [
         key="sixyao",
         bind=raw_invoke(calculate_sixyao_analysis),
         request_model=SixYaoRequest,
-        summary="六爻纳甲分析。",
+        summary=(
+            "六爻纳甲：问一件具体事能不能成（需明确一事一方向）；"
+            "即兴随机一问用 meihua_analysis，问方位谋略用 qimen。"
+        ),
         operation_label_zh="六爻",
         family="divination",
         rest_path="/api/divination/sixyao",
@@ -618,7 +627,10 @@ CATALOG: List[ToolSpec] = [
         key="canping",
         bind=raw_invoke(calculate_canping_analysis),
         request_model=CanpingRequest,
-        summary="邵子参评数 / 金锁银匙（数算）。",
+        summary=(
+            "邵子参评数 / 金锁银匙（数算命格）：专家级数算查命，"
+            "普通命格画像用 analyze_destiny 或 ziwei_birth，仅深追问才调。"
+        ),
         operation_label_zh="邵子参评数",
         family="divination",
         rest_path="/api/divination/canping",
@@ -628,7 +640,10 @@ CATALOG: List[ToolSpec] = [
         key="heluo",
         bind=raw_invoke(calculate_heluo_analysis),
         request_model=HeluoRequest,
-        summary="河洛理数（数算）。",
+        summary=(
+            "河洛理数（数算命格）：以河洛数推命的专家级数算，"
+            "普通命格用 analyze_destiny 或 ziwei_birth，仅深追问才调。"
+        ),
         operation_label_zh="河洛理数",
         family="divination",
         rest_path="/api/divination/heluo",
@@ -638,7 +653,10 @@ CATALOG: List[ToolSpec] = [
         key="suzhan",
         bind=raw_invoke(calculate_suzhan_analysis),
         request_model=SuZhanRequest,
-        summary="宿占分析。",
+        summary=(
+            "宿占：以二十八宿星宿为核心的择日 / 星宿吉凶；"
+            "西式随机问事用 otherbu，中式起卦用 sixyao 或 meihua_analysis。"
+        ),
         operation_label_zh="宿占",
         family="divination",
         rest_path="/api/divination/suzhan",
@@ -671,7 +689,10 @@ CATALOG: List[ToolSpec] = [
         key="sanshiunited",
         bind=raw_invoke(calculate_sanshiunited_analysis),
         request_model=SanShiUnitedRequest,
-        summary="三式合参分析。",
+        summary=(
+            "三式合参：太乙＋六壬＋奇门联合推算，专家模式或重大决策才调；"
+            "普通问事用单术 sixyao / qimen / meihua_analysis。"
+        ),
         operation_label_zh="三式合参",
         family="divination",
         rest_path="/api/divination/sanshiunited",
@@ -715,7 +736,10 @@ CATALOG: List[ToolSpec] = [
         key="liureng_gods",
         bind=raw_invoke(calculate_liureng_gods),
         request_model=LiuRengGodsRequest,
-        summary="六壬课体与天将。",
+        summary=(
+            "六壬课体与天将：问具体事件的细节展开与时间应验，信息量最密集；"
+            "快问快答用 jinkou，按年看流月用 liureng_runyear。"
+        ),
         operation_label_zh="六壬课",
         family="metaphysics",
         rest_path="/api/cn/liureng/gods",
@@ -727,7 +751,10 @@ CATALOG: List[ToolSpec] = [
             calculate_liureng_runyear, also_pass=("use_true_solar_time",)
         ),
         request_model=LiuRengRunyearRequest,
-        summary="六壬流年分析。",
+        summary=(
+            "六壬流年：按年看流月走势的年度辅助；"
+            "问具体单事用 liureng_gods，个人年运细看用 timing_analysis。"
+        ),
         operation_label_zh="六壬流年",
         family="metaphysics",
         rest_path="/api/cn/liureng/runyear",
@@ -737,7 +764,10 @@ CATALOG: List[ToolSpec] = [
         key="qimen",
         bind=raw_invoke(calculate_qimen_analysis),
         request_model=QimenAnalysisRequest,
-        summary="奇门遁甲排盘分析。",
+        summary=(
+            "奇门遁甲：问方位选择 / 行动时机 / 谋略布局（含趋吉避凶方位）；"
+            "问单事成败用 sixyao，看大势国运用 taiyi。"
+        ),
         operation_label_zh="奇门遁甲",
         family="metaphysics",
         rest_path="/api/cn/qimen",
@@ -747,7 +777,10 @@ CATALOG: List[ToolSpec] = [
         key="taiyi",
         bind=raw_invoke(calculate_taiyi_analysis),
         request_model=TaiyiAnalysisRequest,
-        summary="太乙神数分析。",
+        summary=(
+            "太乙神数：看大势 / 国运 / 天地格局，不问个人小事；"
+            "个人问事用 sixyao / meihua_analysis / qimen。"
+        ),
         operation_label_zh="太乙",
         family="metaphysics",
         rest_path="/api/cn/taiyi",
@@ -757,7 +790,10 @@ CATALOG: List[ToolSpec] = [
         key="jinkou",
         bind=raw_invoke(calculate_jinkou_analysis),
         request_model=JinkouAnalysisRequest,
-        summary="金口诀分析。",
+        summary=(
+            "金口诀：即时简断、快速给吉凶方向，适合快问快答；"
+            "要细节展开用 liureng_gods，问成败用 sixyao。"
+        ),
         operation_label_zh="金口诀",
         family="metaphysics",
         rest_path="/api/cn/jinkou",
