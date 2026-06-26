@@ -505,23 +505,57 @@ def test_calculate_sixyao_analysis_supports_explicit_lines():
     assert "问题：合作" in result["snapshot_text"]
 
 
-def test_calculate_sixyao_analysis_uses_upstream_default_lines_when_absent():
+def test_calculate_sixyao_analysis_time_casts_when_no_hexagram_supplied():
+    """当调用方未提供卦码 / 爻线时，六爻按起卦时刻做时间起卦（梅花口径）真实
+    装卦，而不是返回一个与时刻无关的固定演示卦。"""
     result = calculate_sixyao_analysis(
         date="2028-04-06",
         time="09:33:00",
         zone="+08:00",
     )
 
-    assert result["current_code"] == "101010"
-    assert result["changed_code"] == "100011"
-    assert result["moving_lines"] == [3, 6]
+    # 2028-04-06 09:33 +08:00 的时间起卦：本卦地水师(010000)、动6爻、之卦山水蒙(010001)。
+    assert result["current_code"] == "010000"
+    assert result["changed_code"] == "010001"
+    assert result["moving_lines"] == [6]
+    assert result["current_hexagram"]["name"] == "地水师"
+    assert result["changed_hexagram"]["name"] == "山水蒙"
+    assert result["cast"]["method"] == "time_meihua"
     # 2028-04-06 日干=辛，按"庚辛日起白虎"的规则，初爻六神应为白虎。
-    # 旧测试沿用的"初爻固定青龙"并非 六爻卜筮 的正确排盘方式。
     assert result["lines"][0]["god"] == "白虎"
-    assert result["lines"][2]["change"] is True
-    assert result["lines"][5]["name"] == "上爻"
-    assert "第3爻：阳爻（动）" in result["snapshot_text"]
+    assert result["lines"][5]["change"] is True
     assert "第6爻：阴爻（动）" in result["snapshot_text"]
+
+
+def test_calculate_sixyao_time_cast_varies_with_moment():
+    """时间起卦必须随起卦时刻变化，而非恒返回同一卦。"""
+    morning = calculate_sixyao_analysis(
+        date="2028-04-06", time="09:33:00", zone="+08:00"
+    )
+    other = calculate_sixyao_analysis(date="2025-01-01", time="23:30:00", zone="+08:00")
+
+    assert (morning["current_code"], morning["moving_lines"]) != (
+        other["current_code"],
+        other["moving_lines"],
+    )
+    assert morning["cast"]["method"] == "time_meihua"
+    assert other["cast"]["method"] == "time_meihua"
+
+
+def test_calculate_sixyao_explicit_code_is_marked_manual():
+    """显式提供卦码时不做时间起卦，且标记为手动起卦。"""
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        gua_code="111000",
+        changed_code="110000",
+    )
+
+    assert result["cast"]["method"] == "manual"
+    assert result["current_code"] == "111000"
+    assert result["changed_code"] == "110000"
+    assert result["moving_lines"] == [3]
 
 
 def test_calculate_sixyao_analysis_keeps_upstream_truthy_string_line_semantics():
@@ -1208,11 +1242,11 @@ def test_local_offline_golden_samples_match_current_contract():
             "summary": "已运行本地统摄法算法。本卦：左风雷益，右地雷复。主关系：思克实。",
         },
         "sixyao": {
-            "current_code": "101010",
-            "changed_code": "100011",
-            "moving_lines": [3, 6],
-            "current_name": "水火既济",
-            "changed_name": "风雷益",
+            "current_code": "010000",
+            "changed_code": "010001",
+            "moving_lines": [6],
+            "current_name": "地水师",
+            "changed_name": "山水蒙",
         },
         "suzhan": {
             "chartVariant": "guolao_chart",

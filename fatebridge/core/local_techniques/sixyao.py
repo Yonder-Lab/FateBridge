@@ -454,17 +454,6 @@ def _lines_from_codes(
     return normalized
 
 
-def _default_sixyao_lines() -> List[Dict[str, Any]]:
-    return [
-        {"value": 1, "change": False, "god": "青龙", "name": "初爻"},
-        {"value": 0, "change": False, "god": "朱雀", "name": "二爻"},
-        {"value": 1, "change": True, "god": "勾陈", "name": "三爻"},
-        {"value": 0, "change": False, "god": "腾蛇", "name": "四爻"},
-        {"value": 1, "change": False, "god": "白虎", "name": "五爻"},
-        {"value": 0, "change": True, "god": "玄武", "name": "上爻"},
-    ]
-
-
 def _hexagram_desc_payload(code: str) -> Dict[str, Any]:
     detail = lookup_hexagram_by_code(code)
     return {
@@ -561,21 +550,38 @@ def build_sixyao_result(
     context = _build_context(date_text=date, time_text=time, timezone_name=zone)
     normalized_lines = _normalize_gua_lines(lines)
     explicit_lines_provided = bool(normalized_lines)
-    if not normalized_lines:
-        normalized_lines = _default_sixyao_lines()
+    explicit_code_provided = bool(_clean_code(gua_code) or _clean_code(changed_code))
 
-    current_code = _clean_code(gua_code) or _derive_gua_code(normalized_lines)
-    next_code = _clean_code(changed_code) or _derive_changed_code(normalized_lines)
-
-    if len(current_code) != 6 or len(next_code) != 6:
-        raise ValueError("六爻卦码必须是 6 位 0/1 字符串。")
-
-    # When the caller supplied explicit gua_code/changed_code but no lines, the
-    # placeholder lines still carry demo-only ``change`` flags (hard-coded on
-    # lines 3 and 6). Recompute the canonical line set from the authoritative
-    # codes so moving-line detection reflects the real request instead of the
-    # default seed.
-    if (gua_code or changed_code) and not explicit_lines_provided:
+    if explicit_lines_provided or explicit_code_provided:
+        # 手动起卦：调用方已自行摇卦或指定卦码 / 爻线。
+        cast_method = "manual"
+        current_code = _clean_code(gua_code) or _derive_gua_code(normalized_lines)
+        next_code = (
+            _clean_code(changed_code)
+            or (_derive_changed_code(normalized_lines) if normalized_lines else "")
+            or current_code
+        )
+        if len(current_code) != 6 or len(next_code) != 6:
+            raise ValueError("六爻卦码必须是 6 位 0/1 字符串。")
+        # When the caller supplied codes but no explicit lines, derive the
+        # canonical line set from the authoritative codes so moving-line
+        # detection reflects the real request.
+        if not explicit_lines_provided:
+            normalized_lines = _lines_from_codes(current_code, next_code)
+    else:
+        # 时间起卦：无任何卦码 / 爻线时，按起卦时刻以梅花口径真实装卦
+        # （本卦 / 动爻 / 变卦取自同一时刻的农历上下文），而不是返回固定演示卦。
+        cast_method = "time_meihua"
+        meihua = (context.get("lunar") or {}).get("meihua")
+        if not meihua:
+            raise ValueError(
+                "六爻需先起卦：当前环境缺少农历上下文，无法做时间起卦，"
+                "请改为提供 gua_code/changed_code 或 lines。"
+            )
+        current_code = _clean_code(meihua["base_hexagram"]["binary_code"])
+        next_code = _clean_code(meihua["changed_hexagram"]["binary_code"])
+        if len(current_code) != 6 or len(next_code) != 6:
+            raise ValueError("六爻卦码必须是 6 位 0/1 字符串。")
         normalized_lines = _lines_from_codes(current_code, next_code)
 
     input_normalized = {
@@ -654,6 +660,14 @@ def build_sixyao_result(
         "nongli": context["nongli"],
         "current_code": current_code,
         "changed_code": next_code,
+        "cast": {
+            "method": cast_method,
+            "source": (
+                "梅花时间起卦（按起卦时刻装卦）"
+                if cast_method == "time_meihua"
+                else "调用方指定卦码 / 爻线"
+            ),
+        },
         "lines": normalized_lines,
         "moving_lines": moving_lines,
         "hexagram_info": hexagram_info,
