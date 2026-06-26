@@ -126,6 +126,7 @@
 | 推运/流年（从星盘延伸） | | | | | | | | 深 |
 
 > 流派切换：`astro_chart` 通过 `chart_variant` 参数切换流派，已知具体流派时直接用对应工具（`astro_chart13`/`astro_hellen` 等），避免带参数的 `astro_chart` 与专用工具重复调用。
+> **MCP 名差异（照表抄名前必看）**：本表 4 个流派盘的列名是 catalog `key`，但 MCP 端工具名带 `_chart` 后缀——`astro_hellen→astro_hellen_chart`、`astro_guolao→astro_guolao_chart`、`astro_india→astro_india_chart`、`astro_germany→astro_germany_chart`；CLI/REST 用无后缀名。发现工具名仍以机读 `tools/list` 为准。
 > 关系盘：`astro_relative_chart` 需双方经纬度，缺任一方位信息须先采集再调用。
 > 衔接时运：星盘本体分析完成后若用户追问流年走势，指向 §C.5 时运域而非在此域重复调西占推运工具。
 
