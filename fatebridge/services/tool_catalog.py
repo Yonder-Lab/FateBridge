@@ -616,6 +616,7 @@ CATALOG: List[ToolSpec] = [
         request_model=SixYaoRequest,
         summary=(
             "六爻纳甲：问一件具体事能不能成（需明确一事一方向）；"
+            "method=coin 真·摇钱起卦（系统随机六掷，可传 coins 报真实掷果或 seed 复现）；"
             "传 gua_code/lines 用已摇之卦，未传则按起卦时刻自动时间起卦；"
             "即兴随机一问用 meihua_analysis，问方位谋略用 qimen。"
         ),

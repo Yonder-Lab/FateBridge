@@ -8,6 +8,7 @@ substrate primitives are imported from ``.chart``.
 
 from __future__ import annotations
 
+import random
 from typing import Any, Dict, List, Optional, Tuple
 
 from ...utils.helpers import DEFAULT_BIRTH_TIMEZONE
@@ -454,6 +455,56 @@ def _lines_from_codes(
     return normalized
 
 
+# 摇钱起卦（三枚铜钱筮法）：每枚铜钱「字面(正)=2、背面(反)=3」，三枚之和定爻。
+# 6=老阴(阴动)、7=少阳(阳静)、8=少阴(阴静)、9=老阳(阳动)。老阴/老阳为动爻。
+_COIN_TOSS_YAO: Dict[int, Dict[str, Any]] = {
+    6: {"yao": "老阴", "symbol": "× 交", "value": 0, "change": True},
+    7: {"yao": "少阳", "symbol": "⚊", "value": 1, "change": False},
+    8: {"yao": "少阴", "symbol": "⚋", "value": 0, "change": False},
+    9: {"yao": "老阳", "symbol": "○ 重", "value": 1, "change": True},
+}
+
+
+def _random_coin_tosses(rng: random.Random) -> List[int]:
+    """系统随机摇卦：六掷，每掷三枚铜钱（字面=2 / 背面=3 等概率），返回六个和。"""
+    return [sum(rng.choice((2, 3)) for _ in range(3)) for _ in range(6)]
+
+
+def _coin_lines_and_meta(
+    coins: List[int],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """把六掷之和（初爻→上爻）转成爻线 + 每掷的可溯源元数据。"""
+    if len(coins) != 6:
+        raise ValueError("摇钱起卦需要 6 掷（初爻→上爻）。")
+    lines: List[Dict[str, Any]] = []
+    tosses: List[Dict[str, Any]] = []
+    for index, raw in enumerate(coins):
+        info = _COIN_TOSS_YAO.get(int(raw))
+        if info is None:
+            raise ValueError(
+                "摇钱起卦每掷之和必须为 6/7/8/9（三枚铜钱，字面=2、背面=3）。"
+            )
+        lines.append(
+            {
+                "value": info["value"],
+                "change": info["change"],
+                "god": SIX_YAO_GODS[index],
+                "name": SIX_YAO_NAMES[index],
+            }
+        )
+        tosses.append(
+            {
+                "position": index + 1,
+                "name": SIX_YAO_NAMES[index],
+                "sum": int(raw),
+                "yao": info["yao"],
+                "symbol": info["symbol"],
+                "moving": info["change"],
+            }
+        )
+    return lines, tosses
+
+
 def _hexagram_desc_payload(code: str) -> Dict[str, Any]:
     detail = lookup_hexagram_by_code(code)
     return {
@@ -546,14 +597,31 @@ def build_sixyao_result(
     gua_code: Optional[str] = None,
     changed_code: Optional[str] = None,
     lines: Optional[List[Dict[str, Any]]] = None,
+    method: str = "auto",
+    coins: Optional[List[int]] = None,
+    seed: Optional[int] = None,
 ) -> Dict[str, Any]:
+    method = (method or "auto").strip().lower()
+    if method not in {"auto", "coin", "time"}:
+        raise ValueError("method 必须是 auto、coin 或 time。")
+
     context = _build_context(date_text=date, time_text=time, timezone_name=zone)
     normalized_lines = _normalize_gua_lines(lines)
     explicit_lines_provided = bool(normalized_lines)
     explicit_code_provided = bool(_clean_code(gua_code) or _clean_code(changed_code))
 
-    if explicit_lines_provided or explicit_code_provided:
-        # 手动起卦：调用方已自行摇卦或指定卦码 / 爻线。
+    coin_source: Optional[str] = None
+    coin_tosses: Optional[List[Dict[str, Any]]] = None
+
+    if coins is not None:
+        # 摇钱起卦（用户提供六掷）：调用方报来真实摇出的铜钱结果。
+        cast_method = "coin"
+        coin_source = "provided"
+        normalized_lines, coin_tosses = _coin_lines_and_meta([int(c) for c in coins])
+        current_code = _derive_gua_code(normalized_lines)
+        next_code = _derive_changed_code(normalized_lines)
+    elif explicit_lines_provided or explicit_code_provided:
+        # 手动起卦：调用方已指定卦码 / 爻线。
         cast_method = "manual"
         current_code = _clean_code(gua_code) or _derive_gua_code(normalized_lines)
         next_code = (
@@ -568,15 +636,24 @@ def build_sixyao_result(
         # detection reflects the real request.
         if not explicit_lines_provided:
             normalized_lines = _lines_from_codes(current_code, next_code)
+    elif method == "coin":
+        # 摇钱起卦（系统随机六掷）：真·铜钱筮法，seed 可复现。
+        cast_method = "coin"
+        coin_source = "random"
+        normalized_lines, coin_tosses = _coin_lines_and_meta(
+            _random_coin_tosses(random.Random(seed))
+        )
+        current_code = _derive_gua_code(normalized_lines)
+        next_code = _derive_changed_code(normalized_lines)
     else:
-        # 时间起卦：无任何卦码 / 爻线时，按起卦时刻以梅花口径真实装卦
+        # 时间起卦（method=auto/time）：按起卦时刻以梅花口径真实装卦
         # （本卦 / 动爻 / 变卦取自同一时刻的农历上下文），而不是返回固定演示卦。
         cast_method = "time_meihua"
         meihua = (context.get("lunar") or {}).get("meihua")
         if not meihua:
             raise ValueError(
                 "六爻需先起卦：当前环境缺少农历上下文，无法做时间起卦，"
-                "请改为提供 gua_code/changed_code 或 lines。"
+                "请改为提供 coins/gua_code/changed_code 或 lines。"
             )
         current_code = _clean_code(meihua["base_hexagram"]["binary_code"])
         next_code = _clean_code(meihua["changed_hexagram"]["binary_code"])
@@ -654,20 +731,28 @@ def build_sixyao_result(
         changed_branches=changed_branches,
         moving_indices=moving_indices,
     )
+    _cast_sources = {
+        "time_meihua": "梅花时间起卦（按起卦时刻装卦）",
+        "coin_provided": "三枚铜钱摇卦（用户提供六掷）",
+        "coin_random": "三枚铜钱摇卦（系统随机六掷）",
+        "manual": "调用方指定卦码 / 爻线",
+    }
+    cast_info: Dict[str, Any] = {
+        "method": cast_method,
+        "source": _cast_sources[
+            f"coin_{coin_source}" if cast_method == "coin" else cast_method
+        ],
+    }
+    if cast_method == "coin":
+        cast_info["coin_source"] = coin_source
+        cast_info["tosses"] = coin_tosses
     return {
         "analysis_type": "六爻 / 易卦",
         "input_normalized": input_normalized,
         "nongli": context["nongli"],
         "current_code": current_code,
         "changed_code": next_code,
-        "cast": {
-            "method": cast_method,
-            "source": (
-                "梅花时间起卦（按起卦时刻装卦）"
-                if cast_method == "time_meihua"
-                else "调用方指定卦码 / 爻线"
-            ),
-        },
+        "cast": cast_info,
         "lines": normalized_lines,
         "moving_lines": moving_lines,
         "hexagram_info": hexagram_info,
