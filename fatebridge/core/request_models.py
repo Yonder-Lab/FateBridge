@@ -926,7 +926,16 @@ class AstroBirthRequest(BaseModel):
     birth_hour: int = Field(ge=0, le=23, description="Birth hour (0-23)")
     birth_minute: int = Field(default=0, ge=0, le=59, description="Birth minute (0-59)")
     birth_timezone: Optional[str] = Field(
-        default="UTC", description="Birth timezone (IANA name or UTC offset)"
+        default=None,
+        description=(
+            "Birth timezone (IANA name or UTC offset). Optional: when omitted, "
+            "FateBridge infers it from birth_place (same as the BaZi/ZiWei engines) "
+            "and only falls back to UTC if no place is recognized. The default is "
+            "None — never 'UTC' — because a truthy 'UTC' default silently treats an "
+            "eastern wall-clock time as UTC and rotates the whole chart; every "
+            "subclass (chart / relative / timing / lifespan) therefore inherits the "
+            "safe place-inference behavior automatically."
+        ),
     )
     birth_longitude: float = Field(ge=-180, le=180, description="Birth longitude")
     birth_latitude: float = Field(ge=-90, le=90, description="Birth latitude")
