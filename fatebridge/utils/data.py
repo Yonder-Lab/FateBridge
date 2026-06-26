@@ -664,3 +664,24 @@ def count_ten_gods(
     for entry in iter_pillar_gods(pillars, day_stem, skip_day_pillar=skip_day_pillar):
         counts[entry.ten_god] += entry.weight
     return counts
+
+
+def sum_ten_god_weight(
+    pillars: Mapping[str, Tuple[str, str]],
+    day_stem: str,
+    gods: Tuple[TenGod, ...],
+) -> float:
+    """汇总某一组十神的总权重（四柱天干 + 地支藏干），保留 1 位小数。
+
+    各维度分析里反复出现的「某类星力量」原语：把 :func:`iter_pillar_gods`
+    的逐条权重按所选十神集合求和。用于只关心单一星组合力的调用方
+    （relatives 父母星、romance 异性缘星、education 各学业星等）。
+    """
+    return round(
+        sum(
+            entry.weight
+            for entry in iter_pillar_gods(pillars, day_stem)
+            if entry.ten_god in gods
+        ),
+        1,
+    )
