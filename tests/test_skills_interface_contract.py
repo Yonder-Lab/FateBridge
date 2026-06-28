@@ -21,8 +21,8 @@ import re
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel
 
+from fatebridge.core.tool_spec import spec_is_cli_safe
 from fatebridge.services.tool_catalog import CATALOG
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -35,29 +35,16 @@ def _project_license() -> str:
     return re.search(r'license\s*=\s*\{\s*text\s*=\s*"([^"]+)"', text).group(1).strip()
 
 
-def _is_model_field(annotation: object) -> bool:
-    try:
-        if isinstance(annotation, type) and issubclass(annotation, BaseModel):
-            return True
-    except TypeError:
-        pass
-    return any(
-        isinstance(arg, type) and issubclass(arg, BaseModel)
-        for arg in getattr(annotation, "__args__", ())
-    )
-
-
-def _supports_cli(spec: object) -> bool:
-    return not any(
-        _is_model_field(f.annotation)
-        for f in spec.request_model.model_fields.values()  # type: ignore[attr-defined]
-    )
-
-
 def _cli_specs_by_name() -> dict[str, object]:
+    # Use the engine's own CLI-exposability rule (the single source of truth the
+    # CLI itself uses to register commands) instead of re-deriving it. A private
+    # copy here drifted: it recursed into ``list[Model]`` generics and wrongly
+    # dropped tools the CLI actually exposes (e.g. ``sixyao``, whose optional
+    # manual-toss ``lines: list[...]`` field is not a top-level nested model),
+    # which silently exempted those tools from the interface contract.
     out: dict[str, object] = {}
     for spec in CATALOG:
-        if not _supports_cli(spec):
+        if not spec_is_cli_safe(spec):
             continue
         name = spec.mcp_name or spec.key
         if name:

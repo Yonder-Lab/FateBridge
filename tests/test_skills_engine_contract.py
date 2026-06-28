@@ -24,8 +24,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from pydantic import BaseModel
-
+from fatebridge.core.tool_spec import spec_is_cli_safe
 from fatebridge.services.tool_catalog import CATALOG
 
 _SKILLS_ROOT = Path(__file__).resolve().parents[1] / "skills"
@@ -37,30 +36,13 @@ _GLOBAL_CLI_FLAGS = {"--no-metadata", "--fields", "--selected-sections"}
 _PLACEHOLDER_RE = re.compile(r"[<>\[\]]|\.\.\.")
 
 
-def _is_model_field(annotation: object) -> bool:
-    try:
-        if isinstance(annotation, type) and issubclass(annotation, BaseModel):
-            return True
-    except TypeError:
-        pass
-    return any(
-        isinstance(arg, type) and issubclass(arg, BaseModel)
-        for arg in getattr(annotation, "__args__", ())
-    )
-
-
-def _supports_cli(spec: object) -> bool:
-    """Mirror fatebridge.cli._supports_cli: no nested-model request fields."""
-    return not any(
-        _is_model_field(f.annotation)
-        for f in spec.request_model.model_fields.values()  # type: ignore[attr-defined]
-    )
-
-
 def _cli_specs_by_name() -> dict[str, object]:
+    # Authoritative CLI-exposability lives in the engine (the CLI registers
+    # commands with the same predicate); reuse it rather than mirror it, so the
+    # skills contract can never diverge from what the CLI actually exposes.
     out: dict[str, object] = {}
     for spec in CATALOG:
-        if not _supports_cli(spec):
+        if not spec_is_cli_safe(spec):
             continue
         name = spec.mcp_name or spec.key
         if name:

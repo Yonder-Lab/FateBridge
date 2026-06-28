@@ -30,6 +30,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 今年/明年运势（西占视角） | `solarreturn` | 深 | 太阳返照，追问才单调 |
 | 今年/明年运势（西占视角） | `transit` | 深 | 行运单技法 |
 | 大运走到哪 | `dayun_analysis` | 主 | `--analysis-age N`（虚岁必填） |
+| 大限/流年的紫微视角（运限） | `ziwei_horoscope` | 主 | 紫微第三套时运体系：六层运限（大限/小限/流年/流月/流日/流时）+ 动态四化；`--target-year/--target-month/--target-day/--target-hour` 都要传 |
 | 人生转折点 | `timing_analysis` | 旁 | |
 | 人生转折点 | `dayun_analysis` | 旁 | |
 | 人生转折点 | `western_timing_analysis` | 旁 | |
@@ -86,6 +87,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | `astro_mundane` | 某年春分/夏至/秋分/冬至入宫盘，问国运/年度大势 | 深 |
 | `astro_extrareturns` | 多重回归/事件多盘，含世俗星盘等专家级复合推运 | 深 |
 
+> 紫微运限：`ziwei_horoscope` 是八字时运、西占推运之外的**第三套时运体系**，给大限/流年的紫微视角；按 SCENARIO_ROUTING §B，与另两套一致则合并去重、分歧则显式标出，不把同一结论重复罗列三遍。
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
 > 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。
 > 择日专属：`astro_election` 是唯一择日主证，不用时运聚合工具替代。
@@ -128,4 +130,9 @@ python3 -m fatebridge.cli --no-metadata astro_planetary_ages --fields summary \
 python3 -m fatebridge.cli --no-metadata astro_lunation_phase \
   --name 我 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-minute 30 \
   --birth-latitude 39.90 --birth-longitude 116.40 --birth-place 北京
+
+# 紫微运限：第三套时运体系，看目标时间点的六层运限+动态四化
+python3 -m fatebridge.cli --no-metadata ziwei_horoscope \
+  --gender 男 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 \
+  --target-year 2026 --target-month 6 --target-day 19 --target-hour 14 --fields summary
 ```

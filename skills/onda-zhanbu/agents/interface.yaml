@@ -31,8 +31,10 @@ engine_tools:
   - otherbu
   - qimen
   - sanshiunited
+  - sixyao
   - suzhan
   - taiyi
+  - tongshefa
 required_inputs:
   - question
   - analysis_year

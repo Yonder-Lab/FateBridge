@@ -87,28 +87,4 @@ python3 -m fatebridge.cli --no-metadata ziwei_birth \
 ```
 亮度量表：庙 > 旺 > 得 > 利 > 平 > 不 > 陷（强→弱）；辅星和杂曜无亮度时 `brightness` 为 `null`。原来的 `stars` 字段不变，直接读旧字段的代码不受影响。
 
-### 查运限
-
-`ziwei_horoscope` 给出目标时间点上的六层运限（大限/小限/流年/流月/流日/流时），每层报落宫和干系四化。`--target-year/--target-month/--target-day/--target-hour` 四个字段都要传。
-
-```bash
-python3 -m fatebridge.cli --no-metadata ziwei_horoscope \
-  --gender 女 --birth-year 1998 --birth-month 9 --birth-day 30 --birth-hour 16 \
-  --target-year 2026 --target-month 6 --target-day 19 --target-hour 14
-```
-
-输出的 `snapshot_text` 样例（截取起盘信息＋大限＋流年）：
-```
-[起盘信息]
-出生：1998-09-30 16:00:00
-目标：2026-06-19 14:00:00
-虚岁：29
-
-[大限]
-宫位：夫妻宫（癸亥）
-四化：化禄=破军；化权=巨门；化科=太阴；化忌=贪狼
-
-[流年]
-宫位：仆役宫（丙午）
-四化：化禄=天同；化权=天机；化科=文昌；化忌=廉贞
-```
+> 想看大限/流年的紫微视角（紫微运限）属于时运场景，用 [onda-shiyun](../onda-shiyun/SKILL.md) 的紫微运限工具，本技能只管本命盘。

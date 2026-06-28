@@ -54,6 +54,7 @@ engine_tools:
   - timing_analysis
   - transit
   - western_timing_analysis
+  - ziwei_horoscope
   - zr
 required_inputs:
   - birth_year
