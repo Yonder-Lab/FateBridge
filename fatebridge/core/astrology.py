@@ -287,6 +287,10 @@ TRADITIONAL_PLANETS = [
     "Saturn",
 ]
 
+# 顺序敏感的 ``TRADITIONAL_PLANETS`` 用于 ``list(...)`` 与有序推导；成员判断
+# (``x in ...``) 另用此 frozenset，避免对 list 做线性扫描。两者内容一致。
+_TRADITIONAL_PLANET_IDS = frozenset(TRADITIONAL_PLANETS)
+
 # 七政（不含四余）英文名 → 政余格局所用中文键（见 core.guolao_moira）。
 _GUOLAO_PLANET_CN = {
     "Sun": "日",
@@ -1693,16 +1697,16 @@ def _compatibility_score(
     aspects: List[Dict[str, Any]],
 ) -> Dict[str, int]:
     inner_elements = Counter(
-        item["element"] for item in inner if item["id"] in TRADITIONAL_PLANETS
+        item["element"] for item in inner if item["id"] in _TRADITIONAL_PLANET_IDS
     )
     outer_elements = Counter(
-        item["element"] for item in outer if item["id"] in TRADITIONAL_PLANETS
+        item["element"] for item in outer if item["id"] in _TRADITIONAL_PLANET_IDS
     )
     inner_modalities = Counter(
-        item["modality"] for item in inner if item["id"] in TRADITIONAL_PLANETS
+        item["modality"] for item in inner if item["id"] in _TRADITIONAL_PLANET_IDS
     )
     outer_modalities = Counter(
-        item["modality"] for item in outer if item["id"] in TRADITIONAL_PLANETS
+        item["modality"] for item in outer if item["id"] in _TRADITIONAL_PLANET_IDS
     )
 
     def overlap_score(left: Counter, right: Counter) -> int:
@@ -1934,7 +1938,7 @@ def build_midpoint_payload(
     )
     engine_profile = _derive_engine_profile(base_chart.get("chart_profile", {}))
     midpoint_bodies = [
-        item for item in base_chart["planets"] if item["id"] in TRADITIONAL_PLANETS
+        item for item in base_chart["planets"] if item["id"] in _TRADITIONAL_PLANET_IDS
     ]
     midpoints: List[Dict[str, Any]] = []
     for index, first in enumerate(midpoint_bodies):
@@ -2223,12 +2227,12 @@ def _build_directional_relative_aspects(
     grouped: List[Dict[str, Any]] = []
 
     for source_planet in source_planets:
-        if source_planet["id"] not in TRADITIONAL_PLANETS:
+        if source_planet["id"] not in _TRADITIONAL_PLANET_IDS:
             continue
 
         matches: List[Dict[str, Any]] = []
         for target_planet in target_planets:
-            if target_planet["id"] not in TRADITIONAL_PLANETS:
+            if target_planet["id"] not in _TRADITIONAL_PLANET_IDS:
                 continue
             matched = _match_cross_aspect(
                 source_planet["longitude"],
@@ -2292,7 +2296,7 @@ def _build_relative_midpoint_catalog(
     target_planets: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
     midpoint_bodies = [
-        item for item in target_planets if item["id"] in TRADITIONAL_PLANETS
+        item for item in target_planets if item["id"] in _TRADITIONAL_PLANET_IDS
     ]
     catalog: List[Dict[str, Any]] = []
     for index, first in enumerate(midpoint_bodies):
@@ -2317,7 +2321,7 @@ def _build_directional_relative_midpoints(
     midpoint_hits: Dict[str, List[Dict[str, Any]]] = {}
 
     for source_planet in source_planets:
-        if source_planet["id"] not in TRADITIONAL_PLANETS:
+        if source_planet["id"] not in _TRADITIONAL_PLANET_IDS:
             continue
 
         hits: List[Dict[str, Any]] = []
@@ -2366,11 +2370,11 @@ def _build_directional_relative_antiscia(
     matched_items: List[Dict[str, Any]] = []
 
     for source_planet in source_planets:
-        if source_planet["id"] not in TRADITIONAL_PLANETS:
+        if source_planet["id"] not in _TRADITIONAL_PLANET_IDS:
             continue
 
         for target_planet in target_planets:
-            if target_planet["id"] not in TRADITIONAL_PLANETS:
+            if target_planet["id"] not in _TRADITIONAL_PLANET_IDS:
                 continue
             reference_longitude = (
                 _contra_antiscia_longitude(target_planet["longitude"])
