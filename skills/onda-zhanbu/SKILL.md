@@ -23,6 +23,7 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 | query 意图 | 工具 | 优先级 | 何时选它 |
 |-----------|------|--------|---------|
 | 要不要做某件事（即时起念） | `meihua_analysis` | 主 | 用户当下起念、随机取数，适合即兴一问；最轻，一句 `--question` 就能起 |
+| 郑重问一事（古法起卦） | `tongshefa` | 主 | 大衍筮法（蓍草）起卦，仪式感重、郑重一问；与梅花同为起卦取象，区别在起卦方式——即兴随手用梅花，正式郑重用通蓍 |
 | 这事能不能成（具体成败） | `sixyao` | 主 | 问具体事能否成败，需明确一件事、一个方向 |
 | 方位/时机/谋略布局 | `qimen` | 主 | 问方位选择、行动时机、谋略布局，含趋吉避凶方位 |
 | 具体事件细节与时应 | `liureng_gods` | 主 | 问具体事件的细节展开与时间应验，信息量最密集 |
@@ -42,7 +43,8 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 | 工具 | 关键输入 |
 |------|---------|
 | `meihua_analysis` | `--question` + **起卦时间必填** `--analysis-year/month/day/hour`（按当下起卦就传当前日期时间） |
-| `sixyao` | `--question`，手摇传 `--lines`，或按时间起 |
+| `tongshefa` | 无必填项，直接调用即按古法自动起卦；要手工分蓍可传四象 `--taiyin/--taiyang/--shaoyang/--shaoyin` |
+| `sixyao` | `--question`，手摇传 `--lines`，或按时间起（需 `--date`/`--time`，或按当下起卦时间） |
 | `qimen` | 时间 + 用神 |
 | `liureng_gods` | 起课时间 |
 | `liureng_runyear` | 出生信息 + 分析年 |
@@ -77,6 +79,13 @@ python3 -m fatebridge.cli --no-metadata meihua_analysis --question "下周该不
 
 python3 -m fatebridge.cli --no-metadata qimen \
   --analysis-year 2026 --analysis-month 6 --analysis-day 18 --analysis-hour 15
+
+# 通蓍法（大衍筮法·蓍草）：郑重一问，直接调用即自动起卦
+python3 -m fatebridge.cli --no-metadata tongshefa --fields summary
+
+# 六爻：问具体成败，按起卦时刻起卦（铜钱摇卦由引擎随机；要复现传 --seed）
+python3 -m fatebridge.cli --no-metadata sixyao --question "这个项目能不能成" \
+  --date 2026-06-18 --time 15:00:00 --fields summary
 
 # 西洋卜卦：提问时刻 + 地点 + 类别（这里问婚姻）
 python3 -m fatebridge.cli --no-metadata astro_horary --category marriage \
