@@ -522,6 +522,24 @@ class SixYaoRequest(BaseModel):
     lines: List[SixYaoLineRequest] = Field(
         default_factory=list, description="Optional six lines"
     )
+    method: str = Field(
+        default="auto",
+        description=(
+            "起卦方式：auto（默认，缺卦则按时刻时间起卦）/ coin（真·摇钱起卦，"
+            "系统随机六掷）/ time（强制时间起卦）。提供 coins/lines/gua_code 时自动按其起卦。"
+        ),
+    )
+    coins: Optional[List[int]] = Field(
+        default=None,
+        description=(
+            "摇钱起卦六掷之和（初爻→上爻），每掷为三枚铜钱之和 6/7/8/9"
+            "（字面=2、背面=3）。提供则按真实摇出的铜钱结果装卦。"
+        ),
+    )
+    seed: Optional[int] = Field(
+        default=None,
+        description="随机摇钱起卦的随机种子（method=coin 且未提供 coins 时），用于复现同一卦。",
+    )
 
 
 class SuZhanRequest(BaseModel):

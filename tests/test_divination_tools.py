@@ -2,6 +2,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.api import (
@@ -556,6 +558,88 @@ def test_calculate_sixyao_explicit_code_is_marked_manual():
     assert result["current_code"] == "111000"
     assert result["changed_code"] == "110000"
     assert result["moving_lines"] == [3]
+
+
+def test_calculate_sixyao_coin_casting_from_explicit_tosses():
+    """真·摇钱起卦：调用方提供六掷之和（初爻→上爻），按字面=2/背面=3 装卦。
+    coins=[7,8,7,9,8,6] → 少阳/少阴/少阳/老阳/少阴/老阴。"""
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        coins=[7, 8, 7, 9, 8, 6],
+    )
+
+    # 值: 7→阳1, 8→阴0, 7→阳1, 9→阳1, 8→阴0, 6→阴0 → 本卦 101100。
+    assert result["current_code"] == "101100"
+    # 动爻: 9(老阳,第4爻) 与 6(老阴,第6爻)。翻转后 → 101001。
+    assert result["changed_code"] == "101001"
+    assert result["moving_lines"] == [4, 6]
+    assert result["cast"]["method"] == "coin"
+    assert result["cast"]["coin_source"] == "provided"
+    tosses = result["cast"]["tosses"]
+    assert len(tosses) == 6
+    assert tosses[3]["sum"] == 9
+    assert tosses[3]["yao"] == "老阳"
+    assert tosses[3]["moving"] is True
+    assert tosses[1]["yao"] == "少阴"
+    assert tosses[1]["moving"] is False
+
+
+def test_calculate_sixyao_coin_casting_random_is_seedable():
+    """系统随机摇卦：同一 seed 必出同一卦（可复现），标记 coin/random。"""
+    first = calculate_sixyao_analysis(
+        date="2028-04-06", time="09:33:00", zone="+08:00", method="coin", seed=42
+    )
+    second = calculate_sixyao_analysis(
+        date="2028-04-06", time="09:33:00", zone="+08:00", method="coin", seed=42
+    )
+
+    assert first["cast"]["method"] == "coin"
+    assert first["cast"]["coin_source"] == "random"
+    assert len(first["current_code"]) == 6
+    assert set(first["current_code"]) <= {"0", "1"}
+    assert first["current_code"] == second["current_code"]
+    assert first["changed_code"] == second["changed_code"]
+    assert first["moving_lines"] == second["moving_lines"]
+    # 动爻只能落在老阴(6)/老阳(9)的掷上。
+    moving_positions = {t["position"] for t in first["cast"]["tosses"] if t["moving"]}
+    assert moving_positions == set(first["moving_lines"])
+    for toss in first["cast"]["tosses"]:
+        assert toss["sum"] in (6, 7, 8, 9)
+        assert (toss["sum"] in (6, 9)) == toss["moving"]
+
+
+def test_calculate_sixyao_coin_rejects_invalid_toss():
+    """每掷之和必须 ∈ {6,7,8,9}（三枚铜钱），非法值经守卫返回校验错误。"""
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        coins=[7, 8, 7, 9, 8, 5],
+    )
+    assert result["error_code"] == "validation_error"
+    assert "6/7/8/9" in result["error"]
+
+
+def test_calculate_sixyao_coin_requires_six_tosses():
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        coins=[7, 8, 7],
+    )
+    assert result["error_code"] == "validation_error"
+
+
+def test_build_sixyao_result_raises_on_invalid_coins():
+    """核心层（无守卫）对非法摇钱输入直接 fail-loud。"""
+    from fatebridge.core.local_techniques.sixyao import build_sixyao_result
+
+    with pytest.raises(ValueError):
+        build_sixyao_result(
+            date="2028-04-06", time="09:33:00", zone="+08:00", coins=[7, 8, 7, 9, 8, 5]
+        )
 
 
 def test_calculate_sixyao_analysis_keeps_upstream_truthy_string_line_semantics():

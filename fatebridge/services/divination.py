@@ -381,6 +381,9 @@ def calculate_sixyao_analysis(
     gua_code: Optional[str] = None,
     changed_code: Optional[str] = None,
     lines: Optional[List[Dict[str, Any]]] = None,
+    method: str = "auto",
+    coins: Optional[List[int]] = None,
+    seed: Optional[int] = None,
 ) -> Dict[str, Any]:
     """六爻 / 易卦分析工具。"""
     return build_sixyao_result(
@@ -395,6 +398,9 @@ def calculate_sixyao_analysis(
         gua_code=gua_code,
         changed_code=changed_code,
         lines=lines,
+        method=method,
+        coins=coins,
+        seed=seed,
     )
 
 
