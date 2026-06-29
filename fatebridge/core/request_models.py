@@ -12,7 +12,22 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 
-class FateBridgeRequest(BaseModel):
+class _DeferredModel(BaseModel):
+    """所有请求模型的公共基类。
+
+    ``defer_build=True`` 把 Pydantic 的核心 schema / validator 编译从「类定义时」
+    推迟到「首次实例化时」，从而把 import 期（CLI 冷启动）逐个编译模型的开销移出
+    关键路径——大量请求模型不再在导入时一次性编译。
+
+    对计算结果与校验行为**零影响**：defer_build 仅改变 schema 的构建时机，不改变
+    schema 内容；首次实例化时按需构建并缓存，后续调用与原先完全一致。子类自带的
+    ``model_config``（如 ``populate_by_name=True``）会与本配置合并，不会丢失。
+    """
+
+    model_config = ConfigDict(defer_build=True)
+
+
+class FateBridgeRequest(_DeferredModel):
     """Request model for individual destiny analysis"""
 
     name: Optional[str] = Field(
@@ -91,7 +106,7 @@ class BaziBirthRequest(FateBridgeRequest):
     )
 
 
-class TwoPersonCompatibilityRequest(BaseModel):
+class TwoPersonCompatibilityRequest(_DeferredModel):
     """Request model for two-person compatibility analysis."""
 
     person1_name: str = Field(description="First person name")
@@ -286,7 +301,7 @@ class LiuyueAnalysisRequest(FateBridgeRequest):
     )
 
 
-class MeihuaAnalysisRequest(BaseModel):
+class MeihuaAnalysisRequest(_DeferredModel):
     """Request model for time-seeded Mei Hua Yi Shu analysis."""
 
     analysis_year: int = Field(description="Analysis year, e.g., 2028")
@@ -304,7 +319,7 @@ class MeihuaAnalysisRequest(BaseModel):
     )
 
 
-class GuaLookupRequest(BaseModel):
+class GuaLookupRequest(_DeferredModel):
     """Request model for trigram/hexagram lookup."""
 
     query: str = Field(description="Hexagram/trigram name or binary code")
@@ -318,7 +333,7 @@ class GuaLookupRequest(BaseModel):
     )
 
 
-class JieqiYearRequest(BaseModel):
+class JieqiYearRequest(_DeferredModel):
     """Request model for annual jieqi helper output."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -342,7 +357,7 @@ class JieqiYearRequest(BaseModel):
     )
 
 
-class NongliTimeRequest(BaseModel):
+class NongliTimeRequest(_DeferredModel):
     """Request model for nongli-time helper output."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -385,7 +400,7 @@ class NongliTimeRequest(BaseModel):
     )
 
 
-class GuaMeiyiRequest(BaseModel):
+class GuaMeiyiRequest(_DeferredModel):
     """Request model for batch Meiyi hexagram meanings."""
 
     name: List[str] = Field(description="Trigram or hexagram names/codes")
@@ -395,13 +410,13 @@ class GuaMeiyiRequest(BaseModel):
     )
 
 
-class ExportRegistryRequest(BaseModel):
+class ExportRegistryRequest(_DeferredModel):
     """Request model for export registry lookup."""
 
     technique: Optional[str] = Field(default=None, description="Optional technique key")
 
 
-class ExportParseRequest(BaseModel):
+class ExportParseRequest(_DeferredModel):
     """Request model for export snapshot parsing."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -424,7 +439,7 @@ class ExportParseRequest(BaseModel):
     )
 
 
-class KnowledgeRegistryRequest(BaseModel):
+class KnowledgeRegistryRequest(_DeferredModel):
     """Request model for bundled knowledge registry."""
 
     domain: Optional[str] = Field(default=None, description="Optional domain filter")
@@ -434,7 +449,7 @@ class KnowledgeRegistryRequest(BaseModel):
     )
 
 
-class KnowledgeReadRequest(BaseModel):
+class KnowledgeReadRequest(_DeferredModel):
     """Request model for bundled knowledge lookup."""
 
     domain: str = Field(
@@ -478,7 +493,7 @@ class KnowledgeReadRequest(BaseModel):
     )
 
 
-class TongSheFaRequest(BaseModel):
+class TongSheFaRequest(_DeferredModel):
     """Request model for tongshefa."""
 
     taiyin: Optional[str] = Field(default="巽", description="Taiyin trigram")
@@ -487,7 +502,7 @@ class TongSheFaRequest(BaseModel):
     shaoyin: Optional[str] = Field(default="震", description="Shaoyin trigram")
 
 
-class SixYaoLineRequest(BaseModel):
+class SixYaoLineRequest(_DeferredModel):
     """One six-yao line item."""
 
     value: int = Field(ge=0, le=1, description="0 for yin, 1 for yang")
@@ -496,7 +511,7 @@ class SixYaoLineRequest(BaseModel):
     name: Optional[str] = Field(default=None, description="Optional line label")
 
 
-class SixYaoRequest(BaseModel):
+class SixYaoRequest(_DeferredModel):
     """Request model for sixyao."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -542,7 +557,7 @@ class SixYaoRequest(BaseModel):
     )
 
 
-class SuZhanRequest(BaseModel):
+class SuZhanRequest(_DeferredModel):
     """Request model for suzhan."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -586,7 +601,7 @@ class SuZhanRequest(BaseModel):
     )
 
 
-class CanpingRequest(BaseModel):
+class CanpingRequest(_DeferredModel):
     """Request model for canping (邵子参评数 / 金锁银匙)."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -625,7 +640,7 @@ class CanpingRequest(BaseModel):
     )
 
 
-class HeluoRequest(BaseModel):
+class HeluoRequest(_DeferredModel):
     """Request model for heluo (河洛理数)."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -660,7 +675,7 @@ class HeluoRequest(BaseModel):
     )
 
 
-class SukuyoCompatibilityRequest(BaseModel):
+class SukuyoCompatibilityRequest(_DeferredModel):
     """Request model for 宿曜 two-person compatibility (三九の秘法).
 
     Each person is located by their suzhan-style birth event; the natal 宿
@@ -705,7 +720,7 @@ class SukuyoCompatibilityRequest(BaseModel):
     )
 
 
-class OtherBuRequest(BaseModel):
+class OtherBuRequest(_DeferredModel):
     """Request model for otherbu."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -740,7 +755,7 @@ class OtherBuRequest(BaseModel):
     question: Optional[str] = Field(default=None, description="Question or topic")
 
 
-class SanShiUnitedRequest(BaseModel):
+class SanShiUnitedRequest(_DeferredModel):
     """Request model for sanshiunited."""
 
     model_config = ConfigDict(populate_by_name=True)
@@ -810,7 +825,7 @@ class ZiweiHoroscopeRequest(FateBridgeRequest):
     )
 
 
-class ZiweiRulesRequest(BaseModel):
+class ZiweiRulesRequest(_DeferredModel):
     """Request model for Zi Wei rule catalogue lookup."""
 
     year_stem: Optional[str] = Field(
@@ -823,7 +838,7 @@ class ZiweiRulesRequest(BaseModel):
     )
 
 
-class LiuRengGodsRequest(BaseModel):
+class LiuRengGodsRequest(_DeferredModel):
     """Request model for Liu Ren divination."""
 
     analysis_year: int = Field(description="Analysis year, e.g., 2026")
@@ -878,7 +893,7 @@ class LiuRengRunyearRequest(FateBridgeRequest):
     )
 
 
-class QimenAnalysisRequest(BaseModel):
+class QimenAnalysisRequest(_DeferredModel):
     """Request model for Qi Men analysis."""
 
     analysis_year: int = Field(description="Analysis year, e.g., 2026")
@@ -908,7 +923,7 @@ class QimenAnalysisRequest(BaseModel):
     )
 
 
-class TaiyiAnalysisRequest(BaseModel):
+class TaiyiAnalysisRequest(_DeferredModel):
     """Request model for Taiyi analysis.
 
     太乙 does NOT take 奇门's ``qimen_options`` (layout/palaceShift) — it used to
@@ -953,7 +968,7 @@ class JinkouAnalysisRequest(LiuRengGodsRequest):
     di_fen: Optional[str] = Field(default=None, description="Ground division branch")
 
 
-class AstroBirthRequest(BaseModel):
+class AstroBirthRequest(_DeferredModel):
     """Base birth request model for offline astrology endpoints."""
 
     # Accept both the Python field name (``use_true_solar_time``) and the JSON
@@ -1072,7 +1087,7 @@ class AstroRelativePartyRequest(AstroBirthRequest):
     )
 
 
-class AstroRelativeRequest(BaseModel):
+class AstroRelativeRequest(_DeferredModel):
     """Request model for relative / synastry chart generation."""
 
     inner: AstroRelativePartyRequest
@@ -1435,7 +1450,7 @@ class AstroJaynesProgRequest(AstroLifespanRequest):
     )
 
 
-class AstroMundaneRequest(BaseModel):
+class AstroMundaneRequest(_DeferredModel):
     """Request model for the 世俗入宫盘 (mundane ingress) tool — cast at a solar ingress, no birth data."""
 
     name: Optional[str] = Field(default=None, description="Optional chart name")
@@ -1479,7 +1494,7 @@ class AstroExtraReturnsRequest(AstroLifespanRequest):
     )
 
 
-class AstroHoraryRequest(BaseModel):
+class AstroHoraryRequest(_DeferredModel):
     """Request model for the 卜卦 (horary) tool — chart cast at the question moment."""
 
     name: Optional[str] = Field(default=None, description="Optional chart name")
@@ -1522,7 +1537,7 @@ class AstroHoraryRequest(BaseModel):
     )
 
 
-class AstroElectionRequest(BaseModel):
+class AstroElectionRequest(_DeferredModel):
     """Request model for the 择日 (electional) tool — chart cast at the candidate moment."""
 
     name: Optional[str] = Field(default=None, description="Optional chart name")
@@ -1601,7 +1616,7 @@ class AstroChartPolyRequest(AstroChartRequest):
     )
 
 
-class AstroRelativeFlatRequest(BaseModel):
+class AstroRelativeFlatRequest(_DeferredModel):
     """Flat (non-nested) relative/synastry chart request for tool surfaces."""
 
     inner_birth_year: int = Field(description="Inner chart birth year")
