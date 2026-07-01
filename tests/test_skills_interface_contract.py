@@ -30,9 +30,11 @@ _SKILLS_ROOT = _REPO_ROOT / "skills"
 
 
 def _project_license() -> str:
-    # Regex (not tomllib) so it works identically on Python 3.10.
+    # Regex (not tomllib) so it works identically on Python 3.10. Matches the
+    # PEP 639 SPDX string form ``license = "Apache-2.0"``; anchored to line
+    # start so it never catches ``license-files`` or an inline comment mention.
     text = (_REPO_ROOT / "pyproject.toml").read_text()
-    return re.search(r'license\s*=\s*\{\s*text\s*=\s*"([^"]+)"', text).group(1).strip()
+    return re.search(r'^license\s*=\s*"([^"]+)"', text, re.MULTILINE).group(1).strip()
 
 
 def _cli_specs_by_name() -> dict[str, object]:

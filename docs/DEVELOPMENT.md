@@ -7,7 +7,7 @@
 推荐用 [uv](https://docs.astral.sh/uv/)：
 
 ```bash
-git clone https://github.com/thomas-yanxin/FateBridge.git
+git clone https://github.com/Yonder-Lab/FateBridge.git
 cd FateBridge
 
 uv venv

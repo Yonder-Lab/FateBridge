@@ -7,7 +7,7 @@
 [![Status](https://img.shields.io/badge/status-alpha-orange.svg)](#项目状态)
 [![Tools](https://img.shields.io/badge/tools-80%20across%2013%20families-success.svg)](docs/ALGORITHM_COVERAGE.md)
 [![Interfaces](https://img.shields.io/badge/interfaces-REST%20%7C%20MCP%20%7C%20CLI-informational.svg)](docs/AGENT_GUIDE.md)
-[![CI](https://github.com/thomas-yanxin/FateBridge/actions/workflows/ci.yml/badge.svg)](https://github.com/thomas-yanxin/FateBridge/actions/workflows/ci.yml)
+[![CI](https://github.com/Yonder-Lab/FateBridge/actions/workflows/ci.yml/badge.svg)](https://github.com/Yonder-Lab/FateBridge/actions/workflows/ci.yml)
 
 FateBridge 是一个 **backend-only** 的 Python 仓库：只包含服务端与核心算法，不含前端应用。同一套领域能力通过 **FastAPI（REST）**、**FastMCP** 与 **命令行（`fatebridge` CLI）** 三类接口对外暴露，三者均由中央工具目录（[`fatebridge/services/tool_catalog.py`](fatebridge/services/tool_catalog.py)）统一声明、自动注册。
 
@@ -62,7 +62,7 @@ FateBridge 是一个 **backend-only** 的 Python 仓库：只包含服务端与�
 ### 1. 克隆与安装
 
 ```bash
-git clone https://github.com/thomas-yanxin/FateBridge.git
+git clone https://github.com/Yonder-Lab/FateBridge.git
 cd FateBridge
 ```
 
@@ -80,6 +80,8 @@ uv pip install -e .      # 跑测试/格式化用 -e ".[dev]"
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+> **一个包，三种服务**：分发名、导入名与 CLI 均为 `fatebridge`（`pip install fatebridge` → `import fatebridge`）。装好后三类服务都可从 `fatebridge` 拉起——CLI（`fatebridge`）、REST（`fatebridge-api`）、MCP（`fatebridge-mcp`）。
 
 ### 2. 配置环境
 
