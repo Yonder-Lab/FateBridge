@@ -53,7 +53,6 @@ FateBridge/
 │   └── utils/
 ├── tests/
 ├── docs/
-├── requirements.txt
 ├── pyproject.toml
 └── CONTRIBUTING.md
 ```

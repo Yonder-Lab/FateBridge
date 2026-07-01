@@ -21,13 +21,13 @@ pip install -e .
 python -c "import fatebridge; print(fatebridge.__file__)"
 ```
 
-### 1.2 `pip install -r requirements.txt` 失败
+### 1.2 `pip install -e .` 失败
 
 先升级打包工具：
 
 ```bash
 python -m pip install --upgrade pip setuptools wheel
-pip install -r requirements.txt
+pip install -e .
 ```
 
 如果你在网络较慢环境中安装，可以切换镜像源，但这不是 FateBridge 自身逻辑问题。
