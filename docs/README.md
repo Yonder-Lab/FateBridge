@@ -28,6 +28,14 @@
 
 - [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)
 
+### 我想知道某个用户场景该调哪几个工具
+
+- [SCENARIO_ROUTING.md](SCENARIO_ROUTING.md)
+
+### 我想看把工具场景化包装成技能的例子（Onda）
+
+- [../skills/README.md](../skills/README.md)
+
 ### 我想参与开发
 
 - [DEVELOPMENT.md](DEVELOPMENT.md)
@@ -46,8 +54,10 @@
 | [API.md](API.md) | 前后端/Agent 集成方 | REST 路由、FastMCP 工具、请求族、快照协议 |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 开发者、架构师 | 代码分层、数据流、设计决策、扩展路径 |
 | [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md) | 维护者、评审者 | 已实现 / 近似 / 占位 / 排除范围矩阵 |
+| [SCENARIO_ROUTING.md](SCENARIO_ROUTING.md) | Agent / 技能作者 | 按用户场景选主证/旁证工具的路由矩阵 |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | 贡献者 | 项目结构、开发命令、测试策略、提交流程 |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 所有人 | 安装失败、依赖缺失、端口冲突、CORS、快照导出问题 |
+| [../skills/README.md](../skills/README.md) | Onda / 场景技能开发者 | 把工具按用户场景重组成的 8 个 Onda 技能 |
 
 ## 建议阅读路径
 

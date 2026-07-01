@@ -276,7 +276,7 @@ CLI 子命令与参数同样从中央目录派生，`--help` 可查每个工具�
 ## 6. 相关文档
 
 - [API.md](API.md)：全部 REST 路由、FastMCP 工具、请求族、响应字段
-- [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)：13 family / 80 工具的算法与精度/依赖矩阵
+- [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)：12 family / 80 工具的算法与精度/依赖矩阵
 - [SCENARIO_ROUTING.md](SCENARIO_ROUTING.md)：场景→工具路由矩阵、调用纪律、交叉印证与去重策略
 - [GETTING_STARTED.md](GETTING_STARTED.md)：从零启动服务
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)：依赖缺失、精度、快照导出等常见问题
