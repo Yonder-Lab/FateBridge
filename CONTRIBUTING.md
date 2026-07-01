@@ -44,7 +44,7 @@
 ### 第一步：Fork 仓库
 
 ```bash
-# 访问 https://github.com/thomas-yanxin/FateBridge
+# 访问 https://github.com/Yonder-Lab/FateBridge
 # 点击右上角的 "Fork" 按钮
 ```
 
@@ -58,7 +58,7 @@ cd FateBridge
 ### 第三步：添加上游仓库
 
 ```bash
-git remote add upstream https://github.com/thomas-yanxin/FateBridge.git
+git remote add upstream https://github.com/Yonder-Lab/FateBridge.git
 git fetch upstream
 ```
 

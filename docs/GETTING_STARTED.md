@@ -14,7 +14,7 @@
 ## 2. 克隆与安装
 
 ```bash
-git clone https://github.com/thomas-yanxin/FateBridge.git
+git clone https://github.com/Yonder-Lab/FateBridge.git
 cd FateBridge
 ```
 
