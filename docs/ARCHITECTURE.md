@@ -1,14 +1,14 @@
 # FateBridge 架构说明
 
-本文档描述当前仓库的真实结构、运行路径和设计取舍。FateBridge 当前是一个 backend-only Python 仓库，同一套领域能力通过 FastAPI、FastMCP 与命令行（`fatebridge` CLI）三条通道暴露，三者都从同一份中央工具目录（`fatebridge/services/tool_catalog.py`）自动派生。
+本文档描述当前仓库的真实结构、运行路径和设计取舍。FateBridge 当前是一个 backend-only Python 仓库，同一套领域能力通过 FastAPI、FastMCP 与命令行（`fatebridge` CLI）三条通道暴露，三者都从同一份中央工具目录（`src/fatebridge/services/tool_catalog.py`）自动派生。
 
 ## 1. 系统边界
 
 ```mermaid
 flowchart LR
-    Client["HTTP Client / Script / Agent Host"] --> REST["FastAPI<br/>fatebridge/api.py"]
-    Client --> MCP["FastMCP<br/>fatebridge/mcp_server.py"]
-    Client --> CLI["CLI<br/>fatebridge/cli.py"]
+    Client["HTTP Client / Script / Agent Host"] --> REST["FastAPI<br/>src/fatebridge/api.py"]
+    Client --> MCP["FastMCP<br/>src/fatebridge/mcp_server.py"]
+    Client --> CLI["CLI<br/>src/fatebridge/cli.py"]
 
     REST --> Catalog["中央目录<br/>services/tool_catalog.py (CATALOG)"]
     MCP --> Catalog
@@ -23,50 +23,50 @@ flowchart LR
     Services --> Analysis["fatebridge.analysis.*"]
     Services --> Core["fatebridge.core.*"]
 
-    Core --> Bundles["fatebridge/data/knowledge/*"]
+    Core --> Bundles["src/fatebridge/data/knowledge/*"]
     Core --> Contracts["导出合同 / section 规则"]
 ```
 
 ### 核心结论
 
-- `fatebridge/api.py`、`fatebridge/mcp_server.py` 和 `fatebridge/cli.py` 是三层 transport adapter，不承担核心算法
-- 三层 transport 共享同一份中央目录 `fatebridge/services/tool_catalog.py`（`CATALOG: List[ToolSpec]`），由 `fatebridge/core/tool_spec.py` 的 `register_rest` / `register_mcp` 自动挂载；新增工具只需追加一个 `ToolSpec`，无需改动任何 transport 文件
-- `fatebridge/services` 是服务编排层，负责把 transport 输入转换成核心算法调用
-- `fatebridge/core` 是主要算法层
-- `fatebridge/utils/helpers.py` 是输入归一化和真太阳时修正的关键入口
-- `fatebridge/data/knowledge` 与导出合同共同构成了“结果可消费层”
-- `fatebridge/services/run_metadata.py` 为 REST / MCP 统一补充轻量 `run_metadata`
+- `src/fatebridge/api.py`、`src/fatebridge/mcp_server.py` 和 `src/fatebridge/cli.py` 是三层 transport adapter，不承担核心算法
+- 三层 transport 共享同一份中央目录 `src/fatebridge/services/tool_catalog.py`（`CATALOG: List[ToolSpec]`），由 `src/fatebridge/core/tool_spec.py` 的 `register_rest` / `register_mcp` 自动挂载；新增工具只需追加一个 `ToolSpec`，无需改动任何 transport 文件
+- `src/fatebridge/services` 是服务编排层，负责把 transport 输入转换成核心算法调用
+- `src/fatebridge/core` 是主要算法层
+- `src/fatebridge/utils/helpers.py` 是输入归一化和真太阳时修正的关键入口
+- `src/fatebridge/data/knowledge` 与导出合同共同构成了“结果可消费层”
+- `src/fatebridge/services/run_metadata.py` 为 REST / MCP 统一补充轻量 `run_metadata`
 
 ## 2. 分层职责
 
 | 层 | 主要文件 | 职责 |
 | --- | --- | --- |
-| 中央目录 | `fatebridge/services/tool_catalog.py`, `fatebridge/core/tool_spec.py` | 以 `ToolSpec` 单点声明全部工具，并提供 `register_rest` / `register_mcp` 注册器 |
-| 传输层 | `fatebridge/api.py`, `fatebridge/mcp_server.py`, `fatebridge/cli.py` | 从中央目录派生 REST 路由 / MCP 工具 / CLI 子命令，做请求模型绑定与 HTTP/MCP/CLI 错误包装 |
-| 服务层 | `fatebridge/services/*.py` | 编排核心算法、拼装响应、生成 `snapshot_text` / `snapshot_export` |
-| 分析层 | `fatebridge/analysis/*.py` | 复合分析逻辑，如配合度和时运影响 |
-| 核心层 | `fatebridge/core/*.py` | 历法、八字、占星、占术、导出解析、知识索引 |
-| 通用工具层 | `fatebridge/utils/*.py` | 出生信息模型、地点解析、真太阳时、公共格式化 |
-| 数据层 | `fatebridge/data/knowledge/*.json` | 内置知识 bundle |
+| 中央目录 | `src/fatebridge/services/tool_catalog.py`, `src/fatebridge/core/tool_spec.py` | 以 `ToolSpec` 单点声明全部工具，并提供 `register_rest` / `register_mcp` 注册器 |
+| 传输层 | `src/fatebridge/api.py`, `src/fatebridge/mcp_server.py`, `src/fatebridge/cli.py` | 从中央目录派生 REST 路由 / MCP 工具 / CLI 子命令，做请求模型绑定与 HTTP/MCP/CLI 错误包装 |
+| 服务层 | `src/fatebridge/services/*.py` | 编排核心算法、拼装响应、生成 `snapshot_text` / `snapshot_export` |
+| 分析层 | `src/fatebridge/analysis/*.py` | 复合分析逻辑，如配合度和时运影响 |
+| 核心层 | `src/fatebridge/core/*.py` | 历法、八字、占星、占术、导出解析、知识索引 |
+| 通用工具层 | `src/fatebridge/utils/*.py` | 出生信息模型、地点解析、真太阳时、公共格式化 |
+| 数据层 | `src/fatebridge/data/knowledge/*.json` | 内置知识 bundle |
 | 测试层 | `tests/*.py` | API/MCP 对齐、合同回归、算法回归 |
 
 ## 3. 代码地图
 
 ### 3.1 中央目录与 Transport
 
-- `fatebridge/services/tool_catalog.py`
+- `src/fatebridge/services/tool_catalog.py`
   - 唯一的 `CATALOG: List[ToolSpec]`，单点声明全部工具
   - `rest_specs()` / `mcp_specs()` 过滤出各 transport 暴露的工具集合
-- `fatebridge/core/tool_spec.py`
+- `src/fatebridge/core/tool_spec.py`
   - `ToolSpec` 冻结 dataclass，以及 `register_rest` / `register_mcp` 注册器
   - 统一的字段投影（`project_fields`）、错误形状（`invalid_input_result`）与参数 schema 生成
-- `fatebridge/api.py`
+- `src/fatebridge/api.py`
   - 定义 FastAPI app、CORS，调用 `register_rest(app, rest_specs())`
   - 暴露 80 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）
-- `fatebridge/mcp_server.py`
+- `src/fatebridge/mcp_server.py`
   - 定义 FastMCP app，调用 `register_mcp(app, mcp_specs())`
   - 暴露 80 个 MCP 工具，返回 JSON 字符串，适合 Agent host 直接消费
-- `fatebridge/cli.py`
+- `src/fatebridge/cli.py`
   - 遍历 `CATALOG` 为每个工具生成 argparse 子命令
   - 提供 `fatebridge list` / `fatebridge describe <tool>` 供 Agent 自助发现 schema 与示例
 
@@ -74,39 +74,39 @@ flowchart LR
 
 | 文件 | 职责 |
 | --- | --- |
-| `fatebridge/services/calculation.py` | 单人命理分析 |
-| `fatebridge/services/compatibility.py` | 双人配合分析 |
-| `fatebridge/services/timing.py` | 综合时运、大运、流年、流月、流日、流时、节气时间轴、calendar helper |
-| `fatebridge/services/divination.py` | 梅花、卦义、统摄法、六爻、宿占、占星骰子、三式合一 |
-| `fatebridge/services/metaphysics.py` | 紫微、六壬、奇门、太乙、金口诀 |
-| `fatebridge/services/astrology.py` | 核心盘、关系盘、中点盘以及对应快照 |
-| `fatebridge/services/western_timing.py` | 西占推运总览 |
-| `fatebridge/services/western_timing_tools.py` | 独立 western timing technique 工具 |
-| `fatebridge/services/knowledge.py` | 内置知识目录与条目读取 |
-| `fatebridge/services/export_tools.py` | 导出注册表与快照解析 |
-| `fatebridge/services/bazi.py` | 八字命盘与直断的独立快照输出 |
-| `fatebridge/services/western_lifespan.py`, `western_events.py`, `western_horary.py`, `western_election.py` | 寿元、择时事件、卜卦、择吉等西占工具 |
-| `fatebridge/services/tool_catalog.py` | 中央工具目录（`ToolSpec` / `CATALOG`），三端唯一信源 |
-| `fatebridge/services/run_metadata.py` | 统一生成 `run_id` / `trace_id` / `tool_name` / `generated_at` / `engine` |
+| `src/fatebridge/services/calculation.py` | 单人命理分析 |
+| `src/fatebridge/services/compatibility.py` | 双人配合分析 |
+| `src/fatebridge/services/timing.py` | 综合时运、大运、流年、流月、流日、流时、节气时间轴、calendar helper |
+| `src/fatebridge/services/divination.py` | 梅花、卦义、统摄法、六爻、宿占、占星骰子、三式合一 |
+| `src/fatebridge/services/metaphysics.py` | 紫微、六壬、奇门、太乙、金口诀 |
+| `src/fatebridge/services/astrology.py` | 核心盘、关系盘、中点盘以及对应快照 |
+| `src/fatebridge/services/western_timing.py` | 西占推运总览 |
+| `src/fatebridge/services/western_timing_tools.py` | 独立 western timing technique 工具 |
+| `src/fatebridge/services/knowledge.py` | 内置知识目录与条目读取 |
+| `src/fatebridge/services/export_tools.py` | 导出注册表与快照解析 |
+| `src/fatebridge/services/bazi.py` | 八字命盘与直断的独立快照输出 |
+| `src/fatebridge/services/western_lifespan.py`, `western_events.py`, `western_horary.py`, `western_election.py` | 寿元、择时事件、卜卦、择吉等西占工具 |
+| `src/fatebridge/services/tool_catalog.py` | 中央工具目录（`ToolSpec` / `CATALOG`），三端唯一信源 |
+| `src/fatebridge/services/run_metadata.py` | 统一生成 `run_id` / `trace_id` / `tool_name` / `generated_at` / `engine` |
 
 ### 3.3 Core
 
 | 文件 | 职责 |
 | --- | --- |
-| `fatebridge/core/calendar.py` | 四柱计算、干支历法 |
-| `fatebridge/core/almanac.py` | 节气、农历、calendar context |
-| `fatebridge/core/elements.py` | 五行、十神、日主强弱 |
-| `fatebridge/core/rules.py` | 格局、合冲刑害等规则 |
-| `fatebridge/core/timing.py` | 时运基础算法 |
-| `fatebridge/core/divination.py` | 梅花易数与卦义核心 |
-| `fatebridge/core/gua_meanings.py` | 八卦/六十四卦离线断辞 |
-| `fatebridge/core/astrology.py` | 核心占星盘、关系盘、近似/高精度双路径 |
-| `fatebridge/core/astrology_lifespan.py`, `astrology_events.py`, `astrology_horary.py`, `astrology_election.py` | 寿元、事件、卜卦、择吉等古典/西占算法 |
-| `fatebridge/core/predictive/*.py` | 返照(`returns`)、行运(`transit`)、主限(`primary_directions`)、太阳弧(`solar_arc`)、小限(`profections`)、黄道释放(`zodiacal_releasing`)、法达(`firdaria`)、十年星限(`decennials`) 等推运技法 |
-| `fatebridge/core/local_techniques.py` | 宿占、占星骰子、三式本地适配 |
-| `fatebridge/core/export_contracts.py` | section 预设、导出规则、标准化 |
-| `fatebridge/core/export_parser.py` | `snapshot_text -> snapshot_export` 解析 |
-| `fatebridge/core/knowledge_store.py` | 内置知识索引与读取 |
+| `src/fatebridge/core/calendar.py` | 四柱计算、干支历法 |
+| `src/fatebridge/core/almanac.py` | 节气、农历、calendar context |
+| `src/fatebridge/core/elements.py` | 五行、十神、日主强弱 |
+| `src/fatebridge/core/rules.py` | 格局、合冲刑害等规则 |
+| `src/fatebridge/core/timing.py` | 时运基础算法 |
+| `src/fatebridge/core/divination.py` | 梅花易数与卦义核心 |
+| `src/fatebridge/core/gua_meanings.py` | 八卦/六十四卦离线断辞 |
+| `src/fatebridge/core/astrology.py` | 核心占星盘、关系盘、近似/高精度双路径 |
+| `src/fatebridge/core/astrology_lifespan.py`, `astrology_events.py`, `astrology_horary.py`, `astrology_election.py` | 寿元、事件、卜卦、择吉等古典/西占算法 |
+| `src/fatebridge/core/predictive/*.py` | 返照(`returns`)、行运(`transit`)、主限(`primary_directions`)、太阳弧(`solar_arc`)、小限(`profections`)、黄道释放(`zodiacal_releasing`)、法达(`firdaria`)、十年星限(`decennials`) 等推运技法 |
+| `src/fatebridge/core/local_techniques.py` | 宿占、占星骰子、三式本地适配 |
+| `src/fatebridge/core/export_contracts.py` | section 预设、导出规则、标准化 |
+| `src/fatebridge/core/export_parser.py` | `snapshot_text -> snapshot_export` 解析 |
+| `src/fatebridge/core/knowledge_store.py` | 内置知识索引与读取 |
 
 ## 4. 典型请求流
 
@@ -115,7 +115,7 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant API as fatebridge/api.py
+    participant API as src/fatebridge/api.py
     participant H as helpers.py
     participant S as services/calculation.py
     participant CAL as core/calendar.py
@@ -153,7 +153,7 @@ flowchart TD
 
 ### 5.1 三 transport，单目录
 
-FateBridge 没有为 REST / MCP / CLI 分别维护三套领域逻辑或三份工具定义。每个工具只在 `fatebridge/services/tool_catalog.py` 中以 `ToolSpec` 声明**一次**，再由 `fatebridge/core/tool_spec.py` 的 `register_rest` / `register_mcp` 和 `cli.py` 的目录遍历自动派生到三个接口；真正算法都下沉到 `services` / `core`。
+FateBridge 没有为 REST / MCP / CLI 分别维护三套领域逻辑或三份工具定义。每个工具只在 `src/fatebridge/services/tool_catalog.py` 中以 `ToolSpec` 声明**一次**，再由 `src/fatebridge/core/tool_spec.py` 的 `register_rest` / `register_mcp` 和 `cli.py` 的目录遍历自动派生到三个接口；真正算法都下沉到 `services` / `core`。
 
 好处：
 
@@ -203,13 +203,13 @@ FateBridge 没有为 REST / MCP / CLI 分别维护三套领域逻辑或三份工
 
 ## 6. 运行时与配置
 
-默认运行参数来自 `fatebridge/api.py`：
+默认运行参数来自 `src/fatebridge/api.py`：
 
 - `API_HOST=0.0.0.0`
 - `API_PORT=8010`
 - `ALLOWED_ORIGINS=http://localhost:3000`
 
-`fatebridge/mcp_server.py` 则通过 `app.run()` 启动 FastMCP 服务。
+`src/fatebridge/mcp_server.py` 则通过 `app.run()` 启动 FastMCP 服务。
 
 ## 7. 测试策略
 
@@ -228,8 +228,8 @@ FateBridge 没有为 REST / MCP / CLI 分别维护三套领域逻辑或三份工
 
 1. 在 `core` 实现或补充底层算法
 2. 在 `services` 中封装领域返回结构
-3. 在 `fatebridge/core/request_models.py` 定义该工具的 Pydantic 请求模型
-4. **在 `fatebridge/services/tool_catalog.py` 的 `CATALOG` 中追加一个 `ToolSpec`** —— REST 路由、MCP 工具、CLI 子命令会自动派生，无需改动 `api.py` / `mcp_server.py` / `cli.py`
+3. 在 `src/fatebridge/core/request_models.py` 定义该工具的 Pydantic 请求模型
+4. **在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 中追加一个 `ToolSpec`** —— REST 路由、MCP 工具、CLI 子命令会自动派生，无需改动 `api.py` / `mcp_server.py` / `cli.py`
 5. 在 `tests/` 增加能力测试；三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性 payload fixture
 6. 更新 [API.md](API.md) 和 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)（工具计数由 `tests/test_doc_tool_counts.py` 锁定，改动后若计数变化需同步）
 

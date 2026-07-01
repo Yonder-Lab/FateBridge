@@ -9,7 +9,7 @@
 [![Interfaces](https://img.shields.io/badge/interfaces-REST%20%7C%20MCP%20%7C%20CLI-informational.svg)](docs/AGENT_GUIDE.md)
 [![CI](https://github.com/Yonder-Lab/FateBridge/actions/workflows/ci.yml/badge.svg)](https://github.com/Yonder-Lab/FateBridge/actions/workflows/ci.yml)
 
-FateBridge 是一个 **backend-only** 的 Python 仓库：只包含服务端与核心算法，不含前端应用。同一套领域能力通过 **FastAPI（REST）**、**FastMCP** 与 **命令行（`fatebridge` CLI）** 三类接口对外暴露，三者均由中央工具目录（[`fatebridge/services/tool_catalog.py`](fatebridge/services/tool_catalog.py)）统一声明、自动注册。
+FateBridge 是一个 **backend-only** 的 Python 仓库：只包含服务端与核心算法，不含前端应用。同一套领域能力通过 **FastAPI（REST）**、**FastMCP** 与 **命令行（`fatebridge` CLI）** 三类接口对外暴露，三者均由中央工具目录（[`src/fatebridge/services/tool_catalog.py`](src/fatebridge/services/tool_catalog.py)）统一声明、自动注册。
 
 > 当前默认提供 **80 个业务 REST 路由**（另含 `/health`、`/ready`、`/metrics` 三个运维端点）、**80 个 FastMCP 工具**，以及对应的 `fatebridge` CLI 子命令。以上数字均由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定，避免与代码漂移。
 
@@ -133,11 +133,11 @@ curl -X POST http://localhost:8010/api/calculate \
 
 ## 给 Agent / 开发者
 
-所有工具（80 个）只在中央目录 [`fatebridge/services/tool_catalog.py`](fatebridge/services/tool_catalog.py) 中以 `ToolSpec` **声明一次**，自动挂载到三端：
+所有工具（80 个）只在中央目录 [`src/fatebridge/services/tool_catalog.py`](src/fatebridge/services/tool_catalog.py) 中以 `ToolSpec` **声明一次**，自动挂载到三端：
 
-- **REST**（[`fatebridge/api.py`](fatebridge/api.py) → `register_rest`）
-- **MCP**（[`fatebridge/mcp_server.py`](fatebridge/mcp_server.py) → `register_mcp`）
-- **CLI**（[`fatebridge/cli.py`](fatebridge/cli.py)）
+- **REST**（[`src/fatebridge/api.py`](src/fatebridge/api.py) → `register_rest`）
+- **MCP**（[`src/fatebridge/mcp_server.py`](src/fatebridge/mcp_server.py) → `register_mcp`）
+- **CLI**（[`src/fatebridge/cli.py`](src/fatebridge/cli.py)）
 
 新增一个工具或分析维度只需在目录中追加一个 `ToolSpec`，无需改动任何接口文件。
 
@@ -193,15 +193,16 @@ fatebridge bazi_wealth --birth-year 1990 --birth-month 6 --birth-day 15 \
 
 ```text
 FateBridge/
-├── fatebridge/
-│   ├── api.py          # REST (FastAPI) 入口
-│   ├── mcp_server.py   # MCP (FastMCP) 入口
-│   ├── cli.py          # CLI 入口
-│   ├── services/       # transport-facing 编排层 + 中央工具目录
-│   ├── core/           # 核心算法：历法、八字、占星、占术、导出合同
-│   ├── analysis/       # 复合分析（配合度、时运影响…）
-│   ├── data/           # 内置知识 bundle
-│   └── utils/          # 输入归一化、真太阳时、地点解析
+├── src/
+│   └── fatebridge/         # 包代码（src layout：装包后才可 import）
+│       ├── api.py          # REST (FastAPI) 入口
+│       ├── mcp_server.py   # MCP (FastMCP) 入口
+│       ├── cli.py          # CLI 入口
+│       ├── services/       # transport-facing 编排层 + 中央工具目录
+│       ├── core/           # 核心算法：历法、八字、占星、占术、导出合同
+│       ├── analysis/       # 复合分析（配合度、时运影响…）
+│       ├── data/           # 内置知识 bundle
+│       └── utils/          # 输入归一化、真太阳时、地点解析
 ├── tests/
 ├── docs/
 ├── pyproject.toml
@@ -218,7 +219,7 @@ pytest tests/test_api_alignment.py -q
 
 black --check fatebridge scripts tests
 isort --check-only fatebridge scripts tests
-mypy fatebridge/
+mypy src/fatebridge/
 ```
 
 > 测试需在装了 `.[dev]` 的 Python 3.10–3.13 环境里跑（对齐 CI 矩阵），别用系统解释器。详见 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)。

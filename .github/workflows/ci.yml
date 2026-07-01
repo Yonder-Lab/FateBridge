@@ -38,13 +38,13 @@ jobs:
         run: pytest -q
 
       - name: Check formatting
-        run: black --check fatebridge scripts tests
+        run: black --check src/fatebridge scripts tests
 
       - name: Check import order
-        run: isort --check-only fatebridge scripts tests
+        run: isort --check-only src/fatebridge scripts tests
 
       - name: Run type checks
-        run: mypy fatebridge/
+        run: mypy src/fatebridge/
 
   floor:
     # Install every direct dependency at its declared minimum so a too-low

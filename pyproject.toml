@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fatebridge"
-# Single source of truth: fatebridge/__init__.py::__version__. REST (api.py),
+# Single source of truth: src/fatebridge/__init__.py::__version__. REST (api.py),
 # MCP (mcp_server.py) and the packaging metadata all read that one value.
 dynamic = ["version"]
 description = "FateBridge - A Model Context Protocol (MCP) server bridging ancient Chinese fortune telling wisdom with modern technology"
@@ -73,6 +73,7 @@ fatebridge-mcp = "fatebridge.mcp_server:main"
 version = {attr = "fatebridge.__version__"}
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["fatebridge*"]
 
 # packages.find discovers *code* only. The engines load their reference data at

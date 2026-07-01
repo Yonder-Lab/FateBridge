@@ -9,6 +9,15 @@ bumping that constant is the release action.
 
 ## [Unreleased]
 
+### Changed
+- **Adopt the PyPA-recommended `src/` layout** (`fatebridge/` → `src/fatebridge/`).
+  The package is no longer importable from the repo root without installing it,
+  so a bare `pytest`/`import` runs against the *installed* package — packaging
+  gaps (like the missing data files fixed in 0.2.0) now fail locally instead of
+  only after `pip install`. Import name, wheel contents, and the three console
+  scripts are unchanged. Repo-root-relative lookups (`.env`, `ephe/`) had their
+  parent-index depth bumped so they still resolve to the repo root.
+
 ### Added
 - `[project.urls]` (Homepage / Repository / Issues / Changelog) so the PyPI
   project page links back to the repository.

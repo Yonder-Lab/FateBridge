@@ -8,7 +8,9 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+# src layout: this module is ``<repo>/src/fatebridge/utils/runtime.py``, so the
+# repo root (which holds the developer-only ``.env``) is three parents up.
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_ENV_PATH = PROJECT_ROOT / ".env"
 
 

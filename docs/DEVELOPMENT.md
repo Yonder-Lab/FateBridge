@@ -42,15 +42,16 @@ LOG_LEVEL=INFO
 
 ```text
 FateBridge/
-├── fatebridge/
-│   ├── api.py          # REST (FastAPI) 入口
-│   ├── mcp_server.py   # MCP (FastMCP) 入口
-│   ├── cli.py          # CLI 入口
-│   ├── analysis/
-│   ├── core/
-│   ├── data/
-│   ├── services/
-│   └── utils/
+├── src/
+│   └── fatebridge/         # 包代码（src layout：装包后才可 import）
+│       ├── api.py          # REST (FastAPI) 入口
+│       ├── mcp_server.py   # MCP (FastMCP) 入口
+│       ├── cli.py          # CLI 入口
+│       ├── analysis/
+│       ├── core/
+│       ├── data/
+│       ├── services/
+│       └── utils/
 ├── tests/
 ├── docs/
 ├── pyproject.toml
@@ -61,15 +62,15 @@ FateBridge/
 
 | 路径 | 职责 |
 | --- | --- |
-| `fatebridge/services/tool_catalog.py` | 中央工具目录（`ToolSpec` / `CATALOG`），REST/MCP/CLI 三端唯一信源 |
-| `fatebridge/core/tool_spec.py` | `ToolSpec` 定义与 `register_rest` / `register_mcp` 注册器 |
-| `fatebridge/api.py` | 从目录派生 REST 路由、HTTP 层错误处理 |
-| `fatebridge/mcp_server.py` | 从目录派生 MCP 工具、JSON 文本封装 |
-| `fatebridge/cli.py` | 从目录派生 CLI 子命令、`list` / `describe` 自助发现 |
-| `fatebridge/core` | 核心算法与合同 |
-| `fatebridge/services` | transport-facing 编排层 |
-| `fatebridge/analysis` | 复合分析逻辑 |
-| `fatebridge/utils` | 时间、地点、输入归一化 |
+| `src/fatebridge/services/tool_catalog.py` | 中央工具目录（`ToolSpec` / `CATALOG`），REST/MCP/CLI 三端唯一信源 |
+| `src/fatebridge/core/tool_spec.py` | `ToolSpec` 定义与 `register_rest` / `register_mcp` 注册器 |
+| `src/fatebridge/api.py` | 从目录派生 REST 路由、HTTP 层错误处理 |
+| `src/fatebridge/mcp_server.py` | 从目录派生 MCP 工具、JSON 文本封装 |
+| `src/fatebridge/cli.py` | 从目录派生 CLI 子命令、`list` / `describe` 自助发现 |
+| `src/fatebridge/core` | 核心算法与合同 |
+| `src/fatebridge/services` | transport-facing 编排层 |
+| `src/fatebridge/analysis` | 复合分析逻辑 |
+| `src/fatebridge/utils` | 时间、地点、输入归一化 |
 | `tests` | 回归、合同、API/MCP 对齐 |
 | `docs` | 用户与开发者文档 |
 
@@ -110,17 +111,17 @@ pytest tests/test_chinese_metaphysics.py -q
 ### 格式化与静态检查
 
 ```bash
-black fatebridge/ scripts tests
-isort fatebridge/ scripts tests
-mypy fatebridge/
+black src/fatebridge/ scripts tests
+isort src/fatebridge/ scripts tests
+mypy src/fatebridge/
 ```
 
 ### 只做检查、不改文件
 
 ```bash
-black --check fatebridge/ scripts tests
-isort --check-only fatebridge/ scripts tests
-mypy fatebridge/
+black --check src/fatebridge/ scripts tests
+isort --check-only src/fatebridge/ scripts tests
+mypy src/fatebridge/
 ```
 
 ## 5. 推荐开发流程
@@ -129,16 +130,16 @@ mypy fatebridge/
 
 建议顺序：
 
-1. 先改 `fatebridge/core/*` 或 `fatebridge/analysis/*`
-2. 在 `fatebridge/services/*` 封装 transport 友好的返回结构
-3. 在 `fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型
-4. **在 `fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`** —— REST / MCP / CLI 三端自动派生，无需改动 `api.py` / `mcp_server.py` / `cli.py`
+1. 先改 `src/fatebridge/core/*` 或 `src/fatebridge/analysis/*`
+2. 在 `src/fatebridge/services/*` 封装 transport 友好的返回结构
+3. 在 `src/fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型
+4. **在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`** —— REST / MCP / CLI 三端自动派生，无需改动 `api.py` / `mcp_server.py` / `cli.py`
 5. 在 `tests/` 增加能力测试；三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性 payload fixture
 6. 更新 `docs/API.md` 与 `docs/ALGORITHM_COVERAGE.md`（工具计数由 `tests/test_doc_tool_counts.py` 锁定）
 
 ### 只改 transport 行为，不改算法
 
-如果只是调整某端的绑定（如自定义 REST 绑定、CLI 不支持嵌套模型时的降级提示），改动应集中在 `fatebridge/core/tool_spec.py` 的注册器或 `tool_catalog.py` 的命名绑定处，并补：
+如果只是调整某端的绑定（如自定义 REST 绑定、CLI 不支持嵌套模型时的降级提示），改动应集中在 `src/fatebridge/core/tool_spec.py` 的注册器或 `tool_catalog.py` 的命名绑定处，并补：
 
 - request model 验证用例
 - `tests/test_full_surface_validation.py` 覆盖的三端 parity
@@ -169,7 +170,7 @@ mypy fatebridge/
 
 ### 6.3 三端应共享 service 层与中央目录
 
-新增能力时，不要把领域逻辑直接写进 `fatebridge/api.py`、`fatebridge/mcp_server.py` 或 `fatebridge/cli.py`。这三处都只是从 `tool_catalog.py` 派生的 adapter，业务实现应留在 `services` / `core`，工具声明应留在 `CATALOG`。
+新增能力时，不要把领域逻辑直接写进 `src/fatebridge/api.py`、`src/fatebridge/mcp_server.py` 或 `src/fatebridge/cli.py`。这三处都只是从 `tool_catalog.py` 派生的 adapter，业务实现应留在 `services` / `core`，工具声明应留在 `CATALOG`。
 
 ## 7. 测试策略
 
@@ -186,7 +187,7 @@ mypy fatebridge/
 
 满足任一条件时建议补：
 
-- 改动了 `fatebridge/core/*`
+- 改动了 `src/fatebridge/core/*`
 - 改动了算法边界条件
 - 改动了占星精度回退逻辑
 - 改动了导出合同或知识索引

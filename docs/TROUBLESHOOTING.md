@@ -222,14 +222,14 @@ ALLOWED_ORIGINS=http://localhost:3000
 
 修改后重启 `python -m fatebridge.api`。
 
-当前 `fatebridge/api.py` 使用 `ALLOWED_ORIGINS` 环境变量，并默认只放行 `http://localhost:3000`。
+当前 `src/fatebridge/api.py` 使用 `ALLOWED_ORIGINS` 环境变量，并默认只放行 `http://localhost:3000`。
 
 ## 7. 文档和代码不一致时怎么办
 
 优先以代码为准，然后检查：
 
-- `fatebridge/api.py`
-- `fatebridge/mcp_server.py`
+- `src/fatebridge/api.py`
+- `src/fatebridge/mcp_server.py`
 - `tests/test_api_alignment.py`
 - `docs/API.md`
 - `docs/ALGORITHM_COVERAGE.md`
