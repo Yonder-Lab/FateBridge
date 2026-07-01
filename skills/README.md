@@ -1,6 +1,6 @@
 # FateBridge · Skills（泛心理陪伴套件）
 
-把 FateBridge 引擎的 60+ 命理/占术/占星能力，按**用户真实困扰**重组成一套场景 Skill。  
+把 FateBridge 引擎的 80 个命理/占术/占星工具，按**用户真实困扰**重组成一套场景 Skill。  
 设计就一句话：**计算交给 FateBridge 引擎算得准，解读交给 Onda 河狸讲得像个人。**
 
 - 引擎完全离线，干支/排盘/合婚分全部由 `python3 -m fatebridge.cli` 算，杜绝 AI 手算幻觉——这是「预测准确」的根。
@@ -21,7 +21,7 @@
 | 占星、出生盘、合盘、各流派星盘 | [`onda-xingpan`](./onda-xingpan/SKILL.md) | 标准/希腊/果老/印度/13星座盘、关系盘 |
 | 我是一个什么样的人、全面自我分析 | [`onda-zige`](./onda-zige/SKILL.md) | 八字+紫微+西占三套交叉印证，11 张盘一次拉通 |
 
-> 60+ 工具全部在这 8 个场景里有归属；完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
+> 80 个工具全部在这 8 个场景里有归属；完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
 ---
 
@@ -53,7 +53,7 @@ skills/
 
 新增/调整能力时守这条分工：**新维度＝指向对应的 `bazi_*` / 工具目录条目，不要在 Skill 里手写排盘步骤。**
 
-- 引擎侧加工具的方法见仓库 `fatebridge/services/tool_catalog.py`（中央目录，一处声明自动挂到 REST/MCP/CLI）。
+- 引擎侧加工具的方法见仓库 `src/fatebridge/services/tool_catalog.py`（中央目录，一处声明自动挂到 REST/MCP/CLI）。
 - 任何在 Skill 里引用的 CLI 命令，**提交前都要真跑一遍**（引擎离线，无需起服务）：
   ```bash
   python3 -m fatebridge.cli list

@@ -23,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 LIVE_REST = len(rest_specs())
 LIVE_MCP = len(mcp_specs())
+LIVE_FAMILIES = len({spec.family for spec in rest_specs()})
 
 # (相对路径, 人类可读标签, 抽取数字的正则, 期望的实时计数)
 # 正则用 (\d+) 捕获文档当前声称的数字；期望值取自实时目录。
@@ -43,6 +44,18 @@ CHECKS = [
         "ARCHITECTURE MCP 工具",
         r"(\d+)\s*个\s*MCP\s*工具",
         LIVE_MCP,
+    ),
+    (
+        "README.md",
+        "README family 数",
+        r"(\d+)\s*family\s*/\s*80\s*工具",
+        LIVE_FAMILIES,
+    ),
+    (
+        "docs/ALGORITHM_COVERAGE.md",
+        "ALGORITHM_COVERAGE family 数",
+        r"(\d+)\s*个\s*family",
+        LIVE_FAMILIES,
     ),
 ]
 
