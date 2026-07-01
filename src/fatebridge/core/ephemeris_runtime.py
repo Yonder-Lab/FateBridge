@@ -25,9 +25,11 @@ try:  # pragma: no cover - optional runtime dependency
 except ImportError:  # pragma: no cover - exercised only in minimal installs
     swe = None  # type: ignore[assignment]
 
-# Repo root that holds the optional ``ephe/`` data directory. Module lives at
-# ``<root>/fatebridge/core/ephemeris_runtime.py``, so the root is two parents up.
-_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+# Repo root that holds the optional ``ephe/`` data directory (gitignored .se1
+# files, never redistributed, so they live outside the package). Module lives at
+# ``<root>/src/fatebridge/core/ephemeris_runtime.py``, so the root is three
+# parents up.
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 def default_ephe_dir() -> Optional[str]:

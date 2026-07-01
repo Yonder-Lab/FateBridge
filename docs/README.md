@@ -82,6 +82,6 @@
 更新文档时建议同步检查：
 
 1. README、docs 索引、API 文档里的端口和能力名是否一致
-2. `fatebridge/api.py` 与 `fatebridge/mcp_server.py` 是否都已经补齐对应入口
+2. `src/fatebridge/api.py` 与 `src/fatebridge/mcp_server.py` 是否都已经补齐对应入口
 3. `selected_sections`、`snapshot_export`、精度/依赖 caveat 是否写清楚
 4. 任何“已实现/近似/占位”的说法是否能在代码里找到依据

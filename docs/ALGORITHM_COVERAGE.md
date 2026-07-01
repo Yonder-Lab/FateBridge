@@ -9,7 +9,7 @@
 - `Placeholder`：合同或模式入口存在，但主输出层仍是占位兼容
 - `Excluded`：当前仓库不提供该能力
 
-> 工具的唯一信源是中央目录 `fatebridge/services/tool_catalog.py`。当前共 **80 个工具**，分为 **13 个 family**，三端（REST / MCP / CLI）由同一份目录自动派生。下表逐 family 列出全部工具；新增能力时请同步本页（计数由 `tests/test_doc_tool_counts.py` 锁定）。
+> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。当前共 **80 个工具**，分为 **13 个 family**，三端（REST / MCP / CLI）由同一份目录自动派生。下表逐 family 列出全部工具；新增能力时请同步本页（计数由 `tests/test_doc_tool_counts.py` 锁定）。
 
 ## 1. 总览：13 个 family / 80 个工具
 

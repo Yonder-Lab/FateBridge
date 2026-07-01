@@ -40,8 +40,13 @@ _TIMEOUT_SECONDS = 60
 
 
 def default_dest() -> Path:
-    """Project-root ``ephe/`` directory (created on demand by the caller)."""
-    return Path(__file__).resolve().parents[1] / "ephe"
+    """Project-root ``ephe/`` directory (created on demand by the caller).
+
+    src layout: this module is ``<repo>/src/fatebridge/fetch_ephe.py``, so the
+    repo root is two parents up. Must match ``ephemeris_runtime`` so a fetched
+    ``ephe/`` is found by the reader.
+    """
+    return Path(__file__).resolve().parents[2] / "ephe"
 
 
 def _download(url: str, timeout: int = _TIMEOUT_SECONDS) -> bytes:

@@ -5,7 +5,7 @@
 - **开发者**：用 HTTP / SDK / CLI 把 FateBridge 接进自己的应用或脚本
 - **Agent**：把 FateBridge 当作一组工具（tool / function）由模型自主调用
 
-FateBridge 的同一套领域能力通过三条通道暴露，全部从中央目录 `fatebridge/services/tool_catalog.py` 自动派生，因此**工具集合、参数 schema、错误形状三端一致**：
+FateBridge 的同一套领域能力通过三条通道暴露，全部从中央目录 `src/fatebridge/services/tool_catalog.py` 自动派生，因此**工具集合、参数 schema、错误形状三端一致**：
 
 | 通道 | 入口 | 适合 |
 | --- | --- | --- |

@@ -232,7 +232,7 @@ POST /api/batch-calculate
 - [ ] 代码遵循项目编码规范
 - [ ] 已运行测试：`pytest tests/`
 - [ ] 代码已格式化：`black` 和 `isort`
-- [ ] 类型检查通过：`mypy fatebridge/`
+- [ ] 类型检查通过：`mypy src/fatebridge/`
 - [ ] 添加了新功能的测试
 - [ ] 更新了相关文档
 - [ ] 提交信息清晰和有描述性
@@ -307,7 +307,7 @@ def analyze(p1, p2):
 ### Python 项目结构
 
 ```python
-# fatebridge/core/example.py
+# src/fatebridge/core/example.py
 
 """Module docstring describing the module's purpose."""
 
