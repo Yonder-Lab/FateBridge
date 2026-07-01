@@ -9,6 +9,19 @@ bumping that constant is the release action.
 
 ## [Unreleased]
 
+### Added
+- `[project.urls]` (Homepage / Repository / Issues / Changelog) so the PyPI
+  project page links back to the repository.
+- `Typing :: Typed` and `Topic ::` classifiers.
+
+### Removed
+- `requirements.txt`, which duplicated `[project.dependencies]` with no check
+  against drift. Docs now point at `pip install -e .` / `pip install fatebridge`.
+
+### Fixed
+- README status badge and "项目状态" section said Alpha `0.1.0`; corrected to
+  Beta `0.2.0` to match the `Development Status` classifier.
+
 ## [0.2.0] - 2026-07-01
 
 First packaging-hardening release: the distribution is now installable and

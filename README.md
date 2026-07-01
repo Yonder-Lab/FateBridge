@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
-[![Status](https://img.shields.io/badge/status-alpha-orange.svg)](#项目状态)
+[![Status](https://img.shields.io/badge/status-beta-yellow.svg)](#项目状态)
 [![Tools](https://img.shields.io/badge/tools-80%20across%2013%20families-success.svg)](docs/ALGORITHM_COVERAGE.md)
 [![Interfaces](https://img.shields.io/badge/interfaces-REST%20%7C%20MCP%20%7C%20CLI-informational.svg)](docs/AGENT_GUIDE.md)
 [![CI](https://github.com/Yonder-Lab/FateBridge/actions/workflows/ci.yml/badge.svg)](https://github.com/Yonder-Lab/FateBridge/actions/workflows/ci.yml)
@@ -78,7 +78,7 @@ uv pip install -e .      # 跑测试/格式化用 -e ".[dev]"
 
 ```bash
 python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
+pip install -e ".[dev]"   # 只跑服务不开发：pip install fatebridge
 ```
 
 > **一个包，三种服务**：分发名、导入名与 CLI 均为 `fatebridge`（`pip install fatebridge` → `import fatebridge`）。装好后三类服务都可从 `fatebridge` 拉起——CLI（`fatebridge`）、REST（`fatebridge-api`）、MCP（`fatebridge-mcp`）。
@@ -204,7 +204,6 @@ FateBridge/
 │   └── utils/          # 输入归一化、真太阳时、地点解析
 ├── tests/
 ├── docs/
-├── requirements.txt
 ├── pyproject.toml
 └── CONTRIBUTING.md
 ```
@@ -226,7 +225,7 @@ mypy fatebridge/
 
 ## 项目状态
 
-- 当前为 **Alpha**（`0.1.0`），API 仍可能调整
+- 当前为 **Beta**（`0.2.0`），API 仍可能调整
 - 本仓库**不含** in-repo Web 前端；接 UI 需自行对接 REST API 或 MCP
 - 核心占星 chart 家族支持本地高精度与近似离线双路径
 - 西占推运/事件/寿命能力**不做静默降级**——缺运行时依赖时直接报错

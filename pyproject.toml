@@ -21,6 +21,9 @@ requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -54,6 +57,12 @@ iztro-verify = [
     # 0.1.5; a major bump could silently change reference values.
     "py-iztro>=0.1.5,<0.2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Yonder-Lab/FateBridge"
+Repository = "https://github.com/Yonder-Lab/FateBridge"
+Issues = "https://github.com/Yonder-Lab/FateBridge/issues"
+Changelog = "https://github.com/Yonder-Lab/FateBridge/blob/master/CHANGELOG.md"
 
 [project.scripts]
 fatebridge = "fatebridge.cli:main"
