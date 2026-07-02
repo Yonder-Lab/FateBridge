@@ -10,7 +10,7 @@ description: 用 FateBridge 引擎看性格、天赋、学业、原生家庭与�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
-- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
+- 场景取舍与去重：[../../docs/scenario-routing.md](../../docs/scenario-routing.md)
 
 **铁律：日主旺衰、十神、格局、紫微安星全部交给引擎。**
 

@@ -231,13 +231,13 @@ ALLOWED_ORIGINS=http://localhost:3000
 - `src/fatebridge/api.py`
 - `src/fatebridge/mcp_server.py`
 - `tests/test_api_alignment.py`
-- `docs/API.md`
-- `docs/ALGORITHM_COVERAGE.md`
+- `docs/api-reference.md`
+- `docs/algorithm-coverage.md`
 
 如果你刚修改了能力，却忘了更新文档，建议至少同步改这两页：
 
-- `docs/API.md`
-- `docs/ALGORITHM_COVERAGE.md`
+- `docs/api-reference.md`
+- `docs/algorithm-coverage.md`
 
 ## 8. 最小诊断命令
 

@@ -104,7 +104,7 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 
 - 核心占星盘优先使用本地 `swisseph`，缺失时会回退到 FateBridge 内置近似模型
 - 西占推运不走近似回退；缺少 `kerykeion` / Swiss Ephemeris 时会直接报错
-- 完整说明见 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)
+- 完整说明见 [algorithm-coverage.md](algorithm-coverage.md)
 
 ## 3. 共享请求族
 
@@ -365,7 +365,7 @@ descriptor 形如：
 }
 ```
 
-> 面向 Agent / 开发者的端到端接入说明（自助发现、错误处理、字段投影、MCP host 配置、Python/JS 示例）见 [AGENT_GUIDE.md](AGENT_GUIDE.md)。
+> 面向 Agent / 开发者的端到端接入说明（自助发现、错误处理、字段投影、MCP host 配置、Python/JS 示例）见 [agent-guide.md](agent-guide.md)。
 
 `surfaces.rest_path` / `surfaces.mcp_name` 为 `null` 表示该工具不在对应端暴露。
 
@@ -626,7 +626,7 @@ python -m fatebridge.mcp_server
 
 ## 9. 进一步阅读
 
-- [GETTING_STARTED.md](GETTING_STARTED.md)
-- [ARCHITECTURE.md](ARCHITECTURE.md)
-- [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- [getting-started.md](getting-started.md)
+- [architecture.md](architecture.md)
+- [algorithm-coverage.md](algorithm-coverage.md)
+- [troubleshooting.md](troubleshooting.md)

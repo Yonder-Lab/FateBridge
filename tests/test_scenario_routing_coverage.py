@@ -5,12 +5,12 @@ import re
 
 from fatebridge.services.tool_catalog import CATALOG
 
-DOC = pathlib.Path(__file__).resolve().parent.parent / "docs" / "SCENARIO_ROUTING.md"
+DOC = pathlib.Path(__file__).resolve().parent.parent / "docs" / "scenario-routing.md"
 
 
 def _checklist_keys() -> set[str]:
     text = DOC.read_text(encoding="utf-8")
-    assert "## 覆盖核对清单" in text, "SCENARIO_ROUTING.md 缺少『覆盖核对清单』节"
+    assert "## 覆盖核对清单" in text, "scenario-routing.md 缺少『覆盖核对清单』节"
     section = text.split("## 覆盖核对清单", 1)[1]
     return set(re.findall(r"^- `([a-z0-9_]+)`", section, re.MULTILINE))
 
@@ -123,6 +123,6 @@ def test_doc_notes_mcp_name_when_it_differs_from_key():
         if mcp and mcp != spec.key and mcp not in text:
             missing.append((spec.key, mcp))
     assert not missing, (
-        "key≠mcp_name 的工具，其 MCP 名未在 SCENARIO_ROUTING.md 注明（照表抄名会失败）: "
+        "key≠mcp_name 的工具，其 MCP 名未在 scenario-routing.md 注明（照表抄名会失败）: "
         f"{sorted(missing)}"
     )

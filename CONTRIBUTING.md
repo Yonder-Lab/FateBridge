@@ -487,7 +487,7 @@ pytest tests/ -v
 
 ## 获取帮助
 
-- 📖 阅读 [DEVELOPMENT.md](docs/DEVELOPMENT.md)
+- 📖 阅读 [development-guide.md](docs/development-guide.md)
 - 🐛 查看已有的 Issues
 - 💬 在 GitHub Discussions 中提问
 - 📧 联系维护者

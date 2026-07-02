@@ -1,6 +1,6 @@
 """锁定文档中的工具计数与中央目录一致，防止散文数字与代码漂移。
 
-背景：README / API.md / ARCHITECTURE.md 里写死的 “N 个 REST 路由 / N 个 MCP 工具”
+背景：README / api-reference.md / architecture.md 里写死的 “N 个 REST 路由 / N 个 MCP 工具”
 是仓库中唯一不受任何测试约束的 “第二份描述”，历史上一度漂移到三个互不相同的
 错误值（63/60、54/51、54/50，而真值是 76/76）。
 
@@ -31,17 +31,17 @@ CHECKS = [
     ("README.md", "README REST 业务路由", r"(\d+)\s*个业务\s*REST\s*路由", LIVE_REST),
     ("README.md", "README FastMCP 工具", r"(\d+)\s*个\s*FastMCP\s*工具", LIVE_MCP),
     ("README.md", "README 所有工具", r"所有工具（(\d+)\s*个）", LIVE_MCP),
-    ("docs/API.md", "API.md REST 业务路由", r"(\d+)\s*个业务\s*REST\s*路由", LIVE_REST),
-    ("docs/API.md", "API.md FastMCP 工具", r"(\d+)\s*个\s*FastMCP\s*工具", LIVE_MCP),
+    ("docs/api-reference.md", "api-reference.md REST 业务路由", r"(\d+)\s*个业务\s*REST\s*路由", LIVE_REST),
+    ("docs/api-reference.md", "api-reference.md FastMCP 工具", r"(\d+)\s*个\s*FastMCP\s*工具", LIVE_MCP),
     (
-        "docs/ARCHITECTURE.md",
-        "ARCHITECTURE REST 业务路由",
+        "docs/architecture.md",
+        "architecture REST 业务路由",
         r"(\d+)\s*个业务\s*REST\s*路由",
         LIVE_REST,
     ),
     (
-        "docs/ARCHITECTURE.md",
-        "ARCHITECTURE MCP 工具",
+        "docs/architecture.md",
+        "architecture MCP 工具",
         r"(\d+)\s*个\s*MCP\s*工具",
         LIVE_MCP,
     ),
@@ -52,8 +52,8 @@ CHECKS = [
         LIVE_FAMILIES,
     ),
     (
-        "docs/ALGORITHM_COVERAGE.md",
-        "ALGORITHM_COVERAGE family 数",
+        "docs/algorithm-coverage.md",
+        "algorithm-coverage family 数",
         r"(\d+)\s*个\s*family",
         LIVE_FAMILIES,
     ),
@@ -85,19 +85,19 @@ def test_rest_and_mcp_counts_are_plausible() -> None:
 
 
 def test_api_md_documents_every_live_rest_route() -> None:
-    """API.md 必须列出每一个真实 ``/api`` 路由——新增工具忘记写文档即 CI 失败。
+    """api-reference.md 必须列出每一个真实 ``/api`` 路由——新增工具忘记写文档即 CI 失败。
 
-    历史上 API.md 漏掉过 20+ 个真实端点（八字九大专项、astro event/lifespan 族等），
+    历史上 api-reference.md 漏掉过 20+ 个真实端点（八字九大专项、astro event/lifespan 族等），
     Agent 只读文档便发现不了它们。这里把「文档覆盖全部路由」固化为断言。
     """
     live_routes = {
         r.path for r in app.routes if getattr(r, "path", "").startswith("/api")
     }
-    api_md = (REPO_ROOT / "docs/API.md").read_text(encoding="utf-8")
+    api_md = (REPO_ROOT / "docs/api-reference.md").read_text(encoding="utf-8")
     documented = set(re.findall(r"/api/[A-Za-z0-9_/]+", api_md))
     missing = sorted(p for p in live_routes if p not in documented)
     assert (
         not missing
-    ), "docs/API.md 漏列以下真实 REST 路由，请补到对应 §4 端点表：\n  " + "\n  ".join(
+    ), "docs/api-reference.md 漏列以下真实 REST 路由，请补到对应 §4 端点表：\n  " + "\n  ".join(
         missing
     )

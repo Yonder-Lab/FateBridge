@@ -9,7 +9,7 @@
 - Python 3.10+
 - Git
 
-如果你计划使用西占推运能力，建议额外确认相关本地运行时可用；否则核心 chart 家族可以继续使用，但西占推运类接口会直接报依赖缺失。详细见 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)。
+如果你计划使用西占推运能力，建议额外确认相关本地运行时可用；否则核心 chart 家族可以继续使用，但西占推运类接口会直接报依赖缺失。详细见 [algorithm-coverage.md](algorithm-coverage.md)。
 
 ## 2. 克隆与安装
 
@@ -161,22 +161,22 @@ curl -X POST http://localhost:8010/api/astro/chart \
 python -m fatebridge.mcp_server
 ```
 
-FastMCP 启动后，可把它注册到你的 MCP host 中。对应工具清单见 [API.md](API.md)。
+FastMCP 启动后，可把它注册到你的 MCP host 中。对应工具清单见 [api-reference.md](api-reference.md)。
 
 ## 9. 常见下一步
 
 ### 我想看所有接口
 
-读 [API.md](API.md)。
+读 [api-reference.md](api-reference.md)。
 
 ### 我想理解代码结构
 
-读 [ARCHITECTURE.md](ARCHITECTURE.md)。
+读 [architecture.md](architecture.md)。
 
 ### 我想知道哪些能力是近似实现
 
-读 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)。
+读 [algorithm-coverage.md](algorithm-coverage.md)。
 
 ### 我已经遇到错误
 
-读 [TROUBLESHOOTING.md](TROUBLESHOOTING.md)。
+读 [troubleshooting.md](troubleshooting.md)。

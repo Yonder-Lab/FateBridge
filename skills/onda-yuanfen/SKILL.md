@@ -10,7 +10,7 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
-- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
+- 场景取舍与去重：[../../docs/scenario-routing.md](../../docs/scenario-routing.md)
 
 **铁律：干支/合婚分/桃花信号全部交给引擎算，不要手算。**
 

@@ -13,7 +13,7 @@ FateBridge 的同一套领域能力通过三条通道暴露，全部从中央目
 | FastMCP | `python -m fatebridge.mcp_server` | Claude / Cursor / Codex 等 MCP host |
 | CLI | `fatebridge <tool> ...` | Agentic / shell / 自动化脚本 |
 
-> 当前共 80 个工具同时暴露在 REST 与 MCP；CLI 另含少量别名（如 `calculate_legacy`），故 `/api/tools` 的 `counts.total` 略大于 80。完整算法清单见 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)，完整端点见 [API.md](API.md)。
+> 当前共 80 个工具同时暴露在 REST 与 MCP；CLI 另含少量别名（如 `calculate_legacy`），故 `/api/tools` 的 `counts.total` 略大于 80。完整算法清单见 [algorithm-coverage.md](algorithm-coverage.md)，完整端点见 [api-reference.md](api-reference.md)。
 
 ---
 
@@ -151,7 +151,7 @@ fatebridge bazi_birth --birth-year 1990 --birth-month 6 --birth-day 15 \
 
 ## 3. 出生信息：一次说清
 
-绝大多数命理/占星工具共享出生信息字段（详见 [API.md](API.md) §3）。最少需要 `birth_year/month/day/hour`，其余可选：
+绝大多数命理/占星工具共享出生信息字段（详见 [api-reference.md](api-reference.md) §3）。最少需要 `birth_year/month/day/hour`，其余可选：
 
 | 字段 | 必需 | 说明 |
 | --- | --- | --- |
@@ -264,7 +264,7 @@ CLI 子命令与参数同样从中央目录派生，`--help` 可查每个工具�
 1. **发现**：启动时拉一次 `/api/tools`（或 MCP `tools/list`），按 `family` 建立工具路由表
 2. **路由**：按用户意图选 family（八字→`bazi`，运势→`timing`，星盘→`astro`，术数→`metaphysics`/`divination`）
 
-> 场景级取舍（谁主谁次、怎么省 token、怎么不自相矛盾）见 [SCENARIO_ROUTING.md](SCENARIO_ROUTING.md)。
+> 场景级取舍（谁主谁次、怎么省 token、怎么不自相矛盾）见 [scenario-routing.md](scenario-routing.md)。
 
 3. **取数**：传齐出生信息；需要真太阳时就显式 `use_true_solar_time=true`
 4. **裁剪**：用 `fields` / `--fields` 或 `selected_sections` 控制 token
@@ -275,8 +275,8 @@ CLI 子命令与参数同样从中央目录派生，`--help` 可查每个工具�
 
 ## 6. 相关文档
 
-- [API.md](API.md)：全部 REST 路由、FastMCP 工具、请求族、响应字段
-- [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)：12 family / 80 工具的算法与精度/依赖矩阵
-- [SCENARIO_ROUTING.md](SCENARIO_ROUTING.md)：场景→工具路由矩阵、调用纪律、交叉印证与去重策略
-- [GETTING_STARTED.md](GETTING_STARTED.md)：从零启动服务
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md)：依赖缺失、精度、快照导出等常见问题
+- [api-reference.md](api-reference.md)：全部 REST 路由、FastMCP 工具、请求族、响应字段
+- [algorithm-coverage.md](algorithm-coverage.md)：12 family / 80 工具的算法与精度/依赖矩阵
+- [scenario-routing.md](scenario-routing.md)：场景→工具路由矩阵、调用纪律、交叉印证与去重策略
+- [getting-started.md](getting-started.md)：从零启动服务
+- [troubleshooting.md](troubleshooting.md)：依赖缺失、精度、快照导出等常见问题

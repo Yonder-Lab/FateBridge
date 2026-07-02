@@ -15,9 +15,11 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 - **MCP** —— 用 FastMCP 暴露给 Claude、Cursor、Codex 等 Agent；
 - **CLI** —— 命令行直接交互，适合本地调试与自动化脚本。
 
+当前版本将所有工具（80 个）同时暴露为 **80 个业务 REST 路由** 与 **80 个 FastMCP 工具**，三端由同一份中央目录自动派生。
+
 > 当前版本为 **Beta 0.2.0**，API 仍可能微调，欢迎试用与反馈。
 
-完整的「12 family / 80 工具」算法矩阵与精度/依赖说明见 **[docs/ALGORITHM_COVERAGE.md](docs/ALGORITHM_COVERAGE.md)**。
+完整的「12 family / 80 工具」算法矩阵与精度/依赖说明见 **[docs/algorithm-coverage.md](docs/algorithm-coverage.md)**。
 
 ---
 
@@ -43,7 +45,7 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 | 西方占星 | 标准盘、13 扇区盘、希腊盘、果老盘、印度盘、中点盘、关系盘 |
 | 西占推运 | 太阳/月返照、行运、太阳弧、小限、主限、黄道释放、法达、十年星限等 |
 
-更详细的算法矩阵与精度说明，请见 [`docs/ALGORITHM_COVERAGE.md`](docs/ALGORITHM_COVERAGE.md)。
+更详细的算法矩阵与精度说明，请见 [`docs/algorithm-coverage.md`](docs/algorithm-coverage.md)。
 
 ---
 
@@ -132,7 +134,7 @@ FateBridge 被设计成 Agent 友好的：
 - 错误返回统一的 `{error, error_code, retryable}` 结构；
 - 响应中始终包含 `run_metadata`，便于追踪与复现。
 
-接入示例、字段投影、快照导出等细节，请见 [`docs/AGENT_GUIDE.md`](docs/AGENT_GUIDE.md)。
+接入示例、字段投影、快照导出等细节，请见 [`docs/agent-guide.md`](docs/agent-guide.md)。
 
 ---
 
@@ -140,18 +142,18 @@ FateBridge 被设计成 Agent 友好的：
 
 | 文档 | 适合谁 | 内容 |
 | --- | --- | --- |
-| [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) | 第一次使用的人 | 安装、环境变量、启动、第一条请求 |
-| [`docs/AGENT_GUIDE.md`](docs/AGENT_GUIDE.md) | Agent / 开发者 | 三端接入、自助发现、错误/投影/快照、host 配置、Python/JS 示例 |
-| [`docs/API.md`](docs/API.md) | 集成方 | REST 路由、FastMCP 工具、请求族、响应字段 |
-| [`docs/ALGORITHM_COVERAGE.md`](docs/ALGORITHM_COVERAGE.md) | 维护者、评审者 | 12 family / 80 工具算法矩阵 + 精度/依赖说明 |
-| [`docs/SCENARIO_ROUTING.md`](docs/SCENARIO_ROUTING.md) | Agent / 技能作者 | 按用户场景选主证/旁证工具的路由矩阵 |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 开发者、架构师 | 代码分层、数据流、设计决策 |
-| [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) | 贡献者 | 开发命令、测试策略、扩展路径 |
-| [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) | 所有人 | 安装/依赖/端口/CORS/快照导出问题 |
+| [`docs/getting-started.md`](docs/getting-started.md) | 第一次使用的人 | 安装、环境变量、启动、第一条请求 |
+| [`docs/agent-guide.md`](docs/agent-guide.md) | Agent / 开发者 | 三端接入、自助发现、错误/投影/快照、host 配置、Python/JS 示例 |
+| [`docs/api-reference.md`](docs/api-reference.md) | 集成方 | REST 路由、FastMCP 工具、请求族、响应字段 |
+| [`docs/algorithm-coverage.md`](docs/algorithm-coverage.md) | 维护者、评审者 | 12 family / 80 工具算法矩阵 + 精度/依赖说明 |
+| [`docs/scenario-routing.md`](docs/scenario-routing.md) | Agent / 技能作者 | 按用户场景选主证/旁证工具的路由矩阵 |
+| [`docs/architecture.md`](docs/architecture.md) | 开发者、架构师 | 代码分层、数据流、设计决策 |
+| [`docs/development-guide.md`](docs/development-guide.md) | 贡献者 | 开发命令、测试策略、扩展路径 |
+| [`docs/troubleshooting.md`](docs/troubleshooting.md) | 所有人 | 安装/依赖/端口/CORS/快照导出问题 |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | 贡献者 | 分支、PR 流程、提交规范 |
 | [`skills/README.md`](skills/README.md) | Onda / 场景技能开发者 | 8 个泛心理陪伴场景 Skill，对工具的场景化再包装 |
 
-文档总入口：[docs/README.md](docs/README.md)。
+文档总入口：[docs/index.md](docs/index.md)。
 
 ---
 
@@ -175,7 +177,7 @@ FateBridge/
 └── CONTRIBUTING.md
 ```
 
-各层职责详见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+各层职责详见 [`docs/architecture.md`](docs/architecture.md)。
 
 ---
 
@@ -190,7 +192,7 @@ isort --check-only src/fatebridge scripts tests
 mypy src/fatebridge/
 ```
 
-> 测试需在装了 `.[dev]` 的 Python 3.10–3.13 环境里跑（对齐 CI 矩阵），别用系统解释器。详见 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)。
+> 测试需在装了 `.[dev]` 的 Python 3.10–3.13 环境里跑（对齐 CI 矩阵），别用系统解释器。详见 [`docs/development-guide.md`](docs/development-guide.md)。
 
 ---
 
@@ -207,7 +209,7 @@ mypy src/fatebridge/
 
 ## 参与贡献
 
-欢迎提交 Issue 与 Pull Request。开发环境搭建、编码规范与提交流程，请见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)。
+欢迎提交 Issue 与 Pull Request。开发环境搭建、编码规范与提交流程，请见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与 [`docs/development-guide.md`](docs/development-guide.md)。
 
 ---
 

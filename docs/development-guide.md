@@ -135,7 +135,7 @@ mypy src/fatebridge/
 3. 在 `src/fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型
 4. **在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`** —— REST / MCP / CLI 三端自动派生，无需改动 `api.py` / `mcp_server.py` / `cli.py`
 5. 在 `tests/` 增加能力测试；三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性 payload fixture
-6. 更新 `docs/API.md` 与 `docs/ALGORITHM_COVERAGE.md`（工具计数由 `tests/test_doc_tool_counts.py` 锁定）
+6. 更新 `docs/api-reference.md` 与 `docs/algorithm-coverage.md`（工具计数由 `tests/test_doc_tool_counts.py` 锁定）
 
 ### 只改 transport 行为，不改算法
 
@@ -197,12 +197,12 @@ mypy src/fatebridge/
 如果你改了接口或能力范围，至少同步更新：
 
 - `README.md`
-- `docs/API.md`
-- `docs/ALGORITHM_COVERAGE.md`
+- `docs/api-reference.md`
+- `docs/algorithm-coverage.md`
 
 如果改了结构性设计，再补：
 
-- `docs/ARCHITECTURE.md`
+- `docs/architecture.md`
 
 ## 9. 依赖与运行时注意事项
 
@@ -232,6 +232,6 @@ mypy src/fatebridge/
 ## 11. 常用入口
 
 - 交互接口文档：`http://localhost:8010/docs`
-- 架构说明：[ARCHITECTURE.md](ARCHITECTURE.md)
-- API 参考：[API.md](API.md)
-- 故障排除：[TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- 架构说明：[architecture.md](architecture.md)
+- API 参考：[api-reference.md](api-reference.md)
+- 故障排除：[troubleshooting.md](troubleshooting.md)

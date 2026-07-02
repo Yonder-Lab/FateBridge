@@ -10,7 +10,7 @@ description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
-- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
+- 场景取舍与去重：[../../docs/scenario-routing.md](../../docs/scenario-routing.md)
 
 **铁律：行星位置、宫位、相位全部交给引擎（优先本地 Swiss Ephemeris，缺时回退近似模型）。**
 

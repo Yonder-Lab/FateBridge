@@ -10,7 +10,7 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
-- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
+- 场景取舍与去重：[../../docs/scenario-routing.md](../../docs/scenario-routing.md)
 
 **铁律：起卦、装卦、起局、用神全部交给引擎。**
 

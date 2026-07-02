@@ -10,7 +10,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
-- 场景取舍与去重：[../../docs/SCENARIO_ROUTING.md](../../docs/SCENARIO_ROUTING.md)
+- 场景取舍与去重：[../../docs/scenario-routing.md](../../docs/scenario-routing.md)
 
 **铁律：大运起运、流年干支、节气换月、星历推运全部交给引擎。手算这些必错。**
 
@@ -87,7 +87,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | `astro_mundane` | 某年春分/夏至/秋分/冬至入宫盘，问国运/年度大势 | 深 |
 | `astro_extrareturns` | 多重回归/事件多盘，含世俗星盘等专家级复合推运 | 深 |
 
-> 紫微运限：`ziwei_horoscope` 是八字时运、西占推运之外的**第三套时运体系**，给大限/流年的紫微视角；按 SCENARIO_ROUTING §B，与另两套一致则合并去重、分歧则显式标出，不把同一结论重复罗列三遍。
+> 紫微运限：`ziwei_horoscope` 是八字时运、西占推运之外的**第三套时运体系**，给大限/流年的紫微视角；按 scenario-routing §B，与另两套一致则合并去重、分歧则显式标出，不把同一结论重复罗列三遍。
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
 > 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。
 > 择日专属：`astro_election` 是唯一择日主证，不用时运聚合工具替代。

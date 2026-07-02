@@ -250,7 +250,7 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 
 ## 八、全局调用纪律（省 token / 防重复运算）
 
-> 权威全文与各场景的工具取舍见 `docs/SCENARIO_ROUTING.md`。本节是所有 onda 技能共享的执行铁律。
+> 权威全文与各场景的工具取舍见 `docs/scenario-routing.md`。本节是所有 onda 技能共享的执行铁律。
 
 1. **命盘复用**：综合命理画像调一次 `analyze_destiny`（已含命盘+喜用+格局），不要再调 `bazi_birth`；只要原始四柱才单用 `bazi_birth`。同一出生信息跨八字/紫微/西占复用，不重复采集。
 2. **聚合优先**：时运全景用 `timing_analysis` / `western_timing_analysis`，不连发多个单技法；只要一项才用单工具。
@@ -260,4 +260,4 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 
 ## 九、交叉印证与去重（防矛盾）
 
-**主证 + 旁证 + 显式分歧**：每个场景钉一个主证系统出结论，其余只作旁证（加强/修正），不单独下判断。系统间一致则合并去重；冲突则显式标注「两套口径不一」，不静默二选一。同一神煞在多个工具重复出现时，按当前场景取一个口径讲一次（如咸池在 romance=机会 / marriage=防烂桃花，合并讲一次）。各域主证分配见 `docs/SCENARIO_ROUTING.md` §B。
+**主证 + 旁证 + 显式分歧**：每个场景钉一个主证系统出结论，其余只作旁证（加强/修正），不单独下判断。系统间一致则合并去重；冲突则显式标注「两套口径不一」，不静默二选一。同一神煞在多个工具重复出现时，按当前场景取一个口径讲一次（如咸池在 romance=机会 / marriage=防烂桃花，合并讲一次）。各域主证分配见 `docs/scenario-routing.md` §B。

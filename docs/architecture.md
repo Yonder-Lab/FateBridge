@@ -231,7 +231,7 @@ FateBridge 没有为 REST / MCP / CLI 分别维护三套领域逻辑或三份工
 3. 在 `src/fatebridge/core/request_models.py` 定义该工具的 Pydantic 请求模型
 4. **在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 中追加一个 `ToolSpec`** —— REST 路由、MCP 工具、CLI 子命令会自动派生，无需改动 `api.py` / `mcp_server.py` / `cli.py`
 5. 在 `tests/` 增加能力测试；三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性 payload fixture
-6. 更新 [API.md](API.md) 和 [ALGORITHM_COVERAGE.md](ALGORITHM_COVERAGE.md)（工具计数由 `tests/test_doc_tool_counts.py` 锁定，改动后若计数变化需同步）
+6. 更新 [api-reference.md](api-reference.md) 和 [algorithm-coverage.md](algorithm-coverage.md)（工具计数由 `tests/test_doc_tool_counts.py` 锁定，改动后若计数变化需同步）
 
 ## 9. 当前非目标
 
