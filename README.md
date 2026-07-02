@@ -17,6 +17,8 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 
 > 当前版本为 **Beta 0.2.0**，API 仍可能微调，欢迎试用与反馈。
 
+完整的「12 family / 80 工具」算法矩阵与精度/依赖说明见 **[docs/ALGORITHM_COVERAGE.md](docs/ALGORITHM_COVERAGE.md)**。
+
 ---
 
 ## 它想解决什么问题
@@ -136,15 +138,59 @@ FateBridge 被设计成 Agent 友好的：
 
 ## 文档地图
 
-| 文档 | 适合谁 |
-| --- | --- |
-| [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) | 第一次使用的人 |
-| [`docs/AGENT_GUIDE.md`](docs/AGENT_GUIDE.md) | 想把 FateBridge 接入 Agent 的开发者 |
-| [`docs/API.md`](docs/API.md) | 需要查接口与参数的集成方 |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 想理解代码结构的人 |
-| [`docs/ALGORITHM_COVERAGE.md`](docs/ALGORITHM_COVERAGE.md) | 关心算法覆盖与精度的人 |
-| [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) | 贡献者 |
-| [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) | 遇到问题的人 |
+| 文档 | 适合谁 | 内容 |
+| --- | --- | --- |
+| [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) | 第一次使用的人 | 安装、环境变量、启动、第一条请求 |
+| [`docs/AGENT_GUIDE.md`](docs/AGENT_GUIDE.md) | Agent / 开发者 | 三端接入、自助发现、错误/投影/快照、host 配置、Python/JS 示例 |
+| [`docs/API.md`](docs/API.md) | 集成方 | REST 路由、FastMCP 工具、请求族、响应字段 |
+| [`docs/ALGORITHM_COVERAGE.md`](docs/ALGORITHM_COVERAGE.md) | 维护者、评审者 | 12 family / 80 工具算法矩阵 + 精度/依赖说明 |
+| [`docs/SCENARIO_ROUTING.md`](docs/SCENARIO_ROUTING.md) | Agent / 技能作者 | 按用户场景选主证/旁证工具的路由矩阵 |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 开发者、架构师 | 代码分层、数据流、设计决策 |
+| [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) | 贡献者 | 开发命令、测试策略、扩展路径 |
+| [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) | 所有人 | 安装/依赖/端口/CORS/快照导出问题 |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | 贡献者 | 分支、PR 流程、提交规范 |
+| [`skills/README.md`](skills/README.md) | Onda / 场景技能开发者 | 8 个泛心理陪伴场景 Skill，对工具的场景化再包装 |
+
+文档总入口：[docs/README.md](docs/README.md)。
+
+---
+
+## 仓库结构
+
+```text
+FateBridge/
+├── src/
+│   └── fatebridge/         # 包代码（src layout：装包后才可 import）
+│       ├── api.py          # REST (FastAPI) 入口
+│       ├── mcp_server.py   # MCP (FastMCP) 入口
+│       ├── cli.py          # CLI 入口
+│       ├── services/       # transport-facing 编排层 + 中央工具目录
+│       ├── core/           # 核心算法：历法、八字、占星、占术、导出合同
+│       ├── analysis/       # 复合分析（配合度、时运影响…）
+│       ├── data/           # 内置知识 bundle
+│       └── utils/          # 输入归一化、真太阳时、地点解析
+├── tests/
+├── docs/
+├── pyproject.toml
+└── CONTRIBUTING.md
+```
+
+各层职责详见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+
+---
+
+## 开发与验证
+
+```bash
+pytest -q
+pytest tests/test_api_alignment.py -q
+
+black --check src/fatebridge scripts tests
+isort --check-only src/fatebridge scripts tests
+mypy src/fatebridge/
+```
+
+> 测试需在装了 `.[dev]` 的 Python 3.10–3.13 环境里跑（对齐 CI 矩阵），别用系统解释器。详见 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)。
 
 ---
 
