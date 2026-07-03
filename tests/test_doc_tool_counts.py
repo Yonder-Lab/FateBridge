@@ -31,8 +31,18 @@ CHECKS = [
     ("README.md", "README REST 业务路由", r"(\d+)\s*个业务\s*REST\s*路由", LIVE_REST),
     ("README.md", "README FastMCP 工具", r"(\d+)\s*个\s*FastMCP\s*工具", LIVE_MCP),
     ("README.md", "README 所有工具", r"所有工具（(\d+)\s*个）", LIVE_MCP),
-    ("docs/api-reference.md", "api-reference.md REST 业务路由", r"(\d+)\s*个业务\s*REST\s*路由", LIVE_REST),
-    ("docs/api-reference.md", "api-reference.md FastMCP 工具", r"(\d+)\s*个\s*FastMCP\s*工具", LIVE_MCP),
+    (
+        "docs/api-reference.md",
+        "api-reference.md REST 业务路由",
+        r"(\d+)\s*个业务\s*REST\s*路由",
+        LIVE_REST,
+    ),
+    (
+        "docs/api-reference.md",
+        "api-reference.md FastMCP 工具",
+        r"(\d+)\s*个\s*FastMCP\s*工具",
+        LIVE_MCP,
+    ),
     (
         "docs/architecture.md",
         "architecture REST 业务路由",
@@ -98,6 +108,7 @@ def test_api_md_documents_every_live_rest_route() -> None:
     missing = sorted(p for p in live_routes if p not in documented)
     assert (
         not missing
-    ), "docs/api-reference.md 漏列以下真实 REST 路由，请补到对应 §4 端点表：\n  " + "\n  ".join(
-        missing
+    ), (
+        "docs/api-reference.md 漏列以下真实 REST 路由，请补到对应 §4 端点表：\n  "
+        + "\n  ".join(missing)
     )
