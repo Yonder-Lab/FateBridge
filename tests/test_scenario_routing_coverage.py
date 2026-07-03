@@ -67,9 +67,9 @@ def test_longtail_summaries_carry_routing_signal():
 
 
 def _section_c_present_names() -> set[str]:
-    """§C 正文里精确出现（表格单元或注释行均可）的 catalog 工具名集合。"""
+    """场景路由矩阵正文里精确出现（表格单元或注释行均可）的 catalog 工具名集合。"""
     text = DOC.read_text(encoding="utf-8")
-    cbody = text.split("## §C", 1)[1].split("## §D", 1)[0]
+    cbody = text.split("## 场景路由矩阵", 1)[1].split("## 长尾与专家级工具", 1)[0]
     callable_names = set()
     for spec in CATALOG:
         callable_names.add(spec.key)
@@ -82,33 +82,44 @@ def _section_c_present_names() -> set[str]:
     return present
 
 
-def test_every_section_c_tool_appears_in_section_c_body():
-    """清单把工具归到 §C.x，但若它没出现在 §C 正文任何地方（表格或注释），
-    Agent 读矩阵时根本看不到它＝注册了却仍闲置。§D/§E 工具不要求进 §C。
-    REST/MCP 孪生工具共享 operation_label_zh，任一出现即视为该能力已路由。"""
+def _section_d_e_key_names() -> set[str]:
+    """长尾与专家级工具 + 支撑与元工具 两节中出现的 catalog key 集合。
+    这些工具不要求进场景路由矩阵正文。"""
     text = DOC.read_text(encoding="utf-8")
-    sec = text.split("## 覆盖核对清单", 1)[1]
-    claims = dict(re.findall(r"^- `([a-z0-9_]+)` — (.+)$", sec, re.MULTILINE))
+    if "## 长尾与专家级工具" not in text:
+        return set()
+    d_e_body = text.split("## 长尾与专家级工具", 1)[1].split("## 覆盖核对清单", 1)[0]
+    callable_keys = {spec.key for spec in CATALOG}
+    exempt: set[str] = set()
+    for tok in re.findall(r"`([a-z][a-z0-9_]*)`", d_e_body):
+        if tok in callable_keys:
+            exempt.add(tok)
+    return exempt
+
+
+def test_every_section_c_tool_appears_in_section_c_body():
+    """场景路由矩阵覆盖守护：CATALOG 中不属于长尾/支撑的工具，必须出现在
+    场景路由矩阵正文某处（表格单元或文字注释）；否则 Agent 读矩阵时看不到＝闲置。
+    REST/MCP 孪生工具共享 operation_label_zh，任一出现即视为该能力已路由。"""
     present = _section_c_present_names()
+    exempt = _section_d_e_key_names()  # 长尾/支撑工具不要求进矩阵
     present_labels = {
         spec.operation_label_zh
         for spec in CATALOG
         if spec.key in present or getattr(spec, "mcp_name", None) in present
     }
-    specs = {spec.key: spec for spec in CATALOG}
     missing = []
-    for key, desc in claims.items():
-        if "§C" not in desc:
+    for spec in CATALOG:
+        if spec.key in exempt:
             continue
-        spec = specs[key]
         names = {spec.key, getattr(spec, "mcp_name", None)}
         if names & present:
             continue
         if spec.operation_label_zh in present_labels:
             continue
-        missing.append(key)
+        missing.append(spec.key)
     assert not missing, (
-        "这些工具在清单里归到 §C 场景，却没出现在任何 §C 路由矩阵/注释中"
+        "这些工具在场景路由清单登记，却没出现在场景路由矩阵正文中"
         f"（Agent 读表看不到＝闲置）: {sorted(missing)}"
     )
 
