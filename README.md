@@ -153,7 +153,7 @@ FateBridge 被设计成 Agent 友好的：
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | 贡献者 | 分支、PR 流程、提交规范 |
 | [`skills/README.md`](skills/README.md) | Onda / 场景技能开发者 | 8 个泛心理陪伴场景 Skill，对工具的场景化再包装 |
 
-文档总入口：[docs/index.md](docs/index.md)。
+文档总入口：[docs/README.md](docs/README.md)。
 
 ---
 

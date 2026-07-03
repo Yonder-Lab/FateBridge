@@ -1,24 +1,24 @@
 # FateBridge 快速入门
 
-本指南以“先把服务跑起来，再发出第一条请求”为目标，适合第一次接触 FateBridge 的用户。
+这份指南会带你先把 FateBridge 跑起来，再发出第一条请求。如果你刚接触这个项目，从这里开始最合适。
 
-## 1. 前置要求
+## 环境准备
 
-至少准备：
+你需要先装好：
 
 - Python 3.10+
 - Git
 
-如果你计划使用西占推运能力，建议额外确认相关本地运行时可用；否则核心 chart 家族可以继续使用，但西占推运类接口会直接报依赖缺失。详细见 [algorithm-coverage.md](algorithm-coverage.md)。
+如果打算使用西占推运能力，建议确认本地有对应的运行时可用；不然核心 chart 家族仍然可以跑，但西占推运类接口会直接提示依赖缺失。详见 [algorithm-coverage.md](algorithm-coverage.md)。
 
-## 2. 克隆与安装
+## 克隆仓库并安装
 
 ```bash
 git clone https://github.com/Yonder-Lab/FateBridge.git
 cd FateBridge
 ```
 
-推荐用 [uv](https://docs.astral.sh/uv/)：
+推荐用 [uv](https://docs.astral.sh/uv/) 安装：
 
 ```bash
 uv venv
@@ -26,7 +26,7 @@ source .venv/bin/activate
 uv pip install -e .
 ```
 
-或者用 pip：
+当然也可以用 pip：
 
 ```bash
 python -m venv venv
@@ -34,15 +34,15 @@ source venv/bin/activate
 pip install -e .
 ```
 
-## 3. 环境变量
+## 配置环境变量
 
-复制模板：
+从模板复制一份 `.env`：
 
 ```bash
 cp .env.example .env
 ```
 
-默认配置如下：
+默认内容如下：
 
 ```bash
 API_HOST=0.0.0.0
@@ -53,13 +53,13 @@ FATEBRIDGE_API_KEYS=
 API_KEY_HEADER_NAME=X-API-Key
 ```
 
-如果你只是本地调试，通常不需要修改。
+本地调试时通常不用改。几点说明：
 
 - `FATEBRIDGE_API_KEYS` 为空时，REST API 默认不启用鉴权。
-- 如果设置了 `FATEBRIDGE_API_KEYS=agent:replace-me`，访问业务端点时需要带 `X-API-Key: replace-me`。
-- 端口 `8010` 应保持为内部访问端口，不要直接暴露为公网业务入口。
+- 如果设成 `FATEBRIDGE_API_KEYS=agent:replace-me`，请求业务端点时要带上 `X-API-Key: replace-me`。
+- `8010` 是内部访问端口，不要直接暴露到公网作为业务入口。
 
-## 4. 启动 REST API
+## 启动服务
 
 ```bash
 python -m fatebridge.api
@@ -67,41 +67,36 @@ python -m fatebridge.api
 fatebridge-api
 ```
 
-看到类似输出即可：
+看到类似下面的输出就说明启动成功了：
 
 ```text
 INFO:     Uvicorn running on http://0.0.0.0:8010
 ```
 
-## 5. 验证服务
+## 验证接口
 
-### 健康检查
+健康检查：
 
 ```bash
 curl http://localhost:8010/health
 ```
 
-期望响应：
+应返回：
 
 ```json
 {"status":"healthy"}
 ```
 
-### 就绪与指标
+再看一下就绪状态和指标：
 
 ```bash
 curl http://localhost:8010/ready
 curl http://localhost:8010/metrics
 ```
 
-### 打开交互文档
+浏览器打开 `http://localhost:8010/docs` 或 `http://localhost:8010/redoc`，可以直接在线调试接口。
 
-浏览器访问：
-
-- `http://localhost:8010/docs`
-- `http://localhost:8010/redoc`
-
-## 6. 发送第一条命理请求
+## 试一下命理接口
 
 ```bash
 curl -X POST http://localhost:8010/api/calculate \
@@ -121,18 +116,11 @@ curl -X POST http://localhost:8010/api/calculate \
   }'
 ```
 
-如果你没有配置 `FATEBRIDGE_API_KEYS`，可以去掉 `X-API-Key` 这一行。
+如果你没有配置 `FATEBRIDGE_API_KEYS`，把 `X-API-Key` 这一行去掉即可。
 
-你会看到类似下面的字段：
+正常返回里会看到 `person_info`、`four_pillars`、`day_master`、`element_distribution`、`patterns`、`calendar_context` 这些字段。
 
-- `person_info`
-- `four_pillars`
-- `day_master`
-- `element_distribution`
-- `patterns`
-- `calendar_context`
-
-## 7. 发送第一条占星请求
+## 试一下占星接口
 
 ```bash
 curl -X POST http://localhost:8010/api/astro/chart \
@@ -151,32 +139,21 @@ curl -X POST http://localhost:8010/api/astro/chart \
   }'
 ```
 
-如果本地 `swisseph` 可用，结果里的 `chart_profile.engine_precision` 通常会显示高精度运行时；否则会回退到 FateBridge 的离线近似模型。
+如果本地 `swisseph` 可用，返回结果里的 `chart_profile.engine_precision` 一般会显示高精度运行时；否则会回退到 FateBridge 的离线近似模型。
 
-## 8. 启动 FastMCP
+## 通过 MCP 接入
 
-如果你不是通过 HTTP，而是要让 Agent 直接把 FateBridge 当工具箱使用：
+如果你不想走 HTTP，而是让 Agent 直接把 FateBridge 当作工具箱使用，可以启动 FastMCP：
 
 ```bash
 python -m fatebridge.mcp_server
 ```
 
-FastMCP 启动后，可把它注册到你的 MCP host 中。对应工具清单见 [api-reference.md](api-reference.md)。
+启动后把它注册到你的 MCP host 里即可。具体工具清单参考 [api-reference.md](api-reference.md)。
 
-## 9. 常见下一步
+## 接下来看什么
 
-### 我想看所有接口
-
-读 [api-reference.md](api-reference.md)。
-
-### 我想理解代码结构
-
-读 [architecture.md](architecture.md)。
-
-### 我想知道哪些能力是近似实现
-
-读 [algorithm-coverage.md](algorithm-coverage.md)。
-
-### 我已经遇到错误
-
-读 [troubleshooting.md](troubleshooting.md)。
+- 想浏览全部接口：参考 [api-reference.md](api-reference.md)。
+- 想了解代码结构：参考 [architecture.md](architecture.md)。
+- 想知道哪些能力是近似实现：参考 [algorithm-coverage.md](algorithm-coverage.md)。
+- 已经遇到错误：参考 [troubleshooting.md](troubleshooting.md)。
