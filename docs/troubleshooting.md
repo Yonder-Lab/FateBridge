@@ -1,18 +1,14 @@
 # FateBridge 故障排除
 
-本页只覆盖当前仓库真实存在的问题场景：Python 服务、REST / MCP 启动、占星依赖、快照导出与输入归一化。它不再假设仓库内存在前端应用。
+这份文档覆盖当前仓库真实存在的问题场景：Python 服务启动、REST / MCP 启动、占星依赖、快照导出与输入归一化。不假设仓库内存在前端应用。
 
-## 1. 安装问题
+## 安装问题
 
-### 1.1 `ModuleNotFoundError: No module named 'fatebridge'`
+### `ModuleNotFoundError: no module named 'fatebridge'`
 
-原因通常是：
+常见原因是：没有 cd 到仓库根目录、虚拟环境未激活、或者没有安装开发模式依赖。
 
-- 没在仓库根目录运行
-- 虚拟环境没有激活
-- 没有安装开发模式依赖
-
-解决：
+按下面顺序检查：
 
 ```bash
 cd /path/to/FateBridge
@@ -21,7 +17,7 @@ pip install -e .
 python -c "import fatebridge; print(fatebridge.__file__)"
 ```
 
-### 1.2 `pip install -e .` 失败
+### `pip install -e .` 失败
 
 先升级打包工具：
 
@@ -30,64 +26,62 @@ python -m pip install --upgrade pip setuptools wheel
 pip install -e .
 ```
 
-如果你在网络较慢环境中安装，可以切换镜像源，但这不是 FateBridge 自身逻辑问题。
-
-也可以换用 [uv](https://docs.astral.sh/uv/)，解析和下载都快很多，遇到 pip 卡住或解析超时的情况往往直接就好了：
+如果网络较慢，可以切换镜像源，但这通常不是 FateBridge 自身逻辑问题。也可以换用 [uv](https://docs.astral.sh/uv/)，解析和下载都快很多，pip 卡住或解析超时的情况往往直接就好了：
 
 ```bash
 uv venv && source .venv/bin/activate
 uv pip install -e .
 ```
 
-## 2. 启动问题
+## 启动问题
 
-### 2.1 端口占用
+### 端口占用
 
-如果看到类似：
+如果看到类似下面的输出：
 
 ```text
 Address already in use
 ```
 
-当前默认端口是 `8010`，检查占用：
+当前默认端口是 `8010`，先检查谁占用了它：
 
 ```bash
 lsof -i :8010
 ```
 
-或者临时换端口：
+或者临时换端口启动：
 
 ```bash
 API_PORT=8011 python -m fatebridge.api
 ```
 
-### 2.2 `/health` 不通
+### `/health` 不通
 
-确认服务是否真的启动在预期端口：
+确认服务真的启动在预期端口：
 
 ```bash
 python -m fatebridge.api
 curl http://localhost:8010/health
 ```
 
-如果你改过 `.env`，端口可能不再是 `8010`。
+如果你改过 `.env` 里的端口，那访问地址就不再是 `8010`。
 
-### 2.3 FastMCP 没启动成功
+### FastMCP 没启动成功
 
-确认使用的是仓库根目录，并直接运行：
+确认在仓库根目录直接运行：
 
 ```bash
 python -m fatebridge.mcp_server
 ```
 
-如果 host 侧仍然连不上，优先检查：
+如果 host 侧仍然连不上，优先检查两件事：
 
-- 你的 MCP host 是否正确注册了该进程
-- Python 虚拟环境是否和 host 使用的是同一套解释器
+- MCP host 是否正确注册了该进程
+- Python 虚拟环境和 host 用的是不是同一套解释器
 
-## 3. API 输入问题
+## API 输入问题
 
-### 3.1 日期非法
+### 日期非法
 
 典型错误：
 
@@ -97,37 +91,26 @@ python -m fatebridge.mcp_server
 }
 ```
 
-常见原因：
+常见原因是传了不存在的日期，例如 `1990-02-30`，或者月份、小时超出范围。建议先在调用侧做基础校验。
 
-- 传了不存在的日期，比如 `1990-02-30`
-- 月份、小时超范围
-
-建议先在调用侧做基础校验。
-
-### 3.2 `birth_place` 没有命中你预期的地点
+### `birth_place` 没有命中预期地点
 
 FateBridge 的地点解析是内置静态近似，不是联网地理编码。建议：
 
-- 要高精度时，直接传 `birth_longitude`
+- 需要高精度时直接传 `birth_longitude`
 - 同时传 `birth_timezone`
-- 用响应里的 `person_info.time_adjustment.resolved_place` 和 `resolution_level` 检查系统最终采用了什么地点层级
+- 通过响应里的 `person_info.time_adjustment.resolved_place` 和 `resolution_level` 检查系统最终采用的地点层级
 
-### 3.3 真太阳时结果和原时间不同
+### 真太阳时结果和原时间不同
 
-这通常不是错误，而是预期行为。打开了 `use_true_solar_time=true` 之后，系统会根据：
-
-- 时区
-- 经度
-- 均时差
-
-对出生时刻做修正。检查：
+这通常不是错误，而是预期行为。开启 `use_true_solar_time=true` 后，系统会结合时区、经度和均时差对出生时刻做修正。可以检查：
 
 - `person_info.normalized_birth_datetime`
 - `person_info.time_adjustment`
 
-## 4. 占星与推运问题
+## 占星与推运问题
 
-### 4.1 核心 chart 精度不够
+### 核心 chart 精度不够
 
 查看返回值：
 
@@ -140,9 +123,9 @@ FateBridge 的地点解析是内置静态近似，不是联网地理编码。建
 }
 ```
 
-如果你看到的是近似模型，说明当前环境没有可用的本地高精度 ephemeris 路径。
+如果看到的是近似模型，说明当前环境没有可用的本地高精度 ephemeris 路径。
 
-### 4.2 显式 `hsys` 覆盖时报错
+### 显式 `hsys` 覆盖时报错
 
 如果报错类似：
 
@@ -150,17 +133,14 @@ FateBridge 的地点解析是内置静态近似，不是联网地理编码。建
 当前环境缺少 swisseph，...离线模式仅能在 hsys=0(整宫制) 下运行。
 ```
 
-含义是：
+含义是：默认 chart 仍可能可用，但显式请求更复杂的离线宫制时，当前环境缺少 `swisseph`。
 
-- 默认 chart 仍可能可用
-- 但显式请求更复杂的离线宫制时，当前环境缺少 `swisseph`
-
-解决方式：
+解决方式二选一：
 
 - 去掉 `hsys` 覆盖，让 chart 使用默认宫制
-- 或者在具备 `swisseph` 的环境下运行
+- 在具备 `swisseph` 的环境下运行
 
-### 4.3 西占推运直接报依赖缺失
+### 西占推运直接报依赖缺失
 
 如果报错接近：
 
@@ -175,7 +155,7 @@ kerykeion / Swiss Ephemeris 未安装，无法启用西占推运能力。
 
 这是 FateBridge 的设计选择，不是异常行为。
 
-### 4.4 关系盘结果和你预期的 `synastry` 不一致
+### 关系盘结果和预期的 `synastry` 不一致
 
 FateBridge 里有一条 legacy 兼容规则：
 
@@ -184,35 +164,33 @@ FateBridge 里有一条 legacy 兼容规则：
 
 如果你在迁移旧调用，请显式检查自己用了哪个字段。
 
-## 5. 快照导出问题
+## 快照导出问题
 
-### 5.1 `selected_sections` 没生效
+### `selected_sections` 没生效
 
-先检查：
+先检查响应里的这两个字段：
 
 - `snapshot_export.section_titles_detected`
 - `snapshot_export.missing_selected_sections`
 
-最常见原因不是功能坏了，而是 section 名写错了。
-
-例如，`qimen` 常见 section 名包括：
+最常见原因不是功能坏了，而是 section 名写错了。例如 `qimen` 常见 section 名包括：
 
 - `起盘信息`
 - `九宫方盘`
 - `离九宫`
 
-如果你写成别名或旧标题，最终会被归一化或判定为缺失。
+如果写成别名或旧标题，最终会被归一化或判定为缺失。
 
-### 5.2 我只想裁掉导出文本，不想丢结构化字段
+### 只想裁掉导出文本，不想丢结构化字段
 
 这是 FateBridge 当前的既定行为：
 
 - `selected_sections` 只作用于 `snapshot_export.export_text`
 - 完整 payload 和 `snapshot_text` 仍会保留
 
-如果你的使用场景需要“整体裁剪”，应在调用侧再做一层过滤。
+如果你的场景需要“整体裁剪”，应在调用侧再做一层过滤。
 
-## 6. CORS 问题
+## CORS 问题
 
 如果浏览器报跨域错误，优先检查 `.env`：
 
@@ -220,11 +198,9 @@ FateBridge 里有一条 legacy 兼容规则：
 ALLOWED_ORIGINS=http://localhost:3000
 ```
 
-修改后重启 `python -m fatebridge.api`。
+修改后重启 `python -m fatebridge.api`。当前 `src/fatebridge/api.py` 使用 `ALLOWED_ORIGINS` 环境变量，默认只放行 `http://localhost:3000`。
 
-当前 `src/fatebridge/api.py` 使用 `ALLOWED_ORIGINS` 环境变量，并默认只放行 `http://localhost:3000`。
-
-## 7. 文档和代码不一致时怎么办
+## 文档和代码不一致时怎么办
 
 优先以代码为准，然后检查：
 
@@ -234,12 +210,12 @@ ALLOWED_ORIGINS=http://localhost:3000
 - `docs/api-reference.md`
 - `docs/algorithm-coverage.md`
 
-如果你刚修改了能力，却忘了更新文档，建议至少同步改这两页：
+如果你刚修改了能力却忘了更新文档，建议至少同步改这两页：
 
 - `docs/api-reference.md`
 - `docs/algorithm-coverage.md`
 
-## 8. 最小诊断命令
+## 最小诊断命令
 
 ```bash
 python -m fatebridge.api
