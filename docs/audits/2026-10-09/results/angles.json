@@ -1,0 +1,441 @@
+{
+  "summary": {
+    "charts": 24,
+    "angles": 48,
+    "max_error_arcsec": 0.17824597842991352
+  },
+  "cases": [
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 0.5,
+      "point": "ascendant",
+      "ours": 220.9315,
+      "reference": 220.9314789459404,
+      "error_arcsec": 0.07579461461864412
+    },
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 0.5,
+      "point": "midheaven",
+      "ours": 139.1269,
+      "reference": 139.12694115535666,
+      "error_arcsec": -0.14815928391180933
+    },
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 6.5,
+      "point": "ascendant",
+      "ours": 302.1301,
+      "reference": 302.1301031511527,
+      "error_arcsec": -0.011344149592332542
+    },
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 6.5,
+      "point": "midheaven",
+      "ours": 234.1678,
+      "reference": 234.16784836346352,
+      "error_arcsec": -0.17410846869461238
+    },
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 12.5,
+      "point": "ascendant",
+      "ours": 73.6214,
+      "reference": 73.62142472198484,
+      "error_arcsec": -0.08899914543144405
+    },
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 12.5,
+      "point": "midheaven",
+      "ours": 319.628,
+      "reference": 319.62804227692635,
+      "error_arcsec": -0.15219693491235375
+    },
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 18.5,
+      "point": "ascendant",
+      "ours": 149.9759,
+      "reference": 149.97590157312302,
+      "error_arcsec": -0.00566324288956821
+    },
+    {
+      "longitude": 116.4,
+      "latitude": 39.9,
+      "utc_hour": 18.5,
+      "point": "midheaven",
+      "ours": 54.6488,
+      "reference": 54.64877676990323,
+      "error_arcsec": 0.08362834830768406
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 0.5,
+      "point": "ascendant",
+      "ours": 281.8216,
+      "reference": 281.8216229845525,
+      "error_arcsec": -0.08274438907392323
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 0.5,
+      "point": "midheaven",
+      "ours": 176.0232,
+      "reference": 176.02322121234792,
+      "error_arcsec": -0.07636445248499513
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 6.5,
+      "point": "ascendant",
+      "ours": 357.1277,
+      "reference": 357.127738598979,
+      "error_arcsec": -0.13895632443018258
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 6.5,
+      "point": "midheaven",
+      "ours": 266.877,
+      "reference": 266.87703468027723,
+      "error_arcsec": -0.12484899803530425
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 12.5,
+      "point": "ascendant",
+      "ours": 72.3442,
+      "reference": 72.34424951277181,
+      "error_arcsec": -0.17824597842991352
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 12.5,
+      "point": "midheaven",
+      "ours": 356.56,
+      "reference": 356.55998812072073,
+      "error_arcsec": 0.04276540537830442
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 18.5,
+      "point": "ascendant",
+      "ours": 175.5268,
+      "reference": 175.5268100994373,
+      "error_arcsec": -0.03635797428432852
+    },
+    {
+      "longitude": 151.2,
+      "latitude": -33.9,
+      "utc_hour": 18.5,
+      "point": "midheaven",
+      "ours": 87.3294,
+      "reference": 87.32939617878513,
+      "error_arcsec": 0.013756373547948897
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 0.5,
+      "point": "ascendant",
+      "ours": 62.0785,
+      "reference": 62.07845478828546,
+      "error_arcsec": 0.16276217228733003
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 0.5,
+      "point": "midheaven",
+      "ours": 308.7227,
+      "reference": 308.7226608103003,
+      "error_arcsec": 0.141082918853499
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 6.5,
+      "point": "ascendant",
+      "ours": 141.6701,
+      "reference": 141.67014746067431,
+      "error_arcsec": -0.17085842753294855
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 6.5,
+      "point": "midheaven",
+      "ours": 43.8546,
+      "reference": 43.854551033805,
+      "error_arcsec": 0.17627830198034644
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 12.5,
+      "point": "ascendant",
+      "ours": 212.8843,
+      "reference": 212.88427571877668,
+      "error_arcsec": 0.087412403896451
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 12.5,
+      "point": "midheaven",
+      "ours": 129.2084,
+      "reference": 129.20841075521213,
+      "error_arcsec": -0.0387187636224553
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 18.5,
+      "point": "ascendant",
+      "ours": 289.968,
+      "reference": 289.96798753992306,
+      "error_arcsec": 0.044856277061626315
+    },
+    {
+      "longitude": -74,
+      "latitude": 40.7,
+      "utc_hour": 18.5,
+      "point": "midheaven",
+      "ours": 224.3505,
+      "reference": 224.35051467466835,
+      "error_arcsec": -0.05282880598679185
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 0.5,
+      "point": "ascendant",
+      "ours": 134.4303,
+      "reference": 134.4302549308772,
+      "error_arcsec": 0.16224884206894785
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 0.5,
+      "point": "midheaven",
+      "ours": 26.9737,
+      "reference": 26.973692376653844,
+      "error_arcsec": 0.027444046223536134
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 6.5,
+      "point": "ascendant",
+      "ours": 197.8029,
+      "reference": 197.80286595049074,
+      "error_arcsec": 0.12257823336403817
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 6.5,
+      "point": "midheaven",
+      "ours": 113.4243,
+      "reference": 113.42426970768824,
+      "error_arcsec": 0.10905232233926654
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 12.5,
+      "point": "ascendant",
+      "ours": 263.3804,
+      "reference": 263.3804134766697,
+      "error_arcsec": -0.04851601074915379
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 12.5,
+      "point": "midheaven",
+      "ours": 207.493,
+      "reference": 207.4930188152528,
+      "error_arcsec": -0.06773491017520428
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 18.5,
+      "point": "ascendant",
+      "ours": 53.1192,
+      "reference": 53.11917377911767,
+      "error_arcsec": 0.09439517639111727
+    },
+    {
+      "longitude": -0.12,
+      "latitude": 51.5,
+      "utc_hour": 18.5,
+      "point": "midheaven",
+      "ours": 293.8901,
+      "reference": 293.89009732123395,
+      "error_arcsec": 0.00964355783071369
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 0.5,
+      "point": "ascendant",
+      "ours": 113.3049,
+      "reference": 113.30486833322392,
+      "error_arcsec": 0.11400039389263839
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 0.5,
+      "point": "midheaven",
+      "ours": 27.1002,
+      "reference": 27.100208217486372,
+      "error_arcsec": -0.02958295086864382
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 6.5,
+      "point": "ascendant",
+      "ours": 207.3599,
+      "reference": 207.35987359791216,
+      "error_arcsec": 0.09504751628264785
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 6.5,
+      "point": "midheaven",
+      "ours": 113.5377,
+      "reference": 113.5376536831911,
+      "error_arcsec": 0.16674051200971007
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 12.5,
+      "point": "ascendant",
+      "ours": 293.7706,
+      "reference": 293.7705656018345,
+      "error_arcsec": 0.12383339577354491
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 12.5,
+      "point": "midheaven",
+      "ours": 207.6194,
+      "reference": 207.6193818083875,
+      "error_arcsec": 0.06548980507068336
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 18.5,
+      "point": "ascendant",
+      "ours": 27.8787,
+      "reference": 27.878732053679443,
+      "error_arcsec": -0.11539324594195932
+    },
+    {
+      "longitude": 0,
+      "latitude": 0,
+      "utc_hour": 18.5,
+      "point": "midheaven",
+      "ours": 294.0036,
+      "reference": 294.0036052073821,
+      "error_arcsec": -0.018746575573459268
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 0.5,
+      "point": "ascendant",
+      "ours": 224.9206,
+      "reference": 224.9205789060395,
+      "error_arcsec": 0.07593825773801655
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 0.5,
+      "point": "midheaven",
+      "ours": 136.8989,
+      "reference": 136.89887980354257,
+      "error_arcsec": 0.07270724675618112
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 6.5,
+      "point": "ascendant",
+      "ours": 309.5649,
+      "reference": 309.56493206759274,
+      "error_arcsec": -0.11544333375059068
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 6.5,
+      "point": "midheaven",
+      "ours": 232.0125,
+      "reference": 232.0125387029432,
+      "error_arcsec": -0.1393305956153199
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 12.5,
+      "point": "ascendant",
+      "ours": 60.7203,
+      "reference": 60.72027755465599,
+      "error_arcsec": 0.08080323843751103
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 12.5,
+      "point": "midheaven",
+      "ours": 317.3967,
+      "reference": 317.3966962076661,
+      "error_arcsec": 0.013652402092702687
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 18.5,
+      "point": "ascendant",
+      "ours": 143.4948,
+      "reference": 143.49479768219263,
+      "error_arcsec": 0.008344106492586434
+    },
+    {
+      "longitude": 114.2,
+      "latitude": 22.3,
+      "utc_hour": 18.5,
+      "point": "midheaven",
+      "ours": 52.4965,
+      "reference": 52.496526606250285,
+      "error_arcsec": -0.09578250104095787
+    }
+  ]
+}

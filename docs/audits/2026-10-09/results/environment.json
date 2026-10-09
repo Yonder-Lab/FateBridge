@@ -11,7 +11,7 @@
     "iztro": "2.5.8",
     "ephemeris": "de440s.bsp",
     "ephemeris_sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
-    "git_head": "1281fed77bba7378ffdd03bd1d241d2907ccaa65",
+    "git_head": "f1b351a6fb6d429c8860d0f367272d534fc54b16",
     "scope": "Synthetic audit, UTC/+08:00, no true-solar correction"
   }
 }

@@ -1,0 +1,3163 @@
+{
+  "summary": {
+    "cases": 4,
+    "all_http_200": true
+  },
+  "cases": [
+    {
+      "route": "/api/cn/nongli/time",
+      "request": {
+        "date": "1954-12-01",
+        "time": "10:00",
+        "zone": "+08:00",
+        "time_alg": 0
+      },
+      "http_status": 200,
+      "response": {
+        "analysis_type": "农历换算",
+        "input_context": {
+          "date": "1954-12-01",
+          "time": "10:00",
+          "timezone": "+08:00",
+          "lat": null,
+          "lon": null,
+          "gps_lat": null,
+          "gps_lon": null,
+          "gender": null,
+          "after23_new_day": false,
+          "time_alg": 0,
+          "ad": 1
+        },
+        "analysis_context": {
+          "input_datetime": "1954-12-01 10:00:00",
+          "corrected_datetime": "1954-12-01 10:00:00",
+          "effective_datetime": "1954-12-01 10:00:00",
+          "time_algorithm": "直接时间",
+          "longitude": null,
+          "total_correction_minutes": 0.0
+        },
+        "birth": "1954-12-01 10:00:00",
+        "nongli": "一九五四年冬月初六",
+        "year": "甲午",
+        "yearGanZi": "甲午",
+        "yearJieqi": "甲午",
+        "monthGanZi": "乙亥",
+        "dayGanZi": "辛卯",
+        "time": "癸巳",
+        "timeGanZi": "癸巳",
+        "jieqi": "小雪",
+        "jiedelta": "小雪后第8天",
+        "month": "冬月",
+        "day": "初六",
+        "monthInt": 11,
+        "dayInt": 6,
+        "leap": false,
+        "calendar_context": {
+          "timezone": "+08:00",
+          "solar_datetime": "1954-12-01 10:00:00",
+          "current_solar_term": {
+            "name": "小雪",
+            "datetime": "1954-11-23 04:14:09",
+            "date_key": "19541123",
+            "day_ganzhi": "癸未"
+          },
+          "next_solar_term": {
+            "name": "大雪",
+            "datetime": "1954-12-07 23:28:29",
+            "date_key": "19541207",
+            "day_ganzhi": "丁酉"
+          },
+          "solar_term_delta": {
+            "days_since_current": 8.2402,
+            "days_until_next": 6.5614,
+            "description": "小雪后第8天"
+          },
+          "bazi_month_boundary": {
+            "branch": "亥",
+            "month_index": 9,
+            "start_term": {
+              "name": "立冬",
+              "datetime": "1954-11-08 06:50:32",
+              "date_key": "19541108",
+              "day_ganzhi": "戊辰"
+            },
+            "next_term": {
+              "name": "大雪",
+              "datetime": "1954-12-07 23:28:29",
+              "date_key": "19541207",
+              "day_ganzhi": "丁酉"
+            },
+            "days_since_start": 23.1316,
+            "days_until_next": 6.5614
+          },
+          "lunar_calendar": {
+            "solar_datetime": "1954-12-01 10:00:00",
+            "timezone": "+08:00",
+            "birth": "1954-12-01 10:00:00",
+            "year": 1954,
+            "month": 11,
+            "day": 6,
+            "is_leap_month": false,
+            "year_cn": "一九五四",
+            "month_cn": "冬月",
+            "day_cn": "初六",
+            "display": "冬月初六",
+            "jieqi": "小雪",
+            "jiedelta": "小雪后第8天",
+            "previous_jieqi": {
+              "name": "小雪",
+              "datetime": "1954-11-23 04:14:09",
+              "date_key": "19541123",
+              "day_ganzhi": "癸未"
+            },
+            "next_jieqi": {
+              "name": "大雪",
+              "datetime": "1954-12-07 23:28:29",
+              "date_key": "19541207",
+              "day_ganzhi": "丁酉"
+            },
+            "days_until_next_jieqi": 6.5614,
+            "year_jieqi_ganzhi": "甲午",
+            "month_ganzhi": "乙亥",
+            "day_ganzhi": "辛卯",
+            "time_ganzhi": "癸巳",
+            "meihua": {
+              "method": "meihua_time_seed",
+              "seed": {
+                "year_branch": "午",
+                "lunar_month": 11,
+                "lunar_day": 6,
+                "hour_branch": "巳",
+                "upper_number": 8,
+                "lower_number": 6,
+                "moving_line": 6
+              },
+              "base_hexagram": {
+                "name": "地水师",
+                "upper": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lower": {
+                  "name": "坎",
+                  "nature": "水",
+                  "element": "水",
+                  "lines": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "symbol": "☵",
+                  "keywords": "流动、隐忧、险中求通",
+                  "theme": "险中求通",
+                  "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                  "image": "重水有险，主试炼与通关。",
+                  "favorable": "防险、复盘、留后手",
+                  "caution": "反复、焦虑、陷被动"
+                },
+                "lines": [
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "binary_code": "010000",
+                "symbol": "☷☵",
+                "theme": "统众行事",
+                "guidance": "利带队、调度、攻坚，但必须先立纪律。",
+                "judgement": "可统众行事，但先要立纪律与队形。",
+                "image": "地下藏水，众聚为师，利调度攻坚。",
+                "favorable": "带队、组织、集中攻关",
+                "caution": "忌无令而动、队伍散乱",
+                "summary": "地水师：统众行事。可统众行事，但先要立纪律与队形。"
+              },
+              "changed_hexagram": {
+                "name": "山水蒙",
+                "upper": {
+                  "name": "艮",
+                  "nature": "山",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "symbol": "☶",
+                  "keywords": "止守、边界、收束",
+                  "theme": "止守定界",
+                  "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+                  "image": "山止其上，主边界与停驻。",
+                  "favorable": "收束、暂停、止损",
+                  "caution": "僵住、迟滞、错失时机"
+                },
+                "lower": {
+                  "name": "坎",
+                  "nature": "水",
+                  "element": "水",
+                  "lines": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "symbol": "☵",
+                  "keywords": "流动、隐忧、险中求通",
+                  "theme": "险中求通",
+                  "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                  "image": "重水有险，主试炼与通关。",
+                  "favorable": "防险、复盘、留后手",
+                  "caution": "反复、焦虑、陷被动"
+                },
+                "lines": [
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "binary_code": "010001",
+                "symbol": "☶☵",
+                "theme": "启蒙求教",
+                "guidance": "宜请教、学习、先破无明，不可自以为是。",
+                "judgement": "不明则问，启蒙比逞强更重要。",
+                "image": "山下出泉，蒙而待教，贵在求知。",
+                "favorable": "学习、请教、搭认知框架",
+                "caution": "忌自以为懂、拒绝指导",
+                "summary": "山水蒙：启蒙求教。不明则问，启蒙比逞强更重要。",
+                "moving_line": 6
+              },
+              "mutual_hexagram": {
+                "name": "地雷复",
+                "upper": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lower": {
+                  "name": "震",
+                  "nature": "雷",
+                  "element": "木",
+                  "lines": [
+                    1,
+                    0,
+                    0
+                  ],
+                  "symbol": "☳",
+                  "keywords": "发动、突破、惊醒",
+                  "theme": "发动突破",
+                  "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+                  "image": "雷动初发，主惊醒与突破。",
+                  "favorable": "启动、破局、提速",
+                  "caution": "惊扰、冒进、节奏乱"
+                },
+                "lines": [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "binary_code": "100000",
+                "symbol": "☷☳",
+                "theme": "回归重启",
+                "guidance": "利回头修正、重新开始，万事从一点复苏。",
+                "judgement": "回头修正就是重新开始的契机。",
+                "image": "雷在地下，一阳来复，万事可重启。",
+                "favorable": "复盘、重启、从一点重新发力",
+                "caution": "忌旧错重犯、回头不改",
+                "summary": "地雷复：回归重启。回头修正就是重新开始的契机。"
+              },
+              "opposite_hexagram": {
+                "name": "天火同人",
+                "upper": {
+                  "name": "乾",
+                  "nature": "天",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "symbol": "☰",
+                  "keywords": "刚健、开创、天道",
+                  "theme": "主动开创",
+                  "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                  "image": "纯阳在上，主健行与统摄。",
+                  "favorable": "立规、决策、开局",
+                  "caution": "刚亢、独断、过压"
+                },
+                "lower": {
+                  "name": "离",
+                  "nature": "火",
+                  "element": "火",
+                  "lines": [
+                    1,
+                    0,
+                    1
+                  ],
+                  "symbol": "☲",
+                  "keywords": "光明、表达、洞察",
+                  "theme": "明辨显化",
+                  "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+                  "image": "火光附丽，主显明与辨析。",
+                  "favorable": "表达、曝光、识别",
+                  "caution": "虚火、急躁、表强里弱"
+                },
+                "lines": [
+                  1,
+                  0,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "binary_code": "101111",
+                "symbol": "☰☲",
+                "theme": "同道聚势",
+                "guidance": "宜以共同目标结盟协作，公开坦诚最有利。",
+                "judgement": "同道可成事，关键在公开和共同目标。",
+                "image": "火在天下，光明外达，利于团结众人。",
+                "favorable": "结盟、协作、共同发声",
+                "caution": "忌小圈子、表面同心",
+                "summary": "天火同人：同道聚势。同道可成事，关键在公开和共同目标。"
+              },
+              "cuo_hexagram": {
+                "name": "天火同人",
+                "upper": {
+                  "name": "乾",
+                  "nature": "天",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "symbol": "☰",
+                  "keywords": "刚健、开创、天道",
+                  "theme": "主动开创",
+                  "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                  "image": "纯阳在上，主健行与统摄。",
+                  "favorable": "立规、决策、开局",
+                  "caution": "刚亢、独断、过压"
+                },
+                "lower": {
+                  "name": "离",
+                  "nature": "火",
+                  "element": "火",
+                  "lines": [
+                    1,
+                    0,
+                    1
+                  ],
+                  "symbol": "☲",
+                  "keywords": "光明、表达、洞察",
+                  "theme": "明辨显化",
+                  "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+                  "image": "火光附丽，主显明与辨析。",
+                  "favorable": "表达、曝光、识别",
+                  "caution": "虚火、急躁、表强里弱"
+                },
+                "lines": [
+                  1,
+                  0,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "binary_code": "101111",
+                "symbol": "☰☲",
+                "theme": "同道聚势",
+                "guidance": "宜以共同目标结盟协作，公开坦诚最有利。",
+                "judgement": "同道可成事，关键在公开和共同目标。",
+                "image": "火在天下，光明外达，利于团结众人。",
+                "favorable": "结盟、协作、共同发声",
+                "caution": "忌小圈子、表面同心",
+                "summary": "天火同人：同道聚势。同道可成事，关键在公开和共同目标。"
+              },
+              "zong_hexagram": {
+                "name": "水地比",
+                "upper": {
+                  "name": "坎",
+                  "nature": "水",
+                  "element": "水",
+                  "lines": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "symbol": "☵",
+                  "keywords": "流动、隐忧、险中求通",
+                  "theme": "险中求通",
+                  "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                  "image": "重水有险，主试炼与通关。",
+                  "favorable": "防险、复盘、留后手",
+                  "caution": "反复、焦虑、陷被动"
+                },
+                "lower": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lines": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0
+                ],
+                "binary_code": "000010",
+                "symbol": "☵☷",
+                "theme": "亲比结盟",
+                "guidance": "利靠近核心、建立依附与联盟，重在选对人。",
+                "judgement": "靠近正确的人和位置，就有支点。",
+                "image": "水行于地，亲比相辅，利依附与联盟。",
+                "favorable": "靠核心、做连接、抱团协作",
+                "caution": "忌站错队、依附失度",
+                "summary": "水地比：亲比结盟。靠近正确的人和位置，就有支点。"
+              },
+              "element_relation": "上制下",
+              "moving_palace": "上卦",
+              "body_trigram": {
+                "name": "坎",
+                "nature": "水",
+                "element": "水",
+                "lines": [
+                  0,
+                  1,
+                  0
+                ],
+                "symbol": "☵",
+                "keywords": "流动、隐忧、险中求通",
+                "theme": "险中求通",
+                "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                "image": "重水有险，主试炼与通关。",
+                "favorable": "防险、复盘、留后手",
+                "caution": "反复、焦虑、陷被动"
+              },
+              "use_trigram": {
+                "name": "坤",
+                "nature": "地",
+                "element": "土",
+                "lines": [
+                  0,
+                  0,
+                  0
+                ],
+                "symbol": "☷",
+                "keywords": "承载、包容、顺势",
+                "theme": "承载顺势",
+                "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                "image": "厚地承载，主配合与落地。",
+                "favorable": "承接、执行、积累",
+                "caution": "过度被动、失主见"
+              },
+              "body_use_relation": "用克体",
+              "body_use_summary": "动爻落上卦，体卦坎、用卦坤，五行关系为用克体。",
+              "summary": "梅花时卦得地水师，动6爻，之山水蒙；上卦坤、下卦坎，五行关系为上制下。"
+            }
+          },
+          "lunar_calendar_support": {
+            "supported": true,
+            "supported_range": {
+              "start": "1900-01-31",
+              "end": "2100-02-08"
+            }
+          }
+        },
+        "lunar_calendar": {
+          "solar_datetime": "1954-12-01 10:00:00",
+          "timezone": "+08:00",
+          "birth": "1954-12-01 10:00:00",
+          "year": 1954,
+          "month": 11,
+          "day": 6,
+          "is_leap_month": false,
+          "year_cn": "一九五四",
+          "month_cn": "冬月",
+          "day_cn": "初六",
+          "display": "冬月初六",
+          "jieqi": "小雪",
+          "jiedelta": "小雪后第8天",
+          "previous_jieqi": {
+            "name": "小雪",
+            "datetime": "1954-11-23 04:14:09",
+            "date_key": "19541123",
+            "day_ganzhi": "癸未"
+          },
+          "next_jieqi": {
+            "name": "大雪",
+            "datetime": "1954-12-07 23:28:29",
+            "date_key": "19541207",
+            "day_ganzhi": "丁酉"
+          },
+          "days_until_next_jieqi": 6.5614,
+          "year_jieqi_ganzhi": "甲午",
+          "month_ganzhi": "乙亥",
+          "day_ganzhi": "辛卯",
+          "time_ganzhi": "癸巳",
+          "meihua": {
+            "method": "meihua_time_seed",
+            "seed": {
+              "year_branch": "午",
+              "lunar_month": 11,
+              "lunar_day": 6,
+              "hour_branch": "巳",
+              "upper_number": 8,
+              "lower_number": 6,
+              "moving_line": 6
+            },
+            "base_hexagram": {
+              "name": "地水师",
+              "upper": {
+                "name": "坤",
+                "nature": "地",
+                "element": "土",
+                "lines": [
+                  0,
+                  0,
+                  0
+                ],
+                "symbol": "☷",
+                "keywords": "承载、包容、顺势",
+                "theme": "承载顺势",
+                "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                "image": "厚地承载，主配合与落地。",
+                "favorable": "承接、执行、积累",
+                "caution": "过度被动、失主见"
+              },
+              "lower": {
+                "name": "坎",
+                "nature": "水",
+                "element": "水",
+                "lines": [
+                  0,
+                  1,
+                  0
+                ],
+                "symbol": "☵",
+                "keywords": "流动、隐忧、险中求通",
+                "theme": "险中求通",
+                "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                "image": "重水有险，主试炼与通关。",
+                "favorable": "防险、复盘、留后手",
+                "caution": "反复、焦虑、陷被动"
+              },
+              "lines": [
+                0,
+                1,
+                0,
+                0,
+                0,
+                0
+              ],
+              "binary_code": "010000",
+              "symbol": "☷☵",
+              "theme": "统众行事",
+              "guidance": "利带队、调度、攻坚，但必须先立纪律。",
+              "judgement": "可统众行事，但先要立纪律与队形。",
+              "image": "地下藏水，众聚为师，利调度攻坚。",
+              "favorable": "带队、组织、集中攻关",
+              "caution": "忌无令而动、队伍散乱",
+              "summary": "地水师：统众行事。可统众行事，但先要立纪律与队形。"
+            },
+            "changed_hexagram": {
+              "name": "山水蒙",
+              "upper": {
+                "name": "艮",
+                "nature": "山",
+                "element": "土",
+                "lines": [
+                  0,
+                  0,
+                  1
+                ],
+                "symbol": "☶",
+                "keywords": "止守、边界、收束",
+                "theme": "止守定界",
+                "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+                "image": "山止其上，主边界与停驻。",
+                "favorable": "收束、暂停、止损",
+                "caution": "僵住、迟滞、错失时机"
+              },
+              "lower": {
+                "name": "坎",
+                "nature": "水",
+                "element": "水",
+                "lines": [
+                  0,
+                  1,
+                  0
+                ],
+                "symbol": "☵",
+                "keywords": "流动、隐忧、险中求通",
+                "theme": "险中求通",
+                "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                "image": "重水有险，主试炼与通关。",
+                "favorable": "防险、复盘、留后手",
+                "caution": "反复、焦虑、陷被动"
+              },
+              "lines": [
+                0,
+                1,
+                0,
+                0,
+                0,
+                1
+              ],
+              "binary_code": "010001",
+              "symbol": "☶☵",
+              "theme": "启蒙求教",
+              "guidance": "宜请教、学习、先破无明，不可自以为是。",
+              "judgement": "不明则问，启蒙比逞强更重要。",
+              "image": "山下出泉，蒙而待教，贵在求知。",
+              "favorable": "学习、请教、搭认知框架",
+              "caution": "忌自以为懂、拒绝指导",
+              "summary": "山水蒙：启蒙求教。不明则问，启蒙比逞强更重要。",
+              "moving_line": 6
+            },
+            "mutual_hexagram": {
+              "name": "地雷复",
+              "upper": {
+                "name": "坤",
+                "nature": "地",
+                "element": "土",
+                "lines": [
+                  0,
+                  0,
+                  0
+                ],
+                "symbol": "☷",
+                "keywords": "承载、包容、顺势",
+                "theme": "承载顺势",
+                "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                "image": "厚地承载，主配合与落地。",
+                "favorable": "承接、执行、积累",
+                "caution": "过度被动、失主见"
+              },
+              "lower": {
+                "name": "震",
+                "nature": "雷",
+                "element": "木",
+                "lines": [
+                  1,
+                  0,
+                  0
+                ],
+                "symbol": "☳",
+                "keywords": "发动、突破、惊醒",
+                "theme": "发动突破",
+                "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+                "image": "雷动初发，主惊醒与突破。",
+                "favorable": "启动、破局、提速",
+                "caution": "惊扰、冒进、节奏乱"
+              },
+              "lines": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "binary_code": "100000",
+              "symbol": "☷☳",
+              "theme": "回归重启",
+              "guidance": "利回头修正、重新开始，万事从一点复苏。",
+              "judgement": "回头修正就是重新开始的契机。",
+              "image": "雷在地下，一阳来复，万事可重启。",
+              "favorable": "复盘、重启、从一点重新发力",
+              "caution": "忌旧错重犯、回头不改",
+              "summary": "地雷复：回归重启。回头修正就是重新开始的契机。"
+            },
+            "opposite_hexagram": {
+              "name": "天火同人",
+              "upper": {
+                "name": "乾",
+                "nature": "天",
+                "element": "金",
+                "lines": [
+                  1,
+                  1,
+                  1
+                ],
+                "symbol": "☰",
+                "keywords": "刚健、开创、天道",
+                "theme": "主动开创",
+                "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                "image": "纯阳在上，主健行与统摄。",
+                "favorable": "立规、决策、开局",
+                "caution": "刚亢、独断、过压"
+              },
+              "lower": {
+                "name": "离",
+                "nature": "火",
+                "element": "火",
+                "lines": [
+                  1,
+                  0,
+                  1
+                ],
+                "symbol": "☲",
+                "keywords": "光明、表达、洞察",
+                "theme": "明辨显化",
+                "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+                "image": "火光附丽，主显明与辨析。",
+                "favorable": "表达、曝光、识别",
+                "caution": "虚火、急躁、表强里弱"
+              },
+              "lines": [
+                1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              "binary_code": "101111",
+              "symbol": "☰☲",
+              "theme": "同道聚势",
+              "guidance": "宜以共同目标结盟协作，公开坦诚最有利。",
+              "judgement": "同道可成事，关键在公开和共同目标。",
+              "image": "火在天下，光明外达，利于团结众人。",
+              "favorable": "结盟、协作、共同发声",
+              "caution": "忌小圈子、表面同心",
+              "summary": "天火同人：同道聚势。同道可成事，关键在公开和共同目标。"
+            },
+            "cuo_hexagram": {
+              "name": "天火同人",
+              "upper": {
+                "name": "乾",
+                "nature": "天",
+                "element": "金",
+                "lines": [
+                  1,
+                  1,
+                  1
+                ],
+                "symbol": "☰",
+                "keywords": "刚健、开创、天道",
+                "theme": "主动开创",
+                "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                "image": "纯阳在上，主健行与统摄。",
+                "favorable": "立规、决策、开局",
+                "caution": "刚亢、独断、过压"
+              },
+              "lower": {
+                "name": "离",
+                "nature": "火",
+                "element": "火",
+                "lines": [
+                  1,
+                  0,
+                  1
+                ],
+                "symbol": "☲",
+                "keywords": "光明、表达、洞察",
+                "theme": "明辨显化",
+                "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+                "image": "火光附丽，主显明与辨析。",
+                "favorable": "表达、曝光、识别",
+                "caution": "虚火、急躁、表强里弱"
+              },
+              "lines": [
+                1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              "binary_code": "101111",
+              "symbol": "☰☲",
+              "theme": "同道聚势",
+              "guidance": "宜以共同目标结盟协作，公开坦诚最有利。",
+              "judgement": "同道可成事，关键在公开和共同目标。",
+              "image": "火在天下，光明外达，利于团结众人。",
+              "favorable": "结盟、协作、共同发声",
+              "caution": "忌小圈子、表面同心",
+              "summary": "天火同人：同道聚势。同道可成事，关键在公开和共同目标。"
+            },
+            "zong_hexagram": {
+              "name": "水地比",
+              "upper": {
+                "name": "坎",
+                "nature": "水",
+                "element": "水",
+                "lines": [
+                  0,
+                  1,
+                  0
+                ],
+                "symbol": "☵",
+                "keywords": "流动、隐忧、险中求通",
+                "theme": "险中求通",
+                "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                "image": "重水有险，主试炼与通关。",
+                "favorable": "防险、复盘、留后手",
+                "caution": "反复、焦虑、陷被动"
+              },
+              "lower": {
+                "name": "坤",
+                "nature": "地",
+                "element": "土",
+                "lines": [
+                  0,
+                  0,
+                  0
+                ],
+                "symbol": "☷",
+                "keywords": "承载、包容、顺势",
+                "theme": "承载顺势",
+                "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                "image": "厚地承载，主配合与落地。",
+                "favorable": "承接、执行、积累",
+                "caution": "过度被动、失主见"
+              },
+              "lines": [
+                0,
+                0,
+                0,
+                0,
+                1,
+                0
+              ],
+              "binary_code": "000010",
+              "symbol": "☵☷",
+              "theme": "亲比结盟",
+              "guidance": "利靠近核心、建立依附与联盟，重在选对人。",
+              "judgement": "靠近正确的人和位置，就有支点。",
+              "image": "水行于地，亲比相辅，利依附与联盟。",
+              "favorable": "靠核心、做连接、抱团协作",
+              "caution": "忌站错队、依附失度",
+              "summary": "水地比：亲比结盟。靠近正确的人和位置，就有支点。"
+            },
+            "element_relation": "上制下",
+            "moving_palace": "上卦",
+            "body_trigram": {
+              "name": "坎",
+              "nature": "水",
+              "element": "水",
+              "lines": [
+                0,
+                1,
+                0
+              ],
+              "symbol": "☵",
+              "keywords": "流动、隐忧、险中求通",
+              "theme": "险中求通",
+              "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+              "image": "重水有险，主试炼与通关。",
+              "favorable": "防险、复盘、留后手",
+              "caution": "反复、焦虑、陷被动"
+            },
+            "use_trigram": {
+              "name": "坤",
+              "nature": "地",
+              "element": "土",
+              "lines": [
+                0,
+                0,
+                0
+              ],
+              "symbol": "☷",
+              "keywords": "承载、包容、顺势",
+              "theme": "承载顺势",
+              "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+              "image": "厚地承载，主配合与落地。",
+              "favorable": "承接、执行、积累",
+              "caution": "过度被动、失主见"
+            },
+            "body_use_relation": "用克体",
+            "body_use_summary": "动爻落上卦，体卦坎、用卦坤，五行关系为用克体。",
+            "summary": "梅花时卦得地水师，动6爻，之山水蒙；上卦坤、下卦坎，五行关系为上制下。"
+          }
+        },
+        "four_pillars": {
+          "year": {
+            "stem": "甲",
+            "branch": "午"
+          },
+          "month": {
+            "stem": "乙",
+            "branch": "亥"
+          },
+          "day": {
+            "stem": "辛",
+            "branch": "卯"
+          },
+          "hour": {
+            "stem": "癸",
+            "branch": "巳"
+          }
+        },
+        "summary": "1954-12-01 10:00:00 对应农历冬月初六，当前节气为小雪。",
+        "snapshot_text": "[查询信息]\n输入公历：1954-12-01 10:00\n时区：+08:00\n位置：未提供\ngender 透传：未提供\nafter23_new_day：否\ntime_alg：0（直接时间）\nad：1\n有效经度：未提供\n太阳时修正分钟：0.0\n摘要：1954-12-01 10:00:00 对应农历冬月初六，当前节气为小雪。\n\n[农历上下文]\n换算时刻：1954-12-01 10:00:00\n农历：冬月初六\n农历年月日：一九五四年冬月初六\n当前节气：小雪 / 1954-11-23 04:14:09\n下一节气：大雪 / 1954-12-07 23:28:29\n节差：小雪后第8天\n月令窗口：立冬 -> 大雪\n是否闰月：否\n梅花时卦辅助：已生成\n\n[四柱上下文]\n年柱：甲午\n节气分年：甲午\n月柱：乙亥\n日柱：辛卯\n时柱：癸巳\n月令分支：亥\n距下个节气天数：6.5614\n\n[来源]\n来源：FateBridge 离线农历/节气算法\n引用：fatebridge.core.almanac.build_calendar_context / fatebridge.core.calendar.BaZiCalendar",
+        "snapshot_export": {
+          "technique": {
+            "key": "nongli_time",
+            "label": "农历换算",
+            "preset_sections": [
+              "查询信息",
+              "农历上下文",
+              "四柱上下文",
+              "来源"
+            ],
+            "forbidden_sections": [],
+            "supports_planet_info": false,
+            "planet_info_default": null,
+            "supports_astro_meaning": false,
+            "supports_hover_meaning": false,
+            "astro_meaning_default": null,
+            "astro_meaning_title": "",
+            "astro_meaning_checkbox": "",
+            "settings_template": {
+              "sections": [
+                "查询信息",
+                "农历上下文",
+                "四柱上下文",
+                "来源"
+              ],
+              "planetInfo": null,
+              "astroMeaning": null
+            }
+          },
+          "settings_used": {
+            "version": 6,
+            "sections": {
+              "nongli_time": [
+                "查询信息",
+                "农历上下文",
+                "四柱上下文",
+                "来源"
+              ]
+            },
+            "planetInfo": {},
+            "astroMeaning": {}
+          },
+          "section_titles_detected": [
+            "查询信息",
+            "农历上下文",
+            "四柱上下文",
+            "来源"
+          ],
+          "selected_sections": [
+            "查询信息",
+            "农历上下文",
+            "四柱上下文",
+            "来源"
+          ],
+          "unknown_detected_sections": [],
+          "missing_selected_sections": [],
+          "sections": [
+            {
+              "index": 1,
+              "raw_title": "查询信息",
+              "title": "查询信息",
+              "included": true,
+              "content": "[查询信息]\n输入公历：1954-12-01 10:00\n时区：+08:00\n位置：未提供\ngender 透传：未提供\nafter23_new_day：否\ntime_alg：0（直接时间）\nad：1\n有效经度：未提供\n太阳时修正分钟：0.0\n摘要：1954-12-01 10:00:00 对应农历冬月初六，当前节气为小雪。"
+            },
+            {
+              "index": 2,
+              "raw_title": "农历上下文",
+              "title": "农历上下文",
+              "included": true,
+              "content": "[农历上下文]\n换算时刻：1954-12-01 10:00:00\n农历：冬月初六\n农历年月日：一九五四年冬月初六\n当前节气：小雪 / 1954-11-23 04:14:09\n下一节气：大雪 / 1954-12-07 23:28:29\n节差：小雪后第8天\n月令窗口：立冬 -> 大雪\n是否闰月：否\n梅花时卦辅助：已生成"
+            },
+            {
+              "index": 3,
+              "raw_title": "四柱上下文",
+              "title": "四柱上下文",
+              "included": true,
+              "content": "[四柱上下文]\n年柱：甲午\n节气分年：甲午\n月柱：乙亥\n日柱：辛卯\n时柱：癸巳\n月令分支：亥\n距下个节气天数：6.5614"
+            },
+            {
+              "index": 4,
+              "raw_title": "来源",
+              "title": "来源",
+              "included": true,
+              "content": "[来源]\n来源：FateBridge 离线农历/节气算法\n引用：fatebridge.core.almanac.build_calendar_context / fatebridge.core.calendar.BaZiCalendar"
+            }
+          ],
+          "export_text": "[查询信息]\n输入公历：1954-12-01 10:00\n时区：+08:00\n位置：未提供\ngender 透传：未提供\nafter23_new_day：否\ntime_alg：0（直接时间）\nad：1\n有效经度：未提供\n太阳时修正分钟：0.0\n摘要：1954-12-01 10:00:00 对应农历冬月初六，当前节气为小雪。\n\n[农历上下文]\n换算时刻：1954-12-01 10:00:00\n农历：冬月初六\n农历年月日：一九五四年冬月初六\n当前节气：小雪 / 1954-11-23 04:14:09\n下一节气：大雪 / 1954-12-07 23:28:29\n节差：小雪后第8天\n月令窗口：立冬 -> 大雪\n是否闰月：否\n梅花时卦辅助：已生成\n\n[四柱上下文]\n年柱：甲午\n节气分年：甲午\n月柱：乙亥\n日柱：辛卯\n时柱：癸巳\n月令分支：亥\n距下个节气天数：6.5614\n\n[来源]\n来源：FateBridge 离线农历/节气算法\n引用：fatebridge.core.almanac.build_calendar_context / fatebridge.core.calendar.BaZiCalendar"
+        },
+        "warnings": [
+          "time_alg=0 需要 lon 或 gps_lon 才能计算真太阳时，已回退为直接时间。"
+        ],
+        "run_metadata": {
+          "run_id": "5bf5e25d02c44063b89f43227a9cc161",
+          "trace_id": "49f81cdffe3141a7bed0a6991fef6a28",
+          "tool_name": "nongli_time",
+          "generated_at": "2026-10-09T04:12:09.708911Z",
+          "engine": "fatebridge-offline",
+          "engine_is_approximate": false
+        }
+      }
+    },
+    {
+      "route": "/api/cn/ziwei/horoscope",
+      "request": {
+        "birth_year": 1990,
+        "birth_month": 5,
+        "birth_day": 15,
+        "birth_hour": 10,
+        "gender": "男",
+        "use_true_solar_time": false,
+        "target_year": 2026,
+        "target_month": 10,
+        "target_day": 9,
+        "target_hour": 10
+      },
+      "http_status": 200,
+      "response": {
+        "analysis_type": "紫微斗数运限",
+        "person_info": {
+          "name": "未提供",
+          "birth_datetime": "1990年05月15日 10时00分",
+          "normalized_birth_datetime": "1990年05月15日 10时00分",
+          "gender": "男",
+          "birth_place": "未提供",
+          "birth_timezone": "Asia/Shanghai",
+          "birth_longitude": null,
+          "time_algorithm": "直接时间"
+        },
+        "analysis_context": {
+          "input_datetime": "1990-05-15 10:00:00",
+          "corrected_datetime": "1990-05-15 10:00:00",
+          "timezone": "Asia/Shanghai",
+          "longitude": null,
+          "time_algorithm": "直接时间",
+          "total_correction_minutes": 0.0,
+          "current_jieqi": "立夏",
+          "next_jieqi": "小满",
+          "lunar_display": "四月廿一"
+        },
+        "ziwei_horoscope": {
+          "engine": "fatebridge-offline",
+          "nominal_age": 37,
+          "scopes": [
+            {
+              "scope": "大限",
+              "palace_name": "田宅宫",
+              "branch": "卯",
+              "branch_index": 1,
+              "stem": "己",
+              "mutagen": {
+                "化禄": "武曲",
+                "化权": "贪狼",
+                "化科": "天梁",
+                "化忌": "文曲"
+              }
+            },
+            {
+              "scope": "小限",
+              "palace_name": "官禄宫",
+              "branch": "辰",
+              "branch_index": 2,
+              "stem": "庚",
+              "mutagen": {
+                "化禄": "太阳",
+                "化权": "武曲",
+                "化科": "太阴",
+                "化忌": "天同"
+              }
+            },
+            {
+              "scope": "流年",
+              "palace_name": "迁移宫",
+              "branch": "午",
+              "branch_index": 4,
+              "stem": "丙",
+              "mutagen": {
+                "化禄": "天同",
+                "化权": "天机",
+                "化科": "文昌",
+                "化忌": "廉贞"
+              }
+            },
+            {
+              "scope": "流月",
+              "palace_name": "夫妻宫",
+              "branch": "戌",
+              "branch_index": 8,
+              "stem": "戊",
+              "mutagen": {
+                "化禄": "贪狼",
+                "化权": "太阴",
+                "化科": "右弼",
+                "化忌": "天机"
+              }
+            },
+            {
+              "scope": "流日",
+              "palace_name": "官禄宫",
+              "branch": "辰",
+              "branch_index": 2,
+              "stem": "丙",
+              "mutagen": {
+                "化禄": "天同",
+                "化权": "天机",
+                "化科": "文昌",
+                "化忌": "廉贞"
+              }
+            },
+            {
+              "scope": "流时",
+              "palace_name": "仆役宫",
+              "branch": "巳",
+              "branch_index": 3,
+              "stem": "癸",
+              "mutagen": {
+                "化禄": "破军",
+                "化权": "巨门",
+                "化科": "太阴",
+                "化忌": "贪狼"
+              }
+            }
+          ]
+        },
+        "snapshot_text": "[起盘信息]\n出生：1990-05-15 10:00:00\n目标：2026-10-09 10:00:00\n虚岁：37\n\n[大限]\n宫位：田宅宫（己卯）\n四化：化禄=武曲；化权=贪狼；化科=天梁；化忌=文曲\n\n[小限]\n宫位：官禄宫（庚辰）\n四化：化禄=太阳；化权=武曲；化科=太阴；化忌=天同\n\n[流年]\n宫位：迁移宫（丙午）\n四化：化禄=天同；化权=天机；化科=文昌；化忌=廉贞\n\n[流月]\n宫位：夫妻宫（戊戌）\n四化：化禄=贪狼；化权=太阴；化科=右弼；化忌=天机\n\n[流日]\n宫位：官禄宫（丙辰）\n四化：化禄=天同；化权=天机；化科=文昌；化忌=廉贞\n\n[流时]\n宫位：仆役宫（癸巳）\n四化：化禄=破军；化权=巨门；化科=太阴；化忌=贪狼",
+        "snapshot_export": {
+          "technique": {
+            "key": "ziwei_horoscope",
+            "label": "紫微斗数运限",
+            "preset_sections": [
+              "起盘信息",
+              "大限",
+              "小限",
+              "流年",
+              "流月",
+              "流日",
+              "流时"
+            ],
+            "forbidden_sections": [],
+            "supports_planet_info": false,
+            "planet_info_default": null,
+            "supports_astro_meaning": false,
+            "supports_hover_meaning": false,
+            "astro_meaning_default": null,
+            "astro_meaning_title": "",
+            "astro_meaning_checkbox": "",
+            "settings_template": {
+              "sections": [
+                "起盘信息",
+                "大限",
+                "小限",
+                "流年",
+                "流月",
+                "流日",
+                "流时"
+              ],
+              "planetInfo": null,
+              "astroMeaning": null
+            }
+          },
+          "settings_used": {
+            "version": 6,
+            "sections": {
+              "ziwei_horoscope": [
+                "起盘信息",
+                "大限",
+                "小限",
+                "流年",
+                "流月",
+                "流日",
+                "流时"
+              ]
+            },
+            "planetInfo": {},
+            "astroMeaning": {}
+          },
+          "section_titles_detected": [
+            "起盘信息",
+            "大限",
+            "小限",
+            "流年",
+            "流月",
+            "流日",
+            "流时"
+          ],
+          "selected_sections": [
+            "起盘信息",
+            "大限",
+            "小限",
+            "流年",
+            "流月",
+            "流日",
+            "流时"
+          ],
+          "unknown_detected_sections": [],
+          "missing_selected_sections": [],
+          "sections": [
+            {
+              "index": 1,
+              "raw_title": "起盘信息",
+              "title": "起盘信息",
+              "included": true,
+              "content": "[起盘信息]\n出生：1990-05-15 10:00:00\n目标：2026-10-09 10:00:00\n虚岁：37"
+            },
+            {
+              "index": 2,
+              "raw_title": "大限",
+              "title": "大限",
+              "included": true,
+              "content": "[大限]\n宫位：田宅宫（己卯）\n四化：化禄=武曲；化权=贪狼；化科=天梁；化忌=文曲"
+            },
+            {
+              "index": 3,
+              "raw_title": "小限",
+              "title": "小限",
+              "included": true,
+              "content": "[小限]\n宫位：官禄宫（庚辰）\n四化：化禄=太阳；化权=武曲；化科=太阴；化忌=天同"
+            },
+            {
+              "index": 4,
+              "raw_title": "流年",
+              "title": "流年",
+              "included": true,
+              "content": "[流年]\n宫位：迁移宫（丙午）\n四化：化禄=天同；化权=天机；化科=文昌；化忌=廉贞"
+            },
+            {
+              "index": 5,
+              "raw_title": "流月",
+              "title": "流月",
+              "included": true,
+              "content": "[流月]\n宫位：夫妻宫（戊戌）\n四化：化禄=贪狼；化权=太阴；化科=右弼；化忌=天机"
+            },
+            {
+              "index": 6,
+              "raw_title": "流日",
+              "title": "流日",
+              "included": true,
+              "content": "[流日]\n宫位：官禄宫（丙辰）\n四化：化禄=天同；化权=天机；化科=文昌；化忌=廉贞"
+            },
+            {
+              "index": 7,
+              "raw_title": "流时",
+              "title": "流时",
+              "included": true,
+              "content": "[流时]\n宫位：仆役宫（癸巳）\n四化：化禄=破军；化权=巨门；化科=太阴；化忌=贪狼"
+            }
+          ],
+          "export_text": "[起盘信息]\n出生：1990-05-15 10:00:00\n目标：2026-10-09 10:00:00\n虚岁：37\n\n[大限]\n宫位：田宅宫（己卯）\n四化：化禄=武曲；化权=贪狼；化科=天梁；化忌=文曲\n\n[小限]\n宫位：官禄宫（庚辰）\n四化：化禄=太阳；化权=武曲；化科=太阴；化忌=天同\n\n[流年]\n宫位：迁移宫（丙午）\n四化：化禄=天同；化权=天机；化科=文昌；化忌=廉贞\n\n[流月]\n宫位：夫妻宫（戊戌）\n四化：化禄=贪狼；化权=太阴；化科=右弼；化忌=天机\n\n[流日]\n宫位：官禄宫（丙辰）\n四化：化禄=天同；化权=天机；化科=文昌；化忌=廉贞\n\n[流时]\n宫位：仆役宫（癸巳）\n四化：化禄=破军；化权=巨门；化科=太阴；化忌=贪狼"
+        },
+        "run_metadata": {
+          "run_id": "1c9b88ced2bb41feb67d41c55707d48e",
+          "trace_id": "af9b23304a7448a992aad774d6d2bedf",
+          "tool_name": "ziwei_horoscope",
+          "generated_at": "2026-10-09T04:12:09.745949Z",
+          "engine": "fatebridge-offline",
+          "engine_is_approximate": false
+        }
+      }
+    },
+    {
+      "route": "/api/cn/liureng/gods",
+      "request": {
+        "analysis_year": 2026,
+        "analysis_month": 9,
+        "analysis_day": 1,
+        "analysis_hour": 10,
+        "use_true_solar_time": false
+      },
+      "http_status": 200,
+      "response": {
+        "analysis_type": "大六壬起课",
+        "analysis_context": {
+          "input_datetime": "2026-09-01 10:00:00",
+          "corrected_datetime": "2026-09-01 10:00:00",
+          "timezone": "Asia/Shanghai",
+          "longitude": null,
+          "time_algorithm": "直接时间",
+          "total_correction_minutes": 0.0,
+          "current_jieqi": "处暑",
+          "next_jieqi": "白露",
+          "lunar_display": "七月二十"
+        },
+        "four_pillars": {
+          "year": {
+            "stem": "丙",
+            "branch": "午"
+          },
+          "month": {
+            "stem": "丙",
+            "branch": "申"
+          },
+          "day": {
+            "stem": "戊",
+            "branch": "寅"
+          },
+          "hour": {
+            "stem": "丁",
+            "branch": "巳"
+          }
+        },
+        "calendar_context": {
+          "timezone": "Asia/Shanghai",
+          "solar_datetime": "2026-09-01 10:00:00",
+          "current_solar_term": {
+            "name": "处暑",
+            "datetime": "2026-08-23 10:18:49",
+            "date_key": "20260823",
+            "day_ganzhi": "己巳"
+          },
+          "next_solar_term": {
+            "name": "白露",
+            "datetime": "2026-09-07 22:41:18",
+            "date_key": "20260907",
+            "day_ganzhi": "甲申"
+          },
+          "solar_term_delta": {
+            "days_since_current": 8.9869,
+            "days_until_next": 6.5287,
+            "description": "处暑后第9天"
+          },
+          "bazi_month_boundary": {
+            "branch": "申",
+            "month_index": 6,
+            "start_term": {
+              "name": "立秋",
+              "datetime": "2026-08-07 19:42:45",
+              "date_key": "20260807",
+              "day_ganzhi": "癸丑"
+            },
+            "next_term": {
+              "name": "白露",
+              "datetime": "2026-09-07 22:41:18",
+              "date_key": "20260907",
+              "day_ganzhi": "甲申"
+            },
+            "days_since_start": 24.5953,
+            "days_until_next": 6.5287
+          },
+          "lunar_calendar": {
+            "solar_datetime": "2026-09-01 10:00:00",
+            "timezone": "Asia/Shanghai",
+            "birth": "2026-09-01 10:00:00",
+            "year": 2026,
+            "month": 7,
+            "day": 20,
+            "is_leap_month": false,
+            "year_cn": "二零二六",
+            "month_cn": "七月",
+            "day_cn": "二十",
+            "display": "七月二十",
+            "jieqi": "处暑",
+            "jiedelta": "处暑后第9天",
+            "previous_jieqi": {
+              "name": "处暑",
+              "datetime": "2026-08-23 10:18:49",
+              "date_key": "20260823",
+              "day_ganzhi": "己巳"
+            },
+            "next_jieqi": {
+              "name": "白露",
+              "datetime": "2026-09-07 22:41:18",
+              "date_key": "20260907",
+              "day_ganzhi": "甲申"
+            },
+            "days_until_next_jieqi": 6.5287,
+            "year_jieqi_ganzhi": "丙午",
+            "month_ganzhi": "丙申",
+            "day_ganzhi": "戊寅",
+            "time_ganzhi": "丁巳",
+            "meihua": {
+              "method": "meihua_time_seed",
+              "seed": {
+                "year_branch": "午",
+                "lunar_month": 7,
+                "lunar_day": 20,
+                "hour_branch": "巳",
+                "upper_number": 2,
+                "lower_number": 8,
+                "moving_line": 4
+              },
+              "base_hexagram": {
+                "name": "泽地萃",
+                "upper": {
+                  "name": "兑",
+                  "nature": "泽",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "symbol": "☱",
+                  "keywords": "喜悦、交流、润泽",
+                  "theme": "喜悦沟通",
+                  "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+                  "image": "泽气外悦，主口才与感通。",
+                  "favorable": "谈判、传播、联络",
+                  "caution": "浮浅、贪快、失守"
+                },
+                "lower": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lines": [
+                  0,
+                  0,
+                  0,
+                  1,
+                  1,
+                  0
+                ],
+                "binary_code": "000110",
+                "symbol": "☱☷",
+                "theme": "聚合成局",
+                "guidance": "宜收拢人心、整合资源，先聚再用。",
+                "judgement": "众意可聚，宜先收拢资源再谋行动。",
+                "image": "泽在地上，众流所归，利于聚合。",
+                "favorable": "整合人脉、聚焦议题、集中资源",
+                "caution": "忌人多心散、只聚不管",
+                "summary": "泽地萃：聚合成局。众意可聚，宜先收拢资源再谋行动。"
+              },
+              "changed_hexagram": {
+                "name": "水地比",
+                "upper": {
+                  "name": "坎",
+                  "nature": "水",
+                  "element": "水",
+                  "lines": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "symbol": "☵",
+                  "keywords": "流动、隐忧、险中求通",
+                  "theme": "险中求通",
+                  "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+                  "image": "重水有险，主试炼与通关。",
+                  "favorable": "防险、复盘、留后手",
+                  "caution": "反复、焦虑、陷被动"
+                },
+                "lower": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lines": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0
+                ],
+                "binary_code": "000010",
+                "symbol": "☵☷",
+                "theme": "亲比结盟",
+                "guidance": "利靠近核心、建立依附与联盟，重在选对人。",
+                "judgement": "靠近正确的人和位置，就有支点。",
+                "image": "水行于地，亲比相辅，利依附与联盟。",
+                "favorable": "靠核心、做连接、抱团协作",
+                "caution": "忌站错队、依附失度",
+                "summary": "水地比：亲比结盟。靠近正确的人和位置，就有支点。",
+                "moving_line": 4
+              },
+              "mutual_hexagram": {
+                "name": "风山渐",
+                "upper": {
+                  "name": "巽",
+                  "nature": "风",
+                  "element": "木",
+                  "lines": [
+                    0,
+                    1,
+                    1
+                  ],
+                  "symbol": "☴",
+                  "keywords": "渗透、谋划、柔入",
+                  "theme": "渗透筹谋",
+                  "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+                  "image": "风行入物，主渗透与筹划。",
+                  "favorable": "铺垫、布局、柔进",
+                  "caution": "犹疑、拖延、立场飘"
+                },
+                "lower": {
+                  "name": "艮",
+                  "nature": "山",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "symbol": "☶",
+                  "keywords": "止守、边界、收束",
+                  "theme": "止守定界",
+                  "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+                  "image": "山止其上，主边界与停驻。",
+                  "favorable": "收束、暂停、止损",
+                  "caution": "僵住、迟滞、错失时机"
+                },
+                "lines": [
+                  0,
+                  0,
+                  1,
+                  0,
+                  1,
+                  1
+                ],
+                "binary_code": "001011",
+                "symbol": "☴☶",
+                "theme": "渐进成长",
+                "guidance": "适合慢变量积累，稳比快更重要。",
+                "judgement": "慢就是快，节奏渐进才稳。",
+                "image": "木在山上，成长有阶，重顺序与耐心。",
+                "favorable": "长期积累、循序而进、温和推进",
+                "caution": "忌求速成、频繁换挡",
+                "summary": "风山渐：渐进成长。慢就是快，节奏渐进才稳。"
+              },
+              "opposite_hexagram": {
+                "name": "山天大畜",
+                "upper": {
+                  "name": "艮",
+                  "nature": "山",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "symbol": "☶",
+                  "keywords": "止守、边界、收束",
+                  "theme": "止守定界",
+                  "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+                  "image": "山止其上，主边界与停驻。",
+                  "favorable": "收束、暂停、止损",
+                  "caution": "僵住、迟滞、错失时机"
+                },
+                "lower": {
+                  "name": "乾",
+                  "nature": "天",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "symbol": "☰",
+                  "keywords": "刚健、开创、天道",
+                  "theme": "主动开创",
+                  "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                  "image": "纯阳在上，主健行与统摄。",
+                  "favorable": "立规、决策、开局",
+                  "caution": "刚亢、独断、过压"
+                },
+                "lines": [
+                  1,
+                  1,
+                  1,
+                  0,
+                  0,
+                  1
+                ],
+                "binary_code": "111001",
+                "symbol": "☶☰",
+                "theme": "厚积成器",
+                "guidance": "宜储能、学习、积累筹码，等待更大用处。",
+                "judgement": "储力阶段越扎实，后劲越足。",
+                "image": "山在天中，所蓄者大，宜厚积。",
+                "favorable": "学习、囤能力、积筹码",
+                "caution": "忌浅尝辄止、急于兑现",
+                "summary": "山天大畜：厚积成器。储力阶段越扎实，后劲越足。"
+              },
+              "cuo_hexagram": {
+                "name": "山天大畜",
+                "upper": {
+                  "name": "艮",
+                  "nature": "山",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "symbol": "☶",
+                  "keywords": "止守、边界、收束",
+                  "theme": "止守定界",
+                  "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+                  "image": "山止其上，主边界与停驻。",
+                  "favorable": "收束、暂停、止损",
+                  "caution": "僵住、迟滞、错失时机"
+                },
+                "lower": {
+                  "name": "乾",
+                  "nature": "天",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "symbol": "☰",
+                  "keywords": "刚健、开创、天道",
+                  "theme": "主动开创",
+                  "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                  "image": "纯阳在上，主健行与统摄。",
+                  "favorable": "立规、决策、开局",
+                  "caution": "刚亢、独断、过压"
+                },
+                "lines": [
+                  1,
+                  1,
+                  1,
+                  0,
+                  0,
+                  1
+                ],
+                "binary_code": "111001",
+                "symbol": "☶☰",
+                "theme": "厚积成器",
+                "guidance": "宜储能、学习、积累筹码，等待更大用处。",
+                "judgement": "储力阶段越扎实，后劲越足。",
+                "image": "山在天中，所蓄者大，宜厚积。",
+                "favorable": "学习、囤能力、积筹码",
+                "caution": "忌浅尝辄止、急于兑现",
+                "summary": "山天大畜：厚积成器。储力阶段越扎实，后劲越足。"
+              },
+              "zong_hexagram": {
+                "name": "地风升",
+                "upper": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lower": {
+                  "name": "巽",
+                  "nature": "风",
+                  "element": "木",
+                  "lines": [
+                    0,
+                    1,
+                    1
+                  ],
+                  "symbol": "☴",
+                  "keywords": "渗透、谋划、柔入",
+                  "theme": "渗透筹谋",
+                  "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+                  "image": "风行入物，主渗透与筹划。",
+                  "favorable": "铺垫、布局、柔进",
+                  "caution": "犹疑、拖延、立场飘"
+                },
+                "lines": [
+                  0,
+                  1,
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "binary_code": "011000",
+                "symbol": "☷☴",
+                "theme": "稳步上升",
+                "guidance": "以积累和德行换取上升，慢升比急跳更稳。",
+                "judgement": "稳稳往上比跳跃更长久。",
+                "image": "地中生木，升腾有序，贵在积德累功。",
+                "favorable": "慢升、积累、培养信用",
+                "caution": "忌拔苗助长、冒跳台阶",
+                "summary": "地风升：稳步上升。稳稳往上比跳跃更长久。"
+              },
+              "element_relation": "下生上",
+              "moving_palace": "上卦",
+              "body_trigram": {
+                "name": "坤",
+                "nature": "地",
+                "element": "土",
+                "lines": [
+                  0,
+                  0,
+                  0
+                ],
+                "symbol": "☷",
+                "keywords": "承载、包容、顺势",
+                "theme": "承载顺势",
+                "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                "image": "厚地承载，主配合与落地。",
+                "favorable": "承接、执行、积累",
+                "caution": "过度被动、失主见"
+              },
+              "use_trigram": {
+                "name": "兑",
+                "nature": "泽",
+                "element": "金",
+                "lines": [
+                  1,
+                  1,
+                  0
+                ],
+                "symbol": "☱",
+                "keywords": "喜悦、交流、润泽",
+                "theme": "喜悦沟通",
+                "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+                "image": "泽气外悦，主口才与感通。",
+                "favorable": "谈判、传播、联络",
+                "caution": "浮浅、贪快、失守"
+              },
+              "body_use_relation": "体生用",
+              "body_use_summary": "动爻落上卦，体卦坤、用卦兑，五行关系为体生用。",
+              "summary": "梅花时卦得泽地萃，动4爻，之水地比；上卦兑、下卦坤，五行关系为下生上。"
+            }
+          },
+          "lunar_calendar_support": {
+            "supported": true,
+            "supported_range": {
+              "start": "1900-01-31",
+              "end": "2100-02-08"
+            }
+          }
+        },
+        "liureng": {
+          "month_general": {
+            "branch": "巳",
+            "name": "太乙"
+          },
+          "board_style": "伏吟",
+          "board_style_detail": "伏吟",
+          "board_order": "天盘顺布",
+          "kongwang": "申酉空",
+          "xun_head": "甲戌",
+          "twelve_life_element": "金",
+          "guiren_system": "六壬法贵人",
+          "four_lessons": [
+            {
+              "index": 1,
+              "upper_branch": "巳",
+              "lower_branch": "巳",
+              "anchor_branch": "巳",
+              "text": "巳加巳",
+              "relation": "父母",
+              "upper_lower_relation": "比和",
+              "relations": {
+                "with_day_branch": "比和",
+                "with_lower_branch": "伏吟"
+              },
+              "style_hint": "伏吟",
+              "style_basis": "上神与下神同位，伏吟取象。",
+              "use_candidate": true
+            },
+            {
+              "index": 2,
+              "upper_branch": "巳",
+              "lower_branch": "巳",
+              "anchor_branch": "巳",
+              "text": "巳加巳",
+              "relation": "父母",
+              "upper_lower_relation": "比和",
+              "relations": {
+                "with_day_branch": "比和",
+                "with_lower_branch": "伏吟"
+              },
+              "style_hint": "伏吟",
+              "style_basis": "上神与下神同位，伏吟取象。",
+              "use_candidate": false
+            },
+            {
+              "index": 3,
+              "upper_branch": "寅",
+              "lower_branch": "寅",
+              "anchor_branch": "寅",
+              "text": "寅加寅",
+              "relation": "官鬼",
+              "upper_lower_relation": "比和",
+              "relations": {
+                "with_day_branch": "比和",
+                "with_lower_branch": "伏吟"
+              },
+              "style_hint": "伏吟",
+              "style_basis": "上神与下神同位，伏吟取象。",
+              "use_candidate": false
+            },
+            {
+              "index": 4,
+              "upper_branch": "寅",
+              "lower_branch": "寅",
+              "anchor_branch": "寅",
+              "text": "寅加寅",
+              "relation": "官鬼",
+              "upper_lower_relation": "比和",
+              "relations": {
+                "with_day_branch": "比和",
+                "with_lower_branch": "伏吟"
+              },
+              "style_hint": "伏吟",
+              "style_basis": "上神与下神同位，伏吟取象。",
+              "use_candidate": false
+            }
+          ],
+          "three_transmissions": {
+            "method": "伏吟守一",
+            "initial": {
+              "branch": "巳",
+              "relation": "父母",
+              "god": "勾陈",
+              "ganzhi": "巳巳"
+            },
+            "middle": {
+              "branch": "寅",
+              "relation": "官鬼",
+              "god": "螣蛇",
+              "ganzhi": "寅寅"
+            },
+            "final": {
+              "branch": "巳",
+              "relation": "父母",
+              "god": "勾陈",
+              "ganzhi": "巳巳"
+            }
+          },
+          "patterns": [
+            {
+              "name": "贵人顺行格",
+              "basis": "贵人起丑，顺布神将。"
+            },
+            {
+              "name": "伏吟课",
+              "basis": "月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。"
+            }
+          ],
+          "overview": [
+            "月将巳(太乙)加巳时，当前以处暑节气入局。",
+            "贵人起于丑，顺行布十二神将。",
+            "伏吟课主导，首传落巳，月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。",
+            "细课体：伏吟。上下同临，细课体仍从伏吟。",
+            "取传法：伏吟守一。首传见父母，末传归巳。"
+          ],
+          "twelve_board": [
+            {
+              "earth_branch": "子",
+              "sky_branch": "子",
+              "god": "天后"
+            },
+            {
+              "earth_branch": "丑",
+              "sky_branch": "丑",
+              "god": "贵人"
+            },
+            {
+              "earth_branch": "寅",
+              "sky_branch": "寅",
+              "god": "螣蛇"
+            },
+            {
+              "earth_branch": "卯",
+              "sky_branch": "卯",
+              "god": "朱雀"
+            },
+            {
+              "earth_branch": "辰",
+              "sky_branch": "辰",
+              "god": "六合"
+            },
+            {
+              "earth_branch": "巳",
+              "sky_branch": "巳",
+              "god": "勾陈"
+            },
+            {
+              "earth_branch": "午",
+              "sky_branch": "午",
+              "god": "青龙"
+            },
+            {
+              "earth_branch": "未",
+              "sky_branch": "未",
+              "god": "天空"
+            },
+            {
+              "earth_branch": "申",
+              "sky_branch": "申",
+              "god": "白虎"
+            },
+            {
+              "earth_branch": "酉",
+              "sky_branch": "酉",
+              "god": "太常"
+            },
+            {
+              "earth_branch": "戌",
+              "sky_branch": "戌",
+              "god": "玄武"
+            },
+            {
+              "earth_branch": "亥",
+              "sky_branch": "亥",
+              "god": "太阴"
+            }
+          ],
+          "meta": {
+            "current_term": "处暑",
+            "lunar_display": "七月二十",
+            "questioner_gender": "未知",
+            "is_diurnal": true,
+            "selected_lesson_index": 1,
+            "selected_lesson_relation": "比和"
+          },
+          "engine": "fatebridge-offline"
+        },
+        "snapshot_text": "[起盘信息]\n农历：七月二十\n直接时间：2026-09-01 10:00:00\n四柱：丙午年/丙申月/戊寅日/丁巳时\n当前节气：处暑\n下个节气：白露\n时间算法：直接时间\n\n[十二盘式]\n月将：巳(太乙)\n课体：伏吟\n细课体：伏吟\n盘序：天盘顺布\n贵人体系：六壬法贵人\n\n[十二地盘/十二天盘/十二贵神对应]\n子位：天盘子；贵神天后\n丑位：天盘丑；贵神贵人\n寅位：天盘寅；贵神螣蛇\n卯位：天盘卯；贵神朱雀\n辰位：天盘辰；贵神六合\n巳位：天盘巳；贵神勾陈\n午位：天盘午；贵神青龙\n未位：天盘未；贵神天空\n申位：天盘申；贵神白虎\n酉位：天盘酉；贵神太常\n戌位：天盘戌；贵神玄武\n亥位：天盘亥；贵神太阴\n\n[四课]\n第1课：巳加巳；六亲：父母；上下：比和；与日：比和；与下：伏吟；发用候选\n第2课：巳加巳；六亲：父母；上下：比和；与日：比和；与下：伏吟\n第3课：寅加寅；六亲：官鬼；上下：比和；与日：比和；与下：伏吟\n第4课：寅加寅；六亲：官鬼；上下：比和；与日：比和；与下：伏吟\n\n[三传]\n取传法：伏吟守一\n初传：巳 / 父母 / 勾陈\n中传：寅 / 官鬼 / 螣蛇\n末传：巳 / 父母 / 勾陈\n\n[行年]\n无\n\n[旬日]\n旬首：甲戌\n空亡：申酉空\n\n[旺衰]\n月建十二长生所属：金\n昼夜：昼占\n发用课序：第1课\n\n[基础神煞]\n月将：巳(太乙)\n贵人体系：六壬法贵人\n盘序：天盘顺布\n\n[干煞]\n日干：戊\n旬首：甲戌\n空亡：申酉空\n\n[月煞]\n月将：巳(太乙)\n当前节气：处暑\n月建所属五行：金\n\n[支煞]\n日支：寅\n时支：巳\n首传所临：巳\n\n[岁煞]\n岁干：丙\n岁支：午\n问占性别：未知\n\n[十二长生]\n月建十二长生所属：金\n\n[大格]\n贵人顺行格：贵人起丑，顺布神将。\n伏吟课：月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。\n\n[小局]\n取传法：伏吟守一\n初传：巳 / 父母 / 勾陈\n中传：寅 / 官鬼 / 螣蛇\n末传：巳 / 父母 / 勾陈\n\n[参考]\n月将巳(太乙)加巳时，当前以处暑节气入局。\n贵人起于丑，顺行布十二神将。\n伏吟课主导，首传落巳，月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。\n细课体：伏吟。上下同临，细课体仍从伏吟。\n取传法：伏吟守一。首传见父母，末传归巳。\n\n[概览]\n伏吟课 / 伏吟\n月将巳(太乙)，天盘顺布。\n首传：巳",
+        "snapshot_export": {
+          "technique": {
+            "key": "liureng",
+            "label": "六壬",
+            "preset_sections": [
+              "起盘信息",
+              "十二盘式",
+              "十二地盘/十二天盘/十二贵神对应",
+              "四课",
+              "三传",
+              "行年",
+              "旬日",
+              "旺衰",
+              "基础神煞",
+              "干煞",
+              "月煞",
+              "支煞",
+              "岁煞",
+              "十二长生",
+              "大格",
+              "小局",
+              "参考",
+              "概览"
+            ],
+            "forbidden_sections": [
+              "右侧栏目"
+            ],
+            "supports_planet_info": false,
+            "planet_info_default": null,
+            "supports_astro_meaning": true,
+            "supports_hover_meaning": true,
+            "astro_meaning_default": {
+              "enabled": 0
+            },
+            "astro_meaning_title": "悬浮注释（仅AI导出）：",
+            "astro_meaning_checkbox": "在对应分段输出六壬/遁甲/占星悬浮注释",
+            "settings_template": {
+              "sections": [
+                "起盘信息",
+                "十二盘式",
+                "十二地盘/十二天盘/十二贵神对应",
+                "四课",
+                "三传",
+                "行年",
+                "旬日",
+                "旺衰",
+                "基础神煞",
+                "干煞",
+                "月煞",
+                "支煞",
+                "岁煞",
+                "十二长生",
+                "大格",
+                "小局",
+                "参考",
+                "概览"
+              ],
+              "planetInfo": null,
+              "astroMeaning": {
+                "enabled": 0
+              }
+            }
+          },
+          "settings_used": {
+            "version": 6,
+            "sections": {
+              "liureng": [
+                "起盘信息",
+                "十二盘式",
+                "十二地盘/十二天盘/十二贵神对应",
+                "四课",
+                "三传",
+                "行年",
+                "旬日",
+                "旺衰",
+                "基础神煞",
+                "干煞",
+                "月煞",
+                "支煞",
+                "岁煞",
+                "十二长生",
+                "大格",
+                "小局",
+                "参考",
+                "概览"
+              ]
+            },
+            "planetInfo": {},
+            "astroMeaning": {
+              "liureng": {
+                "enabled": 0
+              }
+            }
+          },
+          "section_titles_detected": [
+            "起盘信息",
+            "十二盘式",
+            "十二地盘/十二天盘/十二贵神对应",
+            "四课",
+            "三传",
+            "行年",
+            "旬日",
+            "旺衰",
+            "基础神煞",
+            "干煞",
+            "月煞",
+            "支煞",
+            "岁煞",
+            "十二长生",
+            "大格",
+            "小局",
+            "参考",
+            "概览"
+          ],
+          "selected_sections": [
+            "起盘信息",
+            "十二盘式",
+            "十二地盘/十二天盘/十二贵神对应",
+            "四课",
+            "三传",
+            "行年",
+            "旬日",
+            "旺衰",
+            "基础神煞",
+            "干煞",
+            "月煞",
+            "支煞",
+            "岁煞",
+            "十二长生",
+            "大格",
+            "小局",
+            "参考",
+            "概览"
+          ],
+          "unknown_detected_sections": [],
+          "missing_selected_sections": [],
+          "sections": [
+            {
+              "index": 1,
+              "raw_title": "起盘信息",
+              "title": "起盘信息",
+              "included": true,
+              "content": "[起盘信息]\n农历：七月二十\n直接时间：2026-09-01 10:00:00\n四柱：丙午年/丙申月/戊寅日/丁巳时\n当前节气：处暑\n下个节气：白露\n时间算法：直接时间"
+            },
+            {
+              "index": 2,
+              "raw_title": "十二盘式",
+              "title": "十二盘式",
+              "included": true,
+              "content": "[十二盘式]\n月将：巳(太乙)\n课体：伏吟\n细课体：伏吟\n盘序：天盘顺布\n贵人体系：六壬法贵人"
+            },
+            {
+              "index": 3,
+              "raw_title": "十二地盘/十二天盘/十二贵神对应",
+              "title": "十二地盘/十二天盘/十二贵神对应",
+              "included": true,
+              "content": "[十二地盘/十二天盘/十二贵神对应]\n子位：天盘子；贵神天后\n丑位：天盘丑；贵神贵人\n寅位：天盘寅；贵神螣蛇\n卯位：天盘卯；贵神朱雀\n辰位：天盘辰；贵神六合\n巳位：天盘巳；贵神勾陈\n午位：天盘午；贵神青龙\n未位：天盘未；贵神天空\n申位：天盘申；贵神白虎\n酉位：天盘酉；贵神太常\n戌位：天盘戌；贵神玄武\n亥位：天盘亥；贵神太阴"
+            },
+            {
+              "index": 4,
+              "raw_title": "四课",
+              "title": "四课",
+              "included": true,
+              "content": "[四课]\n第1课：巳加巳；六亲：父母；上下：比和；与日：比和；与下：伏吟；发用候选\n第2课：巳加巳；六亲：父母；上下：比和；与日：比和；与下：伏吟\n第3课：寅加寅；六亲：官鬼；上下：比和；与日：比和；与下：伏吟\n第4课：寅加寅；六亲：官鬼；上下：比和；与日：比和；与下：伏吟"
+            },
+            {
+              "index": 5,
+              "raw_title": "三传",
+              "title": "三传",
+              "included": true,
+              "content": "[三传]\n取传法：伏吟守一\n初传：巳 / 父母 / 勾陈\n中传：寅 / 官鬼 / 螣蛇\n末传：巳 / 父母 / 勾陈"
+            },
+            {
+              "index": 6,
+              "raw_title": "行年",
+              "title": "行年",
+              "included": true,
+              "content": "[行年]\n无"
+            },
+            {
+              "index": 7,
+              "raw_title": "旬日",
+              "title": "旬日",
+              "included": true,
+              "content": "[旬日]\n旬首：甲戌\n空亡：申酉空"
+            },
+            {
+              "index": 8,
+              "raw_title": "旺衰",
+              "title": "旺衰",
+              "included": true,
+              "content": "[旺衰]\n月建十二长生所属：金\n昼夜：昼占\n发用课序：第1课"
+            },
+            {
+              "index": 9,
+              "raw_title": "基础神煞",
+              "title": "基础神煞",
+              "included": true,
+              "content": "[基础神煞]\n月将：巳(太乙)\n贵人体系：六壬法贵人\n盘序：天盘顺布"
+            },
+            {
+              "index": 10,
+              "raw_title": "干煞",
+              "title": "干煞",
+              "included": true,
+              "content": "[干煞]\n日干：戊\n旬首：甲戌\n空亡：申酉空"
+            },
+            {
+              "index": 11,
+              "raw_title": "月煞",
+              "title": "月煞",
+              "included": true,
+              "content": "[月煞]\n月将：巳(太乙)\n当前节气：处暑\n月建所属五行：金"
+            },
+            {
+              "index": 12,
+              "raw_title": "支煞",
+              "title": "支煞",
+              "included": true,
+              "content": "[支煞]\n日支：寅\n时支：巳\n首传所临：巳"
+            },
+            {
+              "index": 13,
+              "raw_title": "岁煞",
+              "title": "岁煞",
+              "included": true,
+              "content": "[岁煞]\n岁干：丙\n岁支：午\n问占性别：未知"
+            },
+            {
+              "index": 14,
+              "raw_title": "十二长生",
+              "title": "十二长生",
+              "included": true,
+              "content": "[十二长生]\n月建十二长生所属：金"
+            },
+            {
+              "index": 15,
+              "raw_title": "大格",
+              "title": "大格",
+              "included": true,
+              "content": "[大格]\n贵人顺行格：贵人起丑，顺布神将。\n伏吟课：月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。"
+            },
+            {
+              "index": 16,
+              "raw_title": "小局",
+              "title": "小局",
+              "included": true,
+              "content": "[小局]\n取传法：伏吟守一\n初传：巳 / 父母 / 勾陈\n中传：寅 / 官鬼 / 螣蛇\n末传：巳 / 父母 / 勾陈"
+            },
+            {
+              "index": 17,
+              "raw_title": "参考",
+              "title": "参考",
+              "included": true,
+              "content": "[参考]\n月将巳(太乙)加巳时，当前以处暑节气入局。\n贵人起于丑，顺行布十二神将。\n伏吟课主导，首传落巳，月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。\n细课体：伏吟。上下同临，细课体仍从伏吟。\n取传法：伏吟守一。首传见父母，末传归巳。"
+            },
+            {
+              "index": 18,
+              "raw_title": "概览",
+              "title": "概览",
+              "included": true,
+              "content": "[概览]\n伏吟课 / 伏吟\n月将巳(太乙)，天盘顺布。\n首传：巳"
+            }
+          ],
+          "export_text": "[起盘信息]\n农历：七月二十\n直接时间：2026-09-01 10:00:00\n四柱：丙午年/丙申月/戊寅日/丁巳时\n当前节气：处暑\n下个节气：白露\n时间算法：直接时间\n\n[十二盘式]\n月将：巳(太乙)\n课体：伏吟\n细课体：伏吟\n盘序：天盘顺布\n贵人体系：六壬法贵人\n\n[十二地盘/十二天盘/十二贵神对应]\n子位：天盘子；贵神天后\n丑位：天盘丑；贵神贵人\n寅位：天盘寅；贵神螣蛇\n卯位：天盘卯；贵神朱雀\n辰位：天盘辰；贵神六合\n巳位：天盘巳；贵神勾陈\n午位：天盘午；贵神青龙\n未位：天盘未；贵神天空\n申位：天盘申；贵神白虎\n酉位：天盘酉；贵神太常\n戌位：天盘戌；贵神玄武\n亥位：天盘亥；贵神太阴\n\n[四课]\n第1课：巳加巳；六亲：父母；上下：比和；与日：比和；与下：伏吟；发用候选\n第2课：巳加巳；六亲：父母；上下：比和；与日：比和；与下：伏吟\n第3课：寅加寅；六亲：官鬼；上下：比和；与日：比和；与下：伏吟\n第4课：寅加寅；六亲：官鬼；上下：比和；与日：比和；与下：伏吟\n\n[三传]\n取传法：伏吟守一\n初传：巳 / 父母 / 勾陈\n中传：寅 / 官鬼 / 螣蛇\n末传：巳 / 父母 / 勾陈\n\n[行年]\n无\n\n[旬日]\n旬首：甲戌\n空亡：申酉空\n\n[旺衰]\n月建十二长生所属：金\n昼夜：昼占\n发用课序：第1课\n\n[基础神煞]\n月将：巳(太乙)\n贵人体系：六壬法贵人\n盘序：天盘顺布\n\n[干煞]\n日干：戊\n旬首：甲戌\n空亡：申酉空\n\n[月煞]\n月将：巳(太乙)\n当前节气：处暑\n月建所属五行：金\n\n[支煞]\n日支：寅\n时支：巳\n首传所临：巳\n\n[岁煞]\n岁干：丙\n岁支：午\n问占性别：未知\n\n[十二长生]\n月建十二长生所属：金\n\n[大格]\n贵人顺行格：贵人起丑，顺布神将。\n伏吟课：月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。\n\n[小局]\n取传法：伏吟守一\n初传：巳 / 父母 / 勾陈\n中传：寅 / 官鬼 / 螣蛇\n末传：巳 / 父母 / 勾陈\n\n[参考]\n月将巳(太乙)加巳时，当前以处暑节气入局。\n贵人起于丑，顺行布十二神将。\n伏吟课主导，首传落巳，月将加占时同位，四课上下伏吟，按阳日取干上、阴日取支上发用。\n细课体：伏吟。上下同临，细课体仍从伏吟。\n取传法：伏吟守一。首传见父母，末传归巳。\n\n[概览]\n伏吟课 / 伏吟\n月将巳(太乙)，天盘顺布。\n首传：巳"
+        },
+        "run_metadata": {
+          "run_id": "3700204933e34beeb98c184646be358a",
+          "trace_id": "dc0391b5f1434746ab72d791a811e2d0",
+          "tool_name": "liureng_gods",
+          "generated_at": "2026-10-09T04:12:09.749696Z",
+          "engine": "fatebridge-offline",
+          "engine_is_approximate": false
+        }
+      }
+    },
+    {
+      "route": "/api/cn/qimen",
+      "request": {
+        "analysis_year": 2026,
+        "analysis_month": 11,
+        "analysis_day": 3,
+        "analysis_hour": 0,
+        "analysis_minute": 50,
+        "analysis_timezone": "+08:00",
+        "analysis_longitude": 120,
+        "use_true_solar_time": true
+      },
+      "http_status": 200,
+      "response": {
+        "analysis_type": "奇门遁甲",
+        "analysis_context": {
+          "input_datetime": "2026-11-03 00:50:00",
+          "corrected_datetime": "2026-11-03 00:50:00",
+          "timezone": "+08:00",
+          "longitude": 120.0,
+          "time_algorithm": "真太阳时",
+          "total_correction_minutes": 0.0,
+          "current_jieqi": "霜降",
+          "next_jieqi": "立冬",
+          "lunar_display": "九月廿五"
+        },
+        "four_pillars": {
+          "year": {
+            "stem": "丙",
+            "branch": "午"
+          },
+          "month": {
+            "stem": "戊",
+            "branch": "戌"
+          },
+          "day": {
+            "stem": "辛",
+            "branch": "巳"
+          },
+          "hour": {
+            "stem": "戊",
+            "branch": "子"
+          }
+        },
+        "calendar_context": {
+          "timezone": "+08:00",
+          "solar_datetime": "2026-11-03 00:50:00",
+          "current_solar_term": {
+            "name": "霜降",
+            "datetime": "2026-10-23 17:37:57",
+            "date_key": "20261023",
+            "day_ganzhi": "庚午"
+          },
+          "next_solar_term": {
+            "name": "立冬",
+            "datetime": "2026-11-07 17:52:05",
+            "date_key": "20261107",
+            "day_ganzhi": "乙酉"
+          },
+          "solar_term_delta": {
+            "days_since_current": 10.3,
+            "days_until_next": 4.7098,
+            "description": "霜降后第11天"
+          },
+          "bazi_month_boundary": {
+            "branch": "戌",
+            "month_index": 8,
+            "start_term": {
+              "name": "寒露",
+              "datetime": "2026-10-08 14:29:18",
+              "date_key": "20261008",
+              "day_ganzhi": "乙卯"
+            },
+            "next_term": {
+              "name": "立冬",
+              "datetime": "2026-11-07 17:52:05",
+              "date_key": "20261107",
+              "day_ganzhi": "乙酉"
+            },
+            "days_since_start": 25.431,
+            "days_until_next": 4.7098
+          },
+          "lunar_calendar": {
+            "solar_datetime": "2026-11-03 00:50:00",
+            "timezone": "+08:00",
+            "birth": "2026-11-03 00:50:00",
+            "year": 2026,
+            "month": 9,
+            "day": 25,
+            "is_leap_month": false,
+            "year_cn": "二零二六",
+            "month_cn": "九月",
+            "day_cn": "廿五",
+            "display": "九月廿五",
+            "jieqi": "霜降",
+            "jiedelta": "霜降后第11天",
+            "previous_jieqi": {
+              "name": "霜降",
+              "datetime": "2026-10-23 17:37:57",
+              "date_key": "20261023",
+              "day_ganzhi": "庚午"
+            },
+            "next_jieqi": {
+              "name": "立冬",
+              "datetime": "2026-11-07 17:52:05",
+              "date_key": "20261107",
+              "day_ganzhi": "乙酉"
+            },
+            "days_until_next_jieqi": 4.7098,
+            "year_jieqi_ganzhi": "丙午",
+            "month_ganzhi": "戊戌",
+            "day_ganzhi": "辛巳",
+            "time_ganzhi": "戊子",
+            "meihua": {
+              "method": "meihua_time_seed",
+              "seed": {
+                "year_branch": "午",
+                "lunar_month": 9,
+                "lunar_day": 25,
+                "hour_branch": "子",
+                "upper_number": 1,
+                "lower_number": 2,
+                "moving_line": 6
+              },
+              "base_hexagram": {
+                "name": "天泽履",
+                "upper": {
+                  "name": "乾",
+                  "nature": "天",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "symbol": "☰",
+                  "keywords": "刚健、开创、天道",
+                  "theme": "主动开创",
+                  "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                  "image": "纯阳在上，主健行与统摄。",
+                  "favorable": "立规、决策、开局",
+                  "caution": "刚亢、独断、过压"
+                },
+                "lower": {
+                  "name": "兑",
+                  "nature": "泽",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "symbol": "☱",
+                  "keywords": "喜悦、交流、润泽",
+                  "theme": "喜悦沟通",
+                  "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+                  "image": "泽气外悦，主口才与感通。",
+                  "favorable": "谈判、传播、联络",
+                  "caution": "浮浅、贪快、失守"
+                },
+                "lines": [
+                  1,
+                  1,
+                  0,
+                  1,
+                  1,
+                  1
+                ],
+                "binary_code": "110111",
+                "symbol": "☰☱",
+                "theme": "循礼而行",
+                "guidance": "宜守分寸、讲规则，在压力中稳步前进。",
+                "judgement": "可行但要守礼，越在压力下越要讲分寸。",
+                "image": "上天下泽，如履薄冰，贵在稳步。",
+                "favorable": "讲规则、控边界、逐步推进",
+                "caution": "忌越线、失礼、冒险试探",
+                "summary": "天泽履：循礼而行。可行但要守礼，越在压力下越要讲分寸。"
+              },
+              "changed_hexagram": {
+                "name": "兑为泽",
+                "upper": {
+                  "name": "兑",
+                  "nature": "泽",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "symbol": "☱",
+                  "keywords": "喜悦、交流、润泽",
+                  "theme": "喜悦沟通",
+                  "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+                  "image": "泽气外悦，主口才与感通。",
+                  "favorable": "谈判、传播、联络",
+                  "caution": "浮浅、贪快、失守"
+                },
+                "lower": {
+                  "name": "兑",
+                  "nature": "泽",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "symbol": "☱",
+                  "keywords": "喜悦、交流、润泽",
+                  "theme": "喜悦沟通",
+                  "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+                  "image": "泽气外悦，主口才与感通。",
+                  "favorable": "谈判、传播、联络",
+                  "caution": "浮浅、贪快、失守"
+                },
+                "lines": [
+                  1,
+                  1,
+                  0,
+                  1,
+                  1,
+                  0
+                ],
+                "binary_code": "110110",
+                "symbol": "☱☱",
+                "theme": "悦纳交流",
+                "guidance": "利谈判、合作、传播，但忌流于表面。",
+                "judgement": "沟通顺则事顺，但深度不够易浮。",
+                "image": "两泽相连，喜悦互感，利交流联络。",
+                "favorable": "谈判、社交、内容传播",
+                "caution": "忌讨好、口惠而实不至",
+                "summary": "兑为泽：悦纳交流。沟通顺则事顺，但深度不够易浮。",
+                "moving_line": 6
+              },
+              "mutual_hexagram": {
+                "name": "风火家人",
+                "upper": {
+                  "name": "巽",
+                  "nature": "风",
+                  "element": "木",
+                  "lines": [
+                    0,
+                    1,
+                    1
+                  ],
+                  "symbol": "☴",
+                  "keywords": "渗透、谋划、柔入",
+                  "theme": "渗透筹谋",
+                  "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+                  "image": "风行入物，主渗透与筹划。",
+                  "favorable": "铺垫、布局、柔进",
+                  "caution": "犹疑、拖延、立场飘"
+                },
+                "lower": {
+                  "name": "离",
+                  "nature": "火",
+                  "element": "火",
+                  "lines": [
+                    1,
+                    0,
+                    1
+                  ],
+                  "symbol": "☲",
+                  "keywords": "光明、表达、洞察",
+                  "theme": "明辨显化",
+                  "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+                  "image": "火光附丽，主显明与辨析。",
+                  "favorable": "表达、曝光、识别",
+                  "caution": "虚火、急躁、表强里弱"
+                },
+                "lines": [
+                  1,
+                  0,
+                  1,
+                  0,
+                  1,
+                  1
+                ],
+                "binary_code": "101011",
+                "symbol": "☴☲",
+                "theme": "内序成局",
+                "guidance": "先定家法和分工，内部有序才有外部效率。",
+                "judgement": "内部秩序就是结果前提。",
+                "image": "风自火出，家内有序，重分工与规矩。",
+                "favorable": "定机制、定分工、稳团队",
+                "caution": "忌内耗、角色失序",
+                "summary": "风火家人：内序成局。内部秩序就是结果前提。"
+              },
+              "opposite_hexagram": {
+                "name": "地山谦",
+                "upper": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lower": {
+                  "name": "艮",
+                  "nature": "山",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "symbol": "☶",
+                  "keywords": "止守、边界、收束",
+                  "theme": "止守定界",
+                  "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+                  "image": "山止其上，主边界与停驻。",
+                  "favorable": "收束、暂停、止损",
+                  "caution": "僵住、迟滞、错失时机"
+                },
+                "lines": [
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "binary_code": "001000",
+                "symbol": "☷☶",
+                "theme": "谦冲受益",
+                "guidance": "放低姿态反而得助力，宜虚心整合众意。",
+                "judgement": "退一步、低一分，反而更易得助。",
+                "image": "山在地下，内高外卑，谦而有光。",
+                "favorable": "放低姿态、整合众力、听意见",
+                "caution": "忌假谦、委屈成怨",
+                "summary": "地山谦：谦冲受益。退一步、低一分，反而更易得助。"
+              },
+              "cuo_hexagram": {
+                "name": "地山谦",
+                "upper": {
+                  "name": "坤",
+                  "nature": "地",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "symbol": "☷",
+                  "keywords": "承载、包容、顺势",
+                  "theme": "承载顺势",
+                  "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+                  "image": "厚地承载，主配合与落地。",
+                  "favorable": "承接、执行、积累",
+                  "caution": "过度被动、失主见"
+                },
+                "lower": {
+                  "name": "艮",
+                  "nature": "山",
+                  "element": "土",
+                  "lines": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "symbol": "☶",
+                  "keywords": "止守、边界、收束",
+                  "theme": "止守定界",
+                  "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+                  "image": "山止其上，主边界与停驻。",
+                  "favorable": "收束、暂停、止损",
+                  "caution": "僵住、迟滞、错失时机"
+                },
+                "lines": [
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "binary_code": "001000",
+                "symbol": "☷☶",
+                "theme": "谦冲受益",
+                "guidance": "放低姿态反而得助力，宜虚心整合众意。",
+                "judgement": "退一步、低一分，反而更易得助。",
+                "image": "山在地下，内高外卑，谦而有光。",
+                "favorable": "放低姿态、整合众力、听意见",
+                "caution": "忌假谦、委屈成怨",
+                "summary": "地山谦：谦冲受益。退一步、低一分，反而更易得助。"
+              },
+              "zong_hexagram": {
+                "name": "风天小畜",
+                "upper": {
+                  "name": "巽",
+                  "nature": "风",
+                  "element": "木",
+                  "lines": [
+                    0,
+                    1,
+                    1
+                  ],
+                  "symbol": "☴",
+                  "keywords": "渗透、谋划、柔入",
+                  "theme": "渗透筹谋",
+                  "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+                  "image": "风行入物，主渗透与筹划。",
+                  "favorable": "铺垫、布局、柔进",
+                  "caution": "犹疑、拖延、立场飘"
+                },
+                "lower": {
+                  "name": "乾",
+                  "nature": "天",
+                  "element": "金",
+                  "lines": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "symbol": "☰",
+                  "keywords": "刚健、开创、天道",
+                  "theme": "主动开创",
+                  "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                  "image": "纯阳在上，主健行与统摄。",
+                  "favorable": "立规、决策、开局",
+                  "caution": "刚亢、独断、过压"
+                },
+                "lines": [
+                  1,
+                  1,
+                  1,
+                  0,
+                  1,
+                  1
+                ],
+                "binary_code": "111011",
+                "symbol": "☴☰",
+                "theme": "蓄势待发",
+                "guidance": "先积累条件和资源，时机未足不必硬冲。",
+                "judgement": "蓄势阶段，耐心积累比急冲更值钱。",
+                "image": "风行天上，小有积蓄，未到全放之时。",
+                "favorable": "攒资源、攒信用、攒条件",
+                "caution": "忌提前透支、硬上规模",
+                "summary": "风天小畜：蓄势待发。蓄势阶段，耐心积累比急冲更值钱。"
+              },
+              "element_relation": "同气相应",
+              "moving_palace": "上卦",
+              "body_trigram": {
+                "name": "兑",
+                "nature": "泽",
+                "element": "金",
+                "lines": [
+                  1,
+                  1,
+                  0
+                ],
+                "symbol": "☱",
+                "keywords": "喜悦、交流、润泽",
+                "theme": "喜悦沟通",
+                "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+                "image": "泽气外悦，主口才与感通。",
+                "favorable": "谈判、传播、联络",
+                "caution": "浮浅、贪快、失守"
+              },
+              "use_trigram": {
+                "name": "乾",
+                "nature": "天",
+                "element": "金",
+                "lines": [
+                  1,
+                  1,
+                  1
+                ],
+                "symbol": "☰",
+                "keywords": "刚健、开创、天道",
+                "theme": "主动开创",
+                "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+                "image": "纯阳在上，主健行与统摄。",
+                "favorable": "立规、决策、开局",
+                "caution": "刚亢、独断、过压"
+              },
+              "body_use_relation": "体用比和",
+              "body_use_summary": "动爻落上卦，体卦兑、用卦乾，五行关系为体用比和。",
+              "summary": "梅花时卦得天泽履，动6爻，之兑为泽；上卦乾、下卦兑，五行关系为同气相应。"
+            }
+          },
+          "lunar_calendar_support": {
+            "supported": true,
+            "supported_range": {
+              "start": "1900-01-31",
+              "end": "2100-02-08"
+            }
+          }
+        },
+        "qimen": {
+          "dun_type": "阴遁",
+          "ju_number": 6,
+          "ju_text": "阴遁六局上元",
+          "yuan": "上元",
+          "yuan_order": "上元",
+          "fu_tou": "己卯",
+          "xun_head": "甲戌",
+          "kongwang": "申酉空",
+          "zhifu": {
+            "star": "天辅",
+            "palace": "乾六宫",
+            "trigram": "乾",
+            "content_palace": "乾六宫",
+            "content_trigram": "乾",
+            "code": "辅"
+          },
+          "zhishi": {
+            "door": "杜门",
+            "palace": "离九宫",
+            "trigram": "离",
+            "content_palace": "离九宫",
+            "content_trigram": "离",
+            "code": "杜"
+          },
+          "fushi_hexagram": {
+            "name": "天风姤",
+            "binary_code": "011111"
+          },
+          "palaces": [
+            {
+              "name": "坎一宫",
+              "trigram": "坎",
+              "content_palace": "坎一宫",
+              "content_trigram": "坎",
+              "heaven_stem": "丁",
+              "earth_stem": "癸",
+              "god": "九天",
+              "door": "开门",
+              "star": "天英",
+              "door_hexagram": {
+                "name": "水天需",
+                "binary_code": "111010"
+              }
+            },
+            {
+              "name": "坤二宫",
+              "trigram": "坤",
+              "content_palace": "坤二宫",
+              "content_trigram": "坤",
+              "heaven_stem": "丙",
+              "earth_stem": "壬",
+              "god": "太阴",
+              "door": "景门",
+              "star": "天任",
+              "door_hexagram": {
+                "name": "地火明夷",
+                "binary_code": "101000"
+              }
+            },
+            {
+              "name": "震三宫",
+              "trigram": "震",
+              "content_palace": "震三宫",
+              "content_trigram": "震",
+              "heaven_stem": "乙",
+              "earth_stem": "辛",
+              "god": "玄武",
+              "door": "生门",
+              "star": "天柱",
+              "door_hexagram": {
+                "name": "雷山小过",
+                "binary_code": "001100"
+              }
+            },
+            {
+              "name": "巽四宫",
+              "trigram": "巽",
+              "content_palace": "巽四宫",
+              "content_trigram": "巽",
+              "heaven_stem": "戊",
+              "earth_stem": "庚",
+              "god": "白虎",
+              "door": "伤门",
+              "star": "天心",
+              "door_hexagram": {
+                "name": "风雷益",
+                "binary_code": "100011"
+              }
+            },
+            {
+              "name": "中五宫",
+              "trigram": "中",
+              "content_palace": "中五宫",
+              "content_trigram": "中",
+              "heaven_stem": "己",
+              "earth_stem": "己",
+              "god": "值符",
+              "door": "中门",
+              "star": "天禽",
+              "door_hexagram": {
+                "name": "坤为地",
+                "binary_code": "000000"
+              }
+            },
+            {
+              "name": "乾六宫",
+              "trigram": "乾",
+              "content_palace": "乾六宫",
+              "content_trigram": "乾",
+              "heaven_stem": "庚",
+              "earth_stem": "戊",
+              "god": "值符",
+              "door": "惊门",
+              "star": "天辅",
+              "door_hexagram": {
+                "name": "天泽履",
+                "binary_code": "110111"
+              }
+            },
+            {
+              "name": "兑七宫",
+              "trigram": "兑",
+              "content_palace": "兑七宫",
+              "content_trigram": "兑",
+              "heaven_stem": "辛",
+              "earth_stem": "乙",
+              "god": "螣蛇",
+              "door": "死门",
+              "star": "天冲",
+              "door_hexagram": {
+                "name": "泽地萃",
+                "binary_code": "000110"
+              }
+            },
+            {
+              "name": "艮八宫",
+              "trigram": "艮",
+              "content_palace": "艮八宫",
+              "content_trigram": "艮",
+              "heaven_stem": "壬",
+              "earth_stem": "丙",
+              "god": "九地",
+              "door": "休门",
+              "star": "天芮",
+              "door_hexagram": {
+                "name": "山水蒙",
+                "binary_code": "010001"
+              }
+            },
+            {
+              "name": "离九宫",
+              "trigram": "离",
+              "content_palace": "离九宫",
+              "content_trigram": "离",
+              "heaven_stem": "癸",
+              "earth_stem": "丁",
+              "god": "六合",
+              "door": "杜门",
+              "star": "天蓬",
+              "door_hexagram": {
+                "name": "火风鼎",
+                "binary_code": "011101"
+              }
+            }
+          ],
+          "engine": "fatebridge-offline"
+        },
+        "snapshot_text": "[起盘信息]\n农历：九月廿五\n直接时间：2026-11-03 00:50:00\n四柱：丙午年/戊戌月/辛巳日/戊子时\n时间算法：本地节气换月\n换日：子初换日\n\n[盘型]\n当前节气：霜降\n下个节气：立冬\n盘型：阴遁六局上元\n遁型：阴遁\n三元：上元\n符头：己卯\n旬首：甲戌\n空亡：申酉空\n\n[盘面要素]\n值符：天辅在乾六宫\n值使：杜门在离九宫\n布局：direct\n参考句：无\n\n[奇门演卦]\n伏使卦：天风姤 / 011111\n值符宫门卦：天泽履\n值使宫门卦：火风鼎\n\n[八宫详解]\n坎一宫：天盘干：丁；地盘干：癸；八神：九天；九星：天英；八门：开门\n坤二宫：天盘干：丙；地盘干：壬；八神：太阴；九星：天任；八门：景门\n震三宫：天盘干：乙；地盘干：辛；八神：玄武；九星：天柱；八门：生门\n巽四宫：天盘干：戊；地盘干：庚；八神：白虎；九星：天心；八门：伤门\n中五宫：天盘干：己；地盘干：己；八神：值符；九星：天禽；八门：中门\n乾六宫：天盘干：庚；地盘干：戊；八神：值符；九星：天辅；八门：惊门\n兑七宫：天盘干：辛；地盘干：乙；八神：螣蛇；九星：天冲；八门：死门\n艮八宫：天盘干：壬；地盘干：丙；八神：九地；九星：天芮；八门：休门\n离九宫：天盘干：癸；地盘干：丁；八神：六合；九星：天蓬；八门：杜门\n\n[九宫方盘]\n巽四宫：伤门/天心/白虎 | 离九宫：杜门/天蓬/六合 | 坤二宫：景门/天任/太阴\n震三宫：生门/天柱/玄武 | 中五宫：中门/天禽/值符 | 兑七宫：死门/天冲/螣蛇\n艮八宫：休门/天芮/九地 | 坎一宫：开门/天英/九天 | 乾六宫：惊门/天辅/值符\n\n[坎一宫]\n宫卦：坎\n天盘干：丁\n地盘干：癸\n八神：九天\n九星：天英\n八门：开门\n门卦：水天需\n\n[坤二宫]\n宫卦：坤\n天盘干：丙\n地盘干：壬\n八神：太阴\n九星：天任\n八门：景门\n门卦：地火明夷\n\n[震三宫]\n宫卦：震\n天盘干：乙\n地盘干：辛\n八神：玄武\n九星：天柱\n八门：生门\n门卦：雷山小过\n\n[巽四宫]\n宫卦：巽\n天盘干：戊\n地盘干：庚\n八神：白虎\n九星：天心\n八门：伤门\n门卦：风雷益\n\n[中五宫]\n宫卦：中\n天盘干：己\n地盘干：己\n八神：值符\n九星：天禽\n八门：中门\n门卦：坤为地\n\n[乾六宫]\n宫卦：乾\n天盘干：庚\n地盘干：戊\n八神：值符\n九星：天辅\n八门：惊门\n门卦：天泽履\n\n[兑七宫]\n宫卦：兑\n天盘干：辛\n地盘干：乙\n八神：螣蛇\n九星：天冲\n八门：死门\n门卦：泽地萃\n\n[艮八宫]\n宫卦：艮\n天盘干：壬\n地盘干：丙\n八神：九地\n九星：天芮\n八门：休门\n门卦：山水蒙\n\n[离九宫]\n宫卦：离\n天盘干：癸\n地盘干：丁\n八神：六合\n九星：天蓬\n八门：杜门\n门卦：火风鼎",
+        "snapshot_export": {
+          "technique": {
+            "key": "qimen",
+            "label": "奇门遁甲",
+            "preset_sections": [
+              "起盘信息",
+              "盘型",
+              "盘面要素",
+              "奇门演卦",
+              "八宫详解",
+              "九宫方盘",
+              "坎一宫",
+              "坤二宫",
+              "震三宫",
+              "巽四宫",
+              "中五宫",
+              "乾六宫",
+              "兑七宫",
+              "艮八宫",
+              "离九宫"
+            ],
+            "forbidden_sections": [
+              "右侧栏目"
+            ],
+            "supports_planet_info": false,
+            "planet_info_default": null,
+            "supports_astro_meaning": true,
+            "supports_hover_meaning": true,
+            "astro_meaning_default": {
+              "enabled": 0
+            },
+            "astro_meaning_title": "悬浮注释（仅AI导出）：",
+            "astro_meaning_checkbox": "在对应分段输出六壬/遁甲/占星悬浮注释",
+            "settings_template": {
+              "sections": [
+                "起盘信息",
+                "盘型",
+                "盘面要素",
+                "奇门演卦",
+                "八宫详解",
+                "九宫方盘",
+                "坎一宫",
+                "坤二宫",
+                "震三宫",
+                "巽四宫",
+                "中五宫",
+                "乾六宫",
+                "兑七宫",
+                "艮八宫",
+                "离九宫"
+              ],
+              "planetInfo": null,
+              "astroMeaning": {
+                "enabled": 0
+              }
+            }
+          },
+          "settings_used": {
+            "version": 6,
+            "sections": {
+              "qimen": [
+                "起盘信息",
+                "盘型",
+                "盘面要素",
+                "奇门演卦",
+                "八宫详解",
+                "九宫方盘",
+                "坎一宫",
+                "坤二宫",
+                "震三宫",
+                "巽四宫",
+                "中五宫",
+                "乾六宫",
+                "兑七宫",
+                "艮八宫",
+                "离九宫"
+              ]
+            },
+            "planetInfo": {},
+            "astroMeaning": {
+              "qimen": {
+                "enabled": 0
+              }
+            }
+          },
+          "section_titles_detected": [
+            "起盘信息",
+            "盘型",
+            "盘面要素",
+            "奇门演卦",
+            "八宫详解",
+            "九宫方盘",
+            "坎一宫",
+            "坤二宫",
+            "震三宫",
+            "巽四宫",
+            "中五宫",
+            "乾六宫",
+            "兑七宫",
+            "艮八宫",
+            "离九宫"
+          ],
+          "selected_sections": [
+            "起盘信息",
+            "盘型",
+            "盘面要素",
+            "奇门演卦",
+            "八宫详解",
+            "九宫方盘",
+            "坎一宫",
+            "坤二宫",
+            "震三宫",
+            "巽四宫",
+            "中五宫",
+            "乾六宫",
+            "兑七宫",
+            "艮八宫",
+            "离九宫"
+          ],
+          "unknown_detected_sections": [],
+          "missing_selected_sections": [],
+          "sections": [
+            {
+              "index": 1,
+              "raw_title": "起盘信息",
+              "title": "起盘信息",
+              "included": true,
+              "content": "[起盘信息]\n农历：九月廿五\n直接时间：2026-11-03 00:50:00\n四柱：丙午年/戊戌月/辛巳日/戊子时\n时间算法：本地节气换月\n换日：子初换日"
+            },
+            {
+              "index": 2,
+              "raw_title": "盘型",
+              "title": "盘型",
+              "included": true,
+              "content": "[盘型]\n当前节气：霜降\n下个节气：立冬\n盘型：阴遁六局上元\n遁型：阴遁\n三元：上元\n符头：己卯\n旬首：甲戌\n空亡：申酉空"
+            },
+            {
+              "index": 3,
+              "raw_title": "盘面要素",
+              "title": "盘面要素",
+              "included": true,
+              "content": "[盘面要素]\n值符：天辅在乾六宫\n值使：杜门在离九宫\n布局：direct\n参考句：无"
+            },
+            {
+              "index": 4,
+              "raw_title": "奇门演卦",
+              "title": "奇门演卦",
+              "included": true,
+              "content": "[奇门演卦]\n伏使卦：天风姤 / 011111\n值符宫门卦：天泽履\n值使宫门卦：火风鼎"
+            },
+            {
+              "index": 5,
+              "raw_title": "八宫详解",
+              "title": "八宫详解",
+              "included": true,
+              "content": "[八宫详解]\n坎一宫：天盘干：丁；地盘干：癸；八神：九天；九星：天英；八门：开门\n坤二宫：天盘干：丙；地盘干：壬；八神：太阴；九星：天任；八门：景门\n震三宫：天盘干：乙；地盘干：辛；八神：玄武；九星：天柱；八门：生门\n巽四宫：天盘干：戊；地盘干：庚；八神：白虎；九星：天心；八门：伤门\n中五宫：天盘干：己；地盘干：己；八神：值符；九星：天禽；八门：中门\n乾六宫：天盘干：庚；地盘干：戊；八神：值符；九星：天辅；八门：惊门\n兑七宫：天盘干：辛；地盘干：乙；八神：螣蛇；九星：天冲；八门：死门\n艮八宫：天盘干：壬；地盘干：丙；八神：九地；九星：天芮；八门：休门\n离九宫：天盘干：癸；地盘干：丁；八神：六合；九星：天蓬；八门：杜门"
+            },
+            {
+              "index": 6,
+              "raw_title": "九宫方盘",
+              "title": "九宫方盘",
+              "included": true,
+              "content": "[九宫方盘]\n巽四宫：伤门/天心/白虎 | 离九宫：杜门/天蓬/六合 | 坤二宫：景门/天任/太阴\n震三宫：生门/天柱/玄武 | 中五宫：中门/天禽/值符 | 兑七宫：死门/天冲/螣蛇\n艮八宫：休门/天芮/九地 | 坎一宫：开门/天英/九天 | 乾六宫：惊门/天辅/值符"
+            },
+            {
+              "index": 7,
+              "raw_title": "坎一宫",
+              "title": "坎一宫",
+              "included": true,
+              "content": "[坎一宫]\n宫卦：坎\n天盘干：丁\n地盘干：癸\n八神：九天\n九星：天英\n八门：开门\n门卦：水天需"
+            },
+            {
+              "index": 8,
+              "raw_title": "坤二宫",
+              "title": "坤二宫",
+              "included": true,
+              "content": "[坤二宫]\n宫卦：坤\n天盘干：丙\n地盘干：壬\n八神：太阴\n九星：天任\n八门：景门\n门卦：地火明夷"
+            },
+            {
+              "index": 9,
+              "raw_title": "震三宫",
+              "title": "震三宫",
+              "included": true,
+              "content": "[震三宫]\n宫卦：震\n天盘干：乙\n地盘干：辛\n八神：玄武\n九星：天柱\n八门：生门\n门卦：雷山小过"
+            },
+            {
+              "index": 10,
+              "raw_title": "巽四宫",
+              "title": "巽四宫",
+              "included": true,
+              "content": "[巽四宫]\n宫卦：巽\n天盘干：戊\n地盘干：庚\n八神：白虎\n九星：天心\n八门：伤门\n门卦：风雷益"
+            },
+            {
+              "index": 11,
+              "raw_title": "中五宫",
+              "title": "中五宫",
+              "included": true,
+              "content": "[中五宫]\n宫卦：中\n天盘干：己\n地盘干：己\n八神：值符\n九星：天禽\n八门：中门\n门卦：坤为地"
+            },
+            {
+              "index": 12,
+              "raw_title": "乾六宫",
+              "title": "乾六宫",
+              "included": true,
+              "content": "[乾六宫]\n宫卦：乾\n天盘干：庚\n地盘干：戊\n八神：值符\n九星：天辅\n八门：惊门\n门卦：天泽履"
+            },
+            {
+              "index": 13,
+              "raw_title": "兑七宫",
+              "title": "兑七宫",
+              "included": true,
+              "content": "[兑七宫]\n宫卦：兑\n天盘干：辛\n地盘干：乙\n八神：螣蛇\n九星：天冲\n八门：死门\n门卦：泽地萃"
+            },
+            {
+              "index": 14,
+              "raw_title": "艮八宫",
+              "title": "艮八宫",
+              "included": true,
+              "content": "[艮八宫]\n宫卦：艮\n天盘干：壬\n地盘干：丙\n八神：九地\n九星：天芮\n八门：休门\n门卦：山水蒙"
+            },
+            {
+              "index": 15,
+              "raw_title": "离九宫",
+              "title": "离九宫",
+              "included": true,
+              "content": "[离九宫]\n宫卦：离\n天盘干：癸\n地盘干：丁\n八神：六合\n九星：天蓬\n八门：杜门\n门卦：火风鼎"
+            }
+          ],
+          "export_text": "[起盘信息]\n农历：九月廿五\n直接时间：2026-11-03 00:50:00\n四柱：丙午年/戊戌月/辛巳日/戊子时\n时间算法：本地节气换月\n换日：子初换日\n\n[盘型]\n当前节气：霜降\n下个节气：立冬\n盘型：阴遁六局上元\n遁型：阴遁\n三元：上元\n符头：己卯\n旬首：甲戌\n空亡：申酉空\n\n[盘面要素]\n值符：天辅在乾六宫\n值使：杜门在离九宫\n布局：direct\n参考句：无\n\n[奇门演卦]\n伏使卦：天风姤 / 011111\n值符宫门卦：天泽履\n值使宫门卦：火风鼎\n\n[八宫详解]\n坎一宫：天盘干：丁；地盘干：癸；八神：九天；九星：天英；八门：开门\n坤二宫：天盘干：丙；地盘干：壬；八神：太阴；九星：天任；八门：景门\n震三宫：天盘干：乙；地盘干：辛；八神：玄武；九星：天柱；八门：生门\n巽四宫：天盘干：戊；地盘干：庚；八神：白虎；九星：天心；八门：伤门\n中五宫：天盘干：己；地盘干：己；八神：值符；九星：天禽；八门：中门\n乾六宫：天盘干：庚；地盘干：戊；八神：值符；九星：天辅；八门：惊门\n兑七宫：天盘干：辛；地盘干：乙；八神：螣蛇；九星：天冲；八门：死门\n艮八宫：天盘干：壬；地盘干：丙；八神：九地；九星：天芮；八门：休门\n离九宫：天盘干：癸；地盘干：丁；八神：六合；九星：天蓬；八门：杜门\n\n[九宫方盘]\n巽四宫：伤门/天心/白虎 | 离九宫：杜门/天蓬/六合 | 坤二宫：景门/天任/太阴\n震三宫：生门/天柱/玄武 | 中五宫：中门/天禽/值符 | 兑七宫：死门/天冲/螣蛇\n艮八宫：休门/天芮/九地 | 坎一宫：开门/天英/九天 | 乾六宫：惊门/天辅/值符\n\n[坎一宫]\n宫卦：坎\n天盘干：丁\n地盘干：癸\n八神：九天\n九星：天英\n八门：开门\n门卦：水天需\n\n[坤二宫]\n宫卦：坤\n天盘干：丙\n地盘干：壬\n八神：太阴\n九星：天任\n八门：景门\n门卦：地火明夷\n\n[震三宫]\n宫卦：震\n天盘干：乙\n地盘干：辛\n八神：玄武\n九星：天柱\n八门：生门\n门卦：雷山小过\n\n[巽四宫]\n宫卦：巽\n天盘干：戊\n地盘干：庚\n八神：白虎\n九星：天心\n八门：伤门\n门卦：风雷益\n\n[中五宫]\n宫卦：中\n天盘干：己\n地盘干：己\n八神：值符\n九星：天禽\n八门：中门\n门卦：坤为地\n\n[乾六宫]\n宫卦：乾\n天盘干：庚\n地盘干：戊\n八神：值符\n九星：天辅\n八门：惊门\n门卦：天泽履\n\n[兑七宫]\n宫卦：兑\n天盘干：辛\n地盘干：乙\n八神：螣蛇\n九星：天冲\n八门：死门\n门卦：泽地萃\n\n[艮八宫]\n宫卦：艮\n天盘干：壬\n地盘干：丙\n八神：九地\n九星：天芮\n八门：休门\n门卦：山水蒙\n\n[离九宫]\n宫卦：离\n天盘干：癸\n地盘干：丁\n八神：六合\n九星：天蓬\n八门：杜门\n门卦：火风鼎"
+        },
+        "run_metadata": {
+          "run_id": "3d649e2ca49b4182a4e9f4d494f2126c",
+          "trace_id": "6104f2d14ec847c7b2b19105340bbefd",
+          "tool_name": "qimen",
+          "generated_at": "2026-10-09T04:12:09.767605Z",
+          "engine": "fatebridge-offline",
+          "engine_is_approximate": false
+        }
+      }
+    }
+  ]
+}
