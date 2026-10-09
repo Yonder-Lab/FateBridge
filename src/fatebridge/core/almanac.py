@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple, cast
 
@@ -174,6 +174,47 @@ LUNAR_DAY_NAMES = {
 
 LUNAR_SUPPORTED_SOLAR_START = datetime(1900, 1, 31).date()
 LUNAR_SUPPORTED_SOLAR_END = datetime(2100, 2, 8).date()
+
+# Month-length corrections independently checked against sxtwl 2.0.7 and
+# Hong Kong Observatory annual calendars. Each preserves the year's total
+# length, so new-year anchors and other years in lunardate remain unchanged.
+# Encoding: low nibble = leap month; bits 15..4 = months 1..12 (30 vs 29
+# days); bit 16 = leap-month length. Do not mutate lunardate's global tables.
+LUNAR_YEAR_INFO_CORRECTIONS = {1933: 0x16A95, 1954: 0xA5B0, 1978: 0xB6A0}
+
+
+@dataclass(frozen=True)
+class _LunarDateValue:
+    year: int
+    month: int
+    day: int
+    isLeapMonth: bool
+
+
+@lru_cache(maxsize=2048)
+def _lunar_date_from_solar(solar_date: date) -> _LunarDateValue:
+    """Return corrected calendar data without changing a third-party singleton."""
+    if LunarDate is None:
+        raise ValueError("离线农历换算不可用")
+    lunar = LunarDate.fromSolarDate(solar_date.year, solar_date.month, solar_date.day)
+    if lunar.toSolarDate() != solar_date:
+        raise ValueError("农历转换无法反向验证")
+    info = LUNAR_YEAR_INFO_CORRECTIONS.get(lunar.year)
+    if info is None:
+        return _LunarDateValue(lunar.year, lunar.month, lunar.day, lunar.isLeapMonth)
+
+    new_year = LunarDate(lunar.year, 1, 1).toSolarDate()
+    remaining = (solar_date - new_year).days
+    leap_month = info & 0xF
+    for month in range(1, 13):
+        for is_leap in (False, True) if month == leap_month else (False,):
+            bit = 16 if is_leap else 16 - month
+            length = 29 + ((info >> bit) & 1)
+            if remaining < length:
+                return _LunarDateValue(lunar.year, month, remaining + 1, is_leap)
+            remaining -= length
+    raise ValueError("农历日期超出当年月份表")
+
 
 DAY_GANZHI_JDN_OFFSETS = {
     DAY_GANZHI_STRATEGY_STANDARD: 49,
@@ -531,7 +572,7 @@ def _lunar_supported_range_payload() -> Dict[str, str]:
 
 def _safe_lunar_date_from_solar(
     moment: datetime, timezone_name: str
-) -> Optional["LunarDate"]:
+) -> Optional[_LunarDateValue]:
     if LunarDate is None:
         return None
 
@@ -544,11 +585,7 @@ def _safe_lunar_date_from_solar(
         return None
 
     try:
-        lunar = LunarDate.fromSolarDate(
-            solar_date.year, solar_date.month, solar_date.day
-        )
-        if lunar.toSolarDate() != solar_date:
-            return None
+        lunar = _lunar_date_from_solar(solar_date)
     except ValueError:
         return None
 

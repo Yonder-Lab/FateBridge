@@ -1,0 +1,37 @@
+{
+  "summary": {
+    "charts": 400,
+    "charts_with_differences": 0,
+    "natal_charts_with_differences": 0,
+    "natal_differences_outside_late_zi": 0,
+    "checked_fields": {
+      "ming": 400,
+      "shen": 400,
+      "ju": 400,
+      "palace_name": 4800,
+      "palace_stem": 4800,
+      "decadal_range": 4800,
+      "star_position": 25200,
+      "brightness": 25200,
+      "mutagen": 25200,
+      "nominal_age": 400,
+      "horoscope_大限": 400,
+      "horoscope_小限": 400,
+      "horoscope_流年": 400,
+      "horoscope_流月": 400,
+      "horoscope_流日": 400,
+      "horoscope_流时": 400
+    },
+    "different_fields": {},
+    "horoscope_palace_difference_counts": {},
+    "horoscope_mutagen_difference_counts": {}
+  },
+  "reference_config": {
+    "yearDivide": "normal",
+    "horoscopeDivide": "normal",
+    "ageDivide": "normal",
+    "dayDivide": "current",
+    "algorithm": "default"
+  },
+  "differences": []
+}

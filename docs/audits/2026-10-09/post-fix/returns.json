@@ -1,0 +1,263 @@
+{
+  "summary": {
+    "cases": 12,
+    "errors": 0,
+    "max_time_difference_seconds": 3.1819984316825867,
+    "max_residual_arcsec": 1.893829416871995,
+    "all_precede_analysis": true
+  },
+  "cases": [
+    {
+      "input": {
+        "birth_year": 1990,
+        "birth_month": 5,
+        "birth_day": 17,
+        "birth_hour": 15,
+        "birth_minute": 30,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "solarreturn",
+      "return_datetime": "2026-05-17T00:32:23+00:00",
+      "longitude_residual_arcsec": 0.0324841412520982,
+      "difference_from_skyfield_root_seconds": 0.8084848523139954,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 145.29001157404855
+    },
+    {
+      "input": {
+        "birth_year": 1990,
+        "birth_month": 5,
+        "birth_day": 17,
+        "birth_hour": 15,
+        "birth_minute": 30,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "lunarreturn",
+      "return_datetime": "2026-09-23T08:21:27+00:00",
+      "longitude_residual_arcsec": 1.2236452934303088,
+      "difference_from_skyfield_root_seconds": 2.3526325821876526,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 15.964270833414048
+    },
+    {
+      "input": {
+        "birth_year": 1988,
+        "birth_month": 2,
+        "birth_day": 29,
+        "birth_hour": 6,
+        "birth_minute": 15,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "solarreturn",
+      "return_datetime": "2026-02-28T03:28:57+00:00",
+      "longitude_residual_arcsec": -0.007440232366207056,
+      "difference_from_skyfield_root_seconds": -0.17779022455215454,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 222.78197916643694
+    },
+    {
+      "input": {
+        "birth_year": 1988,
+        "birth_month": 2,
+        "birth_day": 29,
+        "birth_hour": 6,
+        "birth_minute": 15,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "lunarreturn",
+      "return_datetime": "2026-10-04T21:15:03+00:00",
+      "longitude_residual_arcsec": 0.8205831596683311,
+      "difference_from_skyfield_root_seconds": 1.406027376651764,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 4.041631944011897
+    },
+    {
+      "input": {
+        "birth_year": 2000,
+        "birth_month": 12,
+        "birth_day": 10,
+        "birth_hour": 23,
+        "birth_minute": 10,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "solarreturn",
+      "return_datetime": "2025-12-10T16:38:18+00:00",
+      "longitude_residual_arcsec": -0.01779344886472245,
+      "difference_from_skyfield_root_seconds": -0.42031556367874146,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 302.93868055567145
+    },
+    {
+      "input": {
+        "birth_year": 2000,
+        "birth_month": 12,
+        "birth_day": 10,
+        "birth_hour": 23,
+        "birth_minute": 10,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "lunarreturn",
+      "return_datetime": "2026-10-01T08:00:23+00:00",
+      "longitude_residual_arcsec": -1.893829416871995,
+      "difference_from_skyfield_root_seconds": -3.1819984316825867,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 8.298344907350838
+    },
+    {
+      "input": {
+        "birth_year": 1978,
+        "birth_month": 9,
+        "birth_day": 2,
+        "birth_hour": 2,
+        "birth_minute": 30,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "solarreturn",
+      "return_datetime": "2026-09-01T09:03:13+00:00",
+      "longitude_residual_arcsec": -0.009070124849586136,
+      "difference_from_skyfield_root_seconds": -0.22502392530441284,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 37.393599536735564
+    },
+    {
+      "input": {
+        "birth_year": 1978,
+        "birth_month": 9,
+        "birth_day": 2,
+        "birth_hour": 2,
+        "birth_minute": 30,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "lunarreturn",
+      "return_datetime": "2026-10-07T00:52:11+00:00",
+      "longitude_residual_arcsec": -1.171396817267123,
+      "difference_from_skyfield_root_seconds": -2.0505622029304504,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 1.7345949071459472
+    },
+    {
+      "input": {
+        "birth_year": 2024,
+        "birth_month": 2,
+        "birth_day": 10,
+        "birth_hour": 0,
+        "birth_minute": 0,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "solarreturn",
+      "return_datetime": "2026-02-09T03:39:31+00:00",
+      "longitude_residual_arcsec": -0.030326346541187377,
+      "difference_from_skyfield_root_seconds": -0.7189258933067322,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 241.51422453671694
+    },
+    {
+      "input": {
+        "birth_year": 2024,
+        "birth_month": 2,
+        "birth_day": 10,
+        "birth_hour": 0,
+        "birth_minute": 0,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "lunarreturn",
+      "return_datetime": "2026-09-23T01:09:12+00:00",
+      "longitude_residual_arcsec": 0.984716522339113,
+      "difference_from_skyfield_root_seconds": 1.906004548072815,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 15.618611110839993
+    },
+    {
+      "input": {
+        "birth_year": 1954,
+        "birth_month": 12,
+        "birth_day": 1,
+        "birth_hour": 10,
+        "birth_minute": 30,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "solarreturn",
+      "return_datetime": "2025-11-30T07:59:51+00:00",
+      "longitude_residual_arcsec": -0.03652920689773964,
+      "difference_from_skyfield_root_seconds": -0.8654952049255371,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 312.7709375000559
+    },
+    {
+      "input": {
+        "birth_year": 1954,
+        "birth_month": 12,
+        "birth_day": 1,
+        "birth_hour": 10,
+        "birth_minute": 30,
+        "birth_timezone": "+08:00",
+        "birth_longitude": 121.4737,
+        "birth_latitude": 31.2304,
+        "analysis_year": 2026,
+        "analysis_month": 10,
+        "analysis_day": 9
+      },
+      "tool": "lunarreturn",
+      "return_datetime": "2026-09-22T14:03:02+00:00",
+      "longitude_residual_arcsec": -0.041510085020490806,
+      "difference_from_skyfield_root_seconds": -0.08115023374557495,
+      "return_precedes_analysis": true,
+      "days_before_analysis": 16.518726851791143
+    }
+  ]
+}

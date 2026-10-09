@@ -37,6 +37,20 @@
       "ju": 2,
       "palace_name": 24,
       "decadal_range": 24
+    },
+    "horoscope_palace_difference_counts": {
+      "horoscope_流月": 374,
+      "horoscope_流日": 372,
+      "horoscope_流时": 372,
+      "horoscope_小限": 157,
+      "horoscope_流年": 100,
+      "horoscope_大限": 32
+    },
+    "horoscope_mutagen_difference_counts": {
+      "horoscope_流月": 295,
+      "horoscope_小限": 156,
+      "horoscope_流年": 100,
+      "horoscope_大限": 32
     }
   },
   "reference_config": {

@@ -1,0 +1,62 @@
+{
+  "audit_date": "2026-10-09",
+  "audit_start_source_commit": "1281fed77bba7378ffdd03bd1d241d2907ccaa65",
+  "current_head": "97147b9732e0fdf7511a29b71ac273787817db8c",
+  "production_source_and_tests_unchanged_between_commits": true,
+  "python": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 11:23:37) [Clang 14.0.6 ]",
+  "node": "v22.22.2",
+  "isolated_python_distribution_versions": {
+    "numpy": "2.5.3",
+    "cn2an": "0.5.24",
+    "sgp4": "2.27",
+    "pendulum": "3.2.0",
+    "packaging": "26.3",
+    "jplephem": "2.24",
+    "lunar_python": "1.4.8",
+    "sxtwl": "2.0.7",
+    "skyfield": "1.55",
+    "astropy": "8.0.1",
+    "tzdata": "2026.5",
+    "bidict": "0.24.1",
+    "pyerfa": "2.0.1.5",
+    "proces": "0.1.7",
+    "python-dateutil": "2.9.0.post0",
+    "PyYAML": "6.0.3",
+    "ephem": "4.2.1",
+    "certifi": "2026.7.22",
+    "drawsvg": "2.4.2",
+    "astropy-iers-data": "0.2026.10.5.1.0.7",
+    "six": "1.17.0"
+  },
+  "iztro": "2.5.8",
+  "sxtwl_source": {
+    "url": "https://github.com/yuangu/sxtwl_cpp",
+    "commit": "7598b0601a76cfdaa9266257b1b5690720c1e2ce"
+  },
+  "kintaiyi_source": {
+    "url": "https://github.com/kentang2017/kintaiyi",
+    "commit": "11f78555d5e77c81ac8af69d243a981c22934733"
+  },
+  "ephemeris": {
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/de440s.bsp",
+    "sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2"
+  },
+  "source_file_sha256": {
+    "src/fatebridge/core/almanac.py": "8016c718597eef8e77f09e536bbfcdce5e4ee0352ed5b49b1661835eb282d7db",
+    "src/fatebridge/core/calendar.py": "2bd94e7a97aeac64a0cd319ed796d60da1c57d84e7f546fa470fe6400f341d1e",
+    "src/fatebridge/core/metaphysics/ziwei.py": "c548c4133c5aed5cdd6048d98a46d6cffa58a2cf6e5246cf8cd6d87729c69414",
+    "src/fatebridge/core/metaphysics/liureng.py": "85ee0ea220251376976c142fbe75041f8c14c4bf7c5eb9080aa157a132f9df02",
+    "src/fatebridge/core/metaphysics/taiyi.py": "a03ad830bf7ba1c44068a496632116edc58b2a924ada87ce9dc220be9745c781",
+    "src/fatebridge/services/metaphysics.py": "0ff83ca36eaca2f8bce080ce9ed844f933aad27e1fb000b63b8ad5accbcfb6cd",
+    "src/fatebridge/core/astrology.py": "25c1c718f99c489380b16f816fd242e8c970d53583c1716d845c11825d8976af",
+    "scripts/audit_third_party.py": "4874d103702d7abd8d0abf72d06f5ecf733e43a482fc83fd0ce4f30a70c65339"
+  },
+  "conventions": {
+    "calendar": "UTC+08, no solar correction, 23:00 day rollover; lunar-python EightChar sect=1, Yun sect=2",
+    "ziwei": "normal year/age/horoscope divides; both forward and current late-zi tested; common-star intersection; active palace from iztro scope.index",
+    "liuren": "same day/hour ganzhi and solar term; oracle result(0)",
+    "taiyi": "same oracle ganzhi and lunar year; transform-only",
+    "astronomy": "UT1/TT aligned; geocentric apparent true ecliptic of date",
+    "solar_time": "topocentric solar hour angle; latitude 30deg, longitude 120deg"
+  }
+}

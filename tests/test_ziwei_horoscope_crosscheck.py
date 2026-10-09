@@ -34,7 +34,7 @@ _TIME_INDEX_TO_HOUR = {
 }
 
 
-def _our_scopes(case: dict) -> dict:
+def _our_horoscope(case: dict) -> dict:
     by, bm, bd = (int(x) for x in case["birth"]["date"].split("-"))
     bh = _TIME_INDEX_TO_HOUR[case["birth"]["time_index"]]
     person = create_person_info(
@@ -54,12 +54,9 @@ def _our_scopes(case: dict) -> dict:
     h = build_ziwei_horoscope(
         chart=chart,
         gender=person.gender or "未知",
-        natal_year_branch=natal_seed.pillars["year"][1],
-        target_pillars=target_seed.pillars,
-        birth_year=by,
-        target_year=ty,
+        target_seed=target_seed,
     )
-    return {s["scope"]: s for s in h["scopes"]}
+    return h
 
 
 def test_horoscope_matches_iztro_oracle():
@@ -67,7 +64,9 @@ def test_horoscope_matches_iztro_oracle():
     assert reference, "fixture must not be empty"
     mismatches = []
     for label, case in reference.items():
-        ours = _our_scopes(case)
+        h = _our_horoscope(case)
+        assert h["nominal_age"] == case["nominal_age"], label
+        ours = {s["scope"]: s for s in h["scopes"]}
         for scope, ref in case["scopes"].items():
             if (label, scope) in KNOWN_DIVERGENCES:
                 continue

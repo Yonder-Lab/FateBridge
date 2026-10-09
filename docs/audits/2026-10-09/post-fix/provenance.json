@@ -1,0 +1,65 @@
+{
+  "audit_date": "2026-10-09",
+  "pre_fix_source_commit": "1281fed77bba7378ffdd03bd1d241d2907ccaa65",
+  "current_head": "97147b9732e0fdf7511a29b71ac273787817db8c",
+  "production_source_and_tests_unchanged_between_commits": true,
+  "working_tree_source_hashes": "environment.json:summary.source_file_sha256",
+  "production_source_state": "Uncommitted fixes; no production dependencies added.",
+  "references": {
+    "iztro": "2.5.8",
+    "sxtwl_source": {
+      "url": "https://github.com/yuangu/sxtwl_cpp",
+      "commit": "7598b0601a76cfdaa9266257b1b5690720c1e2ce"
+    },
+    "kintaiyi_source": {
+      "url": "https://github.com/kentang2017/kintaiyi",
+      "commit": "11f78555d5e77c81ac8af69d243a981c22934733"
+    },
+    "ephemeris": {
+      "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/de440s.bsp",
+      "sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2"
+    }
+  },
+  "liuren_independent_reference": {
+    "repo": "https://github.com/d1210182010/daliurenpython-zh-tw",
+    "commit": "2afe9194e3644d2ead5652ed8b366ae6c70d7087",
+    "support_repo": "https://github.com/wlhyl/ganzhiwuxinForPython",
+    "support_commit": "0efdcc5c473487ef61b2e941005716056174cc54",
+    "loading": "Unmodified AST definitions: NoSanchuan, 寄宫, 干Of寄宫, TianPan, SiKe, SanChuan; original reference Ganzhi objects; no calendar/UI execution.",
+    "source_sha256": "90affae7747a50a7c7122e98a5930c4e9596df3fe2391a8af122f111a1969736"
+  },
+  "file_sha256": {
+    "angles.json": "f0f439c5717f2f2ebbf67d8763c997881208f57859797afe2516b8230b0135c4",
+    "calendar.json": "cd5e0c2121ccfb8a448b4c447a7e3fa45e6e5ad3ed3e48ada677b5c1240e0a06",
+    "environment.json": "3ad05fefe7cacaccbd4efe78db995cba488a9f20a48582bef730ae875fd49765",
+    "golden_updates.json": "646535e2ecaa60d2e104a204bbd2c18f10858f26375e28761c2277338af2ffa6",
+    "kinliuren_consistency.json": "1ffc10dcb7733744a1925fdf44bd3621d0b4fcc356d97d589fe207771c97a226",
+    "liuren.json": "5335ef5cba3d69a366ace5efc1686c2b94df99071456fba427114245f439366b",
+    "liuren_independent.json": "4fa91ccba0d3df332ade69156141cf9ed8fc670e7cbacd6497c38649723cfa3e",
+    "lunar_exhaustive.json": "20cad8425f88a27e5fa4dbf70969daa88789be4ff359335c333b8709836f1d07",
+    "mypy.txt": "ee0dba21df4949b587806be8e5668589ccc21f79809b57243d2b8b9c70f75fb9",
+    "pytest.txt": "91b8c3c63e74567546e7206950cd16e14506d0e1c016ad431a1f4750aa4ee3fa",
+    "rest_reproductions.json": "721c65acf08db66519f18b99217977674f1bc195eedfdb015bdba79f24d82f5f",
+    "returns.json": "07cc41607f9f5496fa5be561c623355eeea2f5482b0b74f62b282961e74c6ac4",
+    "skyfield.json": "739e66dbdfa8a40a1998b1c716d9d53e403921b553fa64844f00467c97bac4f6",
+    "solar_time.json": "9cde27cf6b514674a602b81c370712b4846f348b38298118b796d7f6e52a714c",
+    "taiyi_live.json": "7233d4a30ed06bb816159b2bb377ecd6b8f9a8f9a78b8ec3f1227376389cb17f",
+    "ziwei.json": "7dd766d33eab1eef6f4bf3b1a77e5fa0f814a7a054d9338589518daa27f8ce91",
+    "ziwei_current_day_diagnostic.json": "af825ee4fa0f553c942aef453f5f151fcc09e9d6155bb69c6a0c45fd84630bb6"
+  },
+  "fixture_sha256": {
+    "tests/fixtures/liureng_transmissions_reference.json": "dc7ec5d1d24b4c1a249aaf3a9a7c6e6fd08365cba925f64e4b63b1405d80511a",
+    "tests/fixtures/ziwei_brightness_reference.json": "6e8fbaf356b517b7028b0e18ef6b69ab5a5ae5cd528f3532490c34a8c0a07e92",
+    "tests/fixtures/ziwei_horoscope_reference.json": "d4c768cf8a60f3732e252a68be3b47ad7352d46c04ee7299b7d4ef2e9484d69b"
+  },
+  "shared_ziwei_oracle_file": {
+    "path": "../results/ziwei.json",
+    "json_key": "reference_results",
+    "sha256": "6805e351cd6eee870d75b199b3449dfefbf07aca5dc568bb6bfba959f99ad579"
+  },
+  "verification_script_sha256": {
+    "scripts/audit_third_party.py": "e06e43e43ea9de86e8669fb9fe862103f882468883e27e558ed8d35dc9b46fc2",
+    "scripts/audit_liureng_independent.py": "9bfcdebf4593ca31ccc0eb42c6749bba897cfaa2a1b9edfc507e0a434185fdb3",
+    "scripts/gen_ziwei_horoscope_fixture.py": "c3feda1baa307870c2d8887ecbcd8e7347be830ea012ec02a7ddace95903db22"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "summary": {
+    "combinations": 8640,
+    "unique_boards": 720,
+    "differences": 0,
+    "errors": 0
+  },
+  "scope": "Same-input transformation only; preserves FateBridge calendar and贵人 conventions.",
+  "reference": {
+    "repo": "https://github.com/d1210182010/daliurenpython-zh-tw",
+    "commit": "2afe9194e3644d2ead5652ed8b366ae6c70d7087",
+    "support_repo": "https://github.com/wlhyl/ganzhiwuxinForPython",
+    "support_commit": "0efdcc5c473487ef61b2e941005716056174cc54",
+    "loading": "Unmodified AST definitions: NoSanchuan, 寄宫, 干Of寄宫, TianPan, SiKe, SanChuan; original reference Ganzhi objects; no calendar/UI execution.",
+    "source_sha256": "90affae7747a50a7c7122e98a5930c4e9596df3fe2391a8af122f111a1969736"
+  },
+  "mismatches": [],
+  "errors": []
+}

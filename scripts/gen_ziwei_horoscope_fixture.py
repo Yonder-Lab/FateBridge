@@ -1,84 +1,91 @@
 #!/usr/bin/env python3
-"""Generate tests/fixtures/ziwei_horoscope_reference.json from py-iztro.
+"""Generate a pinned iztro 2.5.8 oracle, including actual active palaces.
 
-Run ONCE in an ISOLATED venv (py-iztro must NOT touch the project env):
-    python3.11 -m venv /tmp/iztro_oracle
-    /tmp/iztro_oracle/bin/pip install py-iztro
-    /tmp/iztro_oracle/bin/python3.11 scripts/gen_ziwei_horoscope_fixture.py
+npm install --prefix /tmp/iztro-oracle iztro@2.5.8
+python scripts/gen_ziwei_horoscope_fixture.py \
+  --iztro /tmp/iztro-oracle/node_modules/iztro
 
-DO NOT re-run without pinning the py-iztro version that produced the committed
-fixture: a silent upstream change could otherwise rewrite the oracle and let the
-cross-check pass against drifted reference data. The fixture committed here was
-generated with py-iztro 0.1.5.
-
-Per (birth, target) case it records, per scope, the active palace's earthly
-branch and the four 四化 target star names — a branch+stars tuple is
-convention-independent and survives palace-index/name differences between
-iztro and FateBridge.
-
-Verified API (py-iztro 0.1.x):
-  Astro().by_solar(date_str, time_index, gender_zh, is_leap, locale)
-    -> Astrolabe with .horoscope(target_date_str, target_time_index)
-       -> HoroscopeModel with attrs: decadal, age, yearly, monthly, daily, hourly
-          each HoroscopeItemModel has:
-            .earthly_branch  -> single CJK char (e.g. "辰")
-            .mutagen         -> list of 4 star name strings
+The old py-iztro fixture recorded monthly/daily/hourly calendar branches,
+which are not active palace branches. Always resolve a scope's .index into
+chart.palaces. Preserve FateBridge's late-zi=current convention and normal
+lunar year/month/age boundaries. No production code is imported here.
 """
 
+from __future__ import annotations
+
+import argparse
 import json
+import subprocess
 from pathlib import Path
 
-from py_iztro import Astro  # type: ignore[import-not-found]
-
-# (label, birth "Y-M-D", birth time index 0..12, gender zh, target "Y-M-D", target time index)
 CASES = [
     ("m_1994", "1994-8-23", 7, "男", "2026-6-19", 7),
     ("f_1988", "1988-2-29", 3, "女", "2025-10-1", 3),
     ("m_2001", "2001-11-5", 11, "男", "2030-1-15", 11),
+    ("reported_flow", "1990-5-15", 5, "男", "2026-10-9", 5),
+    ("before_lunar_new_year", "1990-5-15", 5, "女", "2026-2-5", 5),
+    ("after_lunar_new_year", "1990-5-15", 5, "女", "2026-2-18", 5),
+    ("birth_before_lunar_new_year", "1990-1-1", 5, "男", "2026-1-15", 5),
+    ("late_zi", "2000-12-10", 12, "男", "2026-10-9", 12),
+    ("childhood_one", "2024-2-10", 0, "男", "2024-2-10", 0),
+    ("childhood_two", "2024-2-10", 0, "女", "2025-2-1", 0),
+    ("childhood_three", "2024-2-10", 0, "男", "2026-2-18", 0),
+    ("birth_leap_first_half", "2023-3-23", 5, "男", "2026-10-9", 5),
+    ("birth_leap_second_half", "2023-4-10", 5, "女", "2026-10-9", 5),
+    ("target_leap_first_half", "1990-5-15", 5, "男", "2023-3-23", 5),
+    ("target_leap_second_half", "1990-5-15", 5, "女", "2023-4-10", 5),
+    ("historical_lunar_1933", "1933-7-22", 5, "男", "2026-10-9", 5),
+    ("historical_lunar_1954", "1954-12-1", 5, "女", "2026-10-9", 5),
+    ("historical_lunar_1978", "1978-9-2", 5, "男", "2026-10-9", 5),
 ]
-
-OUT = (
-    Path(__file__).resolve().parents[1]
-    / "tests"
-    / "fixtures"
-    / ("ziwei_horoscope_reference.json")
+CONFIG = dict(
+    yearDivide="normal",
+    horoscopeDivide="normal",
+    ageDivide="normal",
+    dayDivide="current",
+    algorithm="default",
 )
-
-# our scope name -> py-iztro horoscope attribute
-SCOPE_ATTR = [
-    ("大限", "decadal"),
-    ("小限", "age"),
-    ("流年", "yearly"),
-    ("流月", "monthly"),
-    ("流日", "daily"),
-    ("流时", "hourly"),
-]
+SCRIPT = r"""
+const fs=require('fs');
+const path=require('path');
+const mod=process.argv[1];
+if(JSON.parse(fs.readFileSync(path.join(mod,'package.json'),'utf8')).version!=='2.5.8')
+  throw new Error('Oracle version must be iztro 2.5.8');
+const {astro}=require(mod);astro.config(JSON.parse(process.argv[2]));
+const cases=JSON.parse(fs.readFileSync(0,'utf8'));const out={};
+for(const [label,bdate,bidx,gender,tdate,tidx] of cases){
+  const chart=astro.bySolar(bdate,bidx,gender,true,'zh-CN');
+  const h=chart.horoscope(tdate,tidx);const scopes={};
+  for(const [name,attr] of [['大限','decadal'],['小限','age'],['流年','yearly'],['流月','monthly'],['流日','daily'],['流时','hourly']]){
+    const scope=h[attr];
+    if(!chart.palaces[scope.index]) throw new Error(label+'/'+name+' unsupported index');
+    scopes[name]={branch:chart.palaces[scope.index].earthlyBranch,mutagen:scope.mutagen};
+  }
+  out[label]={birth:{date:bdate,time_index:bidx,gender},target:{date:tdate,time_index:tidx},nominal_age:h.age.nominalAge,scopes,oracle:{name:'iztro',version:'2.5.8',config:JSON.parse(process.argv[2])}};
+}
+process.stdout.write(JSON.stringify(out));
+"""
 
 
 def main() -> None:
-    astro = Astro()
-    fixture: dict = {}
-    for label, bdate, bidx, gender, tdate, tidx in CASES:
-        chart = astro.by_solar(bdate, bidx, gender, True, "zh-CN")
-        h = chart.horoscope(tdate, tidx)
-        scopes: dict = {}
-        for our_name, attr in SCOPE_ATTR:
-            sc = getattr(h, attr)
-            scopes[our_name] = {
-                "branch": sc.earthly_branch,
-                "mutagen": list(sc.mutagen),
-            }
-        fixture[label] = {
-            "birth": {"date": bdate, "time_index": bidx, "gender": gender},
-            "target": {"date": tdate, "time_index": tidx},
-            "scopes": scopes,
-        }
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--iztro", type=Path, required=True)
+    args = parser.parse_args()
+    fixture = json.loads(
+        subprocess.check_output(
+            ["node", "-e", SCRIPT, str(args.iztro.resolve()), json.dumps(CONFIG)],
+            input=json.dumps(CASES).encode(),
+        )
+    )
+    out = (
+        Path(__file__).resolve().parents[1]
+        / "tests/fixtures/ziwei_horoscope_reference.json"
+    )
+    out.write_text(
         json.dumps(fixture, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(f"wrote {len(fixture)} cases to {OUT}")
+    print(f"wrote {len(fixture)} independent cases to {out}")
 
 
 if __name__ == "__main__":

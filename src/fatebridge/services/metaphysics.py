@@ -36,7 +36,6 @@ from fatebridge.services.snapshot_builders import (
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     SOLAR_TIME_STRATEGY_APPARENT,
-    SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
     PersonInfo,
     calculate_solar_time_adjustment,
     calculation_guard,
@@ -89,7 +88,7 @@ def _build_analysis_seed(
             input_datetime,
             timezone_name,
             analysis_longitude,
-            strategy=SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
+            strategy=SOLAR_TIME_STRATEGY_APPARENT,
         )
         total_correction_minutes = adjustment["total_correction_minutes"]
         corrected_datetime = input_datetime + timedelta(
@@ -609,7 +608,8 @@ def _build_ziwei_horoscope_snapshot_text(
                 str(s.get("scope", "运限")),
                 _join_snapshot_lines(
                     [
-                        f"宫位：{s.get('palace_name', '无')}（{s.get('stem', '')}{s.get('branch', '')}）",
+                        f"宫位：{s.get('palace_name', '无')}（{s.get('palace_ganzhi', '')}）",
+                        f"四化天干：{s.get('stem', '')}",
                         f"四化：{_mutagen_line(s.get('mutagen', {}) or {})}",
                     ]
                 ),
@@ -738,10 +738,7 @@ def calculate_ziwei_horoscope(
     horoscope = build_ziwei_horoscope(
         chart=chart,
         gender=person.gender or "未知",
-        natal_year_branch=seed.pillars["year"][1],
-        target_pillars=target_seed.pillars,
-        birth_year=person.birth_year,
-        target_year=target_year,
+        target_seed=target_seed,
     )
     # engine 已由 build_ziwei_horoscope 标记，无需在此重复盖章
     # （与 calculate_ziwei_birth 不同：build_ziwei_chart 不自带 engine）。

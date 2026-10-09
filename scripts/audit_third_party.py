@@ -177,14 +177,15 @@ def calendar_audit(out):
 
 def lunar_exhaustive_audit(out):
     import sxtwl
-    from lunardate import LunarDate
+
+    from fatebridge.core.almanac import _lunar_date_from_solar
 
     start, end = date(1900, 1, 31), date(2100, 2, 8)
     dt, rows, count = start, [], 0
     while dt <= end:
         s = sxtwl.fromSolar(dt.year, dt.month, dt.day)
         ref = [s.getLunarYear(), s.getLunarMonth(), s.getLunarDay(), s.isLunarLeap()]
-        lunar = LunarDate.fromSolarDate(dt.year, dt.month, dt.day)
+        lunar = _lunar_date_from_solar(dt)
         ours = [lunar.year, lunar.month, lunar.day, lunar.isLeapMonth]
         if ours != ref:
             rows.append({"date": str(dt), "ours": ours, "reference": ref})
@@ -346,10 +347,7 @@ def ziwei_audit(out, iztro, day_divide="forward"):
         h = build_ziwei_horoscope(
             chart=ours,
             gender=case["gender"],
-            natal_year_branch=seed.pillars["year"][1],
-            target_pillars=target.pillars,
-            birth_year=y,
-            target_year=ty,
+            target_seed=target,
         )
         compare("nominal_age", h["nominal_age"], ref["horoscope"]["age"]["nominalAge"])
         for s in h["scopes"]:
@@ -379,6 +377,20 @@ def ziwei_audit(out, iztro, day_divide="forward"):
             ),
             "checked_fields": checked,
             "different_fields": counts,
+            "horoscope_palace_difference_counts": Counter(
+                d["field"]
+                for row in rows
+                for d in row["differences"]
+                if d["field"].startswith("horoscope_")
+                and d["ours"][0] != d["reference"][0]
+            ),
+            "horoscope_mutagen_difference_counts": Counter(
+                d["field"]
+                for row in rows
+                for d in row["differences"]
+                if d["field"].startswith("horoscope_")
+                and d["ours"][1] != d["reference"][1]
+            ),
         },
         "reference_config": config,
         "differences": rows,
@@ -631,6 +643,21 @@ def solar_time_and_returns_audit(out, ephemeris):
                 "skyfield_apparent_solar_hour": solar_hours,
                 "analysis_seed_corrected_datetime": str(seed.corrected_datetime),
                 "analysis_seed_hour_pillar": "".join(seed.pillars["hour"]),
+                "difference_from_skyfield_seconds": (
+                    (
+                        seed.corrected_datetime.hour
+                        + seed.corrected_datetime.minute / 60
+                        + seed.corrected_datetime.second / 3600
+                        + seed.corrected_datetime.microsecond / 3_600_000_000
+                        - solar_hours
+                        + 12
+                    )
+                    % 24
+                    - 12
+                )
+                * 3600,
+                "hour_branch_matches_skyfield": seed.pillars["hour"][1]
+                == "子丑寅卯辰巳午未申酉戌亥"[int((solar_hours + 1) // 2) % 12],
                 "birth_path_adjustment": calculate_solar_time_adjustment(
                     dt.replace(tzinfo=None), "+08:00", 120
                 ),
@@ -642,7 +669,12 @@ def solar_time_and_returns_audit(out, ephemeris):
         {
             "summary": {
                 "samples": len(solar_rows),
-                "analysis_strategy": "longitude_only",
+                "max_clock_error_seconds": max(
+                    abs(r["difference_from_skyfield_seconds"]) for r in solar_rows
+                ),
+                "all_hour_branches_match": all(
+                    r["hour_branch_matches_skyfield"] for r in solar_rows
+                ),
                 "label": "真太阳时",
             },
             "cases": solar_rows,
@@ -966,6 +998,10 @@ def main():
                 "git_head": subprocess.check_output(
                     ["git", "rev-parse", "HEAD"], text=True
                 ).strip(),
+                "source_file_sha256": {
+                    str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                    for p in sorted(Path("src/fatebridge").rglob("*.py"))
+                },
                 "python": sys.version,
                 "scope": "Synthetic inputs; UTC/+08:00. Calendar and board comparisons disable solar correction; solar_time separately tests apparent solar time.",
             }

@@ -24,10 +24,7 @@ def _horoscope_for(birth, target):
     return build_ziwei_horoscope(
         chart=chart,
         gender=person.gender or "未知",
-        natal_year_branch=natal_seed.pillars["year"][1],
-        target_pillars=target_seed.pillars,
-        birth_year=birth["birth_year"],
-        target_year=target["year"],
+        target_seed=target_seed,
     )
 
 
@@ -43,6 +40,7 @@ def test_horoscope_has_six_scopes_with_expected_shape():
             "palace_name",
             "branch",
             "branch_index",
+            "palace_ganzhi",
             "stem",
             "mutagen",
         }

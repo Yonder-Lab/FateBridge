@@ -35,6 +35,21 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
   against drift. Docs now point at `pip install -e .` / `pip install fatebridge`.
 
 ### Fixed
+- Preserve the actual selected Liu Ren lesson through transmission selection,
+  so duplicate upper gods cannot mislabel 发用 or change Jin Kou 用神.
+- Correct lunar month lengths in 1933, 1954 and 1978 without mutating the
+  dependency's global tables; all 73,058 supported solar dates now agree with
+  sxtwl. Cache immutable lunar-date values for repeated calendar requests.
+- Resolve Zi Wei ages and flowing palaces using lunar boundaries and natal
+  month/hour rotation, including childhood and leap-month handling. Expose
+  calendar conventions and distinguish palace stems from transformation stems.
+- Replace simplified Liu Ren transmission selection with the nine-method
+  rules, use the day stem's element in the first lesson, and place generals
+  using the nobleman's earthly position (including the 戌 reverse boundary).
+- Include the equation of time in shared apparent-solar analysis inputs,
+  bringing Qi Men / Liu Ren / Tai Yi / Jin Kou into agreement with birth inputs.
+- Replace the Zi Wei oracle's calendar-branch comparison with actual active
+  palaces; add pinned independent calendar and Liu Ren regression fixtures.
 - README status badge and "项目状态" section said Alpha `0.1.0`; corrected to
   Beta `0.2.0` to match the `Development Status` classifier.
 

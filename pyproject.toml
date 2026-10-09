@@ -53,8 +53,8 @@ dev = [
     "pyyaml>=6.0",  # test_skills_interface_contract parses agents/interface.yaml
 ]
 iztro-verify = [
-    # pinned <0.2: the committed horoscope oracle fixture was generated with
-    # 0.1.5; a major bump could silently change reference values.
+    # Legacy optional verifier; the horoscope fixture now comes from the
+    # explicitly pinned JS iztro 2.5.8 generator (active scope.index palaces).
     "py-iztro>=0.1.5,<0.2",
 ]
 

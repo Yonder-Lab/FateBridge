@@ -1,0 +1,871 @@
+{
+  "route": "/api/cn/jinkou",
+  "request": {
+    "analysis_year": 2026,
+    "analysis_month": 9,
+    "analysis_day": 8,
+    "analysis_hour": 20,
+    "use_true_solar_time": false,
+    "di_fen": "丑"
+  },
+  "http_status": 200,
+  "response": {
+    "analysis_type": "金口诀",
+    "analysis_context": {
+      "input_datetime": "2026-09-08 20:00:00",
+      "corrected_datetime": "2026-09-08 20:00:00",
+      "timezone": "Asia/Shanghai",
+      "longitude": null,
+      "time_algorithm": "直接时间",
+      "total_correction_minutes": 0.0,
+      "current_jieqi": "白露",
+      "next_jieqi": "秋分",
+      "lunar_display": "七月廿七"
+    },
+    "four_pillars": {
+      "year": {
+        "stem": "丙",
+        "branch": "午"
+      },
+      "month": {
+        "stem": "丁",
+        "branch": "酉"
+      },
+      "day": {
+        "stem": "乙",
+        "branch": "酉"
+      },
+      "hour": {
+        "stem": "丙",
+        "branch": "戌"
+      }
+    },
+    "calendar_context": {
+      "timezone": "Asia/Shanghai",
+      "solar_datetime": "2026-09-08 20:00:00",
+      "current_solar_term": {
+        "name": "白露",
+        "datetime": "2026-09-07 22:41:18",
+        "date_key": "20260907",
+        "day_ganzhi": "甲申"
+      },
+      "next_solar_term": {
+        "name": "秋分",
+        "datetime": "2026-09-23 08:05:14",
+        "date_key": "20260923",
+        "day_ganzhi": "庚子"
+      },
+      "solar_term_delta": {
+        "days_since_current": 0.888,
+        "days_until_next": 14.5036,
+        "description": "白露后第1天"
+      },
+      "bazi_month_boundary": {
+        "branch": "酉",
+        "month_index": 7,
+        "start_term": {
+          "name": "白露",
+          "datetime": "2026-09-07 22:41:18",
+          "date_key": "20260907",
+          "day_ganzhi": "甲申"
+        },
+        "next_term": {
+          "name": "寒露",
+          "datetime": "2026-10-08 14:29:18",
+          "date_key": "20261008",
+          "day_ganzhi": "乙卯"
+        },
+        "days_since_start": 0.888,
+        "days_until_next": 29.7703
+      },
+      "lunar_calendar": {
+        "solar_datetime": "2026-09-08 20:00:00",
+        "timezone": "Asia/Shanghai",
+        "birth": "2026-09-08 20:00:00",
+        "year": 2026,
+        "month": 7,
+        "day": 27,
+        "is_leap_month": false,
+        "year_cn": "二零二六",
+        "month_cn": "七月",
+        "day_cn": "廿七",
+        "display": "七月廿七",
+        "jieqi": "白露",
+        "jiedelta": "白露后第1天",
+        "previous_jieqi": {
+          "name": "白露",
+          "datetime": "2026-09-07 22:41:18",
+          "date_key": "20260907",
+          "day_ganzhi": "甲申"
+        },
+        "next_jieqi": {
+          "name": "秋分",
+          "datetime": "2026-09-23 08:05:14",
+          "date_key": "20260923",
+          "day_ganzhi": "庚子"
+        },
+        "days_until_next_jieqi": 14.5036,
+        "year_jieqi_ganzhi": "丙午",
+        "month_ganzhi": "丁酉",
+        "day_ganzhi": "乙酉",
+        "time_ganzhi": "丙戌",
+        "meihua": {
+          "method": "meihua_time_seed",
+          "seed": {
+            "year_branch": "午",
+            "lunar_month": 7,
+            "lunar_day": 27,
+            "hour_branch": "戌",
+            "upper_number": 1,
+            "lower_number": 4,
+            "moving_line": 4
+          },
+          "base_hexagram": {
+            "name": "天雷无妄",
+            "upper": {
+              "name": "乾",
+              "nature": "天",
+              "element": "金",
+              "lines": [
+                1,
+                1,
+                1
+              ],
+              "symbol": "☰",
+              "keywords": "刚健、开创、天道",
+              "theme": "主动开创",
+              "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+              "image": "纯阳在上，主健行与统摄。",
+              "favorable": "立规、决策、开局",
+              "caution": "刚亢、独断、过压"
+            },
+            "lower": {
+              "name": "震",
+              "nature": "雷",
+              "element": "木",
+              "lines": [
+                1,
+                0,
+                0
+              ],
+              "symbol": "☳",
+              "keywords": "发动、突破、惊醒",
+              "theme": "发动突破",
+              "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+              "image": "雷动初发，主惊醒与突破。",
+              "favorable": "启动、破局、提速",
+              "caution": "惊扰、冒进、节奏乱"
+            },
+            "lines": [
+              1,
+              0,
+              0,
+              1,
+              1,
+              1
+            ],
+            "binary_code": "100111",
+            "symbol": "☰☳",
+            "theme": "守正不妄",
+            "guidance": "宜按本心做事，少机巧、多正道，自有回响。",
+            "judgement": "守正则利，妄动反招波折。",
+            "image": "天上动雷，贵在真诚自然，不作伪。",
+            "favorable": "按原则办、减机巧、守初心",
+            "caution": "忌投机、侥幸、违心而行",
+            "summary": "天雷无妄：守正不妄。守正则利，妄动反招波折。"
+          },
+          "changed_hexagram": {
+            "name": "风雷益",
+            "upper": {
+              "name": "巽",
+              "nature": "风",
+              "element": "木",
+              "lines": [
+                0,
+                1,
+                1
+              ],
+              "symbol": "☴",
+              "keywords": "渗透、谋划、柔入",
+              "theme": "渗透筹谋",
+              "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+              "image": "风行入物，主渗透与筹划。",
+              "favorable": "铺垫、布局、柔进",
+              "caution": "犹疑、拖延、立场飘"
+            },
+            "lower": {
+              "name": "震",
+              "nature": "雷",
+              "element": "木",
+              "lines": [
+                1,
+                0,
+                0
+              ],
+              "symbol": "☳",
+              "keywords": "发动、突破、惊醒",
+              "theme": "发动突破",
+              "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+              "image": "雷动初发，主惊醒与突破。",
+              "favorable": "启动、破局、提速",
+              "caution": "惊扰、冒进、节奏乱"
+            },
+            "lines": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              1
+            ],
+            "binary_code": "100011",
+            "symbol": "☴☳",
+            "theme": "增益扩张",
+            "guidance": "利投入与扶持，越能成人越能成己。",
+            "judgement": "利于加码投入，但要投在对的位置。",
+            "image": "风雷相益，增损有方，越助人越得势。",
+            "favorable": "扶持、投入、扩张有效资源",
+            "caution": "忌平均用力、无差别补贴",
+            "summary": "风雷益：增益扩张。利于加码投入，但要投在对的位置。",
+            "moving_line": 4
+          },
+          "mutual_hexagram": {
+            "name": "风山渐",
+            "upper": {
+              "name": "巽",
+              "nature": "风",
+              "element": "木",
+              "lines": [
+                0,
+                1,
+                1
+              ],
+              "symbol": "☴",
+              "keywords": "渗透、谋划、柔入",
+              "theme": "渗透筹谋",
+              "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+              "image": "风行入物，主渗透与筹划。",
+              "favorable": "铺垫、布局、柔进",
+              "caution": "犹疑、拖延、立场飘"
+            },
+            "lower": {
+              "name": "艮",
+              "nature": "山",
+              "element": "土",
+              "lines": [
+                0,
+                0,
+                1
+              ],
+              "symbol": "☶",
+              "keywords": "止守、边界、收束",
+              "theme": "止守定界",
+              "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+              "image": "山止其上，主边界与停驻。",
+              "favorable": "收束、暂停、止损",
+              "caution": "僵住、迟滞、错失时机"
+            },
+            "lines": [
+              0,
+              0,
+              1,
+              0,
+              1,
+              1
+            ],
+            "binary_code": "001011",
+            "symbol": "☴☶",
+            "theme": "渐进成长",
+            "guidance": "适合慢变量积累，稳比快更重要。",
+            "judgement": "慢就是快，节奏渐进才稳。",
+            "image": "木在山上，成长有阶，重顺序与耐心。",
+            "favorable": "长期积累、循序而进、温和推进",
+            "caution": "忌求速成、频繁换挡",
+            "summary": "风山渐：渐进成长。慢就是快，节奏渐进才稳。"
+          },
+          "opposite_hexagram": {
+            "name": "地风升",
+            "upper": {
+              "name": "坤",
+              "nature": "地",
+              "element": "土",
+              "lines": [
+                0,
+                0,
+                0
+              ],
+              "symbol": "☷",
+              "keywords": "承载、包容、顺势",
+              "theme": "承载顺势",
+              "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+              "image": "厚地承载，主配合与落地。",
+              "favorable": "承接、执行、积累",
+              "caution": "过度被动、失主见"
+            },
+            "lower": {
+              "name": "巽",
+              "nature": "风",
+              "element": "木",
+              "lines": [
+                0,
+                1,
+                1
+              ],
+              "symbol": "☴",
+              "keywords": "渗透、谋划、柔入",
+              "theme": "渗透筹谋",
+              "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+              "image": "风行入物，主渗透与筹划。",
+              "favorable": "铺垫、布局、柔进",
+              "caution": "犹疑、拖延、立场飘"
+            },
+            "lines": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "binary_code": "011000",
+            "symbol": "☷☴",
+            "theme": "稳步上升",
+            "guidance": "以积累和德行换取上升，慢升比急跳更稳。",
+            "judgement": "稳稳往上比跳跃更长久。",
+            "image": "地中生木，升腾有序，贵在积德累功。",
+            "favorable": "慢升、积累、培养信用",
+            "caution": "忌拔苗助长、冒跳台阶",
+            "summary": "地风升：稳步上升。稳稳往上比跳跃更长久。"
+          },
+          "cuo_hexagram": {
+            "name": "地风升",
+            "upper": {
+              "name": "坤",
+              "nature": "地",
+              "element": "土",
+              "lines": [
+                0,
+                0,
+                0
+              ],
+              "symbol": "☷",
+              "keywords": "承载、包容、顺势",
+              "theme": "承载顺势",
+              "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
+              "image": "厚地承载，主配合与落地。",
+              "favorable": "承接、执行、积累",
+              "caution": "过度被动、失主见"
+            },
+            "lower": {
+              "name": "巽",
+              "nature": "风",
+              "element": "木",
+              "lines": [
+                0,
+                1,
+                1
+              ],
+              "symbol": "☴",
+              "keywords": "渗透、谋划、柔入",
+              "theme": "渗透筹谋",
+              "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+              "image": "风行入物，主渗透与筹划。",
+              "favorable": "铺垫、布局、柔进",
+              "caution": "犹疑、拖延、立场飘"
+            },
+            "lines": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "binary_code": "011000",
+            "symbol": "☷☴",
+            "theme": "稳步上升",
+            "guidance": "以积累和德行换取上升，慢升比急跳更稳。",
+            "judgement": "稳稳往上比跳跃更长久。",
+            "image": "地中生木，升腾有序，贵在积德累功。",
+            "favorable": "慢升、积累、培养信用",
+            "caution": "忌拔苗助长、冒跳台阶",
+            "summary": "地风升：稳步上升。稳稳往上比跳跃更长久。"
+          },
+          "zong_hexagram": {
+            "name": "山天大畜",
+            "upper": {
+              "name": "艮",
+              "nature": "山",
+              "element": "土",
+              "lines": [
+                0,
+                0,
+                1
+              ],
+              "symbol": "☶",
+              "keywords": "止守、边界、收束",
+              "theme": "止守定界",
+              "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
+              "image": "山止其上，主边界与停驻。",
+              "favorable": "收束、暂停、止损",
+              "caution": "僵住、迟滞、错失时机"
+            },
+            "lower": {
+              "name": "乾",
+              "nature": "天",
+              "element": "金",
+              "lines": [
+                1,
+                1,
+                1
+              ],
+              "symbol": "☰",
+              "keywords": "刚健、开创、天道",
+              "theme": "主动开创",
+              "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+              "image": "纯阳在上，主健行与统摄。",
+              "favorable": "立规、决策、开局",
+              "caution": "刚亢、独断、过压"
+            },
+            "lines": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              1
+            ],
+            "binary_code": "111001",
+            "symbol": "☶☰",
+            "theme": "厚积成器",
+            "guidance": "宜储能、学习、积累筹码，等待更大用处。",
+            "judgement": "储力阶段越扎实，后劲越足。",
+            "image": "山在天中，所蓄者大，宜厚积。",
+            "favorable": "学习、囤能力、积筹码",
+            "caution": "忌浅尝辄止、急于兑现",
+            "summary": "山天大畜：厚积成器。储力阶段越扎实，后劲越足。"
+          },
+          "element_relation": "上制下",
+          "moving_palace": "上卦",
+          "body_trigram": {
+            "name": "震",
+            "nature": "雷",
+            "element": "木",
+            "lines": [
+              1,
+              0,
+              0
+            ],
+            "symbol": "☳",
+            "keywords": "发动、突破、惊醒",
+            "theme": "发动突破",
+            "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+            "image": "雷动初发，主惊醒与突破。",
+            "favorable": "启动、破局、提速",
+            "caution": "惊扰、冒进、节奏乱"
+          },
+          "use_trigram": {
+            "name": "乾",
+            "nature": "天",
+            "element": "金",
+            "lines": [
+              1,
+              1,
+              1
+            ],
+            "symbol": "☰",
+            "keywords": "刚健、开创、天道",
+            "theme": "主动开创",
+            "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
+            "image": "纯阳在上，主健行与统摄。",
+            "favorable": "立规、决策、开局",
+            "caution": "刚亢、独断、过压"
+          },
+          "body_use_relation": "用克体",
+          "body_use_summary": "动爻落上卦，体卦震、用卦乾，五行关系为用克体。",
+          "summary": "梅花时卦得天雷无妄，动4爻，之风雷益；上卦乾、下卦震，五行关系为上制下。"
+        }
+      },
+      "lunar_calendar_support": {
+        "supported": true,
+        "supported_range": {
+          "start": "1900-01-31",
+          "end": "2100-02-08"
+        }
+      }
+    },
+    "liureng": {
+      "month_general": {
+        "branch": "巳",
+        "name": "太乙"
+      },
+      "board_style": "比用",
+      "board_style_detail": "知一",
+      "board_order": "天盘顺布",
+      "kongwang": "午未空",
+      "xun_head": "甲申",
+      "twelve_life_element": "金",
+      "guiren_system": "六壬法贵人",
+      "four_lessons": [
+        {
+          "index": 1,
+          "upper_branch": "亥",
+          "lower_branch": "辰",
+          "anchor_branch": "辰",
+          "text": "亥加乙",
+          "relation": "父母",
+          "upper_lower_relation": "上生下",
+          "relations": {
+            "with_day_branch": "平",
+            "with_lower_branch": "平"
+          },
+          "style_hint": "比用",
+          "style_basis": "同类比用，以首课取发用。",
+          "use_candidate": false
+        },
+        {
+          "index": 2,
+          "upper_branch": "午",
+          "lower_branch": "亥",
+          "anchor_branch": "辰",
+          "text": "午加亥",
+          "relation": "子孙",
+          "upper_lower_relation": "下贼上",
+          "relations": {
+            "with_day_branch": "平",
+            "with_lower_branch": "平"
+          },
+          "style_hint": "比用",
+          "style_basis": "同类比用，以首课取发用。",
+          "use_candidate": false
+        },
+        {
+          "index": 3,
+          "upper_branch": "辰",
+          "lower_branch": "酉",
+          "anchor_branch": "酉",
+          "text": "辰加酉",
+          "relation": "妻财",
+          "upper_lower_relation": "上生下",
+          "relations": {
+            "with_day_branch": "六合",
+            "with_lower_branch": "六合"
+          },
+          "style_hint": "六合",
+          "style_basis": "上神与下神相合，以和合成局为先。",
+          "use_candidate": false
+        },
+        {
+          "index": 4,
+          "upper_branch": "亥",
+          "lower_branch": "辰",
+          "anchor_branch": "酉",
+          "text": "亥加辰",
+          "relation": "父母",
+          "upper_lower_relation": "下贼上",
+          "relations": {
+            "with_day_branch": "平",
+            "with_lower_branch": "平"
+          },
+          "style_hint": "比用",
+          "style_basis": "同类比用，以首课取发用。",
+          "use_candidate": true
+        }
+      ],
+      "three_transmissions": {
+        "method": "知一",
+        "initial": {
+          "branch": "亥",
+          "relation": "父母",
+          "god": "六合",
+          "ganzhi": "亥午"
+        },
+        "middle": {
+          "branch": "午",
+          "relation": "子孙",
+          "god": "太阴",
+          "ganzhi": "午丑"
+        },
+        "final": {
+          "branch": "丑",
+          "relation": "妻财",
+          "god": "青龙",
+          "ganzhi": "丑申"
+        }
+      },
+      "patterns": [
+        {
+          "name": "贵人顺行格",
+          "basis": "贵人起申，顺布神将。"
+        },
+        {
+          "name": "比用课",
+          "basis": "依九宗门取比用，发用为亥。"
+        },
+        {
+          "name": "知一课",
+          "basis": "细课体知一，取传法为知一。"
+        }
+      ],
+      "overview": [
+        "月将巳(太乙)加戌时，当前以白露节气入局。",
+        "贵人起于申，顺行布十二神将。",
+        "比用课主导，首传落亥，依九宗门取比用，发用为亥。",
+        "细课体：知一。细课体知一，取传法为知一。",
+        "取传法：知一。首传见父母，末传归丑。"
+      ],
+      "twelve_board": [
+        {
+          "earth_branch": "子",
+          "sky_branch": "未",
+          "god": "天后"
+        },
+        {
+          "earth_branch": "丑",
+          "sky_branch": "申",
+          "god": "贵人"
+        },
+        {
+          "earth_branch": "寅",
+          "sky_branch": "酉",
+          "god": "螣蛇"
+        },
+        {
+          "earth_branch": "卯",
+          "sky_branch": "戌",
+          "god": "朱雀"
+        },
+        {
+          "earth_branch": "辰",
+          "sky_branch": "亥",
+          "god": "六合"
+        },
+        {
+          "earth_branch": "巳",
+          "sky_branch": "子",
+          "god": "勾陈"
+        },
+        {
+          "earth_branch": "午",
+          "sky_branch": "丑",
+          "god": "青龙"
+        },
+        {
+          "earth_branch": "未",
+          "sky_branch": "寅",
+          "god": "天空"
+        },
+        {
+          "earth_branch": "申",
+          "sky_branch": "卯",
+          "god": "白虎"
+        },
+        {
+          "earth_branch": "酉",
+          "sky_branch": "辰",
+          "god": "太常"
+        },
+        {
+          "earth_branch": "戌",
+          "sky_branch": "巳",
+          "god": "玄武"
+        },
+        {
+          "earth_branch": "亥",
+          "sky_branch": "午",
+          "god": "太阴"
+        }
+      ],
+      "meta": {
+        "current_term": "白露",
+        "lunar_display": "七月廿七",
+        "questioner_gender": "未知",
+        "is_diurnal": false,
+        "selected_lesson_index": 4,
+        "selected_lesson_relation": "下贼上",
+        "guiren_earth_branch": "丑"
+      },
+      "engine": "fatebridge-offline"
+    },
+    "jinkou": {
+      "overview": {
+        "di_fen": "丑",
+        "kongwang": "午未空",
+        "si_da_kong": "土空",
+        "board_style": "比用",
+        "board_style_detail": "知一",
+        "transmission_method": "知一",
+        "use_position": "地分",
+        "use_position_basis": "发用见下贼上，并旺时偏取地分。",
+        "yuejiang": {
+          "branch": "申",
+          "name": "传送"
+        },
+        "guishen": {
+          "start_branch": "申",
+          "branch": "戌",
+          "name": "玄武"
+        },
+        "month_general": {
+          "branch": "巳",
+          "name": "太乙"
+        },
+        "gender": "未知"
+      },
+      "rows": [
+        {
+          "label": "人元",
+          "content": "丁",
+          "shenjiang": "—",
+          "element": "火",
+          "power": "休"
+        },
+        {
+          "label": "贵神",
+          "content": "戌",
+          "shenjiang": "玄武",
+          "element": "土",
+          "power": "旺"
+        },
+        {
+          "label": "将神",
+          "content": "申",
+          "shenjiang": "传送",
+          "element": "金",
+          "power": "相"
+        },
+        {
+          "label": "地分",
+          "content": "丑",
+          "shenjiang": "—",
+          "element": "土",
+          "power": "旺"
+        }
+      ],
+      "shensha": [
+        {
+          "label": "人元",
+          "value": "纳音引气"
+        },
+        {
+          "label": "贵神",
+          "value": "玄武守时"
+        },
+        {
+          "label": "将神",
+          "value": "传送临地分"
+        },
+        {
+          "label": "地分",
+          "value": "丑守位"
+        },
+        {
+          "label": "课体",
+          "value": "知一课"
+        },
+        {
+          "label": "取传",
+          "value": "知一"
+        }
+      ],
+      "engine": "fatebridge-offline"
+    },
+    "snapshot_text": "[起盘信息]\n农历：七月廿七\n直接时间：2026-09-08 20:00:00\n四柱：丙午年/丁酉月/乙酉日/丙戌时\n当前节气：白露\n下个节气：秋分\n时间算法：直接时间\n\n[金口诀速览]\n地分：丑\n月将：申(传送)\n贵神：戌(玄武)；贵人起位：申\n课体：比用 / 知一\n取传：知一\n用爻：地分\n取用依据：发用见下贼上，并旺时偏取地分。\n空亡：午未空\n四大空亡：土空\n\n[金口诀四位]\n人元：丁；神将：—；五行：火；旺衰：休\n贵神：戌；神将：玄武；五行：土；旺衰：旺\n将神：申；神将：传送；五行：金；旺衰：相\n地分：丑；神将：—；五行：土；旺衰：旺\n\n[四位神煞]\n人元：纳音引气\n贵神：玄武守时\n将神：传送临地分\n地分：丑守位\n课体：知一课\n取传：知一",
+    "snapshot_export": {
+      "technique": {
+        "key": "jinkou",
+        "label": "金口诀",
+        "preset_sections": [
+          "起盘信息",
+          "金口诀速览",
+          "金口诀四位",
+          "四位神煞"
+        ],
+        "forbidden_sections": [],
+        "supports_planet_info": false,
+        "planet_info_default": null,
+        "supports_astro_meaning": false,
+        "supports_hover_meaning": false,
+        "astro_meaning_default": null,
+        "astro_meaning_title": "",
+        "astro_meaning_checkbox": "",
+        "settings_template": {
+          "sections": [
+            "起盘信息",
+            "金口诀速览",
+            "金口诀四位",
+            "四位神煞"
+          ],
+          "planetInfo": null,
+          "astroMeaning": null
+        }
+      },
+      "settings_used": {
+        "version": 6,
+        "sections": {
+          "jinkou": [
+            "起盘信息",
+            "金口诀速览",
+            "金口诀四位",
+            "四位神煞"
+          ]
+        },
+        "planetInfo": {},
+        "astroMeaning": {}
+      },
+      "section_titles_detected": [
+        "起盘信息",
+        "金口诀速览",
+        "金口诀四位",
+        "四位神煞"
+      ],
+      "selected_sections": [
+        "起盘信息",
+        "金口诀速览",
+        "金口诀四位",
+        "四位神煞"
+      ],
+      "unknown_detected_sections": [],
+      "missing_selected_sections": [],
+      "sections": [
+        {
+          "index": 1,
+          "raw_title": "起盘信息",
+          "title": "起盘信息",
+          "included": true,
+          "content": "[起盘信息]\n农历：七月廿七\n直接时间：2026-09-08 20:00:00\n四柱：丙午年/丁酉月/乙酉日/丙戌时\n当前节气：白露\n下个节气：秋分\n时间算法：直接时间"
+        },
+        {
+          "index": 2,
+          "raw_title": "金口诀速览",
+          "title": "金口诀速览",
+          "included": true,
+          "content": "[金口诀速览]\n地分：丑\n月将：申(传送)\n贵神：戌(玄武)；贵人起位：申\n课体：比用 / 知一\n取传：知一\n用爻：地分\n取用依据：发用见下贼上，并旺时偏取地分。\n空亡：午未空\n四大空亡：土空"
+        },
+        {
+          "index": 3,
+          "raw_title": "金口诀四位",
+          "title": "金口诀四位",
+          "included": true,
+          "content": "[金口诀四位]\n人元：丁；神将：—；五行：火；旺衰：休\n贵神：戌；神将：玄武；五行：土；旺衰：旺\n将神：申；神将：传送；五行：金；旺衰：相\n地分：丑；神将：—；五行：土；旺衰：旺"
+        },
+        {
+          "index": 4,
+          "raw_title": "四位神煞",
+          "title": "四位神煞",
+          "included": true,
+          "content": "[四位神煞]\n人元：纳音引气\n贵神：玄武守时\n将神：传送临地分\n地分：丑守位\n课体：知一课\n取传：知一"
+        }
+      ],
+      "export_text": "[起盘信息]\n农历：七月廿七\n直接时间：2026-09-08 20:00:00\n四柱：丙午年/丁酉月/乙酉日/丙戌时\n当前节气：白露\n下个节气：秋分\n时间算法：直接时间\n\n[金口诀速览]\n地分：丑\n月将：申(传送)\n贵神：戌(玄武)；贵人起位：申\n课体：比用 / 知一\n取传：知一\n用爻：地分\n取用依据：发用见下贼上，并旺时偏取地分。\n空亡：午未空\n四大空亡：土空\n\n[金口诀四位]\n人元：丁；神将：—；五行：火；旺衰：休\n贵神：戌；神将：玄武；五行：土；旺衰：旺\n将神：申；神将：传送；五行：金；旺衰：相\n地分：丑；神将：—；五行：土；旺衰：旺\n\n[四位神煞]\n人元：纳音引气\n贵神：玄武守时\n将神：传送临地分\n地分：丑守位\n课体：知一课\n取传：知一"
+    },
+    "run_metadata": {
+      "run_id": "7f031cb610ab43cca49d815465ab3945",
+      "trace_id": "2520c6903cc24db1a16ddb866e7f8299",
+      "tool_name": "jinkou",
+      "generated_at": "2026-10-09T05:44:29.368815Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false
+    }
+  }
+}

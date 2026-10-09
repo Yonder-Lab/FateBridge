@@ -668,6 +668,18 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     return {
         "time_algorithm": "真太阳时" if seed.applied_true_solar else "直接时间",
         "year_stem": year_stem,
+        "lunar_date": {
+            "year": int(lunar["year"]),
+            "month": int(lunar["month"]),
+            "day": int(lunar["day"]),
+            "is_leap_month": bool(lunar.get("is_leap_month")),
+        },
+        "hour_branch": hour_branch,
+        "calendar_rules": {
+            "year_boundary": "农历正月初一",
+            "late_zi": "晚子时本命农历日期算当天",
+            "leap_month": "闰月十五日及以前算当月，之后算下月",
+        },
         "ming_gong": {
             "name": "命宫",
             "branch": ming_branch,
@@ -715,8 +727,13 @@ def _palace_for_nominal_age(
         lo, hi = (int(x) for x in palace["daxian"].split("~"))
         if lo <= nominal_age <= hi:
             return palace
-    # 超出已排大限范围时，回退到最末大限宫（仅极端高龄出现）
-    return max(palaces, key=lambda p: int(p["daxian"].split("~")[1]))
+    # Before the first decade, use the six childhood palaces rather than
+    # accidentally returning the last (oldest) decade.
+    childhood = ("命宫", "财帛宫", "疾厄宫", "夫妻宫", "福德宫", "官禄宫")
+    first_age = min(int(p["daxian"].split("~")[0]) for p in palaces)
+    if 1 <= nominal_age < first_age:
+        return next(p for p in palaces if p["name"] == childhood[nominal_age - 1])
+    raise ValueError("目标虚岁超出紫微大限支持范围")
 
 
 def _xiaoxian_branch(year_branch: str, nominal_age: int, gender: str) -> str:
@@ -735,47 +752,35 @@ def _horoscope_scope(scope: str, palace: Dict[str, Any], stem: str) -> Dict[str,
         "palace_name": palace["name"],
         "branch": branch,
         "branch_index": ZIWEI_BRANCH_SEQUENCE.index(branch),
+        "palace_ganzhi": palace["ganzhi"],
         "stem": stem,
         "mutagen": dict(ZIWEI_SIHUA_RULES[stem]),
     }
-
-
-def _bazi_year_for(target_year: int, target_year_branch: str) -> int:
-    """Return the BaZi (节气) year for a calendar date.
-
-    A date before 立春 carries the previous solar year's 年柱, so the BaZi year
-    is target_year - 1 in that case. Detected by comparing the actual 年柱 branch
-    to the branch expected for target_year.
-    """
-    expected_idx = (target_year - 4) % 12
-    if EARTHLY_BRANCHES.index(target_year_branch) == expected_idx:
-        return target_year
-    return target_year - 1
 
 
 def build_ziwei_horoscope(
     *,
     chart: Dict[str, Any],
     gender: str,
-    natal_year_branch: str,
-    target_pillars: Dict[str, Any],
-    birth_year: int,
-    target_year: int,
+    target_seed: MetaphysicsSeed,
 ) -> Dict[str, Any]:
-    """Assemble the six 运限 scopes for a target date over a natal chart.
+    """Six scopes using lunar-year ages and the natal-month/hour Dou Jun.
 
-    大限 selects among the chart's own (Tier-1) 大限 ranges by 虚岁; 流年/流月/流日/
-    流时 land on the palace carrying that pillar's branch with 四化 from the
-    pillar stem; 小限 uses the 三合-based start palace and the 小限 palace's 宫干
-    (iztro convention).
-
-    ``birth_year`` and ``target_year`` are calendar years; the returned
-    ``nominal_age`` (虚岁) is derived from the BaZi (节气) year, so a target
-    before 立春 maps to ``target_year - 1`` internally.
+    Scope ``branch`` is the actual natal palace, not the calendar branch of
+    the target date. Month/day/hour stems still determine their own 四化.
+    This follows iztro 2.5.8 normal year/age/horoscope boundaries; late-zi
+    natal dates keep FateBridge's existing current-day convention.
     """
     palaces = chart["palaces"]
-    bazi_year = _bazi_year_for(target_year, target_pillars["year"][1])
-    nominal_age = bazi_year - birth_year + 1
+    target_lunar, target_month, target_day = require_lunar_month_day(
+        target_seed, "紫微斗数运限"
+    )
+    natal_lunar = chart["lunar_date"]
+    nominal_age = int(target_lunar["year"]) - int(natal_lunar["year"]) + 1
+    if nominal_age < 1:
+        raise ValueError("目标农历年早于出生农历年")
+    natal_year_branch = _lunar_year_ganzhi(int(natal_lunar["year"]))[1]
+    target_year_stem, target_year_branch = _lunar_year_ganzhi(int(target_lunar["year"]))
 
     daxian_palace = _palace_for_nominal_age(palaces, nominal_age)
     daxian = _horoscope_scope("大限", daxian_palace, daxian_palace["ganzhi"][0])
@@ -786,21 +791,45 @@ def build_ziwei_horoscope(
     # 小限 四化 follows the 宫干 of the 小限 palace (iztro convention), not the 流年 stem.
     xiaoxian = _horoscope_scope("小限", xiao_palace, xiao_palace["ganzhi"][0])
 
-    flowing = []
-    for scope, key in (
-        ("流年", "year"),
-        ("流月", "month"),
-        ("流日", "day"),
-        ("流时", "hour"),
+    natal_month = int(natal_lunar["month"]) + int(
+        natal_lunar["is_leap_month"] and int(natal_lunar["day"]) > 15
+    )
+    target_month += int(target_lunar.get("is_leap_month", False) and target_day > 15)
+    # Reverse from the year's palace to birth month, then forward to birth
+    # hour; the result is 正月斗君. Count the target month/day/hour from it.
+    month_index = (
+        ZIWEI_BRANCH_SEQUENCE.index(target_year_branch)
+        - natal_month
+        + EARTHLY_BRANCHES.index(chart["hour_branch"])
+        + target_month
+    ) % 12
+    day_index = (month_index + target_day - 1) % 12
+    hour_index = (
+        day_index + EARTHLY_BRANCHES.index(target_seed.pillars["hour"][1])
+    ) % 12
+    month_stem = HEAVENLY_STEMS[
+        (HEAVENLY_STEMS.index(target_year_stem) * 2 + 2 + target_month - 1) % 10
+    ]
+    flowing = [
+        _horoscope_scope(
+            "流年", _palace_by_branch(palaces, target_year_branch), target_year_stem
+        )
+    ]
+    for scope, index, stem in (
+        ("流月", month_index, month_stem),
+        ("流日", day_index, target_seed.pillars["day"][0]),
+        ("流时", hour_index, target_seed.pillars["hour"][0]),
     ):
-        stem, branch = target_pillars[key]
         flowing.append(
-            _horoscope_scope(scope, _palace_by_branch(palaces, branch), stem)
+            _horoscope_scope(
+                scope, _palace_by_branch(palaces, ZIWEI_BRANCH_SEQUENCE[index]), stem
+            )
         )
 
     return {
         "engine": "fatebridge-offline",
         "nominal_age": nominal_age,
+        "calendar_rules": chart["calendar_rules"],
         "scopes": [daxian, xiaoxian, *flowing],
     }
 

@@ -1,0 +1,29 @@
+{
+  "scope": "Only review-follow-up evidence; earlier audits preserved.",
+  "golden_validation": {
+    "compared_slugs": [
+      "api_cn_liureng_gods",
+      "api_cn_liureng_runyear",
+      "api_cn_jinkou",
+      "api_divination_sanshiunited"
+    ],
+    "changed_slugs": [],
+    "comparison": "Pre-review-fix and current native outputs in the same Python 3.13 and Swiss ephemeris environment; no golden files rewritten."
+  },
+  "independent_reference": {
+    "repo": "https://github.com/d1210182010/daliurenpython-zh-tw",
+    "commit": "2afe9194e3644d2ead5652ed8b366ae6c70d7087",
+    "support_repo": "https://github.com/wlhyl/ganzhiwuxinForPython",
+    "support_commit": "0efdcc5c473487ef61b2e941005716056174cc54",
+    "loading": "Unmodified AST definitions: NoSanchuan, 寄宫, 干Of寄宫, TianPan, SiKe, SanChuan; original reference Ganzhi objects; no calendar/UI execution.",
+    "source_sha256": "90affae7747a50a7c7122e98a5930c4e9596df3fe2391a8af122f111a1969736"
+  },
+  "source_hashes_file": "review-fix-environment.json",
+  "file_sha256": {
+    "review-fix-environment.json": "df12efbdd1e9f0429c96524dbb731c4a07822562336e310c8e97e3d767282a8e",
+    "review-fix-liuren-independent.json": "4fa91ccba0d3df332ade69156141cf9ed8fc670e7cbacd6497c38649723cfa3e",
+    "review-fix-mypy.txt": "a960a43c00dedc1762dca97717563c3014816d6c2cd1e08a9644a89d89d7ffae",
+    "review-fix-pytest.txt": "bcc826c26e9e159048cf114a349c120b90e0f4f82bdac640d3c62c454032c023",
+    "review-fix-rest-reproduction.json": "0736667c44f23c7317733fd26e928e180c31a95b2481799a9ba1cf42608ded65"
+  }
+}

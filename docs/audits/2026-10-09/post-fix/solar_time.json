@@ -1,0 +1,58 @@
+{
+  "summary": {
+    "samples": 3,
+    "max_clock_error_seconds": 24.11409089931098,
+    "all_hour_branches_match": true,
+    "label": "真太阳时"
+  },
+  "cases": [
+    {
+      "input": "2026-11-03T00:50:00+08:00",
+      "longitude": 120,
+      "skyfield_apparent_solar_hour": 1.1073943097649614,
+      "analysis_seed_corrected_datetime": "2026-11-03 01:06:21.011492",
+      "analysis_seed_hour_pillar": "己丑",
+      "difference_from_skyfield_seconds": -5.608023153864394,
+      "hour_branch_matches_skyfield": true,
+      "birth_path_adjustment": {
+        "standard_meridian": 120.0,
+        "longitude_correction_minutes": 0.0,
+        "equation_of_time_minutes": 16.35019153386064,
+        "daylight_saving_minutes": 0.0,
+        "total_correction_minutes": 16.35019153386064
+      }
+    },
+    {
+      "input": "2026-02-11T01:10:00+08:00",
+      "longitude": 120,
+      "skyfield_apparent_solar_hour": 0.930456777749809,
+      "analysis_seed_corrected_datetime": "2026-02-11 00:55:25.530309",
+      "analysis_seed_hour_pillar": "戊子",
+      "difference_from_skyfield_seconds": -24.11409089931098,
+      "hour_branch_matches_skyfield": true,
+      "birth_path_adjustment": {
+        "standard_meridian": 120.0,
+        "longitude_correction_minutes": 0.0,
+        "equation_of_time_minutes": -14.574494853430762,
+        "daylight_saving_minutes": 0.0,
+        "total_correction_minutes": -14.574494853430762
+      }
+    },
+    {
+      "input": "2026-06-21T12:00:00+08:00",
+      "longitude": 120,
+      "skyfield_apparent_solar_hour": 11.97093094223495,
+      "analysis_seed_corrected_datetime": "2026-06-21 11:58:30",
+      "analysis_seed_hour_pillar": "甲午",
+      "difference_from_skyfield_seconds": 14.64860795417664,
+      "hour_branch_matches_skyfield": true,
+      "birth_path_adjustment": {
+        "standard_meridian": 120.0,
+        "longitude_correction_minutes": 0.0,
+        "equation_of_time_minutes": -1.4999999999999993,
+        "daylight_saving_minutes": 0.0,
+        "total_correction_minutes": -1.4999999999999993
+      }
+    }
+  ]
+}

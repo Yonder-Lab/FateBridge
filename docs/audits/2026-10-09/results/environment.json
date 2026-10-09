@@ -6,12 +6,14 @@
       "skyfield": "1.55",
       "pyswisseph": "2.10.3.2",
       "kerykeion": "5.12.9",
-      "lunardate": "0.2.2"
+      "lunardate": "0.2.2",
+      "sxtwl": "2.0.7"
     },
     "iztro": "2.5.8",
     "ephemeris": "de440s.bsp",
     "ephemeris_sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
-    "git_head": "f1b351a6fb6d429c8860d0f367272d534fc54b16",
-    "scope": "Synthetic audit, UTC/+08:00, no true-solar correction"
+    "git_head": "97147b9732e0fdf7511a29b71ac273787817db8c",
+    "python": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 11:23:37) [Clang 14.0.6 ]",
+    "scope": "Synthetic inputs; UTC/+08:00. Calendar and board comparisons disable solar correction; solar_time separately tests apparent solar time."
   }
 }

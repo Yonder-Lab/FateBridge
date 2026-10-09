@@ -1133,9 +1133,8 @@ def test_calculate_sanshiunited_analysis_returns_local_aggregation():
     assert result["qimen"]["dun_type"] == "阳遁"
     assert result["qimen"]["ju_number"] == 6
     assert result["taiyi"]["core_board"]["main_calculation"] == "陽遁五十七局"
-    # 辛日巳时 昼占，LIURENG_GUIREN_DAY["辛"]="午"，午 在 GUI_REN_REVERSED_STARTS 区间 (巳午未申酉)
-    # 贵人起 午 逆行 → 贵人逆行格。
-    assert result["liureng"]["patterns"][0]["name"] == "贵人逆行格"
+    # 贵人乘午，实际落地盘丑，应按地盘位置顺布。
+    assert result["liureng"]["patterns"][0]["name"] == "贵人顺行格"
     assert "subresults" in result
     assert "qimen" in result["subresults"]
     assert result["subresults"]["qimen"]["pan"] == result["qimen"]

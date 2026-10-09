@@ -1,0 +1,12 @@
+{
+  "comparison": "Old/current sources, same Python 3.13 and same Swiss ephemeris files; only confirmed algorithm changes applied to Linux/Python3.12 frozen JSON paths. Other baseline fields preserved.",
+  "changed_slugs": [
+    "api_divination_sanshiunited",
+    "api_cn_ziwei_birth",
+    "api_cn_ziwei_horoscope",
+    "api_cn_liureng_gods",
+    "api_cn_liureng_runyear",
+    "api_cn_jinkou"
+  ],
+  "changed_paths_with_platform_drift": []
+}
