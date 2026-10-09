@@ -28,8 +28,8 @@
   "calendar_context": {
     "bazi_month_boundary": {
       "branch": "辰",
-      "days_since_start": 1.8148,
-      "days_until_next": 28.8999,
+      "days_since_start": 1.8124,
+      "days_until_next": 28.9022,
       "month_index": 2,
       "next_term": {
         "date_key": "20280505",
@@ -55,7 +55,7 @@
       "day": 12,
       "day_cn": "十二",
       "day_ganzhi": "辛酉",
-      "days_until_next_jieqi": 13.4813,
+      "days_until_next_jieqi": 13.4837,
       "display": "三月十二",
       "is_leap_month": false,
       "jiedelta": "清明后第2天",
@@ -473,8 +473,8 @@
     },
     "solar_datetime": "2028-04-06 09:36:23",
     "solar_term_delta": {
-      "days_since_current": 1.8148,
-      "days_until_next": 13.4813,
+      "days_since_current": 1.8124,
+      "days_until_next": 13.4837,
       "description": "清明后第2天"
     },
     "timezone": "+08:00"
