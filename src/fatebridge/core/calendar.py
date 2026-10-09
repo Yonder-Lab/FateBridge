@@ -232,6 +232,7 @@ class BaZiCalendar:
     def _get_four_pillars_cached(
         cls,
         local_birth_datetime: datetime,
+        civil_datetime: datetime,
         timezone_name: str,
         day_pillar_strategy: str,
     ) -> Tuple[Tuple[str, str], Tuple[str, str], Tuple[str, str], Tuple[str, str]]:
@@ -241,12 +242,12 @@ class BaZiCalendar:
         day = local_birth_datetime.day
         hour = local_birth_datetime.hour
 
-        bazi_year = get_bazi_year(local_birth_datetime, timezone_name)
-        month_context = get_bazi_month_context(local_birth_datetime, timezone_name)
+        bazi_year = get_bazi_year(civil_datetime, timezone_name)
+        month_context = get_bazi_month_context(civil_datetime, timezone_name)
         month_branch = str(month_context["branch"])
 
         # 晚子时 (23:00-23:59) 的日柱翻到次日; 年柱 / 月柱 分别由 立春 / 节气
-        # 决定, 不受 hour 影响, 所以保持原始 local_birth_datetime 计算。
+        # 决定，使用真实 civil_datetime，与修正后的日/时太阳钟分开。
         effective_year, effective_month, effective_day = resolve_bazi_effective_date(
             year, month, day, hour
         )
@@ -276,9 +277,14 @@ class BaZiCalendar:
         timezone_name: str = DEFAULT_TIMEZONE,
         *,
         day_pillar_strategy: str = DAY_GANZHI_STRATEGY_STANDARD,
+        civil_datetime: Optional[datetime] = None,
     ) -> Dict[str, Tuple[str, str]]:
         """
         Calculate all four pillars (四柱) for a given birth datetime.
+
+        ``birth_datetime`` is the day/hour clock (possibly solar-corrected).
+        Pass the original ``civil_datetime`` when corrected: year/month solar
+        term boundaries are physical instants, not solar-clock readings.
 
         Returns:
             Dict with keys: 'year', 'month', 'day', 'hour'
@@ -288,6 +294,7 @@ class BaZiCalendar:
         year_pillar, month_pillar, day_pillar, hour_pillar = (
             cls._get_four_pillars_cached(
                 local_birth_datetime,
+                localize_datetime(civil_datetime or birth_datetime, timezone_name),
                 timezone_name,
                 day_pillar_strategy,
             )

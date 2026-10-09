@@ -121,7 +121,7 @@ def build_primary_direction_equatorial_context(
         + (utc_datetime.second / 3600.0)
         + (utc_datetime.microsecond / 3_600_000_000.0),
     )
-    obliquity = swe.calc_ut(julian_day, swe.ECL_NUT)[0][0]
+    obliquity = ephemeris_call("calc_ut", julian_day, swe.ECL_NUT)[0][0]
     ascmc = swe.houses_ex(
         julian_day,
         birth_info.latitude,
@@ -156,7 +156,8 @@ def point_equatorial_position(
     armc: float,
 ) -> tuple[float, float]:
     if point_name in SWISSEPH_PLANET_IDS:
-        equatorial = swe.calc_ut(
+        equatorial = ephemeris_call(
+            "calc_ut",
             julian_day,
             SWISSEPH_PLANET_IDS[point_name],
             swe.FLG_SWIEPH | swe.FLG_SPEED | swe.FLG_EQUATORIAL,

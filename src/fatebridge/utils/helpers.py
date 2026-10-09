@@ -9,11 +9,9 @@ import logging
 import math
 from calendar import monthrange
 from dataclasses import dataclass
-from datetime import datetime, timedelta, tzinfo
-from functools import lru_cache
-from typing import Any, Dict, Optional, Tuple, cast
+from datetime import datetime, timedelta
+from typing import Any, Dict, Optional, Tuple
 
-from dateutil import tz
 from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 # --- god-file split: re-export moved symbols for backward-compatible imports ---
@@ -45,6 +43,10 @@ from fatebridge.utils.places import (  # noqa: F401,E402
     normalize_birth_place_text,
     resolve_birth_place_context,
 )
+from fatebridge.utils.timezones import (  # noqa: F401
+    invalid_timezone_message as _invalid_timezone_message,
+)
+from fatebridge.utils.timezones import parse_timezone_name  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -259,75 +261,6 @@ def create_birth_datetime(
         )
         logger.warning(error_msg)
         raise ValueError(error_msg) from e
-
-
-def _invalid_timezone_message(value: str) -> str:
-    """Build an actionable error that names every accepted timezone format."""
-    return (
-        f"Invalid birth timezone: {value!r}. "
-        "Use an IANA name (e.g. 'Asia/Shanghai'), a UTC offset "
-        "(e.g. '+08:00' or 'UTC+8'), or a bare offset in hours "
-        "(e.g. '8', '-5', '5.5')."
-    )
-
-
-def parse_timezone_name(timezone_name: str) -> tzinfo:
-    """Parse IANA names, UTC±HH[:MM] offsets, or bare hour offsets into a tzinfo."""
-    timezone_name = timezone_name.strip()
-    return _parse_timezone_name_cached(timezone_name)
-
-
-@lru_cache(maxsize=128)
-def _parse_timezone_name_cached(timezone_name: str) -> tzinfo:
-    """Cache parsed tzinfo objects for repeated birth-time normalization."""
-    timezone_info = tz.gettz(timezone_name)
-    if timezone_info is not None:
-        return cast(tzinfo, timezone_info)
-
-    stripped = timezone_name.strip()
-
-    # Accept a bare numeric UTC offset in hours — e.g. "8", "+8", "-5", "5.5"
-    # ("5.5" -> +05:30, matching India). This is the most natural thing a user
-    # types for a timezone field, so treat it as UTC+N rather than rejecting it.
-    # Bound to a sane range so junk like "1e3"/"inf"/"nan" still fails loudly.
-    try:
-        offset_hours = float(stripped)
-    except ValueError:
-        pass
-    else:
-        if -15.0 <= offset_hours <= 15.0:
-            offset_seconds = int(round(offset_hours * 3600))
-            return cast(tzinfo, tz.tzoffset(stripped, offset_seconds))
-        raise ValueError(_invalid_timezone_message(timezone_name))
-
-    normalized_name = stripped.upper().replace("GMT", "UTC")
-    if normalized_name.startswith(("+", "-")):
-        normalized_name = f"UTC{normalized_name}"
-    if normalized_name == "UTC":
-        return cast(tzinfo, tz.tzutc())
-
-    if not normalized_name.startswith("UTC") or len(normalized_name) < 5:
-        raise ValueError(_invalid_timezone_message(timezone_name))
-
-    sign = normalized_name[3]
-    if sign not in {"+", "-"}:
-        raise ValueError(_invalid_timezone_message(timezone_name))
-
-    remainder = normalized_name[4:]
-    if ":" in remainder:
-        hour_text, minute_text = remainder.split(":", 1)
-    else:
-        hour_text, minute_text = remainder, "0"
-
-    try:
-        hours = int(hour_text)
-        minutes = int(minute_text)
-    except ValueError as error:
-        raise ValueError(_invalid_timezone_message(timezone_name)) from error
-
-    direction = 1 if sign == "+" else -1
-    offset_seconds = direction * ((hours * 60 + minutes) * 60)
-    return cast(tzinfo, tz.tzoffset(timezone_name, offset_seconds))
 
 
 def calculate_equation_of_time_minutes(target_datetime: datetime) -> float:

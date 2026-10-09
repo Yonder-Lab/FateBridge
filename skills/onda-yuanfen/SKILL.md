@@ -14,11 +14,11 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 
 **铁律：干支/合婚分/桃花信号全部交给引擎算，不要手算。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
+调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律按场景路由) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
 
 ## 这个场景用哪些工具
 
-§C.3 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+「缘分 · 感情合婚」 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
 
 | 用户想问 | 工具 | 优先级 | 要点 |
 |---------|------|--------|------|
@@ -27,7 +27,7 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 | 我的姻缘/感情走向 | `ziwei_birth`（夫妻宫） | 旁 | 用 `--selected-sections` 聚焦 |
 | 正缘/桃花何时来、旺不旺 | `bazi_romance` | 主 | 正缘桃花专项 |
 | 正缘/桃花何时来、旺不旺 | `bazi_marriage` | 旁 | |
-| 正缘/桃花何时来（追问到几月） | `liuyue_analysis` | 深 | 流年级→月级升级，见 §A.3 |
+| 正缘/桃花何时来（追问到几月） | `liuyue_analysis` | 深 | 流年级→月级升级，见 场景路由「全局调用纪律」第 3 条 |
 | 我俩合不合（恋爱/结婚） | `two_person_compatibility` | 主 | 两人各一套 `--personN-*`，看综合分、五行互补、共同喜用、挑战 |
 | 我俩合不合（恋爱/结婚） | `sukuyo_compatibility` | 旁 | 27 宿相性，有方向性 |
 | 我俩合不合（恋爱/结婚） | `ziwei_birth`（夫妻宫） | 深 | |
@@ -36,19 +36,19 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 | 关系的星盘视角/互动相位 | `two_person_compatibility` | 旁 | |
 | 要不要表白/要不要复合 | 转「抉择·问事」→ `meihua_analysis` / `sixyao` | 主 | 拿不定主意起卦 |
 
-> 去重：`bazi_romance` 与 `bazi_marriage` 同时跑时，咸池/红鸾等神煞会两处各出现一次且口径不同，按当前场景取一个口径讲一次（见 §B）。
-> 粒度：`romance_timing` 只到流年级，要「几月」才升级 `liuyue_analysis`（见 §A.3）。
+> 去重：`bazi_romance` 与 `bazi_marriage` 同时跑时，咸池/红鸾等神煞会两处各出现一次且口径不同，按当前场景取一个口径讲一次（见 场景路由「交叉印证与去重」）。
+> 粒度：`romance_timing` 只到流年级，要「几月」才升级 `liuyue_analysis`（见 场景路由「全局调用纪律」第 3 条）。
 > 方向性：`sukuyo_compatibility` 的 `person1_to_person2` 与 `person2_to_person1` 不对称，要分开讲。
 
 ## 怎么收信息（缺什么问什么，一次一项）
-- 单人看运：出生 年月日时 + 性别 + 出生城市。时辰不知就排无时盘并说明。
+- 单人看运：出生 年月日时 + 性别 + 出生城市。小时是引擎必填项，未知时先确认信息；不能省略或擅自填 0 当作“无时盘”。
 - 合婚：双方各一套上面的信息。
 - 别一次甩一张表问完，像聊天一样一项一项来。
 
 ## 工作流
 1. 接住他为什么来问（一两句）。
 2. 收齐信息 → 调引擎（合婚用 `two_person_compatibility`，单人用 `bazi_marriage`/`bazi_romance`）。
-3. 读 `snapshot_text` / JSON：挑跟他问题最相关的 2–3 个信号，凶象翻译过（见 onda-counsel 第三节）。
+3. 读 `snapshot_text` / JSON：挑跟他问题最相关的 2–3 个信号，凶象翻译过（见 onda-counsel「凶象怎么翻译」）。
 4. 落到今年能动的一件小事。
 5. 收尾每次不一样，带一句边界声明。
 

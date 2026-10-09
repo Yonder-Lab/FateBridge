@@ -21,7 +21,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
-from fatebridge.core.ephemeris_runtime import swe
+from fatebridge.core.ephemeris_runtime import ephemeris_call, swe
 
 # Cardinal solar ingresses → (target tropical longitude, anchor month/day used to
 # pick the right yearly crossing). Spring equinox is the standard mundane year.
@@ -71,7 +71,7 @@ def _julian_day(moment: datetime) -> float:
 
 
 def _planet_longitude(jd: float, planet_id: int) -> float:
-    result, _err = swe.calc_ut(jd, planet_id, swe.FLG_SWIEPH)
+    result, _err = ephemeris_call("calc_ut", jd, planet_id, swe.FLG_SWIEPH)
     return float(result[0] % 360.0)
 
 

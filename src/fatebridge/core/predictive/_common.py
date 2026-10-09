@@ -18,7 +18,11 @@ from fatebridge.core.astrology import (
     build_astro_birth_info,
     normalize_angle,
 )
-from fatebridge.core.ephemeris_runtime import swe
+from fatebridge.core.ephemeris_runtime import (
+    ephemeris_call,
+    preserve_ephemeris_path,
+    swe,
+)
 from fatebridge.utils.helpers import parse_timezone_name
 
 KERYKEION_IMPORT_ERROR: Optional[ImportError] = None
@@ -291,18 +295,20 @@ def build_analysis_datetime(
 ) -> datetime:
     timezone_name = birth_info.timezone
     tzinfo = parse_timezone_name(timezone_name)
-    if analysis_year is None or analysis_month is None or analysis_day is None:
-        now = datetime.now(tz=tzinfo)
-        return now.replace(
-            hour=birth_info.local_datetime.hour,
-            minute=birth_info.local_datetime.minute,
-            second=0,
-            microsecond=0,
-        )
+    now = datetime.now(tz=tzinfo)
+    year = now.year if analysis_year is None else analysis_year
+    month = now.month if analysis_month is None else analysis_month
+    # A default day must fit the requested month (including leap-year changes).
+    # Explicit days retain datetime's validation instead of being rewritten.
+    day = (
+        min(now.day, monthrange(year, month)[1])
+        if analysis_day is None
+        else analysis_day
+    )
     return datetime(
-        analysis_year,
-        analysis_month,
-        analysis_day,
+        year,
+        month,
+        day,
         birth_info.local_datetime.hour,
         birth_info.local_datetime.minute,
         tzinfo=tzinfo,
@@ -540,21 +546,22 @@ def build_subject(
         local_datetime,
         timezone_name,
     )
-    return AstrologicalSubjectFactory.from_birth_data(
-        name=name,
-        year=local_datetime.year,
-        month=local_datetime.month,
-        day=local_datetime.day,
-        hour=local_datetime.hour,
-        minute=local_datetime.minute,
-        seconds=local_datetime.second,
-        lng=longitude,
-        lat=latitude,
-        tz_str=timezone_name,
-        online=False,
-        houses_system_identifier=cast(Any, house_system),
-        zodiac_type=cast(Any, zodiac_type),
-    )
+    with preserve_ephemeris_path():
+        return AstrologicalSubjectFactory.from_birth_data(
+            name=name,
+            year=local_datetime.year,
+            month=local_datetime.month,
+            day=local_datetime.day,
+            hour=local_datetime.hour,
+            minute=local_datetime.minute,
+            seconds=local_datetime.second,
+            lng=longitude,
+            lat=latitude,
+            tz_str=timezone_name,
+            online=False,
+            houses_system_identifier=cast(Any, house_system),
+            zodiac_type=cast(Any, zodiac_type),
+        )
 
 
 def resolve_kerykeion_timezone_name(timezone_name: str) -> Optional[str]:

@@ -14,6 +14,15 @@ from fatebridge.core.ephemeris_runtime import (
 )
 
 
+@pytest.fixture(autouse=True)
+def preserve_configured_path(monkeypatch):
+    # Unit tests mock set_ephe_path; their fake paths must not become the path
+    # that later real calculations restore after a Kerykeion call.
+    monkeypatch.setattr(
+        ephemeris_runtime, "_configured_path", ephemeris_runtime._configured_path
+    )
+
+
 def test_configure_ephemeris_path_uses_explicit_argument(monkeypatch):
     swe = pytest.importorskip("swisseph")
     captured = {}

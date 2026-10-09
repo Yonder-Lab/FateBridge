@@ -15,7 +15,7 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 - **MCP** —— 用 FastMCP 暴露给 Claude、Cursor、Codex 等 Agent；
 - **CLI** —— 命令行直接交互，适合本地调试与自动化脚本。
 
-当前版本将所有工具（80 个）同时暴露为 **80 个业务 REST 路由** 与 **80 个 FastMCP 工具**，三端由同一份中央目录自动派生。
+当前版本将所有工具（80 个）同时暴露为 **80 个业务 REST 路由** 与 **80 个 FastMCP 工具**，三端由同一份中央目录派生；目录含 82 条记录，CLI 可执行其中 81 条。各端的名称与请求形态差异见 [API 参考](docs/api-reference.md#24-三端能力边界)。
 
 > 当前版本为 **Beta 0.2.0**，API 仍可能微调，欢迎试用与反馈。
 
@@ -27,9 +27,9 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 
 传统命理知识往往散落在不同书籍、软件和师承体系里，格式不统一，难以被现代系统复用。FateBridge 尝试做三件事：
 
-1. **统一接口**：把 80 余种能力收敛成一致的调用方式，不用为每个技法重新对接；
+1. **统一接口**：把 80 项公开能力收敛成一致的调用方式，不用为每个技法重新对接；
 2. **离线可跑**：核心能力不依赖外部服务，本地启动即可计算；
-3. **可追溯**：每次调用都附带 `run_metadata`，知道是什么工具、什么时候、跑出了什么结果。
+3. **可追溯**：成功的工具响应默认附带 `run_metadata`，知道是什么工具、什么时候、跑出了什么结果。
 
 ---
 
@@ -59,7 +59,7 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 git clone https://github.com/Yonder-Lab/FateBridge.git
 cd FateBridge
 
-uv venv
+uv venv --python 3.12
 source .venv/bin/activate
 uv pip install -e .
 ```
@@ -67,9 +67,9 @@ uv pip install -e .
 没有 uv 也可以用 pip：
 
 ```bash
-python -m venv venv
-source venv/bin/activate
-pip install -e .
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
 ```
 
 安装完成后，会同时获得三个入口：
@@ -81,7 +81,7 @@ pip install -e .
 ### 2. 启动 REST 服务
 
 ```bash
-fatebridge-api
+API_HOST=127.0.0.1 fatebridge-api
 ```
 
 默认监听 `http://localhost:8010`。打开浏览器访问：
@@ -94,7 +94,7 @@ fatebridge-api
 ### 3. 发送第一条请求
 
 ```bash
-curl -X POST http://localhost:8010/api/calculate \
+curl -X POST http://localhost:8010/api/cn/bazi/birth \
   -H "Content-Type: application/json" \
   -d '{
     "name": "张三", "gender": "男",
@@ -106,7 +106,7 @@ curl -X POST http://localhost:8010/api/calculate \
   }'
 ```
 
-如果配置了 `FATEBRIDGE_API_KEYS`，需要额外带上 `X-API-Key` 请求头。
+这是推荐的独立八字命盘入口，业务字段位于 `bazi_birth`。`/api/calculate` 保留旧版扁平响应；综合命理 `analyze_destiny` 通过 MCP / CLI 调用。若配置了 `FATEBRIDGE_API_KEYS`，请求需额外带上 `X-API-Key`。
 
 ### 4. 命令行用法
 
@@ -132,7 +132,7 @@ FateBridge 被设计成 Agent 友好的：
 - 所有工具从同一个中央目录派生，参数 schema 三端一致；
 - `GET /api/tools`（或 MCP 的 `tools/list`）可以自动枚举全部能力；
 - 错误返回统一的 `{error, error_code, retryable}` 结构；
-- 响应中始终包含 `run_metadata`，便于追踪与复现。
+- 成功响应默认包含 `run_metadata`，便于追踪；CLI 可用 `--no-metadata` 关闭。
 
 接入示例、字段投影、快照导出等细节，请见 [`docs/agent-guide.md`](docs/agent-guide.md)。
 
@@ -200,7 +200,7 @@ mypy src/fatebridge/
 
 - 当前为 **Beta 0.2.0**，API 在到达 1.0 之前仍可能调整；
 - 本仓库**不含前端界面**，接 UI 需要自行对接 REST 或 MCP；
-- 核心占星盘支持本地高精度与近似离线两种路径；
+- 核心占星盘支持本地星历与离线近似路径，实际模型需检查 `chart_profile.ephemeris_model` 和 `run_metadata.engine_is_approximate`；
 - 西占推运 / 事件 / 寿命能力依赖 `kerykeion` / Swiss Ephemeris，缺失时会明确报错，不会静默降级。
 
 完整变更记录见 [`CHANGELOG.md`](CHANGELOG.md)。
@@ -215,4 +215,4 @@ mypy src/fatebridge/
 
 ## 许可证
 
-[Apache-2.0](LICENSE)
+本仓库代码采用 [Apache-2.0](LICENSE)，第三方组件说明见 [NOTICE](NOTICE)。星历数据需单独获取，安装与运行边界见 [快速入门](docs/getting-started.md#星历数据与精度)。

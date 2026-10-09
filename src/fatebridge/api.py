@@ -16,11 +16,27 @@ from typing import Any, Callable, Dict, Optional, Tuple
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
+from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
+from starlette.routing import Match
+
+from fatebridge.utils.runtime import (
+    get_api_key_header_name,
+    get_log_level,
+    load_runtime_env,
+    parse_allowed_origins,
+    parse_api_keys,
+)
+
+# Domain imports initialize Swiss Ephemeris. Load its configuration first.
+load_runtime_env()
+
+# isort: split
 
 from fatebridge import __version__ as APP_VERSION
 from fatebridge.core import astrology as astrology_core
@@ -86,19 +102,10 @@ from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.western_timing import (  # noqa: F401
     calculate_western_timing_analysis,
 )
-from fatebridge.utils.runtime import (
-    get_api_key_header_name,
-    get_log_level,
-    load_runtime_env,
-    parse_allowed_origins,
-    parse_api_keys,
-)
 
 # ============================================================================
 # Setup
 # ============================================================================
-
-load_runtime_env()
 
 # Configure logging
 logging.basicConfig(
@@ -107,10 +114,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+class ErrorEnvelope(BaseModel):
+    """The shared HTTP error body, used for serialization and API discovery."""
+
+    error: Any
+    error_code: str
+    retryable: bool
+
+
 app = FastAPI(
     title="FateBridge API",
     description="API for FateBridge calculations across BaZi, divination, timing, and offline astrology charts with local ephemeris preference",
     version=APP_VERSION,
+    responses={422: {"model": ErrorEnvelope}},
 )
 
 # ============================================================================
@@ -352,11 +369,13 @@ def _build_readiness_payload() -> Dict[str, Any]:
 
 
 def _build_authentication_detail() -> Dict[str, Any]:
-    return {
-        "error": "缺少或无效的 API key",
-        "error_code": "authentication_required",
-        "retryable": False,
-    }
+    return _build_error_detail(
+        {
+            "error": "缺少或无效的 API key",
+            "error_code": "authentication_required",
+            "retryable": False,
+        }
+    )
 
 
 def _reset_runtime_state_for_tests() -> None:
@@ -366,6 +385,19 @@ def _reset_runtime_state_for_tests() -> None:
     HEAVY_CALC_SEMAPHORE_LOOP = None
 
 
+def _metrics_route_path(request: Request) -> str:
+    """Resolve a fixed route label even before routing/authentication runs."""
+    partial_path: Optional[str] = None
+    for route in app.routes:
+        match, _ = route.matches(request.scope)
+        route_path = getattr(route, "path", "/unknown")
+        if match == Match.FULL:
+            return str(route_path)
+        if match == Match.PARTIAL and partial_path is None:
+            partial_path = str(route_path)
+    return partial_path or "/unknown"
+
+
 @app.middleware("http")
 async def instrument_request_lifecycle(
     request: Request,
@@ -373,6 +405,23 @@ async def instrument_request_lifecycle(
 ) -> Response:
     path = request.url.path
     method = request.method.upper()
+    metrics_path = _metrics_route_path(request)
+    metrics_method = (
+        method
+        if method
+        in {
+            "GET",
+            "HEAD",
+            "POST",
+            "PUT",
+            "DELETE",
+            "CONNECT",
+            "OPTIONS",
+            "TRACE",
+            "PATCH",
+        }
+        else "OTHER"
+    )
 
     if method != "OPTIONS" and path not in API_KEY_EXEMPT_PATHS:
         if API_KEY_AUTHENTICATOR.enabled:
@@ -383,8 +432,8 @@ async def instrument_request_lifecycle(
                     content=_build_authentication_detail(),
                 )
                 REQUEST_METRICS.observe(
-                    method=method,
-                    path=path,
+                    method=metrics_method,
+                    path=metrics_path,
                     status_code=401,
                     duration_seconds=0.0,
                 )
@@ -397,16 +446,16 @@ async def instrument_request_lifecycle(
         response = await call_next(request)
     except Exception:
         REQUEST_METRICS.observe(
-            method=method,
-            path=path,
+            method=metrics_method,
+            path=metrics_path,
             status_code=500,
             duration_seconds=time.perf_counter() - started_at,
         )
         raise
 
     REQUEST_METRICS.observe(
-        method=method,
-        path=path,
+        method=metrics_method,
+        path=metrics_path,
         status_code=response.status_code,
         duration_seconds=time.perf_counter() - started_at,
     )
@@ -414,17 +463,34 @@ async def instrument_request_lifecycle(
 
 
 def _build_error_detail(result: Dict[str, Any]) -> Dict[str, Any]:
-    return {
-        "error": result["error"],
-        "error_code": result.get("error_code", "internal_error"),
-        "retryable": result.get("retryable", False),
-    }
+    return ErrorEnvelope(
+        error=result["error"],
+        error_code=result.get("error_code", "internal_error"),
+        retryable=result.get("retryable", False),
+    ).model_dump()
 
 
 def _raise_service_http_error(result: Dict[str, Any]) -> None:
     raise HTTPException(
         status_code=int(result.get("status_code", 500)),
         detail=_build_error_detail(result),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def _request_validation_error_envelope(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    # Validation errors may contain the submitted body or secrets in messages.
+    return JSONResponse(
+        status_code=422,
+        content=_build_error_detail(
+            {
+                "error": "请求参数无效",
+                "error_code": "validation_error",
+                "retryable": False,
+            }
+        ),
     )
 
 
@@ -441,19 +507,17 @@ async def _http_error_envelope(request: Request, exc: HTTPException) -> JSONResp
     """
     detail = exc.detail
     if isinstance(detail, dict) and "error_code" in detail:
-        body = {
-            "error": detail.get("error"),
-            "error_code": detail.get("error_code", "internal_error"),
-            "retryable": detail.get("retryable", False),
-        }
+        body = _build_error_detail({**detail, "error": detail.get("error")})
     else:
-        body = {
-            "error": detail,
-            "error_code": (
-                "validation_error" if exc.status_code == 400 else "internal_error"
-            ),
-            "retryable": False,
-        }
+        body = _build_error_detail(
+            {
+                "error": detail,
+                "error_code": (
+                    "validation_error" if exc.status_code == 400 else "internal_error"
+                ),
+                "retryable": False,
+            }
+        )
     return JSONResponse(status_code=exc.status_code, content=body)
 
 

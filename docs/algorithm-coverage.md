@@ -4,12 +4,12 @@
 
 状态分类：
 
-- `Implemented`：仓库内已有实现，且可通过 REST / MCP / CLI 访问
+- `Implemented`：仓库内已有实现，可通过中央目录声明的接口访问；不代表所有端均有同名入口，也不代表预测有效性已被验证
 - `Approximate`：可用，但算法明确是离线近似、轻量近似或依赖回退路径
 - `Placeholder`：合同或模式入口存在，但主输出层仍是占位兼容
 - `Excluded`：当前仓库不提供该能力
 
-> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。当前共 **80 个工具**，分为 **12 个 family**，三端（REST / MCP / CLI）由同一份目录自动派生。下表逐 family 列出全部工具；新增能力时请同步本页（工具总数由 `tests/test_doc_tool_counts.py` 锁定）。
+> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。REST / MCP 各公开 **80 个工具**，分为 **12 个 family**。本页按 MCP 集合统计；目录有 82 条记录，CLI 可执行 81 条，差异见 [API 参考](api-reference.md#24-三端能力边界)。下表逐 family 列出全部工具；新增能力时请同步本页（工具总数由 `tests/test_doc_tool_counts.py` 锁定）。
 
 ## 1. 总览：12 个 family / 80 个工具
 
@@ -69,7 +69,7 @@
 | `liushi_analysis` | 流时分析 | Implemented |
 | `jieqi_timeline_analysis` | 节气时间轴分析 | Implemented |
 | `jieqi_year` | 指定年份节气时刻表（calendar helper） | Implemented |
-| `nongli_time` | 公历↔农历换算与干支（calendar helper） | Implemented |
+| `nongli_time` | 公历时刻转农历与干支（calendar helper） | Implemented |
 
 > 历法基于本地算法（`fatebridge.core.almanac`），不依赖外部服务。真太阳时修正含经度 + 均时差，统一走 `fatebridge.utils.helpers`。
 
@@ -82,7 +82,7 @@
 | `gua_lookup` | 卦象查询（六十四卦义理） | Implemented |
 | `gua_meiyi` | 卦义 helper（批量说明） | Implemented |
 | `meihua_analysis` | 梅花易数时卦辅助 | Implemented |
-| `tongshefa` | 通蓍法起卦 | Implemented |
+| `tongshefa` | 统摄法 / 大衍筮法起卦 | Implemented |
 | `sixyao` | 六爻纳甲分析 | Implemented |
 | `canping` | 邵子参评数 / 金锁银匙（数算） | Implemented |
 | `heluo` | 河洛理数（数算） | Implemented |
@@ -110,7 +110,7 @@
 | 工具 | 说明 | 状态 |
 | --- | --- | --- |
 | `astro_chart` | 离线核心星盘（`chart_variant` 切换盘式） | Implemented / Approximate（见 §3.1） |
-| `astro_chart13` | 离线 13 星座盘 | Implemented / Approximate |
+| `astro_chart13` | 离线 13 扇区扩展盘 | Implemented / Approximate |
 | `astro_hellen_chart` | 离线希腊盘 | Implemented / Approximate |
 | `astro_guolao_chart` | 离线果老星宗 / 七政四余盘 | Implemented / Approximate |
 | `astro_india_chart` | 离线印度 sidereal 盘 | Implemented / Approximate |
@@ -119,7 +119,7 @@
 
 ### 2.7 `western_timing` + `western_timing_tool` —— 西占推运（Implemented，依赖 backend）
 
-走 `fatebridge.core.predictive.*` 与 `fatebridge.core.astrology_predictive`；缺 `kerykeion` / Swiss Ephemeris 时**直接报错，不降级**（见 §3.3）。
+走 `fatebridge.core.predictive.*`；缺 `kerykeion` / Swiss Ephemeris 时**直接报错，不降级**（见 §3.3）。
 
 | 工具 | 说明 | 状态 |
 | --- | --- | --- |
@@ -184,12 +184,15 @@
 
 | 情形 | 状态 | 说明 |
 | --- | --- | --- |
-| 本地有 `swisseph` | Implemented | `fatebridge.core.astrology` 优先走本地高精度路径 |
+| 本地有 `swisseph` 且加载相应星历数据 | Implemented | 本地星历路径，实际模型由返回标志确定 |
+| `swisseph` 可导入，但缺相应 `.se1` 数据 | Implemented / Approximate | 可能使用内置 Moshier 模型，不能仅凭包可导入或 `engine_backend` 判断数据精度 |
 | 无 `swisseph` | Approximate | 回退到 FateBridge 内置近似轨道模型 |
 | 显式 `hsys` 覆盖为 `1..8` 的离线宫制 | Implemented（但依赖 `swisseph`） | 缺失时**直接报错**，不静默退化为整宫制 |
 | `zodiacal=1` sidereal(Lahiri-like) | Implemented | 离线 sidereal 模式，非联网服务 |
 
-可用 `chart_profile.engine_precision` / `chart_profile.engine_backend` 确认当前实际走了哪条路径。
+检查 `chart_profile.engine_precision` / `engine_backend` 确认代码路径，再用 `chart_profile.ephemeris_model` 确认实际模型：`swieph` / `jpl` 为相应数据模型，`moshier` 为内置模型，`mixed` 表示混合。`run_metadata.engine_is_approximate` 会标记已识别的降级。数据获取、路径与版本复现见 [快速入门](getting-started.md#星历数据与精度)。
+
+`pyswisseph` 与 `kerykeion` 都是 `pyproject.toml` 的常规安装依赖。“缺依赖回退”描述的是异常/裁剪环境的能力边界，不是另一种官方安装模式。
 
 ### 3.2 关系盘（`astro_relative_chart`）
 
@@ -212,7 +215,7 @@
 
 - 这四个 family 明确依赖 `kerykeion` / Swiss Ephemeris 运行时
 - `ensure_predictive_backend_available()` 会在缺依赖时抛错（`dependency_missing`）
-- 与核心 chart 不同，**不会降级成近似版**——这是准确性优先的刻意选择
+- 与核心 chart 不同，缺 backend 时不会使用 FateBridge 内置轨道近似；但这不保证所有 backend 都加载了相同星历数据，仍需检查返回的精度/模型字段
 - `pd` / `pdchart` 虽已实装，但内部会公开其近似/坐标策略（time key、direct/converse、相位列表等），不应被误读为单一路径高精度结果
 
 ## 4. 快照协议覆盖

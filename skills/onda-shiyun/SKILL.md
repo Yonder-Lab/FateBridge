@@ -14,11 +14,11 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 
 **铁律：大运起运、流年干支、节气换月、星历推运全部交给引擎。手算这些必错。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
+调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律按场景路由) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
 
 ## 这个场景用哪些工具
 
-§C.5 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+「人生时运 · 择时」 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
 
 **中式时运（聚合优先）**
 
@@ -45,7 +45,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 某月/某天的小节奏 | `liuyue_analysis` | — | 月级 |
 | 某月/某天的小节奏 | `liuri_analysis` | — | 日级 |
 | 某月/某天的小节奏 | `liushi_analysis` | — | 时级 |
-| 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` | — | 历法支撑（§E） |
+| 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` | — | 历法支撑（场景路由「支撑与元工具」） |
 
 **西占单技法（11 种，仅追问或专家模式单独调）**
 
@@ -87,7 +87,7 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | `astro_mundane` | 某年春分/夏至/秋分/冬至入宫盘，问国运/年度大势 | 深 |
 | `astro_extrareturns` | 多重回归/事件多盘，含世俗星盘等专家级复合推运 | 深 |
 
-> 紫微运限：`ziwei_horoscope` 是八字时运、西占推运之外的**第三套时运体系**，给大限/流年的紫微视角；按 scenario-routing §B，与另两套一致则合并去重、分歧则显式标出，不把同一结论重复罗列三遍。
+> 紫微运限：`ziwei_horoscope` 是八字时运、西占推运之外的**第三套时运体系**，给大限/流年的紫微视角；按 scenario-routing 场景路由「交叉印证与去重」，与另两套一致则合并去重、分歧则显式标出，不把同一结论重复罗列三遍。
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
 > 粒度升级：年→`liunian_analysis`，月→`liuyue_analysis`，日→`liuri_analysis`，时→`liushi_analysis`，不许跨级说成「几月/几日」。
 > 择日专属：`astro_election` 是唯一择日主证，不用时运聚合工具替代。
@@ -103,14 +103,14 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 ## 工作流
 1. 问清他是「整年看个大概」还是「卡在某件事想择时」。
 2. 调引擎：整年＝`liunian_analysis`/`timing_analysis`；大运段＝`dayun_analysis --analysis-age N`（虚岁必填）；西占年运＝`solarreturn`+`profection`。
-3. 读 `[流年行运概略]`：哪个五行被生扶（顺）、哪个被耗被克（费劲）。翻译成「上半年适合推进 X，下半年缓一缓」这种能准备的话。
+3. 读结构化时运信号，按实际返回的年/月/日粒度表述；仅有流年不能推断上半年或下半年。需要更细节奏时再调用月级工具。
 4. 给节奏建议，不给死期。
 5. 收尾落到一件近期能安排的小事，每次不一样。
 
 ## 红线
 - 不报「灾年」「劫数」吓人；不下「某月必出事」的死期。
 - 不顺的年份，说成「适合收一收、打基础的一段」，给可做的事。
-- 西占无本地星历时走近似模型，解读点一句「按近似星历」。
+- 核心星盘可回退轨道近似；西占推运缺 backend 时直接报 `dependency_missing`，不能按近似模型继续解读。实际星历模型仍需核对输出。
 
 ## 样例
 ```bash

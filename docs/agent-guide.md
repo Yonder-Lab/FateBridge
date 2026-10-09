@@ -2,15 +2,15 @@
 
 这份文档写给两类调用方：想在自己的应用或脚本里集成 FateBridge 的开发者，以及把 FateBridge 当作工具集让模型自主调用的 Agent。
 
-Fatebridge 的领域能力通过三条通道暴露出来：
+FateBridge 的领域能力通过三条通道暴露出来：
 
 - REST：`python -m fatebridge.api`，默认监听 `:8010`，适合 Web、后端服务或脚本调用
 - FastMCP：`python -m fatebridge.mcp_server`，供 Claude / Cursor / Codex 等 MCP host 使用
 - CLI：`fatebridge <tool> ...`，适合 Agentic 流程、shell 或自动化脚本
 
-三条通道的工具集合、参数 schema 和错误形状都来自同一个地方：`src/fatebridge/services/tool_catalog.py`。所以你在一处改动，三处同时生效。
+三条通道的工具声明来自 `src/fatebridge/services/tool_catalog.py`，请求字段来自 `core/request_models.py`。共享领域计算和错误字段，各端仍有名称、绑定和校验阶段差异。
 
-> 目前 REST 和 MCP 各暴露 80 个工具；CLI 多了几个别名（例如 `calculate_legacy`），因此 `/api/tools` 返回的 `counts.total` 会略大于 80。完整算法清单见 [algorithm-coverage.md](algorithm-coverage.md)，完整端点说明见 [api-reference.md](api-reference.md)。
+> 目前 REST 和 MCP 各暴露 80 个工具；目录共有 82 条记录，其中 CLI 可执行 81 条。`calculate_legacy` 是旧版 REST 的绑定，`astro_relative` 是嵌套 REST 请求；它们分别与 MCP 能力存在对应关系，不是所有记录都能按同名跨端调用。完整算法清单见 [algorithm-coverage.md](algorithm-coverage.md)，完整端点说明见 [api-reference.md](api-reference.md)。
 
 ---
 
@@ -24,7 +24,7 @@ FateBridge 设计成可被机器自描述。Agent 不需要把本文档里的工
 curl http://localhost:8010/api/tools
 ```
 
-返回示例：
+返回示例（节选）：
 
 ```json
 {
@@ -44,7 +44,7 @@ curl http://localhost:8010/api/tools
 }
 ```
 
-如果某个工具不在某一端暴露，`surfaces.rest_path` 或 `surfaces.mcp_name` 会返回 `null`。`parameters` 就是该工具的参数 schema，可以直接映射成你框架里的 tool / function 定义。
+如果某个工具不在某一端暴露，`surfaces.rest_path` 或 `surfaces.mcp_name` 会返回 `null`。`parameters` 是参数摘要（名称、类型、必填、默认值、描述），不包含完整范围约束和嵌套 JSON Schema。生成可校验的函数定义时，REST 使用 `/openapi.json`，MCP 使用 `tools/list` 的 `inputSchema`。
 
 ### CLI：`list` 和 `describe`
 
@@ -59,7 +59,7 @@ fatebridge describe bazi_wealth # 输出单个工具的参数 schema、接口和
 
 MCP host 连接后通过标准 `tools/list` 拿到全部工具及 input schema，无需额外配置。
 
-> 推荐做法：Agent 启动时调用一次 `/api/tools`（或 MCP `tools/list`），把工具表按 `family` 分组缓存。之后按 `parameters` 校验入参即可。工具增删时不必再改 Agent 代码。
+> 推荐做法：Agent 启动时调用一次 `/api/tools`（或 MCP `tools/list`），把工具表按 `family` 分组缓存。之后按完整 Schema 校验入参。工具增删时不必再改 Agent 代码。
 
 ---
 
@@ -67,7 +67,7 @@ MCP host 连接后通过标准 `tools/list` 拿到全部工具及 input schema�
 
 ### 统一错误包络
 
-REST、FastMCP、CLI 三端返回的顶层错误结构一致。分支判断请用 `error_code`，不要依赖 `error` 文案：
+业务计算错误共享顶层 `error`、`error_code`、`retryable`。REST 请求校验与 MCP 协议校验还需分别处理，CLI 错误可额外包含 `status_code`。分支判断请用 `error_code`，不要依赖 `error` 文案：
 
 ```json
 {
@@ -79,14 +79,17 @@ REST、FastMCP、CLI 三端返回的顶层错误结构一致。分支判断请�
 
 `error_code` 目前有以下几种：
 
-- `validation_error`：入参错误或日期非法，REST 返回 400
+- `validation_error`：领域参数或日期错误返回 400；REST 请求字段缺失、类型/范围错误、非法 JSON 返回 422
 - `authentication_required`：缺少或无效 API key（仅在配置了密钥时），REST 返回 401
 - `dependency_missing`：运行依赖缺失（例如西占 backend 不可用），REST 返回 503
 - `internal_error`：服务内部异常，REST 返回 500
+- `timeout`：计算超时，REST 返回 504；是否重试以 `retryable` 为准
+
+MCP 的 schema 校验可能在执行工具前被协议层拒绝，应检查工具调用的 `isError` / 异常，再解析 JSON 文本。CLI 用退出码判定：0 成功，1 计算/模型校验失败，2 用法错误或不支持；工具结果及错误写 stdout，日志写 stderr，`list` / `--help` 返回文本。
 
 ### `run_metadata` 溯源层
 
-结构化工具响应都会带上 `run_metadata`：
+成功的工具响应默认带上 `run_metadata`（错误和发现接口不保证附带；CLI 可用 `--no-metadata` 关闭）：
 
 ```json
 {
@@ -95,7 +98,8 @@ REST、FastMCP、CLI 三端返回的顶层错误结构一致。分支判断请�
     "trace_id": "5f17...",
     "tool_name": "qimen",
     "generated_at": "2026-04-13T08:00:00Z",
-    "engine": "fatebridge-offline"
+    "engine": "fatebridge-offline",
+    "engine_is_approximate": false
   }
 }
 ```
@@ -119,7 +123,8 @@ REST、FastMCP、CLI 三端返回的顶层错误结构一致。分支判断请�
 - `snapshot_text` 是完整的人读文本，适合日志或直接展示。
 - `snapshot_export.export_text` 是按 `selected_sections` 过滤后的导出文本。
 - `selected_sections` 只裁剪导出层，不会裁掉完整的结构化 payload。
-- 如果 section 名没生效，先看 `section_titles_detected` 或 `missing_selected_sections`。
+- 如果 section 名没生效，先看 `section_titles_detected` 或 `missing_selected_sections`。显式非空选择没有命中时，`export_text` 为空，不会回退全文。
+- `selected_sections` 并非所有模型都支持，尤其八字九大专项没有此字段；它们仍返回快照，可用 `fields` 或 `include_snapshot_text` 控制体积。
 
 ### 字段投影：控制 token 预算
 
@@ -127,9 +132,11 @@ REST、FastMCP、CLI 三端返回的顶层错误结构一致。分支判断请�
 
 - CLI：`--fields KEY [KEY ...]`
 - FastMCP：工具参数 `fields: [...]`
-- REST：调用侧自行裁剪（REST 不内置 `fields`）
+- REST：查询参数 `?fields=wealth_analysis&fields=analysis_type`，每个字段重复一次 `fields`
 
-支持顶层 key（如 `wealth_analysis`）和点号子路径（如 `bazi_birth.day_master`）。`run_metadata` 始终保留以维持溯源；错误响应不会被裁剪。
+支持顶层 key（如 `wealth_analysis`）和点号子路径（如 `bazi_birth.day_master`）。已附带的 `run_metadata` 会在投影后保留；错误响应不会被裁剪。路径从响应根开始，未知路径被忽略。
+
+REST 可用 `?include_snapshot_text=false`，MCP 用 `include_snapshot_text=false`，CLI 用 `--no-include-snapshot-text` 去掉顶层快照文本；若还保留 `snapshot_export`，其中导出文本仍存在。MCP 的 `compact=true` 为默认值，CLI 用 `--compact` 输出单行 JSON。
 
 ```bash
 # 只取需要的顶层字段
@@ -149,13 +156,13 @@ fatebridge bazi_birth --birth-year 1990 --birth-month 6 --birth-day 15 \
 
 - `birth_year` / `birth_month` / `birth_day` / `birth_hour`：必需，出生日期与时刻
 - `birth_minute`：可选，默认 0
-- `gender`：可选，八字专项建议传入，取值为 `男` 或 `女`
+- `gender`：八字专项可选但建议传入；`dayun_analysis` 等工具要求必填，支持 `男` / `女`、`male` / `female` 等写法
 - `birth_place`：可选，中文 / 英文 / 拼音地名；内置静态近似，不是联网地理编码
 - `birth_timezone`：可选，IANA 时区或 UTC offset
 - `birth_longitude` / `birth_latitude`：视工具而定，占星盘建议显式传入以保证精度
-- `use_true_solar_time`：可选，启用真太阳时修正（含经度 + 均时差）
+- `use_true_solar_time`：中式出生信息模型默认 true，核心星盘默认 false；具体以当前工具模型为准。中式模型缺省开启但没有可解析经度时使用钟表时间并附提示；显式 true 且没有经度会报错，显式 false 使用钟表时间
 
-真太阳时、地点解析、时区补全统一走 `fatebridge.utils.helpers`，结果会回显在 `person_info.time_adjustment`。需要高精度占星盘时，优先显式传经纬度，而不是依赖 `birth_place` 推断。
+真太阳时、地点解析、时区补全统一走 `fatebridge.utils.helpers`，结果会回显在 `person_info.time_adjustment`。需要高精度占星盘时，优先显式传经纬度和 IANA 时区；地点/经度推断不包含完整历史夏令时信息。小时是必填项，当前没有可省略小时的“无时盘”入口。
 
 ---
 
@@ -173,7 +180,7 @@ curl -X POST http://localhost:8010/api/cn/bazi/wealth \
 
 如果配置了 `FATEBRIDGE_API_KEYS`，除 `/health`、`/ready`、`/metrics` 和文档页外，其余端点都需要带 `X-API-Key`。
 
-**Python（requests）示例：**
+**Python（requests）示例：** 示例客户端需先安装 `requests`，它不是 FateBridge 的直接依赖。
 
 ```python
 import requests
@@ -187,10 +194,9 @@ resp = requests.post(
     },
     timeout=30,
 )
-resp.raise_for_status()
 data = resp.json()
-if data.get("error_code"):
-    raise RuntimeError(data["error_code"])
+if not resp.ok or data.get("error_code"):
+    raise RuntimeError(f"HTTP {resp.status_code}: {data.get('error_code', data)}")
 print(data["wealth_analysis"])
 ```
 
@@ -206,7 +212,7 @@ const res = await fetch("http://localhost:8010/api/cn/bazi/wealth", {
   }),
 });
 const data = await res.json();
-if (data.error_code) throw new Error(data.error_code);
+if (!res.ok || data.error_code) throw new Error(`HTTP ${res.status}: ${data.error_code ?? "request_failed"}`);
 console.log(data.wealth_analysis);
 ```
 
@@ -218,13 +224,13 @@ console.log(data.wealth_analysis);
 python -m fatebridge.mcp_server
 ```
 
-注册到 MCP host（以 Claude Code / Claude Desktop 为例）：
+将 stdio 进程注册到支持 `mcpServers` 配置的 MCP host（以下是结构示例，路径需替换为实际安装目录）：
 
 ```json
 {
   "mcpServers": {
     "fatebridge": {
-      "command": "python",
+      "command": "/absolute/path/to/FateBridge/.venv/bin/python",
       "args": ["-m", "fatebridge.mcp_server"]
     }
   }
@@ -233,7 +239,9 @@ python -m fatebridge.mcp_server
 
 几个注意点：
 
-- MCP 工具多数返回 JSON 字符串而非原生对象，消费时需要 parse。
+- 默认使用 stdio，由 host 启动子进程；手工启动不会创建 HTTP MCP 地址。
+- 使用已安装 FateBridge 的解释器绝对路径，避免 GUI host 继承不到虚拟环境。Windows 使用 `.venv\Scripts\python.exe`。
+- MCP 工具返回 JSON 字符串，通常在工具结果的 text content 中，消费时需要 parse。
 - 错误同样以 JSON 字符串形式返回，也带 `error_code`。
 - 用 `fields` 参数控制返回体积。
 
@@ -255,10 +263,10 @@ CLI 子命令与参数同样从中央目录派生，`--help` 可查每个工具�
 
 1. 发现：启动时拉一次 `/api/tools`（或 MCP `tools/list`），按 `family` 建立工具路由表。
 2. 路由：按用户意图选 family，例如八字走 `bazi`、运势走 `timing`、星盘走 `astro`、术数走 `metaphysics` / `divination`。场景级取舍（谁主谁次、怎么省 token、怎么避免结论打架）见 [scenario-routing.md](scenario-routing.md)。
-3. 取数：传齐出生信息；需要真太阳时就显式传 `use_true_solar_time=true`。
+3. 取数：传齐出生信息并明确时区、坐标和太阳时策略；复现时同时固定分析日期。
 4. 裁剪：用 `fields` / `--fields` 或 `selected_sections` 控制 token。
 5. 判错：始终基于 `error_code` 分支；`dependency_missing` 说明环境缺西占 backend，不是入参问题。
-6. 溯源：把 `run_metadata.run_id` 和 `trace_id` 记进日志，方便复现。
+6. 溯源：记录输入、版本、分析时点、`run_metadata` 与精度字段。`run_id` / `trace_id` 是本次生成的标识，服务不提供持久化查询或历史重放。
 
 ---
 

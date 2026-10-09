@@ -8,22 +8,19 @@ code can enrich responses without recomputing 24 solar terms on every call.
 from __future__ import annotations
 
 import logging
-import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from datetime import tzinfo as _TzInfo
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple, cast
-
-from dateutil import tz as dateutil_tz
 
 try:
     from lunardate import LunarDate
 except ImportError:  # pragma: no cover - exercised only in misconfigured envs
     LunarDate = None
 
+from ..utils.timezones import parse_timezone_name
 from .divination import derive_meihua_hexagram
-from .ephemeris_runtime import swe
+from .ephemeris_runtime import ephemeris_call, swe
 
 logger = logging.getLogger(__name__)
 
@@ -175,8 +172,6 @@ LUNAR_DAY_NAMES = {
     30: "三十",
 }
 
-OFFSET_RE = re.compile(r"^([+-]?)(\d{1,2})(?::?(\d{2}))?$")
-
 LUNAR_SUPPORTED_SOLAR_START = datetime(1900, 1, 31).date()
 LUNAR_SUPPORTED_SOLAR_END = datetime(2100, 2, 8).date()
 
@@ -202,25 +197,8 @@ class SolarTerm:
         }
 
 
-def _parse_timezone_spec(timezone_name: Optional[str]) -> _TzInfo:
-    value = (timezone_name or DEFAULT_TIMEZONE).strip()
-    tzinfo = dateutil_tz.gettz(value)
-    if tzinfo is not None:
-        return cast(_TzInfo, tzinfo)
-
-    match = OFFSET_RE.match(value)
-    if not match:
-        raise ValueError(f"Unsupported timezone spec: {value}")
-
-    sign_text, hour_text, minute_text = match.groups()
-    sign = -1 if sign_text == "-" else 1
-    hours = int(hour_text or "0")
-    minutes = int(minute_text or "0")
-    return timezone(sign * timedelta(hours=hours, minutes=minutes))
-
-
 def localize_datetime(moment: datetime, timezone_name: Optional[str]) -> datetime:
-    tzinfo = _parse_timezone_spec(timezone_name)
+    tzinfo = parse_timezone_name(timezone_name or DEFAULT_TIMEZONE)
     if moment.tzinfo is None:
         return moment.replace(tzinfo=tzinfo)
     return moment.astimezone(tzinfo)
@@ -239,7 +217,7 @@ def current_local_datetime(timezone_name: Optional[str] = None) -> datetime:
     或据此构造新的朴素 datetime，保持与既有"朴素本地时间"契约一致，绝不与
     别处的 aware datetime 混用而触发 TypeError。
     """
-    tzinfo = _parse_timezone_spec(timezone_name)
+    tzinfo = parse_timezone_name(timezone_name or DEFAULT_TIMEZONE)
     return datetime.now(tzinfo).replace(tzinfo=None)
 
 
@@ -297,7 +275,7 @@ def _solar_term_utc_via_swe(
 
     def sun_longitude(jd: float) -> float:
         # calc_ut returns a tuple (longitude, latitude, distance, ...)
-        result, _err = swe.calc_ut(jd, swe.SUN, swe.FLG_SWIEPH)
+        result, _err = ephemeris_call("calc_ut", jd, swe.SUN, swe.FLG_SWIEPH)
         return float(result[0] % 360.0)
 
     # Coarse scan at ~daily resolution to find a sign change of
@@ -391,7 +369,7 @@ def get_solar_terms_for_year(
     year: int, timezone_name: str = DEFAULT_TIMEZONE
 ) -> Tuple[SolarTerm, ...]:
     global _LINEAR_FALLBACK_WARNED
-    tzinfo = _parse_timezone_spec(timezone_name)
+    tzinfo = parse_timezone_name(timezone_name or DEFAULT_TIMEZONE)
     terms: List[SolarTerm] = []
 
     using_swe = swe is not None
@@ -582,14 +560,16 @@ def get_lunar_context(
     *,
     timezone_name: str = DEFAULT_TIMEZONE,
     pillars: Optional[Dict[str, Tuple[str, str]]] = None,
+    civil_datetime: Optional[datetime] = None,
 ) -> Optional[Dict[str, object]]:
     local_moment = localize_datetime(moment, timezone_name)
     lunar = _safe_lunar_date_from_solar(local_moment, timezone_name)
     if lunar is None:
         return None
 
-    previous_term, next_term = get_adjacent_solar_terms(local_moment, timezone_name)
-    days_since_term = (local_moment.date() - previous_term.moment.date()).days
+    seasonal_moment = localize_datetime(civil_datetime or moment, timezone_name)
+    previous_term, next_term = get_adjacent_solar_terms(seasonal_moment, timezone_name)
+    days_since_term = (seasonal_moment.date() - previous_term.moment.date()).days
 
     context: Dict[str, object] = {
         "solar_datetime": local_moment.strftime("%Y-%m-%d %H:%M:%S"),
@@ -611,7 +591,7 @@ def get_lunar_context(
         "previous_jieqi": previous_term.as_dict(),
         "next_jieqi": next_term.as_dict(),
         "days_until_next_jieqi": round(
-            (next_term.moment - local_moment).total_seconds() / 86400, 4
+            (next_term.moment - seasonal_moment).total_seconds() / 86400, 4
         ),
     }
 
@@ -635,12 +615,18 @@ def build_calendar_context(
     *,
     timezone_name: str = DEFAULT_TIMEZONE,
     pillars: Optional[Dict[str, Tuple[str, str]]] = None,
+    civil_datetime: Optional[datetime] = None,
 ) -> Dict[str, Any]:
+    """Keep lunar/day clocks while resolving seasonal boundaries at the civil instant."""
     local_moment = localize_datetime(moment, timezone_name)
-    previous_term, next_term = get_adjacent_solar_terms(local_moment, timezone_name)
-    month_context = get_bazi_month_context(local_moment, timezone_name)
+    seasonal_moment = localize_datetime(civil_datetime or moment, timezone_name)
+    previous_term, next_term = get_adjacent_solar_terms(seasonal_moment, timezone_name)
+    month_context = get_bazi_month_context(seasonal_moment, timezone_name)
     lunar_context = get_lunar_context(
-        local_moment, timezone_name=timezone_name, pillars=pillars
+        local_moment,
+        timezone_name=timezone_name,
+        pillars=pillars,
+        civil_datetime=seasonal_moment,
     )
     lunar_support = {
         "supported": lunar_context is not None,
@@ -656,12 +642,12 @@ def build_calendar_context(
         "next_solar_term": next_term.as_dict(),
         "solar_term_delta": {
             "days_since_current": round(
-                (local_moment - previous_term.moment).total_seconds() / 86400, 4
+                (seasonal_moment - previous_term.moment).total_seconds() / 86400, 4
             ),
             "days_until_next": round(
-                (next_term.moment - local_moment).total_seconds() / 86400, 4
+                (next_term.moment - seasonal_moment).total_seconds() / 86400, 4
             ),
-            "description": f"{previous_term.name}后第{(local_moment.date() - previous_term.moment.date()).days}天",
+            "description": f"{previous_term.name}后第{(seasonal_moment.date() - previous_term.moment.date()).days}天",
         },
         "bazi_month_boundary": month_context,
         "lunar_calendar": lunar_context,

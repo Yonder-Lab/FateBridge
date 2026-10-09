@@ -288,9 +288,13 @@ def _resolve_analysis_date(
     analysis_day: Optional[int],
 ) -> datetime:
     now = current_local_datetime()
-    year = analysis_year or now.year
-    month = analysis_month or now.month
-    day = analysis_day or now.day
+    year = analysis_year if analysis_year is not None else now.year
+    month = analysis_month if analysis_month is not None else now.month
+    day = analysis_day if analysis_day is not None else now.day
+    if all(
+        value is not None for value in (analysis_year, analysis_month, analysis_day)
+    ):
+        return datetime(year, month, day)
     # Clamp the day to the resolved month so a partial date (e.g. only
     # analysis_day=31) combined with the current month never raises a
     # clock-dependent "day is out of range" error.

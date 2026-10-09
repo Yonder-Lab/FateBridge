@@ -17,7 +17,7 @@ def build_transit_payload(
     zodiac_type: str = "Tropic",
     orb_limit: float = 1.5,
 ) -> Dict[str, Any]:
-    analysis_local = rebuild_local_datetime(analysis_datetime, transit_timezone)
+    analysis_local = analysis_datetime.astimezone(parse_timezone_name(transit_timezone))
     transit_subject = build_subject(
         name=f"{birth_info.name}-transit",
         local_datetime=analysis_local,

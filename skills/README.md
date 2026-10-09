@@ -4,7 +4,7 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 
 我们的设计很简单：**计算交给 FateBridge 引擎，解读交给 Onda 河狸。** 引擎离线跑排盘，Onda 负责把结果讲得像个人。
 
-- 所有计算都在本地完成。干支、排盘、合婚分数这些，全部走 `python3 -m fatebridge.cli`，不交给 AI 手算——这是预测能站得住的根。
+- 所有计算都在本地完成。干支、排盘、合婚分数这些，全部走 `python3 -m fatebridge.cli`，不交给 AI 手算——这样能复核计算过程；计算一致不等于现实预测已验证。
 - 解读遵循 [人味儿写作](https://github.com/orange2ai/renwei-writing)：白描优先，不写金句，保留语气词，不排比、不用「不是 X 而是 Y」、不来万能展望式结尾。凶象也要翻译成能过的日子。
 
 ---
@@ -28,7 +28,7 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 - **占星、出生盘、合盘、各流派星盘** → [`onda-xingpan`](./onda-xingpan/SKILL.md)  
   调标准/希腊/果老/印度/13 星座盘、关系盘。
 - **我是一个什么样的人、全面自我分析** → [`onda-zige`](./onda-zige/SKILL.md)  
-  八字+紫微+西占三套交叉印证，11 张盘一次拉通。
+  八字+紫微+西占三套交叉印证，按主证、旁证与用户需求组织结果，避免重复调用。
 
 80 个工具都落在这 8 个场景里。完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
@@ -66,7 +66,7 @@ skills/
 
 引擎侧加工具的方法看仓库 `src/fatebridge/services/tool_catalog.py`。它是中央目录，声明一次就会自动挂到 REST、MCP 和 CLI 上。
 
-任何在 Skill 里引用的 CLI 命令，提交前都要真跑一遍。引擎是离线的，不用起服务：
+任何在 Skill 里引用的 CLI 命令，提交前都要真跑一遍。先在虚拟环境安装本仓库（`python -m pip install -e ".[dev]"`，见 [开发指南](../docs/development-guide.md)）。运行 CLI 不用起 REST 服务；`python3` 必须指向已安装包的解释器：
 
 ```bash
 python3 -m fatebridge.cli list

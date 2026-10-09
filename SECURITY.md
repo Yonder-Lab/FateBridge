@@ -29,11 +29,27 @@ released, we will credit reporters who wish to be named.
 
 FateBridge is a backend calculation toolkit. Keep in mind when assessing impact:
 
-- It performs **no authentication or authorization** itself — deployments are
-  expected to sit behind their own auth layer.
-- The FastAPI (`fatebridge-api`) and FastMCP (`fatebridge-mcp`) servers should
-  not be exposed to untrusted networks without a gateway in front.
-- Swiss Ephemeris `.se1` data files are **never redistributed** (Astrodienst's,
-  dual-licensed AGPL-3.0 / commercial); they are fetched per-checkout via
-  `python -m fatebridge.fetch_ephe`. Reports about ephemeris data licensing
-  should go to Astrodienst, not here.
+- REST supports optional API Key authentication via `FATEBRIDGE_API_KEYS` and
+  `API_KEY_HEADER_NAME` (default `X-API-Key`). Empty configuration disables
+  authentication; malformed nonempty entries stop startup. This is shared-key
+  authentication, not an account, role, or per-tool authorization system.
+- `/health`, `/ready`, `/metrics`, `/docs`, `/redoc`, `/openapi.json` and
+  `OPTIONS` are exempt from API Key checks; `/api/tools` is protected when keys
+  are configured. Restrict operational endpoints at the deployment boundary.
+- API Key settings apply only to REST, not the default stdio MCP process or CLI.
+  Control access to those processes through the host and operating system.
+- REST binds to `0.0.0.0:8010` by default. For local use set
+  `API_HOST=127.0.0.1`; for network deployment use a gateway for TLS, access
+  controls and request limits. CORS is a browser-origin policy, not authentication.
+  Heavy-calculation concurrency is not a rate limit.
+- FastMCP (`fatebridge-mcp`) uses stdio by default. If a host changes the
+  transport to expose a network endpoint, it must provide transport authentication.
+- The project does not bundle Swiss Ephemeris `.se1` data in its Python
+  distribution. The optional `python -m fatebridge.fetch_ephe` command downloads
+  data separately. Project code, third-party dependencies and downloaded data
+  have separate license declarations; see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+- Birth information may appear in snapshots and calculation logs. Use fictional
+  or redacted examples when reporting problems, and do not include API secrets.
+
+Runtime configuration and precision checks are documented in
+[Getting started](docs/getting-started.md).

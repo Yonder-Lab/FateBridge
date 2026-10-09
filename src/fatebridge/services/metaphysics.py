@@ -100,11 +100,13 @@ def _build_analysis_seed(
         corrected_datetime,
         timezone_name=timezone_name,
         day_pillar_strategy=day_pillar_strategy,
+        civil_datetime=input_datetime,
     )
     calendar_context = build_calendar_context(
         corrected_datetime,
         timezone_name=timezone_name,
         pillars=pillars,
+        civil_datetime=input_datetime,
     )
     return MetaphysicsSeed(
         input_datetime=input_datetime,
@@ -132,11 +134,13 @@ def _build_person_seed(person: PersonInfo) -> MetaphysicsSeed:
         corrected_datetime,
         timezone_name=normalized_birth_time.timezone,
         day_pillar_strategy=DAY_GANZHI_STRATEGY_STANDARD,
+        civil_datetime=normalized_birth_time.input_datetime,
     )
     calendar_context = build_calendar_context(
         corrected_datetime,
         timezone_name=normalized_birth_time.timezone,
         pillars=pillars,
+        civil_datetime=normalized_birth_time.input_datetime,
     )
     return MetaphysicsSeed(
         input_datetime=normalized_birth_time.input_datetime,

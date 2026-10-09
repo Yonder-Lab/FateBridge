@@ -24,6 +24,7 @@ from fatebridge.core.classical_western import (
     build_fixed_star_hits,
     fixed_star_longitude,
 )
+from fatebridge.core.ephemeris_runtime import preserve_ephemeris_path
 from fatebridge.services.astrology import calculate_core_chart_analysis
 
 _NATAL = dict(
@@ -133,11 +134,17 @@ def test_snapshot_renders_fixed_stars_section():
 # ── calibration: vendored table vs authoritative swisseph (local only) ────────
 
 
-@pytest.mark.skipif(
-    not _configure_star_catalogue(),
-    reason="sefstars.txt 不可达：恒星表校准需要 swisseph 星表",
-)
-def test_vendored_longitudes_match_swisseph_within_conjunction_orb():
+@pytest.fixture
+def star_catalogue():
+    # Configure when the calibration runs, and restore the production path.
+    # Collection-time configuration is overwritten by isolated predictive calls.
+    with preserve_ephemeris_path():
+        if not _configure_star_catalogue():
+            pytest.skip("sefstars.txt 不可达：恒星表校准需要 swisseph 星表")
+        yield
+
+
+def test_vendored_longitudes_match_swisseph_within_conjunction_orb(star_catalogue):
     # Vendored J2000 + linear precession tracks swisseph's full model (which also
     # carries proper motion + nutation/aberration) to ~12″ at epoch, and < 0.05°
     # across ±150 years — the high-PM stars (Sirius, Arcturus) drift most but stay

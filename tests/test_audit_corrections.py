@@ -9,9 +9,12 @@ previously-missing value/behaviour assertions for the new analysis dimensions
 """
 
 import sys
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import pytest
 
 import fatebridge.services.bazi as bazi
 from fatebridge.core.elements import ElementAnalysis
@@ -106,10 +109,26 @@ def test_month_command_flips_borderline_strength():
 # ---- B5: partial analysis date is clamped, never clock-dependent ----
 
 
-def test_resolve_analysis_date_clamps_day():
-    assert _resolve_analysis_date(2030, 6, 31).day == 30  # June has 30 days
-    assert _resolve_analysis_date(2025, 2, 31).day == 28  # non-leap Feb
-    assert _resolve_analysis_date(2024, 2, 31).day == 29  # leap Feb
+@pytest.mark.parametrize(
+    "year, month, expected_day", [(2030, 6, 30), (2025, 2, 28), (2024, 2, 29)]
+)
+def test_resolve_analysis_date_clamps_partial_day(
+    monkeypatch, year, month, expected_day
+):
+    monkeypatch.setattr(
+        bazi, "current_local_datetime", lambda: datetime(year, month, 15)
+    )
+    # The omitted year comes from the fixed civil clock; an explicit day can
+    # then exceed the resolved month and is clamped only for this partial date.
+    assert _resolve_analysis_date(None, month, 31) == datetime(
+        year, month, expected_day
+    )
+
+
+@pytest.mark.parametrize("year, month", [(2030, 6), (2025, 2), (2024, 2)])
+def test_resolve_analysis_date_rejects_complete_invalid_date(year, month):
+    with pytest.raises(ValueError, match="day is out of range"):
+        _resolve_analysis_date(year, month, 31)
 
 
 # ---- New coverage: gender-dependent star selection in dimensions ----

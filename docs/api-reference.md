@@ -24,10 +24,13 @@
 
 ## 2. 公共约定
 
-### 2.1 错误格式
+### 2.1 鉴权与错误格式
 
-REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段一致，Agent 可在任意
-端按同一个 `error_code` 分支处理：
+`FATEBRIDGE_API_KEYS` 为空时 REST 不鉴权；非空时发送 `X-API-Key: <secret>`（请求头名可用 `API_KEY_HEADER_NAME` 修改）。支持逗号分隔的 `name:secret` 或单独的 `secret`。空条目、缺少名称/密钥、重复名称会阻止启动。
+
+免鉴权路径为 `/health`、`/ready`、`/metrics`、`/docs`、`/redoc`、`/openapi.json`，`OPTIONS` 也免检。`/api/tools` 需要鉴权。密钥只用于 REST；默认 stdio MCP 与 CLI 不使用此配置。
+
+业务计算错误采用**扁平的顶层错误包络**。REST 请求校验也使用此结构，CLI 可额外包含 `status_code`。MCP 在工具执行前触发的协议/schema 错误需检查调用结果的 `isError` 或异常。业务错误按 `error_code` 分支处理：
 
 ```json
 {
@@ -38,15 +41,19 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 ```
 
 常见 `error_code`：`validation_error`（400）、`authentication_required`（401）、
-`dependency_missing`（运行依赖缺失）、`internal_error`（500）。请基于 `error_code`
+`dependency_missing`（503）、`timeout`（504）、`internal_error`（500）。请基于 `error_code`
 而非 `error` 文案做分支判断。
 
 常见状态码：
 
-- `400`：输入参数错误、日期无效
+- `400`：领域输入错误或日期无效
+- `422`：REST 请求字段缺失、类型/范围错误或非法 JSON
 - `401`：缺少或无效的 API key（仅在配置了密钥时）
 - `500`：服务内部异常
 - `503`：能力依赖缺失（如西占预测运行时不可用）
+- `504`：计算超时
+
+`retryable` 是响应的实际重试提示，不能只由状态码推断。框架的未知路由 / 方法错误（404 / 405）不属于业务错误合同。CLI 工具调用成功退出 0，计算失败退出 1，用法错误/不支持退出 2；`list` 和 `--help` 输出文本。
 
 ### 2.2 快照协议
 
@@ -59,7 +66,8 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
     "trace_id": "5f17...",
     "tool_name": "qimen",
     "generated_at": "2026-04-13T08:00:00Z",
-    "engine": "fatebridge-offline"
+    "engine": "fatebridge-offline",
+    "engine_is_approximate": false
   },
   "snapshot_text": "[起盘信息]\n...",
   "snapshot_export": {
@@ -75,11 +83,12 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 
 要点：
 
-- `run_metadata` 是统一的 transport 元数据层
+- `run_metadata` 默认附加于成功工具结果，错误和发现接口不保证附带；CLI 可用 `--no-metadata` 关闭
 - `run_id` / `trace_id` 是本次响应生成的轻量标识
-- `tool_name` 对应当前 REST 入口或 MCP 工具入口
+- `tool_name` 来自 `ToolSpec.run_metadata_name`；旧 `/api/calculate` 为兼容仍标记 `analyze_destiny`，并不表示与 MCP 同名工具使用同一计算
 - `generated_at` 是 UTC ISO 8601 时间戳
 - `engine` 是从当前 payload 推导出的运行引擎标识
+- `engine_is_approximate` 标识轨道近似或被识别的 Moshier / mixed 星历降级；不是所有算法准确性的评级
 - `snapshot_text` 是完整的人类可读文本
 - `snapshot_export.export_text` 是根据 `selected_sections` 过滤后的导出文本
 - `selected_sections` 只裁剪导出层，不会裁掉完整结构化 payload
@@ -88,7 +97,7 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 
 下列能力族通常支持 `selected_sections`：
 
-- 八字独立盘
+- `bazi_birth`（八字九大专项返回快照，但请求模型不支持 `selected_sections`）
 - 时运独立工具
 - knowledge/export helper
 - 卦义 helper
@@ -100,11 +109,37 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 - `snapshot_export.section_titles_detected`
 - `snapshot_export.missing_selected_sections`
 
-### 2.4 精度与依赖
+显式非空选择无任何命中时 `export_text` 为空；未命名前言也不会混入显式选择。未传或传空列表时使用工具默认导出规则。快照存在不代表请求支持该字段，请查询对应模型。
+
+### 2.4 三端能力边界
+
+中央目录含 82 条记录；REST / MCP 各公开 80 项，CLI 可执行 81 条目录命令（另有 `list`、`describe`、`profile`）。12 个 family 的能力矩阵按 MCP 集合统计，不能把目录长度当作单端工具数。
+
+| 能力 | REST | MCP / CLI | 差异 |
+| --- | --- | --- | --- |
+| 独立八字命盘 | `/api/cn/bazi/birth` | `bazi_birth` | 推荐的新接入入口，业务数据在 `bazi_birth` |
+| 旧版八字命盘 | `/api/calculate` | CLI `calculate_legacy`；无同名 MCP | `calculate_bazi_birth` 的扁平兼容输出 |
+| 综合命理分析 | 无独立 REST 路由 | `analyze_destiny` | 使用 `calculate_destiny_analysis`；不能用旧 REST 等同替换 |
+| 关系盘 | `/api/astro/relative`（目录 key `astro_relative`） | `astro_relative_chart` | REST 用嵌套 `inner` / `outer`；MCP / CLI 用 `inner_birth_*` / `outer_birth_*` |
+
+以 `surfaces` 选择端口名称，不能直接把目录 key 当 MCP 名。`/api/tools` 的 `parameters` 是参数摘要；完整范围约束与嵌套结构分别查询 `/openapi.json` 和 MCP `tools/list` 的 `inputSchema`。
+
+### 2.5 字段投影与输出体积
+
+| 选项 | REST（POST 查询参数） | MCP | CLI（工具名后） |
+| --- | --- | --- | --- |
+| 字段投影 | `?fields=bazi_birth.day_master&fields=person_info` | `fields=["bazi_birth.day_master", "person_info"]` | `--fields bazi_birth.day_master person_info` |
+| 省略顶层快照文本 | `?include_snapshot_text=false` | `include_snapshot_text=false` | `--no-include-snapshot-text` |
+| 紧凑 JSON | HTTP 默认紧凑输出 | `compact=true`（默认） | `--compact` |
+
+路径从响应根开始，未知路径忽略，空选择不投影。已附带的 `run_metadata` 保留，错误不投影。省略 `snapshot_text` 不会删除 `snapshot_export.export_text`；要进一步控制体积，可仅投影业务字段。
+
+### 2.6 精度与依赖
 
 - 核心占星盘优先使用本地 `swisseph`，缺失时会回退到 FateBridge 内置近似模型
 - 西占推运不走近似回退；缺少 `kerykeion` / Swiss Ephemeris 时会直接报错
-- 完整说明见 [algorithm-coverage.md](algorithm-coverage.md)
+- `swisseph` 可导入不代表已加载 `.se1` 数据；实际模型检查 `chart_profile.ephemeris_model` 和 `run_metadata.engine_is_approximate`
+- 完整说明见 [algorithm-coverage.md](algorithm-coverage.md)，数据配置见 [getting-started.md](getting-started.md#星历数据与精度)
 
 ## 3. 共享请求族
 
@@ -128,7 +163,11 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 | `birth_place` | string | 否 | 支持中文、英文、拼音地点文本 |
 | `birth_timezone` | string | 否 | IANA 时区或 UTC offset |
 | `birth_longitude` | float | 否 | `-180..180` |
-| `use_true_solar_time` | bool | 否 | 是否启用真太阳时修正 |
+| `use_true_solar_time` | bool | 否 | 此家族默认 true；显式 false 使用钟表时间 |
+
+中式模型缺省开启真太阳时但没有可解析经度时，会使用钟表时间并附 `resolution_advisory`；显式 true 且无经度则返回错误。时区应显式传入，IANA 名称可表达历史夏令时，固定偏移不能。年/月柱、节气与起运使用实际民用时刻；太阳钟修正用于日/时柱等既有规则。当前小时必填，不提供省略小时的无时盘模式。
+
+九大专项追加 `analysis_year/month/day`、`dayun_pillar`、`liunian_pillar`，`timing_context` 位于 `<dimension>_analysis` 内。时运子模型的必填字段各不相同，例如大运需要 `gender` 与 `analysis_age`；完整规则以 OpenAPI 为准。
 
 ### 3.2 `AstroChartRequest` 家族
 
@@ -146,12 +185,13 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 | `name` | string | 否 | 默认 `未提供` |
 | `birth_year` / `birth_month` / `birth_day` / `birth_hour` | int | 是 | 出生日期与时刻 |
 | `birth_minute` | int | 否 | 默认 `0` |
-| `birth_timezone` | string | 否 | 默认 `UTC` |
+| `birth_timezone` | string | 否 | 模型默认 null；服务尝试地点/经度推断，不是固定 UTC，建议显式传入 |
 | `birth_longitude` | float | 条件必需 | 某些情况下可由 `birth_place` 推断 |
 | `birth_latitude` | float | 条件必需 | 某些情况下可由 `birth_place` 推断 |
 | `birth_place` | string | 否 | 支持有限内置地点推断 |
 | `hsys` | int | 否 | 离线宫制覆盖；当前支持 `0..8` |
 | `zodiacal` | int | 否 | `0=tropical`，`1=sidereal(Lahiri-like)` |
+| `use_true_solar_time` | bool | 否 | 默认 false，西占默认使用出生地民用时刻 |
 
 ### 3.3 `WesternTimingRequest` 家族
 
@@ -160,7 +200,7 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 - `/api/astro/timing`
 - `/api/astro/timing/*`
 
-除出生信息外，还支持：
+`birth_longitude` 和 `birth_latitude` 在此家族均必填，不能仅靠城市文本替代。除出生信息外，还支持：
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -175,7 +215,9 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 | `show_pd_bounds` | bool | 主限图盘是否带界限层 |
 | `selected_sections` | string[] | 仅独立 timing tools 支持 |
 
-### 3.4 Phase 2 / metaphysics 本地请求约定
+完整非法分析日期返回 `validation_error`；只给部分年月日时逐字段补齐默认值，部分日期补齐时可约束到月底。复现计算请显式传齐目标日期、出生时区与返照/行运地点。
+
+### 3.4 本地技法请求约定
 
 `sixyao`、`suzhan`、`otherbu`、`sanshiunited` 等大量本地技法接口共享如下约定：
 
@@ -184,8 +226,14 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 | `date` / `time` | 输入时刻，例如 `2028-04-06` / `09:33:00` |
 | `zone` | 时区，常见默认 `+08:00` |
 | `lat` / `lon` | 文本化地理提示 |
-| `gpsLat` / `gpsLon` | 浮点 GPS 坐标 |
+| `gpsLat` / `gpsLon` | REST 别名；MCP 使用 `gps_lat` / `gps_lon`，CLI 使用 `--gps-lat` / `--gps-lon` |
 | `selected_sections` | 快照导出裁剪 |
+
+### 3.5 双人关系请求
+
+`/api/compatibility` 使用两套 `person1_*` / `person2_*` 出生字段（姓名和年月日时必填）；宿曜相性使用两套 `person1_date/time` / `person2_date/time` 等起盘字段。
+
+`/api/astro/relative` 使用 `inner` / `outer` 对象，每个对象含 `birth_year/month/day/hour/longitude/latitude`；MCP / CLI `astro_relative_chart` 将它们展开为 `inner_birth_*` / `outer_birth_*`。模式兼容语义见 [algorithm-coverage.md](algorithm-coverage.md#32-关系盘astro_relative_chart)。
 
 ## 4. REST 端点家族
 
@@ -193,7 +241,7 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `POST` | `/api/calculate` | 单人命理分析 |
+| `POST` | `/api/calculate` | 旧版八字命盘扁平兼容输出（非 MCP `analyze_destiny` 的综合分析） |
 | `POST` | `/api/cn/bazi/birth` | 独立八字命盘 |
 | `POST` | `/api/compatibility` | 双人配合分析 |
 | `POST` | `/api/compatibility/sukuyo` | 宿曜双人相性分析（三九の秘法，二十七宿） |
@@ -216,7 +264,7 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 
 #### 4.1.2 九大专项维度返回字段
 
-每个维度返回结构化分析对象，同时在 `timing_context` 中回显内部推算的大运/流年与起运年龄。各维度核心字段：
+每个维度返回结构化分析对象，同时在 `<dimension>_analysis.timing_context` 中回显内部推算的大运/流年与起运年龄。各维度核心字段：
 
 | 维度 | 端点 | 主要返回字段 |
 | --- | --- | --- |
@@ -347,7 +395,9 @@ REST、FastMCP、CLI 三端统一返回**扁平的顶层错误包络**，字段�
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `GET` | `/health` | 服务健康检查 |
+| `GET` | `/health` | 存活检查，返回 `{"status":"healthy"}`，不验证全部算法依赖 |
+| `GET` | `/ready` | 必需检查决定 `ready` / `not_ready`；可选西占运行时失败不一定改变状态，需检查 `checks` |
+| `GET` | `/metrics` | Prometheus 文本指标，含请求计数、耗时、就绪与鉴权配置状态 |
 | `GET` | `/api/tools` | 能力清单：返回每个工具的自描述记录（参数、类型、所在端、family），与 `fatebridge describe` 同源 |
 
 `/api/tools` 是给 Agent 的机读能力清单——无需抓取本文档即可枚举全部工具及调用约定。
@@ -371,7 +421,9 @@ descriptor 形如：
 
 ## 5. Representative REST 示例
 
-### 5.1 单人命理分析
+以下示例默认未开启 API Key 鉴权；开启后加 `-H "X-API-Key: <secret>"`。
+
+### 5.1 旧版扁平命盘（兼容入口）
 
 ```bash
 curl -X POST http://localhost:8010/api/calculate \
@@ -403,6 +455,8 @@ curl -X POST http://localhost:8010/api/calculate \
 
 - `structure_profile` 会给出 `dominant_structure`、`secondary_structures`、`useful_elements`、`avoid_elements`、`useful_ten_gods` 和 `harmony_effects`
 - `patterns.special` 现在同时包含 `recognized_structures` 与 `metadata`，便于区分“已识别格局”与“辅助元数据”
+
+新接入使用 `/api/cn/bazi/birth`，相同出生字段下读取 `bazi_birth.four_pillars`、`bazi_birth.day_master` 等嵌套业务字段。综合命理 `analyze_destiny` 使用 MCP / CLI。
 
 ### 5.2 核心占星盘
 
@@ -484,7 +538,7 @@ python -m fatebridge.mcp_server
 
 ### 6.2 MCP 工具分组
 
-> 全部 80 个 MCP 工具按 `family` 分组如下，与 REST / CLI 一一对应。机读清单见 `GET /api/tools` 或 `fatebridge list`。
+> 全部 80 个 MCP 工具按 `family` 分组如下，各端绑定差异见 §2.4。机读清单见 `GET /api/tools` 或 `fatebridge list`。
 
 #### 基础命理（family `bazi`）
 
@@ -551,7 +605,7 @@ python -m fatebridge.mcp_server
 | --- | --- | --- |
 | 传输协议 | HTTP JSON | MCP tool call |
 | 返回格式 | JSON object | JSON string |
-| 错误表现 | HTTP status + `detail` | 工具字符串中的错误 JSON |
+| 错误表现 | HTTP status + 顶层错误 JSON（不嵌套 `detail`） | 业务错误 JSON 字符串；schema 错误可由协议层拒绝 |
 | 使用场景 | Web / script / service integration | Agent host / tool invocation |
 
 ## 7. 常见响应字段
@@ -616,6 +670,8 @@ python -m fatebridge.mcp_server
 
 - `chart_profile.engine_precision`
 - `chart_profile.engine_backend`
+- `chart_profile.ephemeris_model`
+- `run_metadata.engine_is_approximate`
 
 ### 8.3 西占推运直接报错
 

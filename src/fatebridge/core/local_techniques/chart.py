@@ -704,11 +704,13 @@ def _build_metaphysics_seed(
         corrected_datetime,
         timezone_name=timezone_value,
         day_pillar_strategy=day_pillar_strategy,
+        civil_datetime=input_datetime,
     )
     calendar_context = build_calendar_context(
         corrected_datetime,
         timezone_name=timezone_value,
         pillars=pillars,
+        civil_datetime=input_datetime,
     )
     return MetaphysicsSeed(
         input_datetime=input_datetime,

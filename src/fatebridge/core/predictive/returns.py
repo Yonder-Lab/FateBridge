@@ -74,6 +74,7 @@ def _return_section(planet_return: Any) -> Dict[str, Any]:
     }
 
 
+@preserve_ephemeris_path()
 def build_return_payload(
     natal_subject: Any,
     *,

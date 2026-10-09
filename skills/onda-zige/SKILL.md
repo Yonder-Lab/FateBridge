@@ -14,11 +14,11 @@ description: 用 FateBridge 引擎做一次全面的自我画像：八字+紫微
 
 **铁律：所有排盘、干支、十神、安星、星历全部交给引擎。AI 只负责读事实、做交叉、讲人话。**
 
-调用纪律与去重见 `_shared/fatebridge-engine.md` 第八、九节。
+调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律按场景路由) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
 
 ## 这个场景用哪些工具
 
-§C.8 路由核心：`analyze_destiny`（八字）、`ziwei_birth`（紫微）、`astro_chart`（西占）三系同时为**主**证，并行调用、并行出结论；三系一致→合并去重，三系分歧→显式标注「两套/三套口径不一」，各自呈现，保留给用户权衡。token 控制：并行时务必用 `fields` 或 `selected_sections` 裁剪，不要对每个工具裸吐完整 `snapshot_text`。
+「全面自我画像」 路由核心：`analyze_destiny`（八字）、`ziwei_birth`（紫微）、`astro_chart`（西占）三系同时为**主**证，并行调用、并行出结论；三系一致→合并去重，三系分歧→显式标注「两套/三套口径不一」，各自呈现，保留给用户权衡。token 控制：并行时务必用 `fields` 或 `selected_sections` 裁剪，不要对每个工具裸吐完整 `snapshot_text`。
 
 按以下顺序调用，每一步都独立跑、独立读，最后交叉印证：
 
@@ -62,7 +62,7 @@ description: 用 FateBridge 引擎做一次全面的自我画像：八字+紫微
 --use-true-solar-time
 ```
 
-**时辰未知**：可不传 `--birth-hour`，但要在解读里说明「无时盘，时柱相关结论从略」。
+**时辰未知**：当前工具要求 `--birth-hour`，不能省略或擅自填 0。先确认小时；若用户授权按假设时刻做敏感性比较，明确标注假设与不稳定结论。
 
 ## 工作流
 
@@ -71,7 +71,7 @@ description: 用 FateBridge 引擎做一次全面的自我画像：八字+紫微
 3. **跑八字全维** —— 按上面 7 个工具依次跑，每个都读 `snapshot_text`（或结构化字段），抓 2-3 个最突出信号。
 4. **跑大运时运** —— `dayun_analysis`（需 `--analysis-age`，用当年减出生年+1 算虚岁）和 `timing_analysis`。
 5. **跑跨体系** —— `ziwei_birth` 和 `astro_chart`，各抓 2-3 个最突出信号。
-6. **交叉印证** —— 按 fatebridge-engine.md 第六节的方法：
+6. **交叉印证** —— 按 fatebridge-engine.md「跨体系交叉印证」的方法：
    - 三套独立指向同一处 → 高可信，敢讲重话。
    - 某结论只有一套提到 → 弱信号，当倾向，不定论。
    - 两套打架 → 内在张力，照实讲出来。

@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from fastmcp import Client
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -113,3 +114,17 @@ def test_fastmcp_tools_all_accept_representative_payloads():
         body = json.loads(rendered)
         assert "error" not in body, attr_name
         _assert_run_metadata(body)
+
+
+def test_fastmcp_client_accepts_all_representative_payloads():
+    """Exercise protocol validation and defaults, which direct .fn skips."""
+
+    async def run():
+        async with Client(mcp_module.app) as client:
+            for name, (_, kwargs_factory) in MCP_CASES.items():
+                result = await client.call_tool(name, kwargs_factory())
+                body = json.loads(result.content[0].text)
+                assert "error" not in body, name
+                _assert_run_metadata(body)
+
+    asyncio.run(run())

@@ -17,6 +17,7 @@ handler signatures, and stringified annotations would break schema inference.
 
 import importlib
 import inspect
+from copy import copy
 from dataclasses import dataclass
 from typing import (
     Annotated,
@@ -34,6 +35,7 @@ from typing import (
 )
 
 from pydantic import BaseModel, Field
+from pydantic_core import PydanticUndefined
 
 from fatebridge.utils.helpers import (
     VALIDATION_ERROR_CODE,
@@ -410,30 +412,56 @@ def invalid_input_result(spec: ToolSpec) -> ServiceResult:
     }
 
 
+_MCP_OMITTED = object()
+_MCP_SOLAR_FIELDS = {
+    "use_true_solar_time",
+    "person1_use_true_solar_time",
+    "person2_use_true_solar_time",
+}
+
+
+def _mcp_omitted_default() -> Any:
+    return _MCP_OMITTED
+
+
 def model_parameters(
     model: Type[BaseModel],
 ) -> Tuple[List[inspect.Parameter], Dict[str, Any]]:
-    """Convert a pydantic model's fields into ordered inspect.Parameters."""
+    """Expose model constraints while preserving omitted solar-time flags."""
     required: List[inspect.Parameter] = []
     optional: List[inspect.Parameter] = []
     annotations: Dict[str, Any] = {}
     for name, field in model.model_fields.items():
-        ann = field.annotation if field.annotation is not None else Any
+        metadata = copy(field)
+        metadata.default = PydanticUndefined
+        metadata.default_factory = None
+        # MCP has always exposed Python names. Keep them stable; model-level
+        # aliases remain the REST contract, not callable-parameter metadata.
+        metadata.alias = None
+        metadata.validation_alias = None
+        metadata.serialization_alias = None
+        preserve_omission = name in _MCP_SOLAR_FIELDS and not field.is_required()
+        if preserve_omission:
+            # Pydantic fills signature defaults before calling impl. A factory
+            # gives omitted booleans a private sentinel without accepting null
+            # or changing the request model's actual default.
+            metadata.default_factory = _mcp_omitted_default
+        ann: Any = Annotated[
+            field.annotation if field.annotation is not None else Any, metadata
+        ]
         annotations[name] = ann
         if field.is_required():
             required.append(
-                inspect.Parameter(
-                    name, inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=ann
-                )
+                inspect.Parameter(name, inspect.Parameter.KEYWORD_ONLY, annotation=ann)
             )
         else:
             default = field.get_default(call_default_factory=True)
             optional.append(
                 inspect.Parameter(
                     name,
-                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    inspect.Parameter.KEYWORD_ONLY,
                     annotation=ann,
-                    default=default,
+                    default=inspect.Parameter.empty if preserve_omission else default,
                 )
             )
     return required + optional, annotations
@@ -711,9 +739,16 @@ def register_mcp(
         fn = _make_mcp_fn(
             spec, render_response=render_response, render_error=render_error
         )
-        app.add_tool(
-            Tool.from_function(fn, name=spec.tool_name, description=spec.summary)
-        )
+        tool = Tool.from_function(fn, name=spec.tool_name, description=spec.summary)
+        for name in _MCP_SOLAR_FIELDS & spec.request_model.model_fields.keys():
+            field = spec.request_model.model_fields[name]
+            if not field.is_required():
+                # The factory is an adapter detail. Discovery describes the
+                # domain default, which the request model applies after omission.
+                tool.parameters["properties"][name]["default"] = field.get_default(
+                    call_default_factory=True
+                )
+        app.add_tool(tool)
 
 
 def _make_mcp_fn(
@@ -777,6 +812,9 @@ def _make_mcp_fn(
             "include_snapshot_text", spec.include_snapshot_text
         )
         fields = kwargs.pop("fields", None)
+        kwargs = {
+            name: value for name, value in kwargs.items() if value is not _MCP_OMITTED
+        }
         try:
             request = model(**kwargs)
             result = execute_spec(spec, request)

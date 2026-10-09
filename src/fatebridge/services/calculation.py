@@ -47,11 +47,13 @@ def _build_birth_computation_context(person: PersonInfo) -> BirthComputationCont
     birth_pillars = BaZiCalendar.get_four_pillars(
         corrected_birth_datetime,
         timezone_name=normalized_birth_time.timezone,
+        civil_datetime=normalized_birth_time.input_datetime,
     )
     birth_calendar_context = build_calendar_context(
         corrected_birth_datetime,
         timezone_name=normalized_birth_time.timezone,
         pillars=birth_pillars,
+        civil_datetime=normalized_birth_time.input_datetime,
     )
     element_analysis = ElementAnalysis.comprehensive_analysis(birth_pillars)
 

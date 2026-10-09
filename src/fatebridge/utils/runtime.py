@@ -84,11 +84,14 @@ def parse_api_keys(
     source = (
         raw_value if raw_value is not None else os.getenv("FATEBRIDGE_API_KEYS", "")
     )
+    if not source.strip():
+        return {}
+
     parsed: Dict[str, str] = {}
     for index, item in enumerate(source.split(","), start=1):
         token = item.strip()
         if not token:
-            continue
+            raise ValueError(f"FATEBRIDGE_API_KEYS entry {index} is empty")
 
         if ":" in token:
             key_id, secret = token.split(":", 1)
@@ -99,7 +102,12 @@ def parse_api_keys(
             secret = token
 
         if not key_id or not secret:
-            continue
+            raise ValueError(
+                f"FATEBRIDGE_API_KEYS entry {index} requires a name and secret"
+            )
+
+        if key_id in parsed:
+            raise ValueError(f"FATEBRIDGE_API_KEYS entry {index} has a duplicate name")
 
         parsed[key_id] = secret
 

@@ -4,12 +4,19 @@ All notable changes to FateBridge are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-Because the version is single-sourced from `fatebridge/__init__.py::__version__`,
-bumping that constant is the release action.
+The version is single-sourced from `src/fatebridge/__init__.py::__version__`.
+A version bump updates package metadata; PyPI publication is triggered separately
+by a published GitHub Release through `.github/workflows/publish.yml`.
 
 ## [Unreleased]
 
 ### Changed
+- Align integration, architecture, security, and Onda documentation with the
+  current catalog and request models: distinguish transport bindings, document
+  REST projections and 422 errors, and clarify installation, solar-time defaults
+  and actual ephemeris precision. Simplify contribution steps and add a
+  documentation maintenance and verification workflow.
+
 - **Adopt the PyPA-recommended `src/` layout** (`fatebridge/` → `src/fatebridge/`).
   The package is no longer importable from the repo root without installing it,
   so a bare `pytest`/`import` runs against the *installed* package — packaging

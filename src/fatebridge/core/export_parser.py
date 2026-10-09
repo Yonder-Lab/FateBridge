@@ -115,7 +115,11 @@ def parse_export_content(
     filtered_sections = []
     for index, section in enumerate(sections, start=1):
         normalized_title = normalize_section_title(section["title"])
-        include_section = True if not normalized_title else normalized_title in wanted
+        include_section = (
+            not selected_sections
+            if not normalized_title
+            else normalized_title in wanted
+        )
         if normalized_title and normalized_title in forbidden:
             include_section = False
         filtered_sections.append(
@@ -134,15 +138,19 @@ def parse_export_content(
     strict_filtered = render_sections_to_text(
         [section for section in filtered_sections if section["included"]]
     )
-    safe_export_text = strict_filtered or render_sections_to_text(
-        [
-            {
-                "content": section["content"],
-            }
-            for section in filtered_sections
-            if normalize_section_title(section["title"]) not in forbidden
-        ]
-    )
+    # Preserve the historical preset fallback only when no explicit selection
+    # was made. An unmatched caller selection must never broaden the export.
+    safe_export_text = strict_filtered
+    if not selected_sections and not strict_filtered:
+        safe_export_text = render_sections_to_text(
+            [
+                {
+                    "content": section["content"],
+                }
+                for section in filtered_sections
+                if normalize_section_title(section["title"]) not in forbidden
+            ]
+        )
 
     unknown_detected = [
         title
@@ -184,7 +192,7 @@ def parse_export_content(
         "sections": filtered_sections,
         # ``raw_text`` (恒等于顶层 ``snapshot_text``) 与 ``filtered_text``
         # (== ``strict_filtered``) 曾在此回携，但二者皆为纯重复：前者与顶层文本逐字
-        # 相同，后者的语义已由 ``export_text`` (含安全回退) 与各 section 的
+        # 相同，后者的语义已由 ``export_text`` 与各 section 的
         # ``included`` 标记完整覆盖。移除以削减每次响应 token，``strict_filtered``
         # 仍在内部参与 ``safe_export_text`` 的计算，行为不变。
         "export_text": safe_export_text,

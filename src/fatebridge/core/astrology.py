@@ -19,7 +19,9 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 from fatebridge.core import guolao_moira
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.ephemeris_runtime import (
+    ephemeris_call,
     ephemeris_model_from_retflag,
+    preserve_ephemeris_path,
     swe,
 )
 from fatebridge.utils.helpers import (
@@ -864,8 +866,9 @@ def _ayanamsha(julian_day: float) -> float:
     """
     if swe is not None:
         try:
-            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
-            return float(swe.get_ayanamsa_ut(julian_day))
+            with preserve_ephemeris_path():
+                swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+                return float(swe.get_ayanamsa_ut(julian_day))
         except Exception as exc:  # pragma: no cover - swisseph runtime guard
             _log_swe_runtime_failure("get_ayanamsa_ut", exc)
     else:
@@ -1037,8 +1040,8 @@ def _swisseph_planet_state(
     if planet_id is None:
         return None
     try:
-        coordinates, retflag = swe.calc_ut(
-            julian_day, planet_id, swe.FLG_SWIEPH | swe.FLG_SPEED
+        coordinates, retflag = ephemeris_call(
+            "calc_ut", julian_day, planet_id, swe.FLG_SWIEPH | swe.FLG_SPEED
         )
     except Exception as error:
         _log_swe_runtime_failure("calc_ut", error)
@@ -1056,8 +1059,8 @@ def _swisseph_planet_state(
     # costs the declination key — the ecliptic position above is still valid, so
     # the planet still places and out-of-bounds simply reports "unknown".
     try:
-        equatorial, eq_retflag = swe.calc_ut(
-            julian_day, planet_id, swe.FLG_SWIEPH | swe.FLG_EQUATORIAL
+        equatorial, eq_retflag = ephemeris_call(
+            "calc_ut", julian_day, planet_id, swe.FLG_SWIEPH | swe.FLG_EQUATORIAL
         )
         if eq_retflag >= 0:
             state["declination"] = float(equatorial[1])
@@ -1096,7 +1099,9 @@ def _guolao_si_yu_signidx(
 
     def _sign_idx(body_id: int) -> int:
         try:
-            coordinates, retflag = swe.calc_ut(julian_day, body_id, swe.FLG_SWIEPH)
+            coordinates, retflag = ephemeris_call(
+                "calc_ut", julian_day, body_id, swe.FLG_SWIEPH
+            )
         except Exception as error:  # pragma: no cover - swe runtime guard
             _log_swe_runtime_failure("calc_ut", error)
             return -1
@@ -1377,8 +1382,8 @@ def _luminary_lon_speed(
 ) -> Optional[Tuple[float, float]]:
     """``(longitude, longitude_speed)`` of a luminary, or None on swe failure."""
     try:
-        coordinates, retflag = swe.calc_ut(
-            julian_day, body_id, swe.FLG_SWIEPH | swe.FLG_SPEED
+        coordinates, retflag = ephemeris_call(
+            "calc_ut", julian_day, body_id, swe.FLG_SWIEPH | swe.FLG_SPEED
         )
     except Exception as error:  # pragma: no cover - defensive
         _log_swe_runtime_failure("calc_ut(syzygy)", error)
@@ -1447,8 +1452,8 @@ def _sun_event(
     """
     flag = (swe.CALC_RISE if rising else swe.CALC_SET) | swe.BIT_DISC_CENTER
     try:
-        retflag, times = swe.rise_trans(
-            julian_day, swe.SUN, flag, (longitude, latitude, 0.0)
+        retflag, times = ephemeris_call(
+            "rise_trans", julian_day, swe.SUN, flag, (longitude, latitude, 0.0)
         )
     except Exception as error:  # pragma: no cover - defensive
         _log_swe_runtime_failure("rise_trans", error)

@@ -10,7 +10,7 @@
 git clone https://github.com/Yonder-Lab/FateBridge.git
 cd FateBridge
 
-uv venv
+uv venv --python 3.12
 source .venv/bin/activate
 uv pip install -e ".[dev]"
 ```
@@ -18,9 +18,9 @@ uv pip install -e ".[dev]"
 如果你更习惯 pip，也可以这样操作：
 
 ```bash
-python -m venv venv
-source venv/bin/activate
-pip install -e ".[dev]"
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
 ```
 
 环境变量可以按需复制一份：
@@ -29,14 +29,7 @@ pip install -e ".[dev]"
 cp .env.example .env
 ```
 
-默认配置如下：
-
-```bash
-API_HOST=0.0.0.0
-API_PORT=8010
-ALLOWED_ORIGINS=http://localhost:3000
-LOG_LEVEL=INFO
-```
+环境变量、加载顺序、REST 鉴权与星历配置统一见 [快速入门](getting-started.md#配置环境变量)，避免另维护一份默认值。
 
 ## 项目结构概览
 
@@ -77,7 +70,7 @@ FateBridge/
 启动 REST API：
 
 ```bash
-python -m fatebridge.api
+API_HOST=127.0.0.1 python -m fatebridge.api
 ```
 
 启动 FastMCP：
@@ -132,7 +125,7 @@ mypy src/fatebridge/
 3. 在 `src/fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型。
 4. 在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`。REST、MCP、CLI 三端会自动派生，不需要再改 `api.py`、`mcp_server.py` 或 `cli.py`。
 5. 在 `tests/` 增加能力测试。三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性的 payload fixture。
-6. 更新 `docs/api-reference.md` 与 `docs/algorithm-coverage.md`。工具计数由 `tests/test_doc_tool_counts.py` 锁定。
+6. 更新 `docs/api-reference.md`、`docs/algorithm-coverage.md`、`docs/scenario-routing.md` 与相关技能说明；若改了技能工具/输入，同步 `agents/interface.yaml`。工具计数、路由覆盖和技能契约均有现成测试。
 
 ### 只改 transport 行为，不改算法
 
@@ -189,7 +182,21 @@ mypy src/fatebridge/
 - 改动了占星精度回退逻辑；
 - 改动了导出合同或知识索引。
 
-## 文档改动的最低同步面
+## 文档维护与验证
+
+文档职责分开：README 提供定位与最短示例；快速入门维护安装和配置；API 参考维护字段、错误与端口差异；算法矩阵维护精度与能力状态；架构说明维护实际调用链；场景/技能说明维护路由和解读流程。审计记录是特定工作区的历史证据，不替代当前接口文档。
+
+只改文档时先运行现有合同与示例检查，不需要为措辞变化补测试：
+
+```bash
+python -m pytest -q tests/test_doc_tool_counts.py tests/test_scenario_routing_coverage.py \
+  tests/test_skills_interface_contract.py tests/test_skills_engine_contract.py
+git diff --check
+```
+
+`test_skills_engine_contract.py` 会实际执行具体 CLI 示例，运行它时应确保当前环境的 `python3` 指向已安装本仓库的解释器，例如激活 `.venv`。修改 Markdown 后还要检查本地链接、章节锚点、代码围栏和示例 JSON；上述测试不覆盖所有 prose 或所有链接。
+
+### 最低同步面
 
 如果你改了接口或能力范围，至少同步更新：
 
@@ -198,6 +205,12 @@ mypy src/fatebridge/
 - `docs/algorithm-coverage.md`
 
 如果改了结构性设计，再补 `docs/architecture.md`。
+
+## CI、打包与发布
+
+`.github/workflows/ci.yml` 的 `test` 作业在 Ubuntu 24.04 上覆盖 Python 3.10–3.13，执行 pytest、black、isort、mypy；`floor` 在 Python 3.10 按最低直接依赖运行测试。黄金快照字节比对仅在受支持的 Linux x86_64 / Python 3.12 环境启用，其他环境跳过不代表该项通过。
+
+版本来自 `src/fatebridge/__init__.py::__version__`。发布需同步更新 CHANGELOG、检查包数据和版本、创建对应标签与 GitHub Release；仅改版本常量不会上传 PyPI。`publish.yml` 在 Release published 事件下构建 sdist/wheel，检查元数据、JSON 数据与 `py.typed` 后，通过已配置的 PyPI Trusted Publishing 发布。新增数据文件需确认被 `pyproject.toml` 的 package-data 覆盖；场景 `skills/` 目前随 Git 仓库分发，不由 wheel 包含。
 
 ## 依赖与运行时注意事项
 

@@ -17,8 +17,10 @@ that touches the ephemeris (charts, almanac, predictive directions):
 from __future__ import annotations
 
 import os
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Optional
+from threading import RLock
+from typing import Any, Iterator, Optional
 
 try:  # pragma: no cover - optional runtime dependency
     import swisseph as swe
@@ -30,6 +32,8 @@ except ImportError:  # pragma: no cover - exercised only in minimal installs
 # ``<root>/src/fatebridge/core/ephemeris_runtime.py``, so the root is three
 # parents up.
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_EPHEMERIS_LOCK = RLock()
+_configured_path: Optional[str] = None
 
 
 def default_ephe_dir() -> Optional[str]:
@@ -58,16 +62,43 @@ def configure_ephemeris_path(path: Optional[str] = None) -> Optional[str]:
     ``swe.set_ephe_path`` mutates global C state, so a single call anywhere in
     the process is enough for every module that imports ``swe`` from here.
     """
-    if swe is None:
-        return None
-    if path is not None:
-        resolved: Optional[str] = path
-    else:
-        resolved = os.environ.get("SE_EPHE_PATH") or default_ephe_dir()
-    if resolved:
-        swe.set_ephe_path(resolved)
+    global _configured_path
+    with _EPHEMERIS_LOCK:
+        if swe is None:
+            return None
+        resolved = (
+            path
+            if path is not None
+            else os.environ.get("SE_EPHE_PATH") or default_ephe_dir()
+        )
+        if resolved is not None:
+            swe.set_ephe_path(resolved)
+        _configured_path = resolved
         return resolved
-    return None
+
+
+@contextmanager
+def preserve_ephemeris_path() -> Iterator[None]:
+    """Isolate third-party configuration changes from FateBridge calculations.
+
+    Kerykeion changes the shared Swiss Ephemeris data path. Hold the same lock
+    used by direct ephemeris calls until its calculation and path restoration
+    finish, including when the third-party call raises.
+    """
+    with _EPHEMERIS_LOCK:
+        try:
+            yield
+        finally:
+            if swe is not None:
+                swe.set_ephe_path(_configured_path or "")
+
+
+def ephemeris_call(operation: str, *args: Any, **kwargs: Any) -> Any:
+    """Run a direct Swiss Ephemeris call outside third-party path changes."""
+    with _EPHEMERIS_LOCK:
+        if swe is None:
+            raise ImportError("swisseph is unavailable")
+        return getattr(swe, operation)(*args, **kwargs)
 
 
 def ephemeris_model_from_retflag(retflag: int) -> str:

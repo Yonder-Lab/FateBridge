@@ -119,7 +119,7 @@ def _compute_life_dimensions_for_moment(
 
         # 大运（依赖 gender + age）
         try:
-            birth_date = normalized_birth_time.corrected_datetime
+            birth_date = normalized_birth_time.input_datetime
             analysis_age = _calculate_analysis_age(birth_date, analysis_date)
             dayun_result = TimingEffectsAnalysis.analyze_dayun_effects(
                 birth_context.birth_pillars,
@@ -174,7 +174,7 @@ def _build_current_timing_state(
     """Build the current timing analyses once from shared birth context."""
     timezone_name = birth_context.normalized_birth_time.timezone
     current_age = _calculate_analysis_age(
-        birth_context.normalized_birth_time.corrected_datetime,
+        birth_context.normalized_birth_time.input_datetime,
         analysis_date,
         explicit_age=analysis_age,
     )
@@ -195,7 +195,7 @@ def _build_current_timing_state(
     )
     dayun_analysis = TimingEffectsAnalysis.analyze_dayun_effects(
         birth_context.birth_pillars,
-        birth_context.normalized_birth_time.corrected_datetime,
+        birth_context.normalized_birth_time.input_datetime,
         birth_context.person.gender,
         current_age,
         timezone_name=timezone_name,
@@ -1134,11 +1134,13 @@ def calculate_nongli_time(
     pillars = BaZiCalendar.get_four_pillars(
         analysis_datetime,
         timezone_name=timezone_name,
+        civil_datetime=input_datetime,
     )
     calendar_context = build_calendar_context(
         analysis_datetime,
         timezone_name=timezone_name,
         pillars=pillars,
+        civil_datetime=input_datetime,
     )
     lunar_calendar = calendar_context.get("lunar_calendar") or {}
     lunar_support = calendar_context.get("lunar_calendar_support") or {}
@@ -1443,7 +1445,7 @@ def calculate_dayun_analysis(
 
     dayun_result = TimingEffectsAnalysis.analyze_dayun_effects(
         birth_context.birth_pillars,
-        birth_date,
+        normalized_birth_time.input_datetime,
         person.gender,
         analysis_age,
         timezone_name=normalized_birth_time.timezone,
