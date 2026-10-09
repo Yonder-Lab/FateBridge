@@ -54,13 +54,30 @@ def _configure_star_catalogue() -> bool:
 
         import kerykeion
 
-        astrology.swe.set_ephe_path(
-            str(pathlib.Path(kerykeion.__file__).parent / "sweph")
-        )
+        catalogue_dir = pathlib.Path(kerykeion.__file__).parent / "sweph"
+        # A cached Spica lookup may succeed even when the catalogue is absent.
+        # Verify the file before probing so other stars cannot fail later.
+        if not (catalogue_dir / "sefstars.txt").is_file():
+            return False
+        astrology.swe.set_ephe_path(str(catalogue_dir))
         astrology.swe.fixstar_ut("Spica", _J2000_JD, astrology.swe.FLG_SWIEPH)
         return True
     except Exception:
         return False
+
+
+def test_catalogue_probe_rejects_missing_file_even_with_cached_star(
+    monkeypatch, tmp_path
+):
+    import kerykeion
+
+    if astrology.swe is None:
+        pytest.skip("swisseph unavailable")
+    calls = []
+    monkeypatch.setattr(kerykeion, "__file__", str(tmp_path / "__init__.py"))
+    monkeypatch.setattr(astrology.swe, "fixstar_ut", lambda *args: calls.append(args))
+    assert not _configure_star_catalogue()
+    assert calls == []
 
 
 # ── pure: catalogue + precession ──────────────────────────────────────────────
