@@ -14,15 +14,15 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 
 **铁律：起卦、装卦、起局、用神全部交给引擎。**
 
-调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律按场景路由) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
+调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
 
 ## 这个场景用哪些工具
 
-「抉择 · 问事」 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+「抉择 · 问事」对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
 
 | query 意图 | 工具 | 优先级 | 何时选它 |
 |-----------|------|--------|---------|
-| 要不要做某件事（即时起念） | `meihua_analysis` | 主 | 用户当下起念、随机取数，适合即兴一问；最轻，传起卦年月日时即可起卦，`--question` 可选 |
+| 要不要做某件事（即时起念） | `meihua_analysis` | 主 | 用户当下起念、随机取数，适合即兴一问；较轻，传起卦年月日时即可起卦，`--question` 可选 |
 | 郑重问一事（古法起卦） | `tongshefa` | 主 | 大衍筮法（蓍草）起卦，仪式感重、郑重一问；与梅花同为起卦取象，区别在起卦方式——即兴随手用梅花，正式郑重用通蓍 |
 | 这事能不能成（具体成败） | `sixyao` | 主 | 问具体事能否成败，需明确一件事、一个方向 |
 | 方位/时机/谋略布局 | `qimen` | 主 | 问方位选择、行动时机、谋略布局，含趋吉避凶方位 |
@@ -44,7 +44,7 @@ description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定�
 |------|---------|
 | `meihua_analysis` | `--question` + **起卦时间必填** `--analysis-year/month/day/hour`（按当下起卦就传当前日期时间） |
 | `tongshefa` | 无必填项，直接调用即按古法自动起卦；要手工分蓍可传四象 `--taiyin/--taiyang/--shaoyang/--shaoyin` |
-| `sixyao` | `--question`，手摇传 `--lines`，或按时间起（需 `--date`/`--time`，或按当下起卦时间） |
+| `sixyao` | `--question`，CLI 手摇传 `--coins` 六个 6/7/8/9 或 `--gua-code`，对象列表 `lines` 用 REST/MCP；也可按时间起（需 `--date`/`--time`，或按当下起卦时间） |
 | `qimen` | 时间 + 用神 |
 | `liureng_gods` | 起课时间 |
 | `liureng_runyear` | 出生信息 + 分析年 |

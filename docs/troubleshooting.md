@@ -1,226 +1,134 @@
 # FateBridge 故障排除
 
-这份文档覆盖当前仓库真实存在的问题场景：Python 服务启动、REST / MCP 启动、占星依赖、快照导出与输入归一化。不假设仓库内存在前端应用。
+先确认当前版本、解释器和原始请求，再按错误层定位。接口字段与返回合同以 [API 参考](api-reference.md) 为准，配置见 [快速入门](getting-started.md)。
 
-## 安装问题
+## 安装和导入
 
-### `ModuleNotFoundError: no module named 'fatebridge'`
+### `ModuleNotFoundError: No module named 'fatebridge'`
 
-常见原因是：没有 cd 到仓库根目录、虚拟环境未激活、或者没有安装开发模式依赖。
-
-按下面顺序检查：
+当前项目使用 `src/` 布局，切到仓库根目录不会自动把包放入导入路径。激活环境并安装，用实际加载路径判断是否装到了另一个解释器：
 
 ```bash
 cd /path/to/FateBridge
-source venv/bin/activate
-pip install -e .
-python -c "import fatebridge; print(fatebridge.__file__)"
+source .venv/bin/activate
+python -m pip install -e .
+python -c "import sys, fatebridge; print(sys.executable); print(fatebridge.__version__, fatebridge.__file__)"
 ```
 
-### `pip install -e .` 失败
+Windows 激活命令见 [快速入门](getting-started.md#安装)。测试和静态检查还需安装 `.[dev]`。
 
-先升级打包工具：
+### 安装失败或异步测试不能执行
+
+保存完整的 pip/uv 错误和 Python 版本，确认满足 Python 3.10+；当前 CI 为 3.10–3.13。可先更新 pip 再重试：
 
 ```bash
-python -m pip install --upgrade pip setuptools wheel
-pip install -e .
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 ```
 
-如果网络较慢，可以切换镜像源，但这通常不是 FateBridge 自身逻辑问题。也可以换用 [uv](https://docs.astral.sh/uv/)，解析和下载都快很多，pip 卡住或解析超时的情况往往直接就好了：
+`async def functions are not natively supported` 通常说明当前测试解释器没有 `pytest-asyncio`，检查是否安装了 dev 依赖。缺少 `swisseph` / `kerykeion` 时核对的是 Python 包依赖；缺 `.se1` 时核对的是星历数据，二者不同。
+
+## 服务启动与连接
+
+### 端口占用或健康检查不通
+
+macOS / Linux 可用 `lsof -i :8010` 查看占用者。临时改端口后请求也要对应修改：
 
 ```bash
-uv venv && source .venv/bin/activate
-uv pip install -e .
+API_HOST=127.0.0.1 API_PORT=8011 python -m fatebridge.api
 ```
 
-## 启动问题
+在另一个终端执行 `curl http://localhost:8011/health`。环境变量优先于源码目录 `.env`，改配置后重启进程。默认 `0.0.0.0` 会监听所有网卡，访问时用 `localhost` 或服务主机地址。
 
-### 端口占用
+### `/ready` 为 ready，西占仍报错
 
-如果看到类似下面的输出：
+`/ready` 只用必需检查决定总状态，西占 runtime 是可选项。查看 `checks.western_predictive_runtime`，再核对具体工具的依赖、数据与输入。健康/就绪接口不是全工具验证。
 
-```text
-Address already in use
-```
+### MCP host 连不上
 
-当前默认端口是 `8010`，先检查谁占用了它：
+默认 MCP 是 stdio 进程，不创建 HTTP URL。host 配置应使用已安装本仓库的解释器绝对路径，例如 `/absolute/path/to/FateBridge/.venv/bin/python` 和参数 `-m fatebridge.mcp_server`。不要依赖 GUI host 继承 shell 的环境激活状态。确认 host 的进程日志、解释器和包路径，配置结构见 [接入指南](agent-guide.md#fastmcpagent-host)。
 
-```bash
-lsof -i :8010
-```
+## REST 鉴权与错误
 
-或者临时换端口启动：
+### 401 `authentication_required`
 
-```bash
-API_PORT=8011 python -m fatebridge.api
-```
+检查已配置的 `FATEBRIDGE_API_KEYS` 与 `API_KEY_HEADER_NAME`。配置 `agent:replace-me` 时，请求头发送 `X-API-Key: replace-me`；不发送名称前缀。`/api/tools` 也受鉴权保护，运维/文档路径和 `OPTIONS` 免检。
 
-### `/health` 不通
+非空配置出现空条目、缺名称/密钥或重复名称，会在启动时失败；不要把删除全部密钥作为恢复步骤。无需在报告中输出密钥值。
 
-确认服务真的启动在预期端口：
+### 400 与 422 `validation_error`
 
-```bash
-python -m fatebridge.api
-curl http://localhost:8010/health
-```
-
-如果你改过 `.env` 里的端口，那访问地址就不再是 `8010`。
-
-### FastMCP 没启动成功
-
-确认在仓库根目录直接运行：
-
-```bash
-python -m fatebridge.mcp_server
-```
-
-如果 host 侧仍然连不上，优先检查两件事：
-
-- MCP host 是否正确注册了该进程
-- Python 虚拟环境和 host 用的是不是同一套解释器
-
-## API 输入问题
-
-### 日期非法
-
-典型错误：
+当前 REST 错误使用顶层字段，不再从 `detail` 取业务错误：
 
 ```json
 {
-  "detail": "无效的输入参数，请检查日期有效性"
+  "error": "请求参数无效",
+  "error_code": "validation_error",
+  "retryable": false
 }
 ```
 
-常见原因是传了不存在的日期，例如 `1990-02-30`，或者月份、小时超出范围。建议先在调用侧做基础校验。
+- 422：请求字段缺失、类型/范围错误或 JSON 语法错误，在请求模型层被拒绝。
+- 400：请求进入领域计算后被拒绝，例如真实日期非法、未知模式，或显式要求太阳时却无经度。
 
-### `birth_place` 没有命中预期地点
+同一错误码可以来自不同层。查看状态码与 schema，把月/日范围检查和真实日期检查都纳入调用侧校验。完整非法分析日期不会自动改成月底；部分年月日的补齐规则与完整日期校验不同。
 
-FateBridge 的地点解析是内置静态近似，不是联网地理编码。建议：
+### MCP / CLI 返回错误的位置
 
-- 需要高精度时直接传 `birth_longitude`
-- 同时传 `birth_timezone`
-- 通过响应里的 `person_info.time_adjustment.resolved_place` 和 `resolution_level` 检查系统最终采用的地点层级
+MCP 先处理协议/schema 拒绝，再解析工具 text content 的业务 JSON。CLI 工具结果与错误均写 stdout，日志写 stderr；退出码 0 成功、1 计算/模型失败、2 用法错误或不支持。`list` / `--help` 是文本输出。按实际 `retryable` 判断是否重试，参数或依赖错误需先修正。
 
-### 真太阳时结果和原时间不同
+### 浏览器 CORS 错误
 
-这通常不是错误，而是预期行为。开启 `use_true_solar_time=true` 后，系统会结合时区、经度和均时差对出生时刻做修正。可以检查：
+`ALLOWED_ORIGINS` 是逗号分隔的精确来源（协议、域名、端口），例如 `http://localhost:3000,http://localhost:5173`。修改后重启。CORS 不代替 API Key；自定义密钥请求头应与服务的 `API_KEY_HEADER_NAME` 一致。浏览器看到跨域错误时，也要检查服务端是否先返回了 401。
 
-- `person_info.normalized_birth_datetime`
-- `person_info.time_adjustment`
+## 出生信息与返回字段
 
-## 占星与推运问题
+### 地点没命中或太阳时未生效
 
-### 核心 chart 精度不够
+地点解析使用有限静态目录，不做联网地理编码。中式模型默认太阳时 true：缺省开启且无经度时使用钟表时间并附提示；显式 true 且无经度返回错误。补可解析城市或明确的 `birth_longitude`，同时传 IANA 时区。占星还应提供纬度。
 
-查看返回值：
+核对 `person_info.time_adjustment` 的 `resolved_place`、`resolution_level`、`longitude_source`、`resolution_advisory` 与 `applied`。省级中心点只是近似，不等于实际县市位置。
 
-```json
-{
-  "chart_profile": {
-    "engine_precision": "...",
-    "engine_backend": "..."
-  }
-}
-```
+### 太阳时和原时间不同
 
-如果看到的是近似模型，说明当前环境没有可用的本地高精度 ephemeris 路径。
+经度、均时差与夏令时修正会改变用于相应规则的钟表读数。查看 `person_info.normalized_birth_datetime` 和 `time_adjustment`。年/月柱、节气与起运以实际民用时刻判断，不应因修正后跨过节气边界而提前换柱。
 
-### 显式 `hsys` 覆盖时报错
+### 命盘字段层级不同或无时盘报错
 
-如果报错类似：
+新独立八字入口 `/api/cn/bazi/birth` 的业务字段在 `bazi_birth` 下；旧 `/api/calculate` 是扁平兼容输出。MCP / CLI `analyze_destiny` 执行综合分析，与旧 REST 不是同一个 service。
 
-```text
-当前环境缺少 swisseph，...离线模式仅能在 hsys=0(整宫制) 下运行。
-```
+当前出生类模型要求小时，不能省略 `birth_hour` 来生成无时盘，也不能无依据填 0。字段投影的点号路径从响应根开始，路径错了会被忽略，不会深搜同名字段。
 
-含义是：默认 chart 仍可能可用，但显式请求更复杂的离线宫制时，当前环境缺少 `swisseph`。
+## 占星与推运
 
-解决方式二选一：
+### 本地 runtime 可用但精度仍降级
 
-- 去掉 `hsys` 覆盖，让 chart 使用默认宫制
-- 在具备 `swisseph` 的环境下运行
+同时检查 `chart_profile.engine_backend`、`engine_precision`、`ephemeris_model` 与 `run_metadata.engine_is_approximate`。运行时可用但缺 `.se1` 时可能使用 Moshier；仅看 backend 名称会遗漏降级。数据获取与 `SE_EPHE_PATH` 配置见 [快速入门](getting-started.md#星历数据与精度)。
 
-### 西占推运直接报依赖缺失
+CLI 不自动读取 `.env`，`SE_EPHE_PATH` 应在启动前设进程环境。GUI MCP host 也需传入相同路径。选择一致的版本、数据路径和日期后重试，并保存结果的实际模型标识。
 
-如果报错接近：
+### 显式 `hsys` 覆盖报依赖错误
 
-```text
-kerykeion / Swiss Ephemeris 未安装，无法启用西占推运能力。
-```
+核心/关系盘的 `hsys` 是整数 `0..8`，不是 `P`；西占推运的 `house_system` 支持 `P` 等字符串。显式 `hsys=1..8` 缺 `swisseph` 会报错，可安装/修复运行时，或在接受宫制变化的前提下使用可运行的 `hsys=0`。不要把去掉覆盖当作保持同一宫制精度。
 
-这表示：
+### 西占推运 `dependency_missing`
 
-- `astro/chart*` 族可能仍能运行
-- `astro/timing*` 族不会自动降级，而是直接失败
+`astro/timing*`、事件与生命周期工具缺 backend 会直接失败，不使用 FateBridge 的轨道近似替代。正常安装已声明 `kerykeion` / `pyswisseph`；核对实际进程的解释器及依赖版本。核心 chart 的回退能力不能推广到所有西占工具。
 
-这是 FateBridge 的设计选择，不是异常行为。
+### 关系盘与 `synastry` 预期不同
 
-### 关系盘结果和预期的 `synastry` 不一致
+`relative_mode="synastry"` 映射现代 `influence`；旧字段 `relationship_mode="synastry"` 保留 `compare` 语义。迁移时显式选择字段和模式。REST 使用嵌套 `inner` / `outer`，MCP / CLI 使用 `inner_birth_*` / `outer_birth_*`；不要跨端直接复制整段请求。
 
-FateBridge 里有一条 legacy 兼容规则：
+## 快照导出
 
-- `relative_mode="synastry"`：现代语义，映射到 `influence`
-- `relationship_mode="synastry"`：旧语义，仍按 `compare` 兼容
+### `selected_sections` 没生效或导出为空
 
-如果你在迁移旧调用，请显式检查自己用了哪个字段。
+先确认模型支持该字段（八字九大专项不支持输入此字段），再查看 `snapshot_export.section_titles_detected` 与 `missing_selected_sections`。显式非空选择没有命中时导出为空，不回退全文；未知标题或旧别名需按实际检测结果修正。CLI 用空格分隔多个标题，不能逗号拼接；紫微命盘检测的是 `起盘信息` / `宫位总览`，`命宫` / `夫妻宫` 等不是导出 section。
 
-## 快照导出问题
+`selected_sections` 只作用于导出层，完整 payload 与 `snapshot_text` 仍保留。若要控制整体体积，用三端 `fields` 投影和 `include_snapshot_text=false`。保留 `snapshot_export` 时，其中的 `export_text` 也可能很大。
 
-### `selected_sections` 没生效
+## 最小复现材料
 
-先检查响应里的这两个字段：
+报告问题时提供以下脱敏证据：版本/提交、解释器与依赖版本、端口及鉴权是否开启（不含值）、原始请求、状态/退出码、错误码、输入时区和坐标、太阳时策略、分析日期、星历模型、运行 ID（若有）。不要只提供解读文本。
 
-- `snapshot_export.section_titles_detected`
-- `snapshot_export.missing_selected_sections`
-
-最常见原因不是功能坏了，而是 section 名写错了。例如 `qimen` 常见 section 名包括：
-
-- `起盘信息`
-- `九宫方盘`
-- `离九宫`
-
-如果写成别名或旧标题，最终会被归一化或判定为缺失。
-
-### 只想裁掉导出文本，不想丢结构化字段
-
-这是 FateBridge 当前的既定行为：
-
-- `selected_sections` 只作用于 `snapshot_export.export_text`
-- 完整 payload 和 `snapshot_text` 仍会保留
-
-如果你的场景需要“整体裁剪”，应在调用侧再做一层过滤。
-
-## CORS 问题
-
-如果浏览器报跨域错误，优先检查 `.env`：
-
-```bash
-ALLOWED_ORIGINS=http://localhost:3000
-```
-
-修改后重启 `python -m fatebridge.api`。当前 `src/fatebridge/api.py` 使用 `ALLOWED_ORIGINS` 环境变量，默认只放行 `http://localhost:3000`。
-
-## 文档和代码不一致时怎么办
-
-优先以代码为准，然后检查：
-
-- `src/fatebridge/api.py`
-- `src/fatebridge/mcp_server.py`
-- `tests/test_api_alignment.py`
-- `docs/api-reference.md`
-- `docs/algorithm-coverage.md`
-
-如果你刚修改了能力却忘了更新文档，建议至少同步改这两页：
-
-- `docs/api-reference.md`
-- `docs/algorithm-coverage.md`
-
-## 最小诊断命令
-
-```bash
-python -m fatebridge.api
-curl http://localhost:8010/health
-pytest tests/test_api_alignment.py -q
-```
-
-如果只是排查主文档是否还残留旧版仓库结构或旧默认端口，可以对 `README.md`、主 `docs/*.md` 和 `.env.example` 做一次定向 `rg` 检查。
+文档漂移优先核对 `services/tool_catalog.py`、`core/request_models.py` 与实际 OpenAPI/MCP schema，再按 [文档维护流程](development-guide.md#文档维护与验证) 同步修正。

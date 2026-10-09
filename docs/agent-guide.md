@@ -125,6 +125,7 @@ MCP 的 schema 校验可能在执行工具前被协议层拒绝，应检查工�
 - `selected_sections` 只裁剪导出层，不会裁掉完整的结构化 payload。
 - 如果 section 名没生效，先看 `section_titles_detected` 或 `missing_selected_sections`。显式非空选择没有命中时，`export_text` 为空，不会回退全文。
 - `selected_sections` 并非所有模型都支持，尤其八字九大专项没有此字段；它们仍返回快照，可用 `fields` 或 `include_snapshot_text` 控制体积。
+- 梅花、中点盘与西占推运总览不返回双层快照；部分占法、事件和生命周期只有文本，详见 [快照覆盖](algorithm-coverage.md#4-快照协议覆盖)。
 
 ### 字段投影：控制 token 预算
 
@@ -175,7 +176,7 @@ curl -X POST http://localhost:8010/api/cn/bazi/wealth \
   -H "Content-Type: application/json" \
   -H "X-API-Key: replace-me" \
   -d '{"gender":"男","birth_year":1990,"birth_month":5,"birth_day":15,
-       "birth_hour":10,"birth_timezone":"Asia/Shanghai","use_true_solar_time":true}'
+       "birth_hour":10,"birth_timezone":"Asia/Shanghai","birth_place":"北京","use_true_solar_time":true}'
 ```
 
 如果配置了 `FATEBRIDGE_API_KEYS`，除 `/health`、`/ready`、`/metrics` 和文档页外，其余端点都需要带 `X-API-Key`。
@@ -190,7 +191,8 @@ resp = requests.post(
     headers={"X-API-Key": "replace-me"},
     json={
         "gender": "男", "birth_year": 1990, "birth_month": 5, "birth_day": 15,
-        "birth_hour": 10, "birth_timezone": "Asia/Shanghai", "use_true_solar_time": True,
+        "birth_hour": 10, "birth_timezone": "Asia/Shanghai", "birth_place": "北京",
+        "use_true_solar_time": True,
     },
     timeout=30,
 )
@@ -208,7 +210,8 @@ const res = await fetch("http://localhost:8010/api/cn/bazi/wealth", {
   headers: { "Content-Type": "application/json", "X-API-Key": "replace-me" },
   body: JSON.stringify({
     gender: "男", birth_year: 1990, birth_month: 5, birth_day: 15,
-    birth_hour: 10, birth_timezone: "Asia/Shanghai", use_true_solar_time: true,
+    birth_hour: 10, birth_timezone: "Asia/Shanghai", birth_place: "北京",
+    use_true_solar_time: true,
   }),
 });
 const data = await res.json();
@@ -256,6 +259,19 @@ fatebridge knowledge_read --domain bazi --category romance --key 桃花咸池
 ```
 
 CLI 子命令与参数同样从中央目录派生，`--help` 可查每个工具的参数。
+
+`--subject-file /path/to/person.json` 可复用扁平出生字段（`name`、`gender`、`birth_*` 等），显式命令参数优先。JSON 使用标准库；YAML 档案需要 PyYAML（包含在 dev 依赖中）。不要将含真实出生资料的档案直接提交仓库。
+
+CLI 专有 `profile` 可为同一命主组织多套盘，默认 `bazi,ziwei,astro`；逐项结果在 `profile` 下，任一失败会使退出码为 1，其他结果仍返回：
+
+```bash
+fatebridge profile --systems bazi,ziwei,astro \
+  --birth-year 1990 --birth-month 5 --birth-day 15 --birth-hour 10 \
+  --gender 男 --birth-place 北京 --birth-timezone Asia/Shanghai \
+  --birth-longitude 116.40 --birth-latitude 39.90
+```
+
+`profile` 保留各体系默认太阳时策略，不是全工具并行运行；它的选项以 `profile --help` 为准，不能直接套用所有单工具输出开关。
 
 ---
 

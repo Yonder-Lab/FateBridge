@@ -14,11 +14,11 @@ description: 用 FateBridge 引擎看性格、天赋、学业、原生家庭与�
 
 **铁律：日主旺衰、十神、格局、紫微安星全部交给引擎。**
 
-调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律按场景路由) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
+调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
 
 ## 这个场景用哪些工具
 
-「命格 · 性格天赋六亲」 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+「命格 · 性格天赋六亲」对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
 
 | 用户想问 | 工具 | 优先级 |
 |---------|------|--------|
@@ -71,7 +71,7 @@ python3 -m fatebridge.cli --no-metadata bazi_personality \
 
 python3 -m fatebridge.cli --no-metadata ziwei_birth \
   --gender 女 --birth-year 1998 --birth-month 9 --birth-day 30 --birth-hour 16 --birth-place 武汉 \
-  --selected-sections 命宫,福德宫,官禄宫
+  --selected-sections 宫位总览
 ```
 
 `snapshot_text` 的宫位总览里，每颗主星后面跟着庙旺级别，例如：

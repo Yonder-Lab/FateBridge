@@ -55,6 +55,11 @@
 更新文档时建议顺手检查：
 
 - README、docs 索引、API 文档里的端口和能力名是否一致。
-- `src/fatebridge/api.py` 与 `src/fatebridge/mcp_server.py` 是否都已补齐对应入口。
+- 工具是否已在 `services/tool_catalog.py` 声明正确 surface，请求模型、代表 payload 与场景清单是否同步；常规新增不需要手写 transport 入口。
 - `selected_sections`、`snapshot_export`、精度 / 依赖 caveat 是否写清楚。
 - 任何“已实现 / 近似 / 占位”的说法是否能在代码里找到依据。
+- 本地链接、章节锚点、示例命令与实际必填字段是否有效。完整验证流程见 [development-guide.md](development-guide.md#文档维护与验证)。
+
+## 审计记录
+
+[audit-repairs-2026-10-09.md](audit-repairs-2026-10-09.md) 是 2026-10-09 工作区代码修复的历史记录，包含本地证据与未验证边界，不代表这些更改已经发布。文档审查记录见 [documentation-audit-2026-10-09.md](documentation-audit-2026-10-09.md)。

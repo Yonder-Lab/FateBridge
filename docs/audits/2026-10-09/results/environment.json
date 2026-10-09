@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "packages": {
+      "fatebridge": "0.2.0",
+      "lunar-python": "1.4.8",
+      "skyfield": "1.55",
+      "pyswisseph": "2.10.3.2",
+      "kerykeion": "5.12.9",
+      "lunardate": "0.2.2"
+    },
+    "iztro": "2.5.8",
+    "ephemeris": "de440s.bsp",
+    "ephemeris_sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
+    "git_head": "1281fed77bba7378ffdd03bd1d241d2907ccaa65",
+    "scope": "Synthetic audit, UTC/+08:00, no true-solar correction"
+  }
+}

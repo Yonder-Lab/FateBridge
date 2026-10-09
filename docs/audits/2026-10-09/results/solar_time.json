@@ -1,0 +1,51 @@
+{
+  "summary": {
+    "samples": 3,
+    "analysis_strategy": "longitude_only",
+    "label": "真太阳时"
+  },
+  "cases": [
+    {
+      "input": "2026-11-03T00:50:00+08:00",
+      "longitude": 120,
+      "skyfield_apparent_solar_hour": 1.1073943097649614,
+      "analysis_seed_corrected_datetime": "2026-11-03 00:50:00",
+      "analysis_seed_hour_pillar": "戊子",
+      "birth_path_adjustment": {
+        "standard_meridian": 120.0,
+        "longitude_correction_minutes": 0.0,
+        "equation_of_time_minutes": 16.35019153386064,
+        "daylight_saving_minutes": 0.0,
+        "total_correction_minutes": 16.35019153386064
+      }
+    },
+    {
+      "input": "2026-02-11T01:10:00+08:00",
+      "longitude": 120,
+      "skyfield_apparent_solar_hour": 0.930456777749809,
+      "analysis_seed_corrected_datetime": "2026-02-11 01:10:00",
+      "analysis_seed_hour_pillar": "己丑",
+      "birth_path_adjustment": {
+        "standard_meridian": 120.0,
+        "longitude_correction_minutes": 0.0,
+        "equation_of_time_minutes": -14.574494853430762,
+        "daylight_saving_minutes": 0.0,
+        "total_correction_minutes": -14.574494853430762
+      }
+    },
+    {
+      "input": "2026-06-21T12:00:00+08:00",
+      "longitude": 120,
+      "skyfield_apparent_solar_hour": 11.97093094223495,
+      "analysis_seed_corrected_datetime": "2026-06-21 12:00:00",
+      "analysis_seed_hour_pillar": "甲午",
+      "birth_path_adjustment": {
+        "standard_meridian": 120.0,
+        "longitude_correction_minutes": 0.0,
+        "equation_of_time_minutes": -1.4999999999999993,
+        "daylight_saving_minutes": 0.0,
+        "total_correction_minutes": -1.4999999999999993
+      }
+    }
+  ]
+}

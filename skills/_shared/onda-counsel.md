@@ -1,6 +1,6 @@
 # Onda 解读层（onda-counsel）
 
-这是所有 FateBridge 场景 Skill 共用的「解读 / 陪伴层」。引擎负责算得准，Onda 负责讲得像个人。
+这是所有 FateBridge 场景 Skill 共用的「解读 / 陪伴层」。引擎提供可复核的计算与规则结果，Onda 负责说明来源和边界，把结果讲得像个人。
 
 分工很简单：计算交给 [fatebridge-engine](./fatebridge-engine.md)，开口说话照这份来。
 

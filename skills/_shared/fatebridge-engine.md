@@ -44,13 +44,15 @@ fatebridge <tool> [参数...]
 
 ## 两种输出形态
 
-现在所有工具都带 `snapshot_text` 和 `snapshot_export`，统一契约，不用再区分有没有。但有一类工具的 `snapshot_text` 只是结构化字段的中文摊平，精确解读仍以结构化字段为准。
+工具输出有双层快照、仅文本快照、仅结构化数据三种形态，不要假设字段始终存在。八字、时运、中国术数、knowledge、多数核心盘和独立推运常有双层快照；六爻/统摄法/参评/河洛/宿占/星骰、事件与生命周期只有文本快照。梅花、中点盘、西占推运总览和 export helper 主要返回结构化数据。完整表见 [快照覆盖](../../docs/algorithm-coverage.md#4-快照协议覆盖)。
 
-**`snapshot_text` 即主依据的工具**
+一类工具的 `snapshot_text` 只是结构化字段的中文摘要，精确读取仍以业务字段为准。
 
-已实测核对：`bazi_birth`、`analyze_destiny`、时运全系、紫微、梅花、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类。
+**可以先从 `snapshot_text` 阅读的工具**
 
-读法：直接读 `snapshot_text`，它已经是结构化的中文事实，包括四柱、十神、格局、神煞、大运流年。
+已实测核对：`bazi_birth`、`analyze_destiny`、时运全系、紫微、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类。
+
+读法：先读存在的 `snapshot_text`，它记录算法生成的中文摘要，包括四柱、十神、格局、神煞、大运流年。
 
 **`snapshot_text` 是摘要，细节看结构化字段的工具**
 
@@ -72,7 +74,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth ... \
   | python3 -c "import json,sys;d=json.load(sys.stdin);print(d.get('snapshot_text') or json.dumps(d,ensure_ascii=False,indent=2))"
 ```
 
-很多工具支持 `--selected-sections`（逗号分隔）只取需要的快照段，省 token。段名可从 `snapshot_export.section_titles_detected` 查看；该参数只裁剪导出文本，完整 `snapshot_text` 和业务数据仍返回，不会自动缩小整个响应。八字九大专项没有 `selected_sections` 输入，使用 `--fields` 精简。
+支持 `--selected-sections` 的工具可用空格分隔的段名筛选导出（带空格的单个标题需引号），不要用逗号拼成一个标题。段名可从 `snapshot_export.section_titles_detected` 查看；该参数只裁剪导出文本，完整 `snapshot_text` 和业务数据仍返回，不会自动缩小整个响应。八字九大专项没有 `selected_sections` 输入，使用 `--fields` 精简。
 
 **精确投影 `--fields`：只取你要的结构化字段，省 token。** 支持顶层 key，也支持点号子路径（从输出根算起的绝对路径，不深搜）。多个字段用空格分隔，不是逗号，逗号会被当成一个不存在的 key，返回空对象。已附带的 `run_metadata` 会保留；`--no-metadata` 会关闭附加。
 
@@ -174,10 +176,10 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 
 **综合 vs 颗粒怎么选**：`timing_analysis` 是聚合器，一次把当前大运 + 流年（+ 流月等）的综合影响给全，问「最近运势/这两年怎么样」用它；`dayun_analysis`/`liunian_analysis`/… 是单层颗粒，只盯某一层（如就看某个大运、某个特定流年）才单独调。综合工具的内容与颗粒工具有意重叠，别为了拼一个时运全景去逐层调颗粒再自己拼，那是 `timing_analysis` 的活。
 
-### 占卜 · 问事起卦（snapshot_text）
+### 占卜 · 问事起卦（按实际输出读取）
 
-- `meihua_analysis`：梅花易数，`--question`（可选）+ 起卦时间必填 `--analysis-year/month/day/hour`（要按当下起卦就传当前日期时间）。
-- `sixyao`：六爻，`--question`，可手摇 `--lines`/`--gua-code` 或按时间起。
+- `meihua_analysis`：梅花易数，读取结构化 `meihua` / `summary` / `interpretation`，`--question`（可选）+ 起卦时间必填 `--analysis-year/month/day/hour`（要按当下起卦就传当前日期时间）。
+- `sixyao`：六爻，`--question`，CLI 手摇用 `--coins`（六掷之和，初爻到上爻，每项 6/7/8/9）或 `--gua-code`，也可按时间起。`lines` 对象列表使用 REST/MCP 传入，CLI 不解析对象字符串。
 - `tongshefa`：大衍筮法（蓍草）。
 - `gua_lookup` / `gua_meiyi`：卦象查询 / 卦义。
 - `qimen`：奇门遁甲，起局 + 用神。
@@ -198,7 +200,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 ### 占星 · 出生盘与关系盘
 
 - `astro_chart`：标准盘。
-- `astro_chart13`：13 星座盘。
+- `astro_chart13`：13 扇区盘。
 - `astro_hellen_chart`：希腊盘。
 - `astro_guolao_chart`：果老星宗。
 - `astro_india_chart`：印度盘。
@@ -289,7 +291,7 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 
 ---
 
-## 全局调用纪律（省 token / 防重复运算）
+## 全局调用纪律
 
 权威全文与各场景的工具取舍见 `docs/scenario-routing.md`。本节是所有 onda 技能共享的执行铁律。
 

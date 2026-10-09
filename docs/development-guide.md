@@ -123,7 +123,7 @@ mypy src/fatebridge/
 1. 先改 `src/fatebridge/core/*` 或 `src/fatebridge/analysis/*`。
 2. 在 `src/fatebridge/services/*` 封装成对 transport 友好的返回结构。
 3. 在 `src/fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型。
-4. 在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`。REST、MCP、CLI 三端会自动派生，不需要再改 `api.py`、`mcp_server.py` 或 `cli.py`。
+4. 在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`。声明的 REST / MCP 入口及 CLI 可支持的命令会自动派生，常规新增不需要再改 `api.py`、`mcp_server.py` 或 `cli.py`。
 5. 在 `tests/` 增加能力测试。三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性的 payload fixture。
 6. 更新 `docs/api-reference.md`、`docs/algorithm-coverage.md`、`docs/scenario-routing.md` 与相关技能说明；若改了技能工具/输入，同步 `agents/interface.yaml`。工具计数、路由覆盖和技能契约均有现成测试。
 

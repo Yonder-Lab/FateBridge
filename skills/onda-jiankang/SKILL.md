@@ -12,11 +12,11 @@ description: 用 FateBridge 引擎看健康倾向与身心状态，Onda 河狸�
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
 - 场景取舍与去重：[../../docs/scenario-routing.md](../../docs/scenario-routing.md)
 
-调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律按场景路由) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
+调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
 
 ## 这个场景用哪些工具
 
-「健康 · 身心」 对应路由（主=出结论必调；旁=只加强/修正）：
+「健康 · 身心」对应路由（主=出结论必调；旁=只加强/修正）：
 
 | 用户想问 | 工具 | 优先级 | 要点 |
 |---------|------|--------|------|

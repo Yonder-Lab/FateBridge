@@ -1,6 +1,6 @@
 ---
 name: onda-xingpan
-description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希腊/果老/印度/13星座等流派），Onda 河狸把行星宫位讲成你能照见自己的话。Use when 用户问占星、星盘、出生盘、本命盘、上升星座、太阳月亮、行星落宫、相位、合盘、关系盘、希腊占星、古典占星、印度占星、果老星宗。覆盖标准盘与多流派盘、关系盘，并可衔接西占推运。
+description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希腊/果老/印度/13扇区等盘式），Onda 河狸把行星宫位讲成你能照见自己的话。Use when 用户问占星、星盘、出生盘、本命盘、上升星座、太阳月亮、行星落宫、相位、合盘、关系盘、希腊占星、古典占星、印度占星、果老星宗。覆盖标准盘与多流派盘、关系盘，并可衔接西占推运。
 ---
 
 # 星盘 · 占星自观（Onda）
@@ -14,17 +14,17 @@ description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希�
 
 **铁律：行星位置、宫位、相位全部交给引擎（优先本地 Swiss Ephemeris，缺时回退近似模型）。**
 
-调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律按场景路由) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
+调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
 
 ## 这个场景用哪些工具
 
-「星盘 · 占星自观」 对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+「星盘 · 占星自观」对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
 
 | 用户想问 | 工具 | 优先级 | 要点 |
 |---------|------|--------|------|
 | 我的星盘/本命盘 | `astro_chart` | 主 | 标准盘，含上升·太阳·月亮·行星落宫·相位 |
 | 上升·太阳·月亮·行星落宫·相位 | `astro_chart` | 主 | |
-| 13 星座盘 | `astro_chart13` | 主 | |
+| 13 扇区盘 | `astro_chart13` | 主 | |
 | 希腊传统星盘 | `astro_hellen_chart` | 主 | |
 | 果老星宗盘（中式七政四余） | `astro_guolao_chart` | 主 | |
 | 印度星盘（Jyotish） | `astro_india_chart` | 主 | |
@@ -42,8 +42,8 @@ description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希�
 --birth-year/month/day --birth-hour/minute
 --birth-latitude 31.23 --birth-longitude 121.47 --birth-place 上海
 --birth-timezone Asia/Shanghai
---hsys P            # 宫位制，默认按工具
---zodiacal tropic   # 回归/恒星
+--hsys 3            # 核心/关系盘用整数 0..8；3 = Placidus
+--zodiacal 0        # 0=回归，1=恒星
 ```
 出生时间不准要说明，会影响上升与宫位。
 

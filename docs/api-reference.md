@@ -92,17 +92,19 @@
 - `snapshot_text` 是完整的人类可读文本
 - `snapshot_export.export_text` 是根据 `selected_sections` 过滤后的导出文本
 - `selected_sections` 只裁剪导出层，不会裁掉完整结构化 payload
+- 部分工具只有 `snapshot_text`，或仅返回结构化业务数据；完整覆盖见 [算法覆盖的快照协议](algorithm-coverage.md#4-快照协议覆盖)
 
 ### 2.3 `selected_sections`
 
-下列能力族通常支持 `selected_sections`：
+当前请求模型支持 `selected_sections` 的主要入口：
 
-- `bazi_birth`（八字九大专项返回快照，但请求模型不支持 `selected_sections`）
-- 时运独立工具
-- knowledge/export helper
-- 卦义 helper
-- 多数中国术数独立盘
-- 占星独立 chart / timing tools
+- `bazi_birth`，全部时运与历法 helper；
+- `gua_lookup` / `gua_meiyi`、`sanshiunited`；
+- 中国术数独立盘（紫微、六壬、奇门、太乙、金口诀）；
+- knowledge 工具与 `export_parse`；
+- 独立西占推运工具（`solarreturn` 至 `decennials`）。
+
+八字九大专项、核心/关系盘、事件与生命周期、梅花和其他本地占法的请求模型没有此字段。是否有快照、是否有导出、是否接受裁剪参数是三个不同的合同。CLI 用空格分隔多个标题，带空格的单个标题需加引号；紫微命盘的导出 section 是 `起盘信息` / `宫位总览`，单个宫名并非 section。
 
 排查 section 名不生效时，优先看：
 
@@ -246,7 +248,7 @@
 | `POST` | `/api/compatibility` | 双人配合分析 |
 | `POST` | `/api/compatibility/sukuyo` | 宿曜双人相性分析（三九の秘法，二十七宿） |
 
-### 4.1.1 八字九大专项维度
+#### 4.1.1 八字九大专项维度
 
 > 九个维度均同时提供 REST / MCP / CLI。大运、流年缺省由命盘 + 分析日期内部推算，也可传 `dayun_pillar` / `liunian_pillar` 覆盖以输出时机信号（详见 README）。
 
@@ -419,7 +421,7 @@ descriptor 形如：
 
 `surfaces.rest_path` / `surfaces.mcp_name` 为 `null` 表示该工具不在对应端暴露。
 
-## 5. Representative REST 示例
+## 5. REST 调用示例
 
 以下示例默认未开启 API Key 鉴权；开启后加 `-H "X-API-Key: <secret>"`。
 
@@ -487,7 +489,7 @@ curl -X POST http://localhost:8010/api/astro/chart \
 - `snapshot_text`
 - `snapshot_export`
 
-### 5.3 独立西占 technique
+### 5.3 独立西占技法
 
 ```bash
 curl -X POST http://localhost:8010/api/astro/timing/solarreturn \

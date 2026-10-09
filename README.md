@@ -129,7 +129,7 @@ fatebridge bazi_wealth \
 
 FateBridge 被设计成 Agent 友好的：
 
-- 所有工具从同一个中央目录派生，参数 schema 三端一致；
+- 所有工具从同一个中央目录派生，共享请求模型派生各端 schema；
 - `GET /api/tools`（或 MCP 的 `tools/list`）可以自动枚举全部能力；
 - 错误返回统一的 `{error, error_code, retryable}` 结构；
 - 成功响应默认包含 `run_metadata`，便于追踪；CLI 可用 `--no-metadata` 关闭。

@@ -75,7 +75,7 @@
 
 ### 2.4 `divination` —— 占卜与本地技法（Implemented）
 
-均为本地离线技法，多数返回 `snapshot_text + snapshot_export`。
+均为本地离线技法，输出分为双层快照、仅文本和结构化数据，详见 §4。
 
 | 工具 | 说明 | 状态 |
 | --- | --- | --- |
@@ -220,22 +220,20 @@
 
 ## 4. 快照协议覆盖
 
-下列能力族已经把 `snapshot_text + snapshot_export` 视为公共合同：
+快照双层结构不是所有工具的通用保证。当前典型成功响应按以下形态组织；工具输入是否支持 `selected_sections` 另查 [API 参考](api-reference.md#23-selected_sections)。
 
-- `bazi_birth` 及八字九大专项维度
-- 全部 `timing` 工具
-- `knowledge_registry` / `knowledge_read` / `export_*`
-- `gua_lookup` / `gua_meiyi`
-- 全部 `divination` 工具（`suzhan` / `otherbu` / `sanshiunited` / `canping` / `heluo` 等）
-- 全部 `metaphysics` 工具（`ziwei_*` / `liureng_*` / `qimen` / `taiyi` / `jinkou`）
-- 全部 `astro` chart 家族、`western_timing_tool` / `western_event` / `western_lifespan` 独立技法
+| 形态 | 工具范围 | 读取方式 |
+| --- | --- | --- |
+| `snapshot_text` + `snapshot_export` | 八字独立盘/专项/综合分析、双人配合、全部时运与历法、卦义查询、三式合参、中国术数独立盘、knowledge、核心/关系星盘（中点盘除外）、独立西占推运 | 业务数据为准，快照辅助阅读；支持选择的模型才裁剪导出 |
+| `snapshot_text`，无 `snapshot_export` | `tongshefa`、`sixyao`、`canping`、`heluo`、`suzhan`、`otherbu`、西占事件与生命周期工具 | 读取文本与结构化业务数据；需要 section 解析时另调用 `export_parse` |
+| 结构化数据，无双层快照 | `meihua_analysis`、`astro_germany_chart`、`western_timing_analysis`、`export_registry`、`export_parse` | 读取各自的业务字段；`export_parse` 直接返回解析结果，不再嵌套 `snapshot_export` |
 
 使用建议：
 
-- `snapshot_text` 适合直接阅读或写入日志
-- `snapshot_export.export_text` 适合按 `selected_sections` 精简后给 Agent 或下游 UI
-- `section_titles_detected` 与 `missing_selected_sections` 用于调试 section 名是否写对
-- `selected_sections` 只裁剪导出层，不会裁掉完整结构化 payload
+- 存在的 `snapshot_text` 适合直接阅读；日志中的出生资料需按实际用途管理。
+- `snapshot_export.export_text` 是可消费的导出层，不等于所有工具都支持筛选输入。
+- `section_titles_detected` / `missing_selected_sections` 用于调试标题；`export_parse` 的这些字段位于响应根。
+- `selected_sections` 不删除完整快照或业务数据。整体精简使用 `fields` 与 `include_snapshot_text`。
 
 ## 5. 这页不包含什么
 
