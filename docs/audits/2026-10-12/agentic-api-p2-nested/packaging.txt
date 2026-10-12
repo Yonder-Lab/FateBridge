@@ -1,0 +1,345 @@
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=77.0.0
+  - wheel
+* Getting build dependencies for wheel...
+running egg_info
+writing src/fatebridge.egg-info/PKG-INFO
+writing dependency_links to src/fatebridge.egg-info/dependency_links.txt
+writing entry points to src/fatebridge.egg-info/entry_points.txt
+writing requirements to src/fatebridge.egg-info/requires.txt
+writing top-level names to src/fatebridge.egg-info/top_level.txt
+reading manifest file 'src/fatebridge.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+adding license file 'NOTICE'
+writing manifest file 'src/fatebridge.egg-info/SOURCES.txt'
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+copying src/fatebridge/mcp_transport.py -> build/lib/fatebridge
+copying src/fatebridge/mcp_server.py -> build/lib/fatebridge
+copying src/fatebridge/core/response_models.py -> build/lib/fatebridge/core
+copying src/fatebridge/core/output_chinese.py -> build/lib/fatebridge/core
+copying src/fatebridge/core/output_base.py -> build/lib/fatebridge/core
+copying src/fatebridge/core/output_charts.py -> build/lib/fatebridge/core
+copying src/fatebridge/core/output_western.py -> build/lib/fatebridge/core
+copying src/fatebridge/core/fengshui/output.py -> build/lib/fatebridge/core/fengshui
+running egg_info
+writing src/fatebridge.egg-info/PKG-INFO
+writing dependency_links to src/fatebridge.egg-info/dependency_links.txt
+writing entry points to src/fatebridge.egg-info/entry_points.txt
+writing requirements to src/fatebridge.egg-info/requires.txt
+writing top-level names to src/fatebridge.egg-info/top_level.txt
+reading manifest file 'src/fatebridge.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+adding license file 'NOTICE'
+writing manifest file 'src/fatebridge.egg-info/SOURCES.txt'
+installing to build/bdist.macosx-11.1-arm64/wheel
+running install
+running install_lib
+creating build/bdist.macosx-11.1-arm64/wheel
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/core
+copying build/lib/fatebridge/core/astrology_lifespan.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/response_models.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/scenarios.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/transit.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/zodiacal_releasing.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/_common.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/decennials.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/returns.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/profections.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/progressions.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/firdaria.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/primary_directions.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/solar_arc.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/predictive/western_timing.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/predictive
+copying build/lib/fatebridge/core/output_chinese.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/knowledge_store.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/liureng.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/jinkou.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/taiyi.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/ziwei.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/common.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/qimen.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/metaphysics/liureng_transmissions.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/metaphysics
+copying build/lib/fatebridge/core/guolao_moira.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/jinsuo.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/xuankong.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/annual.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/models.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/directions.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/calendar.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/bazhai.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/output.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/fengshui/snapshot.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/fengshui
+copying build/lib/fatebridge/core/discovery.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/astrology.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/canping.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/classical_western.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/reproducibility.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/elements.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/output_base.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/sukuyo.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/rules.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/request_models.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/tool_spec.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/ziwei_tables.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/astrology_horary.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/calendar.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/element_relations.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/timing.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/divination.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/classical.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/ephemeris_runtime.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/astrology_events.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/execution_context.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/export_contracts.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/almanac.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/gua_meanings.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/sixyao.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/canping.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/chart.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/qimen.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/sanshi.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/tongshefa.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/suzhan.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/otherbu.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/local_techniques/heluo.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core/local_techniques
+copying build/lib/fatebridge/core/output_charts.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/export_parser.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/astrology_election.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/output_western.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+copying build/lib/fatebridge/core/heluo.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/core
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/analysis
+copying build/lib/fatebridge/analysis/wealth.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/romance.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/personality.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/compatibility.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/marriage.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/children.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/health.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/education.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/life_dimensions.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/timing_effects.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/relatives.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/analysis/career.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/analysis
+copying build/lib/fatebridge/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge
+copying build/lib/fatebridge/fetch_ephe.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/utils
+copying build/lib/fatebridge/utils/places.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/utils/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/utils/runtime.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/utils/errors.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/utils/helpers.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/utils/house_systems.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/utils/timezones.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/utils/data.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/utils
+copying build/lib/fatebridge/api.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge
+copying build/lib/fatebridge/cli.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge
+copying build/lib/fatebridge/py.typed -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge
+copying build/lib/fatebridge/mcp_transport.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/data
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/data/heluo
+copying build/lib/fatebridge/data/heluo/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/heluo
+copying build/lib/fatebridge/data/heluo/heluoTiaowen.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/heluo
+copying build/lib/fatebridge/data/agent_scenarios.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/data/fengshui
+copying build/lib/fatebridge/data/fengshui/rules-v1.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/fengshui
+copying build/lib/fatebridge/data/fengshui/xuankong-v1.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/fengshui
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/data/canping
+copying build/lib/fatebridge/data/canping/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/canping
+copying build/lib/fatebridge/data/canping/canpingTiaowen.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/canping
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/data/knowledge
+copying build/lib/fatebridge/data/knowledge/astro.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/knowledge
+copying build/lib/fatebridge/data/knowledge/qimen.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/knowledge
+copying build/lib/fatebridge/data/knowledge/bazi.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/knowledge
+copying build/lib/fatebridge/data/knowledge/__init__.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/knowledge
+copying build/lib/fatebridge/data/knowledge/liureng.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/knowledge
+copying build/lib/fatebridge/data/knowledge/index.json -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/data/knowledge
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge/services
+copying build/lib/fatebridge/services/structured_snapshot.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/western_horary.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/compatibility.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/run_metadata.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/western_events.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/fengshui.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/astrology.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/western_lifespan.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/replay_metadata.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/calculation.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/timing.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/divination.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/western_timing_tools.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/bazi.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/snapshot_builders.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/metaphysics.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/western_election.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/export_tools.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/knowledge.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/tool_catalog.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/services/western_timing.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge/services
+copying build/lib/fatebridge/mcp_server.py -> build/bdist.macosx-11.1-arm64/wheel/./fatebridge
+running install_egg_info
+Copying src/fatebridge.egg-info to build/bdist.macosx-11.1-arm64/wheel/./fatebridge-0.2.0-py3.13.egg-info
+running install_scripts
+creating build/bdist.macosx-11.1-arm64/wheel/fatebridge-0.2.0.dist-info/WHEEL
+creating '/tmp/fatebridge-p2-nested-wheel/.tmp-ff74uout/fatebridge-0.2.0-py3-none-any.whl' and adding 'build/bdist.macosx-11.1-arm64/wheel' to it
+adding 'fatebridge/__init__.py'
+adding 'fatebridge/api.py'
+adding 'fatebridge/cli.py'
+adding 'fatebridge/fetch_ephe.py'
+adding 'fatebridge/mcp_server.py'
+adding 'fatebridge/mcp_transport.py'
+adding 'fatebridge/py.typed'
+adding 'fatebridge/analysis/__init__.py'
+adding 'fatebridge/analysis/career.py'
+adding 'fatebridge/analysis/children.py'
+adding 'fatebridge/analysis/compatibility.py'
+adding 'fatebridge/analysis/education.py'
+adding 'fatebridge/analysis/health.py'
+adding 'fatebridge/analysis/life_dimensions.py'
+adding 'fatebridge/analysis/marriage.py'
+adding 'fatebridge/analysis/personality.py'
+adding 'fatebridge/analysis/relatives.py'
+adding 'fatebridge/analysis/romance.py'
+adding 'fatebridge/analysis/timing_effects.py'
+adding 'fatebridge/analysis/wealth.py'
+adding 'fatebridge/core/__init__.py'
+adding 'fatebridge/core/almanac.py'
+adding 'fatebridge/core/astrology.py'
+adding 'fatebridge/core/astrology_election.py'
+adding 'fatebridge/core/astrology_events.py'
+adding 'fatebridge/core/astrology_horary.py'
+adding 'fatebridge/core/astrology_lifespan.py'
+adding 'fatebridge/core/calendar.py'
+adding 'fatebridge/core/canping.py'
+adding 'fatebridge/core/classical.py'
+adding 'fatebridge/core/classical_western.py'
+adding 'fatebridge/core/discovery.py'
+adding 'fatebridge/core/divination.py'
+adding 'fatebridge/core/element_relations.py'
+adding 'fatebridge/core/elements.py'
+adding 'fatebridge/core/ephemeris_runtime.py'
+adding 'fatebridge/core/execution_context.py'
+adding 'fatebridge/core/export_contracts.py'
+adding 'fatebridge/core/export_parser.py'
+adding 'fatebridge/core/gua_meanings.py'
+adding 'fatebridge/core/guolao_moira.py'
+adding 'fatebridge/core/heluo.py'
+adding 'fatebridge/core/knowledge_store.py'
+adding 'fatebridge/core/output_base.py'
+adding 'fatebridge/core/output_charts.py'
+adding 'fatebridge/core/output_chinese.py'
+adding 'fatebridge/core/output_western.py'
+adding 'fatebridge/core/reproducibility.py'
+adding 'fatebridge/core/request_models.py'
+adding 'fatebridge/core/response_models.py'
+adding 'fatebridge/core/rules.py'
+adding 'fatebridge/core/scenarios.py'
+adding 'fatebridge/core/sukuyo.py'
+adding 'fatebridge/core/timing.py'
+adding 'fatebridge/core/tool_spec.py'
+adding 'fatebridge/core/ziwei_tables.py'
+adding 'fatebridge/core/fengshui/__init__.py'
+adding 'fatebridge/core/fengshui/annual.py'
+adding 'fatebridge/core/fengshui/bazhai.py'
+adding 'fatebridge/core/fengshui/calendar.py'
+adding 'fatebridge/core/fengshui/directions.py'
+adding 'fatebridge/core/fengshui/jinsuo.py'
+adding 'fatebridge/core/fengshui/models.py'
+adding 'fatebridge/core/fengshui/output.py'
+adding 'fatebridge/core/fengshui/snapshot.py'
+adding 'fatebridge/core/fengshui/xuankong.py'
+adding 'fatebridge/core/local_techniques/__init__.py'
+adding 'fatebridge/core/local_techniques/canping.py'
+adding 'fatebridge/core/local_techniques/chart.py'
+adding 'fatebridge/core/local_techniques/heluo.py'
+adding 'fatebridge/core/local_techniques/otherbu.py'
+adding 'fatebridge/core/local_techniques/qimen.py'
+adding 'fatebridge/core/local_techniques/sanshi.py'
+adding 'fatebridge/core/local_techniques/sixyao.py'
+adding 'fatebridge/core/local_techniques/suzhan.py'
+adding 'fatebridge/core/local_techniques/tongshefa.py'
+adding 'fatebridge/core/metaphysics/__init__.py'
+adding 'fatebridge/core/metaphysics/common.py'
+adding 'fatebridge/core/metaphysics/jinkou.py'
+adding 'fatebridge/core/metaphysics/liureng.py'
+adding 'fatebridge/core/metaphysics/liureng_transmissions.py'
+adding 'fatebridge/core/metaphysics/qimen.py'
+adding 'fatebridge/core/metaphysics/taiyi.py'
+adding 'fatebridge/core/metaphysics/ziwei.py'
+adding 'fatebridge/core/predictive/__init__.py'
+adding 'fatebridge/core/predictive/_common.py'
+adding 'fatebridge/core/predictive/decennials.py'
+adding 'fatebridge/core/predictive/firdaria.py'
+adding 'fatebridge/core/predictive/primary_directions.py'
+adding 'fatebridge/core/predictive/profections.py'
+adding 'fatebridge/core/predictive/progressions.py'
+adding 'fatebridge/core/predictive/returns.py'
+adding 'fatebridge/core/predictive/solar_arc.py'
+adding 'fatebridge/core/predictive/transit.py'
+adding 'fatebridge/core/predictive/western_timing.py'
+adding 'fatebridge/core/predictive/zodiacal_releasing.py'
+adding 'fatebridge/data/agent_scenarios.json'
+adding 'fatebridge/data/canping/__init__.py'
+adding 'fatebridge/data/canping/canpingTiaowen.json'
+adding 'fatebridge/data/fengshui/rules-v1.json'
+adding 'fatebridge/data/fengshui/xuankong-v1.json'
+adding 'fatebridge/data/heluo/__init__.py'
+adding 'fatebridge/data/heluo/heluoTiaowen.json'
+adding 'fatebridge/data/knowledge/__init__.py'
+adding 'fatebridge/data/knowledge/astro.json'
+adding 'fatebridge/data/knowledge/bazi.json'
+adding 'fatebridge/data/knowledge/index.json'
+adding 'fatebridge/data/knowledge/liureng.json'
+adding 'fatebridge/data/knowledge/qimen.json'
+adding 'fatebridge/services/astrology.py'
+adding 'fatebridge/services/bazi.py'
+adding 'fatebridge/services/calculation.py'
+adding 'fatebridge/services/compatibility.py'
+adding 'fatebridge/services/divination.py'
+adding 'fatebridge/services/export_tools.py'
+adding 'fatebridge/services/fengshui.py'
+adding 'fatebridge/services/knowledge.py'
+adding 'fatebridge/services/metaphysics.py'
+adding 'fatebridge/services/replay_metadata.py'
+adding 'fatebridge/services/run_metadata.py'
+adding 'fatebridge/services/snapshot_builders.py'
+adding 'fatebridge/services/structured_snapshot.py'
+adding 'fatebridge/services/timing.py'
+adding 'fatebridge/services/tool_catalog.py'
+adding 'fatebridge/services/western_election.py'
+adding 'fatebridge/services/western_events.py'
+adding 'fatebridge/services/western_horary.py'
+adding 'fatebridge/services/western_lifespan.py'
+adding 'fatebridge/services/western_timing.py'
+adding 'fatebridge/services/western_timing_tools.py'
+adding 'fatebridge/utils/__init__.py'
+adding 'fatebridge/utils/data.py'
+adding 'fatebridge/utils/errors.py'
+adding 'fatebridge/utils/helpers.py'
+adding 'fatebridge/utils/house_systems.py'
+adding 'fatebridge/utils/places.py'
+adding 'fatebridge/utils/runtime.py'
+adding 'fatebridge/utils/timezones.py'
+adding 'fatebridge-0.2.0.dist-info/licenses/LICENSE'
+adding 'fatebridge-0.2.0.dist-info/licenses/NOTICE'
+adding 'fatebridge-0.2.0.dist-info/METADATA'
+adding 'fatebridge-0.2.0.dist-info/WHEEL'
+adding 'fatebridge-0.2.0.dist-info/entry_points.txt'
+adding 'fatebridge-0.2.0.dist-info/top_level.txt'
+adding 'fatebridge-0.2.0.dist-info/RECORD'
+removing build/bdist.macosx-11.1-arm64/wheel
+Successfully built fatebridge-0.2.0-py3-none-any.whl

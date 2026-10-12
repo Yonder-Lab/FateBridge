@@ -146,8 +146,11 @@ def test_calculate_destiny_route_executes_service_via_threadpool(monkeypatch):
     assert result["run_metadata"]["run_id"]
     assert result["run_metadata"]["trace_id"]
     assert result["run_metadata"]["generated_at"]
-    assert captured["func"] is api_module.calculate_bazi_birth
-    assert captured["args"][0].name == "张三"
+    from fatebridge.core.tool_spec import execute_tool
+
+    assert captured["func"] is execute_tool
+    assert captured["args"][0].key == "calculate_legacy"
+    assert captured["args"][1].name == "张三"
 
 
 def test_calculate_destiny_route_includes_snapshot_contract():

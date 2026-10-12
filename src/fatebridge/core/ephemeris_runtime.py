@@ -50,6 +50,12 @@ def default_ephe_dir() -> Optional[str]:
     return None
 
 
+def configured_ephemeris_path() -> Optional[str]:
+    """Return the configured inventory location for replay evidence."""
+    with _EPHEMERIS_LOCK:
+        return _configured_path
+
+
 def configure_ephemeris_path(path: Optional[str] = None) -> Optional[str]:
     """Point Swiss Ephemeris at ``.se1`` data files, if any can be located.
 

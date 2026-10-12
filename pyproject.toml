@@ -47,6 +47,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "jsonschema>=4.20.0",  # validate published output contracts in transport tests
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "black>=23.0.0",

@@ -20,14 +20,26 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, NoReturn, Optional, get_origin
 
+from pydantic import ValidationError
+
+from fatebridge.core.discovery import discover_specs
+from fatebridge.core.execution_context import (
+    ExecutionOptions,
+    call_clock,
+    correlate_error,
+    safe_correlation,
+)
+from fatebridge.core.scenarios import discover_scenarios
 from fatebridge.core.tool_spec import (
     ToolSpec,
     describe_spec,
     execute_spec,
+    execute_tool,
 )
 from fatebridge.core.tool_spec import field_type_name as _type_name
 from fatebridge.core.tool_spec import (
     invalid_input_result,
+    is_model_field,
     project_fields,
     result_is_error,
 )
@@ -35,6 +47,11 @@ from fatebridge.core.tool_spec import spec_is_cli_safe as _cli_safe
 from fatebridge.core.tool_spec import unwrap_optional as _unwrap_optional
 from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.tool_catalog import CATALOG
+from fatebridge.utils.errors import (
+    ParameterError,
+    handle_calculation_error,
+    validation_error_result,
+)
 from fatebridge.utils.helpers import (
     DEFAULT_BIRTH_TIMEZONE,
     format_json_response,
@@ -181,6 +198,8 @@ def _describe_spec(spec: ToolSpec) -> dict:
 def _cli_example(spec: ToolSpec) -> str:
     """A copy-pasteable example invocation showing the required flags."""
     parts = ["fatebridge", _command_name(spec)]
+    if spec.cli_request_file:
+        return " ".join(parts + ["--request-file request.json"])
     for name, field in spec.request_model.model_fields.items():
         if field.is_required():
             flag = "--" + name.replace("_", "-")
@@ -194,6 +213,7 @@ def _add_field_argument(
     field: Any,
     *,
     relax_required: bool = False,
+    json_structures: bool = False,
 ) -> None:
     annotation = _unwrap_optional(field.annotation)
     origin = get_origin(annotation)
@@ -211,7 +231,18 @@ def _add_field_argument(
     flag = "--" + name.replace("_", "-")
     help_text = field.description or ""
 
-    if annotation is bool:
+    if json_structures and (
+        is_model_field(field.annotation) or origin in (list, List, dict, Dict)
+    ):
+        parser.add_argument(
+            flag,
+            dest=name,
+            type=json.loads,
+            default=default,
+            required=required,
+            help=help_text + "（JSON 对象或数组；也可使用 --request-file）",
+        )
+    elif annotation is bool:
         # argparse renders the action as "--flag, --no-flag" and does not
         # surface that it also accepts an explicit value, so spell it out here:
         # the explicit true/false form is exactly what trips users up.
@@ -269,7 +300,21 @@ def build_parser(
     )
     sub = parser.add_subparsers(dest="command", metavar="<tool>")
 
-    sub.add_parser("list", help="列出所有可用工具命令")
+    listing = sub.add_parser("list", help="列出工具；支持筛选和 --json 摘要")
+    _add_discovery_flags(listing)
+    listing.add_argument("--json", action="store_true", help="输出共享目录 JSON")
+    discovery = sub.add_parser(
+        "discover", help="先查看目录摘要，再按工具读取完整契约（JSON）"
+    )
+    _add_discovery_flags(discovery)
+    scenario_parser = sub.add_parser(
+        "scenarios", help="场景到工具、主证/旁证/深调的机器路由清单"
+    )
+    scenario_parser.add_argument("--scenario", help="场景 ID，可用逗号指定多个")
+    scenario_parser.add_argument("--surface", choices=("rest", "mcp", "cli"))
+    scenario_parser.add_argument(
+        "--detail", choices=("summary", "full"), default="summary"
+    )
 
     describe_parser = sub.add_parser(
         "describe", help="输出某工具的参数 schema、可用接口与示例（JSON）"
@@ -294,10 +339,29 @@ def build_parser(
             continue
         sp = sub.add_parser(_command_name(spec), help=spec.summary)
         for fname, field in spec.request_model.model_fields.items():
-            _add_field_argument(sp, fname, field, relax_required=fname in relaxed)
+            _add_field_argument(
+                sp,
+                fname,
+                field,
+                relax_required=fname in relaxed,
+                json_structures=spec.cli_request_file,
+            )
+        if spec.cli_request_file:
+            sp.add_argument(
+                "--request-file",
+                metavar="PATH",
+                help="完整住宅请求 JSON 文件；显式字段参数覆盖文件中的同名顶层字段，仍按公开模型校验",
+            )
         _add_transport_flags(sp)
         sp.set_defaults(_spec=spec)
     return parser
+
+
+def _add_execution_flags(parser: argparse.ArgumentParser) -> None:
+    for name, definition in ExecutionOptions.model_fields.items():
+        parser.add_argument(
+            "--" + name.replace("_", "-"), default=None, help=definition.description
+        )
 
 
 def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
@@ -306,6 +370,13 @@ def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
     These live on each tool subparser (not the top-level parser) so they can be
     passed naturally after the tool name, e.g. `fatebridge bazi_wealth ... --fields summary`.
     """
+    _add_execution_flags(parser)
+    parser.add_argument(
+        "--strict-fields",
+        action=_BooleanFlagAction,
+        default=False,
+        help="无效投影路径返回校验失败；默认保留兼容形状并附 projection_warnings",
+    )
     parser.add_argument(
         "--fields",
         nargs="*",
@@ -421,6 +492,27 @@ def _preload_subject(
     return path, _load_subject_file(path)
 
 
+def _preload_request(argv: Optional[List[str]]) -> Optional[Dict[str, Any]]:
+    """Only explicit catalog opt-ins expose --request-file; never person-filter."""
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--request-file", default=None)
+    try:
+        args, _ = pre.parse_known_args(argv)
+    except SystemExit:
+        return None
+    if not args.request_file:
+        return None
+    try:
+        data = json.loads(
+            Path(args.request_file).expanduser().read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError("request-file 必须为可读的合法 JSON 文件") from exc
+    if not isinstance(data, dict):
+        raise ValueError("request-file 顶层必须是 JSON 对象")
+    return data
+
+
 # --- profile: run several charts for one subject in a single invocation ------
 
 DEFAULT_PROFILE_SYSTEMS = "bazi,ziwei,astro"
@@ -486,6 +578,7 @@ def _add_profile_parser(sub: Any) -> None:
         "profile",
         help="综合命盘：一次为同一命主排多套盘（默认 八字/紫微/西占）",
     )
+    _add_execution_flags(parser)
     parser.add_argument(
         "--systems",
         default=None,
@@ -554,6 +647,15 @@ def _unify_birth_instant(inputs: Dict[str, Any]) -> None:
 def _run_profile(
     args: argparse.Namespace, subject_data: Optional[Dict[str, Any]]
 ) -> int:
+    controls = {
+        name: getattr(args, name, None) for name in ExecutionOptions.model_fields
+    }
+    try:
+        options = ExecutionOptions.model_validate(controls)
+    except ValidationError as exc:
+        return _emit_error(
+            correlate_error(validation_error_result(exc), safe_correlation(controls)), 1
+        )
     raw = getattr(args, "systems", None) or DEFAULT_PROFILE_SYSTEMS
     tokens = [t.strip() for t in raw.split(",") if t.strip()]
     resolved, unknown = _resolve_profile_systems(tokens)
@@ -596,6 +698,19 @@ def _run_profile(
 
     _unify_birth_instant(inputs)
 
+    root_metadata = attach_run_metadata({}, tool_name="profile")["run_metadata"]
+    if options.trace_id is not None:
+        root_metadata["trace_id"] = options.trace_id
+    if options.parent_run_id is not None:
+        root_metadata["parent_run_id"] = options.parent_run_id
+    with call_clock(options.as_of) as clock:
+        as_of = clock.instant.isoformat().replace("+00:00", "Z")
+    child_options = ExecutionOptions(
+        as_of=as_of,
+        trace_id=root_metadata["trace_id"],
+        parent_run_id=root_metadata["run_id"],
+    )
+
     profile: Dict[str, Any] = {}
     any_error = False
     for token, spec in resolved:
@@ -604,16 +719,18 @@ def _run_profile(
             k: v for k, v in inputs.items() if k in field_names and v is not None
         }
         try:
-            result = execute_spec(spec, spec.request_model(**provided))
+            result = execute_tool(
+                spec,
+                spec.request_model(**provided),
+                options=child_options,
+                include_metadata=not args.no_metadata,
+            )
+        except ValidationError as exc:
+            result = correlate_error(validation_error_result(exc), child_options)
         except ValueError:
             result = invalid_input_result(spec)
         except Exception as exc:  # noqa: BLE001 - surface, don't abort the batch
-            result = {
-                "error": str(exc),
-                "error_code": "internal_error",
-                "status_code": 500,
-                "retryable": False,
-            }
+            result = handle_calculation_error(exc, "综合命盘")
         if result_is_error(spec, result):
             any_error = True
         profile[token] = result
@@ -624,7 +741,7 @@ def _run_profile(
         "profile": profile,
     }
     if not args.no_metadata:
-        output = attach_run_metadata(output, tool_name="profile")
+        output["run_metadata"] = {**root_metadata, "effective_time": {"as_of": as_of}}
     print(json.dumps(output, ensure_ascii=False, indent=2, default=str))
     return 1 if any_error else 0
 
@@ -649,9 +766,20 @@ def _unsupported_hint(spec: ToolSpec) -> str:
     return f"该工具含嵌套结构，CLI 暂不支持；请改用 {target}。"
 
 
-def _print_tools() -> None:
+def _add_discovery_flags(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--family", help="工具分类，可用逗号指定多个分类")
+    parser.add_argument("--scenario", help="场景 ID，可用逗号指定多个")
+    parser.add_argument("--query", dest="q", help="按工具名称、分类和描述搜索")
+    parser.add_argument("--tool", help="精确选择一个工具")
+    parser.add_argument("--surface", choices=("rest", "mcp", "cli"))
+    parser.add_argument("--detail", choices=("summary", "full"), default="summary")
+
+
+def _print_tools(names: Optional[set[str]] = None) -> None:
     rows = []
     for spec in CATALOG:
+        if names is not None and spec.tool_name not in names:
+            continue
         mark = "" if _cli_safe(spec) else "  (CLI 不支持: 含嵌套结构)"
         rows.append(f"  {_command_name(spec):<28} {spec.operation_label_zh}{mark}")
     print("可用工具命令：\n" + "\n".join(rows))
@@ -686,6 +814,7 @@ def _run_describe(tool_name: Optional[str]) -> int:
 def run(argv: Optional[List[str]] = None) -> int:
     try:
         _subject_path, subject_data = _preload_subject(argv)
+        request_data = _preload_request(argv)
     except ValueError as error:
         return _emit_error(
             {
@@ -697,6 +826,8 @@ def run(argv: Optional[List[str]] = None) -> int:
             2,
         )
     relaxed = set(subject_data) if subject_data else set()
+    if request_data is not None:
+        relaxed.update(request_data)
     parser = build_parser(relaxed)
     try:
         args = parser.parse_args(argv)
@@ -706,8 +837,40 @@ def run(argv: Optional[List[str]] = None) -> int:
         # the code as a normal return so callers needn't catch SystemExit.
         return int(exc.code) if exc.code is not None else 0
 
-    if not args.command or args.command == "list":
+    if not args.command:
         _print_tools()
+        return 0
+
+    if args.command in {"list", "discover"}:
+        try:
+            catalog = discover_specs(
+                CATALOG,
+                family=args.family,
+                scenario=args.scenario,
+                q=args.q,
+                tool=args.tool,
+                surface=args.surface,
+                detail=args.detail,
+            )
+        except ParameterError as exc:
+            return _emit_error(exc.as_result(), 1)
+        if args.command == "discover" or args.json:
+            print(json.dumps(catalog, ensure_ascii=False, indent=2))
+        else:
+            _print_tools({record["tool"] for record in catalog["tools"]})
+        return 0
+
+    if args.command == "scenarios":
+        try:
+            manifest = discover_scenarios(
+                CATALOG,
+                scenario=args.scenario,
+                surface=args.surface,
+                detail=args.detail,
+            )
+        except ParameterError as exc:
+            return _emit_error(exc.as_result(), 1)
+        print(json.dumps(manifest, ensure_ascii=False, indent=2))
         return 0
 
     if args.command == "describe":
@@ -737,6 +900,7 @@ def run(argv: Optional[List[str]] = None) -> int:
     provided = {
         k: v for k, v in vars(args).items() if k in field_names and v is not None
     }
+    explicit_fields = dict(provided)
 
     # A --subject-file supplies reusable person defaults so multi-tool sessions
     # need not re-type birth data. Explicit CLI flags always win over the file.
@@ -748,34 +912,43 @@ def run(argv: Optional[List[str]] = None) -> int:
         }
         provided = {**defaults, **provided}
 
+    if request_data is not None and spec.cli_request_file:
+        # Keep unknown file keys: Pydantic must reject typos instead of silently
+        # filtering them the way reusable person profiles intentionally do.
+        provided = {**provided, **request_data, **explicit_fields}
+
     try:
+        controls = {
+            name: getattr(args, name, None) for name in ExecutionOptions.model_fields
+        }
+        options = ExecutionOptions.model_validate(controls)
         request = spec.request_model(**provided)
-        result = execute_spec(spec, request)
+        result = execute_tool(
+            spec, request, options=options, include_metadata=not args.no_metadata
+        )
+    except ValidationError as exc:
+        return _emit_error(
+            correlate_error(validation_error_result(exc), safe_correlation(controls)), 1
+        )
     except ValueError:
-        # Mirror REST/MCP: bad input (pydantic ValidationError or a date check
-        # raised during binding) renders as a clean, generic error rather than
-        # dumping a raw exception string. It shares stdout with success output so
+        # Mirror REST/MCP: a binding/domain ValueError renders as a generic
+        # error rather than a raw exception. It shares stdout with success so
         # a json.loads(stdout) consumer always parses; exit 1 signals failure.
         return _emit_error(invalid_input_result(spec), 1)
     except Exception as exc:  # noqa: BLE001 - unexpected internal failure
-        return _emit_error(
-            {
-                "error": str(exc),
-                "error_code": "internal_error",
-                "status_code": 500,
-                "retryable": False,
-            },
-            1,
-        )
+        return _emit_error(handle_calculation_error(exc, spec.operation_label_zh), 1)
 
     is_error = result_is_error(spec, result)
-    if not args.no_metadata and not is_error:
-        result = attach_run_metadata(result, tool_name=spec.run_metadata_name)
 
     # Project to requested top-level fields (token budgeting). Never trim an
     # error payload — that would drop the `error` key the caller needs.
     if not is_error and getattr(args, "fields", None):
-        result = project_fields(result, args.fields)
+        try:
+            result = project_fields(
+                result, args.fields, strict_fields=args.strict_fields
+            )
+        except ParameterError as exc:
+            return _emit_error(correlate_error(exc.as_result(), options), 1)
 
     # Output shaping, mirroring REST/MCP. ``--include-snapshot-text`` defaults to
     # None -> fall back to the spec's own default, preserving today's behavior

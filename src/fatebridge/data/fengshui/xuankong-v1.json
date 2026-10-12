@@ -1,0 +1,328 @@
+{
+  "bundle_version": "1.0.1",
+  "ruleset": {
+    "ruleset_id": "xuankong_zhongzhou_v1",
+    "version": "1.0.1",
+    "method": "xuankong_natal",
+    "source_ids": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "S7",
+      "S8",
+      "X6"
+    ],
+    "scope": "中州派运山向宅盘，下卦与兼向替星；不含玄空大卦、城门、七星打劫、月日时盘或峦头裁决",
+    "conventions": [
+      "历史定运事件和换运资格由用户选择并留证，不从查询年或普通装修自动换运",
+      "20年一运，1864为一运锚点；日期立春交节，显式有效年表示已完成换年确认",
+      "每山15度，正中9度；两侧3度同宫同阴阳不替，异阴阳或出卦用替",
+      "先原运星所属卦的同元龙定阴阳，再替星；五黄借宅运同元龙阴阳，仍以五飞布且不替",
+      "五运元旦盘五在中，外宫山向星不可能五入中；不引入五运前后十年寄宫",
+      "磁北角度不自动由真北转换；恰在分界取双侧候选，误差范围内所有角区均枚举",
+      "X2页面“阳阳互兼用替”和十一山清单有笔误；依其上下文例子及13项口诀的24山补集校订；非声称原本统一规则",
+      "1.0.1修复角区浮点容差越界，按闭区间实际相交枚举候选；已确认坐卦约束候选宫位",
+      "实际逐项报告节气求解器；跨运年份事件时刻遇近似回退须另确认有效年或宅运，不输出确定宅盘"
+    ]
+  },
+  "sources": {
+    "X1": {
+      "url": "https://www.diancangwang.cn/xuanxuewushu/f6f37803664b/90b563d9cb41.html",
+      "retrieved_at": "2026-10-12",
+      "retrieved_sha256": "5e7980ad284cc2d5ed2407dec3faea842c8c3e43c2eddca4a5d743c91a80cfda",
+      "title": "沈氏玄空学卷四（网络转录本）",
+      "kind": "web_transcription",
+      "scope": "二十四山、三元龙阴阳、同元龙、1864锚点；不以此卷概括所有五黄和替卦版本",
+      "source_version": "2026-10-12 retrieved web edition; original print edition not certified"
+    },
+    "X2": {
+      "url": "https://xuanlinyi.com/article_detail?id=301282",
+      "retrieved_at": "2026-10-12",
+      "retrieved_sha256": "acd42874421c98db5542891bf990cf3c8605bf02cd17848c4eee84cf52b54fed",
+      "title": "玄霖易学：第一篇 玄空基础2（中州派传法网页）",
+      "kind": "web_transcription",
+      "scope": "本实现采用的中州派下卦、五黄借运同元龙、9+3+3角区、同宫同阴阳不替、出卦必替、13山替星及公开盘例；网页有笔误，非校勘古籍",
+      "source_version": "2026-10-12 retrieved web edition; original print edition not certified"
+    },
+    "X3": {
+      "url": "https://www.amfengshui.com/wp-content/uploads/2014/06/fs340.pdf",
+      "retrieved_at": "2026-10-12",
+      "retrieved_sha256": null,
+      "retrieval_error": "HTTP Error 403: Forbidden",
+      "title": "American Feng Shui Institute, Five Ghosts Carry Wealth, 2005, pp.8–9",
+      "kind": "authored_teaching",
+      "scope": "仅交叉核对五黄借建造运同元龙阴阳，数仍为五；不引用其吉凶或治疗断语",
+      "source_version": "2005 PDF"
+    },
+    "X4": {
+      "url": "https://www.xuankongguan.com/guide-detail/%E5%A4%A7%E5%BB%88%E5%85%83%E9%81%8B%E5%8F%8A%E6%8F%9B%E5%A4%A9%E5%BF%83",
+      "retrieved_at": "2026-10-12",
+      "retrieved_sha256": "6784d56e244469e38b4155406e6f8d09712701da6e86492e48c6231a973b6898",
+      "title": "陈癸龙：大厦元运及换天心",
+      "kind": "authored_teaching",
+      "scope": "定运与换天心有争议，普通装修不自动换运；事件类型和资格由调用方确认",
+      "source_version": "2026-10-12 retrieved web edition; original print edition not certified"
+    },
+    "X5": {
+      "url": "https://www.diancangwang.cn/xuanxuewushu/f6f37803664b/34f0e0aa12ff.html",
+      "retrieved_at": "2026-10-12",
+      "retrieved_sha256": "0d8b37da9d524d06325457b1042e388828bd8841454e4b0cbcd2afd74ed5fdf4",
+      "title": "沈氏玄空学卷二（网络转录本）",
+      "kind": "web_transcription",
+      "scope": "五黄寄宫存在多个版本；不将分金寄卦与外宫飞星入中混同",
+      "source_version": "2026-10-12 retrieved web edition; original print edition not certified"
+    },
+    "S7": {
+      "title": "Sean Chan 2026 飞星与立春换年说明",
+      "url": "https://www.masterseanchan.com/fengshui-2026-flying-star-chart",
+      "kind": "author_published_convention",
+      "scope": "年度飞星立春换年；2026交节至分钟，未独立认证秒精度"
+    },
+    "S8": {
+      "title": "香港天文台2026年历",
+      "url": "https://www.hko.gov.hk/tc/gts/time/calendar/pdf/files/2026.pdf",
+      "kind": "official_calendar",
+      "scope": "立春公历日期；不证明风水解释"
+    },
+    "X6": {
+      "url": "https://hkas.org.hk/2024/02/04/%E7%AB%8B%E6%98%A5-9/",
+      "retrieved_at": "2026-10-12",
+      "retrieved_sha256": "4102da3c8459b4d92b060ee7a2d6d1f56876c7232f7ee3efc3da6b6e924b23ad",
+      "title": "香港天文学会：立春，2024-02-04当日公布太阳黄经315度16时27分",
+      "kind": "authored_astronomical_reference",
+      "scope": "仅交叉核对2024立春日期与分钟，不认证秒精度，也不证明住宅定运事件选择",
+      "source_version": "2024-02-04 published page; retrieved 2026-10-12",
+      "retrieved_format": "firecrawl_markdown"
+    }
+  },
+  "mountains": [
+    {
+      "name": "子",
+      "center_degrees": 0,
+      "direction": "N",
+      "yuan": "heaven",
+      "polarity": "yin"
+    },
+    {
+      "name": "癸",
+      "center_degrees": 15,
+      "direction": "N",
+      "yuan": "human",
+      "polarity": "yin"
+    },
+    {
+      "name": "丑",
+      "center_degrees": 30,
+      "direction": "NE",
+      "yuan": "earth",
+      "polarity": "yin"
+    },
+    {
+      "name": "艮",
+      "center_degrees": 45,
+      "direction": "NE",
+      "yuan": "heaven",
+      "polarity": "yang"
+    },
+    {
+      "name": "寅",
+      "center_degrees": 60,
+      "direction": "NE",
+      "yuan": "human",
+      "polarity": "yang"
+    },
+    {
+      "name": "甲",
+      "center_degrees": 75,
+      "direction": "E",
+      "yuan": "earth",
+      "polarity": "yang"
+    },
+    {
+      "name": "卯",
+      "center_degrees": 90,
+      "direction": "E",
+      "yuan": "heaven",
+      "polarity": "yin"
+    },
+    {
+      "name": "乙",
+      "center_degrees": 105,
+      "direction": "E",
+      "yuan": "human",
+      "polarity": "yin"
+    },
+    {
+      "name": "辰",
+      "center_degrees": 120,
+      "direction": "SE",
+      "yuan": "earth",
+      "polarity": "yin"
+    },
+    {
+      "name": "巽",
+      "center_degrees": 135,
+      "direction": "SE",
+      "yuan": "heaven",
+      "polarity": "yang"
+    },
+    {
+      "name": "巳",
+      "center_degrees": 150,
+      "direction": "SE",
+      "yuan": "human",
+      "polarity": "yang"
+    },
+    {
+      "name": "丙",
+      "center_degrees": 165,
+      "direction": "S",
+      "yuan": "earth",
+      "polarity": "yang"
+    },
+    {
+      "name": "午",
+      "center_degrees": 180,
+      "direction": "S",
+      "yuan": "heaven",
+      "polarity": "yin"
+    },
+    {
+      "name": "丁",
+      "center_degrees": 195,
+      "direction": "S",
+      "yuan": "human",
+      "polarity": "yin"
+    },
+    {
+      "name": "未",
+      "center_degrees": 210,
+      "direction": "SW",
+      "yuan": "earth",
+      "polarity": "yin"
+    },
+    {
+      "name": "坤",
+      "center_degrees": 225,
+      "direction": "SW",
+      "yuan": "heaven",
+      "polarity": "yang"
+    },
+    {
+      "name": "申",
+      "center_degrees": 240,
+      "direction": "SW",
+      "yuan": "human",
+      "polarity": "yang"
+    },
+    {
+      "name": "庚",
+      "center_degrees": 255,
+      "direction": "W",
+      "yuan": "earth",
+      "polarity": "yang"
+    },
+    {
+      "name": "酉",
+      "center_degrees": 270,
+      "direction": "W",
+      "yuan": "heaven",
+      "polarity": "yin"
+    },
+    {
+      "name": "辛",
+      "center_degrees": 285,
+      "direction": "W",
+      "yuan": "human",
+      "polarity": "yin"
+    },
+    {
+      "name": "戌",
+      "center_degrees": 300,
+      "direction": "NW",
+      "yuan": "earth",
+      "polarity": "yin"
+    },
+    {
+      "name": "乾",
+      "center_degrees": 315,
+      "direction": "NW",
+      "yuan": "heaven",
+      "polarity": "yang"
+    },
+    {
+      "name": "亥",
+      "center_degrees": 330,
+      "direction": "NW",
+      "yuan": "human",
+      "polarity": "yang"
+    },
+    {
+      "name": "壬",
+      "center_degrees": 345,
+      "direction": "N",
+      "yuan": "earth",
+      "polarity": "yang"
+    }
+  ],
+  "star_home_mountains": {
+    "1": {
+      "earth": "壬",
+      "heaven": "子",
+      "human": "癸"
+    },
+    "2": {
+      "earth": "未",
+      "heaven": "坤",
+      "human": "申"
+    },
+    "3": {
+      "earth": "甲",
+      "heaven": "卯",
+      "human": "乙"
+    },
+    "4": {
+      "earth": "辰",
+      "heaven": "巽",
+      "human": "巳"
+    },
+    "6": {
+      "earth": "戌",
+      "heaven": "乾",
+      "human": "亥"
+    },
+    "7": {
+      "earth": "庚",
+      "heaven": "酉",
+      "human": "辛"
+    },
+    "8": {
+      "earth": "丑",
+      "heaven": "艮",
+      "human": "寅"
+    },
+    "9": {
+      "earth": "丙",
+      "heaven": "午",
+      "human": "丁"
+    }
+  },
+  "replacement_stars": {
+    "甲": 1,
+    "申": 1,
+    "壬": 2,
+    "卯": 2,
+    "乙": 2,
+    "丑": 7,
+    "艮": 7,
+    "丙": 7,
+    "辰": 6,
+    "巽": 6,
+    "巳": 6,
+    "庚": 9,
+    "寅": 9
+  },
+  "central_half_width_degrees": 4.5
+}

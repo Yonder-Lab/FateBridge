@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-12",
+  "source_commit": "204635e2073a1ef33a0e2ef86bb98fced27e7618",
+  "worktree_dirty": true,
+  "environment": {
+    "python": "3.13.5",
+    "fastapi": "0.138.0",
+    "fastmcp": "3.4.2",
+    "pydantic": "2.13.4",
+    "kerykeion": "5.12.9"
+  },
+  "catalog_count": 89,
+  "rest_count": 87,
+  "mcp_count": 87,
+  "cli_count": 88,
+  "mcp_annotations_count": 87,
+  "rest_discovery_utf8_bytes": {
+    "full": 895715,
+    "summary": 40470,
+    "bazi_mcp_summary": 4571
+  },
+  "mcp_tools_utf8_bytes": {
+    "full": 1061339,
+    "bazi_knowledge_profile": 77293
+  },
+  "profile_tool_count": 13,
+  "scope": "Local REST TestClient, native in-memory MCP Client and actual CLI subprocesses; byte sizes, not token counts or latency"
+}

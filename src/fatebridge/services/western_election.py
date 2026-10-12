@@ -46,7 +46,7 @@ def calculate_election(
     label = "择日"
     try:
         if topic_id not in TOPIC_MASTER:
-            topic_id = "marriage"
+            raise ValueError("未知的择日主题；请使用公开 topic_id 枚举")
         house_system = normalize_house_system(house_system)
         candidate_local = datetime(
             candidate_year,

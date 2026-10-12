@@ -1,0 +1,326 @@
+{
+  "source_commit": "204635e2073a1ef33a0e2ef86bb98fced27e7618",
+  "python": "3.13.5",
+  "packages": {
+    "fastapi": "0.138.0",
+    "fastmcp": "3.4.2",
+    "pydantic": "2.13.4",
+    "kerykeion": "5.12.9"
+  },
+  "counts": {
+    "rest": 80,
+    "mcp": 80,
+    "total": 82
+  },
+  "rest_operations": 84,
+  "success_schema_examples": {
+    "/api/cn/bazi/birth": {
+      "application/json": {
+        "schema": {}
+      }
+    },
+    "/api/astro/chart": {
+      "application/json": {
+        "schema": {}
+      }
+    }
+  },
+  "security_schemes": null,
+  "error_response_codes": [
+    "422"
+  ],
+  "manifest_bytes": 251590,
+  "mcp_tool_schema_bytes": 255259,
+  "mcp_tools_with_annotations": 0,
+  "mcp_tools_with_output_schema": 0,
+  "mcp_output_schema_example": null,
+  "mcp_resources": 0,
+  "mcp_prompts": 0,
+  "input_extra_policy": "ignore (Pydantic default)",
+  "descriptor": {
+    "tool": "bazi_birth",
+    "summary": "八字标准命盘：返回完整 snapshot_text 与可按 section 裁剪的 snapshot_export，是获取四柱/十神/五行的首选；要喜用+格局解读用 analyze_destiny。",
+    "operation_label_zh": "八字命盘",
+    "family": "bazi",
+    "surfaces": {
+      "cli": true,
+      "rest_path": "/api/cn/bazi/birth",
+      "mcp_name": "bazi_birth"
+    },
+    "parameters": [
+      {
+        "name": "name",
+        "flag": "--name",
+        "type": "str",
+        "required": false,
+        "default": "未提供",
+        "description": "姓名（可选，仅用于结果快照中的标识，不参与计算）",
+        "nested_model": false
+      },
+      {
+        "name": "gender",
+        "flag": "--gender",
+        "type": "str",
+        "required": false,
+        "default": "未知",
+        "description": "性别（可选但建议提供：影响大运顺逆排布与部分六亲判断）。接受 男/女、male/female/m/f、阳/阴、乾/坤 等写法。",
+        "nested_model": false
+      },
+      {
+        "name": "birth_year",
+        "flag": "--birth-year",
+        "type": "int",
+        "required": true,
+        "default": null,
+        "description": "Birth year, e.g., 1990",
+        "nested_model": false
+      },
+      {
+        "name": "birth_month",
+        "flag": "--birth-month",
+        "type": "int",
+        "required": true,
+        "default": null,
+        "description": "Birth month (1-12)",
+        "nested_model": false
+      },
+      {
+        "name": "birth_day",
+        "flag": "--birth-day",
+        "type": "int",
+        "required": true,
+        "default": null,
+        "description": "Birth day (1-31)",
+        "nested_model": false
+      },
+      {
+        "name": "birth_hour",
+        "flag": "--birth-hour",
+        "type": "int",
+        "required": true,
+        "default": null,
+        "description": "Birth hour (0-23)",
+        "nested_model": false
+      },
+      {
+        "name": "birth_minute",
+        "flag": "--birth-minute",
+        "type": "int",
+        "required": false,
+        "default": 0,
+        "description": "Birth minute (0-59)",
+        "nested_model": false
+      },
+      {
+        "name": "birth_place",
+        "flag": "--birth-place",
+        "type": "str",
+        "required": false,
+        "default": "未提供",
+        "description": "Birth place (optional)",
+        "nested_model": false
+      },
+      {
+        "name": "birth_timezone",
+        "flag": "--birth-timezone",
+        "type": "str",
+        "required": false,
+        "default": null,
+        "description": "Birth timezone (IANA name or UTC offset)",
+        "nested_model": false
+      },
+      {
+        "name": "birth_longitude",
+        "flag": "--birth-longitude",
+        "type": "float",
+        "required": false,
+        "default": null,
+        "description": "Birth longitude (optional)",
+        "nested_model": false
+      },
+      {
+        "name": "use_true_solar_time",
+        "flag": "--use-true-solar-time",
+        "type": "bool",
+        "required": false,
+        "default": true,
+        "description": "Rebase the birth clock onto true solar time (longitude + equation of time). Default on: 八字/紫微 traditionally define the hour pillar / 命宫 from apparent solar time. Set false for the raw civil clock.",
+        "nested_model": false
+      },
+      {
+        "name": "analysis_year",
+        "flag": "--analysis-year",
+        "type": "int",
+        "required": false,
+        "default": null,
+        "description": "Analysis year",
+        "nested_model": false
+      },
+      {
+        "name": "analysis_month",
+        "flag": "--analysis-month",
+        "type": "int",
+        "required": false,
+        "default": null,
+        "description": "Analysis month (1-12)",
+        "nested_model": false
+      },
+      {
+        "name": "analysis_day",
+        "flag": "--analysis-day",
+        "type": "int",
+        "required": false,
+        "default": null,
+        "description": "Analysis day (1-31)",
+        "nested_model": false
+      },
+      {
+        "name": "selected_sections",
+        "flag": "--selected-sections",
+        "type": "list[str]",
+        "required": false,
+        "default": [],
+        "description": "Optional snapshot section titles for filtered export payload",
+        "nested_model": false
+      }
+    ]
+  },
+  "rest_probe_summary": {
+    "missing_required": {
+      "status": 422,
+      "bytes": 80,
+      "error_code": "validation_error",
+      "top_keys": [
+        "error",
+        "error_code",
+        "retryable"
+      ]
+    },
+    "range_error": {
+      "status": 422,
+      "bytes": 80,
+      "error_code": "validation_error",
+      "top_keys": [
+        "error",
+        "error_code",
+        "retryable"
+      ]
+    },
+    "invalid_calendar_date": {
+      "status": 400,
+      "bytes": 89,
+      "error_code": "validation_error",
+      "top_keys": [
+        "error",
+        "error_code",
+        "retryable"
+      ]
+    },
+    "unknown_input": {
+      "status": 200,
+      "bytes": 38371,
+      "error_code": null,
+      "top_keys": [
+        "analysis_type",
+        "bazi_birth",
+        "snapshot_text",
+        "snapshot_export",
+        "run_metadata"
+      ]
+    },
+    "unknown_projection": {
+      "status": 200,
+      "bytes": 254,
+      "error_code": null,
+      "top_keys": [
+        "bazi_birth",
+        "run_metadata"
+      ]
+    },
+    "full_output": {
+      "status": 200,
+      "bytes": 38371,
+      "error_code": null,
+      "top_keys": [
+        "analysis_type",
+        "bazi_birth",
+        "snapshot_text",
+        "snapshot_export",
+        "run_metadata"
+      ]
+    },
+    "no_snapshot_text": {
+      "status": 200,
+      "bytes": 35627,
+      "error_code": null,
+      "top_keys": [
+        "analysis_type",
+        "bazi_birth",
+        "snapshot_export",
+        "run_metadata"
+      ]
+    },
+    "projected_output": {
+      "status": 200,
+      "bytes": 334,
+      "error_code": null,
+      "top_keys": [
+        "bazi_birth",
+        "run_metadata"
+      ]
+    },
+    "unknown_election_topic": {
+      "status": 200,
+      "bytes": null,
+      "error_code": null,
+      "top_keys": [
+        "analysis_type",
+        "engine",
+        "analysis_context",
+        "election",
+        "summary",
+        "snapshot_text",
+        "run_metadata"
+      ]
+    }
+  },
+  "mcp_probe_summary": {
+    "success": {
+      "is_error": false,
+      "structured_content_type": "NoneType",
+      "content_types": [
+        "text"
+      ]
+    },
+    "missing_required": {
+      "is_error": true,
+      "structured_content_type": "NoneType",
+      "content_types": [
+        "text"
+      ]
+    },
+    "range_error": {
+      "is_error": true,
+      "structured_content_type": "NoneType",
+      "content_types": [
+        "text"
+      ]
+    },
+    "invalid_calendar_date": {
+      "is_error": false,
+      "structured_content_type": "NoneType",
+      "content_types": [
+        "text"
+      ]
+    },
+    "unknown_input": {
+      "is_error": true,
+      "structured_content_type": "NoneType",
+      "content_types": [
+        "text"
+      ]
+    }
+  },
+  "empty_business_success_schemas": 80,
+  "probe_scope": "Local FastAPI TestClient and FastMCP in-memory Client; no remote host/deployment acceptance."
+}

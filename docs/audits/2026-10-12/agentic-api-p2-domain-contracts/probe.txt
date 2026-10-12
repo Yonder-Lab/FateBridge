@@ -1,0 +1,69 @@
+/Users/thomas/Desktop/FateBridge/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/Users/thomas/Desktop/FateBridge/.venv/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'request' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+2026-10-12 15:27:19,100 - httpx - INFO - HTTP Request: GET http://testserver/openapi.json "HTTP/1.1 200 OK"
+2026-10-12 15:27:20,366 - httpx - INFO - HTTP Request: GET http://testserver/api/tools "HTTP/1.1 200 OK"
+2026-10-12 15:27:20,385 - mcp.server.lowlevel.server - INFO - Processing request of type ListToolsRequest
+2026-10-12 15:27:21,275 - fatebridge.api - INFO - Processing bazi_marriage request
+2026-10-12 15:27:21,344 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/marriage?as_of=2026-10-12T02%3A00%3A00Z&fields=marriage_analysis.spouse_star.spouse_star_positions&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:21,346 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:21,859 - fatebridge.api - INFO - Processing bazi_career request
+2026-10-12 15:27:21,905 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/career?as_of=2026-10-12T02%3A00%3A00Z&fields=career_analysis.industry_analysis.element_distribution.%E6%9C%A8&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:21,906 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:22,548 - fatebridge.api - INFO - Processing bazi_wealth request
+2026-10-12 15:27:22,562 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/wealth?as_of=2026-10-12T02%3A00%3A00Z&fields=wealth_analysis.wealth_stars.total_weight&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:22,563 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:22,972 - fatebridge.api - INFO - Processing bazi_health request
+2026-10-12 15:27:22,984 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/health?as_of=2026-10-12T02%3A00%3A00Z&fields=health_analysis.organ_analysis.findings&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:22,986 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:23,387 - fatebridge.api - INFO - Processing bazi_children request
+2026-10-12 15:27:23,401 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/children?as_of=2026-10-12T02%3A00%3A00Z&fields=children_analysis.child_star.positions&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:23,402 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:23,794 - fatebridge.api - INFO - Processing bazi_education request
+2026-10-12 15:27:23,806 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/education?as_of=2026-10-12T02%3A00%3A00Z&fields=education_analysis.wenchang.has_wenchang&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:23,807 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:24,161 - fatebridge.api - INFO - Processing bazi_personality request
+2026-10-12 15:27:24,175 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/personality?as_of=2026-10-12T02%3A00%3A00Z&fields=personality_analysis.core_nature.virtue&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:24,176 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:24,530 - fatebridge.api - INFO - Processing bazi_relatives request
+2026-10-12 15:27:24,539 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/relatives?as_of=2026-10-12T02%3A00%3A00Z&fields=relatives_analysis.parents.father_star_weight&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:24,540 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:24,900 - fatebridge.api - INFO - Processing bazi_romance request
+2026-10-12 15:27:24,911 - httpx - INFO - HTTP Request: POST http://testserver/api/cn/bazi/romance?as_of=2026-10-12T02%3A00%3A00Z&fields=romance_analysis.opposite_sex_star.weight&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:24,912 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:25,279 - fatebridge.api - INFO - Processing sukuyo_compatibility request
+2026-10-12 15:27:25,295 - httpx - INFO - HTTP Request: POST http://testserver/api/compatibility/sukuyo?as_of=2026-10-12T02%3A00%3A00Z&fields=person1_to_person2.offset&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:25,296 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:25,793 - fatebridge.api - INFO - Processing knowledge_registry request
+2026-10-12 15:27:25,802 - httpx - INFO - HTTP Request: POST http://testserver/api/knowledge/registry?as_of=2026-10-12T02%3A00%3A00Z&fields=provenance.bundle_version&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:25,803 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:26,089 - fatebridge.api - INFO - Processing knowledge_read request
+2026-10-12 15:27:26,098 - httpx - INFO - HTTP Request: POST http://testserver/api/knowledge/read?as_of=2026-10-12T02%3A00%3A00Z&fields=provenance.coverage.categories&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:26,099 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:26,368 - fatebridge.api - INFO - Processing export_registry request
+2026-10-12 15:27:26,377 - httpx - INFO - HTTP Request: POST http://testserver/api/export/registry?as_of=2026-10-12T02%3A00%3A00Z&fields=selected_technique.settings_template.astroMeaning.enabled&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:26,378 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:26,694 - fatebridge.api - INFO - Processing export_parse request
+2026-10-12 15:27:26,704 - httpx - INFO - HTTP Request: POST http://testserver/api/export/parse?as_of=2026-10-12T02%3A00%3A00Z&fields=settings_used.astroMeaning.qimen.enabled&strict_fields=true&include_snapshot_text=false "HTTP/1.1 200 OK"
+2026-10-12 15:27:26,705 - mcp.server.lowlevel.server - INFO - Processing request of type CallToolRequest
+2026-10-12 15:27:27,137 - mcp.server.lowlevel.server - INFO - Processing request of type ListToolsRequest
+{
+  "catalog_count": 89,
+  "rest_count": 87,
+  "mcp_count": 87,
+  "cli_count": 88,
+  "mcp_full_tools_utf8_bytes": 3917610,
+  "mcp_health_tools_count": 5,
+  "mcp_health_tools_utf8_bytes": 227873,
+  "rest_full_manifest_utf8_bytes": 2268806,
+  "rest_summary_manifest_utf8_bytes": 72801,
+  "mcp_full_tools_sha256": "4714a8d5eb95f5ce403aca49d847c86a2a04e5c2dd8780630845cb9aa479db76",
+  "environment": {
+    "python": "3.13.5",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "fastmcp": "3.4.2",
+    "fastapi": "0.138.0",
+    "pydantic": "2.13.4"
+  }
+}

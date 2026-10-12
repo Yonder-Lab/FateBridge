@@ -1,0 +1,3 @@
+# Captured manifests, schemas and validation receipts are generated evidence.
+# Keep their original bytes while making code reviews focus on implementation.
+docs/audits/** linguist-generated=true

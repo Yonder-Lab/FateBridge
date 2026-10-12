@@ -5,7 +5,7 @@
 - REST API：FastAPI，默认 `http://localhost:8010`
 - FastMCP：`python -m fatebridge.mcp_server` 启动的 MCP 工具面
 
-> 当前实际暴露 80 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）和 80 个 FastMCP 工具。两个数字由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定。
+> 当前实际暴露 87 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）和 87 个 FastMCP 工具。两个数字由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定。
 
 ## 1. 基础信息
 
@@ -19,7 +19,7 @@
 ### FastMCP
 
 - 启动命令：`python -m fatebridge.mcp_server`
-- 返回格式：多数工具返回 JSON 字符串，而不是原生 Python dict
+- 返回格式：原生 `structuredContent` JSON 对象，同时保留等价的 JSON 文本 content
 - 设计目标：让 Agent 宿主可以直接把 FateBridge 视作工具箱使用
 
 ## 2. 公共约定
@@ -30,7 +30,7 @@
 
 免鉴权路径为 `/health`、`/ready`、`/metrics`、`/docs`、`/redoc`、`/openapi.json`，`OPTIONS` 也免检。`/api/tools` 需要鉴权。密钥只用于 REST；默认 stdio MCP 与 CLI 不使用此配置。
 
-业务计算错误采用**扁平的顶层错误包络**。REST 请求校验也使用此结构，CLI 可额外包含 `status_code`。MCP 在工具执行前触发的协议/schema 错误需检查调用结果的 `isError` 或异常。业务错误按 `error_code` 分支处理：
+已知工具的模型校验和业务计算错误采用**扁平的顶层错误包络**，CLI 可额外包含 `status_code`。MCP 返回原生 `isError=true`；FastMCP 客户端默认抛出 `ToolError`，需要读取错误包络时设置 `raise_on_error=False` 并读取 `structured_content`。未知工具、非法 RPC 等协议错误仍由 MCP 框架处理。业务错误按 `error_code` 分支处理：
 
 ```json
 {
@@ -40,20 +40,24 @@
 }
 ```
 
-常见 `error_code`：`validation_error`（400）、`authentication_required`（401）、
+常见 `error_code`：`validation_error`（400 / 422）、`authentication_required`（401）、
 `dependency_missing`（503）、`timeout`（504）、`internal_error`（500）。请基于 `error_code`
 而非 `error` 文案做分支判断。
 
 常见状态码：
 
-- `400`：领域输入错误或日期无效
-- `422`：REST 请求字段缺失、类型/范围错误或非法 JSON
+- `400`：模型校验通过后的领域输入错误
+- `422`：请求字段缺失、类型/范围/枚举错误、未知字段、完整公历日期无效；REST 非法 JSON
 - `401`：缺少或无效的 API key（仅在配置了密钥时）
 - `500`：服务内部异常
 - `503`：能力依赖缺失（如西占预测运行时不可用）
 - `504`：计算超时
 
 `retryable` 是响应的实际重试提示，不能只由状态码推断。框架的未知路由 / 方法错误（404 / 405）不属于业务错误合同。CLI 工具调用成功退出 0，计算失败退出 1，用法错误/不支持退出 2；`list` 和 `--help` 输出文本。
+
+模型校验错误带有 `issues`，每项包含字段 `path`、稳定错误 `code` 和可选 `constraints`，不回显输入值。未知字段会被拒绝；显式非法的 `astro_election.topic_id` 或 `astro_horary.category` 不再回退为其他主题。省略可选字段仍使用声明的默认值。CLI 的未知 flag 或 argparse 类型错误属于用法错误（退出 2），进入请求模型后的校验失败属于计算失败（退出 1）。
+
+REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央目录的输入与输出 Schema。成功结果在字段投影前校验，输出违规属于 `internal_error`，不归责于请求参数。合同覆盖根字段，以及主限命中与坐标、时主递归子限、寿限时间线、古典与关系盘、紫微星曜、六壬四课三传、奇门宫位、太乙核心盘和地方术数条目，以及九类八字专题、宿曜双向关系、知识覆盖/查询与导出模板/分段/动态设置等稳定嵌套事实。动态星体、卦码和规则键保持开放，但已声明的字典值与列表条目会校验；解释文本和未声明扩展继续允许。业务字段可选且允许 null，以兼容 `fields` 投影、既有可空事实与 CLI 全局 `--no-metadata`；Schema 不保证完整结果的每个字段必定存在。校验不重序列化响应，因此不补默认值、不删除扩展字段、不改写原数值。OpenAPI 使用稳定 `operationId`，并在启用 REST 密钥时声明实际鉴权要求。范围与验证见 [长尾嵌套合同验收](agentic-api-p2-nested-fixes-2026-10-12.md) 和 [八字专题、宿曜及知识/导出验收](agentic-api-p2-domain-contracts-fixes-2026-10-12.md)。
 
 ### 2.2 快照协议
 
@@ -115,7 +119,7 @@
 
 ### 2.4 三端能力边界
 
-中央目录含 82 条记录；REST / MCP 各公开 80 项，CLI 可执行 81 条目录命令（另有 `list`、`describe`、`profile`）。12 个 family 的能力矩阵按 MCP 集合统计，不能把目录长度当作单端工具数。
+中央目录含 89 条记录；REST / MCP 默认各公开 87 项，CLI 可执行 88 条目录命令（另有 `list`、`discover`、`describe`、`profile`）。13 个 family 的能力矩阵按 MCP 集合统计，不能把目录长度当作单端工具数。
 
 | 能力 | REST | MCP / CLI | 差异 |
 | --- | --- | --- | --- |
@@ -123,18 +127,26 @@
 | 旧版八字命盘 | `/api/calculate` | CLI `calculate_legacy`；无同名 MCP | `calculate_bazi_birth` 的扁平兼容输出 |
 | 综合命理分析 | 无独立 REST 路由 | `analyze_destiny` | 使用 `calculate_destiny_analysis`；不能用旧 REST 等同替换 |
 | 关系盘 | `/api/astro/relative`（目录 key `astro_relative`） | `astro_relative_chart` | REST 用嵌套 `inner` / `outer`；MCP / CLI 用 `inner_birth_*` / `outer_birth_*` |
+| 家居风水 | `/api/fengshui/*` | `fengshui_*` | 七个工具同名三端；CLI 用 JSON `--request-file` 或 JSON 对象／数组参数 |
 
-以 `surfaces` 选择端口名称，不能直接把目录 key 当 MCP 名。`/api/tools` 的 `parameters` 是参数摘要；完整范围约束与嵌套结构分别查询 `/openapi.json` 和 MCP `tools/list` 的 `inputSchema`。
+以 `surfaces` 选择端口名称，不能直接把目录 key 当 MCP 名。`/api/tools` 的 `parameters` 是参数摘要，完整记录另有 `input_schema` / `output_schema`。MCP 实际调用的 `inputSchema` 还包含传输开关，由 `tools/list` 发布。
 
 ### 2.5 字段投影与输出体积
 
 | 选项 | REST（POST 查询参数） | MCP | CLI（工具名后） |
 | --- | --- | --- | --- |
 | 字段投影 | `?fields=bazi_birth.day_master&fields=person_info` | `fields=["bazi_birth.day_master", "person_info"]` | `--fields bazi_birth.day_master person_info` |
+| 严格投影 | `?strict_fields=true` | `strict_fields=true` | `--strict-fields` 或 `--strict-fields true` |
 | 省略顶层快照文本 | `?include_snapshot_text=false` | `include_snapshot_text=false` | `--no-include-snapshot-text` |
 | 紧凑 JSON | HTTP 默认紧凑输出 | `compact=true`（默认） | `--compact` |
 
-路径从响应根开始，未知路径忽略，空选择不投影。已附带的 `run_metadata` 保留，错误不投影。省略 `snapshot_text` 不会删除 `snapshot_export.export_text`；要进一步控制体积，可仅投影业务字段。
+路径从响应根开始，按本次实际响应对象校验，支持扩展对象键。空选择不投影；数组、标量及 null 应选择整个字段，不支持继续点路径遍历。已附带的 `run_metadata` 完整保留，错误不投影。省略 `snapshot_text` 不会删除 `snapshot_export.export_text`；要进一步控制体积，可仅投影业务字段。
+
+例如 `fengshui_directions` 选择 `fields=["layers.directions.ruleset.version"]` 后，该规则对象仅含 `version`；公开输出 Schema 允许其余字段缺省，原生 MCP 客户端仍可校验成功结果。数组中的规则来源 `sources` 应整块选择，不能使用 `sources.0.title`。各字段保留既有类型校验，缺省不会被补成 null。投影合同与三端验证见 [Ruleset 投影修复](output-projection-fix-2026-10-12.md)。
+
+默认 `strict_fields=false` 保留历史投影的数据形状及成功状态，但无效路径明确附加 `projection_warnings`，不会继续静默忽略。例如拼错 `bazi_birth.day_mastr` 会出现 `{"path":"bazi_birth.day_mastr","code":"unknown_projection_path"}`。另外两种代码为 `invalid_projection_path`（空段/空白段）和 `non_object_projection_path`（继续遍历数组/标量）。诊断不受 `fields` 裁剪，也不回显字段值；重复路径只提示一次。
+
+`strict_fields=true` 遇到任何无效路径会整体失败：REST 422、MCP `isError=true`、CLI 退出 1，共享 `validation_error` / `retryable=false` / `issues`，其中 `path` 表示请求的输出路径。计算领域错误优先返回，不会被投影错误覆盖。校验发生在计算后，投影控制返回体积，不减少计算工作。
 
 ### 2.6 精度与依赖
 
@@ -142,6 +154,45 @@
 - 西占推运不走近似回退；缺少 `kerykeion` / Swiss Ephemeris 时会直接报错
 - `swisseph` 可导入不代表已加载 `.se1` 数据；实际模型检查 `chart_profile.ephemeris_model` 和 `run_metadata.engine_is_approximate`
 - 完整说明见 [algorithm-coverage.md](algorithm-coverage.md)，数据配置见 [getting-started.md](getting-started.md#星历数据与精度)
+
+### 2.7 渐进发现与执行提示
+
+场景发现使用 `GET /api/scenarios?detail=summary`，按 `scenario=onda-shiyun` 读取完整 manifest；CLI 对应 `fatebridge scenarios --scenario onda-shiyun --detail full`。9 个场景从 8 个 Onda YAML 接口与住宅路由表生成，保留意图、主证/旁证/深调、条件和替代工具组。`required_inputs` 是技能层采集指引，每个工具的 `required_parameters` 与输入 Schema 才是调用要求；路由不是自动执行计划。
+
+`/api/tools`、CLI `discover` / `list --json` 新增 `scenario` 筛选（CLI 为 `--scenario`），支持逗号并集，与 family / q / surface 取交集。未知场景返回 422 / CLI 退出 1。嵌套 REST 与扁平 MCP/CLI 孪生工具由中央目录关联实际入口。MCP resources 新增 `fatebridge://scenarios` 摘要与 `fatebridge://scenarios/{scenario}` 完整路由；只列当前配置可调用工具，通过 `availability` 和路由组 `available=false` 明示缺失能力，不将旁证升级为主证。
+
+`FATEBRIDGE_MCP_SCENARIOS=onda-jiankang,onda-shiyun` 可缩小 MCP 注册范围；与 family 配置取交集，省略或留空仍公开全部工具。独立的 `reproducibility` 发现字段声明时间与 seed 条件，MCP 幂等标签仍只描述环境影响。
+
+`GET /api/tools` 无参数时保留全量完整记录。可选参数：`detail=summary|full`（REST 默认 full）、`family`（逗号分隔分类）、`q`（名称/分类/描述搜索）、`tool`（精确工具名）和 `surface=rest|mcp|cli`。先请求 `?detail=summary&family=bazi`，选中工具后再请求 `?tool=bazi_birth&detail=full`。摘要不生成或返回参数及输入/输出 Schema。
+
+`counts` 始终表示全局目录数量，`matched_count` 表示筛选后实际返回数量，`detail` 表示记录深度。无匹配关键词返回空列表；非法分类或精确工具名返回带安全 `issues` 的 422。
+
+CLI `discover --family bazi` 默认返回同源 JSON 摘要；`discover --tool bazi_birth --detail full` 获取完整契约。CLI 的 `--query` 对应 REST `q`；`list` 默认文本格式不变，可追加同样的筛选参数及 `--json`。`describe` 保留原有示例与行为。
+
+MCP 默认仍公开全部工具。host 可设置 `FATEBRIDGE_MCP_FAMILIES=bazi,knowledge`，使实际 `tools/list` 与调用注册表只保留这些分类。资源 `fatebridge://catalog/summary` 提供当前公开集合的摘要，`fatebridge://families/{family}` 提供分类摘要，`fatebridge://tools/{tool}` 按需提供单工具完整记录；资源只返回当前 MCP 集合中的工具。隐藏工具的单工具资源及非法资源筛选由标准资源协议报错，无 `isError` 工具结果。资源返回与 REST / CLI 的等效 `surface=mcp` 筛选完全同源。
+
+工具 `annotations` 从 `ToolSpec.execution_hints` 派生，同时出现在三端发现记录中。当前本地计算/查询声明 `readOnlyHint=true`、`destructiveHint=false`、`openWorldHint=false`、`idempotentHint=true`。这些提示描述环境影响，不保证相同结果字节：随机起卦、缺省当前日期和每次运行元数据仍按原规则处理。annotations 是提示，不代替执行权限判断，见 [MCP 工具规范](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)。
+
+### 2.8 确定性与复现元数据
+
+REST 查询参数与 MCP 参数支持 `as_of`、`trace_id`、`parent_run_id`；CLI 对应 `--as-of`、`--trace-id`、`--parent-run-id`。as_of 为含时区 ISO 8601 时刻，归一化到 UTC，例如 `2024-02-29T16:30:00Z`。省略时捕获本次执行开始时刻；各工具仍按原民用时区解析默认时间，显式日期优先，保留部分日期补齐/截日与流月默认 15 日等规则。上下文按调用隔离，不修改进程时区或全局时间。
+
+标识仅接受 1–128 字符的字母、数字、`_ . : -`。控制项非法为三端校验失败，不回显值；有效 trace / parent 标识传播到成功元数据和模型、领域、投影失败包络。失败可含顶层 `trace_id` / `parent_run_id`；CLI 参数语法错误仍退出 2，框架非法 RPC 与未知工具不属于该包络。
+
+原有六个基础元数据字段保持，新增字段在输出 Schema 中为可选：
+
+- `metadata_schema_version=1.0`、`package_version`、`contract_sha256`：格式、包版本和工具输入/输出模型合同指纹。
+- `input_sha256`：模型默认值/别名归一化请求摘要，包含影响真太阳时拒绝语义的显式字段状态，不保存原出生档案。嵌套与扁平合同的输入摘要不承诺相同。
+- `business_output_sha256`：投影和快照删减前完整业务 JSON 的摘要，排除 run_metadata；不能直接对部分响应验算。`duration_ms` 测量绑定、服务与业务变换，不含指纹、队列、投影和网络时间。
+- `effective_time`、`determinism`、`replay`：本次固定瞬间、读取时区、缺省时间字段、随机性及实际重放参数。
+- `runtime`：Python / 平台 / 计算依赖版本、包内实现与 JSON 数据指纹、配置 `.se1` 库存内容指纹。只返回相对文件名；库存不证明实际使用某文件，实际模型保留在 provenance 与业务结果。
+- `provenance`、`warnings`：允许列表内的规则/历法/星历口径与标准警告，包括 `current_time_frozen`、`random_seed_generated`、`approximate_engine`，投影后仍保留。
+
+六爻 method=coin 且缺有效手动输入与 seed 时，共享执行层生成本次 seed，仍为随机起卦，返回 `replay.overrides.seed`。手动优先级沿用引擎判定；已有 seed、手动或时间起卦不生成 seed。将原输入与 overrides 合并，再使用 replay.as_of 调用任一入口，可在相同环境重放业务结果；运行 ID、生成时间、耗时及“本次生成 seed”标志仍变化。
+
+实现、内置数据与配置星历指纹按进程缓存；升级或原地修改后须重启。完整复现要求另存原始请求和 receipt，保持实现、合同、规则数据、依赖、平台、时区数据库与星历配置一致。receipt 不是环境锁文件，不能证明版本相同的第三方安装内容未被修改；跨平台浮点仍可能微差。没有数据库、按 ID 查询或服务器保存出生档案。
+
+CLI profile 沿用批量入口，子工具共用 as_of / trace，parent_run_id 指向 profile 根 run_id；`--no-metadata` 关闭根与子元数据。它仍不是 REST/MCP 的复合业务工具。
 
 ## 3. 共享请求族
 
@@ -403,7 +454,7 @@
 | `GET` | `/api/tools` | 能力清单：返回每个工具的自描述记录（参数、类型、所在端、family），与 `fatebridge describe` 同源 |
 
 `/api/tools` 是给 Agent 的机读能力清单——无需抓取本文档即可枚举全部工具及调用约定。
-返回结构：`{"counts": {"rest", "mcp", "total"}, "tools": [<descriptor>, ...]}`，其中每个
+返回结构包含 `counts`（rest / mcp / total）、`matched_count`、`detail` 与 `tools`，其中每个完整
 descriptor 形如：
 
 ```json
@@ -540,7 +591,7 @@ python -m fatebridge.mcp_server
 
 ### 6.2 MCP 工具分组
 
-> 全部 80 个 MCP 工具按 `family` 分组如下，各端绑定差异见 §2.4。机读清单见 `GET /api/tools` 或 `fatebridge list`。
+> 全部 87 个 MCP 工具按 `family` 分组如下，各端绑定差异见 §2.4。机读清单见 `GET /api/tools` 或 `fatebridge list`。
 
 #### 基础命理（family `bazi`）
 
@@ -606,8 +657,8 @@ python -m fatebridge.mcp_server
 | 维度 | REST | FastMCP |
 | --- | --- | --- |
 | 传输协议 | HTTP JSON | MCP tool call |
-| 返回格式 | JSON object | JSON string |
-| 错误表现 | HTTP status + 顶层错误 JSON（不嵌套 `detail`） | 业务错误 JSON 字符串；schema 错误可由协议层拒绝 |
+| 返回格式 | JSON object | `structuredContent` JSON object + 等价 JSON 文本 |
+| 错误表现 | HTTP status + 顶层错误 JSON（不嵌套 `detail`） | 模型/业务错误为 `isError=true` + 统一错误包络；协议错误由框架处理 |
 | 使用场景 | Web / script / service integration | Agent host / tool invocation |
 
 ## 7. 常见响应字段
@@ -688,3 +739,19 @@ python -m fatebridge.mcp_server
 - [architecture.md](architecture.md)
 - [algorithm-coverage.md](algorithm-coverage.md)
 - [troubleshooting.md](troubleshooting.md)
+
+## 家居风水（family `fengshui`）
+
+| REST POST | MCP / CLI | 说明 |
+| --- | --- | --- |
+| `/api/fengshui/directions` | `fengshui_directions` | 后天八卦固定宫数与八方／24山角区索引 |
+| `/api/fengshui/minggua` | `fengshui_minggua` | 有效生年或出生时刻、男女约定的命卦与个人八方关系 |
+| `/api/fengshui/bazhai` | `fengshui_bazhai` | 坐山宅盘、逐人命盘、门床桌灶位置／朝向分开判定 |
+| `/api/fengshui/jinsuo` | `fengshui_jinsuo` | 已确认观察的八宫砂水偏好；未知与混合不推断 |
+| `/api/fengshui/annual_stars` | `fengshui_annual_stars` | 立春换年的九宫年星、有效区间、独立列示当前元运 |
+| `/api/fengshui/xuankong_natal` | `fengshui_xuankong_natal` | 中州派运山向宅盘、历史定运、兼向替星及边界候选；独立于年星 |
+| `/api/fengshui/assess` | `fengshui_assess` | 基础三层及显式选择的玄空宅盘、规则版本／来源、逐人差异和缺失项 |
+
+输入不继承完整八字生辰要求；有效生年与出生时刻二选一，年度同理。角度须声明参考北。组合结果在 `layers.bazhai`、`layers.jinsuo`、`layers.annual_stars` 中分别返回，合法缺失资料用 `status=partial`，不是协议错误。完整玄空宅盘、月盘和金锁进阶规则不在此版；没有三法总分。每层带规则版本、来源和范围，快照记录同一组分层计算事实。
+
+三端可复制示例、详细字段语义及来源限制见 [家居风水](fengshui.md)。CLI 示例：`fatebridge fengshui_assess --request-file docs/examples/fengshui-home.json`。MCP 参数为同一文件内容的 JSON 对象；REST 请求体同理。`--request-file` 保留未知字段交给模型拒绝，显式字段参数覆盖同名顶层字段。

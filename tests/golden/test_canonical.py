@@ -48,3 +48,27 @@ def test_scrubs_nested_lists_and_dicts():
     assert "generated_at" not in out
     # 嵌套在 list 里的浮点同样要被规整（1.0000000001 → 1.0）。
     assert '"v": 1.0' in out
+
+
+def test_execution_receipt_scrub_cannot_hide_business_numbers_or_sources():
+    a = {
+        "run_metadata": {"tool_name": "fengshui_xuankong_natal"},
+        "layers": {"natal": {"number": 5, "source_ids": ["X2", "X3"]}},
+        "provenance": {"ruleset_version": "1.0.1"},
+        "warnings": ["approximate_lichun"],
+    }
+    receipt = {
+        "duration_ms": 8,
+        "runtime": {"implementation_sha256": "changing-build"},
+        "effective_time": {"as_of": "2030-01-01T00:00:00Z"},
+        "business_output_sha256": "unscrubbed-hash",
+    }
+    b = {**a, "run_metadata": {**a["run_metadata"], **receipt}}
+    assert canonical_json(a) == canonical_json(b)
+    assert canonical_json(b) != canonical_json(
+        {**b, "layers": {"natal": {"number": 4, "source_ids": ["X2", "X3"]}}}
+    )
+    assert canonical_json(b) != canonical_json(
+        {**b, "provenance": {"ruleset_version": "1.0.0"}}
+    )
+    assert canonical_json(b) != canonical_json({**b, "warnings": []})

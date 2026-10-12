@@ -1,0 +1,97 @@
+[
+  {
+    "tool": "pd",
+    "path": "pd.timeline.[].coordinate_context.promissor_current.coordinate_degrees",
+    "type": "number"
+  },
+  {
+    "tool": "pdchart",
+    "path": "pdchart.bounds_overlay.points.{}.bound_lord",
+    "type": "string"
+  },
+  {
+    "tool": "decennials",
+    "path": "decennials.timeline.[].sublevel.[].sublevel.[].level",
+    "type": "integer"
+  },
+  {
+    "tool": "zr",
+    "path": "zr.fortune.level_2_timeline.[].loosing_of_bond",
+    "type": "boolean"
+  },
+  {
+    "tool": "astro_distributions",
+    "path": "distributions.periods.[].participants.[].contact_age_years",
+    "type": "number"
+  },
+  {
+    "tool": "astro_balbillus",
+    "path": "balbillus.periods.[].sub_periods.[].duration_years",
+    "type": "number"
+  },
+  {
+    "tool": "astro_extrareturns",
+    "path": "extrareturns.returns.[].next_return.datetime_utc",
+    "type": "string"
+  },
+  {
+    "tool": "astro_chart",
+    "path": "classical.planets.{}.essential.peregrine",
+    "type": "boolean"
+  },
+  {
+    "tool": "astro_guolao",
+    "path": "guolao.god_sign_index.{}",
+    "type": "integer"
+  },
+  {
+    "tool": "astro_relative_chart",
+    "path": "in_to_out_midpoint.{}.[].midpoint.longitude",
+    "type": "number"
+  },
+  {
+    "tool": "ziwei_birth",
+    "path": "ziwei_birth.palaces.[].stars_detail.[].brightness",
+    "type": "string"
+  },
+  {
+    "tool": "liureng_gods",
+    "path": "liureng.four_lessons.[].relations.{}",
+    "type": "string"
+  },
+  {
+    "tool": "qimen",
+    "path": "qimen.palaces.[].door_hexagram.binary_code",
+    "type": "string"
+  },
+  {
+    "tool": "taiyi",
+    "path": "taiyi.core_board.guest_count",
+    "type": "integer"
+  },
+  {
+    "tool": "jinkou",
+    "path": "jinkou.rows.[].power",
+    "type": "string"
+  },
+  {
+    "tool": "sixyao",
+    "path": "lines.[].change",
+    "type": "boolean"
+  },
+  {
+    "tool": "heluo",
+    "path": "dayun.all.[].ageStart",
+    "type": "integer"
+  },
+  {
+    "tool": "suzhan",
+    "path": "chart.objects.[].house",
+    "type": "string"
+  },
+  {
+    "tool": "sanshiunited",
+    "path": "subresults.qimen.pan.ju_number",
+    "type": "integer"
+  }
+]

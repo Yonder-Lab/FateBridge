@@ -135,9 +135,10 @@ def test_horary_querent_is_ascendant_ruler_and_quesited_house_matches_topic():
     assert payload["verdict"] in VALID_VERDICTS
 
 
-def test_horary_unknown_category_falls_back_to_general():
+def test_horary_unknown_category_is_rejected():
     result = calculate_horary(**QUESTION, category="not_a_topic")
-    assert result["horary"]["category"] == "general"
+    assert result["error_code"] == "validation_error"
+    assert "horary" not in result
 
 
 def test_horary_envelope_has_snapshot_and_moon_block():

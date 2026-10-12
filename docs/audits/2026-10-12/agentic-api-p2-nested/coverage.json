@@ -1,0 +1,436 @@
+{
+  "tool_count": 68,
+  "tool_root_contracts": {
+    "calculate_legacy": [
+      "calendar_context",
+      "four_pillars",
+      "person_info"
+    ],
+    "analyze_destiny": [
+      "calendar_context",
+      "four_pillars",
+      "person_info"
+    ],
+    "bazi_birth": [
+      "bazi_birth"
+    ],
+    "two_person_compatibility": [
+      "person_info"
+    ],
+    "timing_analysis": [
+      "calendar_context"
+    ],
+    "dayun_analysis": [
+      "calendar_context"
+    ],
+    "liunian_analysis": [
+      "calendar_context",
+      "target_year_jieqi"
+    ],
+    "liuyue_analysis": [
+      "calendar_context",
+      "target_year_jieqi"
+    ],
+    "liuri_analysis": [
+      "calendar_context"
+    ],
+    "liushi_analysis": [
+      "calendar_context"
+    ],
+    "jieqi_timeline_analysis": [
+      "calendar_context",
+      "target_year_jieqi"
+    ],
+    "jieqi_year": [
+      "jieqi24",
+      "jieqi_year",
+      "selected_jieqi"
+    ],
+    "nongli_time": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "lunar_calendar"
+    ],
+    "gua_lookup": [
+      "result"
+    ],
+    "gua_meiyi": [
+      "queries",
+      "results"
+    ],
+    "meihua_analysis": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "meihua"
+    ],
+    "tongshefa": [
+      "tongshefa"
+    ],
+    "sixyao": [
+      "cast",
+      "changed_hexagram",
+      "current_hexagram",
+      "descriptions",
+      "hexagram_info",
+      "lines",
+      "moving_lines",
+      "pattern_flags"
+    ],
+    "canping": [
+      "analysis_context",
+      "benming",
+      "calendar_context",
+      "dayun",
+      "four_pillars",
+      "liunian_series"
+    ],
+    "heluo": [
+      "analysis_context",
+      "calendar_context",
+      "chart",
+      "dayun",
+      "four_pillars"
+    ],
+    "suzhan": [
+      "chart"
+    ],
+    "otherbu": [
+      "chart",
+      "diceChart"
+    ],
+    "sanshiunited": [
+      "analysis_context",
+      "liureng",
+      "qimen",
+      "subresults",
+      "taiyi"
+    ],
+    "ziwei_birth": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "person_info",
+      "ziwei_birth"
+    ],
+    "ziwei_horoscope": [
+      "analysis_context",
+      "person_info",
+      "ziwei_horoscope"
+    ],
+    "ziwei_rules": [
+      "focused_rules",
+      "rule_catalogue"
+    ],
+    "liureng_gods": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "liureng"
+    ],
+    "liureng_runyear": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "liureng",
+      "runyear"
+    ],
+    "qimen": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "qimen"
+    ],
+    "taiyi": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "taiyi"
+    ],
+    "jinkou": [
+      "analysis_context",
+      "calendar_context",
+      "four_pillars",
+      "jinkou",
+      "liureng"
+    ],
+    "astro_chart": [
+      "angles",
+      "aspects",
+      "chart_profile",
+      "classical",
+      "classical_patterns",
+      "element_balance",
+      "fixed_stars",
+      "houses",
+      "modality_balance",
+      "person_info",
+      "planetary_hours",
+      "planets"
+    ],
+    "astro_chart13": [
+      "angles",
+      "aspects",
+      "chart_profile",
+      "classical",
+      "classical_patterns",
+      "element_balance",
+      "fixed_stars",
+      "houses",
+      "modality_balance",
+      "person_info",
+      "planetary_hours",
+      "planets",
+      "thirteen_sectors"
+    ],
+    "astro_hellen": [
+      "angles",
+      "aspects",
+      "chart_profile",
+      "classical",
+      "classical_patterns",
+      "element_balance",
+      "fixed_stars",
+      "hellenistic",
+      "houses",
+      "modality_balance",
+      "person_info",
+      "planetary_hours",
+      "planets"
+    ],
+    "astro_guolao": [
+      "angles",
+      "aspects",
+      "chart_profile",
+      "classical",
+      "classical_patterns",
+      "element_balance",
+      "fixed_stars",
+      "guolao",
+      "houses",
+      "modality_balance",
+      "person_info",
+      "planetary_hours",
+      "planets"
+    ],
+    "astro_india": [
+      "angles",
+      "aspects",
+      "chart_profile",
+      "classical",
+      "classical_patterns",
+      "element_balance",
+      "fixed_stars",
+      "houses",
+      "india",
+      "modality_balance",
+      "person_info",
+      "planetary_hours",
+      "planets"
+    ],
+    "astro_germany": [
+      "base_chart",
+      "chart_profile",
+      "midpoint_aspects",
+      "midpoints"
+    ],
+    "astro_relative": [
+      "chart",
+      "compatibility",
+      "composite_chart",
+      "inToOutAnti",
+      "inToOutAsp",
+      "inToOutCAnti",
+      "inToOutMidpoint",
+      "in_to_out_antiscia",
+      "in_to_out_aspects",
+      "in_to_out_contra_antiscia",
+      "in_to_out_midpoint",
+      "inner",
+      "inner_chart",
+      "outToInAnti",
+      "outToInAsp",
+      "outToInCAnti",
+      "outToInMidpoint",
+      "out_to_in_antiscia",
+      "out_to_in_aspects",
+      "out_to_in_contra_antiscia",
+      "out_to_in_midpoint",
+      "outer",
+      "outer_chart",
+      "relationship_profile",
+      "synastry_aspects"
+    ],
+    "astro_relative_chart": [
+      "chart",
+      "compatibility",
+      "composite_chart",
+      "inToOutAnti",
+      "inToOutAsp",
+      "inToOutCAnti",
+      "inToOutMidpoint",
+      "in_to_out_antiscia",
+      "in_to_out_aspects",
+      "in_to_out_contra_antiscia",
+      "in_to_out_midpoint",
+      "inner",
+      "inner_chart",
+      "outToInAnti",
+      "outToInAsp",
+      "outToInCAnti",
+      "outToInMidpoint",
+      "out_to_in_antiscia",
+      "out_to_in_aspects",
+      "out_to_in_contra_antiscia",
+      "out_to_in_midpoint",
+      "outer",
+      "outer_chart",
+      "relationship_profile",
+      "synastry_aspects"
+    ],
+    "western_timing_analysis": [
+      "analysis_context",
+      "directions",
+      "natal_reference",
+      "returns",
+      "time_lords",
+      "transits"
+    ],
+    "solarreturn": [
+      "analysis_context",
+      "natal_reference",
+      "solarreturn"
+    ],
+    "lunarreturn": [
+      "analysis_context",
+      "lunarreturn",
+      "natal_reference"
+    ],
+    "transit": [
+      "analysis_context",
+      "natal_reference",
+      "transit"
+    ],
+    "solararc": [
+      "analysis_context",
+      "natal_reference",
+      "solararc"
+    ],
+    "givenyear": [
+      "analysis_context",
+      "givenyear",
+      "natal_reference"
+    ],
+    "profection": [
+      "analysis_context",
+      "natal_reference",
+      "profection"
+    ],
+    "pd": [
+      "analysis_context",
+      "natal_reference",
+      "pd"
+    ],
+    "pdchart": [
+      "analysis_context",
+      "natal_reference",
+      "pdchart"
+    ],
+    "zr": [
+      "analysis_context",
+      "natal_reference",
+      "zr"
+    ],
+    "firdaria": [
+      "analysis_context",
+      "firdaria",
+      "natal_reference"
+    ],
+    "decennials": [
+      "analysis_context",
+      "decennials",
+      "natal_reference"
+    ],
+    "astro_harmonic": [
+      "analysis_context",
+      "harmonic_chart",
+      "natal_reference"
+    ],
+    "astro_planetary_ages": [
+      "analysis_context",
+      "natal_reference",
+      "planetary_ages"
+    ],
+    "astro_triplicity_rulers": [
+      "analysis_context",
+      "natal_reference",
+      "triplicity_rulers"
+    ],
+    "astro_lunation_phase": [
+      "analysis_context",
+      "lunation_phase",
+      "natal_reference"
+    ],
+    "astro_distributions": [
+      "analysis_context",
+      "distributions",
+      "natal_reference"
+    ],
+    "astro_balbillus": [
+      "analysis_context",
+      "balbillus",
+      "natal_reference"
+    ],
+    "astro_keypoints": [
+      "analysis_context",
+      "keypoints",
+      "natal_reference"
+    ],
+    "astro_yearsystem129": [
+      "analysis_context",
+      "natal_reference",
+      "yearsystem129"
+    ],
+    "astro_planetaryarc": [
+      "analysis_context",
+      "natal_reference",
+      "planetary_arc"
+    ],
+    "astro_persiandirected": [
+      "analysis_context",
+      "natal_reference",
+      "persian_directed"
+    ],
+    "astro_agepoint": [
+      "age_point",
+      "analysis_context",
+      "natal_reference"
+    ],
+    "astro_vedicprog": [
+      "analysis_context",
+      "natal_reference",
+      "vedic_progression"
+    ],
+    "astro_jaynesprog": [
+      "analysis_context",
+      "jaynes_declination",
+      "natal_reference"
+    ],
+    "astro_mundane": [
+      "analysis_context",
+      "mundane"
+    ],
+    "astro_extrareturns": [
+      "analysis_context",
+      "extrareturns"
+    ],
+    "astro_horary": [
+      "analysis_context",
+      "horary"
+    ],
+    "astro_election": [
+      "analysis_context"
+    ]
+  }
+}

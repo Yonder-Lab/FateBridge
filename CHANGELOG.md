@@ -10,6 +10,54 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
 
 ## [Unreleased]
 
+### Added
+
+- 补齐九类八字专题、宿曜双向关系、知识目录/来源/查询及导出模板/动态设置/分段的嵌套输出合同，并复用到各工具 snapshot_export；严格校验保持可空事实、扩展字段、部分投影及既有整数/浮点数原样输出。
+
+- 专业输出补齐主限坐标与命中、递归时主、寿限、古典/关系盘及中国术数的嵌套合同；三端共用校验和发现 schema，保留动态键、扩展字段、可空事实、部分投影及既有数值。嵌套类型违规在投影前按内部失败处理。
+- 场景 manifest 从既有 8 个技能 YAML 与住宅路由生成，REST `/api/scenarios`、CLI `scenarios`、MCP resources 共用；工具发现支持 scenario 筛选，可选 MCP scenario profile 与 family 取交集。
+- 共享调用上下文支持 as_of / trace_id / parent_run_id；固定默认时间，保留显式日期、时区和手动起卦优先级，随机六爻记录本次 seed。
+- 成功元数据增加格式/包版本、输入/合同/业务输出摘要、环境及数据指纹、耗时、口径和 replay 参数。新增字段可选，旧基础字段和 CLI --no-metadata 保留；有效标识传播到领域与校验失败，CLI profile 建立根/子关联。
+
+- 玄空宅盘 `fengshui_xuankong_natal`（中州派 v1）：历史事件定运、24山／三元龙、五黄同元龙借运、下卦与兼向替星，分界和测量误差返回候选；REST/MCP/CLI 共用合同，合参与年度飞星分层。登记规则出处、网页版本和笔误范围，新增独立公开盘例及固定第三方比对差异记录。
+- Six residential Feng Shui tools across REST, MCP and CLI: fixed directions,
+  personal Ming Gua, sitting-trigram Eight Mansions, basic Jin Suo sand/water,
+  annual Zi Bai stars and layered assessment. Versioned source registry,
+  per-person results, explicit partial coverage and scoped differences are
+  preserved; full Xuan Kong natal charts remain outside this release.
+- Opt-in JSON `--request-file` and nested JSON flags for residential tools,
+  shared layered output schemas, factual snapshots, offline independent
+  reference fixtures and three-transport contract tests.
+
+### API compatibility notes
+- Native MCP result construction now validates the protocol dictionary across
+  SDK 1.x and 2.x constructor naming conventions. Linux x86_64 / Python 3.12
+  reference validation completes all golden comparisons without skips.
+- Feng Shui `Ruleset` output fields now permit omission in dotted projections;
+  native MCP clients can validate single-rule-field results. Full results and
+  rule versions are preserved; catalog-wide projection regression checks cover
+  nested objects, arrays and the REST/MCP/CLI schemas.
+- Invalid projection paths now return additive `projection_warnings` while
+  retaining the existing selected data and success status by default. Opt in to
+  `strict_fields=true` (CLI `--strict-fields`) for shared 422 validation failures.
+- Progressive discovery adds summary/filter/single-tool views to `/api/tools`,
+  JSON `discover` / `list --json` CLI commands, and MCP catalog resources. REST
+  defaults to full records; existing CLI text listings and `describe` remain.
+  `FATEBRIDGE_MCP_FAMILIES` optionally narrows the registered MCP tools.
+- MCP execution annotations derive from the same catalog hints exposed by REST
+  and CLI. These describe environmental effects, not deterministic output.
+- Requests now reject unknown fields and invalid civil dates with safe field-level
+  `issues`. Explicit invalid election topics and horary categories are rejected;
+  omitted selectors retain their defaults. Remove previously ignored fields from
+  ordinary tool requests; CLI subject profiles still select fields for each tool.
+- MCP errors now set native `isError=true`. FastMCP Client callers that inspect
+  error payloads must use `raise_on_error=False`; successful text JSON remains
+  available alongside structuredContent.
+- All catalog tools publish projection-compatible output schemas. REST documents
+  API Key authentication and error statuses, and uses stable catalog operationIds.
+  Successful JSON shapes are preserved; schema-validation errors use 422 across
+  REST/MCP/CLI. CLI command syntax errors retain exit 2 / usage_error.
+
 ### Changed
 - Align integration, architecture, security, and Onda documentation with the
   current catalog and request models: distinguish transport bindings, document

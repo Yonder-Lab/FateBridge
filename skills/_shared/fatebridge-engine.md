@@ -151,7 +151,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 
 ## 全量工具地图（按家族）
 
-每个场景 Skill 只需引用与自己相关的几个；这张表是全集，公开 REST / MCP 各 80 项，目录共 82 条；CLI 可执行 81 条。名称/嵌套请求差异以 `describe` 和 [API 参考](../../docs/api-reference.md#24-三端能力边界) 为准。
+每个场景 Skill 只需引用与自己相关的几个；这张表是全集，公开 REST / MCP 各 87 项，目录共 89 条；CLI 可执行 88 条。名称/嵌套请求差异以 `describe` 和 [API 参考](../../docs/api-reference.md#24-三端能力边界) 为准。
 
 ### 八字 · 命主本命（snapshot_text）
 
@@ -306,3 +306,23 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 ## 交叉印证与去重（防矛盾）
 
 **主证 + 旁证 + 显式分歧**：每个场景钉一个主证系统出结论，其余只作旁证（加强/修正），不单独下判断。系统间一致则合并去重；冲突则显式标注「两套口径不一」，不静默二选一。同一神煞在多个工具重复出现时，按当前场景取一个口径讲一次（如咸池在 romance = 机会 / marriage = 防烂桃花，合并讲一次）。各域主证分配见 [场景路由：交叉印证与去重](../../docs/scenario-routing.md#交叉印证与去重)。
+
+## 家居风水基础计算
+
+| 工具 | 应读取的层 | 输入要点 |
+| --- | --- | --- |
+| `fengshui_directions` | `layers.directions` | 固定后天方位；角度须明确参考北 |
+| `fengshui_minggua` | `layers.minggua` | 有效生年或含时区出生时刻；男女起算法未知则保留候选 |
+| `fengshui_bazhai` | `layers.bazhai` | 坐山宅盘与逐人命盘独立；门床桌灶位置／朝向分开 |
+| `fengshui_jinsuo` | `layers.jinsuo` | 明确砂／水／混合／未知分类及依据，不由物品名称推断 |
+| `fengshui_annual_stars` | `layers.annual_stars` | 立春换年；固定宫数与临宫年星分开 |
+| `fengshui_xuankong_natal` | `layers.xuankong_natal` | 磁北宅向、历史定运依据；中州派运山向／兼向替星；角度不明返回候选 |
+| `fengshui_assess` | 三个独立基础层及显式选定的宅盘 | 住宅请求 JSON；逐人差异、规则来源／版本、覆盖缺失 |
+
+这组工具不需要完整八字生辰；组合 CLI 用 `--request-file`，文件合同与 REST/MCP 请求一致。完整字段、可复制住宅请求和来源边界见 [家居风水](../../docs/fengshui.md)。合法缺失资料为 `partial`，不是引擎失败。三层的条件和时间范围不同，禁止合成总分、让户主覆盖其他住户，或把年盘说成完整玄空山向盘。玄空宅盘须显式选择 `methods` 的 `xuankong_natal` 并提供 `xuankong.period`，以历史事件定运，不用当前元运覆盖宅运。详见 [玄空合同及版本](../../docs/fengshui-xuankong.md)。金锁24山／形态元运、月盘和自动户型几何未实现。
+
+```bash
+python3 -m fatebridge.cli --no-metadata fengshui_minggua --effective-birth-year 1990 --gender-convention female
+python3 -m fatebridge.cli --no-metadata fengshui_annual_stars --effective-year 2026
+fatebridge fengshui_assess --request-file docs/examples/fengshui-home.json --compact
+```

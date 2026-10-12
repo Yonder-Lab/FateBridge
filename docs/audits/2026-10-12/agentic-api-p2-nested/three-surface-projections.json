@@ -1,0 +1,708 @@
+[
+  {
+    "tool": "pd",
+    "field": "pd.current_coordinate_points.Ascendant.coordinate_degrees",
+    "rest_status": 200,
+    "mcp_is_error": false,
+    "cli_exit": 0,
+    "business_equal": true,
+    "projected_business": {
+      "pd": {
+        "current_coordinate_points": {
+          "Ascendant": {
+            "coordinate_degrees": 217.679
+          }
+        }
+      }
+    }
+  },
+  {
+    "tool": "decennials",
+    "field": "decennials.current_level_3.sublevel",
+    "rest_status": 200,
+    "mcp_is_error": false,
+    "cli_exit": 0,
+    "business_equal": true,
+    "projected_business": {
+      "decennials": {
+        "current_level_3": {
+          "sublevel": [
+            {
+              "key": "l1_3_l2_1_l3_6_l4_0",
+              "level": 4,
+              "planet": "Moon",
+              "planet_label": "月亮",
+              "date": "2025-03-17 - 2025-04-03",
+              "nominal": "35年4个月2天 19:00 - 35年4个月19天 16:37",
+              "start": "2025-03-17T10:30:00+08:00",
+              "end": "2025-04-03T08:07:00+08:00",
+              "active": false,
+              "sublevel": [],
+              "start_offset_minutes": 18320820,
+              "end_offset_minutes": 18345157
+            },
+            {
+              "key": "l1_3_l2_1_l3_6_l4_1",
+              "level": 4,
+              "planet": "Mars",
+              "planet_label": "火星",
+              "date": "2025-04-03 - 2025-04-13",
+              "nominal": "35年4个月19天 16:37 - 35年4个月29天 19:59",
+              "start": "2025-04-03T08:07:00+08:00",
+              "end": "2025-04-13T11:29:00+08:00",
+              "active": false,
+              "sublevel": [],
+              "start_offset_minutes": 18345157,
+              "end_offset_minutes": 18359759
+            },
+            {
+              "key": "l1_3_l2_1_l3_6_l4_2",
+              "level": 4,
+              "planet": "Venus",
+              "planet_label": "金星",
+              "date": "2025-04-13 - 2025-04-18",
+              "nominal": "35年4个月29天 19:59 - 35年5个月5天 05:47",
+              "start": "2025-04-13T11:29:00+08:00",
+              "end": "2025-04-18T21:17:00+08:00",
+              "active": false,
+              "sublevel": [],
+              "start_offset_minutes": 18359759,
+              "end_offset_minutes": 18367547
+            },
+            {
+              "key": "l1_3_l2_1_l3_6_l4_3",
+              "level": 4,
+              "planet": "Mercury",
+              "planet_label": "水星",
+              "date": "2025-04-18 - 2025-05-02",
+              "nominal": "35年5个月5天 05:47 - 35年5个月18天 18:17",
+              "start": "2025-04-18T21:17:00+08:00",
+              "end": "2025-05-02T09:47:00+08:00",
+              "active": false,
+              "sublevel": [],
+              "start_offset_minutes": 18367547,
+              "end_offset_minutes": 18387017
+            },
+            {
+              "key": "l1_3_l2_1_l3_6_l4_4",
+              "level": 4,
+              "planet": "Sun",
+              "planet_label": "太阳",
+              "date": "2025-05-02 - 2025-05-15",
+              "nominal": "35年5个月18天 18:17 - 35年6个月1天 14:33",
+              "start": "2025-05-02T09:47:00+08:00",
+              "end": "2025-05-15T06:03:00+08:00",
+              "active": false,
+              "sublevel": [],
+              "start_offset_minutes": 18387017,
+              "end_offset_minutes": 18405513
+            },
+            {
+              "key": "l1_3_l2_1_l3_6_l4_5",
+              "level": 4,
+              "planet": "Jupiter",
+              "planet_label": "木星",
+              "date": "2025-05-15 - 2025-05-23",
+              "nominal": "35年6个月1天 14:33 - 35年6个月9天 17:15",
+              "start": "2025-05-15T06:03:00+08:00",
+              "end": "2025-05-23T08:45:00+08:00",
+              "active": true,
+              "sublevel": [],
+              "start_offset_minutes": 18405513,
+              "end_offset_minutes": 18417195
+            },
+            {
+              "key": "l1_3_l2_1_l3_6_l4_6",
+              "level": 4,
+              "planet": "Saturn",
+              "planet_label": "土星",
+              "date": "2025-05-23 - 2025-06-12",
+              "nominal": "35年6个月9天 17:15 - 35年7个月 00:00",
+              "start": "2025-05-23T08:45:00+08:00",
+              "end": "2025-06-12T15:30:00+08:00",
+              "active": false,
+              "sublevel": [],
+              "start_offset_minutes": 18417195,
+              "end_offset_minutes": 18446400
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "tool": "ziwei_birth",
+    "field": "ziwei_birth.palaces",
+    "rest_status": 200,
+    "mcp_is_error": false,
+    "cli_exit": 0,
+    "business_equal": true,
+    "projected_business": {
+      "ziwei_birth": {
+        "palaces": [
+          {
+            "name": "命宫",
+            "ganzhi": "丁丑",
+            "daxian": "2~11",
+            "daxian_period": 1,
+            "stars": [
+              "七杀",
+              "台辅",
+              "天寿",
+              "天魁",
+              "廉贞化禄",
+              "破碎",
+              "陀罗"
+            ],
+            "stars_detail": [
+              {
+                "name": "七杀",
+                "label": "七杀",
+                "brightness": "庙",
+                "mutagen": null
+              },
+              {
+                "name": "台辅",
+                "label": "台辅",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天寿",
+                "label": "天寿",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天魁",
+                "label": "天魁",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "廉贞",
+                "label": "廉贞化禄",
+                "brightness": "利",
+                "mutagen": "化禄"
+              },
+              {
+                "name": "破碎",
+                "label": "破碎",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "陀罗",
+                "label": "陀罗",
+                "brightness": "庙",
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "父母宫",
+            "ganzhi": "丙寅",
+            "daxian": "12~21",
+            "daxian_period": 2,
+            "stars": [
+              "三台",
+              "天巫",
+              "天贵",
+              "禄存",
+              "解神",
+              "阴煞",
+              "龙池"
+            ],
+            "stars_detail": [
+              {
+                "name": "三台",
+                "label": "三台",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天巫",
+                "label": "天巫",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天贵",
+                "label": "天贵",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "禄存",
+                "label": "禄存",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "解神",
+                "label": "解神",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "阴煞",
+                "label": "阴煞",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "龙池",
+                "label": "龙池",
+                "brightness": null,
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "福德宫",
+            "ganzhi": "丁卯",
+            "daxian": "22~31",
+            "daxian_period": 3,
+            "stars": [
+              "咸池",
+              "天刑",
+              "擎羊",
+              "文昌",
+              "月德"
+            ],
+            "stars_detail": [
+              {
+                "name": "咸池",
+                "label": "咸池",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天刑",
+                "label": "天刑",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "擎羊",
+                "label": "擎羊",
+                "brightness": "陷",
+                "mutagen": null
+              },
+              {
+                "name": "文昌",
+                "label": "文昌",
+                "brightness": "利",
+                "mutagen": null
+              },
+              {
+                "name": "月德",
+                "label": "月德",
+                "brightness": null,
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "田宅宫",
+            "ganzhi": "戊辰",
+            "daxian": "32~41",
+            "daxian_period": 4,
+            "stars": [
+              "右弼",
+              "地空",
+              "天同",
+              "天虚"
+            ],
+            "stars_detail": [
+              {
+                "name": "右弼",
+                "label": "右弼",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "地空",
+                "label": "地空",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天同",
+                "label": "天同",
+                "brightness": "平",
+                "mutagen": null
+              },
+              {
+                "name": "天虚",
+                "label": "天虚",
+                "brightness": null,
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "官禄宫",
+            "ganzhi": "己巳",
+            "daxian": "42~51",
+            "daxian_period": 5,
+            "stars": [
+              "天厨",
+              "武曲化科",
+              "破军化权",
+              "红鸾"
+            ],
+            "stars_detail": [
+              {
+                "name": "天厨",
+                "label": "天厨",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "武曲",
+                "label": "武曲化科",
+                "brightness": "平",
+                "mutagen": "化科"
+              },
+              {
+                "name": "破军",
+                "label": "破军化权",
+                "brightness": "平",
+                "mutagen": "化权"
+              },
+              {
+                "name": "红鸾",
+                "label": "红鸾",
+                "brightness": null,
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "仆役宫",
+            "ganzhi": "庚午",
+            "daxian": "52~61",
+            "daxian_period": 6,
+            "stars": [
+              "地劫",
+              "天伤",
+              "太阳化忌",
+              "恩光"
+            ],
+            "stars_detail": [
+              {
+                "name": "地劫",
+                "label": "地劫",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天伤",
+                "label": "天伤",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "太阳",
+                "label": "太阳化忌",
+                "brightness": "旺",
+                "mutagen": "化忌"
+              },
+              {
+                "name": "恩光",
+                "label": "恩光",
+                "brightness": null,
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "迁移宫",
+            "ganzhi": "辛未",
+            "daxian": "62~71",
+            "daxian_period": 7,
+            "stars": [
+              "天姚",
+              "天官",
+              "天府",
+              "天德",
+              "天钺",
+              "寡宿"
+            ],
+            "stars_detail": [
+              {
+                "name": "天姚",
+                "label": "天姚",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天官",
+                "label": "天官",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天府",
+                "label": "天府",
+                "brightness": "庙",
+                "mutagen": null
+              },
+              {
+                "name": "天德",
+                "label": "天德",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天钺",
+                "label": "天钺",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "寡宿",
+                "label": "寡宿",
+                "brightness": null,
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "疾厄宫",
+            "ganzhi": "壬申",
+            "daxian": "72~81",
+            "daxian_period": 8,
+            "stars": [
+              "天使",
+              "天哭",
+              "天机",
+              "天马",
+              "太阴",
+              "旬空",
+              "火星"
+            ],
+            "stars_detail": [
+              {
+                "name": "天使",
+                "label": "天使",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天哭",
+                "label": "天哭",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天机",
+                "label": "天机",
+                "brightness": "得",
+                "mutagen": null
+              },
+              {
+                "name": "天马",
+                "label": "天马",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "太阴",
+                "label": "太阴",
+                "brightness": "利",
+                "mutagen": null
+              },
+              {
+                "name": "旬空",
+                "label": "旬空",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "火星",
+                "label": "火星",
+                "brightness": "陷",
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "财帛宫",
+            "ganzhi": "癸酉",
+            "daxian": "82~91",
+            "daxian_period": 9,
+            "stars": [
+              "天福",
+              "封诰",
+              "紫微",
+              "贪狼"
+            ],
+            "stars_detail": [
+              {
+                "name": "天福",
+                "label": "天福",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "封诰",
+                "label": "封诰",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "紫微",
+                "label": "紫微",
+                "brightness": "旺",
+                "mutagen": null
+              },
+              {
+                "name": "贪狼",
+                "label": "贪狼",
+                "brightness": "利",
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "子女宫",
+            "ganzhi": "甲戌",
+            "daxian": "92~101",
+            "daxian_period": 10,
+            "stars": [
+              "华盖",
+              "左辅",
+              "巨门",
+              "铃星"
+            ],
+            "stars_detail": [
+              {
+                "name": "华盖",
+                "label": "华盖",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "左辅",
+                "label": "左辅",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "巨门",
+                "label": "巨门",
+                "brightness": "陷",
+                "mutagen": null
+              },
+              {
+                "name": "铃星",
+                "label": "铃星",
+                "brightness": "庙",
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "夫妻宫",
+            "ganzhi": "乙亥",
+            "daxian": "102~111",
+            "daxian_period": 11,
+            "stars": [
+              "天喜",
+              "天才",
+              "天月",
+              "天相",
+              "孤辰",
+              "文曲"
+            ],
+            "stars_detail": [
+              {
+                "name": "天喜",
+                "label": "天喜",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天才",
+                "label": "天才",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天月",
+                "label": "天月",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天相",
+                "label": "天相",
+                "brightness": "得",
+                "mutagen": null
+              },
+              {
+                "name": "孤辰",
+                "label": "孤辰",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "文曲",
+                "label": "文曲",
+                "brightness": "旺",
+                "mutagen": null
+              }
+            ]
+          },
+          {
+            "name": "兄弟宫",
+            "ganzhi": "丙子",
+            "daxian": "112~121",
+            "daxian_period": 12,
+            "stars": [
+              "八座",
+              "凤阁",
+              "天梁",
+              "年解",
+              "蜚廉"
+            ],
+            "stars_detail": [
+              {
+                "name": "八座",
+                "label": "八座",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "凤阁",
+                "label": "凤阁",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "天梁",
+                "label": "天梁",
+                "brightness": "庙",
+                "mutagen": null
+              },
+              {
+                "name": "年解",
+                "label": "年解",
+                "brightness": null,
+                "mutagen": null
+              },
+              {
+                "name": "蜚廉",
+                "label": "蜚廉",
+                "brightness": null,
+                "mutagen": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

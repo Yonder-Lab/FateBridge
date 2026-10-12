@@ -7,9 +7,11 @@ the REST app, and other surfaces can all import them without circular imports.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional, Union, cast
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+from pydantic_core import PydanticCustomError
 
 
 class _DeferredModel(BaseModel):
@@ -24,7 +26,33 @@ class _DeferredModel(BaseModel):
     ``model_config``（如 ``populate_by_name=True``）会与本配置合并，不会丢失。
     """
 
-    model_config = ConfigDict(defer_build=True)
+    model_config = ConfigDict(defer_build=True, extra="forbid")
+
+    @model_validator(mode="after")
+    def _validate_calendar_dates(self) -> "_DeferredModel":
+        # Bounds such as day<=31 cannot reject February 30. Validate complete
+        # civil dates before binding on every transport, including pair inputs.
+        for prefix in (
+            "birth_",
+            "person1_birth_",
+            "person2_birth_",
+            "analysis_",
+            "candidate_",
+            "question_",
+            "inner_birth_",
+            "outer_birth_",
+        ):
+            date = [
+                getattr(self, prefix + part, None) for part in ("year", "month", "day")
+            ]
+            if all(value is not None for value in date):
+                try:
+                    datetime(cast(int, date[0]), cast(int, date[1]), cast(int, date[2]))
+                except (ValueError, TypeError):
+                    raise PydanticCustomError(
+                        "invalid_calendar_date", "无效的公历日期", {"prefix": prefix}
+                    ) from None
+        return self
 
 
 class FateBridgeRequest(_DeferredModel):
@@ -1073,6 +1101,16 @@ class AstroChartRequest(AstroBirthRequest):
 class AstroRelativePartyRequest(AstroBirthRequest):
     """One side of a relative/synastry request."""
 
+    gender: Optional[str] = Field(
+        default="未知",
+        description="Shared subject label; not used in western chart calculation",
+    )
+    use_true_solar_time: bool = Field(
+        default=False,
+        alias="useTrueSolarTime",
+        description="Use apparent solar time for this party; defaults to civil time",
+    )
+
     # AstroBirthRequest defaults birth_timezone to "UTC", which silently treats
     # an eastern wall-clock time as UTC and rotates the chart. Mirror the core
     # AstroChartRequest fix: default to None so the engine infers the zone from
@@ -1520,7 +1558,22 @@ class AstroHoraryRequest(_DeferredModel):
     latitude: float = Field(
         ge=-90, le=90, description="Latitude where the question was asked"
     )
-    category: str = Field(
+    category: Literal[
+        "general",
+        "wealth",
+        "family",
+        "property",
+        "pregnancy",
+        "health",
+        "marriage",
+        "lawsuit",
+        "theft",
+        "travel",
+        "career",
+        "hope",
+        "enemy",
+        "death",
+    ] = Field(
         default="general",
         description=(
             "Question topic, selecting the quesited house: general/wealth/family/"
@@ -1566,7 +1619,19 @@ class AstroElectionRequest(_DeferredModel):
     latitude: float = Field(
         ge=-90, le=90, description="Latitude where the act will take place"
     )
-    topic_id: str = Field(
+    topic_id: Literal[
+        "marriage",
+        "business",
+        "move_in",
+        "buy_property",
+        "trade",
+        "buy_car",
+        "contract",
+        "surgery",
+        "travel",
+        "job_hunt",
+        "general",
+    ] = Field(
         default="marriage",
         description=(
             "Undertaking type, selecting the rule pack: marriage/business/move_in/"
@@ -1618,6 +1683,13 @@ class AstroChartPolyRequest(AstroChartRequest):
 
 class AstroRelativeFlatRequest(_DeferredModel):
     """Flat (non-nested) relative/synastry chart request for tool surfaces."""
+
+    inner_use_true_solar_time: bool = Field(
+        default=False, description="Use apparent solar time for the inner chart"
+    )
+    outer_use_true_solar_time: bool = Field(
+        default=False, description="Use apparent solar time for the outer chart"
+    )
 
     inner_birth_year: int = Field(description="Inner chart birth year")
     inner_birth_month: int = Field(ge=1, le=12, description="Inner chart birth month")

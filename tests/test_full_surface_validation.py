@@ -5,6 +5,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 from fastmcp import Client
+from jsonschema import Draft202012Validator
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -121,10 +122,15 @@ def test_fastmcp_client_accepts_all_representative_payloads():
 
     async def run():
         async with Client(mcp_module.app) as client:
+            schemas = {
+                tool.name: tool.outputSchema for tool in await client.list_tools()
+            }
             for name, (_, kwargs_factory) in MCP_CASES.items():
                 result = await client.call_tool(name, kwargs_factory())
                 body = json.loads(result.content[0].text)
                 assert "error" not in body, name
                 _assert_run_metadata(body)
+                assert result.structured_content == body
+                Draft202012Validator(schemas[name]).validate(body)
 
     asyncio.run(run())

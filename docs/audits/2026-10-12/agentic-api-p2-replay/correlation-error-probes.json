@@ -1,0 +1,49 @@
+{
+  "rest": {
+    "error": "请求参数无效",
+    "error_code": "validation_error",
+    "retryable": false,
+    "issues": [
+      {
+        "path": "birth_day",
+        "code": "greater_than_equal",
+        "constraints": {
+          "ge": 1
+        }
+      }
+    ],
+    "trace_id": "p2-replay-evidence"
+  },
+  "mcp": {
+    "error": "请求参数无效",
+    "error_code": "validation_error",
+    "status_code": 422,
+    "retryable": false,
+    "issues": [
+      {
+        "path": "birth_day",
+        "code": "greater_than_equal",
+        "constraints": {
+          "ge": 1
+        }
+      }
+    ],
+    "trace_id": "p2-replay-evidence"
+  },
+  "cli": {
+    "error": "请求参数无效",
+    "error_code": "validation_error",
+    "status_code": 422,
+    "retryable": false,
+    "issues": [
+      {
+        "path": "birth_day",
+        "code": "greater_than_equal",
+        "constraints": {
+          "ge": 1
+        }
+      }
+    ],
+    "trace_id": "p2-replay-evidence"
+  }
+}

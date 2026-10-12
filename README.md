@@ -15,11 +15,13 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 - **MCP** —— 用 FastMCP 暴露给 Claude、Cursor、Codex 等 Agent；
 - **CLI** —— 命令行直接交互，适合本地调试与自动化脚本。
 
-当前版本将所有工具（80 个）同时暴露为 **80 个业务 REST 路由** 与 **80 个 FastMCP 工具**，三端由同一份中央目录派生；目录含 82 条记录，CLI 可执行其中 81 条。各端的名称与请求形态差异见 [API 参考](docs/api-reference.md#24-三端能力边界)。
+当前版本将所有工具（87 个）同时暴露为 **87 个业务 REST 路由** 与 **87 个 FastMCP 工具**，三端由同一份中央目录派生；目录含 89 条记录，CLI 可执行其中 88 条。各端的名称与请求形态差异见 [API 参考](docs/api-reference.md#24-三端能力边界)。
 
 > 当前版本为 **Beta 0.2.0**，API 仍可能微调，欢迎试用与反馈。
 
-完整的「12 family / 80 工具」算法矩阵与精度/依赖说明见 **[docs/algorithm-coverage.md](docs/algorithm-coverage.md)**。
+完整的「13 family / 87 工具」算法矩阵与精度/依赖说明见 **[docs/algorithm-coverage.md](docs/algorithm-coverage.md)**。
+
+家居风水提供八宅、金锁玉关基础砂水、年度九宫飞星及版本明确的玄空运山向宅盘／兼向替星，保留逐人结果、规则来源与版本以及分层覆盖状态。住宅嵌套请求三端均可调用，CLI 使用 `--request-file`。详见 [家居风水计算与示例](docs/fengshui.md)。
 
 ---
 
@@ -27,7 +29,7 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 
 传统命理知识往往散落在不同书籍、软件和师承体系里，格式不统一，难以被现代系统复用。FateBridge 尝试做三件事：
 
-1. **统一接口**：把 80 项公开能力收敛成一致的调用方式，不用为每个技法重新对接；
+1. **统一接口**：把 87 项公开能力收敛成一致的调用方式，不用为每个技法重新对接；
 2. **离线可跑**：核心能力不依赖外部服务，本地启动即可计算；
 3. **可追溯**：成功的工具响应默认附带 `run_metadata`，知道是什么工具、什么时候、跑出了什么结果。
 
@@ -79,6 +81,8 @@ python -m pip install -e .
 - `fatebridge-mcp`（MCP 服务）
 
 ### 2. 启动 REST 服务
+
+Agent 可先用 `/api/tools?detail=summary&family=bazi` 或 `fatebridge discover --family bazi` 查看摘要，再按工具读取完整契约。MCP host 可用 `FATEBRIDGE_MCP_FAMILIES` 缩小实际公开集合，默认仍为全部工具。三端无效投影路径会附 `projection_warnings`；严格调用可用 `strict_fields=true` / `--strict-fields` 明确拒绝。
 
 ```bash
 API_HOST=127.0.0.1 fatebridge-api
@@ -132,6 +136,8 @@ FateBridge 被设计成 Agent 友好的：
 - 所有工具从同一个中央目录派生，共享请求模型派生各端 schema；
 - `GET /api/tools`（或 MCP 的 `tools/list`）可以自动枚举全部能力；
 - 错误返回统一的 `{error, error_code, retryable}` 结构；
+- 输入校验错误附带安全的 `issues` 字段提示；显式非法主题和未知请求字段会被拒绝；
+- MCP 返回结构化 JSON、兼容 text JSON 与原生 `isError`；三端发现接口共享输出 schema；专业嵌套事实覆盖主限、递归时主、星盘、中国术数、八字专题、宿曜关系及知识/导出，支持投影与扩展，见 [专业输出验收](docs/agentic-api-p2-nested-fixes-2026-10-12.md) 与 [专题及知识/导出验收](docs/agentic-api-p2-domain-contracts-fixes-2026-10-12.md)；
 - 成功响应默认包含 `run_metadata`，便于追踪；CLI 可用 `--no-metadata` 关闭。
 
 接入示例、字段投影、快照导出等细节，请见 [`docs/agent-guide.md`](docs/agent-guide.md)。
@@ -145,7 +151,7 @@ FateBridge 被设计成 Agent 友好的：
 | [`docs/getting-started.md`](docs/getting-started.md) | 第一次使用的人 | 安装、环境变量、启动、第一条请求 |
 | [`docs/agent-guide.md`](docs/agent-guide.md) | Agent / 开发者 | 三端接入、自助发现、错误/投影/快照、host 配置、Python/JS 示例 |
 | [`docs/api-reference.md`](docs/api-reference.md) | 集成方 | REST 路由、FastMCP 工具、请求族、响应字段 |
-| [`docs/algorithm-coverage.md`](docs/algorithm-coverage.md) | 维护者、评审者 | 12 family / 80 工具算法矩阵 + 精度/依赖说明 |
+| [`docs/algorithm-coverage.md`](docs/algorithm-coverage.md) | 维护者、评审者 | 13 family / 87 工具算法矩阵 + 精度/依赖说明 |
 | [`docs/scenario-routing.md`](docs/scenario-routing.md) | Agent / 技能作者 | 按用户场景选主证/旁证工具的路由矩阵 |
 | [`docs/architecture.md`](docs/architecture.md) | 开发者、架构师 | 代码分层、数据流、设计决策 |
 | [`docs/development-guide.md`](docs/development-guide.md) | 贡献者 | 开发命令、测试策略、扩展路径 |

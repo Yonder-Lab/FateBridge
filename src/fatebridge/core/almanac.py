@@ -21,6 +21,7 @@ except ImportError:  # pragma: no cover - exercised only in misconfigured envs
 from ..utils.timezones import parse_timezone_name
 from .divination import derive_meihua_hexagram
 from .ephemeris_runtime import ephemeris_call, swe
+from .execution_context import current_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -228,6 +229,8 @@ class SolarTerm:
     moment: datetime
     date_key: str
     day_ganzhi: str
+    # Internal provenance; legacy serialized calendars retain their contract.
+    resolution_provider: str = "unknown"
 
     def as_dict(self) -> Dict[str, str]:
         return {
@@ -259,7 +262,9 @@ def current_local_datetime(timezone_name: Optional[str] = None) -> datetime:
     别处的 aware datetime 混用而触发 TypeError。
     """
     tzinfo = parse_timezone_name(timezone_name or DEFAULT_TIMEZONE)
-    return datetime.now(tzinfo).replace(tzinfo=None)
+    return current_datetime(
+        tzinfo, timezone_name or DEFAULT_TIMEZONE, now_provider=datetime.now
+    ).replace(tzinfo=None)
 
 
 def _julian_day_number(year: int, month: int, day: int) -> int:
@@ -429,6 +434,7 @@ def get_solar_terms_for_year(
                 year, float(target_longitude), linear_utc
             )
 
+        provider = "swisseph" if utc_moment is not None else "linear_1900_fallback"
         if utc_moment is None:
             # Fall back to the linear approximation; warn once per process so
             # operators can spot a missing swisseph install without flooding logs.
@@ -457,6 +463,7 @@ def get_solar_terms_for_year(
                 day_ganzhi=get_day_ganzhi(
                     local_moment.year, local_moment.month, local_moment.day
                 ),
+                resolution_provider=provider,
             )
         )
 

@@ -1,0 +1,60 @@
+{
+  "golden-release": {
+    "command": [
+      "/opt/fatebridge/bin/python",
+      "-m",
+      "scripts.audit_linux_golden",
+      "--report",
+      "/audit/linux-release-golden.json",
+      "--actual-dir",
+      "/audit/golden-release-actual"
+    ],
+    "exit_code": 0
+  },
+  "surfaces-release": {
+    "command": [
+      "/opt/fatebridge/bin/python",
+      "/audit/surface-probe.py"
+    ],
+    "exit_code": 0
+  },
+  "independent-release": {
+    "command": [
+      "/opt/fatebridge/bin/python",
+      "-m",
+      "scripts.audit_xuankong_independent",
+      "--report",
+      "/audit/xuankong-release-independent.json"
+    ],
+    "exit_code": 0
+  },
+  "black-release": {
+    "command": [
+      "black",
+      "--check",
+      "src/fatebridge",
+      "scripts",
+      "tests"
+    ],
+    "exit_code": 0
+  },
+  "isort-release": {
+    "command": [
+      "isort",
+      "--check-only",
+      "src/fatebridge",
+      "scripts",
+      "tests"
+    ],
+    "exit_code": 0
+  },
+  "mypy-release": {
+    "command": [
+      "mypy",
+      "--cache-dir",
+      "/audit/mypy-release-cache",
+      "src/fatebridge/"
+    ],
+    "exit_code": 0
+  }
+}

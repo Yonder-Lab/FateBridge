@@ -572,6 +572,13 @@ def format_error_response(
                 "status_code": data.get("status_code", 500),
                 "retryable": data.get("retryable", False),
                 "operation": operation,
+                **({"issues": data["issues"]} if "issues" in data else {}),
+                **({"trace_id": data["trace_id"]} if "trace_id" in data else {}),
+                **(
+                    {"parent_run_id": data["parent_run_id"]}
+                    if "parent_run_id" in data
+                    else {}
+                ),
             },
             compact=compact,
         )

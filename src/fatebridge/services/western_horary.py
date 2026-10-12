@@ -50,7 +50,7 @@ def calculate_horary(
     label = "卜卦判断"
     try:
         if category not in HOUSE_BY_CATEGORY:
-            category = "general"
+            raise ValueError("未知的卜卦类别；请使用公开 category 枚举")
         house_system = normalize_house_system(house_system)
         question_local = datetime(
             question_year,

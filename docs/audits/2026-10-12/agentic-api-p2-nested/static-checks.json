@@ -1,0 +1,22 @@
+[
+  {
+    "command": ".venv/bin/python -m black --check src tests scripts",
+    "exit_code": 0,
+    "output": "All done! ✨ 🍰 ✨\n244 files would be left unchanged.\n"
+  },
+  {
+    "command": ".venv/bin/python -m isort --check-only src tests scripts",
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "command": ".venv/bin/python scripts/build_scenario_manifest.py --check",
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "command": "git diff --check",
+    "exit_code": 0,
+    "output": ""
+  }
+]

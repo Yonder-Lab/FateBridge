@@ -256,8 +256,11 @@ def test_cli_invalid_input_renders_clean_error_shape(capsys):
     out = capsys.readouterr().out
     assert code == 1
     payload = json.loads(out)
-    assert payload["status_code"] == 400
+    assert payload["status_code"] == 422
     assert payload["error_code"] == "validation_error"
+    assert payload["issues"] == [
+        {"path": "birth_date", "code": "invalid_calendar_date"}
+    ]
 
 
 def _bool_flag_parser():

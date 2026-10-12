@@ -49,10 +49,13 @@ def test_project_fields_none_or_empty_is_identity():
     assert project_fields(payload, []) == payload
 
 
-def test_project_fields_ignores_unknown_keys():
+def test_project_fields_warns_for_unknown_keys_without_changing_selected_data():
     payload = {"a": 1, "run_metadata": {}}
     out = project_fields(payload, ["a", "no_such_key"])
-    assert set(out) == {"a", "run_metadata"}
+    assert set(out) == {"a", "run_metadata", "projection_warnings"}
+    assert out["projection_warnings"] == [
+        {"path": "no_such_key", "code": "unknown_projection_path"}
+    ]
 
 
 def _nested_payload():
@@ -98,16 +101,20 @@ def test_project_fields_whole_parent_overrides_dotted_regardless_of_order():
     assert b["bazi_birth"] == payload["bazi_birth"]
 
 
-def test_project_fields_dotted_unknown_subkey_yields_empty_parent():
+def test_project_fields_unknown_subkey_keeps_legacy_shape_and_warns():
     out = project_fields(_nested_payload(), ["bazi_birth.no_such_sub"])
-    assert set(out) == {"bazi_birth", "run_metadata"}
+    assert set(out) == {"bazi_birth", "run_metadata", "projection_warnings"}
     assert out["bazi_birth"] == {}
+    assert out["projection_warnings"][0]["path"] == "bazi_birth.no_such_sub"
 
 
 def test_project_fields_dotted_into_scalar_keeps_scalar():
     # A sub-path under a non-dict value just keeps that value (lenient, no crash).
     out = project_fields(_nested_payload(), ["snapshot_text.foo"])
     assert out["snapshot_text"] == "[起盘信息]..."
+    assert out["projection_warnings"] == [
+        {"path": "snapshot_text.foo", "code": "non_object_projection_path"}
+    ]
 
 
 def _fake_renderers():
@@ -184,8 +191,7 @@ def test_mcp_fn_renders_valueerror_as_clean_error():
 
 
 def test_mcp_fn_invalid_date_renders_error_end_to_end():
-    # Feb 31 passes pydantic le=31 but fails the PersonInfo monthrange check
-    # raised during binding -> must render cleanly, not raise.
+    # Complete civil dates are now rejected by shared request validation.
     spec = next(s for s in CATALOG if s.rest_path == "/api/cn/bazi/wealth")
     captured, render_response, render_error = _fake_renderers()
     fn = _make_mcp_fn(spec, render_response=render_response, render_error=render_error)
@@ -198,7 +204,7 @@ def test_mcp_fn_invalid_date_renders_error_end_to_end():
         dayun_pillar="壬戌",
     )
     assert out == "err"
-    assert captured["error_result"]["status_code"] == 400
+    assert captured["error_result"]["status_code"] == 422
 
 
 def test_mcp_fn_reserved_field_clash_raises():

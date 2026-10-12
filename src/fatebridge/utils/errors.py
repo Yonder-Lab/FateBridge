@@ -7,7 +7,9 @@ formatting/control-flow — no numerical computation.
 import logging
 from builtins import TimeoutError as BuiltinTimeoutError
 from functools import wraps
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List, Optional
+
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +17,70 @@ DEPENDENCY_ERROR_CODE = "dependency_missing"
 INTERNAL_ERROR_CODE = "internal_error"
 TIMEOUT_ERROR_CODE = "timeout"
 VALIDATION_ERROR_CODE = "validation_error"
+
+
+class ValidationIssue(BaseModel):
+    """Safe correction hints: never include submitted values or raw messages."""
+
+    path: str
+    code: str
+    constraints: Optional[Dict[str, Any]] = None
+
+
+class ErrorEnvelope(BaseModel):
+    error: Any
+    error_code: str
+    retryable: bool
+    issues: Optional[List[ValidationIssue]] = None
+    trace_id: Optional[str] = None
+    parent_run_id: Optional[str] = None
+
+
+class ParameterError(ValueError):
+    """Safe transport-independent rejection of non-model call parameters."""
+
+    def __init__(self, message: str, issues: List[Dict[str, Any]]) -> None:
+        super().__init__(message)
+        self.issues = issues
+
+    def as_result(self) -> Dict[str, Any]:
+        return {
+            "error": str(self),
+            "error_code": VALIDATION_ERROR_CODE,
+            "status_code": 422,
+            "retryable": False,
+            "issues": self.issues,
+        }
+
+
+def validation_error_result(error: Any) -> Dict[str, Any]:
+    """Normalize Pydantic/FastAPI validation without echoing personal input."""
+    issues = []
+    for item in error.errors():
+        loc = list(item.get("loc", ()))
+        if loc and loc[0] in {"body", "query"}:
+            loc.pop(0)
+        context = item.get("ctx") or {}
+        constraints = {
+            key: context[key]
+            for key in ("ge", "gt", "le", "lt", "min_length", "max_length", "expected")
+            if key in context
+        }
+        path = ".".join(str(part) for part in loc)
+        if item["type"] == "invalid_calendar_date":
+            path = context.get("prefix", "date") + "date"
+        issue = {"path": path or "request", "code": item["type"]}
+        if constraints:
+            issue["constraints"] = constraints
+        issues.append(issue)
+    return {
+        "error": "请求参数无效",
+        "error_code": VALIDATION_ERROR_CODE,
+        "status_code": 422,
+        "retryable": False,
+        "issues": issues,
+    }
+
 
 DEPENDENCY_ERROR_HINTS = (
     "no module named",

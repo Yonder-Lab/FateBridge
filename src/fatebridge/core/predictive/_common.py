@@ -23,6 +23,7 @@ from fatebridge.core.ephemeris_runtime import (
     preserve_ephemeris_path,
     swe,
 )
+from fatebridge.core.execution_context import current_datetime
 from fatebridge.utils.helpers import parse_timezone_name
 
 KERYKEION_IMPORT_ERROR: Optional[ImportError] = None
@@ -295,7 +296,7 @@ def build_analysis_datetime(
 ) -> datetime:
     timezone_name = birth_info.timezone
     tzinfo = parse_timezone_name(timezone_name)
-    now = datetime.now(tz=tzinfo)
+    now = current_datetime(tzinfo, timezone_name, now_provider=datetime.now)
     year = now.year if analysis_year is None else analysis_year
     month = now.month if analysis_month is None else analysis_month
     # A default day must fit the requested month (including leap-year changes).

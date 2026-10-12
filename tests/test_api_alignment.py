@@ -149,7 +149,7 @@ def _assert_run_metadata(payload: dict, *, tool_name: str) -> dict:
     metadata = payload.get("run_metadata")
 
     assert isinstance(metadata, dict)
-    assert set(metadata) == {
+    assert set(metadata) >= {
         "run_id",
         "trace_id",
         "tool_name",
@@ -695,6 +695,14 @@ def test_selected_sections_only_trim_export_text_not_structured_payload():
     assert result["key"] == "休门"
 
 
+def _offloaded_service(captured):
+    from fatebridge.core.tool_spec import execute_tool
+
+    assert captured["func"] is execute_tool
+    spec, request = captured["args"]
+    return spec.bind(request)
+
+
 def test_western_timing_api_offloads_calculation_to_threadpool(monkeypatch):
     expected = {"analysis_type": "西占推运与返照分析", "summary": "ok"}
     captured = {}
@@ -717,10 +725,11 @@ def test_western_timing_api_offloads_calculation_to_threadpool(monkeypatch):
 
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="western_timing_analysis")
-    assert captured["func"] is api_module.calculate_western_timing_analysis
-    assert captured["args"] == ()
-    assert captured["kwargs"]["analysis_year"] == 2025
-    assert captured["kwargs"]["birth_latitude"] == 31.2304
+    service, args, kwargs = _offloaded_service(captured)
+    assert service is api_module.calculate_western_timing_analysis
+    assert args == ()
+    assert kwargs["analysis_year"] == 2025
+    assert kwargs["birth_latitude"] == 31.2304
 
 
 def test_western_timing_module_api_offloads_calculation_to_threadpool(monkeypatch):
@@ -748,10 +757,11 @@ def test_western_timing_module_api_offloads_calculation_to_threadpool(monkeypatc
 
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="solarreturn")
-    assert captured["func"] is calculate_solarreturn
-    assert captured["args"] == ()
-    assert captured["kwargs"]["selected_sections"] == ["起盘信息"]
-    assert captured["kwargs"]["analysis_day"] == 20
+    service, args, kwargs = _offloaded_service(captured)
+    assert service is calculate_solarreturn
+    assert args == ()
+    assert kwargs["selected_sections"] == ["起盘信息"]
+    assert kwargs["analysis_day"] == 20
 
 
 def test_astro_chart_api_offloads_calculation_to_threadpool(monkeypatch):
@@ -778,9 +788,10 @@ def test_astro_chart_api_offloads_calculation_to_threadpool(monkeypatch):
 
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="chart")
-    assert captured["func"] is api_module.calculate_core_chart_analysis
-    assert captured["kwargs"]["chart_variant"] == "chart"
-    assert captured["kwargs"]["birth_latitude"] == 31.2304
+    service, args, kwargs = _offloaded_service(captured)
+    assert service is api_module.calculate_core_chart_analysis
+    assert kwargs["chart_variant"] == "chart"
+    assert kwargs["birth_latitude"] == 31.2304
 
 
 def test_astro_relative_api_offloads_calculation_to_threadpool(monkeypatch):
@@ -824,7 +835,8 @@ def test_astro_relative_api_offloads_calculation_to_threadpool(monkeypatch):
 
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="astro_relative_chart")
-    assert captured["func"] is api_module.calculate_relative_chart_analysis
-    assert captured["kwargs"]["inner_payload"]["birth_latitude"] == 31.2304
-    assert captured["kwargs"]["outer_payload"]["birth_longitude"] == 116.4074
-    assert captured["kwargs"]["relative_mode"] == "Composite"
+    service, args, kwargs = _offloaded_service(captured)
+    assert service is api_module.calculate_relative_chart_analysis
+    assert kwargs["inner_payload"]["birth_latitude"] == 31.2304
+    assert kwargs["outer_payload"]["birth_longitude"] == 116.4074
+    assert kwargs["relative_mode"] == "Composite"

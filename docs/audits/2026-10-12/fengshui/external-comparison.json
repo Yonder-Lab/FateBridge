@@ -1,0 +1,17 @@
+{
+  "repository": "JackieL233/fengshui-master",
+  "commit": "2666304c5cb4ac13091c8c1fcdd4e40c218b275a",
+  "sha256": {
+    "minggua": "ffc23b2c7994d02642052f6402f0471e478697f59861153a5dbd6fd6ebcc3824",
+    "flying_stars": "e426804ea08c6e2252fe7f825a37e47e43ba1a10733493bf828110eb16894bd9"
+  },
+  "minggua_cases_1900_2099": 400,
+  "eight_mansions_direction_pairs": 64,
+  "all_passed": true,
+  "flying_stars_2026_year_argument_means": "period 9 scaffold, not annual center 1",
+  "limits": [
+    "No exact birth-instant handling in the reference minggua helper.",
+    "No annual/monthly/natal engine in the inspected flying_stars helper.",
+    "No independent Jinsuo engine was verified."
+  ]
+}
