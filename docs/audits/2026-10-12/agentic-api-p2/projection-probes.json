@@ -1,0 +1,132 @@
+{
+  "compatible": {
+    "rest": {
+      "status": 200,
+      "body": {
+        "bazi_birth": {
+          "day_master": {
+            "stem": "庚",
+            "element": "金",
+            "polarity": "阳",
+            "strength": "中和"
+          }
+        },
+        "run_metadata": {
+          "run_id": "4ca55598c5c64d56b07b0d22e4c6f3d1",
+          "trace_id": "8f88803084314c87bafa787e542b0aac",
+          "tool_name": "bazi_birth",
+          "generated_at": "2026-10-12T04:03:50.335753Z",
+          "engine": "fatebridge-offline",
+          "engine_is_approximate": false
+        },
+        "projection_warnings": [
+          {
+            "path": "bazi_birth.day_mastr",
+            "code": "unknown_projection_path"
+          }
+        ]
+      }
+    },
+    "mcp": {
+      "is_error": false,
+      "body": {
+        "bazi_birth": {
+          "day_master": {
+            "stem": "庚",
+            "element": "金",
+            "polarity": "阳",
+            "strength": "中和"
+          }
+        },
+        "run_metadata": {
+          "run_id": "d4921f19ec9049c99f88bbed0de797e8",
+          "trace_id": "b908d250993148fab42081db1899bcde",
+          "tool_name": "bazi_birth",
+          "generated_at": "2026-10-12T04:03:50.338600Z",
+          "engine": "fatebridge-offline",
+          "engine_is_approximate": false
+        },
+        "projection_warnings": [
+          {
+            "path": "bazi_birth.day_mastr",
+            "code": "unknown_projection_path"
+          }
+        ]
+      }
+    },
+    "cli": {
+      "exit_code": 0,
+      "body": {
+        "bazi_birth": {
+          "day_master": {
+            "stem": "庚",
+            "element": "金",
+            "polarity": "阳",
+            "strength": "中和"
+          }
+        },
+        "run_metadata": {
+          "run_id": "085c0c85f61e47bcaaf20a3c7cbf6d40",
+          "trace_id": "088be294972e49be85e3bfe4f2bd36c2",
+          "tool_name": "bazi_birth",
+          "generated_at": "2026-10-12T04:03:50.516780Z",
+          "engine": "fatebridge-offline",
+          "engine_is_approximate": false
+        },
+        "projection_warnings": [
+          {
+            "path": "bazi_birth.day_mastr",
+            "code": "unknown_projection_path"
+          }
+        ]
+      }
+    }
+  },
+  "strict": {
+    "rest": {
+      "status": 422,
+      "body": {
+        "error": "输出字段投影无效",
+        "error_code": "validation_error",
+        "retryable": false,
+        "issues": [
+          {
+            "path": "bazi_birth.day_mastr",
+            "code": "unknown_projection_path"
+          }
+        ]
+      }
+    },
+    "mcp": {
+      "is_error": true,
+      "body": {
+        "error": "输出字段投影无效",
+        "error_code": "validation_error",
+        "status_code": 422,
+        "retryable": false,
+        "operation": "八字命盘",
+        "issues": [
+          {
+            "path": "bazi_birth.day_mastr",
+            "code": "unknown_projection_path"
+          }
+        ]
+      }
+    },
+    "cli": {
+      "exit_code": 1,
+      "body": {
+        "error": "输出字段投影无效",
+        "error_code": "validation_error",
+        "status_code": 422,
+        "retryable": false,
+        "issues": [
+          {
+            "path": "bazi_birth.day_mastr",
+            "code": "unknown_projection_path"
+          }
+        ]
+      }
+    }
+  }
+}

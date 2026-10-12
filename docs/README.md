@@ -65,4 +65,4 @@
 
 [audit-repairs-2026-10-09.md](audit-repairs-2026-10-09.md) 是 2026-10-09 工作区代码修复的历史记录，包含本地证据与未验证边界，不代表这些更改已经发布。文档审查记录见 [documentation-audit-2026-10-09.md](documentation-audit-2026-10-09.md)。
 
-2026-10-12 的[代码与文档清理验收](cleanup-validation-2026-10-12.md)记录合同缓存、内部导入及测试迁移的范围、性能和完整回归。原始审计资料保留供复核；每份记录只适用于其明确标识的源码快照和环境。
+2026-10-12 的后续记录：[Agent 契约修复](agentic-api-fixes-2026-10-12.md)、[领域合同验收](agentic-api-p2-domain-contracts-fixes-2026-10-12.md)、[投影回归](output-projection-fix-2026-10-12.md)、[独立 Linux / CI 快照](agentic-api-linux-ci-validation-2026-10-12.md)、[代码与文档清理验收](cleanup-validation-2026-10-12.md)。每份记录只适用于其明确标识的源码快照和环境；原始审计资料保留供复核。

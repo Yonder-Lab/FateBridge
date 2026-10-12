@@ -1,0 +1,54 @@
+{
+  "observed_at": "2026-10-12T09:54:40.059854+00:00",
+  "tested_head": "48c0eaa5c7726fcab2f9a6ee288a231f7dadd62b",
+  "root": "/Users/thomas/Desktop/FateBridge",
+  "changed_execution_files": {
+    "pyproject.toml": {
+      "tested_sha256": "4f493c09d988ed31377e8072c59c6f5369b74681158b4d6f23e44b78d9d09efe",
+      "current_sha256": "d0ccc26caac7d468ec868bc98d4dcccd410f101be93fc3b33f48df79ffedd2e2"
+    },
+    "scripts/gen_ziwei_brightness_fixture.py": {
+      "tested_sha256": "c3120650e9c6d1d7553b780bfde8501986243e639c288d8eed84df71a711b6c9",
+      "current_sha256": "e59d1e5af1c7bf07983ab3767ecc7ae53d524b127ccbecb90d2d7be7997285c2"
+    },
+    "src/fatebridge/analysis/compatibility.py": {
+      "tested_sha256": "aa2fe56e0b62ad6de5944399721881ae8f10912607c46ceb182b59a17fe9856a",
+      "current_sha256": "74426084024f049f156eae9e7632952c590d6a13719856deabd24b665e9d5a49"
+    },
+    "src/fatebridge/api.py": {
+      "tested_sha256": "ab5e6be6532c42773273260d45c698153404c6bd884ec190f597cabf38b62e77",
+      "current_sha256": "2e5b793f54f6a1c1cd7940bd47420796e4d43a58d6c554e2edcb460f8a732ee1"
+    },
+    "src/fatebridge/cli.py": {
+      "tested_sha256": "89051288c515dd73d433d03179068c033c5dc77f844b7ef3b69a81f1b8711213",
+      "current_sha256": "81b1b979015156fd59b0d399a6d5bc9b5189c9c6fb58e433f15585334c0de4a1"
+    },
+    "src/fatebridge/core/almanac.py": {
+      "tested_sha256": "d19f04fec119e109e70048593747d021d2a8199897785b0793b62eb1456f8230",
+      "current_sha256": "baa71ca24160b3ba5159e07c0e4d1b3a8b89e2bedb0f8c2dd06ebf0edc2e3be3"
+    },
+    "src/fatebridge/core/export_parser.py": {
+      "tested_sha256": "b9a570717872178be3276c5baf7ac493bcfd33b8e3912203b6342efaf8451fd4",
+      "current_sha256": "110feeaaad6109d96976b66a396189b7bd442c819ae2c23574a8a1552458b88e"
+    },
+    "src/fatebridge/core/tool_spec.py": {
+      "tested_sha256": "038a1f17e6623b98505211122721f55332770d89a5da42fe1438bd4864ec573e",
+      "current_sha256": "41b90d3fb04a12fa0ecafc44a29346b8b20841622fc2e01254eb86c178d5c54e"
+    },
+    "src/fatebridge/mcp_transport.py": {
+      "tested_sha256": "303ae563defcd267e9026d9855bfafbd4bd484005382e2177a4a26ea2ef76e10",
+      "current_sha256": "de8ac9ce8c21cd960caf7a481eae66468c78cfc15eaf26eddb34116a61511fb5"
+    },
+    "src/fatebridge/services/compatibility.py": {
+      "tested_sha256": "69270bc1da7bbd1444639bb47967b4a8379a8ce1897474d091e125d81e1f288a",
+      "current_sha256": "41372ab6f16dcb513c4b59c427e5350cf4f713c670b895464715aa3b572054b5"
+    },
+    "src/fatebridge/services/replay_metadata.py": {
+      "tested_sha256": "43661352d93ea057aa3959258acb439050c65d022e0458a0e325efc839f22e2c",
+      "current_sha256": "de67eeeb2907fa19301c6ddffadd2e5e83a6a8a50ad14417c5fdeaae10ad5dc2"
+    }
+  },
+  "changed_count": 11,
+  "all_original_workspace_golden_hashes_preserved": true,
+  "policy": "Preserve subsequent workspace edits; green CI applies to the attached PR snapshot."
+}

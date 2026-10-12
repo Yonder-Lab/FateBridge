@@ -1,0 +1,12 @@
+{
+  "original_workspace": "/Users/thomas/Desktop/FateBridge",
+  "managed_worktree": "/Users/thomas/.codex/worktrees/agentic-p2-linux-ci/FateBridge",
+  "cache": "/Users/thomas/.cache/fatebridge-pr180-followup-20261012-2126",
+  "original_workspace_head": "5fafc61f7bbbf24329103f46ccd87f02dc80daf2",
+  "previous_pr_head": "48c0eaa5c7726fcab2f9a6ee288a231f7dadd62b",
+  "captured_at": "2026-10-12T13:26:14.131638+00:00",
+  "copied_files": 652,
+  "execution_files": 369,
+  "golden_files": 88,
+  "all_execution_files_match_cleanup_snapshot": true
+}

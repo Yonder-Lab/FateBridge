@@ -1,0 +1,17 @@
+{
+  "src/fatebridge/core/discovery.py": "8a538906efa00f2966a5e352af7dbb01fc375f5ef5056b16e0609b2b0df5bbfd",
+  "src/fatebridge/core/tool_spec.py": "bdaa1f089a95dc21c039158f58f36fceeafcae7b5a9513970d47006778e203e0",
+  "src/fatebridge/core/response_models.py": "ed3ad77702c4ba21ad2490f25d3c613acbfafe3d800988340fa3d1f4a28f58a1",
+  "src/fatebridge/core/fengshui/output.py": "4e999abe6efdc4e43436a7fe9d08c3b517844a7b39bd6792deac9a249052479a",
+  "src/fatebridge/api.py": "5e3b7156f58355c12773483b2433f850b567fe0a113cd1b1ff4cf182fe08a9a0",
+  "src/fatebridge/cli.py": "2e9b5fda46e70c1e2b86012f827ad6f7e7c1671ca1236d7d84868c9560895e2a",
+  "src/fatebridge/mcp_transport.py": "25f7b06c389faa48213379d97462fe7a7ae8da19e45ed26003fe76767d26d3ee",
+  "src/fatebridge/mcp_server.py": "b9ae47f5765a394579dfa37c9df193001dea11815931f7dbc36618004f845d08",
+  "src/fatebridge/utils/errors.py": "1b297f3b879d12985300c0eaa4de5678fbd9b321863126aecf3ebe92265659f7",
+  "src/fatebridge/utils/helpers.py": "c1a47d613f64a0e6a8b76d417c5cb85b68b0d0d9c1bd8d1d77cabb7c561228bb",
+  "tests/test_agentic_p2.py": "b92d63c84fc6790b7b62bf14f33c94ba4296fa97d502d046dc72e39178e88585",
+  "tests/test_tool_spec.py": "217ceeabdb77363c7cf966f56ad6ca3820fb9d3c59e1274e467593773215106c",
+  "tests/test_agentic_contracts.py": "8810c12ec9270337b504a36a1e1d9b547259d459fddcbc160a95266dc32e2db3",
+  "tests/test_full_surface_validation.py": "f3784370f01d22e01f406fd416edde3b603264b2714a5980f14cb5407b5fb7d1",
+  "docs/audits/2026-10-12/agentic-api-p2/probe.py": "6b0743ceeb191d01be275804f658b62d64e545e07b9d812ee0bcdda18d44bb6f"
+}

@@ -1,0 +1,55 @@
+........................................................................ [ 31%]
+........................................................................ [ 62%]
+........................................................................ [ 94%]
+.............                                                            [100%]
+=============================== warnings summary ===============================
+../../../../tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/fastapi/testclient.py:1
+  /tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+../../../../tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/fastmcp/server/auth/providers/jwt.py:11
+  /tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/fastmcp/server/auth/providers/jwt.py:11: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+  It will be compatible before version 2.0.0.
+    from authlib.jose import JsonWebKey, JsonWebToken
+
+../../../../tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/authlib/integrations/httpx_client/assertion_client.py:5
+  /tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/authlib/integrations/httpx_client/assertion_client.py:5: AuthlibDeprecationWarning: The httpx module is deprecated; please use httpx2 instead.
+    from ._compat import httpx2
+
+tests/test_agentic_nested_outputs.py: 22 warnings
+tests/test_agentic_contracts.py: 4 warnings
+  /tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py:2346: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'request' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[ziwei_birth-ziwei_birth.palaces]
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[liureng_gods-liureng.three_transmissions.initial.branch]
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[sixyao-lines]
+tests/test_agentic_contracts.py::test_success_data_schema_and_projection_match_all_transports[False]
+tests/test_agentic_contracts.py::test_success_data_schema_and_projection_match_all_transports[False]
+tests/test_agentic_replay.py::test_fixed_clock_replay_and_metadata_match_three_transports[/api/cn/bazi/birth-bazi_birth-inputs0]
+tests/test_agentic_replay.py::test_pinned_partial_date_uses_existing_month_clamping_and_timezone_rules
+  /Users/thomas/Desktop/FateBridge/src/fatebridge/core/almanac.py:200: DeprecationWarning: fromSolarDate is deprecated, use from_solar_date instead
+    lunar = LunarDate.fromSolarDate(solar_date.year, solar_date.month, solar_date.day)
+
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[ziwei_birth-ziwei_birth.palaces]
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[liureng_gods-liureng.three_transmissions.initial.branch]
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[sixyao-lines]
+tests/test_agentic_contracts.py::test_success_data_schema_and_projection_match_all_transports[False]
+tests/test_agentic_contracts.py::test_success_data_schema_and_projection_match_all_transports[False]
+tests/test_agentic_replay.py::test_fixed_clock_replay_and_metadata_match_three_transports[/api/cn/bazi/birth-bazi_birth-inputs0]
+tests/test_agentic_replay.py::test_pinned_partial_date_uses_existing_month_clamping_and_timezone_rules
+  /Users/thomas/Desktop/FateBridge/src/fatebridge/core/almanac.py:201: DeprecationWarning: toSolarDate is deprecated, use to_solar_date instead
+    if lunar.toSolarDate() != solar_date:
+
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[ziwei_birth-ziwei_birth.palaces]
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[liureng_gods-liureng.three_transmissions.initial.branch]
+tests/test_agentic_nested_outputs.py::test_professional_partial_output_matches_transports_and_no_metadata[sixyao-lines]
+tests/test_agentic_contracts.py::test_success_data_schema_and_projection_match_all_transports[False]
+tests/test_agentic_contracts.py::test_success_data_schema_and_projection_match_all_transports[False]
+tests/test_agentic_replay.py::test_fixed_clock_replay_and_metadata_match_three_transports[/api/cn/bazi/birth-bazi_birth-inputs0]
+tests/test_agentic_replay.py::test_pinned_partial_date_uses_existing_month_clamping_and_timezone_rules
+  /tmp/fatebridge-mcp-floor-20261012/lib/python3.10/site-packages/lunardate.py:143: DeprecationWarning: use is_leap_month
+    warnings.warn("use is_leap_month", DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+229 passed, 50 warnings in 188.66s (0:03:08)

@@ -1,0 +1,380 @@
+{
+  "tested_head": "48c0eaa5c7726fcab2f9a6ee288a231f7dadd62b",
+  "pull_request": "https://github.com/Yonder-Lab/FateBridge/pull/180",
+  "workflow_run": "https://github.com/Yonder-Lab/FateBridge/actions/runs/38230062567",
+  "prior_full_linux_suite": "docs/audits/2026-10-12/output-projection-linux/linux-release-full.xml",
+  "prior_execution_files_verified": 383,
+  "current_worktree_equals_tested_execution_source": false,
+  "prior_full_linux_tests": 1960,
+  "prior_full_linux_skips": 0,
+  "independent_followup": {
+    "golden": {
+      "environment": "Linux-x86_64",
+      "python": "3.12.3",
+      "image": "sha256:78e70cc82ced587f39e7cd2dfb27a41cbcb5d458871acbc25e10029755a2931e",
+      "dependencies": {
+        "pyswisseph": "2.10.3.2",
+        "kerykeion": "5.12.10",
+        "fastmcp": "4.1.0",
+        "mcp": "2.3.0",
+        "lunardate": "0.3.0",
+        "pydantic": "2.14.0",
+        "pytest": "9.1.1"
+      },
+      "golden_diff_active": true,
+      "cases": 88,
+      "matched": 88,
+      "differences": {},
+      "missing_snapshots": [],
+      "stale_snapshots": [],
+      "baseline_mutated": false
+    },
+    "schema_leaf_checks": 20,
+    "cli_subprocess_surface_projections": 14
+  },
+  "golden_snapshot_sha256": {
+    "tests/golden/snapshots/api_divination_meihua.json": "ecde61f8aea16e92c965352e6b998da1266db91e206b8c160114d3084512c62c",
+    "tests/golden/snapshots/api_timing_dayun.json": "86129e65cacc17691f1334183cf6ada9675a83f18b5428b6979b579e7182d2f1",
+    "tests/golden/snapshots/api_astro_hellen.json": "961557432ad8248ab7a82673daf01503bb237350f5332e96cbb15afde7eec305",
+    "tests/golden/snapshots/api_divination_tongshefa.json": "1f8300b811870fe9e3657fa33c1d4d5d8412e7fd4ca5a7a178e82bb79de95f64",
+    "tests/golden/snapshots/api_divination_sixyao.json": "4cdc8a2629705ebc857e64a09c0fa8bf9c50e2f7df1e7a9e659a932af49b9374",
+    "tests/golden/snapshots/api_divination_canping.json": "4395f6281142cd2c1dfda5b0fbb020c9e2d237a60162be9b073eed79b8c341e4",
+    "tests/golden/snapshots/api_astro_lifespan_planetary_ages.json": "9d0d075157103d7d1ff26febbbe8d983e6008a5c4e76a0717fbc53e49c4dc80d",
+    "tests/golden/snapshots/api_astro_lifespan_persiandirected.json": "25895aa88c756abdd456b4ad396d1ab6c11d4e764e955925be6156fb96314612",
+    "tests/golden/snapshots/api_astro_chart13.json": "22839c714f31b539f88cbaafcf8c96a54f08d30dedef938f95f410f6f722ce2d",
+    "tests/golden/snapshots/api_astro_guolao.json": "88b20e1c4fb881caf5a4e450cbaf1ca0832914a0c2e08501b13e55db375de8ef",
+    "tests/golden/snapshots/api_cn_bazi_personality.json": "21b6b1583913ad31b31aa971bb2820a9cf1a4174b7939f0d9e0ab912fadde68b",
+    "tests/golden/snapshots/api_astro_timing.json": "3f1f28c7a4408950e686b6631cb97e113576c00c2299ab9d730ed15a4f7c30ec",
+    "tests/golden/snapshots/api_cn_bazi_health.json": "9f52cf79e88da9992ee3a4953f9d4871dc1bed0c9af2ec082ad2bfa9192ddf3a",
+    "tests/golden/snapshots/api_fengshui_assess.json": "72af7b940ce04df53949517f34c3cdb31036aa2f14448f80c51f61310401ea92",
+    "tests/golden/snapshots/api_astro_lifespan_agepoint.json": "213b55ff3d6a06574b2bfe8627908e0ce893e1ed15d6862f788128b91fb5251d",
+    "tests/golden/snapshots/api_divination_sanshiunited.json": "fd188f0b4551831ad9f9fb97bb370b1975cbf98a2ac72523548d999c06507af8",
+    "tests/golden/snapshots/api_cn_liureng_gods.json": "92d253d24fe4e2e9654d8364d0f23ea83645e9561d98ad981d2338c264930efb",
+    "tests/golden/snapshots/mcp_analyze_destiny.json": "348bd369921bf56938b096ab33ee8f14f03b8d65c69499dd4d5b49c276fb4089",
+    "tests/golden/snapshots/api_divination_suzhan.json": "e0ba1942d927a867ebf9c297c8bf8a8a38eace0cb289d31ea836be96f6fb7904",
+    "tests/golden/snapshots/api_astro_lifespan_distributions.json": "fbf1a5a83283242fe9b68e72cced16e779e7d2df5cd852116deb7ca1d65d06a5",
+    "tests/golden/snapshots/api_astro_event_extrareturns.json": "6c23c91eac2d0da2d04da4fca88ad4ec28dcfd6cea03e170f7a56bd46ccf6b99",
+    "tests/golden/snapshots/api_cn_bazi_relatives.json": "fbf7fe4d6c4d1e8d1050add2aae337dc0b92b836accc5968783a7ee6a8b6ef97",
+    "tests/golden/snapshots/api_cn_jinkou.json": "07dda3a06e4a6dfcbadebb382b5bec45ab097280b2db9658e56858917c8f118c",
+    "tests/golden/snapshots/api_cn_jieqi_year.json": "1a1693ca917ad84e7d7cbe499b41a8af67974f3761caff49c2e2fa2ba56fd432",
+    "tests/golden/snapshots/api_cn_liureng_runyear.json": "98bb4332d0a0a2603e1dafa7aa04dd0a2e15773afd9107ebac16396d345b999c",
+    "tests/golden/snapshots/api_cn_ziwei_birth.json": "4da2f1f5e643e752054303586a6f65ca9d838e1f6fabf66fda2ec5e3e5a188d5",
+    "tests/golden/snapshots/api_export_parse.json": "b91542316fcd5fa2c2d88f771d46b64a98713faa4c2ed135325465a715087af7",
+    "tests/golden/snapshots/api_cn_bazi_marriage.json": "7114408bd7cda4e64a22cbe75593dd25b7d8571ec889c163a2645c0d04953a23",
+    "tests/golden/snapshots/api_astro_timing_pdchart.json": "d8def6050793cdd18e3e75e03958ab3d54ef9b817206c8421c85ed16541e6b49",
+    "tests/golden/snapshots/api_astro_lifespan_vedicprog.json": "d1b3e2d8139e994b39f9a8a273e9d4f7e6b116028a3eea0dcd07cf5aa6894c6c",
+    "tests/golden/snapshots/api_astro_relative.json": "e9f6fd3b90a909c2b0e1c8eda2038f008a26d2df44742daed4d6ec935ca1e8dd",
+    "tests/golden/snapshots/api_cn_bazi_birth.json": "828511c68385382cef6bb8013dfa1030be311c5e32b27f193463f9203a7325dd",
+    "tests/golden/snapshots/api_astro_timing_transit.json": "45151913a6afe1a33d32f7e00dcc76262460bcfb0b95b4ced7450277d9e2cae8",
+    "tests/golden/snapshots/api_cn_bazi_wealth.json": "ef606f0626b1d4d27fad5d439f4f676a4344709ce13fcbf81b4b2a0c834dddd2",
+    "tests/golden/snapshots/api_compatibility_sukuyo.json": "bf9eb2518f53ca57533b09e2e98fc82c304b58ef585bf247eef61bb0e2e2879d",
+    "tests/golden/snapshots/api_fengshui_bazhai.json": "bcdce723fdd4da4b64a3ee19af9e004942d5ab876a78c760f6c1e6e5f55f9917",
+    "tests/golden/snapshots/api_cn_taiyi.json": "7a94a16420c658613bd18f4392ea3c0a4c63664f8b11bb5bd84349afae5de731",
+    "tests/golden/snapshots/api_knowledge_registry.json": "95ec40444e6d1553d682863ddc0974b0d692b5b95ba422bbf7fcb2bfd2a60fb5",
+    "tests/golden/snapshots/api_cn_bazi_education.json": "9b00831e1cc3b9937607c38ebca21479a837fe91c30a9a8614246361f2c0da1f",
+    "tests/golden/snapshots/api_astro_event_horary.json": "69cb6df816dadf0d97e4ae81a508d6ac7c5ccd2f446f745a2fa6edf920c43625",
+    "tests/golden/snapshots/api_fengshui_jinsuo.json": "55594c5fb71c091dc3deaf8b601af9e849f64e298f754871c0f52188b0fae244",
+    "tests/golden/snapshots/api_fengshui_xuankong_natal.json": "667d1d9cac4ab9cbbee3ddf83edd0c51ef22875f1ff7f6841c00ceab7512011e",
+    "tests/golden/snapshots/api_cn_gua_meiyi.json": "811464d41a3bc9fbdfbc061e7f7fae1423c43c321dbab60d744e22953870f7e5",
+    "tests/golden/snapshots/api_astro_timing_lunarreturn.json": "8245f0af733bfb22f27413d95573f0c5179fec4cb0c8d6304509ae0ff5a1fc01",
+    "tests/golden/snapshots/api_astro_timing_solararc.json": "212bdfa6dc36e412081e4888b75a63223cc21f5f34a8f7360c10ca7be496a1eb",
+    "tests/golden/snapshots/api_astro_timing_givenyear.json": "a70b6b7ba2bdded435f64c30a178130d678408fd5a44e422ee512c6f87fd5b81",
+    "tests/golden/snapshots/api_astro_timing_profection.json": "4529941122c85eb554a694afd2d15f7d53a29fc26f371f136230d8cdceaee8a8",
+    "tests/golden/snapshots/api_astro_timing_pd.json": "c851867de6d7f4da7e4d39b4d44eda9094003406efbefad3de09cce5326f019e",
+    "tests/golden/snapshots/api_astro_chart.json": "3bf6e96dd38f4611c63bd47cc0f06255240ee9ec02c3cbeea322a70a3843f88b",
+    "tests/golden/snapshots/api_compatibility.json": "3c7080487403ba3a43c46bcad7eba9a09c6a70db989e4cc3033e07cb4bbe316d",
+    "tests/golden/snapshots/api_calculate.json": "8a159c61030e967dfee200495a57ea682adeec3cea37d221ca93d5af49d8576d",
+    "tests/golden/snapshots/api_astro_timing_firdaria.json": "40b2b504acdee5c73475ae6cf781685c1bf4b549f0cb30e9086adbdda408b612",
+    "tests/golden/snapshots/api_cn_bazi_romance.json": "d2087fabf18faced6bc1e82b0acf257b5c2b57c61aadc361b597b735dd42597e",
+    "tests/golden/snapshots/api_timing_liuri.json": "cc40d1fe22a3b5fdb1d71adba95acf6936f0d6493936c4ce03a7f3601ed508e7",
+    "tests/golden/snapshots/api_astro_lifespan_jaynesprog.json": "e983291cd1e546a56fc574dd5c9cd2faa52300df30d2dfd72354e8211500919d",
+    "tests/golden/snapshots/api_astro_lifespan_yearsystem129.json": "5042da7e2d75996ca652f54315ccfe69662785ea78054219939cf1e539ef588b",
+    "tests/golden/snapshots/api_fengshui_directions.json": "71a0aae3f6daf41db46d6c9faa40301b9165a04c7d2388845fc9d6e6d335aec0",
+    "tests/golden/snapshots/api_astro_lifespan_harmonic.json": "5386941c11bda4fe7b4c7f8093d86079d5a43b70c1b4018c73e4a7a71daf5911",
+    "tests/golden/snapshots/api_timing_liushi.json": "0d44dada1facd82dbb7b740312fbad8fa0a064d6baecabee7db810feab2a507b",
+    "tests/golden/snapshots/api_astro_timing_zr.json": "8fabda2ce7c688058909217e075cc2dc8e959abc7997e3b0a12c87273aa9fc89",
+    "tests/golden/snapshots/api_cn_bazi_career.json": "5831d541db9f5a1eb34988493d0739aa94e122de1bbdcc8329a31b0757649e0d",
+    "tests/golden/snapshots/api_fengshui_annual_stars.json": "87aa82cc444a298dbad958581c73477d80fce6b69743d9b7a2999ebf5c3a81ff",
+    "tests/golden/snapshots/api_astro_lifespan_balbillus.json": "b692cc6ef39f0ea551dec9d558e6108b697a8ae1a553e1e866f85c39515b9c36",
+    "tests/golden/snapshots/api_astro_timing_solarreturn.json": "12c9dd7c2504a60f2b4c0ff1c4867c557efbadc106ecdc0e51c51f86ac4633cf",
+    "tests/golden/snapshots/api_astro_germany.json": "6aee25fc7c6a7d22adab2e5a5bafdd75a41e4c675824cb18520cf6426b92e4e3",
+    "tests/golden/snapshots/api_divination_heluo.json": "85dde722f66966593ebb65a42aeacafdec2beb66ba8a49274a86ef6ec21c0f37",
+    "tests/golden/snapshots/api_cn_bazi_children.json": "b0ba9ad67ec6858fcea33b2de55d4444564c5d24991fa88e3d8bdae64f4c131e",
+    "tests/golden/snapshots/api_astro_event_mundane.json": "913fa95d56f7ed47c8c53a3ffd05c1e8011f2d38b9debface7b1224ad8d862fa",
+    "tests/golden/snapshots/api_fengshui_minggua.json": "771d617bfc79ab90b718c54424eb66e4f171598bb02751196c236265e88aa3dc",
+    "tests/golden/snapshots/api_cn_nongli_time.json": "90a7bc4a28214dc337a0bd36a544f1954525f248c5cb7bad1afd5d649babd77e",
+    "tests/golden/snapshots/api_astro_lifespan_lunation_phase.json": "c22077a732ee841c86c283d8e85d9f4ac31381fc720fb892114679f56aae6d55",
+    "tests/golden/snapshots/api_cn_ziwei_horoscope.json": "55f4414ea9f5afff2643418286781bb6292a67b2e4c0ede4f7760dec815ee6ed",
+    "tests/golden/snapshots/api_astro_india.json": "38db9ba55c94ed03657738ad4a8d61c200701a6a91642ec247c347987f9cd76e",
+    "tests/golden/snapshots/api_timing_liuyue.json": "d2ce895d0657695a85ae198dcece5a078b027deff5f0c27592ae69cb62305d48",
+    "tests/golden/snapshots/api_astro_lifespan_keypoints.json": "71e48d8d13a630d4f7f2a315fe536610a5ef93692db0c31244fa0db6693fff76",
+    "tests/golden/snapshots/api_timing_liunian.json": "973e57d5360340fe41cc7f44c4dc62e525c42d24236e3c4835d872ba31560e8b",
+    "tests/golden/snapshots/api_astro_lifespan_planetaryarc.json": "28484625569b5bd5d1466e3fe436e4ecb21905a46cebe123ee6a2820a42eaf2a",
+    "tests/golden/snapshots/api_timing_comprehensive.json": "feb91f25b745bac158f1632730aab7b101157972d183e68b727f0a09060e61d6",
+    "tests/golden/snapshots/api_export_registry.json": "69ff39ebb02f4152624df1785584c138942ae1fc84478711e55e87fe946b8d42",
+    "tests/golden/snapshots/api_knowledge_read.json": "75957668a87061a21b04c7025ab060bdb8d77cdb5c8c3c86fc025259a0e16654",
+    "tests/golden/snapshots/api_timing_jieqi.json": "c832356a42ac2bb5c3449db8b396c9f9db219858d8d4f268175224bf87f7d290",
+    "tests/golden/snapshots/api_cn_qimen.json": "6e26eeb4c7118228e12246028fc110264ba055a3a055b5dfe70efb59e5140a79",
+    "tests/golden/snapshots/api_divination_gua.json": "c7ca49c02a9da705de5bc6b0621e69894a9c287ef7c850ebabbc90c7b5c3da3c",
+    "tests/golden/snapshots/api_cn_ziwei_rules.json": "abcf63c9832cc7aea0f87661c7ab3c6e15ec25ae2b43ba0a3c6732a2d19921a2",
+    "tests/golden/snapshots/api_astro_lifespan_triplicity_rulers.json": "636906c53248cf00d2cd0219df1fb217ce2b8f53bf98c388037b56f2549f724b",
+    "tests/golden/snapshots/api_astro_event_election.json": "d2b7e5e769ad752470c57c3b78cb1e22aefbba41589c172a4946a1c485ce403c",
+    "tests/golden/snapshots/api_divination_otherbu.json": "606816d82a1bdea89393e849b85f83542a121aee2681bf2f044fdce6df58c59f",
+    "tests/golden/snapshots/api_astro_timing_decennials.json": "6a8a01a9d502332bbd77fecef6824d3c6abca7917694b04d1e0537b72a2d5ef0"
+  },
+  "cache": "/Users/thomas/.cache/fatebridge-agentic-linux-ci-20261012-1725",
+  "managed_worktree": "/Users/thomas/.codex/worktrees/agentic-p2-linux-ci/FateBridge",
+  "hosted_ci_status": "success",
+  "local_container_profile": "fatebridge-ci-linux",
+  "original_docker_context": "default",
+  "hosted_ci_jobs": {
+    "ci-test-3-10": {
+      "job_id": 114747075376,
+      "name": "test (3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "result": "1871 passed, 89 skipped, 238 warnings in 694.01s (0:11:34)",
+      "passed": 1871,
+      "skipped": 89,
+      "python": "3.10.22",
+      "dependencies": {
+        "fastapi": "0.143.0",
+        "fastmcp": "4.1.0",
+        "kerykeion": "5.12.10",
+        "lunardate": "0.3.0",
+        "mcp": "2.3.0",
+        "pydantic": "2.14.1",
+        "pyswisseph": "2.10.3.2",
+        "pytest": "9.1.1"
+      },
+      "step_results": {
+        "Set up job": "success",
+        "Checkout repository": "success",
+        "Set up Python": "success",
+        "Install uv": "success",
+        "Install dependencies": "success",
+        "Run tests": "success",
+        "Check formatting": "success",
+        "Check import order": "success",
+        "Run type checks": "success",
+        "Post Install uv": "success",
+        "Post Set up Python": "success",
+        "Post Checkout repository": "success",
+        "Complete job": "success"
+      },
+      "log_sha256": "6bf8c320632fee4b0bb07aec65e6d0f932d13a3a46158013cbedf63c24b71724"
+    },
+    "ci-test-3-13": {
+      "job_id": 114747075423,
+      "name": "test (3.13)",
+      "status": "completed",
+      "conclusion": "success",
+      "result": "1871 passed, 89 skipped, 239 warnings in 529.15s (0:08:49)",
+      "passed": 1871,
+      "skipped": 89,
+      "python": "3.13.16",
+      "dependencies": {
+        "fastapi": "0.143.0",
+        "fastmcp": "4.1.0",
+        "kerykeion": "5.12.10",
+        "lunardate": "0.3.0",
+        "mcp": "2.3.0",
+        "pydantic": "2.14.1",
+        "pyswisseph": "2.10.3.2",
+        "pytest": "9.1.1"
+      },
+      "step_results": {
+        "Set up job": "success",
+        "Checkout repository": "success",
+        "Set up Python": "success",
+        "Install uv": "success",
+        "Install dependencies": "success",
+        "Run tests": "success",
+        "Check formatting": "success",
+        "Check import order": "success",
+        "Run type checks": "success",
+        "Post Install uv": "success",
+        "Post Set up Python": "success",
+        "Post Checkout repository": "success",
+        "Complete job": "success"
+      },
+      "log_sha256": "07c73b342224c1fc89f11f030dfae8b149f1a6e96e1422af0f3b6d066cb355cd"
+    },
+    "ci-floor": {
+      "job_id": 114747075443,
+      "name": "floor",
+      "status": "completed",
+      "conclusion": "success",
+      "result": "1871 passed, 89 skipped, 3 warnings in 1036.39s (0:17:16)",
+      "passed": 1871,
+      "skipped": 89,
+      "python": "3.10.22",
+      "dependencies": {
+        "fastapi": "0.110.1",
+        "fastmcp": "3.0.0",
+        "kerykeion": "5.5.0",
+        "lunardate": "0.2.2",
+        "mcp": "1.30.0",
+        "pydantic": "2.11.7",
+        "pyswisseph": "2.10.3.1",
+        "pytest": "7.0.0"
+      },
+      "step_results": {
+        "Set up job": "success",
+        "Checkout repository": "success",
+        "Set up Python": "success",
+        "Install uv": "success",
+        "Install dependencies at declared minimums": "success",
+        "Run tests": "success",
+        "Post Install uv": "success",
+        "Post Set up Python": "success",
+        "Post Checkout repository": "success",
+        "Complete job": "success"
+      },
+      "log_sha256": "6619e775e565525e5f25271372c2833f7086d25bfbcb920a82e3001691f07e1e"
+    },
+    "ci-test-3-11": {
+      "job_id": 114747075460,
+      "name": "test (3.11)",
+      "status": "completed",
+      "conclusion": "success",
+      "result": "1871 passed, 89 skipped, 238 warnings in 783.21s (0:13:03)",
+      "passed": 1871,
+      "skipped": 89,
+      "python": "3.11.17",
+      "dependencies": {
+        "fastapi": "0.143.0",
+        "fastmcp": "4.1.0",
+        "kerykeion": "5.12.10",
+        "lunardate": "0.3.0",
+        "mcp": "2.3.0",
+        "pydantic": "2.14.1",
+        "pyswisseph": "2.10.3.2",
+        "pytest": "9.1.1"
+      },
+      "step_results": {
+        "Set up job": "success",
+        "Checkout repository": "success",
+        "Set up Python": "success",
+        "Install uv": "success",
+        "Install dependencies": "success",
+        "Run tests": "success",
+        "Check formatting": "success",
+        "Check import order": "success",
+        "Run type checks": "success",
+        "Post Install uv": "success",
+        "Post Set up Python": "success",
+        "Post Checkout repository": "success",
+        "Complete job": "success"
+      },
+      "log_sha256": "60651f92107c61c04e0cc414916e261415a69182a7abde297a53b5b9fcc99484"
+    },
+    "ci-test-3-12": {
+      "job_id": 114747075462,
+      "name": "test (3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "result": "1960 passed, 242 warnings in 545.60s (0:09:05)",
+      "passed": 1960,
+      "skipped": 0,
+      "python": "3.12.15",
+      "dependencies": {
+        "fastapi": "0.143.0",
+        "fastmcp": "4.1.0",
+        "kerykeion": "5.12.10",
+        "lunardate": "0.3.0",
+        "mcp": "2.3.0",
+        "pydantic": "2.14.1",
+        "pyswisseph": "2.10.3.2",
+        "pytest": "9.1.1"
+      },
+      "step_results": {
+        "Set up job": "success",
+        "Checkout repository": "success",
+        "Set up Python": "success",
+        "Install uv": "success",
+        "Install dependencies": "success",
+        "Run tests": "success",
+        "Check formatting": "success",
+        "Check import order": "success",
+        "Run type checks": "success",
+        "Post Install uv": "success",
+        "Post Set up Python": "success",
+        "Post Checkout repository": "success",
+        "Complete job": "success"
+      },
+      "log_sha256": "d2476e3b3540a9cd5ff64653affac49e7eeada4a6d82d4247dd25183e33e2087"
+    }
+  },
+  "final_pr_execution_file_hashes_verified": 383,
+  "final_pr_golden_snapshot_hashes_verified": 88,
+  "local_container_profile_final_status": "Running",
+  "final_docker_context": "colima-fatebridge-ci-linux",
+  "original_workspace_equal_at_snapshot_creation": true,
+  "subsequent_workspace_execution_drift": {
+    "observed_at": "2026-10-12T09:54:40.059854+00:00",
+    "tested_head": "48c0eaa5c7726fcab2f9a6ee288a231f7dadd62b",
+    "root": "/Users/thomas/Desktop/FateBridge",
+    "changed_execution_files": {
+      "pyproject.toml": {
+        "tested_sha256": "4f493c09d988ed31377e8072c59c6f5369b74681158b4d6f23e44b78d9d09efe",
+        "current_sha256": "d0ccc26caac7d468ec868bc98d4dcccd410f101be93fc3b33f48df79ffedd2e2"
+      },
+      "scripts/gen_ziwei_brightness_fixture.py": {
+        "tested_sha256": "c3120650e9c6d1d7553b780bfde8501986243e639c288d8eed84df71a711b6c9",
+        "current_sha256": "e59d1e5af1c7bf07983ab3767ecc7ae53d524b127ccbecb90d2d7be7997285c2"
+      },
+      "src/fatebridge/analysis/compatibility.py": {
+        "tested_sha256": "aa2fe56e0b62ad6de5944399721881ae8f10912607c46ceb182b59a17fe9856a",
+        "current_sha256": "74426084024f049f156eae9e7632952c590d6a13719856deabd24b665e9d5a49"
+      },
+      "src/fatebridge/api.py": {
+        "tested_sha256": "ab5e6be6532c42773273260d45c698153404c6bd884ec190f597cabf38b62e77",
+        "current_sha256": "2e5b793f54f6a1c1cd7940bd47420796e4d43a58d6c554e2edcb460f8a732ee1"
+      },
+      "src/fatebridge/cli.py": {
+        "tested_sha256": "89051288c515dd73d433d03179068c033c5dc77f844b7ef3b69a81f1b8711213",
+        "current_sha256": "81b1b979015156fd59b0d399a6d5bc9b5189c9c6fb58e433f15585334c0de4a1"
+      },
+      "src/fatebridge/core/almanac.py": {
+        "tested_sha256": "d19f04fec119e109e70048593747d021d2a8199897785b0793b62eb1456f8230",
+        "current_sha256": "baa71ca24160b3ba5159e07c0e4d1b3a8b89e2bedb0f8c2dd06ebf0edc2e3be3"
+      },
+      "src/fatebridge/core/export_parser.py": {
+        "tested_sha256": "b9a570717872178be3276c5baf7ac493bcfd33b8e3912203b6342efaf8451fd4",
+        "current_sha256": "110feeaaad6109d96976b66a396189b7bd442c819ae2c23574a8a1552458b88e"
+      },
+      "src/fatebridge/core/tool_spec.py": {
+        "tested_sha256": "038a1f17e6623b98505211122721f55332770d89a5da42fe1438bd4864ec573e",
+        "current_sha256": "41b90d3fb04a12fa0ecafc44a29346b8b20841622fc2e01254eb86c178d5c54e"
+      },
+      "src/fatebridge/mcp_transport.py": {
+        "tested_sha256": "303ae563defcd267e9026d9855bfafbd4bd484005382e2177a4a26ea2ef76e10",
+        "current_sha256": "de8ac9ce8c21cd960caf7a481eae66468c78cfc15eaf26eddb34116a61511fb5"
+      },
+      "src/fatebridge/services/compatibility.py": {
+        "tested_sha256": "69270bc1da7bbd1444639bb47967b4a8379a8ce1897474d091e125d81e1f288a",
+        "current_sha256": "41372ab6f16dcb513c4b59c427e5350cf4f713c670b895464715aa3b572054b5"
+      },
+      "src/fatebridge/services/replay_metadata.py": {
+        "tested_sha256": "43661352d93ea057aa3959258acb439050c65d022e0458a0e325efc839f22e2c",
+        "current_sha256": "de67eeeb2907fa19301c6ddffadd2e5e83a6a8a50ad14417c5fdeaae10ad5dc2"
+      }
+    },
+    "changed_count": 11,
+    "all_original_workspace_golden_hashes_preserved": true,
+    "policy": "Preserve subsequent workspace edits; green CI applies to the attached PR snapshot."
+  },
+  "verified_scope": "Attached PR head and unchanged managed worktree; excludes subsequent original-workspace edits.",
+  "local_cleanup_observation": {
+    "after_local_verification": {
+      "profile": "Stopped",
+      "docker_context": "default"
+    },
+    "final_read_only_check": {
+      "profile": "Running",
+      "docker_context": "colima-fatebridge-ci-linux"
+    },
+    "action": "Preserved later environment changes; did not stop the restarted profile or switch the context again."
+  }
+}

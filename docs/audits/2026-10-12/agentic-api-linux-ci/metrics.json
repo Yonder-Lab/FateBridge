@@ -1,0 +1,19 @@
+{
+  "catalog_count": 89,
+  "rest_count": 87,
+  "mcp_count": 87,
+  "cli_count": 88,
+  "mcp_full_tools_utf8_bytes": 3918612,
+  "mcp_health_tools_count": 5,
+  "mcp_health_tools_utf8_bytes": 227935,
+  "rest_full_manifest_utf8_bytes": 2268806,
+  "rest_summary_manifest_utf8_bytes": 72801,
+  "mcp_full_tools_sha256": "75a78821825cc517fe9b16fae108a72fcf74edd736b1daf4340fcf82c4fd1c94",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.39",
+    "fastmcp": "4.1.0",
+    "fastapi": "0.143.0",
+    "pydantic": "2.14.0"
+  }
+}

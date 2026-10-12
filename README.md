@@ -137,7 +137,7 @@ FateBridge 被设计成 Agent 友好的：
 - `GET /api/tools`（或 MCP 的 `tools/list`）可以自动枚举全部能力；
 - 错误返回统一的 `{error, error_code, retryable}` 结构；
 - 输入校验错误附带安全的 `issues` 字段提示；显式非法主题和未知请求字段会被拒绝；
-- MCP 返回结构化 JSON、兼容 text JSON 与原生 `isError`；三端发现接口共享输出 schema；专业嵌套事实覆盖主限、递归时主、星盘、中国术数、八字专题、宿曜关系及知识/导出，支持投影与扩展，详见 [API 参考](docs/api-reference.md)；
+- MCP 返回结构化 JSON、兼容 text JSON 与原生 `isError`；三端发现接口共享输出 schema；专业嵌套事实覆盖主限、递归时主、星盘、中国术数、八字专题、宿曜关系及知识/导出，支持投影与扩展，详见 [API 参考](docs/api-reference.md)及 [专业输出验收](docs/agentic-api-p2-nested-fixes-2026-10-12.md) 与 [专题及知识/导出验收](docs/agentic-api-p2-domain-contracts-fixes-2026-10-12.md)；
 - 成功响应默认包含 `run_metadata`，便于追踪；CLI 可用 `--no-metadata` 关闭。
 
 接入示例、字段投影、快照导出等细节，请见 [`docs/agent-guide.md`](docs/agent-guide.md)。

@@ -1,0 +1,227 @@
+--- tested/pyproject.toml
++++ current/pyproject.toml
+@@ -54,11 +54,6 @@
+     "isort>=5.12.0",
+     "mypy>=1.5.0",
+     "pyyaml>=6.0",  # test_skills_interface_contract parses agents/interface.yaml
+-]
+-iztro-verify = [
+-    # Legacy optional verifier; the horoscope fixture now comes from the
+-    # explicitly pinned JS iztro 2.5.8 generator (active scope.index palaces).
+-    "py-iztro>=0.1.5,<0.2",
+ ]
+ 
+ [project.urls]
+--- tested/scripts/gen_ziwei_brightness_fixture.py
++++ current/scripts/gen_ziwei_brightness_fixture.py
+@@ -15,13 +15,8 @@
+ represented here as an explicit None in the 擎羊/陀罗 lists and produces no
+ key in the output JSON.
+ 
+-NOTE: If you want to attempt genuine py-iztro cross-validation instead of
+-this source-derived fixture, install the optional extra first:
+-    pip install "fatebridge[iztro-verify]"
+-then adapt this script to call py_iztro.Astro().by_solar(...) and iterate
+-over palaces.  As of 2026-06-19 that approach yields only ~20 entries (one
+-per star for a single birth chart) rather than the full brightness table
+-(232 non-None entries), so Path B remains the preferred fixture.
++The horoscope oracle is generated separately by gen_ziwei_horoscope_fixture.py
++using the pinned JS iztro 2.5.8 implementation. No Python iztro extra is needed.
+ """
+ 
+ from __future__ import annotations
+--- tested/src/fatebridge/analysis/compatibility.py
++++ current/src/fatebridge/analysis/compatibility.py
+@@ -202,7 +202,7 @@
+ 
+         # 6. 根据关系类型调整分析重点
+         relationship_adjustment = AdvancedCompatibility._adjust_for_relationship_type(
+-            result["detailed_analysis"], relationship_type
++            relationship_type
+         )
+         result["recommendations"].extend(relationship_adjustment["recommendations"])
+ 
+@@ -966,18 +966,10 @@
+ 
+     @staticmethod
+     def _adjust_for_relationship_type(
+-        detailed_analysis: Dict[str, Any], relationship_type: RelationshipType
++        relationship_type: RelationshipType,
+     ) -> Dict[str, Any]:
+-        """根据关系类型给出侧重方向的建议。
+-
+-        早期版本还会返回一个 ``score_adjustment`` 字段试图二次放大各维度分，
+-        但调用方从未消费它，保留只会带来字段歧义和未来回归，所以整条分数
+-        调整路径已被删除。本函数现在只产出 recommendations。
+-        """
++        """根据关系类型给出侧重方向的建议。"""
+         recommendations: List[str] = []
+-        # detailed_analysis 在当前实现里已经是用权重结构算出来的，这里不再
+-        # 二次读取它的每维得分；保留参数仅为向后兼容和潜在的策略扩展。
+-        del detailed_analysis
+ 
+         if relationship_type == RelationshipType.MARRIAGE:
+             recommendations.append("婚姻关系建议重视五行互补和精神契合")
+--- tested/src/fatebridge/api.py
++++ current/src/fatebridge/api.py
+@@ -21,7 +21,6 @@
+ from fastapi.middleware.cors import CORSMiddleware
+ from fastapi.openapi.utils import get_openapi
+ from fastapi.responses import JSONResponse, PlainTextResponse
+-from pydantic import BaseModel
+ from starlette.concurrency import run_in_threadpool
+ from starlette.middleware.base import RequestResponseEndpoint
+ from starlette.responses import Response
+@@ -618,13 +617,11 @@
+ # ============================================================================
+ 
+ from fatebridge.core.tool_spec import (  # noqa: E402
+-    describe_spec,
+     make_rest_handler,
+     register_rest,
+ )
+ from fatebridge.services.tool_catalog import (  # noqa: E402
+     CATALOG,
+-    mcp_specs,
+     rest_specs,
+ )
+ 
+--- tested/src/fatebridge/cli.py
++++ current/src/fatebridge/cli.py
+@@ -33,7 +33,6 @@
+ from fatebridge.core.tool_spec import (
+     ToolSpec,
+     describe_spec,
+-    execute_spec,
+     execute_tool,
+ )
+ from fatebridge.core.tool_spec import field_type_name as _type_name
+--- tested/src/fatebridge/core/almanac.py
++++ current/src/fatebridge/core/almanac.py
+@@ -11,7 +11,7 @@
+ from dataclasses import dataclass
+ from datetime import date, datetime, timedelta, timezone
+ from functools import lru_cache
+-from typing import Any, Dict, List, Optional, Tuple, cast
++from typing import Any, Dict, List, Optional, Tuple
+ 
+ try:
+     from lunardate import LunarDate
+--- tested/src/fatebridge/core/export_parser.py
++++ current/src/fatebridge/core/export_parser.py
+@@ -101,13 +101,12 @@
+         if selected_sections
+         else technique_info["preset_sections"][:]
+     )
++    mapped_sections = [map_legacy_section_title(technique, item) for item in requested]
+     selected_normalized = unique_list(
+         [
+-            map_legacy_section_title(technique, item)
+-            for item in requested
+-            if map_legacy_section_title(technique, item)
+-            and normalize_section_title(map_legacy_section_title(technique, item))
+-            not in forbidden
++            item
++            for item in mapped_sections
++            if item and normalize_section_title(item) not in forbidden
+         ]
+     )
+     wanted = {normalize_section_title(item) for item in selected_normalized}
+--- tested/src/fatebridge/core/tool_spec.py
++++ current/src/fatebridge/core/tool_spec.py
+@@ -44,6 +44,7 @@
+     safe_correlation,
+ )
+ from fatebridge.core.reproducibility import ReproducibilityPolicy
++from fatebridge.core.schema_cache import model_schema
+ from fatebridge.utils.errors import (
+     ErrorEnvelope,
+     ParameterError,
+@@ -719,10 +720,10 @@
+             "mcp_name": spec.mcp_name,
+         },
+         "parameters": parameters,
+-        "input_schema": spec.request_model.model_json_schema(),
++        "input_schema": model_schema(spec.request_model),
+         "cli_request_file": spec.cli_request_file,
+         "output_schema": (
+-            spec.output_model.model_json_schema() if spec.output_model else None
++            model_schema(spec.output_model) if spec.output_model else None
+         ),
+     }
+ 
+@@ -846,7 +847,6 @@
+             # Mirror the MCP/CLI path (see _render_tool_response): only reshape
+             # successful payloads so a transform keyed on a domain field can
+             # never corrupt an error envelope.
+-            validate_output(spec, result)
+             # Project AFTER run_metadata is attached (execute_service did it) so
+             # provenance survives a selection; then drop snapshot_text if opted
+             # out. Order matches MCP's _render_tool_response.
+@@ -971,7 +971,7 @@
+             ),
+             tags={spec.family},
+             output_schema=(
+-                spec.output_model.model_json_schema() if spec.output_model else None
++                model_schema(spec.output_model) if spec.output_model else None
+             ),
+         )
+         for name in _MCP_SOLAR_FIELDS & spec.request_model.model_fields.keys():
+--- tested/src/fatebridge/mcp_transport.py
++++ current/src/fatebridge/mcp_transport.py
+@@ -6,7 +6,7 @@
+ from fastmcp.server.middleware import Middleware, MiddlewareContext
+ from fastmcp.tools import ToolResult
+ from mcp.types import CallToolResult
+-from pydantic import BaseModel, ConfigDict, ValidationError
++from pydantic import ConfigDict, ValidationError
+ 
+ from fatebridge.core.discovery import discover_specs
+ from fatebridge.core.execution_context import (
+--- tested/src/fatebridge/services/compatibility.py
++++ current/src/fatebridge/services/compatibility.py
+@@ -38,18 +38,6 @@
+     context2 = _build_birth_computation_context(person2)
+     analysis1 = _render_destiny_analysis(context1)
+     analysis2 = _render_destiny_analysis(context2)
+-
+-    # Propagate the underlying per-person error preserving its status_code/
+-    # error_code so the HTTP layer can return the correct class instead of
+-    # collapsing everything into a generic 500.
+-    for upstream in (analysis1, analysis2):
+-        if "error" in upstream:
+-            return {
+-                "error": upstream.get("error", "计算个人分析时出现错误"),
+-                "error_code": upstream.get("error_code", "internal_error"),
+-                "status_code": upstream.get("status_code", 500),
+-                "retryable": upstream.get("retryable", False),
+-            }
+ 
+     # 转换关系类型
+     rel_type_map = {
+--- tested/src/fatebridge/services/replay_metadata.py
++++ current/src/fatebridge/services/replay_metadata.py
+@@ -12,6 +12,7 @@
+ 
+ from fatebridge import __version__
+ from fatebridge.core.execution_context import CallClock, ExecutionOptions
++from fatebridge.core.schema_cache import contract_fingerprint
+ 
+ METADATA_SCHEMA_VERSION = "1.0"
+ 
+@@ -184,14 +185,7 @@
+     return {
+         "metadata_schema_version": METADATA_SCHEMA_VERSION,
+         "package_version": __version__,
+-        "contract_sha256": digest(
+-            {
+-                "input": spec.request_model.model_json_schema(),
+-                "output": (
+-                    spec.output_model.model_json_schema() if spec.output_model else None
+-                ),
+-            }
+-        ),
++        "contract_sha256": contract_fingerprint(spec.request_model, spec.output_model),
+         "input_sha256": input_digest,
+         "business_output_sha256": digest(body),
+         "duration_ms": round(elapsed_ms, 3),
