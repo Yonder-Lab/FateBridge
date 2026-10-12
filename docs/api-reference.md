@@ -752,6 +752,6 @@ python -m fatebridge.mcp_server
 | `/api/fengshui/xuankong_natal` | `fengshui_xuankong_natal` | 中州派运山向宅盘、历史定运、兼向替星及边界候选；独立于年星 |
 | `/api/fengshui/assess` | `fengshui_assess` | 基础三层及显式选择的玄空宅盘、规则版本／来源、逐人差异和缺失项 |
 
-输入不继承完整八字生辰要求；有效生年与出生时刻二选一，年度同理。角度须声明参考北。组合结果在 `layers.bazhai`、`layers.jinsuo`、`layers.annual_stars` 中分别返回，合法缺失资料用 `status=partial`，不是协议错误。完整玄空宅盘、月盘和金锁进阶规则不在此版；没有三法总分。每层带规则版本、来源和范围，快照记录同一组分层计算事实。
+输入不继承完整八字生辰要求；有效生年与出生时刻二选一，年度同理。角度须声明参考北。组合结果在 `layers.bazhai`、`layers.jinsuo`、`layers.annual_stars` 中分别返回，合法缺失资料用 `status=partial`，不是协议错误。月飞星和金锁进阶规则不在此版；没有三法总分。每层带规则版本、来源和范围，快照记录同一组分层计算事实。
 
 三端可复制示例、详细字段语义及来源限制见 [家居风水](fengshui.md)。CLI 示例：`fatebridge fengshui_assess --request-file docs/examples/fengshui-home.json`。MCP 参数为同一文件内容的 JSON 对象；REST 请求体同理。`--request-file` 保留未知字段交给模型拒绝，显式字段参数覆盖同名顶层字段。

@@ -53,3 +53,21 @@ mypy --cache-dir /audit/mypy-release-cache src/fatebridge/
 该快照在上述 Linux x86_64 / Python 3.12.3 固定镜像中重新执行完整测试：**1,960 passed、0 failed、0 skipped，570.22 秒**。JUnit 逐项确认 88 项 golden 比较及 1 项时钟验证全部通过；另一次 standalone golden 审计也为 88/88 字节一致。Black、isort、mypy、场景生成物检查、两个前置阶段的 REST／原生 MCP 启动验证及三端实际调用探针全部通过。383 个执行文件和 90 个受保护的基线／规则文件在快照测试前后哈希一致。
 
 本次 [提交前完整汇总](audits/2026-10-12/output-projection-linux/precommit/validation.json)、[完整日志](audits/2026-10-12/output-projection-linux/precommit/precommit-full.log)、[JUnit](audits/2026-10-12/output-projection-linux/precommit/precommit-full.xml) 和 [执行文件哈希](audits/2026-10-12/output-projection-linux/precommit/execution-hashes.json) 单独保留。汇总中的 tested_candidate_tree 标识受测内容树；测试结束后仅加入这份文档补记和验证证据，执行源码未变。该记录仍为本地参考容器验证，不宣称远端 CI 或部署结果。
+
+## master 推送后的 GitHub Actions CI
+
+2026-10-12 核对远端 push 触发的 [CI run 38233642808](https://github.com/Yonder-Lab/FateBridge/actions/runs/38233642808)，受测提交为 [`5fafc61f7bbbf24329103f46ccd87f02dc80daf2`](https://github.com/Yonder-Lab/FateBridge/commit/5fafc61f7bbbf24329103f46ccd87f02dc80daf2)。该提交包含公共契约／MCP 前置实现 `1cbebe8`、住宅风水前置实现 `4e92ea3` 和独立的 Ruleset／MCP 修复 `5fafc61`。已核对五个作业的 checkout SHA、步骤结论和实际测试日志；运行及全部作业均为 `completed / success`。
+
+各作业运行于 Ubuntu 24.04；四个常规版本独立安装当前可解析依赖，floor 使用 Python 3.10 和 `uv pip install --system --resolution lowest-direct -e ".[dev]"` 检查直接依赖的兼容下限。
+
+| 作业与日志 | 通过 | 失败 | 跳过 | 测试耗时 | 结论 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| [Python 3.10](https://github.com/Yonder-Lab/FateBridge/actions/runs/38233642808/job/114758861268) | 1,871 | 0 | 89 | 879.93 秒 | success |
+| [Python 3.11](https://github.com/Yonder-Lab/FateBridge/actions/runs/38233642808/job/114758861177) | 1,871 | 0 | 89 | 594.41 秒 | success |
+| [Python 3.12](https://github.com/Yonder-Lab/FateBridge/actions/runs/38233642808/job/114758861265) | 1,960 | 0 | 0 | 529.51 秒 | success |
+| [Python 3.13](https://github.com/Yonder-Lab/FateBridge/actions/runs/38233642808/job/114758861071) | 1,871 | 0 | 89 | 473.17 秒 | success |
+| [floor / Python 3.10](https://github.com/Yonder-Lab/FateBridge/actions/runs/38233642808/job/114758860650) | 1,871 | 0 | 89 | 1,031.72 秒 | success |
+
+Python 3.12 实际执行了全部 88 项 golden 字节比较及 1 项模拟时钟验证，没有跳过。其他常规版本的 89 项跳过来自既有参考平台条件；floor 依照现有工作流设置 `FATEBRIDGE_SKIP_GOLDEN_DIFF=1`，由 Python 3.12 作业承担参考环境的数值基线验证。
+
+四个常规 Python 作业的 Black、isort、mypy 步骤全部通过：Black 检查 248 个 Python 文件，mypy 检查 129 个源文件。floor 的依赖下限安装和完整测试步骤均通过，其工作流没有另设这三项静态检查。此次远端验证无失败，无需额外代码修复；工作区其他改动未纳入上述受测提交。

@@ -21,10 +21,10 @@
 - 同一 Linux 镜像下，完整 MCP 工具列表的 SHA-256 与上轮记录相同；工具数量、场景 profile 及发现体积也保持。CATALOG 89 / REST 87 / MCP 87 / CLI 88，完整 MCP 工具列表 3,918,612 UTF-8 字节，REST 完整 manifest 2,268,806 字节。
 - Black / isort 检查 252 个文件通过，mypy 检查 130 个源码文件通过。
 
-新的 Linux 完整测试正在执行，完成后登记实际 JUnit 统计。以上为本轮独立执行的结果，不借用上一轮 PR 的绿色 CI。[提交时验证回执](audits/2026-10-12/pr180-workspace-followup/submission-validation.json)保留运行状态；完成后的统计记录在 PR 验证说明与本地最终验收记录中。
+新的 Linux 完整测试已完成：**1971 passed、0 failed、0 skipped**，608.27 秒，见[完整日志](audits/2026-10-12/pr180-workspace-followup/linux-full.txt)、[JUnit](audits/2026-10-12/pr180-workspace-followup/linux-full.xml)及[本地验收回执](audits/2026-10-12/pr180-workspace-followup/local-validation.json)。本轮重新执行上述验证，没有借用旧 PR 的绿色结果；[提交时回执](audits/2026-10-12/pr180-workspace-followup/submission-validation.json)作为中间运行状态保留。
 
 ## PR 与托管 CI
 
-提交到 PR #180 的既有分支，触发 Python 3.10–3.13 及 `lowest-direct` 五项 CI，本地完整回归继续独立执行。最终结论仅以更新提交所关联的作业状态、真实测试日志与文件哈希为准；Python 3.12 必须零黄金跳过，其它作业沿用既有参考环境策略。
+已提交到 PR #180 的既有分支。远端 master 随后推进到 `49ce0228358b09d46458153f8b2ef14472bb0a4a`，包含前置契约、风水实现及 CI 文档；重复提交链产生冲突，暂未触发新 PR CI。本轮将该 master 合入 PR 分支，保留已通过全量测试的清理实现和新增的 master CI 记录、玄空范围文档修正；整合后 369 个执行文件及 88 份黄金哈希全部不变，见[整合核验](audits/2026-10-12/pr180-workspace-followup/merge-integrity.json)。整合提交重新触发 Python 3.10–3.13 及 `lowest-direct` 五项 CI。最终结论仅以更新提交所关联的作业状态、真实测试日志与文件哈希为准；Python 3.12 必须零黄金跳过，其它作业沿用既有参考环境策略。
 
 本轮不改变计算算法、黄金基线、CI 参考环境或最低依赖检查要求。托管 CI 与本地容器结果分别记录；远端 REST 服务及 GUI MCP 宿主不在本轮验收范围。

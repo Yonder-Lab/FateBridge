@@ -1,0 +1,115 @@
+........................................................................ [  3%]
+........................................................................ [  7%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 18%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 40%]
+........................................................................ [ 44%]
+........................................................................ [ 47%]
+........................................................................ [ 51%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 62%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 73%]
+........................................................................ [ 77%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 95%]
+........................................................................ [ 99%]
+................                                                         [100%]
+=============================== warnings summary ===============================
+../opt/fatebridge/lib/python3.12/site-packages/kerykeion/backword.py:158
+  /opt/fatebridge/lib/python3.12/site-packages/kerykeion/backword.py:158: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    NOW = _dt.utcnow()
+
+../opt/fatebridge/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2309
+tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[None-internal_error-500-True]
+tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[exception1-internal_error-500-True]
+tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[exception2-dependency_missing-503-False]
+tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[exception3-timeout-504-True]
+  /opt/fatebridge/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2309: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'request' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+src/fatebridge/core/almanac.py:200: 10 warnings
+tests/golden/test_runner.py: 1 warning
+tests/test_agentic_contracts.py: 1 warning
+tests/test_agentic_replay.py: 2 warnings
+tests/test_audit_corrections.py: 4 warnings
+tests/test_audit_fixes.py: 1 warning
+tests/test_birth_time_precision.py: 5 warnings
+tests/test_calendar_audit_repairs.py: 6 warnings
+tests/test_calendar_helper_tools.py: 1 warning
+tests/test_chinese_metaphysics.py: 4 warnings
+tests/test_cli.py: 3 warnings
+tests/test_jieqi_boundary_precision.py: 2 warnings
+tests/test_mcp_audit_repairs.py: 1 warning
+tests/test_structured_snapshot.py: 1 warning
+tests/test_third_party_correctness_fixes.py: 19 warnings
+tests/test_ziwei_horoscope_crosscheck.py: 13 warnings
+tests/test_ziwei_lunar_year_boundary.py: 4 warnings
+  /workspace/src/fatebridge/core/almanac.py:200: DeprecationWarning: fromSolarDate is deprecated, use from_solar_date instead
+    lunar = LunarDate.fromSolarDate(solar_date.year, solar_date.month, solar_date.day)
+
+src/fatebridge/core/almanac.py:201: 10 warnings
+tests/golden/test_runner.py: 1 warning
+tests/test_agentic_contracts.py: 1 warning
+tests/test_agentic_replay.py: 2 warnings
+tests/test_audit_corrections.py: 4 warnings
+tests/test_audit_fixes.py: 1 warning
+tests/test_birth_time_precision.py: 5 warnings
+tests/test_calendar_audit_repairs.py: 6 warnings
+tests/test_calendar_helper_tools.py: 1 warning
+tests/test_chinese_metaphysics.py: 4 warnings
+tests/test_cli.py: 3 warnings
+tests/test_jieqi_boundary_precision.py: 2 warnings
+tests/test_mcp_audit_repairs.py: 1 warning
+tests/test_structured_snapshot.py: 1 warning
+tests/test_third_party_correctness_fixes.py: 19 warnings
+tests/test_ziwei_horoscope_crosscheck.py: 13 warnings
+tests/test_ziwei_lunar_year_boundary.py: 4 warnings
+  /workspace/src/fatebridge/core/almanac.py:201: DeprecationWarning: toSolarDate is deprecated, use to_solar_date instead
+    if lunar.toSolarDate() != solar_date:
+
+../opt/fatebridge/lib/python3.12/site-packages/lunardate.py:143: 10 warnings
+tests/golden/test_runner.py: 1 warning
+tests/test_agentic_contracts.py: 1 warning
+tests/test_agentic_replay.py: 2 warnings
+tests/test_audit_corrections.py: 4 warnings
+tests/test_audit_fixes.py: 1 warning
+tests/test_birth_time_precision.py: 5 warnings
+tests/test_calendar_audit_repairs.py: 6 warnings
+tests/test_calendar_helper_tools.py: 1 warning
+tests/test_chinese_metaphysics.py: 4 warnings
+tests/test_cli.py: 3 warnings
+tests/test_jieqi_boundary_precision.py: 2 warnings
+tests/test_mcp_audit_repairs.py: 1 warning
+tests/test_structured_snapshot.py: 1 warning
+tests/test_third_party_correctness_fixes.py: 4 warnings
+tests/test_ziwei_horoscope_crosscheck.py: 13 warnings
+tests/test_ziwei_lunar_year_boundary.py: 4 warnings
+  /opt/fatebridge/lib/python3.12/site-packages/lunardate.py:143: DeprecationWarning: use is_leap_month
+    warnings.warn("use is_leap_month", DeprecationWarning)
+
+tests/test_agentic_contracts.py::test_all_tools_publish_matching_output_contracts
+  /workspace/tests/test_agentic_contracts.py:250: FastMCPDeprecationWarning: Accessing `Tool.outputSchema` is deprecated; MCP SDK v2 renamed this field to `output_schema`. Update your code to read `.output_schema` instead.
+    published = tools[spec.tool_name].outputSchema
+
+tests/test_mcp_audit_repairs.py::test_real_mcp_omission_and_explicit_solar_flags[bazi_birth-payload0]
+  /workspace/tests/test_mcp_audit_repairs.py:51: FastMCPDeprecationWarning: Accessing `Tool.inputSchema` is deprecated; MCP SDK v2 renamed this field to `input_schema`. Update your code to read `.input_schema` instead.
+    schema = (await client.list_tools())[0].inputSchema
+
+tests/test_third_party_correctness_fixes.py: 15 warnings
+  /workspace/src/fatebridge/core/almanac.py:207: DeprecationWarning: toSolarDate is deprecated, use to_solar_date instead
+    new_year = LunarDate(lunar.year, 1, 1).toSolarDate()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1960 passed, 242 warnings in 562.33s (0:09:22)
