@@ -87,3 +87,21 @@ Python 3.12 实际执行了全部 88 项 golden 字节比较及 1 项模拟时�
 Python 3.12 的全部 1,960 项测试通过，含 88 项 golden 字节比较及 1 项模拟时钟验证，0 项跳过。Python 3.10、3.11、3.13 的 89 项跳过仍来自既有参考平台条件；floor 使用 Python 3.10、`--resolution lowest-direct` 安装直接依赖下限，并按工作流设置 `FATEBRIDGE_SKIP_GOLDEN_DIFF=1`，由 Python 3.12 作业承担参考环境的数值基线验证。
 
 四个常规版本的 Black、isort、mypy 步骤全部通过，分别检查 248 个 Python 文件和 129 个源文件。floor 的依赖下限安装与完整测试步骤也全部通过，未另设静态检查步骤。本轮无失败，无需代码修复；这份记录仅确认 `49ce022` 对应的运行，不将该结果归于后续提交。
+
+## 文档提交 92e02ac 推送后的 GitHub Actions CI
+
+2026-10-12 核对文档提交 [`92e02aca92c30f594fbd2c9227cd74e7df6575bd`](https://github.com/Yonder-Lab/FateBridge/commit/92e02aca92c30f594fbd2c9227cd74e7df6575bd) 推送后触发的 [CI run 38259671691](https://github.com/Yonder-Lab/FateBridge/actions/runs/38259671691)。五个作业的 checkout SHA、步骤结论和实际 pytest 日志均已逐项核实，运行及全部作业均为 `completed / success`。
+
+本轮受测内容已包含此前合入的清理与契约缓存提交 `987370f`，测试总数为 1,971 项。以下数量及耗时取自 `92e02ac` 的实际日志。
+
+| 作业与日志 | 通过 | 失败 | 跳过 | 测试耗时 | 结论 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| [Python 3.10](https://github.com/Yonder-Lab/FateBridge/actions/runs/38259671691/job/114846672549) | 1,882 | 0 | 89 | 923.62 秒 | success |
+| [Python 3.11](https://github.com/Yonder-Lab/FateBridge/actions/runs/38259671691/job/114846672502) | 1,882 | 0 | 89 | 810.77 秒 | success |
+| [Python 3.12](https://github.com/Yonder-Lab/FateBridge/actions/runs/38259671691/job/114846672565) | 1,971 | 0 | 0 | 757.06 秒 | success |
+| [Python 3.13](https://github.com/Yonder-Lab/FateBridge/actions/runs/38259671691/job/114846672520) | 1,882 | 0 | 89 | 498.05 秒 | success |
+| [floor / Python 3.10](https://github.com/Yonder-Lab/FateBridge/actions/runs/38259671691/job/114846672115) | 1,882 | 0 | 89 | 875.29 秒 | success |
+
+Python 3.12 的全部 1,971 项测试通过，含 88 项 golden 字节比较及 1 项模拟时钟验证，0 项跳过。Python 3.10、3.11、3.13 的 89 项跳过来自既有参考平台条件；floor 使用 Python 3.10、`--resolution lowest-direct` 安装直接依赖下限，并按工作流设置 `FATEBRIDGE_SKIP_GOLDEN_DIFF=1`，由 Python 3.12 作业承担参考环境的数值基线验证。
+
+四个常规版本的 Black、isort、mypy 步骤全部通过，Black 检查 252 个 Python 文件，mypy 检查 130 个源文件。floor 的依赖下限安装和完整测试均通过；五个作业的依赖版本记录及 JUnit 证据上传也全部成功。本轮无失败，无需代码修复，以上结果对应受测提交 `92e02ac`。
