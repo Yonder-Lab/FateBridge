@@ -1,29 +1,25 @@
 import asyncio
 import json
 import os
-import sys
-from pathlib import Path
 
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 import fatebridge.api as api_module
 from fatebridge import mcp_server as fastmcp_server
-from fatebridge.api import (
-    FateBridgeRequest,
-    WesternTimingRequest,
-    calculate_destiny,
-    calculate_western_timing,
-)
-from fatebridge.utils.helpers import format_error_response, handle_calculation_error
+from fatebridge.core.request_models import FateBridgeRequest, WesternTimingRequest
+from fatebridge.utils.errors import handle_calculation_error
+from fatebridge.utils.helpers import format_error_response
 from fatebridge.utils.runtime import (
     load_runtime_env,
     parse_allowed_origins,
     parse_api_keys,
 )
+from tests.fixtures.transports import rest_handler
+
+calculate_destiny = rest_handler("calculate_legacy")
+calculate_western_timing = rest_handler("western_timing_analysis")
 
 
 def _build_birth_payload() -> dict:

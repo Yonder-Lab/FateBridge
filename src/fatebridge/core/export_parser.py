@@ -101,13 +101,12 @@ def parse_export_content(
         if selected_sections
         else technique_info["preset_sections"][:]
     )
+    mapped_sections = [map_legacy_section_title(technique, item) for item in requested]
     selected_normalized = unique_list(
         [
-            map_legacy_section_title(technique, item)
-            for item in requested
-            if map_legacy_section_title(technique, item)
-            and normalize_section_title(map_legacy_section_title(technique, item))
-            not in forbidden
+            item
+            for item in mapped_sections
+            if item and normalize_section_title(item) not in forbidden
         ]
     )
     wanted = {normalize_section_title(item) for item in selected_normalized}

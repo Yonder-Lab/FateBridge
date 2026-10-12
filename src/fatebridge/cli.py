@@ -33,7 +33,6 @@ from fatebridge.core.scenarios import discover_scenarios
 from fatebridge.core.tool_spec import (
     ToolSpec,
     describe_spec,
-    execute_spec,
     execute_tool,
 )
 from fatebridge.core.tool_spec import field_type_name as _type_name
@@ -52,11 +51,8 @@ from fatebridge.utils.errors import (
     handle_calculation_error,
     validation_error_result,
 )
-from fatebridge.utils.helpers import (
-    DEFAULT_BIRTH_TIMEZONE,
-    format_json_response,
-    resolve_birth_place_context,
-)
+from fatebridge.utils.helpers import format_json_response
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE, resolve_birth_place_context
 
 
 class _JsonErrorParser(argparse.ArgumentParser):

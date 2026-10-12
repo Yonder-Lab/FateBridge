@@ -1,32 +1,22 @@
 import asyncio
-import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import (
+from fatebridge.core import astrology as astrology_core
+from fatebridge.core.astrology import _julian_day, build_astro_birth_info
+from fatebridge.core.request_models import (
     AstroChartRequest,
     AstroRelativePartyRequest,
     AstroRelativeRequest,
-)
-from fatebridge.api import calculate_relative_chart as calculate_relative_chart_endpoint
-from fatebridge.core import astrology as astrology_core
-from fatebridge.core.astrology import _julian_day, build_astro_birth_info
-from fatebridge.mcp_server import (
-    astro_chart,
-    astro_chart13,
-    astro_germany_chart,
-    astro_hellen_chart,
-    astro_india_chart,
-    astro_relative_chart,
 )
 from fatebridge.services.astrology import (
     calculate_core_chart_analysis,
     calculate_germany_chart_analysis,
     calculate_relative_chart_analysis,
 )
+from tests.fixtures.transports import mcp_parameters, rest_handler
+
+calculate_relative_chart_endpoint = rest_handler("astro_relative")
 
 
 def _build_birth_payload():
@@ -1053,12 +1043,12 @@ def test_relative_invalid_mode_returns_structured_validation_error():
 
 
 def test_fastmcp_astro_tools_expose_geo_parameters():
-    chart_properties = astro_chart.parameters["properties"]
-    chart13_properties = astro_chart13.parameters["properties"]
-    hellen_properties = astro_hellen_chart.parameters["properties"]
-    india_properties = astro_india_chart.parameters["properties"]
-    germany_properties = astro_germany_chart.parameters["properties"]
-    relative_properties = astro_relative_chart.parameters["properties"]
+    chart_properties = mcp_parameters("astro_chart")["properties"]
+    chart13_properties = mcp_parameters("astro_chart13")["properties"]
+    hellen_properties = mcp_parameters("astro_hellen_chart")["properties"]
+    india_properties = mcp_parameters("astro_india_chart")["properties"]
+    germany_properties = mcp_parameters("astro_germany_chart")["properties"]
+    relative_properties = mcp_parameters("astro_relative_chart")["properties"]
 
     assert "birth_longitude" in chart_properties
     assert "birth_latitude" in chart_properties

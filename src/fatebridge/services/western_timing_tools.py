@@ -14,7 +14,7 @@ from fatebridge.services.snapshot_builders import (
 from fatebridge.services.western_timing import (
     calculate_western_timing_module_analysis,
 )
-from fatebridge.utils.helpers import handle_calculation_error
+from fatebridge.utils.errors import handle_calculation_error
 
 TOOL_SPECS: dict[str, dict[str, Any]] = {
     "solarreturn": {

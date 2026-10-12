@@ -222,12 +222,11 @@ def compute_outputs(frozen: _RealDatetime = FROZEN_NOW) -> Dict[str, str]:
             outputs[_slug(path)] = canonical_json(response.json())
 
         # --- MCP-only 面 ---
-        import fatebridge.mcp_server as mcp_module  # noqa: PLC0415
+        from tests.fixtures.transports import mcp_text
 
         for slug, mcp_key in _MCP_ONLY_CASES.items():
             tool_name, payload_fn = MCP_CASES[mcp_key]
-            tool = getattr(mcp_module, tool_name)
-            raw_text = tool.fn(**payload_fn())
+            raw_text = mcp_text(tool_name, **payload_fn())
             outputs[slug] = canonical_json(json.loads(raw_text))
 
     return outputs

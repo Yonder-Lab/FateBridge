@@ -21,11 +21,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, PlainTextResponse
-from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
-from starlette.routing import Match
+from starlette.routing import Match, Route
 
 from fatebridge.utils.runtime import (
     get_api_key_header_name,
@@ -618,13 +617,10 @@ async def metrics_endpoint() -> PlainTextResponse:
 # ============================================================================
 
 from fatebridge.core.tool_spec import (  # noqa: E402
-    describe_spec,
-    make_rest_handler,
     register_rest,
 )
 from fatebridge.services.tool_catalog import (  # noqa: E402
     CATALOG,
-    mcp_specs,
     rest_specs,
 )
 
@@ -730,14 +726,11 @@ _REST_HANDLER_ALIASES = {
     "knowledge_registry_helper": "knowledge_registry",
     "export_registry_helper": "export_registry",
 }
-_SPECS_BY_KEY = {spec.key: spec for spec in rest_specs()}
+_REST_ENDPOINTS = {
+    route.name: route.endpoint for route in app.routes if isinstance(route, Route)
+}
 for _alias, _key in _REST_HANDLER_ALIASES.items():
-    globals()[_alias] = make_rest_handler(
-        _SPECS_BY_KEY[_key],
-        execute_service=_execute_service,
-        http_exception=HTTPException,
-        logger=logger,
-    )
+    globals()[_alias] = _REST_ENDPOINTS[f"rest_{_key}"]
 
 
 def main() -> None:

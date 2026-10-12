@@ -171,6 +171,10 @@ mypy src/fatebridge/
 
 ## 测试策略
 
+测试从已安装的 `src` 包导入，仓库根 `conftest.py` 负责 `tests.*` 命名空间；测试文件不再单独修改 `sys.path`。请求模型从 `core.request_models` 导入，工具实现从定义模块导入。`tests/fixtures/transports.py` 提供已挂载 REST endpoint 查询及原生 FastMCP Client 调用，协议测试检查 text JSON 与 structuredContent 一致。只有 `test_public_compatibility.py` 专门测试旧 `.fn`、REST 别名和模型重导出。
+
+修改合同缓存时运行 `tests/test_schema_cache.py`，检查副本隔离、并发冷启动、同名类／输出覆写、模型重建、失败不缓存及逐次业务执行。不要缓存业务输入或结果。核心数值变更之外的清理，应先保存同环境的业务输出和发现合同，再与修改后结果比较；黄金快照仍需在规定的 Linux 环境完整核对，不应为清理重新冻结。
+
 ### 什么时候补 API/MCP 对齐测试
 
 满足以下任一条件时建议补：
@@ -201,7 +205,7 @@ python -m pytest -q tests/test_doc_tool_counts.py tests/test_scenario_routing_co
 git diff --check
 ```
 
-`test_skills_engine_contract.py` 会实际执行具体 CLI 示例，运行它时应确保当前环境的 `python3` 指向已安装本仓库的解释器，例如激活 `.venv`。修改 Markdown 后还要检查本地链接、章节锚点、代码围栏和示例 JSON；上述测试不覆盖所有 prose 或所有链接。
+`test_skills_engine_contract.py` 会实际执行具体 CLI 示例，通过 `shlex` 拆分参数并绑定测试进程的 `sys.executable`，确保使用已安装本仓库的解释器。手工运行文档命令仍须激活对应环境。修改 Markdown 后还要检查本地链接、章节锚点、代码围栏和示例 JSON；上述测试不覆盖所有 prose 或所有链接。
 
 ### 最低同步面
 
@@ -215,7 +219,7 @@ git diff --check
 
 ## CI、打包与发布
 
-`.github/workflows/ci.yml` 的 `test` 作业在 Ubuntu 24.04 上覆盖 Python 3.10–3.13，执行 pytest、black、isort、mypy；`floor` 在 Python 3.10 按最低直接依赖运行测试。黄金快照字节比对仅在受支持的 Linux x86_64 / Python 3.12 环境启用，其他环境跳过不代表该项通过。
+`.github/workflows/ci.yml` 的 `test` 作业在 Ubuntu 24.04 上覆盖 Python 3.10–3.13，执行 pytest、black、isort、mypy；`floor` 在 Python 3.10 按最低直接依赖运行测试。黄金快照字节比对仅在受支持的 Linux x86_64 / Python 3.12 环境启用，其他环境跳过不代表该项通过。 每个作业记录解析后的完整依赖清单并上传 JUnit；`floor` 必须用 `uv pip install --system --resolution lowest-direct -e ".[dev]"` 在全新环境解析，不能仅固定 FastMCP 3.0 来代替全部最低直接依赖验证。
 
 版本来自 `src/fatebridge/__init__.py::__version__`。发布需同步更新 CHANGELOG、检查包数据和版本、创建对应标签与 GitHub Release；仅改版本常量不会上传 PyPI。`publish.yml` 在 Release published 事件下构建 sdist/wheel，检查元数据、JSON 数据与 `py.typed` 后，通过已配置的 PyPI Trusted Publishing 发布。新增数据文件需确认被 `pyproject.toml` 的 package-data 覆盖；场景 `skills/` 目前随 Git 仓库分发，不由 wheel 包含。
 

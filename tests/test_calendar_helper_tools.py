@@ -1,13 +1,13 @@
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import GuaMeiyiRequest, JieqiYearRequest, NongliTimeRequest
-from fatebridge.mcp_server import gua_meiyi, jieqi_year, nongli_time
+from fatebridge.core.request_models import (
+    GuaMeiyiRequest,
+    JieqiYearRequest,
+    NongliTimeRequest,
+)
 from fatebridge.services.divination import calculate_gua_meiyi
 from fatebridge.services.timing import calculate_jieqi_year, calculate_nongli_time
+from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
 def test_helper_request_models_accept_legacy_style_fields():
@@ -263,7 +263,8 @@ def test_calculate_gua_meiyi_returns_batch_meiyi_explanations():
 
 def test_helper_mcp_tools_return_formatted_json_strings():
     jieqi_result = json.loads(
-        jieqi_year.fn(
+        mcp_text(
+            "jieqi_year",
             year=2028,
             zone="Asia/Shanghai",
             lat="31n13",
@@ -273,7 +274,8 @@ def test_helper_mcp_tools_return_formatted_json_strings():
         )
     )
     nongli_result = json.loads(
-        nongli_time.fn(
+        mcp_text(
+            "nongli_time",
             date="2028-04-01",
             time="09:00:00",
             zone="Asia/Shanghai",
@@ -281,7 +283,7 @@ def test_helper_mcp_tools_return_formatted_json_strings():
             selected_sections=["农历上下文"],
         )
     )
-    gua_result = json.loads(gua_meiyi.fn(name=["111", "000"]))
+    gua_result = json.loads(mcp_text("gua_meiyi", name=["111", "000"]))
 
     assert jieqi_result["analysis_type"] == "全年节气盘"
     assert jieqi_result["selected_jieqi"][0]["name"] == "春分"
@@ -297,5 +299,5 @@ def test_helper_mcp_tools_return_formatted_json_strings():
 
 
 def test_calendar_helper_tools_expose_selected_sections_parameter():
-    assert "selected_sections" in jieqi_year.parameters["properties"]
-    assert "selected_sections" in nongli_time.parameters["properties"]
+    assert "selected_sections" in mcp_parameters("jieqi_year")["properties"]
+    assert "selected_sections" in mcp_parameters("nongli_time")["properties"]

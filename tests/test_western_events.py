@@ -7,11 +7,7 @@ and that each returning body lands back on (≈) its natal longitude bracketing 
 reference date.
 """
 
-import sys
 from datetime import datetime, timezone
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.core.astrology_events import (
     RETURN_BODIES,

@@ -2,7 +2,18 @@
 
 from __future__ import annotations
 
-from ._common import *
+from ._common import (
+    Any,
+    AstroBirthInfo,
+    Dict,
+    List,
+    Optional,
+    datetime,
+    determine_sect,
+    planet_label,
+    point_absolute_position,
+    timedelta,
+)
 
 # 起始模式与排序方式
 DECENNIAL_START_MODE_SECT_LIGHT = "sect_light"

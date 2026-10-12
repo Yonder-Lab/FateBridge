@@ -15,13 +15,8 @@ Empty string in the original (star has no brightness at that branch) is
 represented here as an explicit None in the 擎羊/陀罗 lists and produces no
 key in the output JSON.
 
-NOTE: If you want to attempt genuine py-iztro cross-validation instead of
-this source-derived fixture, install the optional extra first:
-    pip install "fatebridge[iztro-verify]"
-then adapt this script to call py_iztro.Astro().by_solar(...) and iterate
-over palaces.  As of 2026-06-19 that approach yields only ~20 entries (one
-per star for a single birth chart) rather than the full brightness table
-(232 non-None entries), so Path B remains the preferred fixture.
+The horoscope oracle is generated separately by gen_ziwei_horoscope_fixture.py
+using the pinned JS iztro 2.5.8 implementation. No Python iztro extra is needed.
 """
 
 from __future__ import annotations

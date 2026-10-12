@@ -1,12 +1,10 @@
 import json
-import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import (
+from fatebridge.core import astrology as astrology_core
+from fatebridge.core.local_techniques import build_pseudo_chart
+from fatebridge.core.request_models import (
     GuaLookupRequest,
     GuaMeiyiRequest,
     MeihuaAnalysisRequest,
@@ -15,19 +13,6 @@ from fatebridge.api import (
     SixYaoRequest,
     SuZhanRequest,
     TongSheFaRequest,
-)
-from fatebridge.core import astrology as astrology_core
-from fatebridge.core.local_techniques import build_pseudo_chart
-from fatebridge.mcp_server import (
-    export_registry,
-    gua_lookup,
-    gua_meiyi,
-    meihua_analysis,
-    otherbu,
-    sanshiunited,
-    sixyao,
-    suzhan,
-    tongshefa,
 )
 from fatebridge.services.divination import (
     calculate_gua_lookup,
@@ -39,6 +24,7 @@ from fatebridge.services.divination import (
     calculate_suzhan_analysis,
     calculate_tongshefa_analysis,
 )
+from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
 def _expected_offline_engine() -> tuple[str, str]:
@@ -355,22 +341,23 @@ def test_calculate_gua_meiyi_supports_selected_export_sections():
 
 def test_fastmcp_divination_tools_expose_compact_controls():
     for tool in (
-        export_registry,
-        gua_lookup,
-        gua_meiyi,
-        meihua_analysis,
-        sanshiunited,
-        sixyao,
-        suzhan,
-        otherbu,
+        "export_registry",
+        "gua_lookup",
+        "gua_meiyi",
+        "meihua_analysis",
+        "sanshiunited",
+        "sixyao",
+        "suzhan",
+        "otherbu",
     ):
-        properties = tool.parameters["properties"]
+        properties = mcp_parameters(tool)["properties"]
         assert "compact" in properties
         assert "include_snapshot_text" in properties
 
 
 def test_fastmcp_sanshiunited_compact_mode_can_drop_snapshot_text():
-    rendered = sanshiunited.fn(
+    rendered = mcp_text(
+        "sanshiunited",
         date="2028-04-06",
         time="09:33:00",
         zone="+08:00",
@@ -1395,7 +1382,7 @@ def test_local_offline_golden_samples_match_current_contract():
 
 
 def test_fastmcp_meihua_tool_exposes_parameters():
-    properties = meihua_analysis.parameters["properties"]
+    properties = mcp_parameters("meihua_analysis")["properties"]
 
     assert "analysis_year" in properties
     assert "analysis_month" in properties
@@ -1407,7 +1394,7 @@ def test_fastmcp_meihua_tool_exposes_parameters():
 
 
 def test_fastmcp_gua_lookup_tool_exposes_parameters():
-    properties = gua_lookup.parameters["properties"]
+    properties = mcp_parameters("gua_lookup")["properties"]
 
     assert "query" in properties
     assert "lookup_mode" in properties
@@ -1415,31 +1402,31 @@ def test_fastmcp_gua_lookup_tool_exposes_parameters():
 
 
 def test_fastmcp_gua_meiyi_tool_exposes_parameters():
-    properties = gua_meiyi.parameters["properties"]
+    properties = mcp_parameters("gua_meiyi")["properties"]
 
     assert "name" in properties
     assert "selected_sections" in properties
 
 
 def test_fastmcp_local_tools_expose_parameters():
-    assert "taiyin" in tongshefa.parameters["properties"]
-    assert "taiyang" in tongshefa.parameters["properties"]
+    assert "taiyin" in mcp_parameters("tongshefa")["properties"]
+    assert "taiyang" in mcp_parameters("tongshefa")["properties"]
 
-    sixyao_properties = sixyao.parameters["properties"]
+    sixyao_properties = mcp_parameters("sixyao")["properties"]
     assert "date" in sixyao_properties
     assert "time" in sixyao_properties
     assert "gua_code" in sixyao_properties
     assert "changed_code" in sixyao_properties
     assert "lines" in sixyao_properties
 
-    suzhan_properties = suzhan.parameters["properties"]
+    suzhan_properties = mcp_parameters("suzhan")["properties"]
     assert "szchart" in suzhan_properties
     assert "szshape" in suzhan_properties
     assert "house_start_mode" in suzhan_properties
     assert "hsys" in suzhan_properties
     assert "zodiacal" in suzhan_properties
 
-    otherbu_properties = otherbu.parameters["properties"]
+    otherbu_properties = mcp_parameters("otherbu")["properties"]
     assert "tradition" in otherbu_properties
     assert "sign" in otherbu_properties
     assert "house" in otherbu_properties
@@ -1447,7 +1434,7 @@ def test_fastmcp_local_tools_expose_parameters():
     assert "hsys" in otherbu_properties
     assert "zodiacal" in otherbu_properties
 
-    sanshi_properties = sanshiunited.parameters["properties"]
+    sanshi_properties = mcp_parameters("sanshiunited")["properties"]
     assert "qimen_options" in sanshi_properties
     assert "taiyi_options" in sanshi_properties
     assert "selected_sections" in sanshi_properties

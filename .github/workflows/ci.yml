@@ -34,8 +34,13 @@ jobs:
       - name: Install dependencies
         run: uv pip install --system -e ".[dev]"
 
+      - name: Record resolved dependencies
+        run: |
+          uv pip list --system > resolved-dependencies.txt
+          cat resolved-dependencies.txt
+
       - name: Run tests
-        run: pytest -q
+        run: pytest -q --junitxml=pytest-results.xml
 
       - name: Check formatting
         run: black --check src/fatebridge scripts tests
@@ -45,6 +50,15 @@ jobs:
 
       - name: Run type checks
         run: mypy src/fatebridge/
+
+      - name: Save regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-python-${{ matrix.python-version }}
+          path: |
+            resolved-dependencies.txt
+            pytest-results.xml
 
   floor:
     # Install every direct dependency at its declared minimum so a too-low
@@ -68,9 +82,23 @@ jobs:
       - name: Install dependencies at declared minimums
         run: uv pip install --system --resolution lowest-direct -e ".[dev]"
 
+      - name: Record lowest-direct dependencies
+        run: |
+          uv pip list --system > resolved-dependencies.txt
+          cat resolved-dependencies.txt
+
       - name: Run tests
         # 最低依赖版本的星历输出与「最新版」基线不同口径，关闭 golden 字节比对；
         # floor 只为守 API 下限，数值锁由 test 作业负责。
         env:
           FATEBRIDGE_SKIP_GOLDEN_DIFF: "1"
-        run: pytest -q
+        run: pytest -q --junitxml=pytest-results.xml
+
+      - name: Save lowest-direct regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-lowest-direct-python-3.10
+          path: |
+            resolved-dependencies.txt
+            pytest-results.xml

@@ -24,6 +24,7 @@ from fatebridge.utils.errors import (  # noqa: F401,E402
     TIMEOUT_ERROR_CODE,
     VALIDATION_ERROR_CODE,
     calculation_guard,
+    error_response_payload,
     handle_calculation_error,
 )
 from fatebridge.utils.house_systems import (  # noqa: F401,E402
@@ -566,21 +567,7 @@ def format_error_response(
     """
     if "error" in data:
         return format_json_response(
-            {
-                "error": data["error"],
-                "error_code": data.get("error_code", INTERNAL_ERROR_CODE),
-                "status_code": data.get("status_code", 500),
-                "retryable": data.get("retryable", False),
-                "operation": operation,
-                **({"issues": data["issues"]} if "issues" in data else {}),
-                **({"trace_id": data["trace_id"]} if "trace_id" in data else {}),
-                **(
-                    {"parent_run_id": data["parent_run_id"]}
-                    if "parent_run_id" in data
-                    else {}
-                ),
-            },
-            compact=compact,
+            error_response_payload(data, operation), compact=compact
         )
     return ""
 

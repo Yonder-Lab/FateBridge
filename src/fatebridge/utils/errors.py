@@ -188,3 +188,17 @@ def calculation_guard(
         return wrapper
 
     return decorator
+
+
+def error_response_payload(data: Dict[str, Any], operation: str) -> Dict[str, Any]:
+    """The legacy JSON error envelope, shared by native and text transports."""
+    return {
+        "error": data["error"],
+        "error_code": data.get("error_code", INTERNAL_ERROR_CODE),
+        "status_code": data.get("status_code", 500),
+        "retryable": data.get("retryable", False),
+        "operation": operation,
+        **({"issues": data["issues"]} if "issues" in data else {}),
+        **({"trace_id": data["trace_id"]} if "trace_id" in data else {}),
+        **({"parent_run_id": data["parent_run_id"]} if "parent_run_id" in data else {}),
+    }

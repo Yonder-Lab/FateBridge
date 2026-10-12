@@ -2,7 +2,25 @@
 
 from __future__ import annotations
 
-from ._common import *
+from ._common import (
+    LOT_LABELS,
+    LOT_POINT_NAMES,
+    RULER_BY_SIGN,
+    SIGNS,
+    Any,
+    AstroBirthInfo,
+    Dict,
+    List,
+    Optional,
+    build_lot_payloads,
+    classify_releasing_phase,
+    datetime,
+    next_sign,
+    opposite_sign,
+    planet_label,
+    sign_label,
+    timedelta,
+)
 
 # 各星座的释放年数（黄道释放法）
 ZR_SIGN_PERIODS = {

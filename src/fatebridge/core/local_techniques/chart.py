@@ -14,8 +14,9 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
+
 from ...utils.helpers import (
-    DEFAULT_BIRTH_TIMEZONE,
     SOLAR_TIME_STRATEGY_APPARENT,
     calculate_solar_time_adjustment,
 )

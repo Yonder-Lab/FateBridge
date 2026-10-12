@@ -2,7 +2,17 @@
 
 from __future__ import annotations
 
-from ._common import *
+from ._common import (
+    TROPICAL_YEAR_DAYS,
+    Any,
+    AstroBirthInfo,
+    Dict,
+    datetime,
+    determine_sect,
+    planet_label,
+    sect_label,
+    timedelta,
+)
 
 # 日盘与夜盘的行星时主顺序（planet, years）
 FIRDARIA_DAY_SEQUENCE = [

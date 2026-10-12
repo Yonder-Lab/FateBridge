@@ -1,16 +1,12 @@
 import asyncio
 import json
-import sys
 from datetime import datetime
-from pathlib import Path
 
 import pytest
 from fastapi import HTTPException
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 import fatebridge.api as api_module
-from fatebridge.api import (
+from fatebridge.core.request_models import (
     AstroChartRequest,
     AstroRelativePartyRequest,
     AstroRelativeRequest,
@@ -27,43 +23,37 @@ from fatebridge.api import (
     TwoPersonCompatibilityRequest,
     WesternTimingModuleRequest,
     WesternTimingRequest,
-    calculate_astro_chart,
-    calculate_dayun,
-    calculate_liunian,
-    calculate_liushi,
-    calculate_pdchart_module,
-    calculate_relative_chart,
-    calculate_solarreturn_module,
-    calculate_timing_analysis,
-    calculate_two_person_compatibility,
-    calculate_western_timing,
-    export_registry_helper,
-    get_jinkou_analysis,
-    get_qimen_analysis,
-    get_taiyi_analysis,
-    knowledge_read_helper,
-    knowledge_registry_helper,
 )
-from fatebridge.mcp_server import (
-    astro_chart,
-    astro_relative_chart,
-    dayun_analysis,
-    export_registry,
-    jinkou,
-    knowledge_read,
-    knowledge_registry,
-    liunian_analysis,
-    liushi_analysis,
-    pdchart,
-    qimen,
-    solarreturn,
-    taiyi,
-    timing_analysis,
-    two_person_compatibility,
+from fatebridge.services.astrology import (
+    calculate_core_chart_analysis as service_calculate_core_chart_analysis,
+)
+from fatebridge.services.astrology import (
+    calculate_relative_chart_analysis as service_calculate_relative_chart_analysis,
 )
 from fatebridge.services.run_metadata import resolve_runtime_engine
 from fatebridge.services.tool_catalog import CATALOG
+from fatebridge.services.western_timing import (
+    calculate_western_timing_analysis as service_calculate_western_timing_analysis,
+)
 from fatebridge.services.western_timing_tools import calculate_solarreturn
+from tests.fixtures.transports import mcp_text, rest_handler
+
+calculate_astro_chart = rest_handler("astro_chart")
+calculate_dayun = rest_handler("dayun_analysis")
+calculate_liunian = rest_handler("liunian_analysis")
+calculate_liushi = rest_handler("liushi_analysis")
+calculate_pdchart_module = rest_handler("pdchart")
+calculate_relative_chart = rest_handler("astro_relative")
+calculate_solarreturn_module = rest_handler("solarreturn")
+calculate_timing_analysis = rest_handler("timing_analysis")
+calculate_two_person_compatibility = rest_handler("two_person_compatibility")
+calculate_western_timing = rest_handler("western_timing_analysis")
+export_registry_helper = rest_handler("export_registry")
+get_jinkou_analysis = rest_handler("jinkou")
+get_qimen_analysis = rest_handler("qimen")
+get_taiyi_analysis = rest_handler("taiyi")
+knowledge_read_helper = rest_handler("knowledge_read")
+knowledge_registry_helper = rest_handler("knowledge_registry")
 
 _SPEC_BY_KEY = {spec.key: spec for spec in CATALOG}
 
@@ -224,7 +214,7 @@ REGISTRY_PARITY_CASES = [
         "export_registry",
         lambda: ExportRegistryRequest(technique="qimen"),
         export_registry_helper,
-        export_registry,
+        "export_registry",
         lambda request: request.model_dump(),
     ),
     (
@@ -234,7 +224,7 @@ REGISTRY_PARITY_CASES = [
             selected_sections=["目录概览", "astro"],
         ),
         knowledge_registry_helper,
-        knowledge_registry,
+        "knowledge_registry",
         lambda request: request.model_dump(),
     ),
     (
@@ -246,7 +236,7 @@ REGISTRY_PARITY_CASES = [
             selected_sections=["知识正文"],
         ),
         knowledge_read_helper,
-        knowledge_read,
+        "knowledge_read",
         lambda request: request.model_dump(),
     ),
     (
@@ -256,14 +246,14 @@ REGISTRY_PARITY_CASES = [
             selected_sections=["起盘信息", "星盘信息"],
         ),
         calculate_solarreturn_module,
-        solarreturn,
+        "solarreturn",
         lambda request: request.model_dump(),
     ),
     (
         "pdchart",
         lambda: WesternTimingModuleRequest(**_build_western_timing_payload()),
         calculate_pdchart_module,
-        pdchart,
+        "pdchart",
         lambda request: request.model_dump(),
     ),
 ]
@@ -296,7 +286,7 @@ NON_REGISTRY_PARITY_CASES = [
             relationship_type="marriage",
         ),
         calculate_two_person_compatibility,
-        two_person_compatibility,
+        "two_person_compatibility",
         lambda request: request.model_dump(),
     ),
     (
@@ -305,7 +295,7 @@ NON_REGISTRY_PARITY_CASES = [
             **_build_astro_birth_payload("张三", "男", "上海"),
         ),
         calculate_astro_chart,
-        astro_chart,
+        "astro_chart",
         lambda request: request.model_dump(),
     ),
     (
@@ -331,7 +321,7 @@ NON_REGISTRY_PARITY_CASES = [
             zodiacal=0,
         ),
         calculate_relative_chart,
-        astro_relative_chart,
+        "astro_relative_chart",
         _astro_relative_mcp_kwargs,
     ),
     (
@@ -347,7 +337,7 @@ NON_REGISTRY_PARITY_CASES = [
             selected_sections=["查询信息", "综合影响"],
         ),
         calculate_timing_analysis,
-        timing_analysis,
+        "timing_analysis",
         lambda request: request.model_dump(),
     ),
     (
@@ -358,7 +348,7 @@ NON_REGISTRY_PARITY_CASES = [
             selected_sections=["查询信息", "大运信息"],
         ),
         calculate_dayun,
-        dayun_analysis,
+        "dayun_analysis",
         lambda request: request.model_dump(),
     ),
     (
@@ -368,7 +358,7 @@ NON_REGISTRY_PARITY_CASES = [
             target_year=2028,
         ),
         calculate_liunian,
-        liunian_analysis,
+        "liunian_analysis",
         lambda request: request.model_dump(),
     ),
     (
@@ -383,7 +373,7 @@ NON_REGISTRY_PARITY_CASES = [
             selected_sections=["查询信息", "流时信息"],
         ),
         calculate_liushi,
-        liushi_analysis,
+        "liushi_analysis",
         lambda request: request.model_dump(),
     ),
     (
@@ -395,7 +385,7 @@ NON_REGISTRY_PARITY_CASES = [
             }
         ),
         get_qimen_analysis,
-        qimen,
+        "qimen",
         lambda request: request.model_dump(),
     ),
     (
@@ -408,7 +398,7 @@ NON_REGISTRY_PARITY_CASES = [
             }
         ),
         get_taiyi_analysis,
-        taiyi,
+        "taiyi",
         _taiyi_mcp_kwargs,
     ),
     (
@@ -422,7 +412,7 @@ NON_REGISTRY_PARITY_CASES = [
             }
         ),
         get_jinkou_analysis,
-        jinkou,
+        "jinkou",
         lambda request: request.model_dump(),
     ),
 ]
@@ -551,7 +541,7 @@ def test_registry_backed_tools_api_match_fastmcp_output(
     request = request_factory()
 
     api_result = asyncio.run(api_handler(request))
-    mcp_result = json.loads(mcp_tool.fn(**mcp_kwargs_builder(request)))
+    mcp_result = json.loads(mcp_text(mcp_tool, **mcp_kwargs_builder(request)))
 
     _assert_transport_parity(api_result, mcp_result, tool_name=descriptor.key)
     assert descriptor.mcp_name == descriptor.key
@@ -572,7 +562,7 @@ def test_non_registry_tools_api_match_fastmcp_output(
     request = request_factory()
 
     api_result = asyncio.run(api_handler(request))
-    mcp_result = json.loads(mcp_tool.fn(**mcp_kwargs_builder(request)))
+    mcp_result = json.loads(mcp_text(mcp_tool, **mcp_kwargs_builder(request)))
 
     _assert_transport_parity(api_result, mcp_result, tool_name=tool_name)
 
@@ -726,7 +716,7 @@ def test_western_timing_api_offloads_calculation_to_threadpool(monkeypatch):
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="western_timing_analysis")
     service, args, kwargs = _offloaded_service(captured)
-    assert service is api_module.calculate_western_timing_analysis
+    assert service is service_calculate_western_timing_analysis
     assert args == ()
     assert kwargs["analysis_year"] == 2025
     assert kwargs["birth_latitude"] == 31.2304
@@ -789,7 +779,7 @@ def test_astro_chart_api_offloads_calculation_to_threadpool(monkeypatch):
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="chart")
     service, args, kwargs = _offloaded_service(captured)
-    assert service is api_module.calculate_core_chart_analysis
+    assert service is service_calculate_core_chart_analysis
     assert kwargs["chart_variant"] == "chart"
     assert kwargs["birth_latitude"] == 31.2304
 
@@ -836,7 +826,7 @@ def test_astro_relative_api_offloads_calculation_to_threadpool(monkeypatch):
     assert _payload_without_run_metadata(result) == expected
     _assert_run_metadata(result, tool_name="astro_relative_chart")
     service, args, kwargs = _offloaded_service(captured)
-    assert service is api_module.calculate_relative_chart_analysis
+    assert service is service_calculate_relative_chart_analysis
     assert kwargs["inner_payload"]["birth_latitude"] == 31.2304
     assert kwargs["outer_payload"]["birth_longitude"] == 116.4074
     assert kwargs["relative_mode"] == "Composite"
