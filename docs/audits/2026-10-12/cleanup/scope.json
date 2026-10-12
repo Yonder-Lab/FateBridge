@@ -1,0 +1,25 @@
+{
+  "archive": "/Users/thomas/.codex/visualizations/2026/10/12/01a12f6d-02aa-7d50-9956-09a79dc54384/cleanup/before.zip",
+  "before_manifest": "/Users/thomas/.codex/visualizations/2026/10/12/01a12f6d-02aa-7d50-9956-09a79dc54384/cleanup/before-files.json",
+  "before_head": "204635e2073a1ef33a0e2ef86bb98fced27e7618",
+  "current_head": "5fafc61f7bbbf24329103f46ccd87f02dc80daf2",
+  "scope": "uncommitted working tree, source hash manifest identifies tested files",
+  "public_exports_preserved": {
+    "helpers": 22,
+    "rest_aliases": 17,
+    "api_request_models": 44,
+    "mcp_facades": 87
+  },
+  "mutated_golden_baselines": false,
+  "execution_files_checked": 369,
+  "current_execution_matches_linux_snapshot": true,
+  "snapshot_platform": "Linux-x86_64 Python 3.12",
+  "linux_image": "sha256:78e70cc82ced587f39e7cd2dfb27a41cbcb5d458871acbc25e10029755a2931e",
+  "linux_source_mount": "read-only",
+  "linux_network": "none",
+  "docker_context_before_start": "default",
+  "colima_profile_resumed": "fatebridge-ci-linux",
+  "colima_profile_final_status": "Stopped",
+  "docker_context_final": "default",
+  "recoverable_archive_sha256": "09fddb068ea1f800111947e3b463c0eebe144490da43688a33eced9287a771d5"
+}

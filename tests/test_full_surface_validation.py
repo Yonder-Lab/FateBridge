@@ -1,13 +1,9 @@
 import asyncio
 import json
-import sys
-from pathlib import Path
 
 from fastapi.testclient import TestClient
 from fastmcp import Client
 from jsonschema import Draft202012Validator
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import fatebridge.api as api_module
 import fatebridge.mcp_server as mcp_module
@@ -108,12 +104,15 @@ def test_rest_post_endpoints_all_accept_representative_payloads(monkeypatch):
         _assert_run_metadata(body)
 
 
-def test_fastmcp_tools_all_accept_representative_payloads():
-    for _, (attr_name, kwargs_factory) in MCP_CASES.items():
-        tool = getattr(mcp_module, attr_name)
-        rendered = tool.fn(**kwargs_factory())
-        body = json.loads(rendered)
-        assert "error" not in body, attr_name
+def test_shared_execution_accepts_all_mcp_representative_payloads():
+    from fatebridge.core.tool_spec import execute_tool
+    from fatebridge.services.tool_catalog import CATALOG
+
+    by_name = {spec.tool_name: spec for spec in CATALOG}
+    for name, (_, kwargs_factory) in MCP_CASES.items():
+        spec = by_name[name]
+        body = execute_tool(spec, spec.request_model.model_validate(kwargs_factory()))
+        assert "error" not in body, name
         _assert_run_metadata(body)
 
 

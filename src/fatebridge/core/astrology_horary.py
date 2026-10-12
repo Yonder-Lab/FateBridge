@@ -29,7 +29,7 @@ from fatebridge.core.astrology import (
 )
 from fatebridge.core.classical_western import bound_lord as _bound_lord
 from fatebridge.core.classical_western import triplicity_members
-from fatebridge.core.predictive import (
+from fatebridge.core.predictive._common import (
     normalize_sign_name,
     planet_label,
     sign_label,

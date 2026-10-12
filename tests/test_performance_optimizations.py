@@ -1,11 +1,8 @@
 import asyncio
 import sys
 from datetime import datetime
-from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import fatebridge.services.bazi as bazi_module
 import fatebridge.services.calculation as calculation_module
@@ -13,6 +10,7 @@ from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
 from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.timing import TimingAnalysis
 from fatebridge.utils.helpers import create_person_info
+from tests.fixtures.transports import rest_handler
 
 
 def _build_person():
@@ -179,7 +177,7 @@ async def test_heavy_api_routes_honor_shared_concurrency_limit(monkeypatch):
         pytest.skip("api.py requires Python 3.10+ to import")
 
     import fatebridge.api as api_module
-    from fatebridge.api import TimingAnalysisRequest
+    from fatebridge.core.request_models import TimingAnalysisRequest
 
     api_module._reset_runtime_state_for_tests()
     api_module.HEAVY_CALC_SEMAPHORE = asyncio.Semaphore(2)
@@ -218,7 +216,7 @@ async def test_heavy_api_routes_honor_shared_concurrency_limit(monkeypatch):
     )
 
     results = await asyncio.gather(
-        *(api_module.calculate_timing_analysis(request) for _ in range(5))
+        *(rest_handler("timing_analysis")(request) for _ in range(5))
     )
 
     assert max_in_flight <= 2

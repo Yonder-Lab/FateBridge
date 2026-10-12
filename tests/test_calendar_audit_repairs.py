@@ -15,7 +15,8 @@ from fatebridge.services.timing import (
     calculate_dayun_analysis,
     calculate_nongli_time,
 )
-from fatebridge.utils.helpers import create_person_info, parse_timezone_name
+from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.timezones import parse_timezone_name
 
 
 def _person(moment: datetime, *, longitude: float = 116.4074):

@@ -1,0 +1,177 @@
+/opt/fatebridge/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2309: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'request' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+2026-10-12 10:16:53,794 - fatebridge.api - INFO - Processing calculate_legacy request
+2026-10-12 10:16:54,621 - httpx2 - INFO - HTTP Request: POST http://testserver/api/calculate "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,626 - fatebridge.api - INFO - Processing bazi_birth request
+2026-10-12 10:16:54,653 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/birth "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,657 - fatebridge.api - INFO - Processing bazi_marriage request
+2026-10-12 10:16:54,673 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/marriage "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,675 - fatebridge.api - INFO - Processing bazi_career request
+2026-10-12 10:16:54,692 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/career "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,694 - fatebridge.api - INFO - Processing bazi_wealth request
+2026-10-12 10:16:54,711 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/wealth "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,714 - fatebridge.api - INFO - Processing bazi_health request
+2026-10-12 10:16:54,730 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/health "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,732 - fatebridge.api - INFO - Processing bazi_children request
+2026-10-12 10:16:54,750 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/children "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,752 - fatebridge.api - INFO - Processing bazi_education request
+2026-10-12 10:16:54,767 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/education "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,769 - fatebridge.api - INFO - Processing bazi_personality request
+2026-10-12 10:16:54,784 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/personality "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,786 - fatebridge.api - INFO - Processing bazi_relatives request
+2026-10-12 10:16:54,801 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/relatives "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,803 - fatebridge.api - INFO - Processing bazi_romance request
+2026-10-12 10:16:54,818 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/bazi/romance "HTTP/1.1 200 OK"
+2026-10-12 10:16:54,820 - fatebridge.api - INFO - Processing two_person_compatibility request
+2026-10-12 10:16:55,073 - httpx2 - INFO - HTTP Request: POST http://testserver/api/compatibility "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,077 - fatebridge.api - INFO - Processing timing_analysis request
+2026-10-12 10:16:55,342 - httpx2 - INFO - HTTP Request: POST http://testserver/api/timing/comprehensive "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,348 - fatebridge.api - INFO - Processing dayun_analysis request
+2026-10-12 10:16:55,370 - httpx2 - INFO - HTTP Request: POST http://testserver/api/timing/dayun "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,373 - fatebridge.api - INFO - Processing liunian_analysis request
+2026-10-12 10:16:55,423 - httpx2 - INFO - HTTP Request: POST http://testserver/api/timing/liunian "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,426 - fatebridge.api - INFO - Processing gua_lookup request
+2026-10-12 10:16:55,466 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/gua "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,468 - fatebridge.api - INFO - Processing jieqi_year request
+2026-10-12 10:16:55,480 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/jieqi/year "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,483 - fatebridge.api - INFO - Processing nongli_time request
+2026-10-12 10:16:55,509 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/nongli/time "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,512 - fatebridge.api - INFO - Processing gua_meiyi request
+2026-10-12 10:16:55,526 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/gua/meiyi "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,528 - fatebridge.api - INFO - Processing export_registry request
+2026-10-12 10:16:55,543 - httpx2 - INFO - HTTP Request: POST http://testserver/api/export/registry "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,547 - fatebridge.api - INFO - Processing export_parse request
+2026-10-12 10:16:55,557 - httpx2 - INFO - HTTP Request: POST http://testserver/api/export/parse "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,559 - fatebridge.api - INFO - Processing knowledge_registry request
+2026-10-12 10:16:55,579 - httpx2 - INFO - HTTP Request: POST http://testserver/api/knowledge/registry "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,582 - fatebridge.api - INFO - Processing knowledge_read request
+2026-10-12 10:16:55,596 - httpx2 - INFO - HTTP Request: POST http://testserver/api/knowledge/read "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,599 - fatebridge.api - INFO - Processing meihua_analysis request
+2026-10-12 10:16:55,624 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/meihua "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,626 - fatebridge.api - INFO - Processing tongshefa request
+2026-10-12 10:16:55,641 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/tongshefa "HTTP/1.1 200 OK"
+2026-10-12 10:16:55,644 - fatebridge.api - INFO - Processing sixyao request
+2026-10-12 10:16:56,007 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/sixyao "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,010 - fatebridge.api - INFO - Processing canping request
+2026-10-12 10:16:56,045 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/canping "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,050 - fatebridge.api - INFO - Processing heluo request
+2026-10-12 10:16:56,416 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/heluo "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,419 - fatebridge.api - INFO - Processing suzhan request
+2026-10-12 10:16:56,445 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/suzhan "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,447 - fatebridge.api - INFO - Processing sukuyo_compatibility request
+2026-10-12 10:16:56,474 - httpx2 - INFO - HTTP Request: POST http://testserver/api/compatibility/sukuyo "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,476 - fatebridge.api - INFO - Processing otherbu request
+2026-10-12 10:16:56,494 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/otherbu "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,496 - fatebridge.api - INFO - Processing sanshiunited request
+2026-10-12 10:16:56,544 - httpx2 - INFO - HTTP Request: POST http://testserver/api/divination/sanshiunited "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,550 - fatebridge.api - INFO - Processing ziwei_birth request
+2026-10-12 10:16:56,808 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/ziwei/birth "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,812 - fatebridge.api - INFO - Processing ziwei_horoscope request
+2026-10-12 10:16:56,828 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/ziwei/horoscope "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,830 - fatebridge.api - INFO - Processing ziwei_rules request
+2026-10-12 10:16:56,841 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/ziwei/rules "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,843 - fatebridge.api - INFO - Processing liureng_gods request
+2026-10-12 10:16:56,874 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/liureng/gods "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,877 - fatebridge.api - INFO - Processing liureng_runyear request
+2026-10-12 10:16:56,908 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/liureng/runyear "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,911 - fatebridge.api - INFO - Processing qimen request
+2026-10-12 10:16:56,940 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/qimen "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,943 - fatebridge.api - INFO - Processing taiyi request
+2026-10-12 10:16:56,972 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/taiyi "HTTP/1.1 200 OK"
+2026-10-12 10:16:56,976 - fatebridge.api - INFO - Processing jinkou request
+2026-10-12 10:16:57,046 - httpx2 - INFO - HTTP Request: POST http://testserver/api/cn/jinkou "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,050 - fatebridge.api - INFO - Processing astro_chart request
+2026-10-12 10:16:57,085 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/chart "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,089 - fatebridge.api - INFO - Processing astro_chart13 request
+2026-10-12 10:16:57,124 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/chart13 "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,128 - fatebridge.api - INFO - Processing astro_hellen_chart request
+2026-10-12 10:16:57,163 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/hellen "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,166 - fatebridge.api - INFO - Processing astro_guolao_chart request
+2026-10-12 10:16:57,200 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/guolao "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,203 - fatebridge.api - INFO - Processing astro_india_chart request
+2026-10-12 10:16:57,237 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/india "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,240 - fatebridge.api - INFO - Processing astro_germany_chart request
+2026-10-12 10:16:57,263 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/germany "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,268 - fatebridge.api - INFO - Processing astro_relative request
+2026-10-12 10:16:57,319 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/relative "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,325 - fatebridge.api - INFO - Processing western_timing_analysis request
+2026-10-12 10:16:57,474 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,487 - fatebridge.api - INFO - Processing solarreturn request
+2026-10-12 10:16:57,517 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/solarreturn "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,519 - fatebridge.api - INFO - Processing lunarreturn request
+2026-10-12 10:16:57,547 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/lunarreturn "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,549 - fatebridge.api - INFO - Processing transit request
+2026-10-12 10:16:57,573 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/transit "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,576 - fatebridge.api - INFO - Processing solararc request
+2026-10-12 10:16:57,600 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/solararc "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,602 - fatebridge.api - INFO - Processing givenyear request
+2026-10-12 10:16:57,627 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/givenyear "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,630 - fatebridge.api - INFO - Processing profection request
+2026-10-12 10:16:57,648 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/profection "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,650 - fatebridge.api - INFO - Processing pd request
+2026-10-12 10:16:57,694 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/pd "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,702 - fatebridge.api - INFO - Processing pdchart request
+2026-10-12 10:16:57,736 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/pdchart "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,740 - fatebridge.api - INFO - Processing zr request
+2026-10-12 10:16:57,767 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/zr "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,772 - fatebridge.api - INFO - Processing firdaria request
+2026-10-12 10:16:57,793 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/firdaria "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,796 - fatebridge.api - INFO - Processing decennials request
+2026-10-12 10:16:57,878 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/timing/decennials "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,881 - fatebridge.api - INFO - Processing astro_harmonic request
+2026-10-12 10:16:57,910 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/harmonic "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,912 - fatebridge.api - INFO - Processing astro_planetary_ages request
+2026-10-12 10:16:57,982 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/planetary_ages "HTTP/1.1 200 OK"
+2026-10-12 10:16:57,985 - fatebridge.api - INFO - Processing astro_triplicity_rulers request
+2026-10-12 10:16:58,005 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/triplicity_rulers "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,008 - fatebridge.api - INFO - Processing astro_lunation_phase request
+2026-10-12 10:16:58,028 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/lunation_phase "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,031 - fatebridge.api - INFO - Processing astro_distributions request
+2026-10-12 10:16:58,051 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/distributions "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,054 - fatebridge.api - INFO - Processing astro_balbillus request
+2026-10-12 10:16:58,075 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/balbillus "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,078 - fatebridge.api - INFO - Processing astro_keypoints request
+2026-10-12 10:16:58,105 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/keypoints "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,111 - fatebridge.api - INFO - Processing astro_yearsystem129 request
+2026-10-12 10:16:58,131 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/yearsystem129 "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,133 - fatebridge.api - INFO - Processing astro_planetaryarc request
+2026-10-12 10:16:58,156 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/planetaryarc "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,159 - fatebridge.api - INFO - Processing astro_persiandirected request
+2026-10-12 10:16:58,183 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/persiandirected "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,186 - fatebridge.api - INFO - Processing astro_agepoint request
+2026-10-12 10:16:58,208 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/agepoint "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,212 - fatebridge.api - INFO - Processing astro_vedicprog request
+2026-10-12 10:16:58,233 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/vedicprog "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,235 - fatebridge.api - INFO - Processing astro_jaynesprog request
+2026-10-12 10:16:58,257 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/lifespan/jaynesprog "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,260 - fatebridge.api - INFO - Processing astro_mundane request
+2026-10-12 10:16:58,289 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/event/mundane "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,292 - fatebridge.api - INFO - Processing astro_extrareturns request
+2026-10-12 10:16:58,517 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/event/extrareturns "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,520 - fatebridge.api - INFO - Processing astro_horary request
+2026-10-12 10:16:58,548 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/event/horary "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,550 - fatebridge.api - INFO - Processing astro_election request
+2026-10-12 10:16:58,569 - httpx2 - INFO - HTTP Request: POST http://testserver/api/astro/event/election "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,572 - fatebridge.api - INFO - Processing liuyue_analysis request
+2026-10-12 10:16:58,596 - httpx2 - INFO - HTTP Request: POST http://testserver/api/timing/liuyue "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,600 - fatebridge.api - INFO - Processing liuri_analysis request
+2026-10-12 10:16:58,624 - httpx2 - INFO - HTTP Request: POST http://testserver/api/timing/liuri "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,627 - fatebridge.api - INFO - Processing liushi_analysis request
+2026-10-12 10:16:58,651 - httpx2 - INFO - HTTP Request: POST http://testserver/api/timing/liushi "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,654 - fatebridge.api - INFO - Processing jieqi_timeline_analysis request
+2026-10-12 10:16:58,684 - httpx2 - INFO - HTTP Request: POST http://testserver/api/timing/jieqi "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,689 - fatebridge.api - INFO - Processing fengshui_directions request
+2026-10-12 10:16:58,720 - httpx2 - INFO - HTTP Request: POST http://testserver/api/fengshui/directions "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,723 - fatebridge.api - INFO - Processing fengshui_minggua request
+2026-10-12 10:16:58,727 - httpx2 - INFO - HTTP Request: POST http://testserver/api/fengshui/minggua "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,731 - fatebridge.api - INFO - Processing fengshui_bazhai request
+2026-10-12 10:16:58,740 - httpx2 - INFO - HTTP Request: POST http://testserver/api/fengshui/bazhai "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,743 - fatebridge.api - INFO - Processing fengshui_jinsuo request
+2026-10-12 10:16:58,747 - httpx2 - INFO - HTTP Request: POST http://testserver/api/fengshui/jinsuo "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,750 - fatebridge.api - INFO - Processing fengshui_annual_stars request
+2026-10-12 10:16:58,753 - httpx2 - INFO - HTTP Request: POST http://testserver/api/fengshui/annual_stars "HTTP/1.1 200 OK"
+2026-10-12 10:16:58,756 - fatebridge.api - INFO - Processing fengshui_xuankong_natal request
+2026-10-12 10:16:59,104 - httpx2 - INFO - HTTP Request: POST http://testserver/api/fengshui/xuankong_natal "HTTP/1.1 200 OK"
+2026-10-12 10:16:59,110 - fatebridge.api - INFO - Processing fengshui_assess request
+2026-10-12 10:16:59,123 - httpx2 - INFO - HTTP Request: POST http://testserver/api/fengshui/assess "HTTP/1.1 200 OK"
+{"environment": "Linux-x86_64", "python": "3.12.3", "image": null, "dependencies": {"pyswisseph": "2.10.3.2", "kerykeion": "5.12.10", "fastmcp": "4.1.0", "mcp": "2.3.0", "lunardate": "0.3.0", "pydantic": "2.14.0", "pytest": "9.1.1"}, "golden_diff_active": true, "cases": 88, "matched": 88, "missing_snapshots": [], "stale_snapshots": [], "baseline_mutated": false}

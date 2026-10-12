@@ -24,7 +24,7 @@ from fatebridge.core.ephemeris_runtime import (
     swe,
 )
 from fatebridge.core.execution_context import current_datetime
-from fatebridge.utils.helpers import parse_timezone_name
+from fatebridge.utils.timezones import parse_timezone_name
 
 KERYKEION_IMPORT_ERROR: Optional[ImportError] = None
 try:

@@ -26,7 +26,7 @@ from fatebridge.core.astrology import (
     SIGNS,
     _opposite_sign,
 )
-from fatebridge.core.predictive import EGYPTIAN_BOUNDS_BY_SIGN
+from fatebridge.core.predictive._common import EGYPTIAN_BOUNDS_BY_SIGN
 
 # Chaldean decan faces — each sign's three 10° faces, Chaldean order from Mars at
 # 0° Aries. Ported verbatim from horosa data/dignities.js FACES (lowercased there).

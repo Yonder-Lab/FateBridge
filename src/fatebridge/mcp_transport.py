@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, cast
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.tools import ToolResult
 from mcp.types import CallToolResult
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import ConfigDict, ValidationError
 
 from fatebridge.core.discovery import discover_specs
 from fatebridge.core.execution_context import (

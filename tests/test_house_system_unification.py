@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import pytest
 
-from fatebridge.utils.helpers import house_system_fields, normalize_house_system
+from fatebridge.utils.house_systems import house_system_fields, normalize_house_system
 
 # Integer code -> Swiss Ephemeris letter, identical to the core chart's
 # RELATIVE_HOUSE_SYSTEM_SPECS (0=whole_sign ... 8=equal_mc).

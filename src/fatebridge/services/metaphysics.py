@@ -33,16 +33,16 @@ from fatebridge.services.snapshot_builders import (
 from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
+from fatebridge.utils.errors import calculation_guard
 from fatebridge.utils.helpers import (
-    DEFAULT_BIRTH_TIMEZONE,
     SOLAR_TIME_STRATEGY_APPARENT,
     PersonInfo,
     calculate_solar_time_adjustment,
-    calculation_guard,
     create_pillar_dict,
     format_birth_datetime_display,
     normalize_birth_time,
 )
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
 
 def _build_analysis_seed(

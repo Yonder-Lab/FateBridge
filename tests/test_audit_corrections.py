@@ -8,11 +8,7 @@ previously-missing value/behaviour assertions for the new analysis dimensions
 (gender-dependent star selection, 大运/流年 auto-derivation, 子时 day rollover).
 """
 
-import sys
 from datetime import datetime
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pytest
 

@@ -27,11 +27,9 @@ from fatebridge.services.snapshot_builders import (
     render_snapshot_lines as _render_snapshot_text,
 )
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
-from fatebridge.utils.helpers import (
-    DEFAULT_BIRTH_TIMEZONE,
-    calculation_guard,
-    create_pillar_dict,
-)
+from fatebridge.utils.errors import calculation_guard
+from fatebridge.utils.helpers import create_pillar_dict
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
 
 def _build_gua_lookup_snapshot_text(

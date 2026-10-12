@@ -1,8 +1,3 @@
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from fatebridge.core.astrology import relationship_focus_block
 from fatebridge.services.astrology import calculate_relative_chart_analysis
 

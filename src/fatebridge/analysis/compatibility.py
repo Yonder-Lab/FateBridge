@@ -202,7 +202,7 @@ class AdvancedCompatibility:
 
         # 6. 根据关系类型调整分析重点
         relationship_adjustment = AdvancedCompatibility._adjust_for_relationship_type(
-            result["detailed_analysis"], relationship_type
+            relationship_type
         )
         result["recommendations"].extend(relationship_adjustment["recommendations"])
 
@@ -966,18 +966,10 @@ class AdvancedCompatibility:
 
     @staticmethod
     def _adjust_for_relationship_type(
-        detailed_analysis: Dict[str, Any], relationship_type: RelationshipType
+        relationship_type: RelationshipType,
     ) -> Dict[str, Any]:
-        """根据关系类型给出侧重方向的建议。
-
-        早期版本还会返回一个 ``score_adjustment`` 字段试图二次放大各维度分，
-        但调用方从未消费它，保留只会带来字段歧义和未来回归，所以整条分数
-        调整路径已被删除。本函数现在只产出 recommendations。
-        """
+        """根据关系类型给出侧重方向的建议。"""
         recommendations: List[str] = []
-        # detailed_analysis 在当前实现里已经是用权重结构算出来的，这里不再
-        # 二次读取它的每维得分；保留参数仅为向后兼容和潜在的策略扩展。
-        del detailed_analysis
 
         if relationship_type == RelationshipType.MARRIAGE:
             recommendations.append("婚姻关系建议重视五行互补和精神契合")

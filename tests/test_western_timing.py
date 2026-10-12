@@ -1,31 +1,31 @@
-import sys
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import WesternTimingRequest
 from fatebridge.core import astrology as astrology_core
-from fatebridge.core.predictive import (
+from fatebridge.core.predictive._common import (
     build_lot_payloads,
     build_natal_subject,
     build_predictive_birth_info,
-    build_primary_direction_equatorial_context,
-    build_releasing_level_within_interval,
-    build_western_timing_payload,
     calculate_age_years_int,
     normalize_angle,
+)
+from fatebridge.core.predictive._common import swe as predictive_swe
+from fatebridge.core.predictive.primary_directions import (
+    build_primary_direction_equatorial_context,
     point_equatorial_position,
     project_absolute_degree_to_equatorial,
     semiarc_degrees_for_declination,
 )
-from fatebridge.core.predictive import swe as predictive_swe
-from fatebridge.mcp_server import western_timing_analysis
+from fatebridge.core.predictive.western_timing import build_western_timing_payload
+from fatebridge.core.predictive.zodiacal_releasing import (
+    build_releasing_level_within_interval,
+)
+from fatebridge.core.request_models import WesternTimingRequest
 from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis
-from fatebridge.utils.helpers import parse_timezone_name
+from fatebridge.utils.timezones import parse_timezone_name
+from tests.fixtures.transports import mcp_parameters
 
 
 def test_western_timing_request_model_accepts_fields():
@@ -603,7 +603,7 @@ def test_primary_directions_support_converse_mode():
 
 
 def test_fastmcp_western_timing_tool_exposes_parameters():
-    properties = western_timing_analysis.parameters["properties"]
+    properties = mcp_parameters("western_timing_analysis")["properties"]
 
     assert "birth_timezone" in properties
     assert "birth_longitude" in properties
@@ -1151,7 +1151,10 @@ def test_zodiacal_releasing_from_spirit_starts_at_spirit_sign_when_lots_coincide
     # When the Lots of Spirit and Fortune fall in the same sign, releasing from
     # Spirit must still begin at Spirit's OWN sign (the two lots may share a
     # sign — there is no rule that bumps Spirit to the next one).
-    from fatebridge.core.predictive import build_lot_payloads, build_natal_subject
+    from fatebridge.core.predictive._common import (
+        build_lot_payloads,
+        build_natal_subject,
+    )
     from fatebridge.core.predictive.zodiacal_releasing import (
         build_zodiacal_releasing_payload,
     )

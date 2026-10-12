@@ -1,8 +1,3 @@
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from fatebridge.analysis.compatibility import AdvancedCompatibility
 from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.rules import BaZiRules

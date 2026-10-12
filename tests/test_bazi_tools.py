@@ -1,13 +1,9 @@
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import BaziBirthRequest
-from fatebridge.mcp_server import bazi_birth
+from fatebridge.core.request_models import BaziBirthRequest
 from fatebridge.services.bazi import calculate_bazi_birth
 from fatebridge.utils.helpers import create_person_info
+from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
 def _build_person():
@@ -118,7 +114,7 @@ def test_calculate_bazi_birth_supports_selected_export_sections():
 
 
 def test_fastmcp_bazi_tools_expose_parameters():
-    birth_properties = bazi_birth.parameters["properties"]
+    birth_properties = mcp_parameters("bazi_birth")["properties"]
 
     assert "selected_sections" in birth_properties
     assert "compact" in birth_properties
@@ -128,7 +124,8 @@ def test_fastmcp_bazi_tools_expose_parameters():
 
 
 def test_fastmcp_bazi_birth_compact_mode_can_drop_snapshot_text():
-    rendered = bazi_birth.fn(
+    rendered = mcp_text(
+        "bazi_birth",
         birth_year=1994,
         birth_month=8,
         birth_day=23,
@@ -153,9 +150,10 @@ def test_fastmcp_bazi_birth_compact_mode_can_drop_snapshot_text():
 
 
 def test_fastmcp_bazi_birth_pretty_mode_keeps_snapshot_text():
-    birth_properties = bazi_birth.parameters["properties"]
+    birth_properties = mcp_parameters("bazi_birth")["properties"]
 
-    rendered = bazi_birth.fn(
+    rendered = mcp_text(
+        "bazi_birth",
         birth_year=1994,
         birth_month=8,
         birth_day=23,

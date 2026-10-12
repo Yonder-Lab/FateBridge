@@ -10,10 +10,10 @@ from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.rules import BaZiRules
 from fatebridge.utils.data import Element
+from fatebridge.utils.errors import calculation_guard
 from fatebridge.utils.helpers import (
     NormalizedBirthTime,
     PersonInfo,
-    calculation_guard,
     create_pillar_dict,
     format_birth_datetime_display,
     normalize_birth_time,

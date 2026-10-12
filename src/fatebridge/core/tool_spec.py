@@ -44,17 +44,15 @@ from fatebridge.core.execution_context import (
     safe_correlation,
 )
 from fatebridge.core.reproducibility import ReproducibilityPolicy
+from fatebridge.core.schema_cache import model_schema
 from fatebridge.utils.errors import (
+    VALIDATION_ERROR_CODE,
     ErrorEnvelope,
     ParameterError,
     handle_calculation_error,
     validation_error_result,
 )
-from fatebridge.utils.helpers import (
-    VALIDATION_ERROR_CODE,
-    PersonInfo,
-    create_person_info,
-)
+from fatebridge.utils.helpers import PersonInfo, create_person_info
 
 ServiceResult = Dict[str, Any]
 # A bind turns a validated request model into a concrete service call:
@@ -719,10 +717,10 @@ def describe_spec(spec: "ToolSpec") -> Dict[str, Any]:
             "mcp_name": spec.mcp_name,
         },
         "parameters": parameters,
-        "input_schema": spec.request_model.model_json_schema(),
+        "input_schema": model_schema(spec.request_model),
         "cli_request_file": spec.cli_request_file,
         "output_schema": (
-            spec.output_model.model_json_schema() if spec.output_model else None
+            model_schema(spec.output_model) if spec.output_model else None
         ),
     }
 
@@ -846,7 +844,6 @@ def make_rest_handler(
             # Mirror the MCP/CLI path (see _render_tool_response): only reshape
             # successful payloads so a transform keyed on a domain field can
             # never corrupt an error envelope.
-            validate_output(spec, result)
             # Project AFTER run_metadata is attached (execute_service did it) so
             # provenance survives a selection; then drop snapshot_text if opted
             # out. Order matches MCP's _render_tool_response.
@@ -949,11 +946,16 @@ def register_mcp(
     *,
     render_response: Callable[..., str],
     render_error: Callable[..., str],
-) -> None:
+    native_response: Optional[Callable[..., Any]] = None,
+    native_error: Optional[Callable[..., Any]] = None,
+) -> List[Any]:
     """Register every spec with an ``mcp_name`` (or key) as a FastMCP tool."""
     from fastmcp.tools import Tool
     from mcp.types import ToolAnnotations
 
+    registered = []
+    if (native_response is None) != (native_error is None):
+        raise ValueError("Both native MCP renderers must be supplied together")
     for spec in specs:
         if spec.mcp_name is None and spec.key is None:
             continue
@@ -962,8 +964,21 @@ def register_mcp(
         )
         from fatebridge.mcp_transport import native_tool_function
 
+        if native_response is not None and native_error is not None:
+            from fastmcp.tools import ToolResult
+
+            protocol_fn = _make_mcp_fn(
+                spec,
+                render_response=native_response,
+                render_error=native_error,
+                return_type=ToolResult,
+            )
+        else:
+            # Preserve custom registrars using the historical text callbacks.
+            protocol_fn = native_tool_function(fn)
+        setattr(protocol_fn, "__fb_legacy_fn__", fn)
         tool = Tool.from_function(
-            native_tool_function(fn),
+            protocol_fn,
             name=spec.tool_name,
             description=spec.summary,
             annotations=ToolAnnotations.model_validate(
@@ -971,7 +986,7 @@ def register_mcp(
             ),
             tags={spec.family},
             output_schema=(
-                spec.output_model.model_json_schema() if spec.output_model else None
+                model_schema(spec.output_model) if spec.output_model else None
             ),
         )
         for name in _MCP_SOLAR_FIELDS & spec.request_model.model_fields.keys():
@@ -983,17 +998,20 @@ def register_mcp(
                     call_default_factory=True
                 )
         app.add_tool(tool)
+        registered.append(tool)
     from fatebridge.mcp_transport import InputValidationMiddleware
 
     app.add_middleware(InputValidationMiddleware(specs))
+    return registered
 
 
 def _make_mcp_fn(
     spec: ToolSpec,
     *,
-    render_response: Callable[..., str],
-    render_error: Callable[..., str],
-) -> Callable[..., str]:
+    render_response: Callable[..., Any],
+    render_error: Callable[..., Any],
+    return_type: Any = str,
+) -> Callable[..., Any]:
     model = spec.request_model
     params, annotations = model_parameters(model)
     # Transport-level flags appended after model fields; guard against a model
@@ -1070,7 +1088,7 @@ def _make_mcp_fn(
             )
         )
 
-    def impl(**kwargs: Any) -> str:
+    def impl(**kwargs: Any) -> Any:
         compact = kwargs.pop("compact", True)
         include_snapshot_text = kwargs.pop(
             "include_snapshot_text", spec.include_snapshot_text
@@ -1128,5 +1146,5 @@ def _make_mcp_fn(
     impl.__name__ = spec.tool_name
     impl.__doc__ = spec.summary
     setattr(impl, "__signature__", inspect.Signature(params))
-    impl.__annotations__ = {**annotations, "return": str}
+    impl.__annotations__ = {**annotations, "return": return_type}
     return impl

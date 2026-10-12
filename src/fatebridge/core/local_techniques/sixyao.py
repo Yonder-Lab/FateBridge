@@ -11,7 +11,8 @@ from __future__ import annotations
 import random
 from typing import Any, Dict, List, Optional, Tuple
 
-from ...utils.helpers import DEFAULT_BIRTH_TIMEZONE
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
+
 from ..almanac import build_calendar_context
 from ..calendar import BaZiCalendar
 from ..divination import lookup_hexagram_by_code
