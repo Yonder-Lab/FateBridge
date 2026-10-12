@@ -420,6 +420,19 @@ def _clean_code(code: Optional[str]) -> str:
     return "".join(ch for ch in str(code or "") if ch in {"0", "1"})
 
 
+def needs_random_coin_cast(inputs: Dict[str, Any]) -> bool:
+    """Share the engine's manual-input precedence with replay seed handling."""
+    return (
+        (inputs.get("method") or "auto").strip().lower() == "coin"
+        and inputs.get("coins") is None
+        and not _normalize_gua_lines(inputs.get("lines"))
+        and not (
+            _clean_code(inputs.get("gua_code"))
+            or _clean_code(inputs.get("changed_code"))
+        )
+    )
+
+
 def _derive_gua_code(lines: List[Dict[str, Any]]) -> str:
     return "".join(str(int(line.get("value", 0))) for line in lines) or "000000"
 
@@ -636,7 +649,15 @@ def build_sixyao_result(
         # detection reflects the real request.
         if not explicit_lines_provided:
             normalized_lines = _lines_from_codes(current_code, next_code)
-    elif method == "coin":
+    elif needs_random_coin_cast(
+        {
+            "method": method,
+            "coins": coins,
+            "lines": lines,
+            "gua_code": gua_code,
+            "changed_code": changed_code,
+        }
+    ):
         # 摇钱起卦（系统随机六掷）：真·铜钱筮法，seed 可复现。
         cast_method = "coin"
         coin_source = "random"

@@ -11,13 +11,15 @@ import logging
 import os
 import time
 from collections import defaultdict
+from copy import deepcopy
 from threading import Lock
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Literal, Optional, Tuple
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
@@ -41,6 +43,8 @@ load_runtime_env()
 from fatebridge import __version__ as APP_VERSION
 from fatebridge.core import astrology as astrology_core
 from fatebridge.core import predictive as astrology_predictive_core
+from fatebridge.core.discovery import discover_specs
+from fatebridge.core.execution_context import correlate_error, safe_correlation
 
 # Re-exported so callers and tests can import request models from `api`
 # directly (the canonical definitions live in fatebridge.core.request_models).
@@ -90,6 +94,7 @@ from fatebridge.core.request_models import (  # noqa: F401
     ZiweiBirthRequest,
     ZiweiRulesRequest,
 )
+from fatebridge.core.scenarios import discover_scenarios
 
 # Re-exported for back-compat / test identity checks: some tests assert the
 # threadpool offload runs exactly these service objects via `api.<name>`.
@@ -102,6 +107,11 @@ from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.western_timing import (  # noqa: F401
     calculate_western_timing_analysis,
 )
+from fatebridge.utils.errors import (
+    ErrorEnvelope,
+    ParameterError,
+    validation_error_result,
+)
 
 # ============================================================================
 # Setup
@@ -113,14 +123,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
-
-
-class ErrorEnvelope(BaseModel):
-    """The shared HTTP error body, used for serialization and API discovery."""
-
-    error: Any
-    error_code: str
-    retryable: bool
 
 
 app = FastAPI(
@@ -467,7 +469,10 @@ def _build_error_detail(result: Dict[str, Any]) -> Dict[str, Any]:
         error=result["error"],
         error_code=result.get("error_code", "internal_error"),
         retryable=result.get("retryable", False),
-    ).model_dump()
+        issues=result.get("issues"),
+        trace_id=result.get("trace_id"),
+        parent_run_id=result.get("parent_run_id"),
+    ).model_dump(exclude_none=True)
 
 
 def _raise_service_http_error(result: Dict[str, Any]) -> None:
@@ -485,11 +490,10 @@ async def _request_validation_error_envelope(
     return JSONResponse(
         status_code=422,
         content=_build_error_detail(
-            {
-                "error": "请求参数无效",
-                "error_code": "validation_error",
-                "retryable": False,
-            }
+            correlate_error(
+                validation_error_result(exc),
+                safe_correlation(dict(request.query_params)),
+            )
         ),
     )
 
@@ -518,6 +522,7 @@ async def _http_error_envelope(request: Request, exc: HTTPException) -> JSONResp
                 "retryable": False,
             }
         )
+    body = correlate_error(body, safe_correlation(dict(request.query_params)))
     return JSONResponse(status_code=exc.status_code, content=body)
 
 
@@ -631,8 +636,41 @@ register_rest(
 )
 
 
+def _contract_openapi() -> Dict[str, Any]:
+    """Describe middleware authentication without changing its runtime policy."""
+    if app.openapi_schema is None:
+        app.openapi_schema = get_openapi(
+            title=app.title,
+            version=app.version,
+            description=app.description,
+            routes=app.routes,
+        )
+    schema = deepcopy(app.openapi_schema)
+    schema.setdefault("components", {}).setdefault("securitySchemes", {})["APIKey"] = {
+        "type": "apiKey",
+        "in": "header",
+        "name": API_KEY_AUTHENTICATOR.header_name,
+    }
+    if API_KEY_AUTHENTICATOR.enabled:
+        for path, operations in schema["paths"].items():
+            if path not in API_KEY_EXEMPT_PATHS:
+                for operation in operations.values():
+                    operation["security"] = [{"APIKey": []}]
+    return schema
+
+
+app.openapi = _contract_openapi  # type: ignore[method-assign]
+
+
 @app.get("/api/tools")
-async def list_tools() -> Dict[str, Any]:
+async def list_tools(
+    family: Optional[str] = None,
+    scenario: Optional[str] = None,
+    q: Optional[str] = None,
+    tool: Optional[str] = None,
+    surface: Optional[Literal["rest", "mcp", "cli"]] = None,
+    detail: Literal["summary", "full"] = "full",
+) -> Dict[str, Any]:
     """Machine-readable capability manifest for agents.
 
     Returns the same self-describing record as ``fatebridge describe`` for every
@@ -641,14 +679,33 @@ async def list_tools() -> Dict[str, Any]:
     the Markdown docs. Derived from the central ToolSpec catalog, so it never
     drifts from the live tool set.
     """
-    return {
-        "counts": {
-            "rest": len(rest_specs()),
-            "mcp": len(mcp_specs()),
-            "total": len(CATALOG),
-        },
-        "tools": [describe_spec(spec) for spec in CATALOG],
-    }
+    try:
+        return discover_specs(
+            CATALOG,
+            family=family,
+            scenario=scenario,
+            q=q,
+            tool=tool,
+            surface=surface,
+            detail=detail,
+        )
+    except ParameterError as exc:
+        raise HTTPException(status_code=422, detail=exc.as_result())
+
+
+@app.get("/api/scenarios")
+async def list_scenarios(
+    scenario: Optional[str] = None,
+    surface: Optional[Literal["rest", "mcp", "cli"]] = None,
+    detail: Literal["summary", "full"] = "full",
+) -> Dict[str, Any]:
+    """Packaged scenario routing joined to the current central tool catalog."""
+    try:
+        return discover_scenarios(
+            CATALOG, scenario=scenario, surface=surface, detail=detail
+        )
+    except ParameterError as exc:
+        raise HTTPException(status_code=422, detail=exc.as_result())
 
 
 # Backward-compatible direct-call handlers. Older tests / integrations call the

@@ -16,6 +16,7 @@ import platform
 import sys
 from contextlib import contextmanager
 from datetime import datetime as _RealDatetime
+from datetime import timezone
 from pathlib import Path
 from typing import Dict, Generator
 from unittest.mock import patch
@@ -156,6 +157,36 @@ def freeze_clock(frozen: _RealDatetime = FROZEN_NOW) -> Generator[None, None, No
     """
     frozen_cls = _make_frozen_datetime(frozen)
     patches = [patch(target, frozen_cls) for target in _DATETIME_PATCH_TARGETS]
+
+    # Preserve this historical fixture's fixed local wall clock in every zone.
+    # Production instead uses one UTC instant per execution; replay/isolation
+    # tests validate that contract independently. Golden metadata is stripped.
+    def frozen_current_datetime(zone, timezone_name=None, **kwargs):
+        return frozen_cls.now(zone)
+
+    patches.extend(
+        [
+            patch("fatebridge.core.almanac.current_datetime", frozen_current_datetime),
+            patch(
+                "fatebridge.core.predictive._common.current_datetime",
+                frozen_current_datetime,
+            ),
+        ]
+    )
+    # The shared registrar now creates a per-call UTC clock. The fixture epoch
+    # is Shanghai civil noon, so freeze that clock to the same *instant*, rather
+    # than letting receipt timestamps drive current-time business calculations.
+    from fatebridge.utils.timezones import parse_timezone_name
+
+    utc_frozen = frozen.replace(tzinfo=parse_timezone_name("Asia/Shanghai")).astimezone(
+        timezone.utc
+    )
+    patches.append(
+        patch(
+            "fatebridge.core.execution_context.datetime",
+            _make_frozen_datetime(utc_frozen.replace(tzinfo=None)),
+        )
+    )
     for p in patches:
         p.start()
     try:

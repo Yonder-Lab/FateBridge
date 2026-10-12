@@ -9,6 +9,7 @@ no transport file needs editing.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any, Callable, Dict, List, Tuple
 
 from fatebridge.core.request_models import (
@@ -80,6 +81,7 @@ from fatebridge.core.request_models import (
     ZiweiHoroscopeRequest,
     ZiweiRulesRequest,
 )
+from fatebridge.core.response_models import output_model_for
 from fatebridge.core.tool_spec import (
     ToolSpec,
     lazy_service,
@@ -401,6 +403,7 @@ def _astro_relative_flat_bind(
             "birth_longitude": d[f"{prefix}_birth_longitude"],
             "birth_latitude": d[f"{prefix}_birth_latitude"],
             "birth_place": d[f"{prefix}_birth_place"],
+            "use_true_solar_time": d[f"{prefix}_use_true_solar_time"],
         }
 
     return (
@@ -1196,6 +1199,26 @@ CATALOG: List[ToolSpec] = [
         AstroElectionRequest,
         "择日",
     ),
+]
+
+
+CATALOG = [
+    replace(spec, output_model=spec.output_model or output_model_for(spec.key))
+    for spec in CATALOG
+]
+
+from fatebridge.core.reproducibility import ReproducibilityPolicy, policy_for
+
+CATALOG = [
+    replace(
+        spec,
+        reproducibility=(
+            policy_for(spec.key, spec.request_model)
+            if spec.reproducibility == ReproducibilityPolicy()
+            else spec.reproducibility
+        ),
+    )
+    for spec in CATALOG
 ]
 
 

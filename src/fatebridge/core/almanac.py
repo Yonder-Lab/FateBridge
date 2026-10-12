@@ -21,6 +21,7 @@ except ImportError:  # pragma: no cover - exercised only in misconfigured envs
 from ..utils.timezones import parse_timezone_name
 from .divination import derive_meihua_hexagram
 from .ephemeris_runtime import ephemeris_call, swe
+from .execution_context import current_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -259,7 +260,9 @@ def current_local_datetime(timezone_name: Optional[str] = None) -> datetime:
     别处的 aware datetime 混用而触发 TypeError。
     """
     tzinfo = parse_timezone_name(timezone_name or DEFAULT_TIMEZONE)
-    return datetime.now(tzinfo).replace(tzinfo=None)
+    return current_datetime(
+        tzinfo, timezone_name or DEFAULT_TIMEZONE, now_provider=datetime.now
+    ).replace(tzinfo=None)
 
 
 def _julian_day_number(year: int, month: int, day: int) -> int:

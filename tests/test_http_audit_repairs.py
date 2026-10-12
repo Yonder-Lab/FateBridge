@@ -121,11 +121,12 @@ def test_invalid_http_bodies_use_safe_common_error_envelope(monkeypatch, body):
             headers={"Content-Type": "application/json"},
         )
     assert response.status_code == 422
-    assert response.json() == {
+    assert {k: v for k, v in response.json().items() if k != "issues"} == {
         "error": "请求参数无效",
         "error_code": "validation_error",
         "retryable": False,
     }
+    assert response.json()["issues"]
     assert "sensitive" not in response.text
 
 
@@ -177,9 +178,10 @@ def test_openapi_validation_error_schema_matches_real_http_response(monkeypatch)
                     "$ref": "#/components/schemas/ErrorEnvelope"
                 }
     error_schema = schema["components"]["schemas"]["ErrorEnvelope"]
-    assert set(error_schema["required"]) == set(response.json())
-    assert set(error_schema["properties"]) == set(response.json())
+    assert set(error_schema["required"]) <= set(response.json())
+    assert set(response.json()) <= set(error_schema["properties"])
+    assert {"trace_id", "parent_run_id"} <= set(error_schema["properties"])
     assert response.status_code == 422
-    assert api_module.ErrorEnvelope.model_validate(response.json()).model_dump() == (
-        response.json()
-    )
+    assert api_module.ErrorEnvelope.model_validate(response.json()).model_dump(
+        exclude_none=True
+    ) == (response.json())

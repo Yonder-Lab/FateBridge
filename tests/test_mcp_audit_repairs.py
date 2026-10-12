@@ -33,7 +33,13 @@ def _app(spec: ToolSpec) -> FastMCP:
 
 async def _call(client: Client, name: str, payload: dict[str, Any]) -> dict[str, Any]:
     result = await client.call_tool(name, payload)
-    return json.loads(result.content[0].text)
+    # This helper verifies service input/default semantics; receipts are
+    # validated separately through the public output and replay contracts.
+    return {
+        key: value
+        for key, value in json.loads(result.content[0].text).items()
+        if key != "run_metadata"
+    }
 
 
 @pytest.mark.parametrize("name,payload", [("bazi_birth", BIRTH), ("qimen", ANALYSIS)])
@@ -49,9 +55,8 @@ def test_real_mcp_omission_and_explicit_solar_flags(name, payload):
             assert "use_true_solar_time" not in schema["required"]
             # Missing coordinates degrade only when correction was omitted.
             assert "error" not in await _call(client, name, payload)
-            assert "error" in await _call(
-                client, name, {**payload, "use_true_solar_time": True}
-            )
+            with pytest.raises(ToolError):
+                await _call(client, name, {**payload, "use_true_solar_time": True})
             assert "error" not in await _call(
                 client, name, {**payload, "use_true_solar_time": False}
             )

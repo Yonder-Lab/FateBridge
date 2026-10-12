@@ -113,9 +113,10 @@ def test_election_marriage_uses_venus_and_seventh_house():
     assert 0 <= payload["score"] <= 100
 
 
-def test_election_unknown_topic_falls_back_to_marriage():
+def test_election_unknown_topic_is_rejected():
     result = calculate_election(**CANDIDATE, topic_id="not_a_topic")
-    assert result["election"]["topic_id"] == "marriage"
+    assert result["error_code"] == "validation_error"
+    assert "election" not in result
 
 
 def test_election_envelope_has_snapshot_and_factors():

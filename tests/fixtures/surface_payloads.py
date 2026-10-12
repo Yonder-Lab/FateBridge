@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 
+
 def _birth_payload(
     *,
     name: str = "张三",
@@ -531,6 +532,8 @@ REST_GET_CASES = {
     "/metrics": lambda body: body is None,
     "/api/tools": lambda body: body["counts"]["total"] >= 1
     and isinstance(body["tools"], list),
+    "/api/scenarios": lambda body: body["schema_version"] == "1.0"
+    and isinstance(body["scenarios"], list),
 }
 
 MCP_CASES = {

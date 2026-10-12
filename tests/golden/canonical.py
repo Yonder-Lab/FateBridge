@@ -16,14 +16,41 @@ from typing import Any
 #: ``run_id`` / ``trace_id``（均为 uuid4），不剔除会让基线每次都不同。
 VOLATILE_KEYS = frozenset({"generated_at", "run_id", "trace_id"})
 
+# Execution receipts have separate contract/replay tests. Their build hashes,
+# duration and real call clock are not calculation facts; schema/input/business
+# hashes also depend on unsanitized payloads. Restrict removal to run_metadata,
+# retaining business provenance, warning lists and the pre-existing engine keys.
+EXECUTION_RECEIPT_KEYS = frozenset(
+    {
+        "metadata_schema_version",
+        "package_version",
+        "contract_sha256",
+        "input_sha256",
+        "business_output_sha256",
+        "duration_ms",
+        "effective_time",
+        "determinism",
+        "runtime",
+        "provenance",
+        "replay",
+        "warnings",
+        "parent_run_id",
+    }
+)
+
 #: 浮点保留精度。远高于任何命理意义阈值，仅用于吸收末位浮点噪声。
 FLOAT_PRECISION = 8
 
 
-def _scrub(value: Any) -> Any:
+def _scrub(value: Any, *, execution_metadata: bool = False) -> Any:
     """递归剔除易变字段并规整浮点（tuple 视同 list 处理）。"""
     if isinstance(value, dict):
-        return {k: _scrub(v) for k, v in value.items() if k not in VOLATILE_KEYS}
+        return {
+            k: _scrub(v, execution_metadata=k == "run_metadata")
+            for k, v in value.items()
+            if k not in VOLATILE_KEYS
+            and not (execution_metadata and k in EXECUTION_RECEIPT_KEYS)
+        }
     if isinstance(value, (list, tuple)):
         return [_scrub(item) for item in value]
     if isinstance(value, float):
