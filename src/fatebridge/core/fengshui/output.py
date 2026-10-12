@@ -21,14 +21,14 @@ class RuleSource(PartialOutput):
 
 
 class Ruleset(PartialOutput):
-    ruleset_id: str
-    version: str
-    method: str
-    source_ids: List[str]
-    sources: List[RuleSource]
-    scope: str
-    conventions: List[str]
-    bundle_version: str
+    ruleset_id: Optional[str] = None
+    version: Optional[str] = None
+    method: Optional[str] = None
+    source_ids: Optional[List[str]] = None
+    sources: Optional[List[RuleSource]] = None
+    scope: Optional[str] = None
+    conventions: Optional[List[str]] = None
+    bundle_version: Optional[str] = None
 
 
 class Star(PartialOutput):

@@ -30,6 +30,13 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
   reference fixtures and three-transport contract tests.
 
 ### API compatibility notes
+- Native MCP result construction now validates the protocol dictionary across
+  SDK 1.x and 2.x constructor naming conventions. Linux x86_64 / Python 3.12
+  reference validation completes all golden comparisons without skips.
+- Feng Shui `Ruleset` output fields now permit omission in dotted projections;
+  native MCP clients can validate single-rule-field results. Full results and
+  rule versions are preserved; catalog-wide projection regression checks cover
+  nested objects, arrays and the REST/MCP/CLI schemas.
 - Invalid projection paths now return additive `projection_warnings` while
   retaining the existing selected data and success status by default. Opt in to
   `strict_fields=true` (CLI `--strict-fields`) for shared 422 validation failures.

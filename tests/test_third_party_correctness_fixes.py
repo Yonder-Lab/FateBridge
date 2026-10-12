@@ -46,11 +46,14 @@ def test_hko_sxtwl_historical_month_lengths(solar, lunar):
 
 
 def test_historical_correction_does_not_mutate_dependency():
-    from lunardate import yearInfos
+    import lunardate
 
-    before = tuple(yearInfos)
+    year_infos = getattr(lunardate, "yearInfos", None)
+    if year_infos is None:  # lunardate 0.3 uses uppercase table names.
+        year_infos = lunardate.YEAR_INFOS
+    before = tuple(year_infos)
     get_lunar_context(datetime(1954, 12, 1, 10), timezone_name="+08:00")
-    assert tuple(yearInfos) == before
+    assert tuple(year_infos) == before
 
 
 def test_liureng_all_day_hour_month_general_combinations_against_independent_oracle():

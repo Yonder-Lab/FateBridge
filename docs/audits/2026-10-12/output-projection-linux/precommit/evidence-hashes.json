@@ -1,0 +1,13 @@
+{
+  "execution-hashes.json": "ccf088b0412176ea05e00fd529d8075fd75dd307ef82348675f73a705336e69a",
+  "precommit-full.log": "52c5c2faa6f234cccc0dd76afeaf4ab46167af3bba48993a893cbe79affba24a",
+  "precommit-full.xml": "c7347088bac86f609a78cb9f5aba926c7e5a693eaf82666fa7ab640c4d43fa5f",
+  "precommit-golden.json": "067c20a89ba8d816b41ff38f04682c8e3a98f3aad194be33a61908c319f8f432",
+  "precommit-probes.json": "e7686d8574b32a65a0b466fb26ea6252a55b50471593b8fa6bf8ac167e951072",
+  "precommit-static.json": "b47745ce52762b1605be9c8b6dabaf0fb822cce93d173422f49bbff8f7e58765",
+  "precommit-xuankong-independent.json": "1185a0db6ec9626fbbbe1cf217729a9e3b2f0f11450cf413e7dbee6508eeefc2",
+  "prerequisite-smoke.json": "ce437ead4720182e37cc8dc777b088e13c677ff85eb7fe5869d84283ab11bc90",
+  "protected-hashes.json": "f1fe70479a6e29ed6e7eb228c1049f2be10fc13950ff85949a563339c47ba7c0",
+  "surface-contracts.json": "60707cacc1f805204cbece8764ff8b4493324e91cccf283efa87f375e54f064b",
+  "validation.json": "26dceea6f5f7383424a9f03ee16a29b3d8e986d6c5414413982dddb583b44655"
+}

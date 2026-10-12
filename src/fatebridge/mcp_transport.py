@@ -124,10 +124,15 @@ class ProtocolResult(ToolResult):
         self.failed = failed
 
     def to_mcp_result(self) -> Any:
-        return CallToolResult(
-            content=self.content,
-            structuredContent=self.structured_content,
-            isError=self.failed,
+        # SDK 1.x names constructor fields in camelCase; SDK 2.x uses snake_case
+        # attributes with wire aliases. Validating the protocol dictionary works
+        # with both versions without depending on either constructor signature.
+        return CallToolResult.model_validate(
+            {
+                "content": self.content,
+                "structuredContent": self.structured_content,
+                "isError": self.failed,
+            }
         )
 
 

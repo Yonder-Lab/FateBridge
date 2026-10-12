@@ -1,0 +1,34 @@
+[
+  {
+    "command": [
+      "black",
+      "--check",
+      "src/fatebridge",
+      "scripts",
+      "tests"
+    ],
+    "exit_code": 0,
+    "output": "All done! ✨ 🍰 ✨\n248 files would be left unchanged.\n"
+  },
+  {
+    "command": [
+      "isort",
+      "--check-only",
+      "src/fatebridge",
+      "scripts",
+      "tests"
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "mypy",
+      "--cache-dir",
+      "/audit/precommit-mypy-cache",
+      "src/fatebridge/"
+    ],
+    "exit_code": 0,
+    "output": "Success: no issues found in 129 source files\n"
+  }
+]
