@@ -1,0 +1,12 @@
+[
+  {
+    "phase": "contracts",
+    "exit_code": 0,
+    "output": "82\nnative_tools 80\n2026-10-12 09:49:57,294 - httpx2 - INFO - HTTP Request: GET http://testserver/api/tools?detail=summary \"HTTP/1.1 200 OK\"\n"
+  },
+  {
+    "phase": "fengshui",
+    "exit_code": 0,
+    "output": "89\nnative_tools 87\n2026-10-12 09:50:05,931 - httpx2 - INFO - HTTP Request: GET http://testserver/api/tools?detail=summary \"HTTP/1.1 200 OK\"\n"
+  }
+]

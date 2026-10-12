@@ -34,18 +34,22 @@ Provides Chinese metaphysics and offline astrology functionality via FastMCP:
 27. decennials - Standalone decennials snapshot
 """
 
-import asyncio
 import logging
 import os
-from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
 from fatebridge import __version__ as APP_VERSION
+from fatebridge.mcp_transport import ProtocolResult, protocol_result
 from fatebridge.services.run_metadata import attach_run_metadata
-from fatebridge.utils.helpers import format_error_response, format_json_response
+from fatebridge.utils.errors import error_response_payload
+from fatebridge.utils.helpers import (
+    _prepare_json_response_payload,
+    format_error_response,
+    format_json_response,
+)
 from fatebridge.utils.runtime import get_log_level, load_runtime_env
 
 # ============================================================================
@@ -67,7 +71,7 @@ logging.basicConfig(
 _MCP_INSTRUCTIONS = "中国传统八字、时运、节气/农历 helper、FateBridge 导出协议/悬浮知识 helper 与离线星盘测算工具（优先本地高精度 ephemeris，缺失时回退近似模型），提供单人分析、双人配合度、时运分析、梅花时卦辅助、卦义 helper 与核心/关系星盘。只输出计算数据，不包含建议。"
 
 
-def _render_tool_response(
+def _tool_response_payload(
     data: Dict[str, Any],
     *,
     compact: bool = True,
@@ -75,17 +79,39 @@ def _render_tool_response(
     fields: Optional[list] = None,
     strict_fields: bool = False,
     tool_name: Optional[str] = None,
-) -> str:
+) -> Dict[str, Any]:
     # tool_name is supplied by the catalog registrar (spec.run_metadata_name);
     # the neutral fallback only guards a stray non-catalog caller.
     payload = attach_run_metadata(data, tool_name=tool_name or "unknown_tool")
     # Project AFTER run_metadata is attached so provenance survives a field
     # selection (project_fields always keeps run_metadata).
     payload = project_fields(payload, fields, strict_fields=strict_fields)
-    return format_json_response(
+    return _prepare_json_response_payload(
         payload,
-        compact=compact,
         include_snapshot_text=include_snapshot_text,
+    )
+
+
+def _render_tool_response(data: Dict[str, Any], **flags: Any) -> str:
+    payload = _tool_response_payload(data, **flags)
+    return format_json_response(payload, compact=flags.get("compact", True))
+
+
+def _render_protocol_response(data: Dict[str, Any], **flags: Any) -> ProtocolResult:
+    payload = _tool_response_payload(data, **flags)
+    return protocol_result(
+        payload,
+        failed=False,
+        text=format_json_response(payload, compact=flags.get("compact", True)),
+    )
+
+
+def _render_protocol_error(
+    data: Dict[str, Any], operation: str, *, compact: bool = True
+) -> ProtocolResult:
+    payload = error_response_payload(data, operation)
+    return protocol_result(
+        payload, failed=True, text=format_json_response(payload, compact=compact)
     )
 
 
@@ -113,7 +139,10 @@ from fatebridge.services.tool_catalog import CATALOG  # noqa: E402
 
 
 def create_mcp_app(
-    families: Optional[str] = None, scenarios: Optional[str] = None
+    families: Optional[str] = None,
+    scenarios: Optional[str] = None,
+    *,
+    _legacy_exports: Optional[Dict[str, Any]] = None,
 ) -> FastMCP:
     """Host-level family profiles; an omitted profile retains every MCP tool."""
     server = FastMCP(
@@ -124,12 +153,22 @@ def create_mcp_app(
     )
     server.add_middleware(SerializableSchemaMiddleware())
     exposed = select_specs(CATALOG, family=families, scenario=scenarios, surface="mcp")
-    register_mcp(
+    registered = register_mcp(
         server,
         exposed,
         render_response=_render_tool_response,
         render_error=_render_tool_error,
+        native_response=_render_protocol_response,
+        native_error=_render_protocol_error,
     )
+    if _legacy_exports is not None:
+        for tool in registered:
+            _legacy_exports[tool.name] = SimpleNamespace(
+                fn=tool.fn.__fb_legacy_fn__,
+                parameters=tool.parameters,
+                schema=getattr(tool, "schema", None),
+                description=tool.description,
+            )
     register_discovery_resources(server, CATALOG, exposed)
     return server
 
@@ -137,50 +176,8 @@ def create_mcp_app(
 app = create_mcp_app(
     os.getenv("FATEBRIDGE_MCP_FAMILIES") or None,
     os.getenv("FATEBRIDGE_MCP_SCENARIOS") or None,
+    _legacy_exports=globals(),
 )
-
-
-def _attach_fastmcp_legacy_metadata() -> None:
-    """
-    Expose each registered tool as a module-level attribute carrying `.fn` and
-    `.parameters`, the contract some FateBridge tests and host integrations rely
-    on. Keep this text-returning facade separate from the protocol callable,
-    which returns structured data and a native MCP error flag.
-    """
-
-    async def _load_registered_tools() -> list[Any]:
-        return list(await app.list_tools(run_middleware=False))
-
-    try:
-        registered_tools = asyncio.run(_load_registered_tools())
-    except RuntimeError as exc:
-        if "asyncio.run() cannot be called from a running event loop" not in str(exc):
-            raise
-
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            registered_tools = executor.submit(
-                lambda: asyncio.run(_load_registered_tools())
-            ).result()
-
-    for tool in registered_tools:
-        target = globals().get(tool.name)
-        if callable(target):
-            setattr(target, "fn", tool.fn)
-            setattr(target, "parameters", tool.parameters)
-            setattr(target, "schema", getattr(tool, "schema", None))
-            setattr(target, "description", getattr(tool, "description", None))
-        else:
-            # Keep the documented in-process `.fn -> JSON text` compatibility
-            # facade separate from the native protocol callable.
-            globals()[tool.name] = SimpleNamespace(
-                fn=getattr(tool.fn, "__fb_legacy_fn__", tool.fn),
-                parameters=tool.parameters,
-                schema=getattr(tool, "schema", None),
-                description=tool.description,
-            )
-
-
-_attach_fastmcp_legacy_metadata()
 
 
 def main() -> None:

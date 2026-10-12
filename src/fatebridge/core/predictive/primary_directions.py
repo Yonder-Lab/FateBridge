@@ -2,7 +2,38 @@
 
 from __future__ import annotations
 
-from ._common import *
+from ._common import (
+    ASPECT_DEGREE_TO_META,
+    LOT_KEY_BY_POINT_NAME,
+    LOT_LABELS,
+    LOT_POINT_NAMES,
+    SWISSEPH_PLANET_IDS,
+    TIMING_POINT_NAMES,
+    TRADITIONAL_PLANETS,
+    TROPICAL_YEAR_DAYS,
+    Any,
+    AstroBirthInfo,
+    Dict,
+    List,
+    Optional,
+    build_lot_payloads,
+    build_lot_point_dict,
+    calculate_age_years,
+    datetime,
+    ephemeris_call,
+    extract_reference_longitudes,
+    extract_reference_points,
+    longitude_to_point_dict,
+    math,
+    normalize_angle,
+    normalize_sign_name,
+    normalize_signed_angle,
+    planet_label,
+    point_absolute_position,
+    resolve_egyptian_bound,
+    swe,
+    timedelta,
+)
 
 # 方法标签与坐标系映射
 PRIMARY_DIRECTION_METHOD_LABELS = {

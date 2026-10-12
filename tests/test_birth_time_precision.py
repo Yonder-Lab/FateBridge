@@ -1,12 +1,8 @@
-import sys
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import (
+from fatebridge.core.request_models import (
     DayunAnalysisRequest,
     FateBridgeRequest,
     JieqiTimelineRequest,
@@ -17,17 +13,6 @@ from fatebridge.api import (
     TimingAnalysisRequest,
 )
 from fatebridge.core.timing import TimingAnalysis
-from fatebridge.mcp_server import (
-    analyze_destiny,
-    dayun_analysis,
-    jieqi_timeline_analysis,
-    liunian_analysis,
-    liuri_analysis,
-    liushi_analysis,
-    liuyue_analysis,
-    timing_analysis,
-    two_person_compatibility,
-)
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.timing import (
     calculate_comprehensive_timing,
@@ -38,12 +23,10 @@ from fatebridge.services.timing import (
     calculate_liushi_analysis,
     calculate_liuyue_analysis,
 )
-from fatebridge.utils.helpers import (
-    create_person_info,
-    normalize_birth_time,
-    parse_timezone_name,
-    resolve_birth_place_context,
-)
+from fatebridge.utils.helpers import create_person_info, normalize_birth_time
+from fatebridge.utils.places import resolve_birth_place_context
+from fatebridge.utils.timezones import parse_timezone_name
+from tests.fixtures.transports import mcp_parameters
 
 
 def test_request_model_accepts_birth_time_precision_fields():
@@ -1124,15 +1107,15 @@ def test_comprehensive_timing_matches_specialized_timing_tools():
 
 
 def test_fastmcp_tools_expose_birth_time_precision_arguments():
-    analyze_properties = analyze_destiny.parameters["properties"]
-    compatibility_properties = two_person_compatibility.parameters["properties"]
-    timing_properties = timing_analysis.parameters["properties"]
-    dayun_properties = dayun_analysis.parameters["properties"]
-    liunian_properties = liunian_analysis.parameters["properties"]
-    liuyue_properties = liuyue_analysis.parameters["properties"]
-    liuri_properties = liuri_analysis.parameters["properties"]
-    liushi_properties = liushi_analysis.parameters["properties"]
-    jieqi_properties = jieqi_timeline_analysis.parameters["properties"]
+    analyze_properties = mcp_parameters("analyze_destiny")["properties"]
+    compatibility_properties = mcp_parameters("two_person_compatibility")["properties"]
+    timing_properties = mcp_parameters("timing_analysis")["properties"]
+    dayun_properties = mcp_parameters("dayun_analysis")["properties"]
+    liunian_properties = mcp_parameters("liunian_analysis")["properties"]
+    liuyue_properties = mcp_parameters("liuyue_analysis")["properties"]
+    liuri_properties = mcp_parameters("liuri_analysis")["properties"]
+    liushi_properties = mcp_parameters("liushi_analysis")["properties"]
+    jieqi_properties = mcp_parameters("jieqi_timeline_analysis")["properties"]
 
     assert "birth_minute" in analyze_properties
     assert "birth_timezone" in analyze_properties
@@ -1271,7 +1254,7 @@ def test_resolve_birth_place_context_returns_latitude():
 def test_every_catalogued_place_has_latitude():
     # Drift guard: a place may not be half-resolved (longitude without latitude).
     # If this fails, a new make_birth_place_entry is missing its latitude.
-    from fatebridge.utils.helpers import KNOWN_BIRTH_PLACE_ENTRIES
+    from fatebridge.utils.places import KNOWN_BIRTH_PLACE_ENTRIES
 
     missing = [
         entry["canonical_name"]

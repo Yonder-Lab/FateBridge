@@ -21,7 +21,9 @@ illustrative, not runnable, and are skipped by design.
 """
 
 import re
+import shlex
 import subprocess
+import sys
 from pathlib import Path
 
 from fatebridge.core.tool_spec import spec_is_cli_safe
@@ -150,9 +152,10 @@ def test_documented_cli_examples_run_clean():
     with a non-zero exit code, so exit 0 is the clean-run signal."""
     failures: list[str] = []
     for md, tool, line, _flags in _documented_cli_examples():
-        proc = subprocess.run(
-            line, shell=True, capture_output=True, text=True, timeout=180
-        )
+        command = shlex.split(line)
+        assert command[0] in {"python", "python3"}, line
+        command[0] = sys.executable
+        proc = subprocess.run(command, capture_output=True, text=True, timeout=180)
         if proc.returncode != 0:
             tail = (proc.stdout or proc.stderr).strip().replace("\n", " ")[:200]
             failures.append(f"{md.name}: `{tool}` exit={proc.returncode} :: {tail}")

@@ -8,11 +8,6 @@ ephemeris-validated chart engine, so anchoring the *derived* math here is enough
 to lock the whole tool.
 """
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from fatebridge.core.astrology_lifespan import (
     BALBILLUS_EXALTATION,
     BALBILLUS_SMALL_YEARS,

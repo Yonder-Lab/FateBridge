@@ -6,16 +6,16 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from fatebridge.core.predictive import (
+from fatebridge.core.predictive._common import (
     build_analysis_datetime,
     build_predictive_birth_info,
+)
+from fatebridge.core.predictive.western_timing import (
     build_western_timing_module_payload,
     build_western_timing_payload,
 )
-from fatebridge.utils.helpers import (
-    calculation_guard,
-    normalize_house_system,
-)
+from fatebridge.utils.errors import calculation_guard
+from fatebridge.utils.house_systems import normalize_house_system
 
 
 @calculation_guard("西占推运与返照分析")

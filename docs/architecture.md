@@ -84,6 +84,10 @@ sequenceDiagram
 
 成功业务输出由共享模型验证，但不经模型重写，保留原有字段与数值。传输层附加 `run_metadata`，随后执行 `fields` 投影，再按选项去掉顶层 `snapshot_text`。MCP 通过 `mcp_transport.py` 返回 structuredContent、兼容 text JSON 和原生 isError；REST 返回 JSON 对象，CLI 写 stdout 并用退出码表达失败。MCP 前置 middleware 将模型错误转换为安全的统一字段提示，避免框架回显提交内容。完整选项见 [API 参考](api-reference.md#25-字段投影与输出体积)。
 
+`core/schema_cache.py` 缓存默认验证 Schema 和合同 SHA-256：按实际模型类及 core schema 身份区分，每类缓存最多 256 条；模型 `model_rebuild()` 后自动使用新版本，公开 Schema 返回深拷贝。动态修改模型配置、Schema hook 或嵌套模型而未重建根模型时，需要调用 `clear_contract_caches()`。业务输入、输出、调用时间和 execution receipt 仍逐次生成。输出在领域返回后、receipt 附加后分别校验；REST 不再重复第三次校验同一完整结果。
+
+原生 MCP 从投影后的字典直接生成 structuredContent 和 JSON text，不经过文本反解析。模块级 `.fn` 文本兼容入口在注册时同步建立；既有 REST Python 别名直接引用已挂载 endpoint，旧请求模型及工具导出保留。内部导入使用定义模块（如 `utils.errors`、`core.request_models`、`core.predictive` 的具体子模块），兼容重导出仅供既有集成使用。
+
 ## 关键实现约束
 
 出生信息归一化集中在 `utils/helpers.py`，时区解析集中在 `utils/timezones.py`。中式出生模型默认开启太阳时、核心星盘默认关闭；缺省值和用户显式选择有不同的缺经度处理，不可在适配层丢失。四柱年/月与节气、起运按实际民用时刻，日/时柱等遵循太阳钟规则；应保留原始时刻与修正结果供复核。

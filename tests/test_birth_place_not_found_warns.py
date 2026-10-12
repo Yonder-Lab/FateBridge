@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 
-from fatebridge.utils.helpers import (
+from fatebridge.utils.places import (
     _resolve_birth_place_context_cached,
     resolve_birth_place_context,
 )

@@ -18,11 +18,6 @@ FateBridge 才是天文正确的一方。本测试把这两个已核验的临界
 两个锚点的时间余量（~2.3h / ~11h）远大于任何跨环境星历浮点抖动，故断言跨环境稳定。
 """
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from fatebridge.services.bazi import calculate_bazi_birth
 from fatebridge.utils.helpers import create_person_info
 

@@ -1,0 +1,12 @@
+[
+  {
+    "kind": "probe",
+    "command": [
+      "python",
+      "/audit/linux-domain-probe.py"
+    ],
+    "exit_code": 0,
+    "seconds": 58.438,
+    "log": "/Users/thomas/.cache/fatebridge-pr180-followup-20261012-2126/linux-probe.txt"
+  }
+]

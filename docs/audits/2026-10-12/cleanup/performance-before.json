@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-12T09:36:39.290825+00:00",
+  "root": "/Users/thomas/Desktop/FateBridge",
+  "head": "204635e2073a1ef33a0e2ef86bb98fced27e7618",
+  "scope": "current working tree; macOS local probes only; fixture inputs",
+  "versions": {
+    "fatebridge": "0.2.0",
+    "fastmcp": "3.4.2",
+    "mcp": "1.28.0",
+    "pydantic": "2.13.4",
+    "kerykeion": "5.12.9"
+  },
+  "counts": {
+    "catalog": 89,
+    "rest": 87,
+    "mcp": 87,
+    "cli": 88
+  },
+  "discovery": {
+    "summary": {
+      "bytes_utf8_compact": 72801,
+      "samples_ms": [
+        0.707,
+        0.439,
+        0.413
+      ]
+    },
+    "full": {
+      "bytes_utf8_compact": 2268806,
+      "samples_ms": [
+        1153.891,
+        753.046,
+        788.484
+      ]
+    },
+    "one_full": {
+      "bytes_utf8_compact": 28856,
+      "samples_ms": [
+        14.325,
+        12.034,
+        10.57
+      ]
+    }
+  },
+  "execution": {
+    "gua_lookup": {
+      "median_total_ms": 5.606,
+      "median_recorded_service_ms": 0.078,
+      "median_receipt_ms": 5.396
+    },
+    "bazi_birth": {
+      "median_total_ms": 13.146,
+      "median_recorded_service_ms": 0.828,
+      "median_receipt_ms": 11.944
+    },
+    "fengshui_directions": {
+      "median_total_ms": 9.285,
+      "median_recorded_service_ms": 0.169,
+      "median_receipt_ms": 8.985
+    }
+  },
+  "rest_validation": {
+    "status": 200,
+    "calls": [
+      {
+        "key": "bazi_birth",
+        "has_metadata": false,
+        "ms": 0.135
+      },
+      {
+        "key": "bazi_birth",
+        "has_metadata": true,
+        "ms": 0.133
+      },
+      {
+        "key": "bazi_birth",
+        "has_metadata": true,
+        "ms": 0.112
+      }
+    ]
+  },
+  "mcp_validation": {
+    "is_error": false,
+    "calls": [
+      {
+        "key": "bazi_birth",
+        "has_metadata": false,
+        "ms": 0.118
+      },
+      {
+        "key": "bazi_birth",
+        "has_metadata": true,
+        "ms": 0.137
+      }
+    ],
+    "text_equals_structured": true
+  },
+  "async_import_warning": "[\"coroutine '_attach_fastmcp_legacy_metadata.<locals>._load_registered_tools' was never awaited\"]"
+}

@@ -1,20 +1,10 @@
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import (
+from fatebridge.core.request_models import (
     ExportParseRequest,
     ExportRegistryRequest,
     KnowledgeReadRequest,
     KnowledgeRegistryRequest,
-)
-from fatebridge.mcp_server import (
-    export_parse,
-    export_registry,
-    knowledge_read,
-    knowledge_registry,
 )
 from fatebridge.services.export_tools import (
     calculate_export_parse,
@@ -24,6 +14,7 @@ from fatebridge.services.knowledge import (
     calculate_knowledge_read,
     calculate_knowledge_registry,
 )
+from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
 def test_export_request_models_accept_legacy_style_fields():
@@ -255,22 +246,25 @@ def test_export_and_knowledge_mcp_tools_return_json_strings():
         ]
     )
 
-    export_registry_result = json.loads(export_registry.fn(technique="qimen"))
+    export_registry_result = json.loads(mcp_text("export_registry", technique="qimen"))
     export_parse_result = json.loads(
-        export_parse.fn(
+        mcp_text(
+            "export_parse",
             technique="qimen",
             content=content,
             selected_sections=["起盘信息", "八宫详解", "奇门演卦"],
         )
     )
     knowledge_registry_result = json.loads(
-        knowledge_registry.fn(
+        mcp_text(
+            "knowledge_registry",
             domain="astro",
             selected_sections=["目录概览", "astro"],
         )
     )
     knowledge_read_result = json.loads(
-        knowledge_read.fn(
+        mcp_text(
+            "knowledge_read",
             domain="qimen",
             category="door",
             key="休门",
@@ -294,5 +288,5 @@ def test_export_and_knowledge_mcp_tools_return_json_strings():
 
 
 def test_knowledge_read_tool_exposes_selected_sections_parameter():
-    assert "selected_sections" in knowledge_registry.parameters["properties"]
-    assert "selected_sections" in knowledge_read.parameters["properties"]
+    assert "selected_sections" in mcp_parameters("knowledge_registry")["properties"]
+    assert "selected_sections" in mcp_parameters("knowledge_read")["properties"]

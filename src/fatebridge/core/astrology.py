@@ -27,9 +27,9 @@ from fatebridge.core.ephemeris_runtime import (
 from fatebridge.utils.helpers import (
     SOLAR_TIME_STRATEGY_APPARENT,
     calculate_solar_time_adjustment,
-    parse_timezone_name,
-    resolve_birth_place_context,
 )
+from fatebridge.utils.places import resolve_birth_place_context
+from fatebridge.utils.timezones import parse_timezone_name
 
 logger = logging.getLogger(__name__)
 

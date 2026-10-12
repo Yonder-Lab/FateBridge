@@ -7,11 +7,6 @@ are pure and pinned exactly; the service-level tests assert structural facts
 ephemeris-sensitive exact scores — the byte-level output is golden-locked.
 """
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from fatebridge.core.astrology_election import (
     TOPIC_MASTER,
     _angular_gap,

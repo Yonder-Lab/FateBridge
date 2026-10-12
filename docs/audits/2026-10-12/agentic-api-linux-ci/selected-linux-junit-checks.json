@@ -1,0 +1,32 @@
+{
+  "test_agentic_domain_outputs": {
+    "executed": 216,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_agentic_nested_outputs": {
+    "executed": 139,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_output_projection_contracts": {
+    "executed": 200,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_mcp_protocol_result": {
+    "executed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_golden_master": {
+    "executed": 89,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_runner": {
+    "executed": 3,
+    "failed": 0,
+    "skipped": 0
+  }
+}

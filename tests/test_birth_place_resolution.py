@@ -8,11 +8,8 @@ resolution_advisory，提示调用方改传 birth_longitude。
 均为纯字符串/历法判断，跨平台确定，无需 golden 字节锁。
 """
 
-from fatebridge.utils.helpers import (
-    PersonInfo,
-    normalize_birth_time,
-    resolve_birth_place_context,
-)
+from fatebridge.utils.helpers import PersonInfo, normalize_birth_time
+from fatebridge.utils.places import resolve_birth_place_context
 
 
 def _person(**overrides) -> PersonInfo:

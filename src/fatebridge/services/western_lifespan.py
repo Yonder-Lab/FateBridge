@@ -37,11 +37,10 @@ from fatebridge.core.astrology_lifespan import (
     build_vedic_progression_payload,
     build_yearsystem129_payload,
 )
-from fatebridge.core.predictive import (
+from fatebridge.core.predictive._common import (
     build_analysis_datetime,
     build_natal_subject,
     build_predictive_birth_info,
-    build_secondary_progression_payload,
     calculate_age_years,
     determine_sect,
     extract_named_longitudes,
@@ -51,14 +50,14 @@ from fatebridge.core.predictive import (
     point_absolute_position,
     sect_label,
 )
+from fatebridge.core.predictive.western_timing import (
+    build_secondary_progression_payload,
+)
 from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
-from fatebridge.utils.helpers import (
-    handle_calculation_error,
-    house_system_fields,
-    normalize_house_system,
-)
+from fatebridge.utils.errors import handle_calculation_error
+from fatebridge.utils.house_systems import house_system_fields, normalize_house_system
 
 # Natal targets FateBridge directs in 波斯向运: the ten visible bodies plus the 12
 # house cusps (added by the core builder). This is the clean subset 星阙 shares —

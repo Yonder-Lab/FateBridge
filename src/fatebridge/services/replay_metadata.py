@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from fatebridge import __version__
 from fatebridge.core.execution_context import CallClock, ExecutionOptions
+from fatebridge.core.schema_cache import contract_fingerprint
 
 METADATA_SCHEMA_VERSION = "1.0"
 
@@ -184,14 +185,7 @@ def execution_receipt(
     return {
         "metadata_schema_version": METADATA_SCHEMA_VERSION,
         "package_version": __version__,
-        "contract_sha256": digest(
-            {
-                "input": spec.request_model.model_json_schema(),
-                "output": (
-                    spec.output_model.model_json_schema() if spec.output_model else None
-                ),
-            }
-        ),
+        "contract_sha256": contract_fingerprint(spec.request_model, spec.output_model),
         "input_sha256": input_digest,
         "business_output_sha256": digest(body),
         "duration_ms": round(elapsed_ms, 3),

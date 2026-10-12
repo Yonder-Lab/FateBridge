@@ -19,13 +19,9 @@ These tests lock in fixes for defects discovered by the
 
 from __future__ import annotations
 
-import sys
 from datetime import datetime
-from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fatebridge.core.astrology import _resolve_offline_house_system
 from fatebridge.core.elements import ElementAnalysis

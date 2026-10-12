@@ -1,0 +1,7 @@
+2026-10-09T05:49:53.9682572Z ____________ test_historical_correction_does_not_mutate_dependency _____________
+2026-10-09T05:49:53.9683015Z     def test_historical_correction_does_not_mutate_dependency():
+2026-10-09T05:49:53.9683387Z >       from lunardate import yearInfos
+2026-10-09T05:49:53.9684008Z E       ImportError: cannot import name 'yearInfos' from 'lunardate' (/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lunardate.py)
+2026-10-09T05:49:53.9684648Z tests/test_third_party_correctness_fixes.py:49: ImportError
+2026-10-09T05:49:53.9715928Z FAILED tests/test_third_party_correctness_fixes.py::test_historical_correction_does_not_mutate_dependency - ImportError: cannot import name 'yearInfos' from 'lunardate' (/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lunardate.py)
+2026-10-09T05:49:53.9716819Z 1 failed, 1016 passed, 228 warnings in 27.89s

@@ -1,13 +1,9 @@
 import json
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from fatebridge.api import (
+from fatebridge.core.request_models import (
     JinkouAnalysisRequest,
     LiuRengGodsRequest,
     LiuRengRunyearRequest,
@@ -15,15 +11,6 @@ from fatebridge.api import (
     TaiyiAnalysisRequest,
     ZiweiBirthRequest,
     ZiweiRulesRequest,
-)
-from fatebridge.mcp_server import (
-    jinkou,
-    liureng_gods,
-    liureng_runyear,
-    qimen,
-    taiyi,
-    ziwei_birth,
-    ziwei_rules,
 )
 from fatebridge.services.metaphysics import (
     calculate_jinkou_analysis,
@@ -35,6 +22,7 @@ from fatebridge.services.metaphysics import (
     calculate_ziwei_rules,
 )
 from fatebridge.utils.helpers import create_person_info
+from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
 def test_ziwei_birth_request_model_accepts_birth_fields():
@@ -245,22 +233,23 @@ def test_calculate_ziwei_rules_supports_selected_export_sections():
 
 def test_fastmcp_metaphysics_tools_expose_compact_controls():
     for tool in (
-        ziwei_birth,
-        ziwei_rules,
-        liureng_gods,
-        liureng_runyear,
-        qimen,
-        taiyi,
-        jinkou,
+        "ziwei_birth",
+        "ziwei_rules",
+        "liureng_gods",
+        "liureng_runyear",
+        "qimen",
+        "taiyi",
+        "jinkou",
     ):
-        properties = tool.parameters["properties"]
+        properties = mcp_parameters(tool)["properties"]
         assert "compact" in properties
         assert "include_snapshot_text" in properties
         assert "fields" in properties
 
 
 def test_fastmcp_ziwei_birth_compact_mode_can_drop_snapshot_text():
-    rendered = ziwei_birth.fn(
+    rendered = mcp_text(
+        "ziwei_birth",
         birth_year=1994,
         birth_month=8,
         birth_day=23,
@@ -282,7 +271,8 @@ def test_fastmcp_ziwei_birth_compact_mode_can_drop_snapshot_text():
 
 
 def test_fastmcp_ziwei_birth_fields_projection_trims_to_subset():
-    rendered = ziwei_birth.fn(
+    rendered = mcp_text(
+        "ziwei_birth",
         birth_year=1994,
         birth_month=8,
         birth_day=23,
@@ -914,21 +904,21 @@ def test_calculate_jinkou_analysis_supports_selected_export_sections():
 
 
 def test_fastmcp_tools_expose_new_parameters():
-    assert "birth_year" in ziwei_birth.parameters["properties"]
-    assert "selected_sections" in ziwei_birth.parameters["properties"]
-    assert "year_stem" in ziwei_rules.parameters["properties"]
-    assert "selected_sections" in ziwei_rules.parameters["properties"]
-    assert "analysis_year" in liureng_gods.parameters["properties"]
-    assert "selected_sections" in liureng_gods.parameters["properties"]
-    assert "birth_year" in liureng_runyear.parameters["properties"]
-    assert "selected_sections" in liureng_runyear.parameters["properties"]
-    assert "analysis_year" in qimen.parameters["properties"]
-    assert "qimen_options" in qimen.parameters["properties"]
-    assert "selected_sections" in qimen.parameters["properties"]
-    assert "gender" in taiyi.parameters["properties"]
-    assert "selected_sections" in taiyi.parameters["properties"]
-    assert "di_fen" in jinkou.parameters["properties"]
-    assert "selected_sections" in jinkou.parameters["properties"]
+    assert "birth_year" in mcp_parameters("ziwei_birth")["properties"]
+    assert "selected_sections" in mcp_parameters("ziwei_birth")["properties"]
+    assert "year_stem" in mcp_parameters("ziwei_rules")["properties"]
+    assert "selected_sections" in mcp_parameters("ziwei_rules")["properties"]
+    assert "analysis_year" in mcp_parameters("liureng_gods")["properties"]
+    assert "selected_sections" in mcp_parameters("liureng_gods")["properties"]
+    assert "birth_year" in mcp_parameters("liureng_runyear")["properties"]
+    assert "selected_sections" in mcp_parameters("liureng_runyear")["properties"]
+    assert "analysis_year" in mcp_parameters("qimen")["properties"]
+    assert "qimen_options" in mcp_parameters("qimen")["properties"]
+    assert "selected_sections" in mcp_parameters("qimen")["properties"]
+    assert "gender" in mcp_parameters("taiyi")["properties"]
+    assert "selected_sections" in mcp_parameters("taiyi")["properties"]
+    assert "di_fen" in mcp_parameters("jinkou")["properties"]
+    assert "selected_sections" in mcp_parameters("jinkou")["properties"]
 
 
 def test_ziwei_birth_palaces_have_stars_detail():

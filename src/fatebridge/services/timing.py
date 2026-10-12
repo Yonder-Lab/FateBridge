@@ -26,14 +26,14 @@ from fatebridge.services.snapshot_builders import (
 from fatebridge.services.snapshot_builders import (
     render_snapshot_lines as _render_snapshot_text,
 )
+from fatebridge.utils.errors import calculation_guard
 from fatebridge.utils.helpers import (
-    DEFAULT_BIRTH_TIMEZONE,
     PersonInfo,
     calculate_solar_time_adjustment,
-    calculation_guard,
     create_pillar_dict,
     get_current_analysis_date,
 )
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
 logger = logging.getLogger(__name__)
 

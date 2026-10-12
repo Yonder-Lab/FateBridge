@@ -17,7 +17,7 @@ from fatebridge.services.snapshot_builders import (
 from fatebridge.services.snapshot_builders import (
     render_snapshot_lines as _render_snapshot_text,
 )
-from fatebridge.utils.helpers import handle_calculation_error
+from fatebridge.utils.errors import handle_calculation_error
 
 
 def _validation_error_payload(exc: ToolValidationError) -> Dict[str, Any]:

@@ -24,7 +24,7 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
   personal Ming Gua, sitting-trigram Eight Mansions, basic Jin Suo sand/water,
   annual Zi Bai stars and layered assessment. Versioned source registry,
   per-person results, explicit partial coverage and scoped differences are
-  preserved; full Xuan Kong natal charts remain outside this release.
+  preserved; Xuan Kong natal charts are recorded in the separate entry above.
 - Opt-in JSON `--request-file` and nested JSON flags for residential tools,
   shared layered output schemas, factual snapshots, offline independent
   reference fixtures and three-transport contract tests.
@@ -59,6 +59,17 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
   REST/MCP/CLI. CLI command syntax errors retain exit 2 / usage_error.
 
 ### Changed
+- Cache default model schemas and contract fingerprints with bounded, model-identity
+  and rebuild-aware entries; public schemas remain independent copies and business
+  executions are never cached. Remove the redundant third REST output validation.
+- Build native MCP structured results directly from response dictionaries and
+  initialize legacy Python adapters synchronously. Keep existing Python aliases,
+  REST/MCP/CLI contracts and numerical behavior; move internal imports and transport
+  tests to canonical modules and native registration paths.
+- Remove the obsolete `iztro-verify` extra, unused imports and private parameters,
+  unreachable compatibility error forwarding and repeated export-section mapping.
+  Bind documented CLI example tests to their test interpreter and refresh document
+  navigation and maintenance guidance.
 - Align integration, architecture, security, and Onda documentation with the
   current catalog and request models: distinguish transport bindings, document
   REST projections and 422 errors, and clarify installation, solar-time defaults

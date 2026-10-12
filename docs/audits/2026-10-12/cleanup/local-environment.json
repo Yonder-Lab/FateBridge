@@ -1,0 +1,15 @@
+{
+  "environment": "Darwin-arm64",
+  "python": "3.13.5",
+  "executable": "/Users/thomas/Desktop/FateBridge/.venv/bin/python",
+  "dependencies": {
+    "fastapi": "0.138.0",
+    "fastmcp": "3.4.2",
+    "mcp": "1.28.0",
+    "pydantic": "2.13.4",
+    "kerykeion": "5.12.9",
+    "lunardate": "0.2.2",
+    "pyswisseph": "2.10.3.2",
+    "pytest": "9.1.1"
+  }
+}

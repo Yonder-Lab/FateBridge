@@ -10,7 +10,7 @@ import pytest
 from fatebridge.core import ephemeris_runtime as runtime
 from fatebridge.core.predictive import _common, returns
 from fatebridge.core.predictive.transit import build_transit_payload
-from fatebridge.utils.helpers import parse_timezone_name
+from fatebridge.utils.timezones import parse_timezone_name
 
 
 def _birth_info():

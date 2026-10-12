@@ -45,3 +45,11 @@ mypy --cache-dir /audit/mypy-release-cache src/fatebridge/
 ```
 
 运行结束后恢复原 Docker context，并将本轮临时启动的 Colima profile 恢复为停止状态；源快照和日志保留供复核。
+
+## master 提交前的独立复跑
+
+随后按授权将必要前置实现拆为公共契约／MCP 基础和住宅风水两个提交，再将 Ruleset 投影修复与 MCP SDK 兼容修复单独提交。提交前从原 `master` 基点构建仅含这些选定内容的快照；环境模板、新增 `.gitattributes`、另一轮 PR／CI 的文档和审查记录没有进入受测快照或提交。测试期间出现的其他并行清理／缓存优化也未加入，原样留在工作区。
+
+该快照在上述 Linux x86_64 / Python 3.12.3 固定镜像中重新执行完整测试：**1,960 passed、0 failed、0 skipped，570.22 秒**。JUnit 逐项确认 88 项 golden 比较及 1 项时钟验证全部通过；另一次 standalone golden 审计也为 88/88 字节一致。Black、isort、mypy、场景生成物检查、两个前置阶段的 REST／原生 MCP 启动验证及三端实际调用探针全部通过。383 个执行文件和 90 个受保护的基线／规则文件在快照测试前后哈希一致。
+
+本次 [提交前完整汇总](audits/2026-10-12/output-projection-linux/precommit/validation.json)、[完整日志](audits/2026-10-12/output-projection-linux/precommit/precommit-full.log)、[JUnit](audits/2026-10-12/output-projection-linux/precommit/precommit-full.xml) 和 [执行文件哈希](audits/2026-10-12/output-projection-linux/precommit/execution-hashes.json) 单独保留。汇总中的 tested_candidate_tree 标识受测内容树；测试结束后仅加入这份文档补记和验证证据，执行源码未变。该记录仍为本地参考容器验证，不宣称远端 CI 或部署结果。

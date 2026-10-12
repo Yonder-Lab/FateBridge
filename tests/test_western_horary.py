@@ -9,11 +9,6 @@ a valid verdict) rather than ephemeris-sensitive exact verdicts — the byte-lev
 output is locked separately by the golden master.
 """
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from fatebridge.core.astrology import RULER_BY_SIGN
 from fatebridge.core.astrology_horary import (
     CATEGORY_LABELS_ZH,

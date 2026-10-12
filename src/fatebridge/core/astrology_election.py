@@ -30,7 +30,7 @@ from fatebridge.core.astrology import (
     RULER_BY_SIGN,
     SIGNS,
 )
-from fatebridge.core.predictive import (
+from fatebridge.core.predictive._common import (
     normalize_sign_name,
     planet_label,
     sign_label,

@@ -14,6 +14,7 @@
 - 想知道某个用户场景该调哪几个工具：看 [scenario-routing.md](scenario-routing.md)
 - 想看把工具场景化包装成技能的例子（Onda）：看 [../skills/README.md](../skills/README.md)
 - 想参与开发：看 [development-guide.md](development-guide.md) 和 [../CONTRIBUTING.md](../CONTRIBUTING.md)
+- 想了解住宅风水规则和适用边界：看 [fengshui.md](fengshui.md) 和 [fengshui-xuankong.md](fengshui-xuankong.md)
 - 遇到了运行问题：看 [troubleshooting.md](troubleshooting.md)
 
 ## 各文档简介
@@ -63,3 +64,5 @@
 ## 审计记录
 
 [audit-repairs-2026-10-09.md](audit-repairs-2026-10-09.md) 是 2026-10-09 工作区代码修复的历史记录，包含本地证据与未验证边界，不代表这些更改已经发布。文档审查记录见 [documentation-audit-2026-10-09.md](documentation-audit-2026-10-09.md)。
+
+2026-10-12 的后续记录：[Agent 契约修复](agentic-api-fixes-2026-10-12.md)、[领域合同验收](agentic-api-p2-domain-contracts-fixes-2026-10-12.md)、[投影回归](output-projection-fix-2026-10-12.md)、[独立 Linux / CI 快照](agentic-api-linux-ci-validation-2026-10-12.md)、[代码与文档清理验收](cleanup-validation-2026-10-12.md)。每份记录只适用于其明确标识的源码快照和环境；原始审计资料保留供复核。
