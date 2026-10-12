@@ -50,6 +50,8 @@ cp -n .env.example .env
 | `LOG_LEVEL` | `INFO` | 日志级别 |
 | `FATEBRIDGE_API_KEYS` | 空 | REST API Key；为空关闭鉴权 |
 | `API_KEY_HEADER_NAME` | `X-API-Key` | 密钥请求头名称 |
+| `FATEBRIDGE_MCP_FAMILIES` | 空 | MCP 公开的工具分类，逗号分隔；空时保留全部工具，分类拼错阻止启动；不影响 REST / CLI |
+| `FATEBRIDGE_MCP_SCENARIOS` | 空 | MCP 场景 ID，逗号分隔；与 family 配置取交集，空时不限制，拼错阻止启动 |
 | `SE_EPHE_PATH` | 未设置 | 自定义本地星历目录，不在模板内 |
 | `FATEBRIDGE_HEAVY_CALC_MAX_CONCURRENCY` | `min(4, max(1, CPU 数))` | 单 REST 进程的重计算并发上限，至少为 1；不是请求速率限制 |
 

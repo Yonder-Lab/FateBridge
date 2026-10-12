@@ -30,7 +30,7 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 - **我是一个什么样的人、全面自我分析** → [`onda-zige`](./onda-zige/SKILL.md)  
   八字+紫微+西占三套交叉印证，按主证、旁证与用户需求组织结果，避免重复调用。
 
-80 个工具都落在这 8 个场景里。完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
+个人命理工具按这 8 个场景组织；新增的家居风水基础计算通过独立 `fengshui_*` 工具调用，住宅输入与三法分层合同见 [家居风水](../docs/fengshui.md)。当前 REST / MCP 各公开87项能力，完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
 ---
 

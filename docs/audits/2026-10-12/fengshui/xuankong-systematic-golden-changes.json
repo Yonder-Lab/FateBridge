@@ -1,0 +1,66 @@
+{
+  "environment": "Linux-x86_64",
+  "python": "3.12.3",
+  "existing_untouched_snapshots": 85,
+  "updated": [
+    {
+      "slug": "api_fengshui_annual_stars",
+      "changed_paths": [
+        "layers.annual_stars.time_context.valid_until",
+        "snapshot_export.export_text",
+        "snapshot_export.sections[1].content",
+        "snapshot_text"
+      ],
+      "before_sha256": "a9faa12548c2c44eb4add50ed553e409a50c6e5b2590977a837fdef0388d3fbe",
+      "after_sha256": "87aa82cc444a298dbad958581c73477d80fce6b69743d9b7a2999ebf5c3a81ff",
+      "numeric_charts_unchanged": true
+    },
+    {
+      "slug": "api_fengshui_assess",
+      "changed_paths": [
+        "layers.annual_stars.time_context.valid_until",
+        "snapshot_export.export_text",
+        "snapshot_export.sections[3].content",
+        "snapshot_text"
+      ],
+      "before_sha256": "97c943b8888995ee9d3700752ad30c875ab7c5f2f7ea8b9a732495f647f0ef85",
+      "after_sha256": "72af7b940ce04df53949517f34c3cdb31036aa2f14448f80c51f61310401ea92",
+      "numeric_charts_unchanged": true
+    },
+    {
+      "slug": "api_fengshui_xuankong_natal",
+      "changed_paths": [
+        "layers.xuankong_natal.candidates[0].trace.facing.source_ids",
+        "layers.xuankong_natal.candidates[0].trace.mountain.source_ids",
+        "layers.xuankong_natal.chart.trace.facing.source_ids",
+        "layers.xuankong_natal.chart.trace.mountain.source_ids",
+        "layers.xuankong_natal.orientation_context.candidate_constraint",
+        "layers.xuankong_natal.orientation_context.confirmed_sitting_trigram",
+        "layers.xuankong_natal.period_context.event_time_context.valid_until",
+        "layers.xuankong_natal.period_context.resolution_status",
+        "layers.xuankong_natal.period_context.source_ids",
+        "layers.xuankong_natal.period_context.timing",
+        "layers.xuankong_natal.ruleset.bundle_version",
+        "layers.xuankong_natal.ruleset.conventions",
+        "layers.xuankong_natal.ruleset.source_ids",
+        "layers.xuankong_natal.ruleset.sources",
+        "layers.xuankong_natal.ruleset.version",
+        "rule_trace[0].source_ids",
+        "rule_trace[0].version",
+        "rulesets[0].bundle_version",
+        "rulesets[0].conventions",
+        "rulesets[0].source_ids",
+        "rulesets[0].sources",
+        "rulesets[0].version",
+        "snapshot_export.export_text",
+        "snapshot_export.sections[1].content",
+        "snapshot_export.sections[4].content",
+        "snapshot_text"
+      ],
+      "before_sha256": "622f8b2c8509c12cd5efd654d142b3bc3c3007995ae554f5d16a3f3343d4d577",
+      "after_sha256": "667d1d9cac4ab9cbbee3ddf83edd0c51ef22875f1ff7f6841c00ceab7512011e",
+      "numeric_charts_unchanged": true
+    }
+  ],
+  "scope": "3 reviewed fengshui snapshots only; no other business numerics regenerated"
+}

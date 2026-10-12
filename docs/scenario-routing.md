@@ -1,5 +1,7 @@
 # FateBridge 场景路由矩阵
 
+机器入口为 `/api/scenarios`、CLI `scenarios` 与 MCP `fatebridge://scenarios`；支持摘要、单场景和入口筛选。打包清单由本文矩阵及 8 个 `skills/onda-*/agents/interface.yaml` 生成，并实时关联中央目录的可调用名称和要求。修改路由或 YAML 后运行 `.venv/bin/python scripts/build_scenario_manifest.py`；测试会拒绝过期生成物。主/旁/深角色和条件保留，缺失能力明确标记；它是发现指引，不是自动执行计划。
+
 这份文档给 Agent 和解读技能做路由参考。引擎负责计算与规则生成的分析摘要，场景技能负责面向用户的解释；这里回答的是：面对某类问题，该调哪些工具、谁是主证谁是旁证、怎么省 token、怎么避免不同体系给出矛盾结论。
 
 工具发现仍以机读为准（`/api/tools`、MCP `tools/list`、`fatebridge list`），本文不替代发现过程，只提供场景到工具的取舍建议。文中单元格优先级标记的含义是：
@@ -172,6 +174,20 @@ MCP 端工具名差异：本表 4 个流派盘的列名是 catalog key，但 MCP
 
 此域是上述策略最密集的应用处，`analyze_destiny`（八字）、`ziwei_birth`（紫微）、`astro_chart`（西占）三系同时为主证，并行调用、并行出结论。三系一致则合并去重，用同一语言讲一次；三系分歧则显式标注「两套/三套口径不一」，各自呈现，不静默二选一，保留给用户权衡。三个工具并行时务必用 `fields` 或 `selected_sections` 裁剪，不要对每个工具裸吐完整 `snapshot_text`，避免三倍 token 膨胀。用户追问具体子域（如感情/事业/健康）时，切换到对应章节的主证系统，不在此域重复展开专项工具。
 
+### 家居风水基础计算
+
+| 用户意图 | 主调用 | 输入与输出纪律 |
+| --- | --- | --- |
+| 方位／固定宫数 | `fengshui_directions` | 明确参考北；24山只提供角区索引，不能推断进阶论断 |
+| 命卦／个人八方 | `fengshui_minggua` | 确认有效生年或含时区出生时刻、男女起算法；未知算法保留候选 |
+| 宅卦与各住户布局 | `fengshui_bazhai` | 宅坐山与住户分开；位置和朝向分别提供，禁止户主覆盖全家 |
+| 金锁基础砂水 | `fengshui_jinsuo` | 使用已确认分类与依据；标签不自动决定砂水 |
+| 某年九宫年星 | `fengshui_annual_stars` | 立春换年；固定宫数与年星数分开，不能冒充完整山向宅盘 |
+| 历史玄空宅盘 | `fengshui_xuankong_natal` | 必须确认磁北宅向和历史定运依据；中州派版本，山界候选不裁成唯一盘，年星独立 |
+| 三法合参 | `fengshui_assess` | 聚合调用保留三层与差异，不平均评分；缺失资料明确 partial |
+
+完整输入与 [规则范围](fengshui.md) 优先于解释。不能从户型图片猜测参考北、宅向、立极或砂水，也不能从缺失值生成确定吉凶。基础层结果只覆盖本版本规则；完整运山向宅盘须显式调用已定版本的玄空工具，不推断其他门派或金锁进阶断语。现有 Onda 个人场景技能不自动加入这组住宅工具；直接使用公开工具发现和上述住宅合同。
+
 ## 长尾与专家级工具
 
 这些工具非日常场景默认调用，仅在特定追问或专家模式触发：
@@ -281,3 +297,12 @@ MCP 端工具名差异：本表 4 个流派盘的列名是 catalog key，但 MCP
 - `knowledge_read` — 元工具
 - `export_registry` — 元工具
 - `export_parse` — 元工具
+
+
+- `fengshui_directions` — 家居公共方位
+- `fengshui_minggua` — 家居个人命卦
+- `fengshui_bazhai` — 家居八宅
+- `fengshui_jinsuo` — 家居基础砂水
+- `fengshui_annual_stars` — 家居年度飞星
+- `fengshui_xuankong_natal` — 家居玄空运山向宅盘
+- `fengshui_assess` — 家居三法及可选宅盘分层合参

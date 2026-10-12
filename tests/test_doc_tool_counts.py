@@ -58,7 +58,7 @@ CHECKS = [
     (
         "README.md",
         "README family 数",
-        r"(\d+)\s*family\s*/\s*80\s*工具",
+        r"(\d+)\s*family\s*/\s*\d+\s*工具",
         LIVE_FAMILIES,
     ),
     (

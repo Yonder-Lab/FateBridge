@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sources_sha256": {
-    "docs/scenario-routing.md": "4152513b9aa6fe19cb4886d9a152de8411f50d28b2be32a55a7b70d95348adb8",
+    "docs/scenario-routing.md": "8a2fbb15e108d7a363178d450514a768d81b9f8fb34f173339a9af18b606ddbe",
     "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
     "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",
     "skills/onda-shiye/agents/interface.yaml": "f76ba11182a38f90a0b8315dd3a126463456dc1649caaad9b13b03abc9305be9",
@@ -1603,6 +1603,123 @@
         }
       ],
       "source": "skills/onda-zige/agents/interface.yaml"
+    },
+    {
+      "id": "fengshui",
+      "name": "家居风水基础计算",
+      "version": "1.0",
+      "summary": "住宅各层规则独立，明确参考北、住户与历史定运依据后选择工具",
+      "triggers": [
+        "方位／固定宫数",
+        "命卦／个人八方",
+        "宅卦与各住户布局",
+        "金锁基础砂水",
+        "某年九宫年星",
+        "历史玄空宅盘",
+        "三法合参"
+      ],
+      "engine_tools": [
+        "fengshui_directions",
+        "fengshui_minggua",
+        "fengshui_bazhai",
+        "fengshui_jinsuo",
+        "fengshui_annual_stars",
+        "fengshui_xuankong_natal",
+        "fengshui_assess"
+      ],
+      "required_inputs": [],
+      "output": {
+        "kind": "calculation",
+        "grounding": "engine_fields"
+      },
+      "boundary": "基础层及已定版本玄空规则；不从户型图猜测缺失测量，不推断其他门派。",
+      "routing": [
+        {
+          "intent": "方位／固定宫数",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_directions"
+              ],
+              "condition": "明确参考北；24山只提供角区索引，不能推断进阶论断"
+            }
+          ]
+        },
+        {
+          "intent": "命卦／个人八方",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_minggua"
+              ],
+              "condition": "确认有效生年或含时区出生时刻、男女起算法；未知算法保留候选"
+            }
+          ]
+        },
+        {
+          "intent": "宅卦与各住户布局",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_bazhai"
+              ],
+              "condition": "宅坐山与住户分开；位置和朝向分别提供，禁止户主覆盖全家"
+            }
+          ]
+        },
+        {
+          "intent": "金锁基础砂水",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_jinsuo"
+              ],
+              "condition": "使用已确认分类与依据；标签不自动决定砂水"
+            }
+          ]
+        },
+        {
+          "intent": "某年九宫年星",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_annual_stars"
+              ],
+              "condition": "立春换年；固定宫数与年星数分开，不能冒充完整山向宅盘"
+            }
+          ]
+        },
+        {
+          "intent": "历史玄空宅盘",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_xuankong_natal"
+              ],
+              "condition": "必须确认磁北宅向和历史定运依据；中州派版本，山界候选不裁成唯一盘，年星独立"
+            }
+          ]
+        },
+        {
+          "intent": "三法合参",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "聚合调用保留三层与差异，不平均评分；缺失资料明确 partial"
+            }
+          ]
+        }
+      ],
+      "source": "docs/scenario-routing.md"
     }
   ]
 }

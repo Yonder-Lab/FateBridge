@@ -270,7 +270,22 @@ AI_EXPORT_PRESET_SECTIONS = {
     "gua_lookup": ["查询信息", "卦象结构", "义理摘要", "来源"],
     "gua_meiyi": ["查询概览", "批量结果", "来源"],
     "otherbu": ["起盘信息", "骰子结果", "骰子盘宫位与星体", "天象盘宫位与星体"],
-    "fengshui": ["起盘信息", "标记判定", "冲突清单", "建议汇总", "纳气建议"],
+    "fengshui": [
+        "玄空宅盘",
+        "起盘信息",
+        "公共方位",
+        "住户命卦",
+        "八宅分层",
+        "砂水判定",
+        "年度飞星",
+        "冲突清单",
+        "覆盖范围",
+        "规则来源",
+        # Historical titles remain readable; presets do not declare engine coverage.
+        "标记判定",
+        "建议汇总",
+        "纳气建议",
+    ],
     "knowledge": ["查询信息", "知识正文", "来源"],
     "generic": ["起盘信息"],
 }

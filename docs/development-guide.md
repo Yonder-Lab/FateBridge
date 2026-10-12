@@ -55,8 +55,11 @@ FateBridge/
 
 - `src/fatebridge/services/tool_catalog.py`：中央工具目录（`ToolSpec` / `CATALOG`），REST、MCP、CLI 三端共用这一份信源。
 - `src/fatebridge/core/tool_spec.py`：`ToolSpec` 定义，以及 `register_rest` / `register_mcp` 注册器。
+- `src/fatebridge/core/discovery.py`：先筛选再描述目录，三端共用摘要与完整发现记录。
 - `src/fatebridge/api.py`：从目录派生 REST 路由，处理 HTTP 层错误。
-- `src/fatebridge/mcp_server.py`：从目录派生 MCP 工具，做 JSON 文本封装。
+- `src/fatebridge/core/response_models.py`：公开根输出模型；`output_base.py`、`output_western.py`、`output_charts.py`、`output_chinese.py`、`output_bazi.py`、`output_reference.py` 共用部分响应基类，声明专业嵌套事实。
+- `src/fatebridge/mcp_server.py`：从目录派生 MCP 工具，保留 JSON 文本兼容入口。
+- `src/fatebridge/mcp_transport.py`：原生 MCP 结构化结果、失败标记及安全输入校验。
 - `src/fatebridge/cli.py`：从目录派生 CLI 子命令，支持 `list` / `describe` 自助发现。
 - `src/fatebridge/core`：核心算法与合同。
 - `src/fatebridge/services`：面向 transport 的编排层。
@@ -123,9 +126,13 @@ mypy src/fatebridge/
 1. 先改 `src/fatebridge/core/*` 或 `src/fatebridge/analysis/*`。
 2. 在 `src/fatebridge/services/*` 封装成对 transport 友好的返回结构。
 3. 在 `src/fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型。
-4. 在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`。声明的 REST / MCP 入口及 CLI 可支持的命令会自动派生，常规新增不需要再改 `api.py`、`mcp_server.py` 或 `cli.py`。
+   大型独立领域也可拆为领域模型（如 `core/fengshui/models.py`）。在 `core/response_models.py` 声明响应根字段，复用 `core/output_*.py` 的专业嵌套类型，或在 ToolSpec 显式绑定领域 `output_model`；根输出继承 `ProjectedOutput` 以声明兼容投影警告，嵌套业务模型继承 `PartialOutput`，字段需支持投影缺省。动态字典键保持开放，值和列表条目应使用领域模型；同名但语义不同的根字段按工具覆写，避免以宽泛 union 掩盖错误。模型只校验、不回写响应。新增字段须检查真实构建器、可空与非默认分支，不能只照一个快照收紧类型。新工具缺少输出声明会在目录加载时失败。
+4. 在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`。声明的 REST / MCP 入口及 CLI 可支持的命令会自动派生，常规新增不需要再改 `api.py`、`mcp_server.py` 或 `cli.py`。`execution_hints` 默认描述已有本地只读计算；新增外部访问或写入能力时须声明实际环境影响，不能用 `idempotentHint` 表示结果确定性。
 5. 在 `tests/` 增加能力测试。三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性的 payload fixture。
+   修改输出合同时运行 `tests/test_output_projection_contracts.py`：检查全目录可投影对象的必填字段、黄金样例的合法叶路径，以及原生 MCP 客户端与 REST、CLI 的结果。可经点路径裁剪的对象不能要求兄弟字段同时存在；数组条目与始终整块保留的 `run_metadata` 可保留必填事实。
 6. 更新 `docs/api-reference.md`、`docs/algorithm-coverage.md`、`docs/scenario-routing.md` 与相关技能说明；若改了技能工具/输入，同步 `agents/interface.yaml`。工具计数、路由覆盖和技能契约均有现成测试。
+
+家居风水的 `cli_request_file=True` 同时启用 JSON 对象／数组参数与 `--request-file`；新增复杂工具需明确启用、补嵌套校验与文件合并测试，不能仅依据模型顶层是否嵌套声称 CLI 可用。规则数据必须登记来源类别、版本、适用范围与约定，独立比较事实记录提交与 SHA-256；详见 [家居风水维护](fengshui.md#验证与维护)。
 
 ### 只改 transport 行为，不改算法
 
@@ -238,6 +245,10 @@ git diff --check
 5. 是否错误地把近似实现写成了高精度实现。
 
 ## 常用入口
+
+场景源为技能的 `agents/interface.yaml` 与 `docs/scenario-routing.md`，生成物为包内 `data/agent_scenarios.json`。修改后运行 `python scripts/build_scenario_manifest.py`，用 `--check` 验证；PyYAML 只在 dev extra / 构建时需要，生产读取 JSON。新工具的场景角色须在源资料登记，不能只编辑生成文件。
+
+`ToolSpec.reproducibility` 与 execution_hints 分别描述数值重放条件和环境副作用；新增读取默认时间的实现须经过 `execution_context.current_datetime`，随机实现须返回可固定的有效参数。三端共享 execute_tool；不要在某个 transport 单独生成 seed、使用服务器时区或拼装 receipt。实现/数据指纹按进程缓存，原地修改后须重启；重放仍须保存原输入并保持环境，不能只用 run_id 查询。
 
 - 交互接口文档：`http://localhost:8010/docs`
 - 架构说明：[architecture.md](architecture.md)

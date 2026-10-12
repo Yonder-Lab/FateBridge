@@ -229,6 +229,8 @@ class SolarTerm:
     moment: datetime
     date_key: str
     day_ganzhi: str
+    # Internal provenance; legacy serialized calendars retain their contract.
+    resolution_provider: str = "unknown"
 
     def as_dict(self) -> Dict[str, str]:
         return {
@@ -432,6 +434,7 @@ def get_solar_terms_for_year(
                 year, float(target_longitude), linear_utc
             )
 
+        provider = "swisseph" if utc_moment is not None else "linear_1900_fallback"
         if utc_moment is None:
             # Fall back to the linear approximation; warn once per process so
             # operators can spot a missing swisseph install without flooding logs.
@@ -460,6 +463,7 @@ def get_solar_terms_for_year(
                 day_ganzhi=get_day_ganzhi(
                     local_moment.year, local_moment.month, local_moment.day
                 ),
+                resolution_provider=provider,
             )
         )
 

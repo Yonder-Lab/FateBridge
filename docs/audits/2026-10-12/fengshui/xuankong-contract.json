@@ -1,0 +1,1909 @@
+{
+  "tool": "fengshui_xuankong_natal",
+  "summary": "中州派玄空运山向宅盘、历史定运、兼向替星与边界候选（独立于年星）",
+  "operation_label_zh": "中州派玄空运山向宅盘、历史定运、兼向替星与边界候选（独立于年星）",
+  "family": "fengshui",
+  "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  "surfaces": {
+    "cli": true,
+    "rest_path": "/api/fengshui/xuankong_natal",
+    "mcp_name": "fengshui_xuankong_natal"
+  },
+  "parameters": [
+    {
+      "name": "house",
+      "flag": "--house",
+      "type": "House",
+      "required": false,
+      "default": null,
+      "description": "",
+      "nested_model": true
+    },
+    {
+      "name": "period",
+      "flag": "--period",
+      "type": "HousePeriod",
+      "required": false,
+      "default": null,
+      "description": "",
+      "nested_model": true
+    },
+    {
+      "name": "bearing_uncertainty_degrees",
+      "flag": "--bearing-uncertainty-degrees",
+      "type": "float",
+      "required": false,
+      "default": 0,
+      "description": "宅向测量误差半径；跨山界或下/替卦阈值返回候选而非唯一宅盘",
+      "nested_model": false
+    },
+    {
+      "name": "ruleset_id",
+      "flag": "--ruleset-id",
+      "type": "typing.Literal['xuankong_zhongzhou_v1']",
+      "required": false,
+      "default": "xuankong_zhongzhou_v1",
+      "description": "",
+      "nested_model": false
+    }
+  ],
+  "input_schema": {
+    "$defs": {
+      "House": {
+        "additionalProperties": false,
+        "properties": {
+          "object_id": {
+            "default": "house",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Object Id",
+            "type": "string"
+          },
+          "sitting_trigram": {
+            "anyOf": [
+              {
+                "enum": [
+                  "坎",
+                  "艮",
+                  "震",
+                  "巽",
+                  "离",
+                  "坤",
+                  "兑",
+                  "乾"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sitting Trigram"
+          },
+          "facing_degrees": {
+            "anyOf": [
+              {
+                "maximum": 360,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "宅向角度，0°北、顺时针；360°归一为0°",
+            "title": "Facing Degrees"
+          },
+          "north_reference": {
+            "anyOf": [
+              {
+                "enum": [
+                  "magnetic",
+                  "true"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "North Reference"
+          },
+          "orientation_basis": {
+            "default": "user_confirmed",
+            "enum": [
+              "measured",
+              "user_confirmed"
+            ],
+            "title": "Orientation Basis",
+            "type": "string"
+          },
+          "division_method": {
+            "const": "confirmed_angular_sectors",
+            "default": "confirmed_angular_sectors",
+            "title": "Division Method",
+            "type": "string"
+          }
+        },
+        "title": "House",
+        "type": "object"
+      },
+      "HousePeriod": {
+        "additionalProperties": false,
+        "description": "One explicitly selected historical event, never the query date.",
+        "properties": {
+          "timezone_name": {
+            "default": "Asia/Shanghai",
+            "description": "IANA 时区或 UTC 偏移；用于年度边界",
+            "title": "Timezone Name",
+            "type": "string"
+          },
+          "basis": {
+            "enum": [
+              "construction_completion",
+              "first_occupancy",
+              "confirmed_major_renovation",
+              "expert_confirmed"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "evidence": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Evidence",
+            "type": "string"
+          },
+          "period_number": {
+            "anyOf": [
+              {
+                "maximum": 9,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Period Number"
+          },
+          "effective_event_year": {
+            "anyOf": [
+              {
+                "maximum": 2199,
+                "minimum": 1800,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effective Event Year"
+          },
+          "event_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Event At"
+          },
+          "qualifies_for_period_reset": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qualifies For Period Reset"
+          }
+        },
+        "required": [
+          "basis",
+          "evidence"
+        ],
+        "title": "HousePeriod",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "house": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/House"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "period": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/HousePeriod"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "bearing_uncertainty_degrees": {
+        "default": 0,
+        "description": "宅向测量误差半径；跨山界或下/替卦阈值返回候选而非唯一宅盘",
+        "maximum": 7.5,
+        "minimum": 0,
+        "title": "Bearing Uncertainty Degrees",
+        "type": "number"
+      },
+      "ruleset_id": {
+        "const": "xuankong_zhongzhou_v1",
+        "default": "xuankong_zhongzhou_v1",
+        "title": "Ruleset Id",
+        "type": "string"
+      }
+    },
+    "title": "XuankongRequest",
+    "type": "object"
+  },
+  "cli_request_file": true,
+  "output_schema": {
+    "$defs": {
+      "Coverage": {
+        "additionalProperties": true,
+        "properties": {
+          "implemented_layers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Implemented Layers"
+          },
+          "missing_inputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missing Inputs"
+          },
+          "unavailable_layers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unavailable Layers"
+          },
+          "not_requested_layers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Not Requested Layers"
+          }
+        },
+        "title": "Coverage",
+        "type": "object"
+      },
+      "HouseChart": {
+        "additionalProperties": true,
+        "properties": {
+          "object_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Object Id"
+          },
+          "sitting_trigram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sitting Trigram"
+          },
+          "north_reference": {
+            "anyOf": [
+              {
+                "enum": [
+                  "magnetic",
+                  "true"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "North Reference"
+          },
+          "sectors": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/Palace"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sectors"
+          }
+        },
+        "title": "HouseChart",
+        "type": "object"
+      },
+      "JsonValue": {},
+      "Layer": {
+        "additionalProperties": true,
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "complete",
+                  "partial"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subject Id"
+          },
+          "candidates": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/MingguaCandidate"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Candidates"
+          },
+          "time_context": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Time Context"
+          },
+          "missing_inputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missing Inputs"
+          },
+          "ruleset": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Ruleset"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "house": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/HouseChart"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "occupants": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/PersonalChart"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Occupants"
+          },
+          "placement_findings": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/JsonValue"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Placement Findings"
+          },
+          "feature_findings": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/JsonValue"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Feature Findings"
+          },
+          "preferences": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/JsonValue"
+                  },
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Preferences"
+          },
+          "palaces": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/Palace"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Palaces"
+          },
+          "effective_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effective Year"
+          },
+          "center_star_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Center Star Number"
+          },
+          "current_period": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Current Period"
+          },
+          "directions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/JsonValue"
+                  },
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Directions"
+          },
+          "bearing": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Bearing"
+          }
+        },
+        "title": "Layer",
+        "type": "object"
+      },
+      "Layers": {
+        "additionalProperties": true,
+        "properties": {
+          "directions": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Layer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "minggua": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Layer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "bazhai": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Layer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "jinsuo": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Layer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "annual_stars": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Layer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "xuankong_natal": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NatalLayer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "Layers",
+        "type": "object"
+      },
+      "MingguaCandidate": {
+        "additionalProperties": true,
+        "properties": {
+          "gender_convention": {
+            "anyOf": [
+              {
+                "enum": [
+                  "male",
+                  "female"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gender Convention"
+          },
+          "raw_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Raw Number"
+          },
+          "palace_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Palace Number"
+          },
+          "substitution": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Substitution"
+          },
+          "trigram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Trigram"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "enum": [
+                  "east",
+                  "west"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Group"
+          },
+          "sectors": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/Palace"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sectors"
+          }
+        },
+        "title": "MingguaCandidate",
+        "type": "object"
+      },
+      "NatalCandidate": {
+        "additionalProperties": true,
+        "properties": {
+          "candidate_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Candidate Id"
+          },
+          "period_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Period Number"
+          },
+          "facing": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Facing"
+          },
+          "sitting": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sitting"
+          },
+          "chart_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "lower",
+                  "replacement"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Chart Mode"
+          },
+          "mode_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mode Reason"
+          },
+          "palaces": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/NatalPalace"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Palaces"
+          },
+          "period_chart": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Period Chart"
+          },
+          "mountain_chart": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mountain Chart"
+          },
+          "facing_chart": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Facing Chart"
+          },
+          "trace": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/JsonValue"
+                  },
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Trace"
+          },
+          "flight_path": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Flight Path"
+          }
+        },
+        "title": "NatalCandidate",
+        "type": "object"
+      },
+      "NatalLayer": {
+        "additionalProperties": true,
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "complete",
+                  "partial"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subject Id"
+          },
+          "ruleset": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Ruleset"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_context": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Period Context"
+          },
+          "orientation_context": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Orientation Context"
+          },
+          "chart": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NatalCandidate"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "candidates": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/NatalCandidate"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Candidates"
+          },
+          "missing_inputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missing Inputs"
+          },
+          "interpretation_scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Interpretation Scope"
+          },
+          "mountain_registry": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/JsonValue"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mountain Registry"
+          }
+        },
+        "title": "NatalLayer",
+        "type": "object"
+      },
+      "NatalPalace": {
+        "additionalProperties": true,
+        "properties": {
+          "direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Direction"
+          },
+          "palace_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Palace Number"
+          },
+          "period_star_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Period Star Number"
+          },
+          "mountain_star_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mountain Star Number"
+          },
+          "facing_star_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Facing Star Number"
+          }
+        },
+        "title": "NatalPalace",
+        "type": "object"
+      },
+      "Palace": {
+        "additionalProperties": true,
+        "properties": {
+          "direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Direction"
+          },
+          "palace_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Palace Number"
+          },
+          "trigram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Trigram"
+          },
+          "annual_star_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Annual Star Number"
+          },
+          "annual_star": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Star"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "star": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Star"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subject Id"
+          },
+          "rule_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rule Id"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "title": "Palace",
+        "type": "object"
+      },
+      "PersonalChart": {
+        "additionalProperties": true,
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "complete",
+                  "partial"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subject Id"
+          },
+          "candidates": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/MingguaCandidate"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Candidates"
+          },
+          "time_context": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Time Context"
+          },
+          "missing_inputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missing Inputs"
+          }
+        },
+        "title": "PersonalChart",
+        "type": "object"
+      },
+      "RuleSource": {
+        "additionalProperties": true,
+        "properties": {
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "title",
+          "url",
+          "kind",
+          "scope"
+        ],
+        "title": "RuleSource",
+        "type": "object"
+      },
+      "Ruleset": {
+        "additionalProperties": true,
+        "properties": {
+          "ruleset_id": {
+            "title": "Ruleset Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Ids",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/$defs/RuleSource"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "conventions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Conventions",
+            "type": "array"
+          },
+          "bundle_version": {
+            "title": "Bundle Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruleset_id",
+          "version",
+          "method",
+          "source_ids",
+          "sources",
+          "scope",
+          "conventions",
+          "bundle_version"
+        ],
+        "title": "Ruleset",
+        "type": "object"
+      },
+      "RunMetadata": {
+        "additionalProperties": true,
+        "properties": {
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "trace_id": {
+            "title": "Trace Id",
+            "type": "string"
+          },
+          "tool_name": {
+            "title": "Tool Name",
+            "type": "string"
+          },
+          "generated_at": {
+            "title": "Generated At",
+            "type": "string"
+          },
+          "engine": {
+            "title": "Engine",
+            "type": "string"
+          },
+          "engine_is_approximate": {
+            "title": "Engine Is Approximate",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "run_id",
+          "trace_id",
+          "tool_name",
+          "generated_at",
+          "engine",
+          "engine_is_approximate"
+        ],
+        "title": "RunMetadata",
+        "type": "object"
+      },
+      "SnapshotExport": {
+        "additionalProperties": true,
+        "properties": {
+          "technique": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Technique"
+          },
+          "selected_sections": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Selected Sections"
+          },
+          "section_titles_detected": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Section Titles Detected"
+          },
+          "missing_selected_sections": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missing Selected Sections"
+          },
+          "export_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Export Text"
+          }
+        },
+        "title": "SnapshotExport",
+        "type": "object"
+      },
+      "Star": {
+        "additionalProperties": true,
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          },
+          "element": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Element"
+          },
+          "polarity": {
+            "anyOf": [
+              {
+                "enum": [
+                  "auspicious",
+                  "inauspicious"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Polarity"
+          }
+        },
+        "title": "Star",
+        "type": "object"
+      },
+      "ValidationIssue": {
+        "description": "Safe correction hints: never include submitted values or raw messages.",
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "constraints": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Constraints"
+          }
+        },
+        "required": [
+          "path",
+          "code"
+        ],
+        "title": "ValidationIssue",
+        "type": "object"
+      }
+    },
+    "additionalProperties": true,
+    "properties": {
+      "projection_warnings": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/ValidationIssue"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Projection Warnings"
+      },
+      "analysis_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Analysis Type"
+      },
+      "engine": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Engine"
+      },
+      "status": {
+        "anyOf": [
+          {
+            "enum": [
+              "complete",
+              "partial"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Status"
+      },
+      "layers": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Layers"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "rulesets": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Ruleset"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Rulesets"
+      },
+      "coverage": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Coverage"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "conflicts": {
+        "anyOf": [
+          {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Conflicts"
+      },
+      "rule_trace": {
+        "anyOf": [
+          {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Rule Trace"
+      },
+      "summary": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Summary"
+      },
+      "snapshot_text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Snapshot Text"
+      },
+      "snapshot_export": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/SnapshotExport"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "run_metadata": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/RunMetadata"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "title": "FengshuiOutput",
+    "type": "object"
+  },
+  "verification": {
+    "rest_path": "/api/fengshui/xuankong_natal",
+    "mcp_name": "fengshui_xuankong_natal",
+    "cli_supported": true,
+    "same_model_on_all_transports": true,
+    "counts": {
+      "catalog": 89,
+      "REST": 87,
+      "MCP": 87,
+      "CLI": 88
+    }
+  }
+}

@@ -19,6 +19,16 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
 - 共享调用上下文支持 as_of / trace_id / parent_run_id；固定默认时间，保留显式日期、时区和手动起卦优先级，随机六爻记录本次 seed。
 - 成功元数据增加格式/包版本、输入/合同/业务输出摘要、环境及数据指纹、耗时、口径和 replay 参数。新增字段可选，旧基础字段和 CLI --no-metadata 保留；有效标识传播到领域与校验失败，CLI profile 建立根/子关联。
 
+- 玄空宅盘 `fengshui_xuankong_natal`（中州派 v1）：历史事件定运、24山／三元龙、五黄同元龙借运、下卦与兼向替星，分界和测量误差返回候选；REST/MCP/CLI 共用合同，合参与年度飞星分层。登记规则出处、网页版本和笔误范围，新增独立公开盘例及固定第三方比对差异记录。
+- Six residential Feng Shui tools across REST, MCP and CLI: fixed directions,
+  personal Ming Gua, sitting-trigram Eight Mansions, basic Jin Suo sand/water,
+  annual Zi Bai stars and layered assessment. Versioned source registry,
+  per-person results, explicit partial coverage and scoped differences are
+  preserved; Xuan Kong natal charts are a separate versioned layer.
+- Opt-in JSON `--request-file` and nested JSON flags for residential tools,
+  shared layered output schemas, factual snapshots, offline independent
+  reference fixtures and three-transport contract tests.
+
 ### API compatibility notes
 - Invalid projection paths now return additive `projection_warnings` while
   retaining the existing selected data and success status by default. Opt in to

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from tests.fixtures.fengshui import PAYLOADS
+from tests.fixtures.fengshui import payload as fengshui_payload
 
 
 def _birth_payload(
@@ -893,3 +895,13 @@ MCP_CASES = {
     "astro_horary": ("astro_horary", _horary_payload),
     "astro_election": ("astro_election", _election_payload),
 }
+
+# Residential foundation tools participate in full-surface and golden coverage.
+for _fengshui_name in PAYLOADS:
+    REST_POST_CASES[f"/api/fengshui/{_fengshui_name}"] = (
+        lambda name=_fengshui_name: fengshui_payload(name)
+    )
+    MCP_CASES[f"fengshui_{_fengshui_name}"] = (
+        f"fengshui_{_fengshui_name}",
+        lambda name=_fengshui_name: fengshui_payload(name),
+    )

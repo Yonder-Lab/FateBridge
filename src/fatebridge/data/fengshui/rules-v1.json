@@ -1,0 +1,303 @@
+{
+  "bundle_version": "1.0.0",
+  "sources": {
+    "S1": {
+      "title": "八宅明镜书目（1790 乐真堂本）",
+      "url": "https://ci.nii.ac.jp/ncid/BB20232101?l=ja",
+      "kind": "bibliographic_record",
+      "scope": "书目与版本；不是计算公式校勘"
+    },
+    "S2": {
+      "title": "八宅明镜卷上转录",
+      "url": "https://www.shicihui.com/zh-tw/book/bazhaimingjing/212094",
+      "kind": "primary_text_transcription",
+      "scope": "三元命卦起点；转录可能有讹误，现代1864纪元另按S4登记"
+    },
+    "S3": {
+      "title": "八宅明镜卷下转录",
+      "url": "https://xm.yi958.com/gsqm/4089",
+      "kind": "primary_text_transcription",
+      "scope": "坐山起伏位、大游年变爻、灶座与火门；未做全本校勘"
+    },
+    "S4": {
+      "title": "沈氏玄空学卷四转录",
+      "url": "https://www.diancangwang.cn/xuanxuewushu/f6f37803664b/90b563d9cb41.html",
+      "kind": "primary_text_transcription",
+      "scope": "1864三元纪元、二十年一运、洛书飞布；不代表全门派"
+    },
+    "S5": {
+      "title": "署名陈益峰九砂九水注解所引传本",
+      "url": "https://k.sina.cn/article_6492742263_182ff627700100c8vw.html",
+      "kind": "attributed_commentary_repost",
+      "scope": "1234砂6789水；未取得所称李湘生底本完整影印，不确认历史归属"
+    },
+    "S6": {
+      "title": "Joey Yap 2026 年度教材，印刷页67",
+      "url": "https://joeyyap.com/dlll312/TG26_Booklet%202026.pdf",
+      "kind": "author_published_chart",
+      "scope": "2026九宫年星独立数值核对"
+    },
+    "S7": {
+      "title": "Sean Chan 2026 飞星与立春换年说明",
+      "url": "https://www.masterseanchan.com/fengshui-2026-flying-star-chart",
+      "kind": "author_published_convention",
+      "scope": "年度飞星立春换年；2026交节至分钟，未独立认证秒精度"
+    },
+    "S8": {
+      "title": "香港天文台2026年历",
+      "url": "https://www.hko.gov.hk/tc/gts/time/calendar/pdf/files/2026.pdf",
+      "kind": "official_calendar",
+      "scope": "立春公历日期；不证明风水解释"
+    }
+  },
+  "rulesets": {
+    "houtian_directions_v1": {
+      "version": "1.0.0",
+      "method": "directions",
+      "source_ids": [
+        "S4"
+      ],
+      "scope": "后天八卦、固定洛书宫数、八方角区与24山索引；0°北顺时针、左闭右开",
+      "conventions": [
+        "北方中心0°；八方半宽22.5°；24山半宽7.5°",
+        "磁北和真北原样保留，禁止静默转换",
+        "确认角区不是九等分户型；不自动立极"
+      ]
+    },
+    "bazhai_sitting_v1": {
+      "version": "1.0.0",
+      "method": "bazhai",
+      "source_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S4"
+      ],
+      "scope": "坐山起伏位；1864现代三元命卦锚点；8x8大游年；男女原始五数分别寄坤/艮",
+      "conventions": [
+        "出生时刻默认立春换年，可明确选择公历元旦；有效生年可显式覆盖",
+        "命卦与宅卦独立；未知起算法返回男女候选",
+        "普通位置偏吉；灶座偏凶、确认火门偏吉；床头/书桌朝向属本版本明确的应用约定，不声称原典统一标准"
+      ]
+    },
+    "jinsuo_basic_fixed_v1": {
+      "version": "1.0.0",
+      "method": "jinsuo",
+      "source_ids": [
+        "S5"
+      ],
+      "scope": "八宫基础偏好：1234砂、6789水；逐个已确认特征比较",
+      "conventions": [
+        "不由道路/镜子/高楼等名称自动归类",
+        "mixed/unknown保持无法判定；缺水不能推断有砂",
+        "不含形态距离组合、24山、元运、疾病死亡财富断语"
+      ]
+    },
+    "annual_zibai_lichun_v1": {
+      "version": "1.0.0",
+      "method": "annual_stars",
+      "source_ids": [
+        "S4",
+        "S6",
+        "S7",
+        "S8"
+      ],
+      "scope": "年度紫白入中与顺飞九宫；立春到下个立春；当前20年元运单独列示",
+      "conventions": [
+        "年际入中递减；同年九宫顺飞",
+        "固定宫数与临宫星数独立；不使用八宅星的五行表",
+        "年盘不是运盘或山向宅盘；不据年星直接断整个房间吉凶"
+      ]
+    }
+  },
+  "directions": {
+    "N": {
+      "direction": "N",
+      "label": "北",
+      "trigram": "坎",
+      "palace_number": 1,
+      "element": "水",
+      "center_degrees": 0
+    },
+    "NE": {
+      "direction": "NE",
+      "label": "东北",
+      "trigram": "艮",
+      "palace_number": 8,
+      "element": "土",
+      "center_degrees": 45
+    },
+    "E": {
+      "direction": "E",
+      "label": "东",
+      "trigram": "震",
+      "palace_number": 3,
+      "element": "木",
+      "center_degrees": 90
+    },
+    "SE": {
+      "direction": "SE",
+      "label": "东南",
+      "trigram": "巽",
+      "palace_number": 4,
+      "element": "木",
+      "center_degrees": 135
+    },
+    "S": {
+      "direction": "S",
+      "label": "南",
+      "trigram": "离",
+      "palace_number": 9,
+      "element": "火",
+      "center_degrees": 180
+    },
+    "SW": {
+      "direction": "SW",
+      "label": "西南",
+      "trigram": "坤",
+      "palace_number": 2,
+      "element": "土",
+      "center_degrees": 225
+    },
+    "W": {
+      "direction": "W",
+      "label": "西",
+      "trigram": "兑",
+      "palace_number": 7,
+      "element": "金",
+      "center_degrees": 270
+    },
+    "NW": {
+      "direction": "NW",
+      "label": "西北",
+      "trigram": "乾",
+      "palace_number": 6,
+      "element": "金",
+      "center_degrees": 315
+    }
+  },
+  "mountains": [
+    "子",
+    "癸",
+    "丑",
+    "艮",
+    "寅",
+    "甲",
+    "卯",
+    "乙",
+    "辰",
+    "巽",
+    "巳",
+    "丙",
+    "午",
+    "丁",
+    "未",
+    "坤",
+    "申",
+    "庚",
+    "酉",
+    "辛",
+    "戌",
+    "乾",
+    "亥",
+    "壬"
+  ],
+  "bazhai_stars": {
+    "0": {
+      "name": "伏位",
+      "polarity": "auspicious",
+      "element": "木"
+    },
+    "1": {
+      "name": "祸害",
+      "polarity": "inauspicious",
+      "element": "土"
+    },
+    "2": {
+      "name": "绝命",
+      "polarity": "inauspicious",
+      "element": "金"
+    },
+    "3": {
+      "name": "天医",
+      "polarity": "auspicious",
+      "element": "土"
+    },
+    "4": {
+      "name": "生气",
+      "polarity": "auspicious",
+      "element": "木"
+    },
+    "5": {
+      "name": "六煞",
+      "polarity": "inauspicious",
+      "element": "水"
+    },
+    "6": {
+      "name": "五鬼",
+      "polarity": "inauspicious",
+      "element": "火"
+    },
+    "7": {
+      "name": "延年",
+      "polarity": "auspicious",
+      "element": "金"
+    }
+  },
+  "annual_stars": {
+    "1": {
+      "name": "一白贪狼",
+      "element": "水"
+    },
+    "2": {
+      "name": "二黑巨门",
+      "element": "土"
+    },
+    "3": {
+      "name": "三碧禄存",
+      "element": "木"
+    },
+    "4": {
+      "name": "四绿文曲",
+      "element": "木"
+    },
+    "5": {
+      "name": "五黄廉贞",
+      "element": "土"
+    },
+    "6": {
+      "name": "六白武曲",
+      "element": "金"
+    },
+    "7": {
+      "name": "七赤破军",
+      "element": "金"
+    },
+    "8": {
+      "name": "八白左辅",
+      "element": "土"
+    },
+    "9": {
+      "name": "九紫右弼",
+      "element": "火"
+    }
+  },
+  "flight_path": [
+    "C",
+    "NW",
+    "W",
+    "NE",
+    "S",
+    "N",
+    "SW",
+    "E",
+    "SE"
+  ],
+  "unavailable_layers": [
+    "xuankong_natal",
+    "monthly_stars",
+    "jinsuo_24_mountains",
+    "jinsuo_forms_and_periods",
+    "automatic_floorplan_geometry"
+  ]
+}

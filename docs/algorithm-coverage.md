@@ -9,9 +9,13 @@
 - `Placeholder`：合同或模式入口存在，但主输出层仍是占位兼容
 - `Excluded`：当前仓库不提供该能力
 
-> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。REST / MCP 各公开 **80 个工具**，分为 **12 个 family**。本页按 MCP 集合统计；目录有 82 条记录，CLI 可执行 81 条，差异见 [API 参考](api-reference.md#24-三端能力边界)。下表逐 family 列出全部工具；新增能力时请同步本页（工具总数由 `tests/test_doc_tool_counts.py` 锁定）。
+> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。REST / MCP 各公开 **87 个工具**，分为 **13 个 family**。本页按 MCP 集合统计；目录有 89 条记录，CLI 可执行 88 条，差异见 [API 参考](api-reference.md#24-三端能力边界)。下表逐 family 列出全部工具；新增能力时请同步本页（工具总数由 `tests/test_doc_tool_counts.py` 锁定）。
 
-## 1. 总览：12 个 family / 80 个工具
+所有目录记录现有统一的输入/输出 Schema，三端由同一 `ToolSpec` 发布并校验；这属于接口合同覆盖，不提高算法的 `Implemented` / `Approximate` 等级，也不表示全部嵌套专业字段已有完整类型定义。
+
+摘要/筛选发现与 MCP family 配置同样派生自目录，不改变算法等级。annotations 描述环境影响，不承诺数值确定性；投影警告与严格模式见 [API 参考](api-reference.md#25-字段投影与输出体积)。
+
+## 1. 总览：13 个 family / 87 个工具
 
 | family | 工具数 | 主题 | 总体状态 |
 | --- | --- | --- | --- |
@@ -27,6 +31,7 @@
 | `western_lifespan` | 13 | 全生命周期 / 寿命技法（古典+西占） | Implemented（依赖 backend） |
 | `knowledge` | 2 | 内置知识库目录与读取 | Implemented |
 | `export` | 2 | 导出协议注册表与快照解析 | Implemented |
+| `fengshui` | 7 | 公共方位、命卦、八宅、砂水、年星、玄空宅盘、分层合参 | Implemented（明确版本） |
 | 仓库内前端 | — | 内置 Web UI | Excluded |
 | 存储 / 账户 | — | 数据库、历史记录、用户体系 | Excluded |
 
@@ -246,3 +251,21 @@
 - 不是所有 legacy mode 都代表推荐用法（见 §3.2）
 
 如果你准备修改接口或新增能力，请同步更新本页，确保“文档状态”仍然是从代码反推出来的结果，而不是愿景描述。
+
+### 家居风水基础层（`fengshui`，Implemented）
+
+| 工具 | 范围 | 状态 |
+| --- | --- | --- |
+| `fengshui_directions` | 后天方位／洛书宫数、八方与24山角区索引 | Implemented |
+| `fengshui_minggua` | 1864锚点命卦、原始五数寄宫、个人八方关系 | Implemented |
+| `fengshui_bazhai` | 坐山宅盘、逐人命盘、位置／朝向用途分开 | Implemented |
+| `fengshui_jinsuo` | 八宫固定砂水偏好、已确认特征逐项判定 | Implemented（传本来源限制明确登记） |
+| `fengshui_annual_stars` | 年度紫白九宫、立春区间、当前元运 | Implemented（交节时刻依赖现有节气引擎，可能近似回退） |
+| `fengshui_xuankong_natal` | 中州派历史定运、24山／三元龙、五黄、下卦与兼向替星 | Implemented（xuankong_zhongzhou_v1） |
+| `fengshui_assess` | 三层及可选宅盘编排、差异、缺失项和版本来源 | Implemented |
+
+所有工具三端可调用；复杂 CLI 请求用 `--request-file`。固定宫数、年度星数、八宅星和紫白星分开；三法没有统一分数。24山方向索引不代表已经支持24山风水论断。月飞星、金锁形态距离／元运与自动户型几何均 Excluded，输出明确列入 `unavailable_layers`。
+
+验证包括固定第三方命卦400项／关系64项、独立2026年星盘和跨端合同，不代表现实预测有效性。来源、算法和输入合同见 [家居风水](fengshui.md)。
+
+第二阶段的运／山／向宅盘与年星分层；版本选择、7套公开完整盘例及固定外部216盘比对的24项五黄差异见 [玄空宅盘](fengshui-xuankong.md)。
