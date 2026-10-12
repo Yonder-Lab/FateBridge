@@ -1,0 +1,20 @@
+{
+  "upstream_master": "987370fb0bbf780dadd2730390d9e074de49feed",
+  "upstream_cleanup_pr": 181,
+  "preceding_tested_head": "951c20d26dca194d34dc5dbe987992426e19e24b",
+  "execution_changes": {
+    ".github/workflows/ci.yml": {
+      "before": "b61fc61c33b907b1c09a7cc547ff96afdade46c16aa728751f7c4f67e6a0004c",
+      "after": "dca56bf2b8a5751340f131b21f66368b73f21957c43bb494d876b15b73977494"
+    }
+  },
+  "unchanged_runtime_test_script_and_other_config_files": 368,
+  "unchanged_golden_files": 88,
+  "conflict_paths": [
+    "docs/README.md",
+    "docs/audits/2026-10-12/cleanup/documentation-hashes.json",
+    "docs/audits/2026-10-12/cleanup/evidence-hashes.json",
+    "docs/cleanup-validation-2026-10-12.md"
+  ],
+  "workflow_change": "Keep upstream resolved-dependency recording, identical full pytest selection with JUnit, and upload-artifact steps; matrix, platform, floor resolution and golden policy unchanged."
+}

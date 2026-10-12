@@ -1,6 +1,6 @@
 # 代码与文档清理验收（2026-10-12）
 
-依据本轮[系统审查](audits/2026-10-12/cleanup/review.md)，按合同缓存、低风险清理、测试与内部导入迁移的顺序推进。受测对象为当前未提交工作区，包含此前已存在的契约及风水实现；具体源码由[文件哈希](audits/2026-10-12/cleanup/source-hashes.json)标识，不能把其他 PR / CI 的通过结果套用到本轮。
+依据本轮[系统审查](audits/2026-10-12/cleanup/review.md)，按合同缓存、低风险清理、测试与内部导入迁移的顺序推进。下述本地阶段的受测对象为当时未提交工作区，包含此前已存在的契约及风水实现；具体源码由[文件哈希](audits/2026-10-12/cleanup/source-hashes.json)标识，不能把其他 PR / CI 的通过结果套用到本轮。
 
 ## 完成的清理
 
@@ -23,7 +23,7 @@ CATALOG 89、REST 87、MCP 87、CLI 88，工具名称、请求参数、公开错
 
 同一 macOS / Python 3.13 环境冻结时钟，修改前后 **88 份业务 JSON 逐字节一致**，完整 discovery 合同按 JSON 内容一致，发现体积仍为 2,268,806 UTF-8 字节。[比对结果](audits/2026-10-12/cleanup/before-after.json)。另外验证了缓存副本隔离、模型覆写／重建、冷并发、失败重试、逐次输入／输出摘要、旧 Python 出口及事件循环内安全导入。
 
-全部 **89 个工具的缓存合同摘要与原未缓存公式一致**，见[逐工具核对](audits/2026-10-12/cleanup/contract-fingerprints.json)。最终再次核对 369 个执行文件，当前源码与 Linux 受测快照一致；[执行文件哈希](audits/2026-10-12/cleanup/execution-hashes.json)与文档／历史证据哈希分开记录。
+全部 **89 个工具的缓存合同摘要与原未缓存公式一致**，见[逐工具核对](audits/2026-10-12/cleanup/contract-fingerprints.json)。本地阶段最终核对 369 个执行文件，当时源码与 Linux 受测快照一致；[执行文件哈希](audits/2026-10-12/cleanup/execution-hashes.json)与文档／历史证据哈希分开记录。
 
 | 完整回归环境 | 通过 | 失败 | 跳过 | 日志 / JUnit |
 | --- | ---: | ---: | ---: | --- |
@@ -48,4 +48,4 @@ Black / isort（252 文件）、mypy（130 源文件）和 `git diff --check` �
 
 数据来自同机、相同依赖的代表 payload，各执行探针取五次中位数，discovery 取三次；这是本地探针，不能当作线上 SLA 或负载压测。原始数据：[清理前](audits/2026-10-12/cleanup/performance-before.json)、[清理后](audits/2026-10-12/cleanup/performance-after.json)，附[探针代码](audits/2026-10-12/cleanup/performance-probe.py)。REST 输出校验由三次降至两次，MCP 保持两次；文本与结构化输出一致，事件循环内导入的 coroutine 警告已消除。
 
-本轮没有提交、推送、合并或部署，不声称托管 CI、远端服务或 GUI MCP 宿主已验证本轮源码。
+这些结果属于提交前的本地阶段。独立 PR 以 `5fafc61` 为基准，仅纳入清理与对应文档，保留原工作区其他改动。托管 CI 按 PR 的准确 head 独立运行 Python 3.10–3.13 全量测试、格式与类型检查，并通过全新 runner 执行 `uv pip install --system --resolution lowest-direct -e ".[dev]"` 后的全量测试。每个作业上传实际依赖版本与 JUnit，结果以对应 GitHub Actions 运行和 PR 验收说明为准；本地 FastMCP 下限测试不替代真正的最低直接依赖回归。
