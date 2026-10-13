@@ -30,7 +30,7 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 - **我是一个什么样的人、全面自我分析** → [`onda-zige`](./onda-zige/SKILL.md)  
   八字+紫微+西占三套交叉印证，按主证、旁证与用户需求组织结果，避免重复调用。
 
-个人命理工具按这 8 个场景组织；新增的家居风水基础计算通过独立 `fengshui_*` 工具调用，住宅输入与三法分层合同见 [家居风水](../docs/fengshui.md)。当前 REST / MCP 各公开87项能力，完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
+个人命理工具按这 8 个场景组织；新增的家居风水基础计算通过独立 `fengshui_*` 工具调用，住宅输入与三法分层合同见 [家居风水](../docs/fengshui.md)。当前 REST 公开 86 个工具，MCP 公开 87 个工具，各端绑定差异见 [API 参考](../docs/api-reference.md#24-三端能力边界)，完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
 ---
 
@@ -64,7 +64,7 @@ skills/
 
 新增或调整能力时，记住这条：**新维度请指向对应的 `bazi_*` 或工具目录条目，不要在 Skill 里手写排盘步骤。**
 
-引擎侧加工具的方法看仓库 `src/fatebridge/services/tool_catalog.py`。它是中央目录，声明一次就会自动挂到 REST、MCP 和 CLI 上。
+引擎侧加工具的方法看 [开发指南](../docs/development-guide.md#新增或修改一个领域能力)：领域声明位于 `src/fatebridge/services/catalog/`，`services/tool_catalog.py` 负责中央装配；声明对应 surface 后由注册器派生入口。嵌套 CLI 输入须显式启用 JSON 请求合同，不能假定每条目录记录三端均可执行。
 
 任何在 Skill 里引用的 CLI 命令，提交前都要真跑一遍。先在虚拟环境安装本仓库（`python -m pip install -e ".[dev]"`，见 [开发指南](../docs/development-guide.md)）。运行 CLI 不用起 REST 服务；`python3` 必须指向已安装包的解释器：
 
@@ -79,7 +79,7 @@ python3 -m fatebridge.cli describe <tool>
 
 ## 许可与发布
 
-本套件随 FateBridge 仓库以 **Apache License 2.0** 发布（见仓库根 `LICENSE`）。每个 `agents/interface.yaml` 里标注的 `license` 和 `version` 都与项目一致，并由契约测试校验，保证对外分发时声明和实际不跑偏。
+本套件随 FateBridge Git 仓库以 **Apache License 2.0** 分发（见仓库根 `LICENSE`），当前 wheel 不包含 `skills/`；使用场景技能需取得对应仓库目录。每个 `agents/interface.yaml` 里标注的 `license` 和 `version` 都与项目一致，并由契约测试校验，保证对外分发时声明和实际不跑偏。
 
 ---
 

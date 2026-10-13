@@ -55,11 +55,6 @@ def model_parameters(
         metadata = copy(field)
         metadata.default = PydanticUndefined
         metadata.default_factory = None
-        # MCP has always exposed Python names. Keep them stable; model-level
-        # aliases remain the REST contract, not callable-parameter metadata.
-        metadata.alias = None
-        metadata.validation_alias = None
-        metadata.serialization_alias = None
         preserve_omission = name in _MCP_SOLAR_FIELDS and not field.is_required()
         if preserve_omission:
             # Pydantic fills signature defaults before calling impl. A factory
@@ -102,13 +97,10 @@ def register_mcp(
     for spec in specs:
         if spec.mcp_name is None and spec.key is None:
             continue
-        from fastmcp.tools import ToolResult
-
         protocol_fn = _make_mcp_fn(
             spec,
             render_response=render_response,
             render_error=render_error,
-            return_type=ToolResult,
         )
         tool = Tool.from_function(
             protocol_fn,
@@ -143,8 +135,9 @@ def _make_mcp_fn(
     *,
     render_response: Callable[..., Any],
     render_error: Callable[..., Any],
-    return_type: Any = str,
 ) -> Callable[..., Any]:
+    from fastmcp.tools import ToolResult
+
     model = spec.request_model
     params, annotations = model_parameters(model)
     # Transport-level flags appended after model fields; guard against a model
@@ -279,5 +272,5 @@ def _make_mcp_fn(
     impl.__name__ = spec.tool_name
     impl.__doc__ = spec.summary
     setattr(impl, "__signature__", inspect.Signature(params))
-    impl.__annotations__ = {**annotations, "return": return_type}
+    impl.__annotations__ = {**annotations, "return": ToolResult}
     return impl

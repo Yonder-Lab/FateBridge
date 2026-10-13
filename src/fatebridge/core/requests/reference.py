@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from fatebridge.core.requests.base import _DeferredModel
 
@@ -18,8 +18,6 @@ class ExportRegistryRequest(_DeferredModel):
 class ExportParseRequest(_DeferredModel):
     """Request model for export snapshot parsing."""
 
-    model_config = ConfigDict(populate_by_name=True)
-
     technique: str = Field(description="Technique key, e.g. qimen")
     content: str = Field(description="Snapshot text content")
     selected_sections: List[str] = Field(
@@ -28,12 +26,10 @@ class ExportParseRequest(_DeferredModel):
     )
     planet_info: Optional[Dict[str, Any]] = Field(
         default=None,
-        alias="planetInfo",
         description="Optional planet info export toggles",
     )
     astro_meaning: Optional[Dict[str, Any]] = Field(
         default=None,
-        alias="astroMeaning",
         description="Optional astro meaning export toggles",
     )
 

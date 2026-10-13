@@ -644,7 +644,7 @@ def test_primary_direction_chart_omits_bounds_overlay_when_disabled():
     assert bounds_overlay["points"] == {}
 
 
-def test_legacy_reference_primary_directions_use_right_ascension_arc():
+def test_equatorial_primary_directions_use_right_ascension_arc():
     result = calculate_western_timing_analysis(
         name="Alice",
         birth_year=1990,
@@ -659,7 +659,7 @@ def test_legacy_reference_primary_directions_use_right_ascension_arc():
         analysis_year=2025,
         analysis_month=5,
         analysis_day=20,
-        pd_method="legacy_reference",
+        pd_method="equatorial",
         pd_time_key="Ptolemy",
         pd_aspects=[0, 90, 180],
         show_pd_bounds=True,
@@ -680,7 +680,7 @@ def test_legacy_reference_primary_directions_use_right_ascension_arc():
     assert primary_direction_chart["coordinate_label"] == "赤经"
 
 
-def test_legacy_reference_primary_directions_expose_coordinate_runtime_metadata():
+def test_equatorial_primary_directions_expose_coordinate_runtime_metadata():
     result = calculate_western_timing_analysis(
         name="Alice",
         birth_year=1990,
@@ -695,7 +695,7 @@ def test_legacy_reference_primary_directions_expose_coordinate_runtime_metadata(
         analysis_year=2025,
         analysis_month=5,
         analysis_day=20,
-        pd_method="legacy_reference",
+        pd_method="equatorial",
         pd_time_key="Ptolemy",
         pd_aspects=[0, 90, 180],
         show_pd_bounds=True,
@@ -732,9 +732,9 @@ def test_legacy_reference_primary_directions_expose_coordinate_runtime_metadata(
         assert "declination" in sun_diagnostic
 
 
-def test_legacy_reference_primary_direction_chart_reconstructs_ecliptic_positions_from_ra():
+def test_equatorial_primary_direction_chart_reconstructs_ecliptic_positions_from_ra():
     if predictive_swe is None:
-        pytest.skip("Swiss Ephemeris is required for legacy_reference reconstruction")
+        pytest.skip("Swiss Ephemeris is required for equatorial reconstruction")
 
     result = calculate_western_timing_analysis(
         name="Alice",
@@ -750,7 +750,7 @@ def test_legacy_reference_primary_direction_chart_reconstructs_ecliptic_position
         analysis_year=2025,
         analysis_month=5,
         analysis_day=20,
-        pd_method="legacy_reference",
+        pd_method="equatorial",
         pd_time_key="Ptolemy",
         pd_aspects=[0, 90, 180],
         show_pd_bounds=True,
@@ -931,32 +931,6 @@ def test_mundane_semiarc_primary_direction_chart_reconstructs_projection_from_mu
     assert (
         primary_direction_chart["directed_lots"]["lot_of_fortune"]["sign"] == "Taurus"
     )
-
-
-def test_legacy_equatorial_alias_matches_legacy_reference_coordinate_branch():
-    result = calculate_western_timing_analysis(
-        name="Alice",
-        birth_year=1990,
-        birth_month=5,
-        birth_day=17,
-        birth_hour=15,
-        birth_minute=30,
-        birth_place="上海",
-        birth_timezone="Asia/Shanghai",
-        birth_longitude=121.4737,
-        birth_latitude=31.2304,
-        analysis_year=2025,
-        analysis_month=5,
-        analysis_day=20,
-        pd_method="legacy_equatorial",
-        pd_time_key="Ptolemy",
-        pd_aspects=[0, 90, 180],
-    )
-
-    primary_directions = result["directions"]["primary_directions"]
-
-    assert primary_directions["coordinate_system"] == "right_ascension"
-    assert primary_directions["coordinate_label"] == "赤经"
 
 
 def test_fatebridge_mundane_semiarc_method_exposes_mundane_projection():

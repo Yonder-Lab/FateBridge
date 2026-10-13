@@ -15,7 +15,7 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 - **MCP** —— 用 FastMCP 暴露给 Claude、Cursor、Codex 等 Agent；
 - **CLI** —— 命令行直接交互，适合本地调试与自动化脚本。
 
-当前版本暴露 **86 个业务 REST 路由** 与所有工具（87 个）的 **87 个 FastMCP 工具**，三端由同一份中央目录派生；目录含 88 条记录，CLI 可执行其中 87 条。各端的名称与请求形态差异见 [API 参考](docs/api-reference.md#24-三端能力边界)。
+当前版本暴露 **86 个业务 REST 路由** 与 **87 个 FastMCP 工具**，三端由同一份中央目录派生；目录含 88 条记录，CLI 可执行其中 87 条。各端的名称与请求形态差异见 [API 参考](docs/api-reference.md#24-三端能力边界)。
 
 > 当前版本为 **Beta 0.2.0**，API 仍可能微调，欢迎试用与反馈。
 
@@ -139,7 +139,7 @@ FateBridge 被设计成 Agent 友好的：
 - `GET /api/tools`（或 MCP 的 `tools/list`）可以自动枚举全部能力；
 - 错误返回统一的 `{error, error_code, retryable}` 结构；
 - 输入校验错误附带安全的 `issues` 字段提示；显式非法主题和未知请求字段会被拒绝；
-- MCP 返回结构化 JSON、兼容 text JSON 与原生 `isError`；三端发现接口共享输出 schema；专业嵌套事实覆盖主限、递归时主、星盘、中国术数、八字专题、宿曜关系及知识/导出，支持投影与扩展，详见 [API 参考](docs/api-reference.md)及 [专业输出验收](docs/agentic-api-p2-nested-fixes-2026-10-12.md) 与 [专题及知识/导出验收](docs/agentic-api-p2-domain-contracts-fixes-2026-10-12.md)；
+- MCP 返回结构化 JSON、兼容 text JSON 与原生 `isError`；三端发现接口共享输出 schema；专业嵌套事实覆盖主限、递归时主、星盘、中国术数、八字专题、宿曜关系及知识/导出，支持投影与扩展，详见 [API 参考](docs/api-reference.md)；
 - 成功响应默认包含 `run_metadata`，便于追踪；CLI 可用 `--no-metadata` 关闭。
 
 接入示例、字段投影、快照导出等细节，请见 [`docs/agent-guide.md`](docs/agent-guide.md)。
@@ -174,6 +174,8 @@ FateBridge/
 │       ├── api.py          # REST (FastAPI) 入口
 │       ├── mcp_server.py   # MCP (FastMCP) 入口
 │       ├── cli.py          # CLI 入口
+│       ├── application/   # 绑定、执行、发现、投影与调用凭据
+│       ├── transports/    # REST/MCP 协议注册
 │       ├── services/       # transport-facing 编排层 + 中央工具目录
 │       ├── core/           # 核心算法：历法、八字、占星、占术、导出合同
 │       ├── analysis/       # 复合分析（配合度、时运影响…）
@@ -205,6 +207,8 @@ mypy src/fatebridge/
 ---
 
 ## 项目状态
+
+计算验证关注历法、规则与数值的一致性；分数与传统解读不代表现实成功概率。独立比较、黄金快照、三端合同和真实 Agent 对话属于不同证据，精度与性能限制见 [算法覆盖](docs/algorithm-coverage.md#5-这页不包含什么)。
 
 - 当前为 **Beta 0.2.0**，API 在到达 1.0 之前仍可能调整；
 - 本仓库**不含前端界面**，接 UI 需要自行对接 REST 或 MCP；

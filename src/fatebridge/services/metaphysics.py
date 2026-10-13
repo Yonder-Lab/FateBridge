@@ -17,12 +17,14 @@ from fatebridge.core.local_techniques.qimen import (
     build_qimen_snapshot_text,
     build_qimen_with_options,
 )
-from fatebridge.core.metaphysics import (
-    MetaphysicsSeed,
-    build_jinkou_board,
+from fatebridge.core.metaphysics.common import MetaphysicsSeed
+from fatebridge.core.metaphysics.jinkou import build_jinkou_board
+from fatebridge.core.metaphysics.liureng import (
     build_liureng_board,
     build_liureng_runyear,
-    build_taiyi_board,
+)
+from fatebridge.core.metaphysics.taiyi import build_taiyi_board
+from fatebridge.core.metaphysics.ziwei import (
     build_ziwei_chart,
     build_ziwei_horoscope,
     build_ziwei_rules,

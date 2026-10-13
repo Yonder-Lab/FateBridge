@@ -426,7 +426,7 @@ def _add_output_flags(parser: argparse.ArgumentParser) -> None:
         "--strict-fields",
         action=_BooleanFlagAction,
         default=False,
-        help="无效投影路径返回校验失败；默认保留兼容形状并附 projection_warnings",
+        help="无效投影路径返回校验失败；默认使用宽松投影并附 projection_warnings",
     )
     parser.add_argument(
         "--fields",
@@ -481,8 +481,8 @@ def _load_subject_file(path: str) -> Dict[str, Any]:
     """Load a reusable subject profile (person fields) from JSON or YAML.
 
     JSON is parsed with the stdlib; YAML needs the optional ``pyyaml`` extra.
-    Returns a flat ``field name -> value`` mapping; the caller decides which
-    keys are relevant to the invoked tool (extras are ignored downstream).
+    Returns a flat ``field name -> value`` mapping. Before tool dispatch, keys
+    must belong to its current request contract or the shared person profile.
     """
     file_path = Path(path).expanduser()
     try:
@@ -614,6 +614,31 @@ def _profile_field_objects() -> Dict[str, Any]:
     return resolved
 
 
+def _validate_subject_fields(
+    subject_data: Optional[Dict[str, Any]], specs: List[ToolSpec]
+) -> None:
+    """Reject unrecognized file keys before projecting reusable person fields.
+
+    A shared profile can contain a latitude or gender that another tradition
+    does not consume. Only those declared person fields may be omitted during
+    per-tool binding; every other key must appear in a current request model.
+    """
+    if subject_data is None:
+        return
+    allowed = set(_profile_field_objects())
+    for spec in specs:
+        allowed.update(spec.request_model.model_fields)
+    unexpected = [key for key in subject_data if key not in allowed]
+    if unexpected:
+        raise ValidationError.from_exception_data(
+            "SubjectProfile",
+            [
+                {"type": "extra_forbidden", "loc": (key,), "input": subject_data[key]}
+                for key in unexpected
+            ],
+        )
+
+
 def _add_profile_parser(sub: Any) -> None:
     parser = sub.add_parser(
         "profile",
@@ -727,6 +752,11 @@ def _run_profile(
             },
             2,
         )
+
+    try:
+        _validate_subject_fields(subject_data, [spec for _, spec in resolved])
+    except ValidationError as exc:
+        return _emit_error(correlate_error(validation_error_result(exc), options), 1)
 
     # Shared person inputs: subject-file defaults, then explicit CLI flags win.
     inputs: Dict[str, Any] = {}
@@ -997,7 +1027,7 @@ def run(argv: Optional[List[str]] = None) -> int:
 
     if request_data is not None and spec.cli_request_file:
         # Keep unknown file keys: Pydantic must reject typos instead of silently
-        # filtering them the way reusable person profiles intentionally do.
+        # projecting them as shared person defaults.
         provided = {**provided, **request_data, **explicit_fields}
 
     try:
@@ -1005,6 +1035,7 @@ def run(argv: Optional[List[str]] = None) -> int:
             name: getattr(args, name, None) for name in ExecutionOptions.model_fields
         }
         options = ExecutionOptions.model_validate(controls)
+        _validate_subject_fields(subject_data, [spec])
         request = spec.request_model(**provided)
         result = execute_tool(
             spec, request, options=options, include_metadata=not args.no_metadata

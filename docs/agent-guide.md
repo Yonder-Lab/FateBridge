@@ -179,7 +179,7 @@ fatebridge bazi_birth --birth-year 1990 --birth-month 6 --birth-day 15 \
 - `birth_longitude` / `birth_latitude`：视工具而定，占星盘建议显式传入以保证精度
 - `use_true_solar_time`：中式出生信息模型默认 true，核心星盘默认 false；具体以当前工具模型为准。中式模型缺省开启但没有可解析经度时使用钟表时间并附提示；显式 true 且没有经度会报错，显式 false 使用钟表时间
 
-真太阳时、地点解析、时区补全统一走 `fatebridge.utils.helpers`，结果会回显在 `person_info.time_adjustment`。需要高精度占星盘时，优先显式传经纬度和 IANA 时区；地点/经度推断不包含完整历史夏令时信息。小时是必填项，当前没有可省略小时的“无时盘”入口。
+出生输入由 `fatebridge.utils.birth_input` 构造，真太阳时归一化由 `fatebridge.utils.solar_time` 处理，地点与时区解析分别由 `utils.places`、`utils.timezones` 提供。结果会回显在 `person_info.time_adjustment`。需要高精度占星盘时，优先显式传经纬度和 IANA 时区；地点/经度推断不包含完整历史夏令时信息。小时是必填项，当前没有可省略小时的“无时盘”入口。
 
 ---
 

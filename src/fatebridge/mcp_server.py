@@ -39,9 +39,10 @@ import os
 from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
+from fastmcp.tools import ToolResult
 
 from fatebridge import __version__ as APP_VERSION
-from fatebridge.mcp_transport import ProtocolResult, protocol_result
+from fatebridge.mcp_transport import protocol_result
 from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.utils.errors import error_response_payload
 from fatebridge.utils.formatting import (
@@ -115,7 +116,7 @@ def _tool_response_payload(
     )
 
 
-def _render_protocol_response(data: Dict[str, Any], **flags: Any) -> ProtocolResult:
+def _render_protocol_response(data: Dict[str, Any], **flags: Any) -> ToolResult:
     payload = _tool_response_payload(data, **flags)
     return protocol_result(
         payload,
@@ -126,7 +127,7 @@ def _render_protocol_response(data: Dict[str, Any], **flags: Any) -> ProtocolRes
 
 def _render_protocol_error(
     data: Dict[str, Any], operation: str, *, compact: bool = True
-) -> ProtocolResult:
+) -> ToolResult:
     payload = error_response_payload(data, operation)
     return protocol_result(
         payload, failed=True, text=format_json_response(payload, compact=compact)
@@ -141,7 +142,6 @@ def _render_protocol_error(
 from fatebridge.application.discovery import select_specs
 from fatebridge.application.projection import project_fields
 from fatebridge.mcp_transport import (  # noqa: E402
-    SerializableSchemaMiddleware,
     register_discovery_resources,
 )
 from fatebridge.services.tool_catalog import CATALOG  # noqa: E402
@@ -159,7 +159,6 @@ def create_mcp_app(
         version=APP_VERSION,
         dereference_schemas=False,
     )
-    server.add_middleware(SerializableSchemaMiddleware())
     exposed = select_specs(CATALOG, family=families, scenario=scenarios, surface="mcp")
     register_mcp(
         server,

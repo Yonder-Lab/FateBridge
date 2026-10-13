@@ -92,10 +92,6 @@ class BaziBirth(PartialOutput):
     analysis_date: Optional[str] = None
 
 
-class Planet(ChartPlanet):
-    """Backward-compatible name for the shared nested planet contract."""
-
-
 class ElectionFactor(PartialOutput):
     code: Optional[str] = None
     polarity: Optional[str] = None
@@ -131,7 +127,7 @@ def output_model_for(key: str) -> Any:
         **BAZI_FIELDS,
         "bazi_birth": BaziBirth,
         "day_master": DayMaster,
-        "planets": List[Planet],
+        "planets": List[ChartPlanet],
         "election": Election,
         **CHINESE_TOOL_FIELDS.get(key, {}),
         **CHART_TOOL_FIELDS.get(key, {}),
@@ -173,9 +169,6 @@ _FIELD_TYPES: Dict[str, Any] = {
     "fixed_stars": List[JsonValue],
     "house": int,
     "houses": List[JsonValue],
-    "inToOutAnti": List[JsonValue],
-    "inToOutAsp": List[JsonValue],
-    "inToOutCAnti": List[JsonValue],
     "in_to_out_antiscia": List[JsonValue],
     "in_to_out_aspects": List[JsonValue],
     "in_to_out_contra_antiscia": List[JsonValue],
@@ -199,9 +192,6 @@ _FIELD_TYPES: Dict[str, Any] = {
     "monthInt": int,
     "moving_lines": List[JsonValue],
     "nongli": Union[Object, str],
-    "outToInAnti": List[JsonValue],
-    "outToInAsp": List[JsonValue],
-    "outToInCAnti": List[JsonValue],
     "out_to_in_antiscia": List[JsonValue],
     "out_to_in_aspects": List[JsonValue],
     "out_to_in_contra_antiscia": List[JsonValue],
@@ -216,8 +206,6 @@ _FIELD_TYPES: Dict[str, Any] = {
     "recommendations": List[JsonValue],
     "rendered_text": str,
     "requested_year_stem": str,
-    "section_migration_keys": List[JsonValue],
-    "section_migration_version": int,
     "section_titles_detected": List[JsonValue],
     "sections": List[JsonValue],
     "selected_jieqi": List[JsonValue],
@@ -285,7 +273,7 @@ _TOOL_FIELDS = {
     "qimen": "analysis_context analysis_type calendar_context four_pillars qimen",
     "taiyi": "analysis_context analysis_type calendar_context four_pillars taiyi",
     "jinkou": "analysis_context analysis_type calendar_context four_pillars jinkou liureng",
-    "export_registry": "astro_meaning_default default_normalized_settings jieqi_split_keys module_snapshot_prefix planet_info_default section_migration_keys section_migration_version selected_technique settings_key settings_version source_of_truth techniques",
+    "export_registry": "astro_meaning_default default_normalized_settings jieqi_split_keys module_snapshot_prefix planet_info_default selected_technique settings_key settings_version source_of_truth techniques",
     "export_parse": "export_text missing_selected_sections section_titles_detected sections selected_sections settings_used technique unknown_detected_sections",
     "knowledge_registry": "bundle_version domains provenance source",
     "knowledge_read": "bundle_version category citation domain key lines provenance query_normalized rendered_text source tips title",
@@ -295,8 +283,8 @@ _TOOL_FIELDS = {
     "astro_guolao": "angles aspects balance_basis chart_profile classical classical_patterns element_balance fixed_stars guolao houses interpretation modality_balance person_info planetary_hours planets summary",
     "astro_india": "angles aspects balance_basis chart_profile classical classical_patterns element_balance fixed_stars houses india interpretation modality_balance person_info planetary_hours planets summary",
     "astro_germany": "base_chart chart_profile midpoint_aspects midpoints summary",
-    "astro_relative": "chart compatibility composite_chart inToOutAnti inToOutAsp inToOutCAnti inToOutMidpoint in_to_out_antiscia in_to_out_aspects in_to_out_contra_antiscia in_to_out_midpoint inner inner_chart outToInAnti outToInAsp outToInCAnti outToInMidpoint out_to_in_antiscia out_to_in_aspects out_to_in_contra_antiscia out_to_in_midpoint outer outer_chart relationship_profile summary synastry_aspects",
-    "astro_relative_chart": "chart compatibility composite_chart inToOutAnti inToOutAsp inToOutCAnti inToOutMidpoint in_to_out_antiscia in_to_out_aspects in_to_out_contra_antiscia in_to_out_midpoint inner inner_chart outToInAnti outToInAsp outToInCAnti outToInMidpoint out_to_in_antiscia out_to_in_aspects out_to_in_contra_antiscia out_to_in_midpoint outer outer_chart relationship_profile summary synastry_aspects",
+    "astro_relative": "chart compatibility in_to_out_antiscia in_to_out_aspects in_to_out_contra_antiscia in_to_out_midpoint inner inner_chart out_to_in_antiscia out_to_in_aspects out_to_in_contra_antiscia out_to_in_midpoint outer outer_chart relationship_profile summary synastry_aspects",
+    "astro_relative_chart": "chart compatibility in_to_out_antiscia in_to_out_aspects in_to_out_contra_antiscia in_to_out_midpoint inner inner_chart out_to_in_antiscia out_to_in_aspects out_to_in_contra_antiscia out_to_in_midpoint outer outer_chart relationship_profile summary synastry_aspects",
     "western_timing_analysis": "analysis_context analysis_type directions natal_reference returns summary time_lords transits",
     "solarreturn": "analysis_context analysis_type engine natal_reference solarreturn summary",
     "lunarreturn": "analysis_context analysis_type engine lunarreturn natal_reference summary",

@@ -37,20 +37,10 @@ from fatebridge.core.astro.relationship_charts import (
 )
 
 
-def _normalize_relative_mode(
-    value: Any,
-    *,
-    source: str = "default",
-) -> Dict[str, Any]:
+def _normalize_relative_mode(value: Any) -> Dict[str, Any]:
     raw_value = value if value not in (None, "") else 0
     normalized: Optional[str] = None
     resolution = "default"
-    note: Optional[str] = None
-    mode_source = (
-        source
-        if source in {"default", "relative_mode", "relationship_mode"}
-        else "default"
-    )
 
     if isinstance(raw_value, int) and raw_value in RELATIVE_MODE_NUMERIC_MAP:
         normalized = RELATIVE_MODE_NUMERIC_MAP[raw_value]
@@ -67,18 +57,6 @@ def _normalize_relative_mode(
             if normalized is not None:
                 resolution = "exact_alias"
         lowered = stripped.lower()
-        if normalized is None and lowered == "synastry":
-            if mode_source == "relationship_mode":
-                normalized = "compare"
-                resolution = "legacy_relationship_mode_synastry"
-                note = (
-                    "兼容旧版 relationship_mode='synastry' 语义，当前仍按比较盘处理；"
-                    "如需影响盘语义，请改用 relative_mode='Synastry'、"
-                    "'synastry' 或 'influence'。"
-                )
-            else:
-                normalized = "influence"
-                resolution = "relative_mode_synastry_alias"
         if normalized is None:
             normalized = RELATIVE_MODE_FALLBACK_ALIASES.get(stripped)
             if normalized is not None:
@@ -99,13 +77,10 @@ def _normalize_relative_mode(
 
     payload = {
         "input": raw_value,
-        "source": mode_source,
         "resolution": resolution,
         "normalized": normalized,
         "label_zh": RELATIVE_MODE_LABELS_ZH[normalized],
     }
-    if note:
-        payload["note"] = note
     return payload
 
 
@@ -169,9 +144,7 @@ def _base_relative_relationship_profile(
     engine_profile = _derive_engine_profile(*(source_profiles or []))
     profile = {
         "chart_type": "relative",
-        "relationship_mode": relative_mode_info["input"],
         "relative_mode_input": relative_mode_info["input"],
-        "relative_mode_source": relative_mode_info["source"],
         "relative_mode_resolution": relative_mode_info["resolution"],
         "relative_mode_normalized": relative_mode_info["normalized"],
         "relative_mode_label_zh": relative_mode_info["label_zh"],
@@ -183,8 +156,6 @@ def _base_relative_relationship_profile(
         "zodiac_label_zh": zodiacal_info["label_zh"],
         **engine_profile,
     }
-    if relative_mode_info.get("note"):
-        profile["relative_mode_note"] = relative_mode_info["note"]
     return profile
 
 
@@ -199,7 +170,6 @@ def _assemble_relative_payload(
     outer_chart: Dict[str, Any],
     synastry_aspects: List[Dict[str, Any]],
     compatibility: Dict[str, int],
-    composite_chart: Dict[str, Any],
     in_to_out_aspects: List[Dict[str, Any]],
     out_to_in_aspects: List[Dict[str, Any]],
     in_to_out_midpoint: Dict[str, Any],
@@ -215,14 +185,7 @@ def _assemble_relative_payload(
     chart_value: Dict[str, Any],
     summary: List[str],
 ) -> Dict[str, Any]:
-    """Assemble the relative-chart payload shared by all 5 relationship modes.
-
-    The 5 modes (compare/composite/influence/timespace/marks) produced
-    byte-identical dicts apart from four axes: ``primary_layer``, the third
-    ``source_profiles`` chart, the top-level ``chart`` value, and the bespoke
-    ``summary`` lines. Those four are parameterised; everything else (including
-    the legacy camelCase aliases) is shared here.
-    """
+    """Assemble canonical chart layers and directional relationship facts."""
     return {
         "relationship_profile": {
             **_base_relative_relationship_profile(
@@ -243,7 +206,6 @@ def _assemble_relative_payload(
         "inner_chart": inner_chart,
         "outer_chart": outer_chart,
         "synastry_aspects": synastry_aspects,
-        "composite_chart": composite_chart,
         "compatibility": compatibility,
         "in_to_out_aspects": in_to_out_aspects,
         "out_to_in_aspects": out_to_in_aspects,
@@ -256,14 +218,6 @@ def _assemble_relative_payload(
         "chart": chart_value,
         "inner": inner_influence,
         "outer": outer_influence,
-        "inToOutAsp": in_to_out_aspects,
-        "outToInAsp": out_to_in_aspects,
-        "inToOutMidpoint": in_to_out_midpoint,
-        "outToInMidpoint": out_to_in_midpoint,
-        "inToOutAnti": in_to_out_antiscia,
-        "outToInAnti": out_to_in_antiscia,
-        "inToOutCAnti": in_to_out_contra_antiscia,
-        "outToInCAnti": out_to_in_contra_antiscia,
         "summary": summary,
     }
 
@@ -272,15 +226,11 @@ def build_relative_payload(
     inner_birth: AstroBirthInfo,
     outer_birth: AstroBirthInfo,
     relative_mode: Any = None,
-    relative_mode_source: str = "default",
     hsys: int = 3,
     zodiacal: int = 0,
     relationship_focus: Any = None,
 ) -> Dict[str, Any]:
-    relative_mode_info = _normalize_relative_mode(
-        relative_mode,
-        source=relative_mode_source,
-    )
+    relative_mode_info = _normalize_relative_mode(relative_mode)
     relative_house_system = _resolve_relative_house_system(hsys)
     zodiacal_info = _resolve_relative_zodiacal_mode(zodiacal)
     inner_chart = _build_relative_base_chart(
@@ -306,24 +256,31 @@ def build_relative_payload(
         synastry_aspects,
         key=lambda item: (item["orb"], item["inner"], item["outer"]),
     )
-    composite_chart = _composite_chart(
-        inner_chart,
-        outer_chart,
-        house_system=relative_house_system["key"],
-        zodiacal_info=zodiacal_info,
-    )
-    timespace_chart = _build_timespace_chart(
-        inner_birth,
-        outer_birth,
-        house_system_info=relative_house_system,
-        zodiacal_info=zodiacal_info,
-    )
-    marks_chart = _build_marks_chart(
-        composite_chart,
-        timespace_chart,
-        house_system=relative_house_system["key"],
-        zodiacal_info=zodiacal_info,
-    )
+    normalized_mode = relative_mode_info["normalized"]
+    composite_chart = {}
+    timespace_chart = {}
+    marks_chart = {}
+    if normalized_mode in {"composite", "marks"}:
+        composite_chart = _composite_chart(
+            inner_chart,
+            outer_chart,
+            house_system=relative_house_system["key"],
+            zodiacal_info=zodiacal_info,
+        )
+    if normalized_mode in {"timespace", "marks"}:
+        timespace_chart = _build_timespace_chart(
+            inner_birth,
+            outer_birth,
+            house_system_info=relative_house_system,
+            zodiacal_info=zodiacal_info,
+        )
+    if normalized_mode == "marks":
+        marks_chart = _build_marks_chart(
+            composite_chart,
+            timespace_chart,
+            house_system=relative_house_system["key"],
+            zodiacal_info=zodiacal_info,
+        )
     inner_influence, outer_influence = _build_relative_influence_pair(
         inner_chart,
         outer_chart,
@@ -361,7 +318,6 @@ def build_relative_payload(
         "outer_chart": outer_chart,
         "synastry_aspects": synastry_aspects,
         "compatibility": compatibility,
-        "composite_chart": composite_chart,
         "in_to_out_aspects": in_to_out_aspects,
         "out_to_in_aspects": out_to_in_aspects,
         "in_to_out_midpoint": in_to_out_midpoint,
@@ -374,12 +330,11 @@ def build_relative_payload(
         "outer_influence": outer_influence,
     }
 
-    normalized_mode = relative_mode_info["normalized"]
     if normalized_mode == "compare":
         payload = _assemble_relative_payload(
             **shared_kwargs,
             primary_layer="directional_synastry",
-            third_chart=composite_chart,
+            third_chart={},
             chart_value={},
             summary=[
                 "已生成 FateBridge 比较盘分析。",
@@ -388,9 +343,8 @@ def build_relative_payload(
                 f"A对B中点相位命中：{_count_directional_relative_midpoint_hits(in_to_out_midpoint)}。",
                 f"A对B映点命中：{len(in_to_out_antiscia)}。",
                 f"综合分：{compatibility['overall_score']}。",
-                "合成图盘保留在 composite_chart 兼容字段；主 chart 层在比较盘模式下当前留空。",
                 "影响图盘、中点相位与映点/反映点均已提供"
-                f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}), composite_chart.get('chart_profile', {}))}结果。",
+                f"{_precision_label_from_profiles(inner_chart.get('chart_profile', {}), outer_chart.get('chart_profile', {}))}结果。",
             ],
         )
     elif normalized_mode == "composite":
@@ -414,15 +368,15 @@ def build_relative_payload(
         payload = _assemble_relative_payload(
             **shared_kwargs,
             primary_layer="influence_chart_pair",
-            third_chart=composite_chart,
-            chart_value=composite_chart,
+            third_chart={},
+            chart_value={},
             summary=[
                 "已生成 FateBridge 影响盘分析。",
                 f"A视角影响图盘星体数：{len(inner_influence.get('chart', {}).get('planets', []))}。",
                 f"B视角影响图盘星体数：{len(outer_influence.get('chart', {}).get('planets', []))}。",
                 f"A对B相位主体数：{len(in_to_out_aspects)}。",
                 f"综合分：{compatibility['overall_score']}。",
-                "合成图盘保留在 chart / composite_chart 中，作为影响盘的辅助层。",
+                "影响盘主层由 inner / outer 中双方视角图盘构成。",
             ],
         )
     elif normalized_mode == "timespace":

@@ -108,9 +108,7 @@ def make_rest_handler(
     # reproduce the historical full payload exactly (no snapshot dropped, no
     # projection), so existing clients and golden masters see no change.
     # ``compact`` is intentionally omitted — HTTP/JSON serialization is FastAPI's
-    # job and is already unindented. ``request`` stays the only required param so
-    # the backward-compatible direct-call handlers (``await calculate_x(req)``)
-    # keep working.
+    # job and is already unindented. ``request`` is the only required parameter.
     async def handler(
         request: Any,
         include_snapshot_text: bool = spec.include_snapshot_text,

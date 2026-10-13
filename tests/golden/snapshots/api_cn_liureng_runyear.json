@@ -286,60 +286,6 @@
             "theme": "渗透筹谋"
           }
         },
-        "opposite_hexagram": {
-          "binary_code": "101001",
-          "caution": "忌华而不实、过度修辞",
-          "favorable": "包装、设计、表达、呈现",
-          "guidance": "利包装、修饰、呈现，但根基仍须真实。",
-          "image": "山下有火，文采外显，利修饰呈现。",
-          "judgement": "包装有用，但真实内核更重要。",
-          "lines": [
-            1,
-            0,
-            1,
-            0,
-            0,
-            1
-          ],
-          "lower": {
-            "caution": "虚火、急躁、表强里弱",
-            "element": "火",
-            "favorable": "表达、曝光、识别",
-            "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
-            "image": "火光附丽，主显明与辨析。",
-            "keywords": "光明、表达、洞察",
-            "lines": [
-              1,
-              0,
-              1
-            ],
-            "name": "离",
-            "nature": "火",
-            "symbol": "☲",
-            "theme": "明辨显化"
-          },
-          "name": "山火贲",
-          "summary": "山火贲：文饰成形。包装有用，但真实内核更重要。",
-          "symbol": "☶☲",
-          "theme": "文饰成形",
-          "upper": {
-            "caution": "僵住、迟滞、错失时机",
-            "element": "土",
-            "favorable": "收束、暂停、止损",
-            "guidance": "宜收束、暂停、设边界，先稳住局势再图后动。",
-            "image": "山止其上，主边界与停驻。",
-            "keywords": "止守、边界、收束",
-            "lines": [
-              0,
-              0,
-              1
-            ],
-            "name": "艮",
-            "nature": "山",
-            "symbol": "☶",
-            "theme": "止守定界"
-          }
-        },
         "seed": {
           "hour_branch": "亥",
           "lower_number": 6,

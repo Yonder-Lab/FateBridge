@@ -1,6 +1,7 @@
 import asyncio
 
 import pytest
+from pydantic import ValidationError
 
 from fatebridge.core.astro.birth import build_astro_birth_info
 from fatebridge.core.astro.ephemeris import (
@@ -68,21 +69,6 @@ def test_astro_request_models_accept_geo_fields():
             }
         ),
     )
-    legacy_relative_request = AstroRelativeRequest(
-        inner=AstroRelativePartyRequest(**_build_birth_payload()),
-        outer=AstroRelativePartyRequest(
-            **{
-                **_build_birth_payload(),
-                "name": "对盘者",
-                "birth_year": 1992,
-                "birth_month": 3,
-                "birth_day": 2,
-                "birth_hour": 8,
-                "birth_minute": 18,
-            }
-        ),
-        relationship_mode="synastry",
-    )
     modern_relative_request = AstroRelativeRequest(
         inner=AstroRelativePartyRequest(**_build_birth_payload()),
         outer=AstroRelativePartyRequest(
@@ -104,7 +90,6 @@ def test_astro_request_models_accept_geo_fields():
     chart_payload = request.model_dump()
     place_only_payload = place_only_request.model_dump()
     default_relation_payload = default_relative_request.model_dump()
-    legacy_relation_payload = legacy_relative_request.model_dump()
     modern_relation_payload = modern_relative_request.model_dump()
 
     assert chart_payload["birth_longitude"] == 121.4667
@@ -113,17 +98,9 @@ def test_astro_request_models_accept_geo_fields():
     assert chart_payload["zodiacal"] == 1
     assert place_only_payload["birth_longitude"] is None
     assert place_only_payload["birth_latitude"] is None
-    assert default_relation_payload["relative_mode"] == 0
-    assert default_relation_payload["relationship_mode"] == 0
-    assert default_relative_request.mode_input_source == "default"
-    assert legacy_relation_payload["inner"]["birth_latitude"] == 31.2167
-    assert legacy_relation_payload["outer"]["name"] == "对盘者"
-    assert legacy_relation_payload["relative_mode"] == "synastry"
-    assert legacy_relation_payload["relationship_mode"] == "synastry"
-    assert legacy_relative_request.mode_input_source == "relationship_mode"
+    assert default_relation_payload["relative_mode"] is None
+    assert "relationship_mode" not in default_relation_payload
     assert modern_relation_payload["relative_mode"] == "Composite"
-    assert modern_relation_payload["relationship_mode"] == "Composite"
-    assert modern_relative_request.mode_input_source == "relative_mode"
     assert modern_relation_payload["hsys"] == 1
     assert modern_relation_payload["zodiacal"] == 1
 
@@ -453,7 +430,7 @@ def test_hsys_int_family_defaults_are_consistent():
     assert flat.hsys == 3
 
 
-def test_relative_chart_returns_legacy_style_layers_and_metadata():
+def test_relative_chart_returns_canonical_layers_and_metadata():
     result = calculate_relative_chart_analysis(
         inner_payload=_build_birth_payload(),
         outer_payload={
@@ -481,22 +458,13 @@ def test_relative_chart_returns_legacy_style_layers_and_metadata():
     assert result["synastry_aspects"]
     assert result["in_to_out_aspects"]
     assert result["out_to_in_aspects"]
-    assert result["inToOutAsp"] == result["in_to_out_aspects"]
-    assert result["outToInAsp"] == result["out_to_in_aspects"]
     assert result["in_to_out_midpoint"]
     assert result["out_to_in_midpoint"]
     assert isinstance(result["in_to_out_antiscia"], list)
     assert isinstance(result["out_to_in_antiscia"], list)
-    assert result["inToOutMidpoint"] == result["in_to_out_midpoint"]
-    assert result["outToInMidpoint"] == result["out_to_in_midpoint"]
-    assert result["inToOutAnti"] == result["in_to_out_antiscia"]
-    assert result["outToInAnti"] == result["out_to_in_antiscia"]
-    assert result["inToOutCAnti"] == result["in_to_out_contra_antiscia"]
-    assert result["outToInCAnti"] == result["out_to_in_contra_antiscia"]
     assert result["in_to_out_contra_antiscia"]
     assert result["out_to_in_contra_antiscia"]
-    assert result["chart"]["planets"] == result["composite_chart"]["planets"]
-    assert result["composite_chart"]["planets"]
+    assert "composite_chart" not in result
     assert result["inner"]["chart"]["planets"]
     assert result["outer"]["chart"]["planets"]
     assert result["inner"]["chart"]["chart_profile"]["house_system"] == "whole_sign"
@@ -592,40 +560,14 @@ def test_relative_derived_layers_inherit_runtime_precision_from_sources():
     assert marks_result["chart"]["chart_profile"]["engine_backend"] == expected_backend
 
 
-def test_relative_chart_legacy_synastry_alias_maps_to_compare_mode():
-    result = calculate_relative_chart_analysis(
-        inner_payload=_build_birth_payload(),
-        outer_payload={
-            **_build_birth_payload(),
-            "name": "对盘者",
-            "birth_year": 1992,
-            "birth_month": 3,
-            "birth_day": 2,
-            "birth_hour": 8,
-            "birth_minute": 18,
-        },
-        relationship_mode="synastry",
-    )
-
-    assert result["relationship_profile"]["relationship_mode"] == "synastry"
-    assert result["relationship_profile"]["relative_mode_source"] == "relationship_mode"
-    assert (
-        result["relationship_profile"]["relative_mode_resolution"]
-        == "legacy_relationship_mode_synastry"
-    )
-    assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
-    assert result["relationship_profile"]["relative_mode_label_zh"] == "比较盘"
-    assert "比较盘处理" in result["relationship_profile"]["relative_mode_note"]
-    assert result["relationship_profile"]["primary_layer"] == "directional_synastry"
-    assert result["relationship_profile"]["mode_status"] == "implemented"
-    assert result["in_to_out_aspects"]
-    assert result["in_to_out_midpoint"]
-    assert result["inToOutMidpoint"] == result["in_to_out_midpoint"]
-    assert result["inToOutAnti"] == result["in_to_out_antiscia"]
-    assert result["chart"] == {}
-    assert result["composite_chart"]["planets"]
-    assert result["inner"]["chart"]["planets"]
-    assert result["outer"]["chart"]["planets"]
+def test_relative_chart_rejects_retired_relationship_mode():
+    parties = {
+        "inner": AstroRelativePartyRequest(**_build_birth_payload()),
+        "outer": AstroRelativePartyRequest(**_build_birth_payload()),
+    }
+    with pytest.raises(ValidationError) as caught:
+        AstroRelativeRequest(**parties, relationship_mode="synastry")
+    assert caught.value.errors()[0]["type"] == "extra_forbidden"
 
 
 def test_relative_chart_modern_lowercase_synastry_maps_to_influence_mode():
@@ -643,10 +585,8 @@ def test_relative_chart_modern_lowercase_synastry_maps_to_influence_mode():
         relative_mode="synastry",
     )
 
-    assert result["relationship_profile"]["relative_mode_source"] == "relative_mode"
     assert (
-        result["relationship_profile"]["relative_mode_resolution"]
-        == "relative_mode_synastry_alias"
+        result["relationship_profile"]["relative_mode_resolution"] == "fallback_alias"
     )
     assert result["relationship_profile"]["relative_mode_normalized"] == "influence"
     assert result["relationship_profile"]["relative_mode_label_zh"] == "影响盘"
@@ -669,35 +609,10 @@ def test_relative_chart_defaults_to_compare_mode_when_mode_omitted():
         },
     )
 
-    assert result["relationship_profile"]["relationship_mode"] == 0
     assert result["relationship_profile"]["relative_mode_input"] == 0
-    assert result["relationship_profile"]["relative_mode_source"] == "default"
     assert result["relationship_profile"]["relative_mode_resolution"] == "numeric"
     assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
     assert result["relationship_profile"]["primary_layer"] == "directional_synastry"
-
-
-def test_relative_chart_api_preserves_mode_source_for_legacy_aliases():
-    request = AstroRelativeRequest(
-        inner=AstroRelativePartyRequest(**_build_birth_payload()),
-        outer=AstroRelativePartyRequest(
-            **{
-                **_build_birth_payload(),
-                "name": "对盘者",
-                "birth_year": 1992,
-                "birth_month": 3,
-                "birth_day": 2,
-                "birth_hour": 8,
-                "birth_minute": 18,
-            }
-        ),
-        relationship_mode="synastry",
-    )
-
-    result = asyncio.run(calculate_relative_chart_endpoint(request))
-
-    assert result["relationship_profile"]["relative_mode_source"] == "relationship_mode"
-    assert result["relationship_profile"]["relative_mode_normalized"] == "compare"
 
 
 def test_relative_compare_and_composite_modes_expose_different_primary_layers():
@@ -808,7 +723,7 @@ def test_relative_influence_timespace_and_marks_modes_expose_distinct_primary_la
         influence_result["outer"]["chart"]["chart_profile"]["chart_type"]
         == "influence_outer"
     )
-    assert influence_result["chart"]["planets"]
+    assert influence_result["chart"] == {}
 
     assert (
         timespace_result["relationship_profile"]["relative_mode_normalized"]
@@ -1101,12 +1016,7 @@ def test_julian_day_uses_julian_calendar_before_gregorian_cutover():
 
 
 def test_astro_chart_request_accepts_use_true_solar_time_by_python_name():
-    """Regression: ``use_true_solar_time`` carries an alias (``useTrueSolarTime``)
-    but CLI/MCP populate by the Python field name. Without
-    ``populate_by_name=True`` on the base model, the value was silently dropped
-    and the default won — so the documented switches did nothing. The western
-    default is now OFF (civil clock), so both population paths must be able to
-    flip it ON."""
+    """Canonical snake_case flag controls the clock; retired spelling is rejected."""
     assert (
         AstroChartRequest(
             birth_year=1988, birth_month=8, birth_day=8, birth_hour=8
@@ -1120,15 +1030,16 @@ def test_astro_chart_request_accepts_use_true_solar_time_by_python_name():
         birth_hour=8,
         use_true_solar_time=True,
     )
-    by_alias = AstroChartRequest(
-        birth_year=1988,
-        birth_month=8,
-        birth_day=8,
-        birth_hour=8,
-        useTrueSolarTime=True,
-    )
     assert by_name.use_true_solar_time is True
-    assert by_alias.use_true_solar_time is True
+    with pytest.raises(ValidationError) as caught:
+        AstroChartRequest(
+            birth_year=1988,
+            birth_month=8,
+            birth_day=8,
+            birth_hour=8,
+            useTrueSolarTime=True,
+        )
+    assert caught.value.errors()[0]["type"] == "extra_forbidden"
 
 
 def test_cli_no_true_solar_time_flag_actually_disables_correction():
@@ -1217,3 +1128,45 @@ def test_relative_requests_default_timezone_to_none_not_utc():
     )
     assert flat.inner_birth_timezone is None
     assert flat.outer_birth_timezone is None
+
+
+@pytest.mark.parametrize(
+    "mode, expected_calls",
+    [
+        ("Comp", (0, 0, 0)),
+        ("Synastry", (0, 0, 0)),
+        ("Composite", (1, 0, 0)),
+        ("TimeSpace", (0, 1, 0)),
+        ("Marks", (1, 1, 1)),
+    ],
+)
+def test_relative_chart_computes_only_selected_single_chart(
+    mode, expected_calls, monkeypatch
+):
+    from fatebridge.core.astro import relationship
+
+    calls = [0, 0, 0]
+    for index, name in enumerate(
+        ("_composite_chart", "_build_timespace_chart", "_build_marks_chart")
+    ):
+        original = getattr(relationship, name)
+
+        def traced(*args, _original=original, _index=index, **kwargs):
+            calls[_index] += 1
+            return _original(*args, **kwargs)
+
+        monkeypatch.setattr(relationship, name, traced)
+    result = calculate_relative_chart_analysis(
+        inner_payload=_build_birth_payload(),
+        outer_payload={**_build_birth_payload(), "name": "对盘者", "birth_year": 1992},
+        relative_mode=mode,
+    )
+    assert "error" not in result
+    assert tuple(calls) == expected_calls
+    assert "composite_chart" not in result
+    assert not any(key.startswith(("inToOut", "outToIn")) for key in result)
+    assert "relationship_mode" not in result["relationship_profile"]
+    if mode in {"Comp", "Synastry"}:
+        assert result["chart"] == {}
+    else:
+        assert result["chart"]["planets"]

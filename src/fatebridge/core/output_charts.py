@@ -1,6 +1,6 @@
 """Nested contracts for classical, specialized and relationship charts.
 
-Aliases share value contracts without changing their wire spelling. Dynamic
+Shared value contracts describe the canonical response fields. Dynamic
 planet and midpoint keys remain open; interpretation prose remains extensible.
 """
 
@@ -366,12 +366,10 @@ class RelationshipProfile(PartialOutput):
     hsys: Optional[int] = None
     mode_status: Optional[str] = None
     primary_layer: Optional[str] = None
-    relationship_mode: Optional[Union[str, int]] = None
     relative_mode_input: Optional[Union[str, int]] = None
     relative_mode_label_zh: Optional[str] = None
     relative_mode_normalized: Optional[str] = None
     relative_mode_resolution: Optional[str] = None
-    relative_mode_source: Optional[str] = None
     zodiac_label_zh: Optional[str] = None
     zodiac_mode: Optional[str] = None
     zodiacal: Optional[int] = None
@@ -398,7 +396,6 @@ CHART_FIELDS: Dict[str, Any] = {
     "base_chart": Chart,
     "inner_chart": Chart,
     "outer_chart": Chart,
-    "composite_chart": Chart,
     "inner": InnerOuter,
     "outer": InnerOuter,
     "compatibility": CompatibilityScores,
@@ -407,8 +404,6 @@ CHART_FIELDS: Dict[str, Any] = {
     **{
         name: List[DirectionalContacts]
         for name in (
-            "inToOutAsp",
-            "outToInAsp",
             "in_to_out_aspects",
             "out_to_in_aspects",
         )
@@ -416,10 +411,6 @@ CHART_FIELDS: Dict[str, Any] = {
     **{
         name: List[RelativeAntiscia]
         for name in (
-            "inToOutAnti",
-            "outToInAnti",
-            "inToOutCAnti",
-            "outToInCAnti",
             "in_to_out_antiscia",
             "out_to_in_antiscia",
             "in_to_out_contra_antiscia",
@@ -429,8 +420,6 @@ CHART_FIELDS: Dict[str, Any] = {
     **{
         name: Dict[str, List[RelativeMidpointHit]]
         for name in (
-            "inToOutMidpoint",
-            "outToInMidpoint",
             "in_to_out_midpoint",
             "out_to_in_midpoint",
         )

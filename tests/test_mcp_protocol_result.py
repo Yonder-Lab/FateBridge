@@ -1,4 +1,4 @@
-"""SDK 1.x and 2.x serialize the same native success/error wire contracts."""
+"""The supported FastMCP runtime carries canonical native results."""
 
 import json
 
@@ -24,9 +24,19 @@ from fatebridge.mcp_transport import protocol_result
     ],
 )
 def test_native_result_preserves_sdk_independent_wire_contract(payload, failed):
-    result = protocol_result(payload, failed=failed).to_mcp_result()
-    assert isinstance(result, CallToolResult)
-    wire = result.model_dump(mode="json", by_alias=True, exclude_none=True)
+    result = protocol_result(payload, failed=failed)
+    assert result.is_error is failed
+    converted = result.to_mcp_result()
+    if failed:
+        assert isinstance(converted, CallToolResult)
+        wire = converted.model_dump(mode="json", by_alias=True, exclude_none=True)
+    else:
+        content, structured = converted
+        wire = {
+            "content": [item.model_dump(mode="json") for item in content],
+            "structuredContent": structured,
+            "isError": False,
+        }
     assert wire["structuredContent"] == payload
     assert wire["isError"] is failed
     assert "structured_content" not in wire and "is_error" not in wire

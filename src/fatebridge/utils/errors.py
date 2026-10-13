@@ -191,7 +191,7 @@ def calculation_guard(
 
 
 def error_response_payload(data: Dict[str, Any], operation: str) -> Dict[str, Any]:
-    """The legacy JSON error envelope, shared by native and text transports."""
+    """The shared JSON error envelope used by all transports."""
     return {
         "error": data["error"],
         "error_code": data.get("error_code", INTERNAL_ERROR_CODE),

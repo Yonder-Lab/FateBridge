@@ -3,7 +3,7 @@ import json
 import pytest
 
 from fatebridge.core.ephemeris_runtime import swe
-from fatebridge.core.local_techniques.chart import build_pseudo_chart
+from fatebridge.core.local_techniques.chart import _build_local_chart_response
 from fatebridge.core.requests.divination import (
     GuaLookupRequest,
     GuaMeiyiRequest,
@@ -213,15 +213,15 @@ def test_local_request_models_accept_alias_and_nested_fields():
         date="2028-04-06",
         time="09:33:00",
         zone="+08:00",
-        gpsLat=31.2,
-        gpsLon=121.4,
+        gps_lat=31.2,
+        gps_lon=121.4,
         lines=[{"value": 1, "change": True}],
     )
     suzhan_request = SuZhanRequest(
         date="2028-04-06",
         time="09:33:00",
-        houseStartMode=2,
-        doubingSu28=False,
+        house_start_mode=2,
+        doubing_su28=False,
         hsys=0,
         zodiacal=1,
     )
@@ -241,7 +241,7 @@ def test_local_request_models_accept_alias_and_nested_fields():
         taiyi_options={"accNum": 1},
         selected_sections=["起盘信息", "离九宫"],
         liureng_yue="辰",
-        liureng_isDiurnal=True,
+        liureng_is_diurnal=True,
         use_true_solar_time=True,
     )
 
@@ -251,11 +251,11 @@ def test_local_request_models_accept_alias_and_nested_fields():
     otherbu_payload = otherbu_request.model_dump(by_alias=True)
 
     assert tongshefa_request.shaoyin == "震"
-    assert sixyao_payload["gpsLat"] == 31.2
-    assert sixyao_payload["gpsLon"] == 121.4
+    assert sixyao_payload["gps_lat"] == 31.2
+    assert sixyao_payload["gps_lon"] == 121.4
     assert sixyao_payload["lines"][0]["change"] is True
-    assert suzhan_payload["houseStartMode"] == 2
-    assert suzhan_payload["doubingSu28"] is False
+    assert suzhan_payload["house_start_mode"] == 2
+    assert suzhan_payload["doubing_su28"] is False
     assert suzhan_payload["hsys"] == 0
     assert suzhan_payload["zodiacal"] == 1
     assert otherbu_request.house == 3
@@ -264,7 +264,7 @@ def test_local_request_models_accept_alias_and_nested_fields():
     assert sanshiunited_request.qimen_options["layout"] == "fly"
     assert sanshiunited_request.selected_sections == ["起盘信息", "离九宫"]
     assert sanshiunited_request.liureng_is_diurnal is True
-    assert sanshi_payload["liureng_isDiurnal"] is True
+    assert sanshi_payload["liureng_is_diurnal"] is True
     assert sanshi_payload["use_true_solar_time"] is True
 
 
@@ -397,7 +397,13 @@ def test_calculate_meihua_analysis_returns_expected_hexagram_chain():
     assert meihua["base_hexagram"]["name"] == "火天大有"
     assert meihua["changed_hexagram"]["name"] == "火风鼎"
     assert meihua["mutual_hexagram"]["name"] == "泽天夬"
-    assert meihua["opposite_hexagram"]["name"] == "水地比"
+    assert "opposite_hexagram" not in meihua
+    assert meihua["cuo_hexagram"]["name"] == "水地比"
+    assert meihua["zong_hexagram"]["name"] == "天火同人"
+    assert interpretation["cuo_oracle"]["name"] == "水地比"
+    assert interpretation["cuo_reading"].startswith("错卦水地比")
+    assert "opposite_oracle" not in interpretation
+    assert "opposite_reading" not in interpretation
     assert meihua["base_hexagram"]["judgement"] == "资源在手，宜放大优势并守住尺度。"
     assert "火在天上" in meihua["base_hexagram"]["image"]
     assert meihua["moving_palace"] == "下卦"
@@ -629,17 +635,22 @@ def test_build_sixyao_result_raises_on_invalid_coins():
         )
 
 
-def test_calculate_sixyao_analysis_keeps_upstream_truthy_string_line_semantics():
+def test_sixyao_does_not_treat_the_string_zero_as_a_yang_line():
     result = calculate_sixyao_analysis(
         date="2028-04-06",
         time="09:33:00",
         zone="+08:00",
         lines=[{"value": "0", "change": False}] * 6,
     )
-
-    assert result["current_code"] == "111111"
-    assert result["changed_code"] == "111111"
-    assert all(line["value"] == 1 for line in result["lines"])
+    assert result["error_code"] == "validation_error"
+    result = calculate_sixyao_analysis(
+        date="2028-04-06",
+        time="09:33:00",
+        zone="+08:00",
+        lines=[{"value": 0, "change": False}] * 6,
+    )
+    assert result["current_code"] == "000000"
+    assert all(line["value"] == 0 for line in result["lines"])
 
 
 def test_calculate_suzhan_analysis_returns_chart_and_snapshot():
@@ -664,13 +675,16 @@ def test_calculate_suzhan_analysis_returns_chart_and_snapshot():
     assert "˚" in result["snapshot_text"]
 
 
-def test_build_pseudo_chart_reuses_local_chart_runtime():
-    pseudo_chart = build_pseudo_chart(
+def test_suzhan_uses_shared_local_chart_runtime():
+    local_chart = _build_local_chart_response(
         date_text="2028-04-06",
         time_text="09:33:00",
         timezone_name="+08:00",
         lat="31n13",
         lon="121e28",
+        hsys=8,
+        zodiacal=0,
+        allow_extended_hsys=True,
     )
     suzhan_result = calculate_suzhan_analysis(
         date="2028-04-06",
@@ -680,18 +694,18 @@ def test_build_pseudo_chart_reuses_local_chart_runtime():
         lon="121e28",
     )
     expected_precision, expected_backend = _expected_offline_engine()
-    pseudo_sun = next(
-        item for item in pseudo_chart["chart"]["objects"] if item["id"] == "Sun"
+    local_sun = next(
+        item for item in local_chart["chart"]["objects"] if item["id"] == "Sun"
     )
     suzhan_sun = next(
         item for item in suzhan_result["chart"]["objects"] if item["id"] == "Sun"
     )
 
-    assert pseudo_chart["chart"]["houses"] == suzhan_result["chart"]["houses"]
-    assert pseudo_chart["chart"]["angles"] == suzhan_result["chart"]["angles"]
-    assert pseudo_sun == suzhan_sun
-    assert pseudo_chart["params"]["enginePrecision"] == expected_precision
-    assert pseudo_chart["params"]["engineBackend"] == expected_backend
+    assert local_chart["chart"]["houses"] == suzhan_result["chart"]["houses"]
+    assert local_chart["chart"]["angles"] == suzhan_result["chart"]["angles"]
+    assert local_sun == suzhan_sun
+    assert local_chart["params"]["enginePrecision"] == expected_precision
+    assert local_chart["params"]["engineBackend"] == expected_backend
 
 
 def test_calculate_suzhan_analysis_exposes_runtime_engine_metadata():
@@ -1254,7 +1268,7 @@ def test_calculate_sanshiunited_analysis_supports_selected_export_sections():
         zone="+08:00",
         lat="31n13",
         lon="121e28",
-        selected_sections=["起盘信息", "太乙", "正南离宫"],
+        selected_sections=["起盘信息", "太乙", "离九宫"],
     )
 
     assert result["snapshot_export"]["selected_sections"] == [
@@ -1463,3 +1477,24 @@ def test_tongshefa_hex_always_enriches_every_hexagram():
             assert hexagram["image"], hexagram["name"]
             built += 1
     assert built == 64
+
+
+@pytest.mark.parametrize("lunar_day", range(1, 9))
+@pytest.mark.parametrize("hour_branch", "子丑寅卯辰巳午未")
+def test_meihua_uses_distinct_cuo_and_zong_fields(lunar_day, hour_branch):
+    from fatebridge.core.divination import (
+        build_meihua_interpretation,
+        derive_meihua_hexagram,
+    )
+
+    meihua = derive_meihua_hexagram(
+        year_branch="子", lunar_month=1, lunar_day=lunar_day, hour_branch=hour_branch
+    )
+    base_lines = meihua["base_hexagram"]["lines"]
+    assert meihua["cuo_hexagram"]["lines"] == [1 - bit for bit in base_lines]
+    assert meihua["zong_hexagram"]["lines"] == list(reversed(base_lines))
+    assert "opposite_hexagram" not in meihua
+    interpretation = build_meihua_interpretation(meihua)
+    cuo_name = meihua["cuo_hexagram"]["name"]
+    assert interpretation["cuo_reading"].startswith(f"错卦{cuo_name}")
+    assert interpretation["cuo_oracle"]["name"] == cuo_name

@@ -279,7 +279,7 @@ _NUMDICT = {
     39: "純陽",
 }
 
-# 16-palace display order (FateBridge legacy contract for palace_marks list).
+# 16-palace display order (FateBridge output contract for palace_marks list).
 TAIYI_PALACE16_ORDER = [
     "巽",
     "巳",
@@ -782,9 +782,9 @@ def build_taiyi_board(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     # 文昌 lands on the 地支宫 returned by skyeyes; 太乙 lands on ty_gong (八卦/地支宫).
     wenchang_palace = skyeyes
 
-    # --- per-palace star placements (palace_marks list, legacy 16-order) ---- #
+    # --- per-palace star placements (palace_marks list, 16-palace display order) ---- #
     # Place each star marker on its palace label. Markers whose palace is a 八卦
-    # name (乾坤艮巽) belong to those; the legacy 16-order uses 巽/坤/艮/乾 for the
+    # name (乾坤艮巽) belong to those; the 16-palace display order uses 巽/坤/艮/乾 for the
     # four corners. num2gong markers (主大/客大 …) yield 八卦 labels too.
     marks: Dict[str, List[str]] = {palace: [] for palace in TAIYI_PALACE16_ORDER}
 

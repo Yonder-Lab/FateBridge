@@ -119,7 +119,7 @@ CLI 不自动读取 `.env`，`SE_EPHE_PATH` 应在启动前设进程环境。GUI
 
 ### 关系盘与 `synastry` 预期不同
 
-`relative_mode="synastry"` 映射现代 `influence`；旧字段 `relationship_mode="synastry"` 保留 `compare` 语义。迁移时显式选择字段和模式。REST 使用嵌套 `inner` / `outer`，MCP / CLI 使用 `inner_birth_*` / `outer_birth_*`；不要跨端直接复制整段请求。
+`relative_mode="synastry"` 映射 `influence`；比较盘使用 `relative_mode="compare"`。旧字段 `relationship_mode` 已移除，提交会返回输入校验错误。REST 使用嵌套 `inner` / `outer`，MCP / CLI 使用 `inner_birth_*` / `outer_birth_*`；不要跨端直接复制整段请求。
 
 ## 快照导出
 

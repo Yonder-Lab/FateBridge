@@ -67,6 +67,13 @@ def describe_spec(spec: "ToolSpec") -> Dict[str, Any]:
     regardless of how it discovers the tool. ``surfaces.mcp_name`` is ``None`` for
     REST-only tools so an agent never assumes an MCP tool that does not exist.
     """
+    return _describe_contract(spec, include_output_schema=True)
+
+
+def _describe_contract(
+    spec: ToolSpec, *, include_output_schema: bool
+) -> Dict[str, Any]:
+    """Build requested contracts without generating schemas that are discarded."""
     parameters = [
         {
             "name": name,
@@ -104,8 +111,14 @@ def describe_spec(spec: "ToolSpec") -> Dict[str, Any]:
         "parameters": parameters,
         "input_schema": model_schema(spec.request_model),
         "cli_request_file": spec.cli_request_file,
-        "output_schema": (
-            model_schema(spec.output_model) if spec.output_model else None
+        **(
+            {
+                "output_schema": (
+                    model_schema(spec.output_model) if spec.output_model else None
+                )
+            }
+            if include_output_schema
+            else {}
         ),
     }
 
@@ -147,8 +160,7 @@ def mcp_description(spec: ToolSpec) -> str:
 
 def describe_input_spec(spec: ToolSpec) -> Dict[str, Any]:
     """Compact call contract; full output validation stays available on demand."""
-    record = describe_spec(spec)
-    record.pop("output_schema", None)
+    record = _describe_contract(spec, include_output_schema=False)
     record["output_fields"] = (
         list(spec.output_model.model_fields) if spec.output_model else []
     )

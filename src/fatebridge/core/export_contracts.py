@@ -5,8 +5,6 @@ from typing import Any
 
 AI_EXPORT_SETTINGS_KEY = "fatebridge.ai.export.settings.v1"
 AI_EXPORT_SETTINGS_VERSION = 6
-AI_EXPORT_SECTION_MIGRATION_VERSION = 6
-AI_EXPORT_SECTION_MIGRATION_KEYS = ["liureng", "qimen", "sanshiunited"]
 MODULE_SNAPSHOT_PREFIX = "fatebridge.ai.snapshot.module.v1."
 AI_EXPORT_PLANET_INFO_DEFAULT = {"showHouse": 1, "showRuler": 1}
 AI_EXPORT_ASTRO_MEANING_DEFAULT = {"enabled": 0}
@@ -281,10 +279,6 @@ AI_EXPORT_PRESET_SECTIONS = {
         "冲突清单",
         "覆盖范围",
         "规则来源",
-        # Historical titles remain readable; presets do not declare engine coverage.
-        "标记判定",
-        "建议汇总",
-        "纳气建议",
     ],
     "knowledge": ["查询信息", "知识正文", "来源"],
     "generic": ["起盘信息"],
@@ -300,12 +294,8 @@ AI_EXPORT_FORBIDDEN_SECTIONS = {
 def normalize_planet_info_setting(raw: dict[str, Any] | None) -> dict[str, int]:
     value = raw or {}
     return {
-        "showHouse": (
-            1 if value.get("showHouse", value.get("show_house")) in {1, True} else 0
-        ),
-        "showRuler": (
-            1 if value.get("showRuler", value.get("show_ruler")) in {1, True} else 0
-        ),
+        "showHouse": (1 if value.get("showHouse") in {1, True} else 0),
+        "showRuler": (1 if value.get("showRuler") in {1, True} else 0),
     }
 
 
@@ -323,60 +313,6 @@ def normalize_section_title(title: str | None) -> str:
     if text.startswith("基于") and text.endswith("起运"):
         return "基于X起运"
     return text
-
-
-def map_legacy_section_title(key: str, title: str | None) -> str:
-    normalized = normalize_section_title(title)
-    if key == "tongshefa":
-        if normalized == "互潜":
-            return "潜藏"
-        if normalized == "错亲":
-            return "亲和"
-        if normalized == "统摄法起盘":
-            return "本卦"
-    elif key == "qimen":
-        if normalized == "八宫":
-            return "八宫详解"
-        if normalized == "演卦":
-            return "奇门演卦"
-        if normalized == "九宫":
-            return "九宫方盘"
-        if normalized in {"右侧栏目", "概览"}:
-            return "盘面要素"
-    elif key == "liureng":
-        if normalized.startswith("三传("):
-            return "三传"
-    elif key == "sanshiunited":
-        if normalized == "状态":
-            return "概览"
-        if normalized == "八宫":
-            return "八宫详解"
-        if normalized == "大格":
-            return "六壬大格"
-        if normalized == "小局":
-            return "六壬小局"
-        if normalized == "参考":
-            return "六壬参考"
-        if normalized == "六壬格局概览":
-            return "六壬概览"
-        sanshi_palace_aliases = {
-            "正北坎宫": "坎一宫",
-            "西南坤宫": "坤二宫",
-            "正东震宫": "震三宫",
-            "东南巽宫": "巽四宫",
-            "西北乾宫": "乾六宫",
-            "正西兑宫": "兑七宫",
-            "东北艮宫": "艮八宫",
-            "正南离宫": "离九宫",
-        }
-        if normalized in sanshi_palace_aliases:
-            return sanshi_palace_aliases[normalized]
-    elif key == "sixyao":
-        if normalized == "起卦方式":
-            return "卦象"
-        if normalized == "卦辞":
-            return "卦辞与断语"
-    return normalized
 
 
 def unique_list(items: list[str]) -> list[str]:
@@ -454,8 +390,6 @@ def build_export_registry(*, technique: str | None = None) -> dict[str, Any]:
         "source_of_truth": "FateBridge local export registry",
         "settings_key": AI_EXPORT_SETTINGS_KEY,
         "settings_version": AI_EXPORT_SETTINGS_VERSION,
-        "section_migration_version": AI_EXPORT_SECTION_MIGRATION_VERSION,
-        "section_migration_keys": deepcopy(AI_EXPORT_SECTION_MIGRATION_KEYS),
         "module_snapshot_prefix": MODULE_SNAPSHOT_PREFIX,
         "jieqi_split_keys": list(JIEQI_SETTING_PRESETS.keys()),
         "planet_info_default": deepcopy(AI_EXPORT_PLANET_INFO_DEFAULT),

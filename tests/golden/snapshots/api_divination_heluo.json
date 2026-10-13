@@ -287,60 +287,6 @@
             "theme": "明辨显化"
           }
         },
-        "opposite_hexagram": {
-          "binary_code": "010100",
-          "caution": "忌问题刚松就再压上去",
-          "favorable": "清障、和解、释放压力",
-          "guidance": "利拆结、清障、释压，宜先解决卡点。",
-          "image": "雷动于水，郁结得解，利于拆困。",
-          "judgement": "有解套机会，先松绑再推进。",
-          "lines": [
-            0,
-            1,
-            0,
-            1,
-            0,
-            0
-          ],
-          "lower": {
-            "caution": "反复、焦虑、陷被动",
-            "element": "水",
-            "favorable": "防险、复盘、留后手",
-            "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
-            "image": "重水有险，主试炼与通关。",
-            "keywords": "流动、隐忧、险中求通",
-            "lines": [
-              0,
-              1,
-              0
-            ],
-            "name": "坎",
-            "nature": "水",
-            "symbol": "☵",
-            "theme": "险中求通"
-          },
-          "name": "雷水解",
-          "summary": "雷水解：解困松绑。有解套机会，先松绑再推进。",
-          "symbol": "☳☵",
-          "theme": "解困松绑",
-          "upper": {
-            "caution": "惊扰、冒进、节奏乱",
-            "element": "木",
-            "favorable": "启动、破局、提速",
-            "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
-            "image": "雷动初发，主惊醒与突破。",
-            "keywords": "发动、突破、惊醒",
-            "lines": [
-              1,
-              0,
-              0
-            ],
-            "name": "震",
-            "nature": "雷",
-            "symbol": "☳",
-            "theme": "发动突破"
-          }
-        },
         "seed": {
           "hour_branch": "巳",
           "lower_number": 3,

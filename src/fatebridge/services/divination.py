@@ -147,7 +147,7 @@ def calculate_meihua_analysis(
     question: Optional[str] = None,
 ) -> Dict:
     """
-    梅花时卦分析工具 - 按指定时刻生成本卦、变卦、互卦、综卦与体用关系。
+    梅花时卦分析工具 - 按指定时刻生成本卦、变卦、互卦、错卦、综卦与体用关系。
     """
     timezone_name = analysis_timezone or DEFAULT_BIRTH_TIMEZONE
     analysis_datetime = datetime(

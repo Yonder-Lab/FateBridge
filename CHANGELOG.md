@@ -30,8 +30,8 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
   reference fixtures and three-transport contract tests.
 
 ### API compatibility notes
-- Native MCP result construction now validates the protocol dictionary across
-  SDK 1.x and 2.x constructor naming conventions. Linux x86_64 / Python 3.12
+- MCP results use FastMCP's native `ToolResult` with FastMCP >= 3.4.2;
+  the custom SDK constructor adapter has been removed. Linux x86_64 / Python 3.12
   reference validation completes all golden comparisons without skips.
 - Feng Shui `Ruleset` output fields now permit omission in dotted projections;
   native MCP clients can validate single-rule-field results. Full results and
@@ -59,13 +59,27 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
   REST/MCP/CLI. CLI command syntax errors retain exit 2 / usage_error.
 
 ### Changed
+- Build compact call contracts without materializing full output schemas; copy
+  timing-cache containers directly while preserving caller isolation. Benchmark
+  reports separate initial calls, warm samples and the execution environment.
+- Normalize hourly timing inputs before truncation and measure solar-term
+  intervals in UTC across daylight-saving transitions. Metadata attachment and
+  final output validation now share correlated internal errors across transports.
+- Synchronize nine reviewed BaZi golden fixtures with the explicit timing-pillar
+  provenance already added by the preceding implementation; existing numerical
+  values and sections remain identical.
+- Isolate golden output generation from locally discovered ephemeris files and
+  restore the shared ephemeris configuration and derived caches on exit.
+- Align maintained guides with the retired helper modules and transport-specific
+  capability counts; check the complete algorithm tool matrix and per-family
+  counts against the live catalog. Clarify bundled reference JSON, external
+  ephemeris files, Git-only skills, and the scope of accuracy/performance evidence.
 - Cache default model schemas and contract fingerprints with bounded, model-identity
   and rebuild-aware entries; public schemas remain independent copies and business
   executions are never cached. Remove the redundant third REST output validation.
-- Build native MCP structured results directly from response dictionaries and
-  initialize legacy Python adapters synchronously. Keep existing Python aliases,
-  REST/MCP/CLI contracts and numerical behavior; move internal imports and transport
-  tests to canonical modules and native registration paths.
+- Build native MCP structured results directly from response dictionaries;
+  move internal imports and transport tests to canonical modules and native
+  registration paths while preserving retained transport contracts and numbers.
 - Remove the obsolete `iztro-verify` extra, unused imports and private parameters,
   unreachable compatibility error forwarding and repeated export-section mapping.
   Bind documented CLI example tests to their test interpreter and refresh document
@@ -90,6 +104,19 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
 - `Typing :: Typed` and `Topic ::` classifiers.
 
 ### Removed
+- Remove the remaining Python compatibility facades and aliases. Requests now
+  use canonical Python field names on REST, MCP and CLI. Relative charts use
+  `relative_mode`, directional snake_case fields and the primary `chart` layer;
+  duplicate camelCase fields and `composite_chart` are removed. Export sections
+  match current titles without legacy remapping. Primary directions use
+  `equatorial` in place of the two historical method names.
+- Remove the custom MCP result adapter; require FastMCP >=3.4.2 and use its
+  native success/error results.
+- Retired Python compatibility modules, package re-exports and REST/MCP wrapper
+  aliases; remove `POST /api/calculate` and CLI `calculate_legacy`. Use
+  `/api/cn/bazi/birth` / `bazi_birth` for a standalone chart and MCP / CLI
+  `analyze_destiny` for composite analysis; see
+  [migration guide](docs/architecture.md#旧入口迁移).
 - `requirements.txt`, which duplicated `[project.dependencies]` with no check
   against drift. Docs now point at `pip install -e .` / `pip install fatebridge`.
 

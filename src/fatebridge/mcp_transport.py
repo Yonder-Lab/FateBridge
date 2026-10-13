@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Optional, cast
 
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.tools import ToolResult
-from mcp.types import CallToolResult
 from pydantic import ConfigDict, ValidationError
 
 from fatebridge.application.description import describe_input_spec, resolve_spec
@@ -17,40 +16,6 @@ from fatebridge.core.execution_context import (
     safe_correlation,
 )
 from fatebridge.utils.errors import validation_error_result
-
-
-def _serializable_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
-    """Preserve standard JSON Schema refs rather than expanding shared models.
-
-    Inlining repeats snapshots/receipts throughout every tool, doubles the
-    output-schema wire payload and can turn recursive definitions into cycles.
-    Pydantic's original $defs/$ref graph is the complete, serializable contract.
-    """
-    json.dumps(schema)  # Fail on invalid wire data, never publish a Python cycle.
-    return schema
-
-
-class SerializableSchemaMiddleware(Middleware):
-    """Publish referenced schemas on minimum and current FastMCP versions."""
-
-    async def on_list_tools(self, context: Any, call_next: Any) -> Any:
-        tools = await call_next(context)
-        output = []
-        for tool in tools:
-            updates = {"parameters": _serializable_schema(tool.parameters)}
-            if tool.output_schema is not None:
-                updates["output_schema"] = _serializable_schema(tool.output_schema)
-            output.append(tool.model_copy(update=updates))
-        return output
-
-    async def on_list_resource_templates(self, context: Any, call_next: Any) -> Any:
-        templates = await call_next(context)
-        return [
-            template.model_copy(
-                update={"parameters": _serializable_schema(template.parameters)}
-            )
-            for template in templates
-        ]
 
 
 def register_discovery_resources(
@@ -120,41 +85,13 @@ def register_discovery_resources(
         )
 
 
-class ProtocolResult(ToolResult):
-    """Use MCP's native error flag also on the supported FastMCP 3.0 floor.
-
-    Earlier FastMCP releases lack ToolResult(is_error=...). Returning the native
-    MCP result avoids a dependency upgrade solely for that convenience flag.
-    """
-
-    failed: bool = False
-
-    def __init__(
-        self, *, content: Any, structured_content: Dict[str, Any], failed: bool
-    ) -> None:
-        super().__init__(content=content, structured_content=structured_content)
-        self.failed = failed
-
-    def to_mcp_result(self) -> Any:
-        # SDK 1.x names constructor fields in camelCase; SDK 2.x uses snake_case
-        # attributes with wire aliases. Validating the protocol dictionary works
-        # with both versions without depending on either constructor signature.
-        return CallToolResult.model_validate(
-            {
-                "content": self.content,
-                "structuredContent": self.structured_content,
-                "isError": self.failed,
-            }
-        )
-
-
 def protocol_result(
     payload: Dict[str, Any], *, failed: bool, text: Optional[str] = None
-) -> ProtocolResult:
-    return ProtocolResult(
+) -> ToolResult:
+    return ToolResult(
         content=text or json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
         structured_content=payload,
-        failed=failed,
+        is_error=failed,
     )
 
 

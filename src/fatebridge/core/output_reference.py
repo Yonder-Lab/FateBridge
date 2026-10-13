@@ -152,7 +152,6 @@ REFERENCE_TOOL_FIELDS: Dict[str, Dict[str, Any]] = {
         "planet_info_default": PlanetInfoSetting,
         "astro_meaning_default": AstroMeaningSetting,
         "default_normalized_settings": NormalizedExportSettings,
-        "section_migration_keys": List[str],
         "jieqi_split_keys": List[str],
     },
     "export_parse": {

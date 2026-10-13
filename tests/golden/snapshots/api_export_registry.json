@@ -25,12 +25,6 @@
     "engine_is_approximate": false,
     "tool_name": "export_registry"
   },
-  "section_migration_keys": [
-    "liureng",
-    "qimen",
-    "sanshiunited"
-  ],
-  "section_migration_version": 6,
   "selected_technique": {
     "astro_meaning_checkbox": "在对应分段输出六壬/遁甲/占星悬浮注释",
     "astro_meaning_default": {
@@ -1861,10 +1855,7 @@
         "年度飞星",
         "冲突清单",
         "覆盖范围",
-        "规则来源",
-        "标记判定",
-        "建议汇总",
-        "纳气建议"
+        "规则来源"
       ],
       "settings_template": {
         "astroMeaning": null,
@@ -1879,10 +1870,7 @@
           "年度飞星",
           "冲突清单",
           "覆盖范围",
-          "规则来源",
-          "标记判定",
-          "建议汇总",
-          "纳气建议"
+          "规则来源"
         ]
       },
       "supports_astro_meaning": false,

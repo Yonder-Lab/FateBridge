@@ -7,15 +7,13 @@ Pure relocation from the package facade.
 from __future__ import annotations
 
 import copy
+from typing import Any, Dict, List, Optional
+
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
 from .chart import (
-    DEFAULT_BIRTH_TIMEZONE,
     ZODIAC_SIGN_CN,
     ZODIAC_SIGNS,
-    Any,
-    Dict,
-    List,
-    Optional,
     _build_house_ring,
     _build_local_chart_response,
     _house_id_for_houses,

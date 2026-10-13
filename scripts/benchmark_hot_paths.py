@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import argparse
 import cProfile
+import json
+import platform
 import pstats
 import statistics
 import sys
@@ -84,9 +86,17 @@ def _measure_wall_time(
     timings_ms: list[float] = []
     for _ in range(repeats):
         started_at = time.perf_counter()
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
         timings_ms.append((time.perf_counter() - started_at) * 1000)
+        _check_result(func, result)
     return timings_ms
+
+
+def _check_result(func: Callable[..., Dict[str, Any]], result: Dict[str, Any]) -> None:
+    if "error" in result:
+        raise RuntimeError(
+            f"{func.__name__} returned an error payload during benchmarking: {result['error']}"
+        )
 
 
 def _profile_once(
@@ -102,10 +112,7 @@ def _profile_once(
     _, peak_memory = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
-    if isinstance(result, dict) and "error" in result:
-        raise RuntimeError(
-            f"{func.__name__} returned an error payload during benchmarking: {result['error']}"
-        )
+    _check_result(func, result)
 
     stats = pstats.Stats(profiler)
     return {
@@ -119,14 +126,22 @@ def _run_benchmark(
     name: str,
     spec: BenchmarkSpec,
     repeats: int,
+    warmups: int = 1,
 ) -> Dict[str, Any]:
     func, args, kwargs = spec
+    # This is the first call of this case, not a fresh-process cold start: cases
+    # can share caches. Keep it separate from the steady-state distribution.
+    initial_call_ms = _measure_wall_time(func, args, kwargs, 1)[0]
+    if warmups:
+        _measure_wall_time(func, args, kwargs, warmups)
     wall_times_ms = _measure_wall_time(func, args, kwargs, repeats)
     profile_stats = _profile_once(func, args, kwargs)
 
     return {
         "name": name,
         "repeats": repeats,
+        "warmups": warmups,
+        "initial_call_wall_time_ms": round(initial_call_ms, 2),
         "median_wall_time_ms": round(statistics.median(wall_times_ms), 2),
         "min_wall_time_ms": round(min(wall_times_ms), 2),
         "max_wall_time_ms": round(max(wall_times_ms), 2),
@@ -142,15 +157,38 @@ def main() -> int:
         default=5,
         help="Number of wall-time samples per function",
     )
+    parser.add_argument("--warmups", type=int, default=1)
+    parser.add_argument("--json", action="store_true", help="Emit a JSON report")
     args = parser.parse_args()
+    if args.repeats < 1 or args.warmups < 0:
+        parser.error("--repeats must be positive and --warmups must be nonnegative")
+
+    results = [
+        _run_benchmark(name, spec, args.repeats, args.warmups)
+        for name, spec in _build_benchmarks().items()
+    ]
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "environment": {
+                        "python": platform.python_version(),
+                        "platform": platform.platform(),
+                    },
+                    "benchmarks": results,
+                },
+                indent=2,
+            )
+        )
+        return 0
 
     print("FateBridge Hot Path Benchmark")
     print(f"Repeats per function: {args.repeats}")
     print("")
 
-    for name, spec in _build_benchmarks().items():
-        result = _run_benchmark(name, spec, args.repeats)
+    for result in results:
         print(result["name"])
+        print(f"  initial_call_wall_time_ms: {result['initial_call_wall_time_ms']}")
         print(f"  median_wall_time_ms: {result['median_wall_time_ms']}")
         print(f"  min_wall_time_ms: {result['min_wall_time_ms']}")
         print(f"  max_wall_time_ms: {result['max_wall_time_ms']}")

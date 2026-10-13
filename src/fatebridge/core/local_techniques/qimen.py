@@ -7,21 +7,19 @@ Pure relocation from the package facade.
 from __future__ import annotations
 
 import copy
+from typing import Any, Dict, List, Optional
 
-from ..divination import build_hexagram
-from ..metaphysics import (
+from fatebridge.core.metaphysics.common import MetaphysicsSeed
+from fatebridge.core.metaphysics.qimen import (
     QIMEN_DOOR_CODE_BY_DISPLAY,
     QIMEN_DOOR_TO_TRIGRAM,
     QIMEN_STAR_CODE_BY_DISPLAY,
     build_qimen_board,
 )
+
+from ..divination import build_hexagram
 from .chart import (
     SANSHI_REFERENCES,
-    Any,
-    Dict,
-    List,
-    MetaphysicsSeed,
-    Optional,
     _build_qimen_palace_overview_lines,
     _join_lines,
     _normalize_mode,

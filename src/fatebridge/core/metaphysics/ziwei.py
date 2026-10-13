@@ -162,12 +162,10 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
     hour_branch = seed.pillars["hour"][1]
     hour_index = _branch_from_hour(hour_branch)
     # 年干支按农历年（正月初一为界）取，而非八字立春年柱——见 _lunar_year_ganzhi。
-    # lunar["year"] 缺失时（历法上下文不可用）退回八字年柱保持旧行为。
     lunar_year = lunar.get("year")
-    if lunar_year is not None:
-        year_stem, year_branch = _lunar_year_ganzhi(int(lunar_year))
-    else:
-        year_stem, year_branch = seed.pillars["year"]
+    if lunar_year is None:
+        raise ValueError("紫微斗数需要完整农历年月日，无法起盘：农历年缺失")
+    year_stem, year_branch = _lunar_year_ganzhi(int(lunar_year))
 
     ming_index = (lunar_month - hour_index) % 12
     shen_index = (lunar_month + hour_index - 2) % 12
@@ -644,7 +642,7 @@ def build_ziwei_chart(seed: MetaphysicsSeed, gender: str) -> Dict[str, Any]:
         palace["stars"] = sorted(dict.fromkeys(palace["stars"]))
 
     # --- Tier 1: attach brightness + parsed mutagen as an additive field ---
-    # `palace["stars"]` (legacy) stays a list[str] of mutagen-suffixed labels;
+    # `palace["stars"]` displays a list[str] of mutagen-suffixed labels;
     # `stars_detail` mirrors it 1:1 with structured data.
     for palace in palaces:
         palace_branch = palace["ganzhi"][1]

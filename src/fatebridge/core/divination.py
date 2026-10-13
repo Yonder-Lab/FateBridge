@@ -609,7 +609,7 @@ def build_meihua_interpretation(
     base = meihua["base_hexagram"]
     changed = meihua["changed_hexagram"]
     mutual = meihua["mutual_hexagram"]
-    opposite = meihua["opposite_hexagram"]
+    cuo = meihua["cuo_hexagram"]
     moving_line = meihua["seed"]["moving_line"]
     domain = detect_question_domain(question)
     phase = MOVING_LINE_PHASES[moving_line]
@@ -641,9 +641,9 @@ def build_meihua_interpretation(
         f"互卦{mutual['name']}提示内在牵动在{mutual['theme']}，"
         f"{mutual['judgement']}{mutual['guidance']}"
     )
-    opposite_reading = (
-        f"综卦{opposite['name']}提醒反面镜像在{opposite['theme']}，"
-        f"{opposite['judgement']}{opposite['guidance']}"
+    cuo_reading = (
+        f"错卦{cuo['name']}提醒反面镜像在{cuo['theme']}，"
+        f"{cuo['judgement']}{cuo['guidance']}"
     )
     body_use_reading = f"{meihua['body_use_summary']}{body_use_detail}"
     phase_reading = (
@@ -658,7 +658,7 @@ def build_meihua_interpretation(
     risk_hint = (
         f"需防{caution_phrase(base.get('caution', '失衡冒进'))}，"
         f"动爻位最忌{moving_line_oracle['caution']}，"
-        f"并留意反面镜像里的{caution_phrase(opposite.get('caution', '内外失序'))}。"
+        f"并留意反面镜像里的{caution_phrase(cuo.get('caution', '内外失序'))}。"
     )
 
     outline = [
@@ -668,7 +668,7 @@ def build_meihua_interpretation(
         body_use_reading,
         phase_reading,
         mutual_reading,
-        opposite_reading,
+        cuo_reading,
     ]
 
     comprehensive = (
@@ -694,12 +694,12 @@ def build_meihua_interpretation(
         "base_reading": base_reading,
         "changed_reading": changed_reading,
         "mutual_reading": mutual_reading,
-        "opposite_reading": opposite_reading,
+        "cuo_reading": cuo_reading,
         "body_use_reading": body_use_reading,
         "base_oracle": _build_oracle_payload(base),
         "changed_oracle": _build_oracle_payload(changed),
         "mutual_oracle": _build_oracle_payload(mutual),
-        "opposite_oracle": _build_oracle_payload(opposite),
+        "cuo_oracle": _build_oracle_payload(cuo),
         "action_hint": action_hint,
         "risk_hint": risk_hint,
         "judgement_outline": outline,
@@ -852,8 +852,6 @@ def derive_meihua_hexagram(
         "base_hexagram": base,
         "changed_hexagram": changed,
         "mutual_hexagram": mutual,
-        # 历史字段保留以维持后向兼容；opposite_hexagram 指"错卦"语义。
-        "opposite_hexagram": opposite,
         "cuo_hexagram": opposite,
         "zong_hexagram": inverted,
         "element_relation": relation,

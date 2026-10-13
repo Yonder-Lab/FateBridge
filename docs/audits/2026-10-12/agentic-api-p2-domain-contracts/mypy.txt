@@ -1,2 +1,0 @@
-pyproject.toml: note: unused section(s): module = ['dateutil.*', 'lunardate.*']
-Success: no issues found in 129 source files

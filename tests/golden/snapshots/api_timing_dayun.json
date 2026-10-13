@@ -275,60 +275,6 @@
             "theme": "承载顺势"
           }
         },
-        "opposite_hexagram": {
-          "binary_code": "101111",
-          "caution": "忌小圈子、表面同心",
-          "favorable": "结盟、协作、共同发声",
-          "guidance": "宜以共同目标结盟协作，公开坦诚最有利。",
-          "image": "火在天下，光明外达，利于团结众人。",
-          "judgement": "同道可成事，关键在公开和共同目标。",
-          "lines": [
-            1,
-            0,
-            1,
-            1,
-            1,
-            1
-          ],
-          "lower": {
-            "caution": "虚火、急躁、表强里弱",
-            "element": "火",
-            "favorable": "表达、曝光、识别",
-            "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
-            "image": "火光附丽，主显明与辨析。",
-            "keywords": "光明、表达、洞察",
-            "lines": [
-              1,
-              0,
-              1
-            ],
-            "name": "离",
-            "nature": "火",
-            "symbol": "☲",
-            "theme": "明辨显化"
-          },
-          "name": "天火同人",
-          "summary": "天火同人：同道聚势。同道可成事，关键在公开和共同目标。",
-          "symbol": "☰☲",
-          "theme": "同道聚势",
-          "upper": {
-            "caution": "刚亢、独断、过压",
-            "element": "金",
-            "favorable": "立规、决策、开局",
-            "guidance": "宜立方向、定规矩、先发而后成，忌刚过易折。",
-            "image": "纯阳在上，主健行与统摄。",
-            "keywords": "刚健、开创、天道",
-            "lines": [
-              1,
-              1,
-              1
-            ],
-            "name": "乾",
-            "nature": "天",
-            "symbol": "☰",
-            "theme": "主动开创"
-          }
-        },
         "seed": {
           "hour_branch": "巳",
           "lower_number": 6,

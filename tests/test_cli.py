@@ -2,6 +2,8 @@
 
 import json
 
+import pytest
+
 from fatebridge.application.execution import result_is_error
 from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.cli import build_parser, run
@@ -638,3 +640,52 @@ def test_profile_missing_required_is_usage_error(capsys):
     assert code == 2
     assert payload["error_code"] == "usage_error"
     assert "birth" in payload["error"]
+
+
+@pytest.mark.parametrize("value", [True, None])
+@pytest.mark.parametrize("command", ["bazi_birth", "profile"])
+def test_subject_file_rejects_unknown_keys_before_calculation(
+    tmp_path, capsys, monkeypatch, command, value
+):
+    subject_path = _full_subject(tmp_path)
+    with open(subject_path, encoding="utf-8") as stream:
+        subject = json.load(stream)
+    subject["birth_huor"] = value
+    _write(tmp_path / "subject.json", json.dumps(subject))
+
+    def unexpected_calculation(*args, **kwargs):
+        pytest.fail("Invalid subject keys must fail before any calculation")
+
+    monkeypatch.setattr("fatebridge.cli.execute_tool", unexpected_calculation)
+    code = run([command, "--subject-file", subject_path, "--trace-id", "subject-typo"])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 1
+    assert payload["error_code"] == "validation_error"
+    assert payload["issues"] == [{"path": "birth_huor", "code": "extra_forbidden"}]
+    assert payload["trace_id"] == "subject-typo"
+
+
+@pytest.mark.parametrize("command", ["bazi_birth", "ziwei_birth", "astro_chart"])
+def test_full_subject_file_remains_reusable_across_current_birth_contracts(
+    tmp_path, capsys, command
+):
+    code = run([command, "--subject-file", _full_subject(tmp_path)])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert "error_code" not in payload
+
+
+def test_subject_file_rejects_tool_options_not_in_selected_contract(tmp_path, capsys):
+    subject_path = _full_subject(tmp_path)
+    with open(subject_path, encoding="utf-8") as stream:
+        subject = json.load(stream)
+    subject["hsys"] = 8
+    _write(tmp_path / "subject.json", json.dumps(subject))
+    code = run(["bazi_birth", "--subject-file", subject_path])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 1
+    assert payload["issues"] == [{"path": "hsys", "code": "extra_forbidden"}]
+    code = run(["astro_chart", "--subject-file", subject_path])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert payload["chart_profile"]["house_system_code"] == 8

@@ -2,11 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from fatebridge.core.metaphysics import (
-    MetaphysicsSeed,
-    build_qimen_board,
-    qimen_futou_for_ganzhi,
-)
+from fatebridge.core.metaphysics.common import MetaphysicsSeed
+from fatebridge.core.metaphysics.qimen import build_qimen_board, qimen_futou_for_ganzhi
 from fatebridge.services.divination import calculate_sanshiunited_analysis
 from fatebridge.services.metaphysics import calculate_qimen_analysis
 

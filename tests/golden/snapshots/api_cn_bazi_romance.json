@@ -35,6 +35,15 @@
         "流年逢桃花卯，异性缘旺、易有感情际遇",
         "流年逢天喜卯，主喜庆、婚嫁添丁"
       ]
+    },
+    "timing_context": {
+      "dayun_pillar": "壬戌",
+      "liunian_pillar": "丁卯",
+      "overridden": {
+        "dayun_pillar": true,
+        "liunian_pillar": true
+      },
+      "source": "explicit_pillar_overrides"
     }
   },
   "run_metadata": {
@@ -43,7 +52,7 @@
     "tool_name": "bazi_romance"
   },
   "snapshot_export": {
-    "export_text": "[概要]\n类型：八字正缘桃花分析\ngender_basis：财星（男命异性缘）\n\n[peach_blossom]\npeach_branches：\n  - 卯\n  - 酉\ncount：0\n说明：命无明显桃花，异性缘平稳，逢桃花之大运流年增强\n\n[hongluan_tianxi]\nhongluan_branch：酉\ntianxi_branch：卯\n说明：\n  - 命无红鸾天喜（红鸾在酉、天喜在卯），逢之流年主婚恋喜庆\n\n[opposite_sex_star]\nbasis：财星（男命异性缘）\nweight：0.5\nstatus：异性缘星适中，感情发展平稳\n\n[peach_quality]\n说明：\n  - 命无桃花入局，感情较少外缘干扰\n\n[romance_timing]\ntiming_signals：\n  - 流年逢桃花卯，异性缘旺、易有感情际遇\n  - 流年逢天喜卯，主喜庆、婚嫁添丁",
+    "export_text": "[概要]\n类型：八字正缘桃花分析\ngender_basis：财星（男命异性缘）\n\n[peach_blossom]\npeach_branches：\n  - 卯\n  - 酉\ncount：0\n说明：命无明显桃花，异性缘平稳，逢桃花之大运流年增强\n\n[hongluan_tianxi]\nhongluan_branch：酉\ntianxi_branch：卯\n说明：\n  - 命无红鸾天喜（红鸾在酉、天喜在卯），逢之流年主婚恋喜庆\n\n[opposite_sex_star]\nbasis：财星（男命异性缘）\nweight：0.5\nstatus：异性缘星适中，感情发展平稳\n\n[peach_quality]\n说明：\n  - 命无桃花入局，感情较少外缘干扰\n\n[romance_timing]\ntiming_signals：\n  - 流年逢桃花卯，异性缘旺、易有感情际遇\n  - 流年逢天喜卯，主喜庆、婚嫁添丁\n\n[当前大运流年]\n大运：壬戌\n流年：丁卯\nsource：explicit_pillar_overrides\n是否手动覆盖：\n  大运：是\n  流年：是",
     "missing_selected_sections": [
       "起盘信息"
     ],
@@ -53,7 +62,8 @@
       "hongluan_tianxi",
       "opposite_sex_star",
       "peach_quality",
-      "romance_timing"
+      "romance_timing",
+      "当前大运流年"
     ],
     "sections": [
       {
@@ -97,6 +107,13 @@
         "index": 6,
         "raw_title": "romance_timing",
         "title": "romance_timing"
+      },
+      {
+        "content": "[当前大运流年]\n大运：壬戌\n流年：丁卯\nsource：explicit_pillar_overrides\n是否手动覆盖：\n  大运：是\n  流年：是",
+        "included": false,
+        "index": 7,
+        "raw_title": "当前大运流年",
+        "title": "当前大运流年"
       }
     ],
     "selected_sections": [
@@ -140,8 +157,9 @@
       "hongluan_tianxi",
       "opposite_sex_star",
       "peach_quality",
-      "romance_timing"
+      "romance_timing",
+      "当前大运流年"
     ]
   },
-  "snapshot_text": "[概要]\n类型：八字正缘桃花分析\ngender_basis：财星（男命异性缘）\n\n[peach_blossom]\npeach_branches：\n  - 卯\n  - 酉\ncount：0\n说明：命无明显桃花，异性缘平稳，逢桃花之大运流年增强\n\n[hongluan_tianxi]\nhongluan_branch：酉\ntianxi_branch：卯\n说明：\n  - 命无红鸾天喜（红鸾在酉、天喜在卯），逢之流年主婚恋喜庆\n\n[opposite_sex_star]\nbasis：财星（男命异性缘）\nweight：0.5\nstatus：异性缘星适中，感情发展平稳\n\n[peach_quality]\n说明：\n  - 命无桃花入局，感情较少外缘干扰\n\n[romance_timing]\ntiming_signals：\n  - 流年逢桃花卯，异性缘旺、易有感情际遇\n  - 流年逢天喜卯，主喜庆、婚嫁添丁"
+  "snapshot_text": "[概要]\n类型：八字正缘桃花分析\ngender_basis：财星（男命异性缘）\n\n[peach_blossom]\npeach_branches：\n  - 卯\n  - 酉\ncount：0\n说明：命无明显桃花，异性缘平稳，逢桃花之大运流年增强\n\n[hongluan_tianxi]\nhongluan_branch：酉\ntianxi_branch：卯\n说明：\n  - 命无红鸾天喜（红鸾在酉、天喜在卯），逢之流年主婚恋喜庆\n\n[opposite_sex_star]\nbasis：财星（男命异性缘）\nweight：0.5\nstatus：异性缘星适中，感情发展平稳\n\n[peach_quality]\n说明：\n  - 命无桃花入局，感情较少外缘干扰\n\n[romance_timing]\ntiming_signals：\n  - 流年逢桃花卯，异性缘旺、易有感情际遇\n  - 流年逢天喜卯，主喜庆、婚嫁添丁\n\n[当前大运流年]\n大运：壬戌\n流年：丁卯\nsource：explicit_pillar_overrides\n是否手动覆盖：\n  大运：是\n  流年：是"
 }

@@ -141,7 +141,7 @@ REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央�
 
 路径从响应根开始，按本次实际响应对象校验，支持扩展对象键。空选择不投影；数组、标量及 null 应选择整个字段，不支持继续点路径遍历。已附带的 `run_metadata` 完整保留，错误不投影。省略 `snapshot_text` 不会删除 `snapshot_export.export_text`；要进一步控制体积，可仅投影业务字段。
 
-例如 `fengshui_directions` 选择 `fields=["layers.directions.ruleset.version"]` 后，该规则对象仅含 `version`；公开输出 Schema 允许其余字段缺省，原生 MCP 客户端仍可校验成功结果。数组中的规则来源 `sources` 应整块选择，不能使用 `sources.0.title`。各字段保留既有类型校验，缺省不会被补成 null。投影合同与三端验证见 [Ruleset 投影修复](output-projection-fix-2026-10-12.md)。
+例如 `fengshui_directions` 选择 `fields=["layers.directions.ruleset.version"]` 后，该规则对象仅含 `version`；公开输出 Schema 允许其余字段缺省，原生 MCP 客户端仍可校验成功结果。数组中的规则来源 `sources` 应整块选择，不能使用 `sources.0.title`。各字段保留既有类型校验，缺省不会被补成 null。投影用法见 [Agent 接入指南](agent-guide.md)。
 
 默认 `strict_fields=false` 保留历史投影的数据形状及成功状态，但无效路径明确附加 `projection_warnings`，不会继续静默忽略。例如拼错 `bazi_birth.day_mastr` 会出现 `{"path":"bazi_birth.day_mastr","code":"unknown_projection_path"}`。另外两种代码为 `invalid_projection_path`（空段/空白段）和 `non_object_projection_path`（继续遍历数组/标量）。诊断不受 `fields` 裁剪，也不回显字段值；重复路径只提示一次。
 
@@ -277,7 +277,7 @@ CLI profile 沿用批量入口，子工具共用 as_of / trace，parent_run_id �
 | `date` / `time` | 输入时刻，例如 `2028-04-06` / `09:33:00` |
 | `zone` | 时区，常见默认 `+08:00` |
 | `lat` / `lon` | 文本化地理提示 |
-| `gpsLat` / `gpsLon` | REST 别名；MCP 使用 `gps_lat` / `gps_lon`，CLI 使用 `--gps-lat` / `--gps-lon` |
+| `gps_lat` / `gps_lon` | REST / MCP 使用同一字段名，CLI 使用 `--gps-lat` / `--gps-lon` |
 | `selected_sections` | 快照导出裁剪 |
 
 ### 3.5 双人关系请求
@@ -617,6 +617,13 @@ python -m fatebridge.mcp_server
 - `astro_harmonic` / `astro_planetary_ages` / `astro_triplicity_rulers` / `astro_lunation_phase`
 - `astro_distributions` / `astro_balbillus` / `astro_keypoints` / `astro_yearsystem129`
 - `astro_planetaryarc` / `astro_persiandirected` / `astro_agepoint` / `astro_vedicprog` / `astro_jaynesprog`
+
+#### 家居风水（family `fengshui`）
+
+- `fengshui_directions` / `fengshui_minggua` / `fengshui_bazhai` / `fengshui_jinsuo`
+- `fengshui_annual_stars` / `fengshui_xuankong_natal` / `fengshui_assess`
+
+住宅输入、分层响应与复杂 CLI 用法见 [家居风水接口](#家居风水family-fengshui)。
 
 ### 6.3 MCP 与 REST 的差异
 

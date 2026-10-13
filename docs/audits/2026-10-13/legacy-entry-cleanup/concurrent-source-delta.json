@@ -1,7 +1,0 @@
-{
-  "files": [
-    "scripts/experience_codex_host.py",
-    "tests/test_codex_host_observation.py"
-  ],
-  "scope": "Codex host experience script and its tests were updated by another task; included in final regression snapshot. Domain computation source is unchanged."
-}

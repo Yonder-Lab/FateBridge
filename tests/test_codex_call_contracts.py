@@ -27,6 +27,34 @@ async def test_normally_loaded_contracts_match_current_public_interface():
 
 
 @pytest.mark.asyncio
+async def test_contract_publication_ignores_object_order_but_preserves_constraints(
+    monkeypatch,
+):
+    records = await builder.call_contracts()
+    baseline = await builder.render_block()
+
+    def reverse_objects(value):
+        if isinstance(value, dict):
+            return {
+                key: reverse_objects(item)
+                for key, item in reversed(list(value.items()))
+            }
+        if isinstance(value, list):
+            return [reverse_objects(item) for item in value]
+        return value
+
+    reordered = reverse_objects(records)
+
+    async def contracts():
+        return reordered
+
+    monkeypatch.setattr(builder, "call_contracts", contracts)
+    assert await builder.render_block() == baseline
+    reordered[0]["input"]["properties"]["birth_hour"]["maximum"] = 22
+    assert await builder.render_block() != baseline
+
+
+@pytest.mark.asyncio
 async def test_preloaded_contract_keeps_required_time_and_solar_flag_constraints():
     record = (await builder.call_contracts())[0]
     spec = next(s for s in CATALOG if s.tool_name == record["tool"])

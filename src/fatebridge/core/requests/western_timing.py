@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from typing import List, Literal, Optional, Union
 
 from pydantic import Field
 
@@ -37,11 +37,13 @@ class WesternTimingRequest(AstroBirthRequest):
     zodiac_type: str = Field(
         default="Tropic", description="Zodiac type, e.g. Tropic or Sidereal"
     )
-    pd_method: str = Field(
+    pd_method: Literal[
+        "astroapp_alchabitius", "equatorial", "fatebridge_mundane_semiarc"
+    ] = Field(
         default="astroapp_alchabitius",
         description=(
             "Primary direction method identifier, e.g. astroapp_alchabitius, "
-            "legacy_reference / legacy_equatorial, or fatebridge_mundane_semiarc"
+            "equatorial, or fatebridge_mundane_semiarc"
         ),
     )
     pd_time_key: str = Field(

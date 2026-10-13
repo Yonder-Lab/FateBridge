@@ -38,14 +38,12 @@ from ._common import (
 # 方法标签与坐标系映射
 PRIMARY_DIRECTION_METHOD_LABELS = {
     "astroapp_alchabitius": "AstroAPP-Alchabitius",
-    "legacy_reference": "旧版原方法",
-    "legacy_equatorial": "旧版原方法",
+    "equatorial": "赤经推运",
     "fatebridge_mundane_semiarc": "FateBridge-Mundane-SemiArc",
 }
 PRIMARY_DIRECTION_METHOD_COORDINATES = {
     "astroapp_alchabitius": ("ecliptic_longitude", "Arc"),
-    "legacy_reference": ("right_ascension", "赤经"),
-    "legacy_equatorial": ("right_ascension", "赤经"),
+    "equatorial": ("right_ascension", "赤经"),
     "fatebridge_mundane_semiarc": ("mundane_semiarc", "SemiArc"),
 }
 
@@ -99,20 +97,20 @@ def primary_direction_time_key_rate(time_key: str) -> float:
 def primary_direction_coordinate_meta(
     pd_method: str,
 ) -> tuple[str, str]:
+    if pd_method not in PRIMARY_DIRECTION_METHOD_COORDINATES:
+        raise ValueError(
+            "未知主限方法，请使用 astroapp_alchabitius、equatorial 或 fatebridge_mundane_semiarc"
+        )
     if (
         pd_method
         in {
-            "legacy_reference",
-            "legacy_equatorial",
+            "equatorial",
             "fatebridge_mundane_semiarc",
         }
         and swe is None
     ):
         return PRIMARY_DIRECTION_METHOD_COORDINATES["astroapp_alchabitius"]
-    return PRIMARY_DIRECTION_METHOD_COORDINATES.get(
-        pd_method,
-        PRIMARY_DIRECTION_METHOD_COORDINATES["astroapp_alchabitius"],
-    )
+    return PRIMARY_DIRECTION_METHOD_COORDINATES[pd_method]
 
 
 def primary_direction_approximation_meta(pd_method: str) -> tuple[str, str]:
@@ -122,7 +120,7 @@ def primary_direction_approximation_meta(pd_method: str) -> tuple[str, str]:
 
 
 def primary_direction_coordinate_runtime_meta(pd_method: str) -> tuple[str, str]:
-    if pd_method in {"legacy_reference", "legacy_equatorial"}:
+    if pd_method == "equatorial":
         if swe is not None:
             return "equatorial_runtime_projection", "swisseph_equatorial_projection"
         return (
@@ -714,8 +712,7 @@ def extract_primary_direction_coordinate_payload(
         return result
 
     if pd_method not in {
-        "legacy_reference",
-        "legacy_equatorial",
+        "equatorial",
         "fatebridge_mundane_semiarc",
     }:
         return result
@@ -725,7 +722,7 @@ def extract_primary_direction_coordinate_payload(
     obliquity = equatorial_context["obliquity"]
     armc = equatorial_context["armc"]
 
-    if pd_method in {"legacy_reference", "legacy_equatorial"}:
+    if pd_method == "equatorial":
         diagnostics: Dict[str, Dict[str, Any]] = {}
         for point_name in TIMING_POINT_NAMES:
             right_ascension, declination = point_equatorial_position(

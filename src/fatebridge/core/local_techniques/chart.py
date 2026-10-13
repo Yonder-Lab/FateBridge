@@ -14,6 +14,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+from fatebridge.core.metaphysics.common import MetaphysicsSeed
 from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 from fatebridge.utils.solar_time import (
     SOLAR_TIME_STRATEGY_APPARENT,
@@ -28,7 +29,6 @@ from ..almanac import (
 from ..astro.birth import AstroBirthInfo, build_astro_birth_info
 from ..astro.chart import build_core_chart_payload
 from ..calendar import BaZiCalendar
-from ..metaphysics import MetaphysicsSeed
 
 GEO_COORDINATE_RE = re.compile(
     r"^\s*(?P<degrees>-?\d+(?:\.\d+)?)(?:(?P<direction>[NSEWnsew])(?P<minutes>\d+(?:\.\d+)?))?\s*$"
@@ -628,35 +628,6 @@ def _house_id_for_houses(longitude: float, houses: List[Dict[str, Any]]) -> str:
             return str(house.get("id") or f"House{index + 1}")
 
     return str(houses[0].get("id") or "House1")
-
-
-def build_pseudo_chart(
-    *,
-    date_text: str,
-    time_text: str,
-    timezone_name: Optional[str] = None,
-    lat: Any = None,
-    lon: Any = None,
-    tradition: bool = False,
-) -> Dict[str, Any]:
-    # Legacy entry point kept for compatibility. It now delegates to the shared
-    # local chart runtime so callers benefit from the same ephemeris-backed
-    # precision path used by suzhan / otherbu.
-    return _build_local_chart_response(
-        date_text=date_text,
-        time_text=time_text,
-        timezone_name=timezone_name,
-        lat=lat,
-        lon=lon,
-        tradition=tradition,
-        include_su28=True,
-        chart_variant="chart",
-        house_start_mode=1,
-        shape_mode=0,
-        hsys=8,
-        zodiacal=0,
-        allow_extended_hsys=True,
-    )
 
 
 def _build_metaphysics_seed(

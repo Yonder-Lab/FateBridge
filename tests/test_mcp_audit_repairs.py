@@ -117,12 +117,8 @@ def test_real_mcp_pair_keeps_each_person_explicitness_separate():
 
 def test_real_mcp_exposes_constraints_descriptions_and_keeps_canonical_names():
     class Request(BaseModel):
-        model_config = ConfigDict(populate_by_name=True)
-
         birth_month: int = FateBridgeRequest.model_fields["birth_month"]
-        use_true_solar_time: bool = Field(
-            default=True, alias="useTrueSolarTime", description="Correction flag"
-        )
+        use_true_solar_time: bool = Field(default=True, description="Correction flag")
 
     def bind(request):
         return (

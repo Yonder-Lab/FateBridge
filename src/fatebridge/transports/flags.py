@@ -10,4 +10,4 @@ FIELDS_FLAG_DESC = (
     "子字段（如 'bazi_birth.day_master'）。run_metadata 始终保留；留空返回全部字段。"
     "无效路径默认附 projection_warnings；strict_fields=true 时拒绝。"
 )
-STRICT_FIELDS_DESC = "是否拒绝无效 fields 路径；默认 false，保留兼容投影并返回警告。"
+STRICT_FIELDS_DESC = "是否拒绝无效 fields 路径；默认 false，使用宽松投影并返回警告。"

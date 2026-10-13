@@ -404,8 +404,10 @@ def _normalize_gua_lines(lines: Optional[List[Dict[str, Any]]]) -> List[Dict[str
     for item in lines or []:
         if not isinstance(item, dict):
             continue
-        # Keep legacy truthiness semantics here for request compatibility.
-        value = 1 if bool(item.get("value")) else 0
+        value = item.get("value")
+        if value not in (0, 1):
+            raise ValueError("六爻 value 必须为 0 或 1")
+        value = int(value)
         normalized.append(
             {
                 "value": value,

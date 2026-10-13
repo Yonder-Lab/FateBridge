@@ -184,7 +184,7 @@ mypy src/fatebridge/
 
 出生公共响应使用 `services.birth_payload.build_destiny_payload`，当前时运状态使用 `services.timing_state.build_current_timing_state`。共享构造器不回调 `calculation`、`bazi`、`compatibility` 或 `timing` 用例服务；快照渲染留在 `timing_snapshots`，节气/农历查询留在 `calendar_tools`。这使计算状态和文本调整能分别维护，同时保持已有公开响应。
 
-结构整理后运行 `pytest -q tests/test_architecture_boundaries.py tests/test_public_compatibility.py`，并核对全工具输出与发现合同。完整测试和类型检查仍必须通过；不得为纯结构调整重新冻结数值基线。
+结构整理后运行 `pytest -q tests/test_architecture_boundaries.py tests/test_retired_entries.py`，并核对全工具输出与发现合同。完整测试和类型检查仍必须通过；不得为纯结构调整重新冻结数值基线。
 
 ## 测试策略
 
@@ -236,7 +236,9 @@ git diff --check
 
 ## CI、打包与发布
 
-`.github/workflows/ci.yml` 的 `test` 作业在 Ubuntu 24.04 上覆盖 Python 3.10–3.13，执行 pytest、black、isort、mypy；`floor` 在 Python 3.10 按最低直接依赖运行测试。黄金快照字节比对仅在受支持的 Linux x86_64 / Python 3.12 环境启用，其他环境跳过不代表该项通过。 每个作业记录解析后的完整依赖清单并上传 JUnit；`floor` 必须用 `uv pip install --system --resolution lowest-direct -e ".[dev]"` 在全新环境解析，不能仅固定 FastMCP 3.0 来代替全部最低直接依赖验证。
+发布从干净 checkout 构建，并核对 wheel 的 Python 模块和 JSON 与当前源码清单一致。删除源模块后，旧 `build/lib` 的增量残留可能仍进入 wheel，因此发布构建应使用全新的工作目录。
+
+`.github/workflows/ci.yml` 的 `test` 作业在 Ubuntu 24.04 上覆盖 Python 3.10–3.13，执行 pytest、black、isort、mypy；`floor` 在 Python 3.10 按最低直接依赖运行测试。黄金快照字节比对仅在受支持的 Linux x86_64 / Python 3.12 环境启用，其他环境跳过不代表该项通过。 每个作业记录解析后的完整依赖清单并上传 JUnit；`floor` 必须用 `uv pip install --system --resolution lowest-direct -e ".[dev]"` 在全新环境解析，不能仅固定 FastMCP 3.4.2 来代替全部最低直接依赖验证。
 
 版本来自 `src/fatebridge/__init__.py::__version__`。发布需同步更新 CHANGELOG、检查包数据和版本、创建对应标签与 GitHub Release；仅改版本常量不会上传 PyPI。`publish.yml` 在 Release published 事件下构建 sdist/wheel，检查元数据、JSON 数据与 `py.typed` 后，通过已配置的 PyPI Trusted Publishing 发布。新增数据文件需确认被 `pyproject.toml` 的 package-data 覆盖；场景 `skills/` 目前随 Git 仓库分发，不由 wheel 包含。
 

@@ -15,7 +15,7 @@ from fatebridge.core.astro.geometry import normalize_angle
 from fatebridge.core.astrology_tables import (
     EGYPTIAN_BOUNDS_BY_SIGN as EGYPTIAN_BOUNDS_BY_SIGN,
 )
-from fatebridge.core.astrology_tables import (
+from fatebridge.core.astrology_tables import (  # Predictive reference tables.
     RULER_BY_SIGN,
     SIGN_LABELS_ZH,
     SIGNS,

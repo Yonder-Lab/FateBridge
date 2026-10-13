@@ -221,10 +221,10 @@ def _export_content() -> str:
             "[起盘信息]",
             "排盘参数",
             "",
-            "[八宫]",
+            "[八宫详解]",
             "这里是八宫详解内容",
             "",
-            "[演卦]",
+            "[奇门演卦]",
             "这里是奇门演卦内容",
         ]
     )
@@ -358,8 +358,8 @@ REST_POST_CASES = {
     },
     "/api/divination/sixyao": lambda: {
         **_local_base(),
-        "gpsLat": 31.2,
-        "gpsLon": 121.4,
+        "gps_lat": 31.2,
+        "gps_lon": 121.4,
     },
     "/api/divination/canping": lambda: {
         **_local_base(),

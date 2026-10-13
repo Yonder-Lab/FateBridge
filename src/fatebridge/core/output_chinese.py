@@ -120,7 +120,6 @@ class Meihua(PartialOutput):
     base_hexagram: Optional[Hexagram] = None
     changed_hexagram: Optional[Hexagram] = None
     mutual_hexagram: Optional[Hexagram] = None
-    opposite_hexagram: Optional[Hexagram] = None
     cuo_hexagram: Optional[Hexagram] = None
     zong_hexagram: Optional[Hexagram] = None
     body_trigram: Optional[Trigram] = None

@@ -1,8 +1,0 @@
-Codex runtime initialized
-Checking runtime model availability
-Ephemeral conversation ready: gpt-6.1-sol
-Starting relationship turn 1
-MCP: two_person_compatibility completed
-Completed: completed in 60.41s
-Starting relationship turn 2
-Completed: completed in 19.91s

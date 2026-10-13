@@ -9,7 +9,6 @@
 """
 
 import math
-from copy import deepcopy
 from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Dict, List, Optional
@@ -28,6 +27,7 @@ from ..utils.data import (
 from .almanac import (
     BAZI_MONTH_START_TERMS,
     DEFAULT_TIMEZONE,
+    elapsed_days_between,
     get_bazi_month_boundaries,
     get_bazi_month_context,
     get_bazi_year,
@@ -35,6 +35,22 @@ from .almanac import (
     localize_datetime,
 )
 from .calendar import BaZiCalendar, resolve_bazi_effective_date
+
+
+def _copy_timing_info(info: Dict) -> Dict:
+    """Detach the cached scalar payload and its solar-term dictionaries.
+
+    The cache builders below own this shape: only ``solar_term_window`` and
+    its two term records are mutable containers. Copy those explicitly rather
+    than traversing every immutable scalar with ``deepcopy`` on each hit.
+    """
+    result = info.copy()
+    if "solar_term_window" in info:
+        window = info["solar_term_window"].copy()
+        window["start_term"] = window["start_term"].copy()
+        window["next_term"] = window["next_term"].copy()
+        result["solar_term_window"] = window
+    return result
 
 
 @lru_cache(maxsize=2048)
@@ -231,9 +247,7 @@ class TimingAnalysis:
             local_birth_date, timezone_name
         )
         target_term = next_term if forward_direction else start_term
-        delta_days = (
-            abs((target_term.moment - local_birth_date).total_seconds()) / 86400
-        )
+        delta_days = abs(elapsed_days_between(local_birth_date, target_term.moment))
         start_age_precise = round(delta_days / 3, 2)
 
         return {
@@ -250,10 +264,9 @@ class TimingAnalysis:
         month_pillar_stem: str,
         month_pillar_branch: str,
         gender: Optional[str],
-        birth_year: int,
+        year_stem: str,
         periods: int = 8,
         start_age: float = 1.0,
-        year_stem: Optional[str] = None,
     ) -> List[Dict]:
         """
         计算大运序列
@@ -262,19 +275,14 @@ class TimingAnalysis:
             month_pillar_stem: 月柱天干
             month_pillar_branch: 月柱地支
             gender: 性别
-            birth_year: 出生年份（兼容旧接口）
             periods: 计算的大运期数，默认8期（80年）
-            year_stem: 八字年干；提供时优先用于判定顺逆
+            year_stem: 八字年干，用于判定顺逆
 
         Returns:
             大运序列列表
         """
         # 判断大运方向
-        if year_stem is not None:
-            is_yang_year = HEAVENLY_STEMS.index(year_stem) % 2 == 0
-        else:
-            year_stem_index = (birth_year - 4) % 10
-            is_yang_year = year_stem_index % 2 == 0
+        is_yang_year = HEAVENLY_STEMS.index(year_stem) % 2 == 0
 
         canonical_gender = normalize_gender(gender)
         if canonical_gender not in ("男", "女"):
@@ -390,7 +398,7 @@ class TimingAnalysis:
         Returns:
             流月信息
         """
-        return deepcopy(
+        return _copy_timing_info(
             _calculate_liuyue_cached(
                 target_year,
                 target_month,
@@ -464,8 +472,7 @@ class TimingAnalysis:
                         "start": start_term.moment.strftime("%Y-%m-%d %H:%M:%S"),
                         "end": next_term.moment.strftime("%Y-%m-%d %H:%M:%S"),
                         "days": round(
-                            (next_term.moment - start_term.moment).total_seconds()
-                            / 86400,
+                            elapsed_days_between(start_term.moment, next_term.moment),
                             4,
                         ),
                     },
@@ -485,7 +492,7 @@ class TimingAnalysis:
         """
         计算指定时点的流日干支。
         """
-        return deepcopy(_calculate_liuri_cached(target_date, timezone_name))
+        return _copy_timing_info(_calculate_liuri_cached(target_date, timezone_name))
 
     @staticmethod
     def calculate_liushi(
@@ -498,8 +505,12 @@ class TimingAnalysis:
         target_datetime 会被截断到小时粒度以命中缓存；
         分钟/秒级偏差不影响时柱归属。
         """
-        hour_dt = target_datetime.replace(minute=0, second=0, microsecond=0)
-        return deepcopy(_calculate_liushi_cached(hour_dt, timezone_name))
+        # Truncate the target's local wall clock. Truncating a UTC (or other
+        # source-zone) input first shifts the hour in fractional-offset zones,
+        # potentially crossing a shichen or the 23:00 day-pillar boundary.
+        local_dt = localize_datetime(target_datetime, timezone_name)
+        hour_dt = local_dt.replace(minute=0, second=0, microsecond=0)
+        return _copy_timing_info(_calculate_liushi_cached(hour_dt, timezone_name))
 
     @staticmethod
     def analyze_liushi_detailed(

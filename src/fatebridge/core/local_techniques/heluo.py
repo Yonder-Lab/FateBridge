@@ -6,7 +6,10 @@ Pure relocation from the package facade.
 
 from __future__ import annotations
 
+from typing import Any, Dict, Optional
+
 from fatebridge.utils.formatting import create_pillar_dict
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
 from ..heluo import build_snapshot_text as _heluo_snapshot_text
 from ..heluo import calculate as _heluo_calculate
@@ -14,10 +17,6 @@ from ..heluo import da_yun as _heluo_da_yun
 from ..heluo import judge as _heluo_judge
 from ..heluo import solar_term as _heluo_solar_term
 from .chart import (
-    DEFAULT_BIRTH_TIMEZONE,
-    Any,
-    Dict,
-    Optional,
     _build_metaphysics_analysis_context,
     _build_metaphysics_seed,
     _normalize_canping_gender,

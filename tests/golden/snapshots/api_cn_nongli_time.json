@@ -284,60 +284,6 @@
             "theme": "喜悦沟通"
           }
         },
-        "opposite_hexagram": {
-          "binary_code": "000010",
-          "caution": "忌站错队、依附失度",
-          "favorable": "靠核心、做连接、抱团协作",
-          "guidance": "利靠近核心、建立依附与联盟，重在选对人。",
-          "image": "水行于地，亲比相辅，利依附与联盟。",
-          "judgement": "靠近正确的人和位置，就有支点。",
-          "lines": [
-            0,
-            0,
-            0,
-            0,
-            1,
-            0
-          ],
-          "lower": {
-            "caution": "过度被动、失主见",
-            "element": "土",
-            "favorable": "承接、执行、积累",
-            "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
-            "image": "厚地承载，主配合与落地。",
-            "keywords": "承载、包容、顺势",
-            "lines": [
-              0,
-              0,
-              0
-            ],
-            "name": "坤",
-            "nature": "地",
-            "symbol": "☷",
-            "theme": "承载顺势"
-          },
-          "name": "水地比",
-          "summary": "水地比：亲比结盟。靠近正确的人和位置，就有支点。",
-          "symbol": "☵☷",
-          "theme": "亲比结盟",
-          "upper": {
-            "caution": "反复、焦虑、陷被动",
-            "element": "水",
-            "favorable": "防险、复盘、留后手",
-            "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
-            "image": "重水有险，主试炼与通关。",
-            "keywords": "流动、隐忧、险中求通",
-            "lines": [
-              0,
-              1,
-              0
-            ],
-            "name": "坎",
-            "nature": "水",
-            "symbol": "☵",
-            "theme": "险中求通"
-          }
-        },
         "seed": {
           "hour_branch": "巳",
           "lower_number": 1,
@@ -748,60 +694,6 @@
           "nature": "泽",
           "symbol": "☱",
           "theme": "喜悦沟通"
-        }
-      },
-      "opposite_hexagram": {
-        "binary_code": "000010",
-        "caution": "忌站错队、依附失度",
-        "favorable": "靠核心、做连接、抱团协作",
-        "guidance": "利靠近核心、建立依附与联盟，重在选对人。",
-        "image": "水行于地，亲比相辅，利依附与联盟。",
-        "judgement": "靠近正确的人和位置，就有支点。",
-        "lines": [
-          0,
-          0,
-          0,
-          0,
-          1,
-          0
-        ],
-        "lower": {
-          "caution": "过度被动、失主见",
-          "element": "土",
-          "favorable": "承接、执行、积累",
-          "guidance": "宜配合、落地、积累支持，以柔顺承接大势。",
-          "image": "厚地承载，主配合与落地。",
-          "keywords": "承载、包容、顺势",
-          "lines": [
-            0,
-            0,
-            0
-          ],
-          "name": "坤",
-          "nature": "地",
-          "symbol": "☷",
-          "theme": "承载顺势"
-        },
-        "name": "水地比",
-        "summary": "水地比：亲比结盟。靠近正确的人和位置，就有支点。",
-        "symbol": "☵☷",
-        "theme": "亲比结盟",
-        "upper": {
-          "caution": "反复、焦虑、陷被动",
-          "element": "水",
-          "favorable": "防险、复盘、留后手",
-          "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
-          "image": "重水有险，主试炼与通关。",
-          "keywords": "流动、隐忧、险中求通",
-          "lines": [
-            0,
-            1,
-            0
-          ],
-          "name": "坎",
-          "nature": "水",
-          "symbol": "☵",
-          "theme": "险中求通"
         }
       },
       "seed": {

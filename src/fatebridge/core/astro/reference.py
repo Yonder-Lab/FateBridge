@@ -254,6 +254,7 @@ RELATIVE_MODE_FALLBACK_ALIASES = {
     "组合盘": "composite",
     "composite": "composite",
     "influence": "influence",
+    "synastry": "influence",
     "影响盘": "influence",
     "timespace": "timespace",
     "time space": "timespace",

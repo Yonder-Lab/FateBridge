@@ -286,60 +286,6 @@
             "theme": "止守定界"
           }
         },
-        "opposite_hexagram": {
-          "binary_code": "011101",
-          "caution": "忌只换壳、不换内核",
-          "favorable": "重组团队、升级系统、炼资源",
-          "guidance": "利升级结构、重整团队，把资源炼成成果。",
-          "image": "木上有火，鼎烹成器，利改良与重构。",
-          "judgement": "重整器局可成新局，关键在结构升级。",
-          "lines": [
-            0,
-            1,
-            1,
-            1,
-            0,
-            1
-          ],
-          "lower": {
-            "caution": "犹疑、拖延、立场飘",
-            "element": "木",
-            "favorable": "铺垫、布局、柔进",
-            "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
-            "image": "风行入物，主渗透与筹划。",
-            "keywords": "渗透、谋划、柔入",
-            "lines": [
-              0,
-              1,
-              1
-            ],
-            "name": "巽",
-            "nature": "风",
-            "symbol": "☴",
-            "theme": "渗透筹谋"
-          },
-          "name": "火风鼎",
-          "summary": "火风鼎：定器成事。重整器局可成新局，关键在结构升级。",
-          "symbol": "☲☴",
-          "theme": "定器成事",
-          "upper": {
-            "caution": "虚火、急躁、表强里弱",
-            "element": "火",
-            "favorable": "表达、曝光、识别",
-            "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
-            "image": "火光附丽，主显明与辨析。",
-            "keywords": "光明、表达、洞察",
-            "lines": [
-              1,
-              0,
-              1
-            ],
-            "name": "离",
-            "nature": "火",
-            "symbol": "☲",
-            "theme": "明辨显化"
-          }
-        },
         "seed": {
           "hour_branch": "巳",
           "lower_number": 4,

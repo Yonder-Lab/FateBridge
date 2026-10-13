@@ -1,9 +1,0 @@
-{
-  "scope": "literal display-prefix fixes and unique compatibility highlights only; preserved every numeric leaf",
-  "snapshots": [
-    "api_compatibility.json",
-    "api_divination_gua.json",
-    "api_divination_meihua.json",
-    "api_divination_sixyao.json"
-  ]
-}

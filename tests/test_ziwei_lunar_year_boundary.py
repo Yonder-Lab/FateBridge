@@ -9,6 +9,11 @@
 `_lunar_year_ganzhi`。
 """
 
+from copy import deepcopy
+from dataclasses import replace
+
+import pytest
+
 from fatebridge.core.metaphysics.ziwei import build_ziwei_chart
 from fatebridge.services.metaphysics import _build_analysis_seed
 
@@ -46,3 +51,32 @@ def test_non_boundary_chart_unaffected():
     chart = _chart(1990, 5, 15, 10, "男")
     assert chart["ming_gong"]["ganzhi"] == "戊子"
     assert chart["wuxing_ju"]["label"] == "火六局"
+
+
+@pytest.mark.parametrize(
+    "date,lunar_year,bazi_year_pillar,expected_ming",
+    [
+        ((2002, 2, 8, 10), 2001, ("壬", "午"), "丙申"),
+        ((1995, 2, 3, 2), 1995, ("甲", "戌"), "己丑"),
+    ],
+)
+def test_missing_lunar_year_cannot_use_different_lichun_year(
+    date, lunar_year, bazi_year_pillar, expected_ming
+):
+    year, month, day, hour = date
+    seed = _build_analysis_seed(
+        analysis_year=year, analysis_month=month, analysis_day=day, analysis_hour=hour
+    )
+    assert seed.calendar_context["lunar_calendar"]["year"] == lunar_year
+    assert seed.pillars["year"] == bazi_year_pillar
+    assert build_ziwei_chart(seed, "男")["ming_gong"]["ganzhi"] == expected_ming
+
+    incomplete_context = deepcopy(seed.calendar_context)
+    del incomplete_context["lunar_calendar"]["year"]
+    incomplete_seed = replace(seed, calendar_context=incomplete_context)
+    with pytest.raises(ValueError, match="农历年缺失"):
+        build_ziwei_chart(incomplete_seed, "男")
+
+    incomplete_context["lunar_calendar"]["year"] = None
+    with pytest.raises(ValueError, match="农历年缺失"):
+        build_ziwei_chart(incomplete_seed, "男")

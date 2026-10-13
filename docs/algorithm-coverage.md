@@ -9,7 +9,7 @@
 - `Placeholder`：合同或模式入口存在，但主输出层仍是占位兼容
 - `Excluded`：当前仓库不提供该能力
 
-> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。REST 公开 **86 个工具**，MCP 公开 **87 个工具**，分为 **13 个 family**。本页按 MCP 集合统计；目录有 88 条记录，CLI 可执行 87 条，差异见 [API 参考](api-reference.md#24-三端能力边界)。下表逐 family 列出全部工具；新增能力时请同步本页（工具总数由 `tests/test_doc_tool_counts.py` 锁定）。
+> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。REST 公开 **86 个工具**，MCP 公开 **87 个工具**，分为 **13 个 family**。本页按 MCP 集合统计；目录有 88 条记录，CLI 可执行 87 条，差异见 [API 参考](api-reference.md#24-三端能力边界)。下表逐 family 列出全部工具；新增能力时请同步本页（总数、逐 family 数量与完整工具清单由 `tests/test_doc_tool_counts.py` 锁定）。
 
 所有目录记录现有统一的输入/输出 Schema，三端由同一 `ToolSpec` 发布并校验；这属于接口合同覆盖，不提高算法的 `Implemented` / `Approximate` 等级，也不表示全部嵌套专业字段已有完整类型定义。
 
@@ -76,7 +76,7 @@
 | `jieqi_year` | 指定年份节气时刻表（calendar helper） | Implemented |
 | `nongli_time` | 公历时刻转农历与干支（calendar helper） | Implemented |
 
-> 历法基于本地算法（`fatebridge.core.almanac`），不依赖外部服务。真太阳时修正含经度 + 均时差，统一走 `fatebridge.utils.helpers`。
+> 历法基于本地算法（`fatebridge.core.almanac`），不依赖外部服务。真太阳时修正含经度 + 均时差，统一走 `fatebridge.utils.solar_time`；出生输入构造使用 `fatebridge.utils.birth_input`。
 
 ### 2.4 `divination` —— 占卜与本地技法（Implemented）
 
@@ -185,6 +185,24 @@
 
 > 内置知识域：`astro`、`bazi`、`liureng`、`qimen`。`bazi` 域含十神（10）、神煞（12）、格局（10）、五行（5）、财运（8）、健康（8）、子女（4）、学业（6）、性格（3）、六亲（3）、正缘桃花（3）等条目。
 
+### 2.11 `fengshui` —— 家居风水（Implemented）
+
+| 工具 | 范围 | 状态 |
+| --- | --- | --- |
+| `fengshui_directions` | 后天方位／洛书宫数、八方与24山角区索引 | Implemented |
+| `fengshui_minggua` | 1864锚点命卦、原始五数寄宫、个人八方关系 | Implemented |
+| `fengshui_bazhai` | 坐山宅盘、逐人命盘、位置／朝向用途分开 | Implemented |
+| `fengshui_jinsuo` | 八宫固定砂水偏好、已确认特征逐项判定 | Implemented（传本来源限制明确登记） |
+| `fengshui_annual_stars` | 年度紫白九宫、立春区间、当前元运 | Implemented（交节时刻依赖现有节气引擎，可能近似回退） |
+| `fengshui_xuankong_natal` | 中州派历史定运、24山／三元龙、五黄、下卦与兼向替星 | Implemented（xuankong_zhongzhou_v1） |
+| `fengshui_assess` | 三层及可选宅盘编排、差异、缺失项和版本来源 | Implemented |
+
+所有工具三端可调用；复杂 CLI 请求用 `--request-file`。固定宫数、年度星数、八宅星和紫白星分开；三法没有统一分数。24山方向索引不代表已经支持24山风水论断。月飞星、金锁形态距离／元运与自动户型几何均 Excluded，输出明确列入 `unavailable_layers`。
+
+验证包括固定第三方命卦400项／关系64项、独立2026年星盘和跨端合同，不代表现实预测有效性。来源、算法和输入合同见 [家居风水](fengshui.md)。
+
+第二阶段的运／山／向宅盘与年星分层；版本选择、7套公开完整盘例及固定外部216盘比对的24项五黄差异见 [玄空宅盘](fengshui-xuankong.md)。
+
 ## 3. 精度与依赖说明
 
 ### 3.1 核心占星盘（`astro` family）
@@ -215,7 +233,7 @@
 兼容性提醒：
 
 - `relative_mode="Synastry"` / `"synastry"` 按现代语义收敛到 `influence`
-- 旧字段 `relationship_mode="synastry"` 仍保留早期“比较盘”兼容路径
+- 关系盘统一使用 `relative_mode`：`compare` 为比较盘，`synastry` / `influence` 为影响盘；旧字段 `relationship_mode` 已移除
 - 两条语义不同，迁移旧调用时应显式区分
 
 ### 3.3 西占推运 / 事件 / 寿命（`western_*` families）
@@ -244,6 +262,8 @@
 
 ## 5. 这页不包含什么
 
+算法正确性按历法、规则与数值对象分别核对；第三方一致率只适用于固定版本、约定与已比较的样本，不是项目整体的“准确率”。黄金快照锁定回归输出，不能证明现实预测有效性。性能数据也须注明环境、输入、冷/热启动、星历路径及计时范围；引擎计算耗时与模型选工具、MCP 宿主准备、网络往返分开报告。对话测量方法见 [Codex 使用指南](codex-guide.md#可复现体验)。
+
 以下内容不应从本页推断：
 
 - 不是所有能力都保证“天文级精度”（见 §3）
@@ -251,21 +271,3 @@
 - 不是所有 legacy mode 都代表推荐用法（见 §3.2）
 
 如果你准备修改接口或新增能力，请同步更新本页，确保“文档状态”仍然是从代码反推出来的结果，而不是愿景描述。
-
-### 家居风水基础层（`fengshui`，Implemented）
-
-| 工具 | 范围 | 状态 |
-| --- | --- | --- |
-| `fengshui_directions` | 后天方位／洛书宫数、八方与24山角区索引 | Implemented |
-| `fengshui_minggua` | 1864锚点命卦、原始五数寄宫、个人八方关系 | Implemented |
-| `fengshui_bazhai` | 坐山宅盘、逐人命盘、位置／朝向用途分开 | Implemented |
-| `fengshui_jinsuo` | 八宫固定砂水偏好、已确认特征逐项判定 | Implemented（传本来源限制明确登记） |
-| `fengshui_annual_stars` | 年度紫白九宫、立春区间、当前元运 | Implemented（交节时刻依赖现有节气引擎，可能近似回退） |
-| `fengshui_xuankong_natal` | 中州派历史定运、24山／三元龙、五黄、下卦与兼向替星 | Implemented（xuankong_zhongzhou_v1） |
-| `fengshui_assess` | 三层及可选宅盘编排、差异、缺失项和版本来源 | Implemented |
-
-所有工具三端可调用；复杂 CLI 请求用 `--request-file`。固定宫数、年度星数、八宅星和紫白星分开；三法没有统一分数。24山方向索引不代表已经支持24山风水论断。月飞星、金锁形态距离／元运与自动户型几何均 Excluded，输出明确列入 `unavailable_layers`。
-
-验证包括固定第三方命卦400项／关系64项、独立2026年星盘和跨端合同，不代表现实预测有效性。来源、算法和输入合同见 [家居风水](fengshui.md)。
-
-第二阶段的运／山／向宅盘与年星分层；版本选择、7套公开完整盘例及固定外部216盘比对的24项五黄差异见 [玄空宅盘](fengshui-xuankong.md)。

@@ -1,8 +1,0 @@
-Codex runtime initialized
-Checking runtime model availability
-Ephemeral conversation ready: gpt-6.1-sol
-Starting career turn 1
-MCP: bazi_career completed
-Completed: completed in 69.41s
-Starting career turn 2
-Completed: completed in 21.25s

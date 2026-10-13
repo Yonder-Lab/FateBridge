@@ -19,7 +19,8 @@ from datetime import datetime
 from itertools import product
 from pathlib import Path
 
-from fatebridge.core.metaphysics import MetaphysicsSeed, build_liureng_board
+from fatebridge.core.metaphysics.common import MetaphysicsSeed
+from fatebridge.core.metaphysics.liureng import build_liureng_board
 
 REFERENCE_COMMIT = "2afe9194e3644d2ead5652ed8b366ae6c70d7087"
 SUPPORT_COMMIT = "0efdcc5c473487ef61b2e941005716056174cc54"

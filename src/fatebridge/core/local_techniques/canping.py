@@ -6,16 +6,15 @@ Pure relocation from the package facade.
 
 from __future__ import annotations
 
+from typing import Any, Dict, Optional
+
 from fatebridge.utils.formatting import create_pillar_dict
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
 from ..canping import build_snapshot_text as _canping_snapshot_text
 from ..canping import calculate as _canping_calculate
 from ..canping import liunian_series as _canping_liunian_series
 from .chart import (
-    DEFAULT_BIRTH_TIMEZONE,
-    Any,
-    Dict,
-    Optional,
     _build_metaphysics_analysis_context,
     _build_metaphysics_seed,
     _normalize_canping_gender,

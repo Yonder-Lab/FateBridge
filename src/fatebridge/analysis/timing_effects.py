@@ -171,9 +171,8 @@ class TimingEffectsAnalysis:
             month_stem,
             month_branch,
             gender,
-            birth_date.year,
+            start_info["year_stem"],
             start_age=start_age,
-            year_stem=start_info["year_stem"],
         )
 
         # 确定当前大运期

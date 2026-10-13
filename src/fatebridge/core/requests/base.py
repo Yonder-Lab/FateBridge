@@ -18,7 +18,7 @@ class _DeferredModel(BaseModel):
 
     对计算结果与校验行为**零影响**：defer_build 仅改变 schema 的构建时机，不改变
     schema 内容；首次实例化时按需构建并缓存，后续调用与原先完全一致。子类自带的
-    ``model_config``（如 ``populate_by_name=True``）会与本配置合并，不会丢失。
+    ``model_config`` 会与本配置合并，不会丢失。
     """
 
     model_config = ConfigDict(defer_build=True, extra="forbid")

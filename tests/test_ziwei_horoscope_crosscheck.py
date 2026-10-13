@@ -1,10 +1,7 @@
 import json
 from pathlib import Path
 
-from fatebridge.core.metaphysics import (
-    build_ziwei_chart,
-    build_ziwei_horoscope,
-)
+from fatebridge.core.metaphysics.ziwei import build_ziwei_chart, build_ziwei_horoscope
 from fatebridge.services.metaphysics import _build_analysis_seed, _build_person_seed
 from fatebridge.utils.birth_input import create_person_info
 

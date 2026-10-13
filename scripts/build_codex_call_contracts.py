@@ -88,7 +88,15 @@ async def render_block():
                 f"### {record['tool']}",
                 "",
                 "```json",
-                json.dumps(record, ensure_ascii=False, separators=(",", ":")),
+                # Schema object-key order varies across supported MCP versions.
+                # Preserve every constraint and array order, but publish stable
+                # object ordering so equivalent schemas do not trigger drift.
+                json.dumps(
+                    record,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                ),
                 "```",
                 "",
             ]

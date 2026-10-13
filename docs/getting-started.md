@@ -32,7 +32,7 @@ fatebridge list
 fatebridge describe bazi_birth
 ```
 
-安装入口为 `fatebridge`、`fatebridge-api` 和 `fatebridge-mcp`。`pyswisseph` / `kerykeion` 都是常规依赖；数据文件不随 Python 包安装，见下文。
+安装入口为 `fatebridge`、`fatebridge-api` 和 `fatebridge-mcp`。`pyswisseph` / `kerykeion` 都是常规依赖；FateBridge 的规则、知识与场景 JSON 随包安装，外部星历文件不随 FateBridge wheel 分发，见下文。
 
 ## 配置环境变量
 

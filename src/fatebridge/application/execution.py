@@ -79,22 +79,23 @@ def execute_tool(
                 elapsed_ms=elapsed_ms,
                 generated_seed=generated_seed,
             )
+            result = attach_run_metadata(result, tool_name=spec.run_metadata_name)
+            result["run_metadata"] = {**result["run_metadata"], **receipt}
+            if result["run_metadata"]["engine_is_approximate"]:
+                result["run_metadata"]["warnings"].append("approximate_engine")
+            if controls.trace_id is not None:
+                result["run_metadata"]["trace_id"] = controls.trace_id
+            validate_output(spec, result)
         except Exception:
-            # Receipt serialization/fingerprinting is server output work, never
-            # an input rejection even if json.dumps raises ValueError.
+            # Receipt generation, attachment and final validation are server
+            # output work, never bad user input even if they raise ValueError.
+            # Handle them here so every adapter retains validated correlation.
             return correlate_error(
                 handle_calculation_error(
                     OutputContractError("执行元数据生成失败"), spec.operation_label_zh
                 ),
                 controls,
             )
-        result = attach_run_metadata(result, tool_name=spec.run_metadata_name)
-        result["run_metadata"] = {**result["run_metadata"], **receipt}
-        if result["run_metadata"]["engine_is_approximate"]:
-            result["run_metadata"]["warnings"].append("approximate_engine")
-        if controls.trace_id is not None:
-            result["run_metadata"]["trace_id"] = controls.trace_id
-        validate_output(spec, result)
         return result
 
 

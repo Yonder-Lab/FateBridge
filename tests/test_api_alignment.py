@@ -205,7 +205,6 @@ def _astro_relative_mcp_kwargs(request: AstroRelativeRequest) -> dict:
         "outer_birth_latitude": request.outer.birth_latitude,
         "outer_name": request.outer.name,
         "outer_birth_place": request.outer.birth_place,
-        "relationship_mode": request.relationship_mode,
         "relative_mode": request.relative_mode,
         "hsys": request.hsys,
         "zodiacal": request.zodiacal,

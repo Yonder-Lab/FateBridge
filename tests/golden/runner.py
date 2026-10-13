@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from datetime import datetime as _RealDatetime
 from datetime import timezone
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Dict, Generator
 from unittest.mock import patch
 
@@ -201,16 +202,64 @@ def _slug(path: str) -> str:
     return path.strip("/").replace("/", "_")
 
 
+def _clear_ephemeris_dependent_caches() -> None:
+    """Discard solar-term facts and derived caches when switching test models."""
+    from fatebridge.core.almanac import get_solar_terms_for_year
+    from fatebridge.core.calendar import BaZiCalendar
+    from fatebridge.core.metaphysics.qimen import (
+        _qimen_build_year_term_seed,
+        _qimen_build_yinyangdun_map,
+    )
+    from fatebridge.core.timing import _calculate_liuyue_cached
+
+    for cached in (
+        get_solar_terms_for_year,
+        BaZiCalendar._get_four_pillars_cached,
+        _calculate_liuyue_cached,
+        _qimen_build_year_term_seed,
+        _qimen_build_yinyangdun_map,
+    ):
+        cached.cache_clear()
+
+
+@contextmanager
+def golden_ephemeris() -> Generator[None, None, None]:
+    """Force Moshier despite repo-local data, restoring shared state on exit."""
+    from fatebridge.core import ephemeris_runtime as runtime
+
+    with TemporaryDirectory(prefix="fatebridge-golden-") as empty_directory:
+        with runtime._EPHEMERIS_LOCK:
+            previous_env = os.environ.get("SE_EPHE_PATH")
+            previous_path = runtime.configured_ephemeris_path()
+        try:
+            with runtime._EPHEMERIS_LOCK:
+                os.environ["SE_EPHE_PATH"] = empty_directory
+                runtime.configure_ephemeris_path(empty_directory)
+                _clear_ephemeris_dependent_caches()
+            # REST workers also acquire this lock; never hold it across requests.
+            yield
+        finally:
+            with runtime._EPHEMERIS_LOCK:
+                if previous_env is None:
+                    os.environ.pop("SE_EPHE_PATH", None)
+                else:
+                    os.environ["SE_EPHE_PATH"] = previous_env
+                try:
+                    if runtime.swe is not None:
+                        runtime.swe.set_ephe_path(previous_path or "")
+                finally:
+                    runtime._configured_path = previous_path
+                    _clear_ephemeris_dependent_caches()
+
+
 def compute_outputs(frozen: _RealDatetime = FROZEN_NOW) -> Dict[str, str]:
     """跑遍全部 REST 工具 case 及 MCP-only case，返回 {slug: 规范化 JSON}。
 
     时钟冻结到 ``frozen``，使所有 now() 回退路径产出确定性输出。
     """
-    # 强制 Moshier：本地若设了 SE_EPHE_PATH（高精度星历），输出会与 CI 不一致。
-    os.environ.pop("SE_EPHE_PATH", None)
     outputs: Dict[str, str] = {}
 
-    with freeze_clock(frozen):
+    with golden_ephemeris(), freeze_clock(frozen):
         # --- REST 面 ---
         client = TestClient(api_module.app)
         for path, build_payload in REST_POST_CASES.items():

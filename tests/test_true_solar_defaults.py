@@ -79,9 +79,8 @@ def test_compatibility_both_persons_default_true_solar_on() -> None:
     assert req.person2_use_true_solar_time is True
 
 
-def test_alias_still_overrides_default_both_directions() -> None:
-    # 用户/前端显式传值仍然生效（别名 useTrueSolarTime 与字段名都可）。
-    off = AstroChartRequest(**_MIN_BIRTH, birth_place="上海", useTrueSolarTime=True)
+def test_explicit_flags_override_default_both_directions() -> None:
+    off = AstroChartRequest(**_MIN_BIRTH, birth_place="上海", use_true_solar_time=True)
     assert off.use_true_solar_time is True
     on = FateBridgeRequest(**_MIN_BIRTH, use_true_solar_time=False)
     assert on.use_true_solar_time is False

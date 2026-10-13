@@ -286,60 +286,6 @@
             "theme": "喜悦沟通"
           }
         },
-        "opposite_hexagram": {
-          "binary_code": "010010",
-          "caution": "忌恐慌、失序、反复踩坑",
-          "favorable": "风险控制、流程化、留后手",
-          "guidance": "风险反复，宜守流程、控节奏、以智取胜。",
-          "image": "重坎重险，险中有路，贵在不乱。",
-          "judgement": "难关重重，唯有守节奏、用智慧穿越。",
-          "lines": [
-            0,
-            1,
-            0,
-            0,
-            1,
-            0
-          ],
-          "lower": {
-            "caution": "反复、焦虑、陷被动",
-            "element": "水",
-            "favorable": "防险、复盘、留后手",
-            "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
-            "image": "重水有险，主试炼与通关。",
-            "keywords": "流动、隐忧、险中求通",
-            "lines": [
-              0,
-              1,
-              0
-            ],
-            "name": "坎",
-            "nature": "水",
-            "symbol": "☵",
-            "theme": "险中求通"
-          },
-          "name": "坎为水",
-          "summary": "坎为水：重险连环。难关重重，唯有守节奏、用智慧穿越。",
-          "symbol": "☵☵",
-          "theme": "重险连环",
-          "upper": {
-            "caution": "反复、焦虑、陷被动",
-            "element": "水",
-            "favorable": "防险、复盘、留后手",
-            "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
-            "image": "重水有险，主试炼与通关。",
-            "keywords": "流动、隐忧、险中求通",
-            "lines": [
-              0,
-              1,
-              0
-            ],
-            "name": "坎",
-            "nature": "水",
-            "symbol": "☵",
-            "theme": "险中求通"
-          }
-        },
         "seed": {
           "hour_branch": "未",
           "lower_number": 3,

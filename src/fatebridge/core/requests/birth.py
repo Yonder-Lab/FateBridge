@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from fatebridge.core.requests.base import _DeferredModel
 
@@ -49,14 +49,6 @@ class FateBridgeRequest(_DeferredModel):
 
 class AstroBirthRequest(_DeferredModel):
     """Base birth request model for offline astrology endpoints."""
-
-    # Accept both the Python field name (``use_true_solar_time``) and the JSON
-    # alias (``useTrueSolarTime``). Without this, alias-only population means the
-    # CLI/MCP surfaces — which bind by Python field name — silently drop
-    # ``use_true_solar_time`` and fall back to its default, so the documented
-    # ``--no-use-true-solar-time`` / ``--use-true-solar-time false`` switches
-    # could never turn the correction off.
-    model_config = ConfigDict(populate_by_name=True)
 
     name: Optional[str] = Field(default="未提供", description="Name (optional)")
     birth_year: int = Field(description="Birth year, e.g., 1990")

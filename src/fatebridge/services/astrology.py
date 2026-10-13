@@ -1130,8 +1130,6 @@ def calculate_relative_chart_analysis(
     inner_payload: Dict[str, Any],
     outer_payload: Dict[str, Any],
     relative_mode: Any = None,
-    relationship_mode: Any = None,
-    relative_mode_source: Optional[str] = None,
     hsys: int = 8,
     zodiacal: int = 0,
     relationship_focus: Any = None,
@@ -1144,26 +1142,10 @@ def calculate_relative_chart_analysis(
     """
     inner_birth = _build_birth_info(inner_payload)
     outer_birth = _build_birth_info(outer_payload)
-    resolved_mode_source = relative_mode_source
-    if resolved_mode_source not in {
-        "default",
-        "relative_mode",
-        "relationship_mode",
-    }:
-        if relative_mode not in (None, ""):
-            resolved_mode_source = "relative_mode"
-        elif relationship_mode not in (None, ""):
-            resolved_mode_source = "relationship_mode"
-        else:
-            resolved_mode_source = "default"
-    resolved_mode = (
-        relative_mode if relative_mode not in (None, "") else relationship_mode
-    )
     payload = build_relative_payload(
         inner_birth=inner_birth,
         outer_birth=outer_birth,
-        relative_mode=resolved_mode,
-        relative_mode_source=resolved_mode_source,
+        relative_mode=relative_mode,
         hsys=hsys,
         zodiacal=zodiacal,
         relationship_focus=relationship_focus,

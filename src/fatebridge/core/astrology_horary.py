@@ -14,7 +14,7 @@ was asked* (not a birth). Judgment follows classical doctrine (Lilly / Bonatti):
    gathered by a third planet (collection), or the Moon applies to the quesited.
 
 This module is pure geometry + tables over an already-built chart subject; it
-imports the ruler/dignity tables from :mod:`fatebridge.core.astrology` and reads
+imports the ruler/dignity tables from :mod:`fatebridge.core.astrology_tables` and reads
 longitudes, speeds and house cusps off the kerykeion subject. Casting the chart
 and rendering output is the service layer's job.
 """

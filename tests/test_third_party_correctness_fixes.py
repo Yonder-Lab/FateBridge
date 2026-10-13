@@ -11,7 +11,8 @@ from fastapi.testclient import TestClient
 
 from fatebridge.api import app
 from fatebridge.core.almanac import get_lunar_context
-from fatebridge.core.metaphysics import MetaphysicsSeed, build_liureng_board
+from fatebridge.core.metaphysics.common import MetaphysicsSeed
+from fatebridge.core.metaphysics.liureng import build_liureng_board
 from fatebridge.services.metaphysics import (
     _build_analysis_seed,
     _build_person_seed,

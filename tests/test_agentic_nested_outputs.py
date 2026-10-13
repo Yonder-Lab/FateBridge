@@ -265,7 +265,7 @@ def test_professional_partial_output_matches_transports_and_no_metadata(
 @pytest.mark.parametrize(
     "key,patch",
     [
-        ("pd", {"pd_method": "legacy_equatorial", "pd_type": 1}),
+        ("pd", {"pd_method": "equatorial", "pd_type": 1}),
         (
             "pdchart",
             {"pd_method": "fatebridge_mundane_semiarc", "show_pd_bounds": False},
@@ -417,29 +417,21 @@ def test_nested_schema_facts_are_discoverable_identically_on_all_transports(
             Draft202012Validator(native_schemas[SPECS[key].tool_name]).validate(payload)
 
 
-def test_recursive_schema_inliner_fallback_preserves_a_valid_wire_contract(monkeypatch):
-    from fastmcp.utilities import json_schema
-
-    from fatebridge.mcp_transport import _serializable_schema
-
+def test_recursive_output_contract_keeps_standard_json_refs():
     schema = SPECS["decennials"].output_model.model_json_schema()
-    cycle = {"type": "object"}
-    cycle["properties"] = {"child": cycle}
-    monkeypatch.setattr(json_schema, "dereference_refs", lambda value: cycle)
-    published = _serializable_schema(schema)
-    assert published is schema
-    json.dumps(published)
-    Draft202012Validator(published).validate(
+    assert "$defs" in schema
+    json.dumps(schema)
+    Draft202012Validator(schema).validate(
         {"decennials": {"timeline": [{"level": 1, "sublevel": [{"level": 2}]}]}}
     )
 
 
-def test_numeric_relationship_mode_keeps_legacy_wire_type_on_all_surfaces(
+def test_numeric_relative_mode_preserves_integer_input_on_all_surfaces(
     rest, tmp_path, capsys
 ):
     spec = SPECS["astro_relative_chart"]
-    request = {**inputs(spec), "relative_mode": 0, "relationship_mode": 0}
-    nested = {**inputs(rest_spec(spec)), "relative_mode": 0, "relationship_mode": 0}
+    request = {**inputs(spec), "relative_mode": 0}
+    nested = {**inputs(rest_spec(spec)), "relative_mode": 0}
     field = "relationship_profile.relative_mode_input"
     http = rest.post(
         rest_spec(spec).rest_path, json=nested, params={"as_of": AS_OF, "fields": field}
@@ -453,3 +445,120 @@ def test_numeric_relationship_mode_keeps_legacy_wire_type_on_all_surfaces(
         == business(output)
     )
     assert type(output["relationship_profile"]["relative_mode_input"]) is int
+
+
+@pytest.mark.parametrize("retired", ["relationship_mode", "useTrueSolarTime"])
+def test_retired_astro_input_is_rejected_on_all_surfaces(
+    rest, tmp_path, capsys, retired
+):
+    spec = (
+        SPECS["astro_relative_chart"]
+        if retired == "relationship_mode"
+        else SPECS["astro_chart"]
+    )
+    value = "synastry" if retired == "relationship_mode" else True
+    request = {**inputs(spec), retired: value}
+    nested = {**inputs(rest_spec(spec)), retired: value}
+    http = rest.post(rest_spec(spec).rest_path, json=nested)
+    protocol = asyncio.run(native(spec, request))
+    code, output = call_cli(spec, request, tmp_path, capsys)
+    assert http.status_code == 422
+    assert protocol.is_error
+    assert code != 0 and "error" in output
+    assert retired not in spec.request_model.model_json_schema()["properties"]
+
+
+@pytest.mark.parametrize(
+    "mode", ["Comp", "Composite", "Synastry", "TimeSpace", "Marks"]
+)
+def test_canonical_relative_modes_agree_on_all_surfaces(rest, tmp_path, capsys, mode):
+    spec = SPECS["astro_relative_chart"]
+    request = {**inputs(spec), "relative_mode": mode}
+    nested = {**inputs(rest_spec(spec)), "relative_mode": mode}
+    fields = [
+        "relationship_profile",
+        "chart",
+        "inner",
+        "outer",
+        "in_to_out_aspects",
+        "out_to_in_aspects",
+    ]
+    http = rest.post(
+        rest_spec(spec).rest_path,
+        json=nested,
+        params={
+            "as_of": AS_OF,
+            "fields": fields,
+            "include_snapshot_text": "false",
+        },
+    )
+    protocol = asyncio.run(
+        native(
+            spec,
+            request,
+            fields=fields,
+            strict_fields=True,
+            include_snapshot_text=False,
+        )
+    )
+    code, output = call_cli(
+        spec,
+        request,
+        tmp_path,
+        capsys,
+        ["--fields", *fields, "--strict-fields", "--no-include-snapshot-text"],
+    )
+    assert http.status_code == 200 and not protocol.is_error and code == 0
+    assert (
+        business(http.json())
+        == business(protocol.structured_content)
+        == business(output)
+    )
+    if mode in {"Comp", "Synastry"}:
+        assert output["chart"] == {}
+    else:
+        assert output["chart"]["planets"]
+    assert "relationship_mode" not in output["relationship_profile"]
+
+
+@pytest.mark.parametrize("method", ["legacy_reference", "legacy_equatorial", "unknown"])
+def test_retired_primary_direction_method_is_rejected_on_all_surfaces(
+    rest, tmp_path, capsys, method
+):
+    spec = SPECS["pd"]
+    payload = {**inputs(spec), "pd_method": method}
+    http = rest.post(spec.rest_path, json=payload)
+    protocol = asyncio.run(native(spec, payload))
+    code, output = call_cli(spec, payload, tmp_path, capsys)
+    assert http.status_code == 422
+    assert protocol.is_error
+    assert code != 0 and output["error_code"] == "validation_error"
+
+
+@pytest.mark.parametrize(
+    "key,retired,value",
+    [
+        ("sixyao", "gpsLat", 31.2),
+        ("nongli_time", "timeAlg", 1),
+        ("export_parse", "planetInfo", {"showHouse": True}),
+    ],
+)
+def test_retired_field_alias_is_rejected_on_all_surfaces(
+    rest, tmp_path, capsys, key, retired, value
+):
+    spec = SPECS[key]
+    payload = {**inputs(spec), retired: value}
+    http = rest.post(spec.rest_path, json=payload)
+    protocol = asyncio.run(native(spec, payload))
+    code, output = call_cli(spec, payload, tmp_path, capsys)
+    assert http.status_code == 422
+    assert protocol.is_error
+    assert code != 0 and output["error_code"] == "validation_error"
+
+
+def test_request_contracts_have_one_name_per_field():
+    for spec in CATALOG:
+        for field in spec.request_model.model_fields.values():
+            assert field.alias is None
+            assert field.validation_alias is None
+            assert field.serialization_alias is None

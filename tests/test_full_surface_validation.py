@@ -49,23 +49,15 @@ def test_rest_case_map_covers_all_business_routes():
 
 
 def test_fastmcp_version_supports_list_tools_api():
-    """Guard the ``fastmcp>=3.0.0`` floor.
-
-    The MCP surface enumerates tools via ``app.list_tools(run_middleware=False)``.
-    That server method only exists on FastMCP 3.x — the entire 2.x line lacks it,
-    so a too-low floor (``>=2.12.5``) lets an install resolve to a version that
-    breaks at runtime while CI silently grabs a newer one. This asserts the
-    installed version actually exposes the API the code calls.
-    """
+    """The declared runtime supports discovery and native error results."""
     import inspect
     from importlib.metadata import version
 
-    fastmcp_version = version("fastmcp")
-    major = int(fastmcp_version.split(".")[0])
-    assert major >= 3, (
-        f"fastmcp {fastmcp_version} is below the >=3.0.0 floor; "
-        "app.list_tools(run_middleware=...) is unavailable before 3.0.0"
-    )
+    from fastmcp.tools import ToolResult
+    from packaging.version import Version
+
+    assert Version(version("fastmcp")) >= Version("3.4.2")
+    assert "is_error" in inspect.signature(ToolResult).parameters
 
     list_tools = getattr(type(mcp_module.app), "list_tools", None)
     assert list_tools is not None, "FastMCP app is missing list_tools()"

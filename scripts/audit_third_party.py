@@ -27,7 +27,7 @@ from fatebridge.core.almanac import get_lunar_context, get_solar_terms_for_year
 from fatebridge.core.astro.birth import build_astro_birth_info
 from fatebridge.core.astro.chart import build_core_chart_payload
 from fatebridge.core.calendar import BaZiCalendar
-from fatebridge.core.metaphysics import build_ziwei_chart, build_ziwei_horoscope
+from fatebridge.core.metaphysics.ziwei import build_ziwei_chart, build_ziwei_horoscope
 from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.metaphysics import _build_analysis_seed
 
@@ -787,7 +787,7 @@ def liuren_audit(out):
     # Optional oracle source checkout, pinned by environment manifest.
     from kintaiyi.kinliuren import Liuren
 
-    from fatebridge.core.metaphysics import build_liureng_board
+    from fatebridge.core.metaphysics.liureng import build_liureng_board
 
     rows, errors = [], []
     trad = str.maketrans(

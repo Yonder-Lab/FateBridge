@@ -32,7 +32,7 @@ classifiers = [
 ]
 dependencies = [
     "fastapi>=0.110.1",
-    "fastmcp>=3.0.0",
+    "fastmcp>=3.4.2",
     # The predictive adapter and numerical fixtures target Kerykeion 5.
     # Version 6 changes return calculations and bundled ephemeris data layout.
     "kerykeion>=5.5.0,<6",

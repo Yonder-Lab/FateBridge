@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
-from pydantic import Field, PrivateAttr, model_validator
+from pydantic import Field
 
 from fatebridge.core.requests.base import _DeferredModel
 from fatebridge.core.requests.birth import AstroBirthRequest
@@ -68,7 +68,6 @@ class AstroChartRequest(AstroBirthRequest):
     )
     use_true_solar_time: bool = Field(
         default=False,
-        alias="useTrueSolarTime",
         description=(
             "Rebase the birth clock onto true solar time (longitude + equation of "
             "time). Default OFF: western astrology conventionally casts on the "
@@ -87,7 +86,6 @@ class AstroRelativePartyRequest(AstroBirthRequest):
     )
     use_true_solar_time: bool = Field(
         default=False,
-        alias="useTrueSolarTime",
         description="Use apparent solar time for this party; defaults to civil time",
     )
 
@@ -110,20 +108,12 @@ class AstroRelativeRequest(_DeferredModel):
 
     inner: AstroRelativePartyRequest
     outer: AstroRelativePartyRequest
-    _mode_input_source: str = PrivateAttr(default="default")
     relative_mode: Optional[Union[str, int]] = Field(
         default=None,
         description=(
-            "Modern relative mode selector, e.g. 0/1/2/3/4, Comp, Composite, "
-            "Synastry, TimeSpace, or Marks; when using relative_mode, "
-            "Synastry/synastry will resolve to the Horosa-style influence chart"
-        ),
-    )
-    relationship_mode: Optional[Union[str, int]] = Field(
-        default=None,
-        description=(
-            "Legacy alias for relative_mode; relationship_mode='synastry' is "
-            "preserved as FateBridge's older compare-mode compatibility path"
+            "Relative mode: 0/Comp=compare, 1/Composite=composite, "
+            "2/Synastry=influence, 3/TimeSpace=timespace, 4/Marks=marks. "
+            "Synastry/synastry both select the influence chart pair."
         ),
     )
     hsys: int = Field(
@@ -134,7 +124,7 @@ class AstroRelativeRequest(_DeferredModel):
     )
     zodiacal: int = Field(
         default=0,
-        description="Legacy-compatible zodiac selector; offline mode currently supports 0=tropical and 1=sidereal(Lahiri-like) only",
+        description="Zodiac selector; offline mode currently supports 0=tropical and 1=sidereal(Lahiri-like) only",
     )
     relationship_focus: Optional[str] = Field(
         default=None,
@@ -146,35 +136,6 @@ class AstroRelativeRequest(_DeferredModel):
             "is general (no filtering)."
         ),
     )
-
-    def __init__(self, **data: Any):
-        mode_source = "default"
-        if data.get("relative_mode") not in (None, ""):
-            mode_source = "relative_mode"
-        elif data.get("relationship_mode") not in (None, ""):
-            mode_source = "relationship_mode"
-        super().__init__(**data)
-        self._mode_input_source = mode_source
-
-    @property
-    def mode_input_source(self) -> str:
-        return self._mode_input_source
-
-    @model_validator(mode="before")
-    @classmethod
-    def _sync_relative_mode_aliases(cls, payload: Any) -> Any:
-        if not isinstance(payload, dict):
-            return payload
-        relative_mode = payload.get("relative_mode")
-        relationship_mode = payload.get("relationship_mode")
-        if relative_mode in (None, "") and relationship_mode not in (None, ""):
-            payload["relative_mode"] = relationship_mode
-        elif relationship_mode in (None, "") and relative_mode not in (None, ""):
-            payload["relationship_mode"] = relative_mode
-        elif relative_mode in (None, "") and relationship_mode in (None, ""):
-            payload["relative_mode"] = 0
-            payload["relationship_mode"] = 0
-        return payload
 
 
 class AstroChartPolyRequest(AstroChartRequest):
@@ -216,11 +177,8 @@ class AstroRelativeFlatRequest(_DeferredModel):
     outer_birth_place: Optional[str] = Field(
         default="未提供", description="Outer birth place"
     )
-    relationship_mode: Optional[Union[str, int]] = Field(
-        default=None, description="Legacy relative mode alias"
-    )
     relative_mode: Optional[Union[str, int]] = Field(
-        default=None, description="Modern relative mode selector"
+        default=None, description="Relative mode selector"
     )
     inner_birth_minute: int = Field(
         default=0, ge=0, le=59, description="Inner birth minute"

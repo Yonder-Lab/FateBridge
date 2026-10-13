@@ -6,8 +6,13 @@ Pure relocation from the package facade.
 
 from __future__ import annotations
 
+from typing import Any, Dict, List, Optional
+
 from ..divination import BAGUA_BY_NAME, HEXAGRAM_NAMES, lookup_hexagram_by_code
-from .chart import Any, Dict, List, Optional, _join_lines, _render_snapshot_text
+from .chart import (
+    _join_lines,
+    _render_snapshot_text,
+)
 
 
 def _bagua(name: str) -> Dict[str, Any]:

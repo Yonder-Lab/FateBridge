@@ -5,7 +5,6 @@ from typing import Any
 from fatebridge.core.export_contracts import (
     AI_EXPORT_SETTINGS_VERSION,
     get_technique_info,
-    map_legacy_section_title,
     normalize_astro_meaning_setting,
     normalize_planet_info_setting,
     normalize_section_title,
@@ -24,7 +23,7 @@ def parse_section_title_line(line: str | None) -> str:
     return ""
 
 
-def split_content_sections(content: str, technique: str) -> list[dict[str, Any]]:
+def split_content_sections(content: str) -> list[dict[str, Any]]:
     lines = f"{content or ''}".splitlines()
     sections: list[dict[str, Any]] = []
     current_title = ""
@@ -53,7 +52,7 @@ def split_content_sections(content: str, technique: str) -> list[dict[str, Any]]
             if current_lines:
                 push_current()
             current_raw_title = raw_title
-            current_title = map_legacy_section_title(technique, raw_title)
+            current_title = raw_title
             current_lines = [line]
             continue
         current_lines.append(line)
@@ -85,7 +84,7 @@ def parse_export_content(
         raise ValueError(f"Unknown AI export technique: {technique}")
 
     raw_text = f"{content or ''}".strip()
-    sections = split_content_sections(raw_text, technique)
+    sections = split_content_sections(raw_text)
     detected_titles = unique_list(
         [section["title"] for section in sections if section["title"]]
     )
@@ -101,11 +100,11 @@ def parse_export_content(
         if selected_sections
         else technique_info["preset_sections"][:]
     )
-    mapped_sections = [map_legacy_section_title(technique, item) for item in requested]
+    normalized_sections = [normalize_section_title(item) for item in requested]
     selected_normalized = unique_list(
         [
             item
-            for item in mapped_sections
+            for item in normalized_sections
             if item and normalize_section_title(item) not in forbidden
         ]
     )
@@ -137,8 +136,8 @@ def parse_export_content(
     strict_filtered = render_sections_to_text(
         [section for section in filtered_sections if section["included"]]
     )
-    # Preserve the historical preset fallback only when no explicit selection
-    # was made. An unmatched caller selection must never broaden the export.
+    # Unselected custom content remains exportable. An explicit selection must
+    # never broaden the export when its exact title is absent.
     safe_export_text = strict_filtered
     if not selected_sections and not strict_filtered:
         safe_export_text = render_sections_to_text(

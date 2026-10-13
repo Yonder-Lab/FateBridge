@@ -86,7 +86,7 @@ sequenceDiagram
 
 支持双层快照的服务生成可读的 `snapshot_text` 与 `snapshot_export`，使用 `parse_export_content` 或共享快照构造器；部分工具只有文本或结构化数据，覆盖见 [算法矩阵](algorithm-coverage.md#4-快照协议覆盖)。`selected_sections` 只筛选导出文本，完整业务数据与原快照仍在。显式选择没有命中时导出为空，不回退全文。
 
-成功业务输出由共享模型验证，但不经模型重写，保留原有字段与数值。传输层附加 `run_metadata`，随后执行 `fields` 投影，再按选项去掉顶层 `snapshot_text`。MCP 通过 `mcp_transport.py` 返回 structuredContent、兼容 text JSON 和原生 isError；REST 返回 JSON 对象，CLI 写 stdout 并用退出码表达失败。MCP 前置 middleware 将模型错误转换为安全的统一字段提示，避免框架回显提交内容。完整选项见 [API 参考](api-reference.md#25-字段投影与输出体积)。
+成功业务输出由共享模型验证，但不经模型重写，保留原有字段与数值。传输层附加 `run_metadata`，随后执行 `fields` 投影，再按选项去掉顶层 `snapshot_text`。MCP 通过 `mcp_transport.py` 返回 structuredContent、JSON text 和原生 isError；REST 返回 JSON 对象，CLI 写 stdout 并用退出码表达失败。MCP 前置 middleware 将模型错误转换为安全的统一字段提示，避免框架回显提交内容。完整选项见 [API 参考](api-reference.md#25-字段投影与输出体积)。
 
 `core/schema_cache.py` 缓存默认验证 Schema 和合同 SHA-256：按实际模型类及 core schema 身份区分，每类缓存最多 256 条；模型 `model_rebuild()` 后自动使用新版本，公开 Schema 返回深拷贝。动态修改模型配置、Schema hook 或嵌套模型而未重建根模型时，需要调用 `clear_contract_caches()`。业务输入、输出、调用时间和 execution receipt 仍逐次生成。输出在领域返回后、receipt 附加后分别校验；REST 不再重复第三次校验同一完整结果。
 
@@ -124,12 +124,6 @@ Swiss Ephemeris 存在共享 C 状态。直接调用与会修改目录的第三�
 
 `tests/test_architecture_boundaries.py` 检查核心/分析/工具层不得依赖应用编排和协议层、应用与服务不得依赖协议适配器或旧兼容入口，并检查包含函数内导入的全限定静态导入图无循环。旧模块不得重新出现或被内部导入；该检查不分析动态 `importlib` 调用或第三方库内部依赖。
 
-本次审查、已落实的整理与后续热点见 [代码内聚与耦合审查](code-structure-review-2026-10-12.md)。
-
-星盘与时运拆分、同环境输出比较及回归证据见 [星盘与时运结构整理验收](astro-timing-structure-validation-2026-10-12.md)。
-
-请求模型、目录和公共工具拆分见 [低优先级热点整理验收](request-catalog-helpers-validation-2026-10-12.md)。
-
 ## 运行配置与边界
 
 REST 默认监听 `0.0.0.0:8010`，可选 API Key 鉴权；CORS、运维路径豁免和配置加载见 [快速入门](getting-started.md#配置环境变量) 与 [安全策略](../SECURITY.md)。FastMCP 默认使用 stdio，由 host 启动子进程。CLI 不需要 REST 服务，`profile` 可为同一命主编排多套盘，`--subject-file` 复用出生信息。
@@ -144,4 +138,25 @@ REST 默认监听 `0.0.0.0:8010`，可选 API Key 鉴权；CORS、运维路径�
 
 玄空版本独立放在 `data/fengshui/xuankong-v1.json`，与基础规则版本分别发布。`core/fengshui/xuankong.py` 只使用历史定运及磁北宅向，按输入误差解析候选角区；合参新增的是独立层，不给年度盘添加山向星，也不按当前元运重算宅盘。详见 [来源与合同](fengshui-xuankong.md)。
 
-旧入口删除与当前迁移路径见[旧入口与兼容层清理验收](legacy-entry-cleanup-validation-2026-10-13.md)。
+## 旧入口迁移
+
+历史兼容模块、重导出、文本包装及旧路由已退出支持。Python 调用方应直接导入职责模块，协议调用方使用正式路由或原生 MCP Client。
+
+| 已删除的入口 | 当前入口 |
+| --- | --- |
+| `core/tool_spec.py` | `application.tool_spec`、`bindings`、`execution`、`projection`、`description`；协议注册使用 `transports.rest/mcp` |
+| `core/discovery.py`、`core/scenarios.py` | `application.discovery`、`application.scenarios` |
+| `core/request_models.py` | `core.requests` 中各领域的定义模块 |
+| `core/astrology.py` | `core.astro` 中的职责模块；共用表使用 `core.astrology_tables` |
+| `utils/helpers.py` | `utils.birth_input/solar_time/formatting/analysis_clock/elements` |
+| `core.predictive`、`core.local_techniques`、`core.metaphysics` 的包级重导出 | 按技法导入具体子模块 |
+| `services.calculation` 的出生构造器/响应私有别名 | `services.birth_context.build_birth_computation_context`、`birth_payload.build_destiny_payload` |
+| `services.timing` 的日历查询和私有 helper 重导出 | `services.calendar_tools/calendar_input/timing_state/timing_snapshots` |
+| `services.tool_catalog` 的绑定/服务代理重导出 | `services.catalog` 中相应领域模块；中央目录只负责装配和合同补全 |
+| `api` 的请求模型、服务和历史 handler 别名 | 请求模型直接导入定义模块；HTTP 调用正式路由 |
+| `mcp_server.<tool>.fn` 文本包装 | 原生 FastMCP Client；结果包含 JSON text、`structuredContent` 与原生 `isError` |
+| `POST /api/calculate`、CLI `calculate_legacy` | 独立命盘使用 `/api/cn/bazi/birth` / `bazi_birth`，字段位于 `bazi_birth` 对象；综合分析使用 MCP / CLI `analyze_destiny` |
+
+公开请求字段统一使用模型的 Python 字段名，例如 `gps_lat`、`gps_lon`、`use_true_solar_time`、`planet_info`、`astro_meaning`。历史 camelCase 请求别名已移除，未知字段在三端返回输入校验错误。关系盘只接受 `relative_mode`；比较盘使用 `compare`，影响盘使用 `synastry` / `influence`，合成盘使用 `composite`。关系盘方向字段只保留 snake_case，单盘结果放在 `chart`，不再重复返回 `composite_chart`。
+
+主限赤经推运使用唯一方法名 `equatorial`；`legacy_reference` 和 `legacy_equatorial` 已移除。导出章节按当前注册名称精确匹配，不映射历史标题。当前 FastMCP 最低版本为 3.4.2，直接使用其原生 `ToolResult`，不保留旧版本结果子类。

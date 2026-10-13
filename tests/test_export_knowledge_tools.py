@@ -17,14 +17,14 @@ from fatebridge.services.knowledge import (
 from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
-def test_export_request_models_accept_legacy_style_fields():
+def test_export_request_models_accept_canonical_fields():
     registry_request = ExportRegistryRequest(technique="qimen")
     parse_request = ExportParseRequest(
         technique="qimen",
         content="[起盘信息]\n测试",
         selected_sections=["起盘信息", "八宫详解"],
-        planetInfo={"showHouse": True, "showRuler": False},
-        astroMeaning={"enabled": True},
+        planet_info={"showHouse": True, "showRuler": False},
+        astro_meaning={"enabled": True},
     )
     knowledge_registry_request = KnowledgeRegistryRequest(
         domain="astro",
@@ -39,13 +39,13 @@ def test_export_request_models_accept_legacy_style_fields():
         selected_sections=["查询信息", "知识正文"],
     )
 
-    parse_payload = parse_request.model_dump(by_alias=True)
+    parse_payload = parse_request.model_dump()
     knowledge_payload = knowledge_read_request.model_dump()
 
     assert registry_request.technique == "qimen"
-    assert parse_payload["planetInfo"]["showHouse"] is True
-    assert parse_payload["planetInfo"]["showRuler"] is False
-    assert parse_payload["astroMeaning"]["enabled"] is True
+    assert parse_payload["planet_info"]["showHouse"] is True
+    assert parse_payload["planet_info"]["showRuler"] is False
+    assert parse_payload["astro_meaning"]["enabled"] is True
     assert knowledge_registry_request.domain == "astro"
     assert knowledge_registry_request.selected_sections == ["目录概览", "astro"]
     assert knowledge_payload["aspect_degree"] == 90
@@ -88,7 +88,7 @@ def test_calculate_export_registry_includes_knowledge_and_ziwei_rules():
     ]
 
 
-def test_calculate_export_parse_normalizes_legacy_titles_and_filters_forbidden_sections():
+def test_calculate_export_parse_uses_current_titles_and_filters_forbidden_sections():
     content = "\n".join(
         [
             "[起盘信息]",
@@ -97,10 +97,10 @@ def test_calculate_export_parse_normalizes_legacy_titles_and_filters_forbidden_s
             "[右侧栏目]",
             "这里不该进入最终导出",
             "",
-            "[八宫]",
+            "[八宫详解]",
             "这里是八宫详解内容",
             "",
-            "[演卦]",
+            "[奇门演卦]",
             "这里是奇门演卦内容",
         ]
     )
@@ -113,7 +113,7 @@ def test_calculate_export_parse_normalizes_legacy_titles_and_filters_forbidden_s
 
     assert result["section_titles_detected"] == [
         "起盘信息",
-        "盘面要素",
+        "右侧栏目",
         "八宫详解",
         "奇门演卦",
     ]
@@ -238,10 +238,10 @@ def test_export_and_knowledge_mcp_tools_return_json_strings():
             "[起盘信息]",
             "排盘参数",
             "",
-            "[八宫]",
+            "[八宫详解]",
             "这里是八宫详解内容",
             "",
-            "[演卦]",
+            "[奇门演卦]",
             "这里是奇门演卦内容",
         ]
     )

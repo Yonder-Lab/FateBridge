@@ -50,7 +50,7 @@ def calculate_compatibility_analysis(
         analysis1, analysis2, rel_type
     )
 
-    # 保持向后兼容，同时提供传统分析
+    # 分别提供传统四柱规则与多维关系分析。
     pillars1 = context1.birth_pillars
     pillars2 = context2.birth_pillars
     traditional_compatibility = BaZiRules.calculate_compatibility_score(

@@ -1,9 +1,0 @@
-{
-  "before_result_wire_bytes": 137556,
-  "after_result_wire_bytes": 10226,
-  "before_business_output_sha256": "6b625b8a638768c1816c8d3ee804e3516c7ac4fb6b71cdbad1e7aa8fb635dd80",
-  "after_business_output_sha256": "6b625b8a638768c1816c8d3ee804e3516c7ac4fb6b71cdbad1e7aa8fb635dd80",
-  "current_pillar_preserved": true,
-  "calendar_boundaries_preserved": true,
-  "after_structured_bytes": 4956
-}

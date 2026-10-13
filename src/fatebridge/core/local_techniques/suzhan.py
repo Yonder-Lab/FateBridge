@@ -6,12 +6,11 @@ Pure relocation from the package facade.
 
 from __future__ import annotations
 
+from typing import Any, Dict, List, Optional
+
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
+
 from .chart import (
-    DEFAULT_BIRTH_TIMEZONE,
-    Any,
-    Dict,
-    List,
-    Optional,
     _build_local_chart_response,
     _join_lines,
     _normalize_date_text,

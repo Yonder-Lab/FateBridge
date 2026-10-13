@@ -23,7 +23,7 @@ from fatebridge.core.classical import (
     classical_snapshot_lines,
 )
 from fatebridge.core.export_parser import parse_export_content
-from fatebridge.core.metaphysics import kongwang_for_ganzhi
+from fatebridge.core.metaphysics.common import kongwang_for_ganzhi
 from fatebridge.services.birth_context import (
     BirthComputationContext,
     build_birth_computation_context,

@@ -1,4 +1,4 @@
-from fatebridge.core.metaphysics import (
+from fatebridge.core.metaphysics.ziwei import (
     ZIWEI_SIHUA_RULES,
     build_ziwei_chart,
     build_ziwei_horoscope,

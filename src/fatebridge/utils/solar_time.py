@@ -11,7 +11,7 @@ from fatebridge.utils.timezones import (
     invalid_timezone_message as _invalid_timezone_message,
 )
 from fatebridge.utils.timezones import (
-    parse_timezone_name,
+    parse_timezone_name,  # Shared parsing for civil and astronomical calculations.
 )
 
 SOLAR_TIME_STRATEGY_APPARENT = "apparent"

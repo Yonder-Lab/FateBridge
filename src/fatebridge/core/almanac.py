@@ -229,7 +229,7 @@ class SolarTerm:
     moment: datetime
     date_key: str
     day_ganzhi: str
-    # Internal provenance; legacy serialized calendars retain their contract.
+    # Internal provenance is separate from the serialized calendar fields.
     resolution_provider: str = "unknown"
 
     def as_dict(self) -> Dict[str, str]:
@@ -246,6 +246,19 @@ def localize_datetime(moment: datetime, timezone_name: Optional[str]) -> datetim
     if moment.tzinfo is None:
         return moment.replace(tzinfo=tzinfo)
     return moment.astimezone(tzinfo)
+
+
+def elapsed_days_between(start: datetime, end: datetime) -> float:
+    """Elapsed 24-hour days between aware instants, including DST transitions.
+
+    Python subtracts wall clocks when two datetimes share the same tzinfo.
+    Solar-term durations instead measure physical time, so compare in UTC.
+    """
+    if start.utcoffset() is None or end.utcoffset() is None:
+        raise ValueError("Elapsed solar-term durations require aware datetimes.")
+    return (
+        end.astimezone(timezone.utc) - start.astimezone(timezone.utc)
+    ).total_seconds() / 86400
 
 
 def current_local_datetime(timezone_name: Optional[str] = None) -> datetime:
@@ -396,7 +409,7 @@ def _solar_term_utc_via_swe(
 
 
 def _solar_term_utc_via_linear(year: int, term_index: int) -> datetime:
-    """Legacy linear fixed-qì approximation anchored at 1900. Used as fallback
+    """Linear fixed-qì approximation anchored at 1900. Used as fallback
     when swisseph is unavailable; drift grows as the year moves away from
     the anchor (tens of minutes near 2100, hours pre-1900).
     """
@@ -530,10 +543,10 @@ def get_bazi_month_context(
         "start_term": current_boundary.as_dict(),
         "next_term": next_boundary.as_dict(),
         "days_since_start": round(
-            (local_moment - current_boundary.moment).total_seconds() / 86400, 4
+            elapsed_days_between(current_boundary.moment, local_moment), 4
         ),
         "days_until_next": round(
-            (next_boundary.moment - local_moment).total_seconds() / 86400, 4
+            elapsed_days_between(local_moment, next_boundary.moment), 4
         ),
     }
 

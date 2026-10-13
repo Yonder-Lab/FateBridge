@@ -7,17 +7,16 @@ Pure relocation from the package facade.
 from __future__ import annotations
 
 import copy
+from typing import Any, Dict, Optional
 
+from fatebridge.core.almanac import DAY_GANZHI_STRATEGY_STANDARD
+from fatebridge.core.metaphysics.common import MetaphysicsSeed
+from fatebridge.core.metaphysics.liureng import build_liureng_board
+from fatebridge.core.metaphysics.taiyi import build_taiyi_board
 from fatebridge.utils.formatting import create_pillar_dict
+from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
-from ..metaphysics import build_liureng_board, build_taiyi_board
 from .chart import (
-    DAY_GANZHI_STRATEGY_STANDARD,
-    DEFAULT_BIRTH_TIMEZONE,
-    Any,
-    Dict,
-    MetaphysicsSeed,
-    Optional,
     _build_metaphysics_analysis_context,
     _build_metaphysics_seed,
     _build_qimen_palace_overview_lines,

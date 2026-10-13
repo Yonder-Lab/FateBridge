@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from fatebridge.core.requests.base import _DeferredModel
 
@@ -72,8 +72,6 @@ class SixYaoLineRequest(_DeferredModel):
 class SixYaoRequest(_DeferredModel):
     """Request model for sixyao."""
 
-    model_config = ConfigDict(populate_by_name=True)
-
     date: str = Field(description="Date string, e.g. 2028-04-06")
     time: str = Field(description="Time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
@@ -81,12 +79,8 @@ class SixYaoRequest(_DeferredModel):
     lon: Optional[str] = Field(
         default="121e28", description="Longitude text or decimal"
     )
-    gps_lat: Optional[float] = Field(
-        default=None, alias="gpsLat", description="GPS latitude"
-    )
-    gps_lon: Optional[float] = Field(
-        default=None, alias="gpsLon", description="GPS longitude"
-    )
+    gps_lat: Optional[float] = Field(default=None, description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, description="GPS longitude")
     question: Optional[str] = Field(default=None, description="Question or topic")
     gua_code: Optional[str] = Field(default=None, description="Current hexagram code")
     changed_code: Optional[str] = Field(
@@ -118,8 +112,6 @@ class SixYaoRequest(_DeferredModel):
 class SuZhanRequest(_DeferredModel):
     """Request model for suzhan."""
 
-    model_config = ConfigDict(populate_by_name=True)
-
     date: str = Field(description="Date string, e.g. 2028-04-06")
     time: str = Field(description="Time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
@@ -127,12 +119,8 @@ class SuZhanRequest(_DeferredModel):
     lon: Optional[str] = Field(
         default="121e28", description="Longitude text or decimal"
     )
-    gps_lat: Optional[float] = Field(
-        default=None, alias="gpsLat", description="GPS latitude"
-    )
-    gps_lon: Optional[float] = Field(
-        default=None, alias="gpsLon", description="GPS longitude"
-    )
+    gps_lat: Optional[float] = Field(default=None, description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, description="GPS longitude")
     szchart: int = Field(
         default=0, description="宿占盘模式开关（透传至宿曜引擎；默认 0）"
     )
@@ -141,12 +129,10 @@ class SuZhanRequest(_DeferredModel):
     )
     house_start_mode: int = Field(
         default=1,
-        alias="houseStartMode",
         description="宫位起始模式（透传至宿曜引擎；默认 1）",
     )
     doubing_su28: bool = Field(
         default=True,
-        alias="doubingSu28",
         description="是否按斗柄(doubing)标注二十八宿(su28)；默认开启",
     )
     hsys: int = Field(
@@ -162,8 +148,6 @@ class SuZhanRequest(_DeferredModel):
 class CanpingRequest(_DeferredModel):
     """Request model for canping (邵子参评数 / 金锁银匙)."""
 
-    model_config = ConfigDict(populate_by_name=True)
-
     date: str = Field(description="Birth date string, e.g. 1990-06-15")
     time: str = Field(description="Birth time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
@@ -174,12 +158,8 @@ class CanpingRequest(_DeferredModel):
         default=None,
         description="Longitude text or decimal; required when true solar time is on",
     )
-    gps_lat: Optional[float] = Field(
-        default=None, alias="gpsLat", description="GPS latitude"
-    )
-    gps_lon: Optional[float] = Field(
-        default=None, alias="gpsLon", description="GPS longitude"
-    )
+    gps_lat: Optional[float] = Field(default=None, description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, description="GPS longitude")
     gender: Optional[str] = Field(
         default="男",
         description=(
@@ -193,15 +173,12 @@ class CanpingRequest(_DeferredModel):
     )
     use_true_solar_time: bool = Field(
         default=True,
-        alias="useTrueSolarTime",
         description="Apply true solar time correction (needs lon); default on — 数算 derives from the BaZi pillars",
     )
 
 
 class HeluoRequest(_DeferredModel):
     """Request model for heluo (河洛理数)."""
-
-    model_config = ConfigDict(populate_by_name=True)
 
     date: str = Field(description="Birth date string, e.g. 1990-06-15")
     time: str = Field(description="Birth time string, e.g. 09:33:00")
@@ -213,12 +190,8 @@ class HeluoRequest(_DeferredModel):
         default=None,
         description="Longitude text or decimal; required when true solar time is on",
     )
-    gps_lat: Optional[float] = Field(
-        default=None, alias="gpsLat", description="GPS latitude"
-    )
-    gps_lon: Optional[float] = Field(
-        default=None, alias="gpsLon", description="GPS longitude"
-    )
+    gps_lat: Optional[float] = Field(default=None, description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, description="GPS longitude")
     gender: Optional[str] = Field(
         default="男",
         description=(
@@ -228,15 +201,12 @@ class HeluoRequest(_DeferredModel):
     )
     use_true_solar_time: bool = Field(
         default=True,
-        alias="useTrueSolarTime",
         description="Apply true solar time correction (needs lon); default on — 数算 derives from the BaZi pillars",
     )
 
 
 class OtherBuRequest(_DeferredModel):
     """Request model for otherbu."""
-
-    model_config = ConfigDict(populate_by_name=True)
 
     date: str = Field(description="Date string, e.g. 2028-04-06")
     time: str = Field(description="Time string, e.g. 09:33:00")
@@ -245,12 +215,8 @@ class OtherBuRequest(_DeferredModel):
     lon: Optional[str] = Field(
         default="121e28", description="Longitude text or decimal"
     )
-    gps_lat: Optional[float] = Field(
-        default=None, alias="gpsLat", description="GPS latitude"
-    )
-    gps_lon: Optional[float] = Field(
-        default=None, alias="gpsLon", description="GPS longitude"
-    )
+    gps_lat: Optional[float] = Field(default=None, description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, description="GPS longitude")
     tradition: bool = Field(
         default=False, description="Traditional mode without outer planets"
     )
@@ -271,8 +237,6 @@ class OtherBuRequest(_DeferredModel):
 class SanShiUnitedRequest(_DeferredModel):
     """Request model for sanshiunited."""
 
-    model_config = ConfigDict(populate_by_name=True)
-
     date: str = Field(description="Date string, e.g. 2028-04-06")
     time: str = Field(description="Time string, e.g. 09:33:00")
     zone: Optional[str] = Field(default="+08:00", description="Timezone spec")
@@ -280,20 +244,14 @@ class SanShiUnitedRequest(_DeferredModel):
     lon: Optional[str] = Field(
         default="121e28", description="Longitude text or decimal"
     )
-    gps_lat: Optional[float] = Field(
-        default=None, alias="gpsLat", description="GPS latitude"
-    )
-    gps_lon: Optional[float] = Field(
-        default=None, alias="gpsLon", description="GPS longitude"
-    )
+    gps_lat: Optional[float] = Field(default=None, description="GPS latitude")
+    gps_lon: Optional[float] = Field(default=None, description="GPS longitude")
     qimen_options: Dict[str, Any] = Field(
         default_factory=dict,
-        alias="qimen_options",
         description="Optional qimen settings",
     )
     taiyi_options: Dict[str, Any] = Field(
         default_factory=dict,
-        alias="taiyi_options",
         description="Optional taiyi settings",
     )
     selected_sections: List[str] = Field(
@@ -302,12 +260,10 @@ class SanShiUnitedRequest(_DeferredModel):
     )
     liureng_yue: Optional[str] = Field(
         default=None,
-        alias="liureng_yue",
         description="Optional liureng month-general override",
     )
     liureng_is_diurnal: Optional[bool] = Field(
         default=None,
-        alias="liureng_isDiurnal",
         description="Optional liureng day/night override",
     )
     use_true_solar_time: bool = Field(

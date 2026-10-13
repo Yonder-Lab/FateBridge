@@ -16,7 +16,7 @@ Scope notes (see docs/superpowers/specs/2026-06-21-guolao-moira-engine-design.md
   算出（4 张 horosa fixture 最小二乘，残差 <1e-5°，周期≈28年）。补齐后 ``孤月独明`` 的同宫
   计数覆盖全 11 体（含炁），与 horosa 一致——此前的「炁缺省」注记已消除。
 * **命坐两歧 (Phase 3)**：近宫界 + 近宿界 均已实现。宿界以 FB 等分宿口径（360/28，与
-  ``core.astrology._su28`` 同源）判定——内部自洽，但非 horosa 后端真实（不等）宿度，故
+  ``core.astro.geometry._su28`` 同源）判定——内部自洽，但非 horosa 后端真实（不等）宿度，故
   近宿界临界判定不与 horosa 字节对照（近宫界仍与 JS 逐字一致）。
 
 The remaining patterns (八杀朝天/日月拱官/金水相涵/日月失所/官福失垣/孛犯太阳/罗犯太阳/
@@ -274,7 +274,7 @@ def _near_sign_boundary(lon: Optional[float]) -> bool:
     return val <= 1 or val >= 29
 
 
-# 二十八宿等分步长（与 core.astrology._su28 同口径：360/28）。FateBridge 以等分宿度
+# 二十八宿等分步长（与 core.astro.geometry._su28 同口径：360/28）。FateBridge 以等分宿度
 # 标注星曜所在宿，故 命坐两歧 的「近宿界」亦以同一等分口径判定——内部自洽，但非 horosa
 # 后端的真实（不等）宿度，两者在宿界附近的临界判定可能不同。
 _SU28_STEP = 360.0 / 28.0

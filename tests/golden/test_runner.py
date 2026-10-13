@@ -1,9 +1,11 @@
 """runner 的覆盖与确定性测试。"""
 
+import json
 from datetime import timedelta
 
 import pytest
 
+from fatebridge.core.export_contracts import get_technique_info
 from tests.fixtures.surface_payloads import REST_POST_CASES
 from tests.golden.runner import (
     _MCP_ONLY_CASES,
@@ -46,15 +48,14 @@ def test_outputs_stable_across_simulated_clock_change():
     时钟敏感工具若有新增，在 CLOCK_SENSITIVE_SLUGS 补充对应 slug 即可。
     """
     # 真正调用 now() 回退路径的工具（payload 不含 analysis_*）
-    CLOCK_SENSITIVE_SLUGS = {"api_calculate", "api_cn_bazi_birth"}
+    CLOCK_SENSITIVE_SLUGS = {"api_cn_bazi_birth"}
 
-    snapshots_exist = all(
-        (SNAPSHOT_DIR / f"{slug}.json").exists() for slug in CLOCK_SENSITIVE_SLUGS
+    missing = sorted(
+        slug
+        for slug in CLOCK_SENSITIVE_SLUGS
+        if not (SNAPSHOT_DIR / f"{slug}.json").exists()
     )
-    if not snapshots_exist:
-        import pytest
-
-        pytest.skip("快照尚未生成，先运行 python -m tests.golden.runner")
+    assert not missing, f"缺少时钟敏感工具的必需快照：{missing}"
 
     baseline = compute_outputs(frozen=FROZEN_NOW)
     advanced = compute_outputs(frozen=FROZEN_NOW + timedelta(days=400))
@@ -77,3 +78,30 @@ def test_outputs_stable_across_simulated_clock_change():
             "该工具可能并不消费 now() 回退路径，无需列入时钟敏感工具列表，"
             "或 freeze_clock 完全隔离了时钟以致两种冻结值产出相同内容（不应发生）。"
         )
+
+
+def _embedded_export_techniques(value, path="$"):
+    if isinstance(value, dict):
+        if {"key", "preset_sections", "settings_template"} <= value.keys():
+            yield path, value
+        for key, child in value.items():
+            yield from _embedded_export_techniques(child, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            yield from _embedded_export_techniques(child, f"{path}[{index}]")
+
+
+@pytest.mark.parametrize(
+    "snapshot", sorted(SNAPSHOT_DIR.glob("*.json")), ids=lambda path: path.stem
+)
+def test_frozen_export_registry_metadata_matches_current_contract(snapshot):
+    """Shared export metadata must migrate in every nested frozen payload.
+
+    This check is independent of astronomy, operating system and Python version;
+    it prevents stale copies from surviving where numerical golden checks skip.
+    """
+    payload = json.loads(snapshot.read_text(encoding="utf-8"))
+    for path, technique in _embedded_export_techniques(payload):
+        current = get_technique_info(technique["key"])
+        assert current is not None, f"{snapshot.name}:{path}: unregistered technique"
+        assert technique == current, f"{snapshot.name}:{path}: stale export contract"

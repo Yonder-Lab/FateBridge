@@ -54,7 +54,13 @@ def test_adapters_do_not_reexport_models_services_or_text_tools():
     assert not hasattr(mcp, "_render_tool_response")
     assert not hasattr(mcp, "_render_tool_error")
     from fatebridge import mcp_transport
-    from fatebridge.core import local_techniques, predictive
+    from fatebridge.core import (
+        local_techniques,
+        metaphysics,
+        predictive,
+        response_models,
+    )
+    from fatebridge.core.local_techniques import chart
     from fatebridge.services import calculation, timing, tool_catalog
 
     assert not hasattr(tool_catalog, "calculate_bazi_birth")
@@ -63,6 +69,21 @@ def test_adapters_do_not_reexport_models_services_or_text_tools():
     assert not hasattr(timing, "calculate_nongli_time")
     assert not hasattr(predictive, "build_return_payload")
     assert not hasattr(local_techniques, "build_pseudo_chart")
+    assert not hasattr(chart, "build_pseudo_chart")
+    assert not hasattr(response_models, "Planet")
+    for name in (
+        "MetaphysicsSeed",
+        "kongwang_for_ganzhi",
+        "build_ziwei_chart",
+        "build_ziwei_horoscope",
+        "build_ziwei_rules",
+        "build_liureng_board",
+        "build_liureng_runyear",
+        "build_qimen_board",
+        "build_taiyi_board",
+        "build_jinkou_board",
+    ):
+        assert not hasattr(metaphysics, name), name
     assert not hasattr(mcp_transport, "native_tool_function")
 
 

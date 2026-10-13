@@ -1,8 +1,0 @@
-{
-  "passed": 1942,
-  "skipped": 88,
-  "failed": 1,
-  "failure": "test_generated_scenarios_are_current_and_join_live_catalog: scenario-routing source hash needed regeneration",
-  "duration_seconds": 112.0,
-  "fix": "Regenerated agent_scenarios.json; only sources_sha256 changed."
-}

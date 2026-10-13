@@ -16,8 +16,8 @@ def test_helper_request_models_accept_legacy_style_fields():
         zone="+08:00",
         lat="31n13",
         lon="121e28",
-        gpsLat=31.2167,
-        gpsLon=121.4667,
+        gps_lat=31.2167,
+        gps_lon=121.4667,
         jieqis=["春分", "冬至"],
         selected_sections=["查询信息", "重点节气"],
     )
@@ -27,10 +27,10 @@ def test_helper_request_models_accept_legacy_style_fields():
         zone="+08:00",
         lat="31n13",
         lon="121e28",
-        gpsLat=31.2167,
-        gpsLon=121.4667,
-        after23NewDay=True,
-        timeAlg=0,
+        gps_lat=31.2167,
+        gps_lon=121.4667,
+        after23_new_day=True,
+        time_alg=0,
         selected_sections=["农历上下文", "四柱上下文"],
     )
     gua_request = GuaMeiyiRequest(name=["111", "000"])
@@ -38,13 +38,13 @@ def test_helper_request_models_accept_legacy_style_fields():
     jieqi_payload = jieqi_request.model_dump(by_alias=True)
     nongli_payload = nongli_request.model_dump(by_alias=True)
 
-    assert jieqi_payload["gpsLat"] == 31.2167
-    assert jieqi_payload["gpsLon"] == 121.4667
+    assert jieqi_payload["gps_lat"] == 31.2167
+    assert jieqi_payload["gps_lon"] == 121.4667
     assert jieqi_payload["jieqis"] == ["春分", "冬至"]
     assert jieqi_payload["selected_sections"] == ["查询信息", "重点节气"]
-    assert nongli_payload["after23NewDay"] is True
-    assert nongli_payload["timeAlg"] == 0
-    assert nongli_payload["gpsLat"] == 31.2167
+    assert nongli_payload["after23_new_day"] is True
+    assert nongli_payload["time_alg"] == 0
+    assert nongli_payload["gps_lat"] == 31.2167
     assert nongli_payload["selected_sections"] == ["农历上下文", "四柱上下文"]
     assert gua_request.name == ["111", "000"]
 
