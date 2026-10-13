@@ -11,8 +11,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
+from fatebridge.utils.birth_input import normalize_gender
+
 from ...utils.data import EARTHLY_BRANCHES, HEAVENLY_STEMS
-from ...utils.helpers import normalize_gender
 from .common import (
     ELEMENT_CONTROLS,
     ELEMENT_GENERATES,

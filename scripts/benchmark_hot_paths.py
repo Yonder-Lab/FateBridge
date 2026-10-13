@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from fatebridge.services.bazi import calculate_bazi_birth
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.timing import calculate_comprehensive_timing
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 BenchmarkSpec = Tuple[Callable[..., Dict[str, Any]], tuple[Any, ...], dict[str, Any]]
 

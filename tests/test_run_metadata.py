@@ -100,11 +100,11 @@ def test_payload_inference_heuristics_are_removed():
 
 
 def test_render_does_not_guess_tool_name_from_payload_shape():
-    from fatebridge.mcp_server import _render_tool_response
+    from fatebridge.mcp_server import _render_protocol_response
 
     # A payload whose shape the OLD guesser would have mapped to "chart13".
     misleading = {"chart_profile": {"chart_type": "chart13"}}
-    rendered = _render_tool_response(misleading, tool_name=None)
-    payload = json.loads(rendered)
+    rendered = _render_protocol_response(misleading, tool_name=None)
+    payload = rendered.structured_content
     # No explicit name supplied -> a neutral marker, NOT a shape-derived guess.
     assert payload["run_metadata"]["tool_name"] == "unknown_tool"

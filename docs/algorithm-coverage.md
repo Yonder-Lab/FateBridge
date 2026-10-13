@@ -9,7 +9,7 @@
 - `Placeholder`：合同或模式入口存在，但主输出层仍是占位兼容
 - `Excluded`：当前仓库不提供该能力
 
-> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。REST / MCP 各公开 **87 个工具**，分为 **13 个 family**。本页按 MCP 集合统计；目录有 89 条记录，CLI 可执行 88 条，差异见 [API 参考](api-reference.md#24-三端能力边界)。下表逐 family 列出全部工具；新增能力时请同步本页（工具总数由 `tests/test_doc_tool_counts.py` 锁定）。
+> 工具的唯一信源是中央目录 `src/fatebridge/services/tool_catalog.py`。REST 公开 **86 个工具**，MCP 公开 **87 个工具**，分为 **13 个 family**。本页按 MCP 集合统计；目录有 88 条记录，CLI 可执行 87 条，差异见 [API 参考](api-reference.md#24-三端能力边界)。下表逐 family 列出全部工具；新增能力时请同步本页（工具总数由 `tests/test_doc_tool_counts.py` 锁定）。
 
 所有目录记录现有统一的输入/输出 Schema，三端由同一 `ToolSpec` 发布并校验；这属于接口合同覆盖，不提高算法的 `Implemented` / `Approximate` 等级，也不表示全部嵌套专业字段已有完整类型定义。
 

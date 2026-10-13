@@ -1,0 +1,2489 @@
+{
+  "case": "relationship",
+  "scenario": null,
+  "registered_config": true,
+  "host_lifecycle": "shared process; independent ephemeral conversations",
+  "turns": [
+    {
+      "prompt": "请用 FateBridge 看看我们两个人相处需要注意什么。都是虚构资料：甲，男，公历1990年5月15日10:30，北京；乙，女，公历1992年3月2日08:00，北京。两人都是Asia/Shanghai当地时间，经度116.4074、纬度39.9042。请讲得直白一点，别把分数说成成功概率。",
+      "id": "01a13331-4273-7450-bf1f-d4f33ff2f965",
+      "status": "completed",
+      "error": null,
+      "duration_seconds": 92.53,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "01a13331-4a0c-70f1-bd92-31faa118b5d2",
+          "clientId": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "请用 FateBridge 看看我们两个人相处需要注意什么。都是虚构资料：甲，男，公历1990年5月15日10:30，北京；乙，女，公历1992年3月2日08:00，北京。两人都是Asia/Shanghai当地时间，经度116.4074、纬度39.9042。请讲得直白一点，别把分数说成成功概率。",
+              "text_elements": []
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "msg_0dc12f2aa83f1e4a016acd9e0f1bf4819196d627ef5d524202",
+          "text": "我先查看 FateBridge 的可用分析工具和输入要求，再用这两份虚构资料分析相处时需要注意的地方。分数只会作为工具内部的参考指标，不会解释成成功概率。\n",
+          "phase": "commentary",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        },
+        {
+          "type": "commandExecution",
+          "id": "exec-14b48faf-9aec-446a-bc5c-fd664afd519f",
+          "status": "completed",
+          "exitCode": 0,
+          "content_omitted": "Unrelated host background command and local output"
+        },
+        {
+          "type": "commandExecution",
+          "id": "exec-dd772f17-e839-4f39-9374-ade2f9a2208e",
+          "status": "failed",
+          "exitCode": 1,
+          "content_omitted": "Unrelated host background command and local output"
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-9bcc9300-9004-48ac-904a-6aa27062eed1",
+          "server": "fatebridge",
+          "tool": "two_person_compatibility",
+          "status": "completed",
+          "arguments": {
+            "person1_name": "甲",
+            "person1_gender": "男",
+            "person1_birth_year": 1990,
+            "person1_birth_month": 5,
+            "person1_birth_day": 15,
+            "person1_birth_hour": 10,
+            "person1_birth_minute": 30,
+            "person1_birth_place": "北京",
+            "person1_birth_timezone": "Asia/Shanghai",
+            "person1_birth_longitude": 116.4074,
+            "person1_use_true_solar_time": true,
+            "person2_name": "乙",
+            "person2_gender": "女",
+            "person2_birth_year": 1992,
+            "person2_birth_month": 3,
+            "person2_birth_day": 2,
+            "person2_birth_hour": 8,
+            "person2_birth_minute": 0,
+            "person2_birth_place": "北京",
+            "person2_birth_timezone": "Asia/Shanghai",
+            "person2_birth_longitude": 116.4074,
+            "person2_use_true_solar_time": true,
+            "relationship_type": "marriage",
+            "fields": [
+              "summary",
+              "strengths",
+              "challenges",
+              "traditional_compatibility",
+              "detailed_analysis.traditional_analysis",
+              "person_info"
+            ],
+            "strict_fields": true,
+            "include_snapshot_text": false
+          },
+          "appContext": null,
+          "mcpAppUi": null,
+          "pluginId": null,
+          "readOnlyHint": true,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"summary\":{\"overall_score\":51.1,\"compatibility_level\":\"需要努力，存在一些挑战，但通过努力可以改善\",\"relationship_type\":\"marriage\",\"score_basis\":\"多维度规则加权的 0–100 分；不是关系成功概率。\"},\"strengths\":[\"第一人命局提供比肩，正好契合第二人当前格局所需\",\"第一人命局提供劫财，正好契合第二人当前格局所需\"],\"challenges\":[\"一方受益而另一方承压，属于拉扯型事件。\",\"事件带来明显张力，需要结合格局取用判断。\",\"午与丑六害\",\"巳与寅六害\"],\"traditional_compatibility\":{\"score\":8,\"level\":\"非常匹配\",\"details\":[\"一方年支午 × 二方月支寅：半合寅午戌局\",\"一方年支午 × 二方日支丑：六害\",\"一方月支巳 × 二方年支申：六合\",\"一方月支巳 × 二方月支寅：六害\",\"一方月支巳 × 二方日支丑：半合巳酉丑局\",\"一方日支辰 × 二方年支申：半合申子辰局\",\"一方时支巳 × 二方年支申：六合\",\"一方时支巳 × 二方月支寅：六害\",\"一方时支巳 × 二方日支丑：半合巳酉丑局\",\"合盘构成寅巳申三刑\"],\"score_basis\":\"合与冲、刑、害等规则加减后的净分，0 为中性；不是 0–100 分。level 只评价该净分，不能替代 summary 的综合等级；与 detailed_analysis.traditional_analysis 使用不同计分规则。\"},\"detailed_analysis\":{\"traditional_analysis\":{\"traditional_deviation\":-1.1,\"normalized_score\":39.0,\"details\":[\"午与丑六害\",\"巳与寅六害\",\"巳与寅六害\",\"合盘构成寅巳申三刑\"],\"score\":39.0,\"score_basis\":\"从 50 分起，按跨盘冲、害、刑扣分并截断至 0–100；是综合分的一个维度，与 traditional_compatibility 的净分独立。\"}},\"person_info\":{\"person1\":{\"name\":\"甲\",\"birth_datetime\":\"1990年05月15日 10时30分\",\"day_master\":\"庚(金)\",\"strength\":\"中和\",\"favorable_elements\":[\"金\"]},\"person2\":{\"name\":\"乙\",\"birth_datetime\":\"1992年03月02日 08时00分\",\"day_master\":\"丁(火)\",\"strength\":\"弱\",\"favorable_elements\":[\"火\",\"木\"]}},\"run_metadata\":{\"run_id\":\"4e798d7ba3b24917b16ec852e0e914d4\",\"trace_id\":\"e72b66ab33804716b2013030348f8244\",\"tool_name\":\"two_person_compatibility\",\"generated_at\":\"2026-10-13T02:57:48.468319Z\",\"engine\":\"fatebridge-offline\",\"engine_is_approximate\":false,\"metadata_schema_version\":\"1.0\",\"package_version\":\"0.2.0\",\"contract_sha256\":\"602bfdc977d20b024663d5add2b97a384a66a8d1a332131265788cd76d9b9717\",\"input_sha256\":\"46229351d06853137f7790aca58a32de92faad8357d3979ae9db03db3da10d7b\",\"business_output_sha256\":\"8d2698f2191ee835d66bd8aec2115446ea93d553f09240f19a71ef5527489446\",\"duration_ms\":130.975,\"effective_time\":{\"as_of\":\"2026-10-13T02:57:48.299210Z\",\"clock_timezones\":[]},\"determinism\":{\"uses_current_time\":false,\"current_time_fields_defaulted\":[],\"randomness_used\":false,\"seed_generated\":false,\"replayable_with_receipt\":true,\"scope\":\"business payload in identical implementation/data/runtime; metadata IDs and duration vary\"},\"runtime\":{\"package_version\":\"0.2.0\",\"python\":\"3.13.5\",\"platform\":\"Darwin-arm64\",\"dependencies\":{\"pydantic\":\"2.13.4\",\"kerykeion\":\"5.12.9\",\"pyswisseph\":\"2.10.3.2\",\"lunardate\":\"0.2.2\",\"python-dateutil\":\"2.9.0.post0\",\"pytz\":\"2026.2\"},\"implementation_sha256\":\"6610bf19bc5af197c8e87a8dd9bc5255697847b3e62029f9fb9b776d6b30234c\",\"bundled_data_sha256\":\"1818293541c0dd0bc63393d5adcb8e67b69225b14c2c84aee1b9609cdbf89597\",\"environment_sha256\":\"298ee8afafce69c52f5c5a30fd293b2780ad2290b5cee3e37e52ec7ac4b919a2\",\"ephemeris\":{\"scope\":\"configured_se1_inventory; actual model is reported separately\",\"files\":{\"0/seas_18.se1\":\"5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b\",\"0/semo_18.se1\":\"1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7\",\"0/sepl_18.se1\":\"ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66\"},\"sha256\":\"b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566\"}},\"provenance\":{},\"replay\":{\"as_of\":\"2026-10-13T02:57:48.299210Z\",\"overrides\":{},\"requires_original_input\":true},\"warnings\":[]}}"
+              }
+            ],
+            "structuredContent": {
+              "summary": {
+                "overall_score": 51.1,
+                "compatibility_level": "需要努力，存在一些挑战，但通过努力可以改善",
+                "relationship_type": "marriage",
+                "score_basis": "多维度规则加权的 0–100 分；不是关系成功概率。"
+              },
+              "strengths": [
+                "第一人命局提供比肩，正好契合第二人当前格局所需",
+                "第一人命局提供劫财，正好契合第二人当前格局所需"
+              ],
+              "challenges": [
+                "一方受益而另一方承压，属于拉扯型事件。",
+                "事件带来明显张力，需要结合格局取用判断。",
+                "午与丑六害",
+                "巳与寅六害"
+              ],
+              "traditional_compatibility": {
+                "score": 8,
+                "level": "非常匹配",
+                "details": [
+                  "一方年支午 × 二方月支寅：半合寅午戌局",
+                  "一方年支午 × 二方日支丑：六害",
+                  "一方月支巳 × 二方年支申：六合",
+                  "一方月支巳 × 二方月支寅：六害",
+                  "一方月支巳 × 二方日支丑：半合巳酉丑局",
+                  "一方日支辰 × 二方年支申：半合申子辰局",
+                  "一方时支巳 × 二方年支申：六合",
+                  "一方时支巳 × 二方月支寅：六害",
+                  "一方时支巳 × 二方日支丑：半合巳酉丑局",
+                  "合盘构成寅巳申三刑"
+                ],
+                "score_basis": "合与冲、刑、害等规则加减后的净分，0 为中性；不是 0–100 分。level 只评价该净分，不能替代 summary 的综合等级；与 detailed_analysis.traditional_analysis 使用不同计分规则。"
+              },
+              "detailed_analysis": {
+                "traditional_analysis": {
+                  "traditional_deviation": -1.1,
+                  "normalized_score": 39.0,
+                  "details": [
+                    "午与丑六害",
+                    "巳与寅六害",
+                    "巳与寅六害",
+                    "合盘构成寅巳申三刑"
+                  ],
+                  "score": 39.0,
+                  "score_basis": "从 50 分起，按跨盘冲、害、刑扣分并截断至 0–100；是综合分的一个维度，与 traditional_compatibility 的净分独立。"
+                }
+              },
+              "person_info": {
+                "person1": {
+                  "name": "甲",
+                  "birth_datetime": "1990年05月15日 10时30分",
+                  "day_master": "庚(金)",
+                  "strength": "中和",
+                  "favorable_elements": [
+                    "金"
+                  ]
+                },
+                "person2": {
+                  "name": "乙",
+                  "birth_datetime": "1992年03月02日 08时00分",
+                  "day_master": "丁(火)",
+                  "strength": "弱",
+                  "favorable_elements": [
+                    "火",
+                    "木"
+                  ]
+                }
+              },
+              "run_metadata": {
+                "run_id": "4e798d7ba3b24917b16ec852e0e914d4",
+                "trace_id": "e72b66ab33804716b2013030348f8244",
+                "tool_name": "two_person_compatibility",
+                "generated_at": "2026-10-13T02:57:48.468319Z",
+                "engine": "fatebridge-offline",
+                "engine_is_approximate": false,
+                "metadata_schema_version": "1.0",
+                "package_version": "0.2.0",
+                "contract_sha256": "602bfdc977d20b024663d5add2b97a384a66a8d1a332131265788cd76d9b9717",
+                "input_sha256": "46229351d06853137f7790aca58a32de92faad8357d3979ae9db03db3da10d7b",
+                "business_output_sha256": "8d2698f2191ee835d66bd8aec2115446ea93d553f09240f19a71ef5527489446",
+                "duration_ms": 130.975,
+                "effective_time": {
+                  "as_of": "2026-10-13T02:57:48.299210Z",
+                  "clock_timezones": []
+                },
+                "determinism": {
+                  "uses_current_time": false,
+                  "current_time_fields_defaulted": [],
+                  "randomness_used": false,
+                  "seed_generated": false,
+                  "replayable_with_receipt": true,
+                  "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+                },
+                "runtime": {
+                  "package_version": "0.2.0",
+                  "python": "3.13.5",
+                  "platform": "Darwin-arm64",
+                  "dependencies": {
+                    "pydantic": "2.13.4",
+                    "kerykeion": "5.12.9",
+                    "pyswisseph": "2.10.3.2",
+                    "lunardate": "0.2.2",
+                    "python-dateutil": "2.9.0.post0",
+                    "pytz": "2026.2"
+                  },
+                  "implementation_sha256": "6610bf19bc5af197c8e87a8dd9bc5255697847b3e62029f9fb9b776d6b30234c",
+                  "bundled_data_sha256": "1818293541c0dd0bc63393d5adcb8e67b69225b14c2c84aee1b9609cdbf89597",
+                  "environment_sha256": "298ee8afafce69c52f5c5a30fd293b2780ad2290b5cee3e37e52ec7ac4b919a2",
+                  "ephemeris": {
+                    "scope": "configured_se1_inventory; actual model is reported separately",
+                    "files": {
+                      "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+                      "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+                      "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+                    },
+                    "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+                  }
+                },
+                "provenance": {},
+                "replay": {
+                  "as_of": "2026-10-13T02:57:48.299210Z",
+                  "overrides": {},
+                  "requires_original_input": true
+                },
+                "warnings": []
+              }
+            },
+            "_meta": null
+          },
+          "error": null,
+          "durationMs": 180
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-453eb5f0-8442-420e-98b7-737d46ec386a",
+          "server": "fatebridge",
+          "tool": "two_person_compatibility",
+          "status": "completed",
+          "arguments": {
+            "person1_name": "甲",
+            "person1_gender": "男",
+            "person1_birth_year": 1990,
+            "person1_birth_month": 5,
+            "person1_birth_day": 15,
+            "person1_birth_hour": 10,
+            "person1_birth_minute": 30,
+            "person1_birth_place": "北京",
+            "person1_birth_timezone": "Asia/Shanghai",
+            "person1_birth_longitude": 116.4074,
+            "person1_use_true_solar_time": true,
+            "person2_name": "乙",
+            "person2_gender": "女",
+            "person2_birth_year": 1992,
+            "person2_birth_month": 3,
+            "person2_birth_day": 2,
+            "person2_birth_hour": 8,
+            "person2_birth_minute": 0,
+            "person2_birth_place": "北京",
+            "person2_birth_timezone": "Asia/Shanghai",
+            "person2_birth_longitude": 116.4074,
+            "person2_use_true_solar_time": true,
+            "relationship_type": "marriage",
+            "fields": [
+              "detailed_analysis",
+              "recommendations",
+              "element_relationship"
+            ],
+            "strict_fields": true,
+            "include_snapshot_text": false,
+            "trace_id": "e72b66ab33804716b2013030348f8244",
+            "parent_run_id": "4e798d7ba3b24917b16ec852e0e914d4"
+          },
+          "appContext": null,
+          "mcpAppUi": null,
+          "pluginId": null,
+          "readOnlyHint": true,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"detailed_analysis\":{\"element_balance\":{\"score\":60.0,\"details\":[\"火克金，互动中容易出现压制感\",\"第一人在水上偏弱，第二人在水上能形成补位\"],\"balance_type\":\"相克制约\",\"mutual_support\":[]},\"favorable_synergy\":{\"score\":56.0,\"details\":[\"第二人金具备一定承接力，对第一人略有帮助\",\"第一人火占比高，能明显补到第二人的可用之气\"],\"mutual_help\":[\"第二人金具备一定承接力，对第一人略有帮助\",\"第一人火占比高，能明显补到第二人的可用之气\"],\"synergy_level\":\"互助有限\",\"score_basis\":[\"第二人金具备一定承接力，对第一人略有帮助(+4)\",\"第一人火占比高，能明显补到第二人的可用之气(+10)\",\"第一人的可用五行金落在第二人的回避区间(-8)\",\"第二人的可用五行木, 火落在第一人的回避区间(-8)\"],\"useful_ten_gods_support\":[{\"common_ten_gods\":[\"劫财\",\"比肩\"],\"description\":\"双方在可用十神上存在交集，格局取向更容易对齐。\"}],\"supportive_patterns\":[{\"element\":\"金\",\"source\":\"第二人\",\"target\":\"第一人\",\"description\":\"第二人金具备一定承接力，对第一人略有帮助\"},{\"element\":\"火\",\"source\":\"第一人\",\"target\":\"第二人\",\"description\":\"第一人火占比高，能明显补到第二人的可用之气\"}],\"tension_patterns\":[],\"risk_reasons\":[\"第一人的可用五行金落在第二人的回避区间\",\"第二人的可用五行木, 火落在第一人的回避区间\"]},\"ten_gods_relationship\":{\"score\":77.0,\"details\":[\"第一人命局提供比肩，正好契合第二人当前格局所需\",\"第一人命局提供劫财，正好契合第二人当前格局所需\",\"第一人命局提供偏印，正好契合第二人当前格局所需\",\"第二人命局提供比肩，正好契合第一人当前格局所需\",\"第二人命局提供劫财，正好契合第一人当前格局所需\"],\"relationship_dynamics\":[\"双方共同认可能用的十神为：劫财, 比肩\"],\"compatibility_aspects\":[\"共同取用一致\"],\"score_basis\":[\"第一人命局提供比肩，正好契合第二人当前格局所需(+2)\",\"第一人命局提供劫财，正好契合第二人当前格局所需(+5)\",\"第一人命局提供偏印，正好契合第二人当前格局所需(+2)\",\"第一人带来七杀之气，对第二人属于张力型输入(-2)\",\"第二人命局提供比肩，正好契合第一人当前格局所需(+2)\",\"第二人带来七杀之气，对第一人属于张力型输入(-2)\",\"第二人带来正官之气，对第一人属于张力型输入(-2)\",\"第二人命局提供劫财，正好契合第一人当前格局所需(+1)\"],\"useful_ten_gods_support\":[{\"provider\":\"第一人\",\"target\":\"第二人\",\"ten_god\":\"比肩\",\"weight\":0.5,\"description\":\"第一人命局提供比肩，正好契合第二人当前格局所需\"},{\"provider\":\"第一人\",\"target\":\"第二人\",\"ten_god\":\"劫财\",\"weight\":1.0,\"description\":\"第一人命局提供劫财，正好契合第二人当前格局所需\"},{\"provider\":\"第一人\",\"target\":\"第二人\",\"ten_god\":\"偏印\",\"weight\":0.3,\"description\":\"第一人命局提供偏印，正好契合第二人当前格局所需\"},{\"provider\":\"第二人\",\"target\":\"第一人\",\"ten_god\":\"比肩\",\"weight\":0.5,\"description\":\"第二人命局提供比肩，正好契合第一人当前格局所需\"},{\"provider\":\"第二人\",\"target\":\"第一人\",\"ten_god\":\"劫财\",\"weight\":0.2,\"description\":\"第二人命局提供劫财，正好契合第一人当前格局所需\"}],\"supportive_patterns\":[{\"label\":\"比肩可用承接\",\"description\":\"第一人命局提供比肩，正好契合第二人当前格局所需\",\"provider\":\"第一人\",\"target\":\"第二人\"},{\"label\":\"劫财可用承接\",\"description\":\"第一人命局提供劫财，正好契合第二人当前格局所需\",\"provider\":\"第一人\",\"target\":\"第二人\"},{\"label\":\"偏印可用承接\",\"description\":\"第一人命局提供偏印，正好契合第二人当前格局所需\",\"provider\":\"第一人\",\"target\":\"第二人\"},{\"label\":\"比肩可用承接\",\"description\":\"第二人命局提供比肩，正好契合第一人当前格局所需\",\"provider\":\"第二人\",\"target\":\"第一人\"},{\"label\":\"劫财可用承接\",\"description\":\"第二人命局提供劫财，正好契合第一人当前格局所需\",\"provider\":\"第二人\",\"target\":\"第一人\"}],\"tension_patterns\":[{\"label\":\"七杀张力\",\"description\":\"第一人带来七杀之气，对第二人属于张力型输入\",\"provider\":\"第一人\",\"target\":\"第二人\"},{\"label\":\"七杀张力\",\"description\":\"第二人带来七杀之气，对第一人属于张力型输入\",\"provider\":\"第二人\",\"target\":\"第一人\"},{\"label\":\"正官张力\",\"description\":\"第二人带来正官之气，对第一人属于张力型输入\",\"provider\":\"第二人\",\"target\":\"第一人\"}],\"risk_reasons\":[\"未见明显的十神级高风险冲突\"]},\"pattern_synergy\":{\"score\":8.0,\"details\":[\"一方受益而另一方承压，属于拉扯型事件。\",\"一方受益而另一方承压，属于拉扯型事件。\",\"事件带来明显张力，需要结合格局取用判断。\",\"事件带来明显张力，需要结合格局取用判断。\",\"对双方格局都形成明显干扰。\",\"对双方格局都形成明显干扰。\",\"冲击双方可用之气，风险较高。\",\"冲击双方可用之气，风险较高。\"],\"pattern_combination\":\"寅午半合火局\",\"synergy_effects\":[\"格局层面以中性互动为主\"],\"score_basis\":[\"寅午半合火局：一方受益而另一方承压，属于拉扯型事件。(-4)\",\"巳丑半合金局：一方受益而另一方承压，属于拉扯型事件。(-4)\",\"丑午六害：事件带来明显张力，需要结合格局取用判断。(-4)\",\"寅巳六害：事件带来明显张力，需要结合格局取用判断。(-4)\",\"申辰半合水局：对双方格局都形成明显干扰。(-10)\",\"巳申六合：对双方格局都形成明显干扰。(-10)\",\"寅申六冲：冲击双方可用之气，风险较高。(-12)\",\"寅巳申三刑：冲击双方可用之气，风险较高。(-12)\"],\"supportive_patterns\":[],\"tension_patterns\":[{\"label\":\"寅午半合火局\",\"type\":\"half_harmony\",\"description\":\"一方受益而另一方承压，属于拉扯型事件。\",\"result_element\":\"火\",\"source_scope\":\"cross_person\",\"source_map\":{\"寅\":[{\"person\":\"person2\",\"pillar\":\"month\",\"stem\":\"壬\"}],\"午\":[{\"person\":\"person1\",\"pillar\":\"year\",\"stem\":\"庚\"}]}},{\"label\":\"巳丑半合金局\",\"type\":\"half_harmony\",\"description\":\"一方受益而另一方承压，属于拉扯型事件。\",\"result_element\":\"金\",\"source_scope\":\"cross_person\",\"source_map\":{\"巳\":[{\"person\":\"person1\",\"pillar\":\"month\",\"stem\":\"辛\"},{\"person\":\"person1\",\"pillar\":\"hour\",\"stem\":\"辛\"}],\"丑\":[{\"person\":\"person2\",\"pillar\":\"day\",\"stem\":\"丁\"}]}},{\"label\":\"丑午六害\",\"type\":\"six_harm\",\"description\":\"事件带来明显张力，需要结合格局取用判断。\",\"result_element\":null,\"source_scope\":\"cross_person\",\"source_map\":{\"丑\":[{\"person\":\"person2\",\"pillar\":\"day\",\"stem\":\"丁\"}],\"午\":[{\"person\":\"person1\",\"pillar\":\"year\",\"stem\":\"庚\"}]}},{\"label\":\"寅巳六害\",\"type\":\"six_harm\",\"description\":\"事件带来明显张力，需要结合格局取用判断。\",\"result_element\":null,\"source_scope\":\"cross_person\",\"source_map\":{\"寅\":[{\"person\":\"person2\",\"pillar\":\"month\",\"stem\":\"壬\"}],\"巳\":[{\"person\":\"person1\",\"pillar\":\"month\",\"stem\":\"辛\"},{\"person\":\"person1\",\"pillar\":\"hour\",\"stem\":\"辛\"}]}}],\"risk_patterns\":[{\"label\":\"申辰半合水局\",\"type\":\"half_harmony\",\"description\":\"对双方格局都形成明显干扰。\",\"result_element\":\"水\",\"source_scope\":\"cross_person\",\"source_map\":{\"申\":[{\"person\":\"person2\",\"pillar\":\"year\",\"stem\":\"壬\"}],\"辰\":[{\"person\":\"person1\",\"pillar\":\"day\",\"stem\":\"庚\"},{\"person\":\"person2\",\"pillar\":\"hour\",\"stem\":\"甲\"}]}},{\"label\":\"巳申六合\",\"type\":\"six_harmony\",\"description\":\"对双方格局都形成明显干扰。\",\"result_element\":\"水\",\"source_scope\":\"cross_person\",\"source_map\":{\"巳\":[{\"person\":\"person1\",\"pillar\":\"month\",\"stem\":\"辛\"},{\"person\":\"person1\",\"pillar\":\"hour\",\"stem\":\"辛\"}],\"申\":[{\"person\":\"person2\",\"pillar\":\"year\",\"stem\":\"壬\"}]}},{\"label\":\"寅申六冲\",\"type\":\"six_clash\",\"description\":\"冲击双方可用之气，风险较高。\",\"result_element\":null,\"source_scope\":\"person2\",\"source_map\":{\"寅\":[{\"person\":\"person2\",\"pillar\":\"month\",\"stem\":\"壬\"}],\"申\":[{\"person\":\"person2\",\"pillar\":\"year\",\"stem\":\"壬\"}]}},{\"label\":\"寅巳申三刑\",\"type\":\"three_punishment\",\"description\":\"冲击双方可用之气，风险较高。\",\"result_element\":null,\"source_scope\":\"cross_person\",\"source_map\":{\"寅\":[{\"person\":\"person2\",\"pillar\":\"month\",\"stem\":\"壬\"}],\"巳\":[{\"person\":\"person1\",\"pillar\":\"month\",\"stem\":\"辛\"},{\"person\":\"person1\",\"pillar\":\"hour\",\"stem\":\"辛\"}],\"申\":[{\"person\":\"person2\",\"pillar\":\"year\",\"stem\":\"壬\"}]}}]},\"traditional_analysis\":{\"traditional_deviation\":-1.1,\"normalized_score\":39.0,\"details\":[\"午与丑六害\",\"巳与寅六害\",\"巳与寅六害\",\"合盘构成寅巳申三刑\"],\"score\":39.0,\"score_basis\":\"从 50 分起，按跨盘冲、害、刑扣分并截断至 0–100；是综合分的一个维度，与 traditional_compatibility 的净分独立。\"}},\"recommendations\":[\"婚姻关系建议重视五行互补和精神契合\"],\"element_relationship\":{\"person1_element\":\"金\",\"person2_element\":\"火\",\"relationship_type\":\"相克\",\"description\":\"火克金\"},\"run_metadata\":{\"run_id\":\"91d41163357f45a387aa6c83d1f4f070\",\"trace_id\":\"e72b66ab33804716b2013030348f8244\",\"tool_name\":\"two_person_compatibility\",\"generated_at\":\"2026-10-13T02:58:00.451686Z\",\"engine\":\"fatebridge-offline\",\"engine_is_approximate\":false,\"metadata_schema_version\":\"1.0\",\"package_version\":\"0.2.0\",\"contract_sha256\":\"602bfdc977d20b024663d5add2b97a384a66a8d1a332131265788cd76d9b9717\",\"input_sha256\":\"46229351d06853137f7790aca58a32de92faad8357d3979ae9db03db3da10d7b\",\"business_output_sha256\":\"8d2698f2191ee835d66bd8aec2115446ea93d553f09240f19a71ef5527489446\",\"duration_ms\":1.074,\"effective_time\":{\"as_of\":\"2026-10-13T02:58:00.450145Z\",\"clock_timezones\":[]},\"determinism\":{\"uses_current_time\":false,\"current_time_fields_defaulted\":[],\"randomness_used\":false,\"seed_generated\":false,\"replayable_with_receipt\":true,\"scope\":\"business payload in identical implementation/data/runtime; metadata IDs and duration vary\"},\"runtime\":{\"package_version\":\"0.2.0\",\"python\":\"3.13.5\",\"platform\":\"Darwin-arm64\",\"dependencies\":{\"pydantic\":\"2.13.4\",\"kerykeion\":\"5.12.9\",\"pyswisseph\":\"2.10.3.2\",\"lunardate\":\"0.2.2\",\"python-dateutil\":\"2.9.0.post0\",\"pytz\":\"2026.2\"},\"implementation_sha256\":\"6610bf19bc5af197c8e87a8dd9bc5255697847b3e62029f9fb9b776d6b30234c\",\"bundled_data_sha256\":\"1818293541c0dd0bc63393d5adcb8e67b69225b14c2c84aee1b9609cdbf89597\",\"environment_sha256\":\"298ee8afafce69c52f5c5a30fd293b2780ad2290b5cee3e37e52ec7ac4b919a2\",\"ephemeris\":{\"scope\":\"configured_se1_inventory; actual model is reported separately\",\"files\":{\"0/seas_18.se1\":\"5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b\",\"0/semo_18.se1\":\"1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7\",\"0/sepl_18.se1\":\"ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66\"},\"sha256\":\"b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566\"}},\"provenance\":{},\"replay\":{\"as_of\":\"2026-10-13T02:58:00.450145Z\",\"overrides\":{},\"requires_original_input\":true},\"warnings\":[],\"parent_run_id\":\"4e798d7ba3b24917b16ec852e0e914d4\"}}"
+              }
+            ],
+            "structuredContent": {
+              "detailed_analysis": {
+                "element_balance": {
+                  "score": 60.0,
+                  "details": [
+                    "火克金，互动中容易出现压制感",
+                    "第一人在水上偏弱，第二人在水上能形成补位"
+                  ],
+                  "balance_type": "相克制约",
+                  "mutual_support": []
+                },
+                "favorable_synergy": {
+                  "score": 56.0,
+                  "details": [
+                    "第二人金具备一定承接力，对第一人略有帮助",
+                    "第一人火占比高，能明显补到第二人的可用之气"
+                  ],
+                  "mutual_help": [
+                    "第二人金具备一定承接力，对第一人略有帮助",
+                    "第一人火占比高，能明显补到第二人的可用之气"
+                  ],
+                  "synergy_level": "互助有限",
+                  "score_basis": [
+                    "第二人金具备一定承接力，对第一人略有帮助(+4)",
+                    "第一人火占比高，能明显补到第二人的可用之气(+10)",
+                    "第一人的可用五行金落在第二人的回避区间(-8)",
+                    "第二人的可用五行木, 火落在第一人的回避区间(-8)"
+                  ],
+                  "useful_ten_gods_support": [
+                    {
+                      "common_ten_gods": [
+                        "劫财",
+                        "比肩"
+                      ],
+                      "description": "双方在可用十神上存在交集，格局取向更容易对齐。"
+                    }
+                  ],
+                  "supportive_patterns": [
+                    {
+                      "element": "金",
+                      "source": "第二人",
+                      "target": "第一人",
+                      "description": "第二人金具备一定承接力，对第一人略有帮助"
+                    },
+                    {
+                      "element": "火",
+                      "source": "第一人",
+                      "target": "第二人",
+                      "description": "第一人火占比高，能明显补到第二人的可用之气"
+                    }
+                  ],
+                  "tension_patterns": [],
+                  "risk_reasons": [
+                    "第一人的可用五行金落在第二人的回避区间",
+                    "第二人的可用五行木, 火落在第一人的回避区间"
+                  ]
+                },
+                "ten_gods_relationship": {
+                  "score": 77.0,
+                  "details": [
+                    "第一人命局提供比肩，正好契合第二人当前格局所需",
+                    "第一人命局提供劫财，正好契合第二人当前格局所需",
+                    "第一人命局提供偏印，正好契合第二人当前格局所需",
+                    "第二人命局提供比肩，正好契合第一人当前格局所需",
+                    "第二人命局提供劫财，正好契合第一人当前格局所需"
+                  ],
+                  "relationship_dynamics": [
+                    "双方共同认可能用的十神为：劫财, 比肩"
+                  ],
+                  "compatibility_aspects": [
+                    "共同取用一致"
+                  ],
+                  "score_basis": [
+                    "第一人命局提供比肩，正好契合第二人当前格局所需(+2)",
+                    "第一人命局提供劫财，正好契合第二人当前格局所需(+5)",
+                    "第一人命局提供偏印，正好契合第二人当前格局所需(+2)",
+                    "第一人带来七杀之气，对第二人属于张力型输入(-2)",
+                    "第二人命局提供比肩，正好契合第一人当前格局所需(+2)",
+                    "第二人带来七杀之气，对第一人属于张力型输入(-2)",
+                    "第二人带来正官之气，对第一人属于张力型输入(-2)",
+                    "第二人命局提供劫财，正好契合第一人当前格局所需(+1)"
+                  ],
+                  "useful_ten_gods_support": [
+                    {
+                      "provider": "第一人",
+                      "target": "第二人",
+                      "ten_god": "比肩",
+                      "weight": 0.5,
+                      "description": "第一人命局提供比肩，正好契合第二人当前格局所需"
+                    },
+                    {
+                      "provider": "第一人",
+                      "target": "第二人",
+                      "ten_god": "劫财",
+                      "weight": 1.0,
+                      "description": "第一人命局提供劫财，正好契合第二人当前格局所需"
+                    },
+                    {
+                      "provider": "第一人",
+                      "target": "第二人",
+                      "ten_god": "偏印",
+                      "weight": 0.3,
+                      "description": "第一人命局提供偏印，正好契合第二人当前格局所需"
+                    },
+                    {
+                      "provider": "第二人",
+                      "target": "第一人",
+                      "ten_god": "比肩",
+                      "weight": 0.5,
+                      "description": "第二人命局提供比肩，正好契合第一人当前格局所需"
+                    },
+                    {
+                      "provider": "第二人",
+                      "target": "第一人",
+                      "ten_god": "劫财",
+                      "weight": 0.2,
+                      "description": "第二人命局提供劫财，正好契合第一人当前格局所需"
+                    }
+                  ],
+                  "supportive_patterns": [
+                    {
+                      "label": "比肩可用承接",
+                      "description": "第一人命局提供比肩，正好契合第二人当前格局所需",
+                      "provider": "第一人",
+                      "target": "第二人"
+                    },
+                    {
+                      "label": "劫财可用承接",
+                      "description": "第一人命局提供劫财，正好契合第二人当前格局所需",
+                      "provider": "第一人",
+                      "target": "第二人"
+                    },
+                    {
+                      "label": "偏印可用承接",
+                      "description": "第一人命局提供偏印，正好契合第二人当前格局所需",
+                      "provider": "第一人",
+                      "target": "第二人"
+                    },
+                    {
+                      "label": "比肩可用承接",
+                      "description": "第二人命局提供比肩，正好契合第一人当前格局所需",
+                      "provider": "第二人",
+                      "target": "第一人"
+                    },
+                    {
+                      "label": "劫财可用承接",
+                      "description": "第二人命局提供劫财，正好契合第一人当前格局所需",
+                      "provider": "第二人",
+                      "target": "第一人"
+                    }
+                  ],
+                  "tension_patterns": [
+                    {
+                      "label": "七杀张力",
+                      "description": "第一人带来七杀之气，对第二人属于张力型输入",
+                      "provider": "第一人",
+                      "target": "第二人"
+                    },
+                    {
+                      "label": "七杀张力",
+                      "description": "第二人带来七杀之气，对第一人属于张力型输入",
+                      "provider": "第二人",
+                      "target": "第一人"
+                    },
+                    {
+                      "label": "正官张力",
+                      "description": "第二人带来正官之气，对第一人属于张力型输入",
+                      "provider": "第二人",
+                      "target": "第一人"
+                    }
+                  ],
+                  "risk_reasons": [
+                    "未见明显的十神级高风险冲突"
+                  ]
+                },
+                "pattern_synergy": {
+                  "score": 8.0,
+                  "details": [
+                    "一方受益而另一方承压，属于拉扯型事件。",
+                    "一方受益而另一方承压，属于拉扯型事件。",
+                    "事件带来明显张力，需要结合格局取用判断。",
+                    "事件带来明显张力，需要结合格局取用判断。",
+                    "对双方格局都形成明显干扰。",
+                    "对双方格局都形成明显干扰。",
+                    "冲击双方可用之气，风险较高。",
+                    "冲击双方可用之气，风险较高。"
+                  ],
+                  "pattern_combination": "寅午半合火局",
+                  "synergy_effects": [
+                    "格局层面以中性互动为主"
+                  ],
+                  "score_basis": [
+                    "寅午半合火局：一方受益而另一方承压，属于拉扯型事件。(-4)",
+                    "巳丑半合金局：一方受益而另一方承压，属于拉扯型事件。(-4)",
+                    "丑午六害：事件带来明显张力，需要结合格局取用判断。(-4)",
+                    "寅巳六害：事件带来明显张力，需要结合格局取用判断。(-4)",
+                    "申辰半合水局：对双方格局都形成明显干扰。(-10)",
+                    "巳申六合：对双方格局都形成明显干扰。(-10)",
+                    "寅申六冲：冲击双方可用之气，风险较高。(-12)",
+                    "寅巳申三刑：冲击双方可用之气，风险较高。(-12)"
+                  ],
+                  "supportive_patterns": [],
+                  "tension_patterns": [
+                    {
+                      "label": "寅午半合火局",
+                      "type": "half_harmony",
+                      "description": "一方受益而另一方承压，属于拉扯型事件。",
+                      "result_element": "火",
+                      "source_scope": "cross_person",
+                      "source_map": {
+                        "寅": [
+                          {
+                            "person": "person2",
+                            "pillar": "month",
+                            "stem": "壬"
+                          }
+                        ],
+                        "午": [
+                          {
+                            "person": "person1",
+                            "pillar": "year",
+                            "stem": "庚"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "label": "巳丑半合金局",
+                      "type": "half_harmony",
+                      "description": "一方受益而另一方承压，属于拉扯型事件。",
+                      "result_element": "金",
+                      "source_scope": "cross_person",
+                      "source_map": {
+                        "巳": [
+                          {
+                            "person": "person1",
+                            "pillar": "month",
+                            "stem": "辛"
+                          },
+                          {
+                            "person": "person1",
+                            "pillar": "hour",
+                            "stem": "辛"
+                          }
+                        ],
+                        "丑": [
+                          {
+                            "person": "person2",
+                            "pillar": "day",
+                            "stem": "丁"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "label": "丑午六害",
+                      "type": "six_harm",
+                      "description": "事件带来明显张力，需要结合格局取用判断。",
+                      "result_element": null,
+                      "source_scope": "cross_person",
+                      "source_map": {
+                        "丑": [
+                          {
+                            "person": "person2",
+                            "pillar": "day",
+                            "stem": "丁"
+                          }
+                        ],
+                        "午": [
+                          {
+                            "person": "person1",
+                            "pillar": "year",
+                            "stem": "庚"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "label": "寅巳六害",
+                      "type": "six_harm",
+                      "description": "事件带来明显张力，需要结合格局取用判断。",
+                      "result_element": null,
+                      "source_scope": "cross_person",
+                      "source_map": {
+                        "寅": [
+                          {
+                            "person": "person2",
+                            "pillar": "month",
+                            "stem": "壬"
+                          }
+                        ],
+                        "巳": [
+                          {
+                            "person": "person1",
+                            "pillar": "month",
+                            "stem": "辛"
+                          },
+                          {
+                            "person": "person1",
+                            "pillar": "hour",
+                            "stem": "辛"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "risk_patterns": [
+                    {
+                      "label": "申辰半合水局",
+                      "type": "half_harmony",
+                      "description": "对双方格局都形成明显干扰。",
+                      "result_element": "水",
+                      "source_scope": "cross_person",
+                      "source_map": {
+                        "申": [
+                          {
+                            "person": "person2",
+                            "pillar": "year",
+                            "stem": "壬"
+                          }
+                        ],
+                        "辰": [
+                          {
+                            "person": "person1",
+                            "pillar": "day",
+                            "stem": "庚"
+                          },
+                          {
+                            "person": "person2",
+                            "pillar": "hour",
+                            "stem": "甲"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "label": "巳申六合",
+                      "type": "six_harmony",
+                      "description": "对双方格局都形成明显干扰。",
+                      "result_element": "水",
+                      "source_scope": "cross_person",
+                      "source_map": {
+                        "巳": [
+                          {
+                            "person": "person1",
+                            "pillar": "month",
+                            "stem": "辛"
+                          },
+                          {
+                            "person": "person1",
+                            "pillar": "hour",
+                            "stem": "辛"
+                          }
+                        ],
+                        "申": [
+                          {
+                            "person": "person2",
+                            "pillar": "year",
+                            "stem": "壬"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "label": "寅申六冲",
+                      "type": "six_clash",
+                      "description": "冲击双方可用之气，风险较高。",
+                      "result_element": null,
+                      "source_scope": "person2",
+                      "source_map": {
+                        "寅": [
+                          {
+                            "person": "person2",
+                            "pillar": "month",
+                            "stem": "壬"
+                          }
+                        ],
+                        "申": [
+                          {
+                            "person": "person2",
+                            "pillar": "year",
+                            "stem": "壬"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "label": "寅巳申三刑",
+                      "type": "three_punishment",
+                      "description": "冲击双方可用之气，风险较高。",
+                      "result_element": null,
+                      "source_scope": "cross_person",
+                      "source_map": {
+                        "寅": [
+                          {
+                            "person": "person2",
+                            "pillar": "month",
+                            "stem": "壬"
+                          }
+                        ],
+                        "巳": [
+                          {
+                            "person": "person1",
+                            "pillar": "month",
+                            "stem": "辛"
+                          },
+                          {
+                            "person": "person1",
+                            "pillar": "hour",
+                            "stem": "辛"
+                          }
+                        ],
+                        "申": [
+                          {
+                            "person": "person2",
+                            "pillar": "year",
+                            "stem": "壬"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "traditional_analysis": {
+                  "traditional_deviation": -1.1,
+                  "normalized_score": 39.0,
+                  "details": [
+                    "午与丑六害",
+                    "巳与寅六害",
+                    "巳与寅六害",
+                    "合盘构成寅巳申三刑"
+                  ],
+                  "score": 39.0,
+                  "score_basis": "从 50 分起，按跨盘冲、害、刑扣分并截断至 0–100；是综合分的一个维度，与 traditional_compatibility 的净分独立。"
+                }
+              },
+              "recommendations": [
+                "婚姻关系建议重视五行互补和精神契合"
+              ],
+              "element_relationship": {
+                "person1_element": "金",
+                "person2_element": "火",
+                "relationship_type": "相克",
+                "description": "火克金"
+              },
+              "run_metadata": {
+                "run_id": "91d41163357f45a387aa6c83d1f4f070",
+                "trace_id": "e72b66ab33804716b2013030348f8244",
+                "tool_name": "two_person_compatibility",
+                "generated_at": "2026-10-13T02:58:00.451686Z",
+                "engine": "fatebridge-offline",
+                "engine_is_approximate": false,
+                "metadata_schema_version": "1.0",
+                "package_version": "0.2.0",
+                "contract_sha256": "602bfdc977d20b024663d5add2b97a384a66a8d1a332131265788cd76d9b9717",
+                "input_sha256": "46229351d06853137f7790aca58a32de92faad8357d3979ae9db03db3da10d7b",
+                "business_output_sha256": "8d2698f2191ee835d66bd8aec2115446ea93d553f09240f19a71ef5527489446",
+                "duration_ms": 1.074,
+                "effective_time": {
+                  "as_of": "2026-10-13T02:58:00.450145Z",
+                  "clock_timezones": []
+                },
+                "determinism": {
+                  "uses_current_time": false,
+                  "current_time_fields_defaulted": [],
+                  "randomness_used": false,
+                  "seed_generated": false,
+                  "replayable_with_receipt": true,
+                  "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+                },
+                "runtime": {
+                  "package_version": "0.2.0",
+                  "python": "3.13.5",
+                  "platform": "Darwin-arm64",
+                  "dependencies": {
+                    "pydantic": "2.13.4",
+                    "kerykeion": "5.12.9",
+                    "pyswisseph": "2.10.3.2",
+                    "lunardate": "0.2.2",
+                    "python-dateutil": "2.9.0.post0",
+                    "pytz": "2026.2"
+                  },
+                  "implementation_sha256": "6610bf19bc5af197c8e87a8dd9bc5255697847b3e62029f9fb9b776d6b30234c",
+                  "bundled_data_sha256": "1818293541c0dd0bc63393d5adcb8e67b69225b14c2c84aee1b9609cdbf89597",
+                  "environment_sha256": "298ee8afafce69c52f5c5a30fd293b2780ad2290b5cee3e37e52ec7ac4b919a2",
+                  "ephemeris": {
+                    "scope": "configured_se1_inventory; actual model is reported separately",
+                    "files": {
+                      "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+                      "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+                      "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+                    },
+                    "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+                  }
+                },
+                "provenance": {},
+                "replay": {
+                  "as_of": "2026-10-13T02:58:00.450145Z",
+                  "overrides": {},
+                  "requires_original_input": true
+                },
+                "warnings": [],
+                "parent_run_id": "4e798d7ba3b24917b16ec852e0e914d4"
+              }
+            },
+            "_meta": null
+          },
+          "error": null,
+          "durationMs": 4
+        },
+        {
+          "type": "agentMessage",
+          "id": "msg_0dc12f2aa83f1e4a016acd9e4c335c8191841aba1354fefc54",
+          "text": "按 FateBridge 的八字双人分析，**这组资料最值得注意的是：彼此能提供支持，但也有互相施压、一个人得益而另一个人勉强配合的倾向。** 相处时，重点看“双方是否都舒服”，别只看事情有没有办成。\n\n把工具返回的传统规则翻成直白的相处提醒，有四点：\n\n1. **帮忙之前，先问对方想要什么。**  \n   工具同时给出了双向支持和双向压力的信号。现实中可以留意：建议是不是逐渐变成指挥，关心是不是变成检查。可以直接问：“你想让我听你说，还是一起想办法？”\n\n2. **别把一个人的舒服，建立在另一个人的长期迁就上。**  \n   返回结果明确出现“一方受益、另一方承压”。安排见面、花钱、处理家人意见时，两个人都说清楚自己愿意什么、不愿意什么，别把沉默当同意。\n\n3. **争执时一次谈一件事，少猜动机。**  \n   传统规则里的“害、刑”被工具列为张力信号。实用做法是说具体行为：“临时改计划让我很被动”，少说“你根本不在乎我”。需要暂停时，约好什么时候回来谈。\n\n4. **一起做事时保留各自的决定权。**  \n   工具的十神分析显示双方有共同取用和支持点，可以把它当作“共同做事可能有帮助”的观察提示。分工、预算、个人时间提前讲清楚，避免最后变成争谁说了算。\n\n计算依据是：甲日主为庚金，乙为丁火；结果既有互助，也有制约。**这些属于传统命理解释，是否符合人物设定，要靠实际互动核对。** “身弱”也只是命理术语，不能理解成乙性格软弱。\n\n综合指标是 **51.1/100**，表示这套规则下“有支持，也有明显挑战”，**不是51.1%的成功概率**。另一个传统合冲净分为 **+8**，它采用不同算法，不能与综合分平均，也不能凭它的“非常匹配”标签判断关系成败。\n\n",
+          "phase": "final_answer",
+          "memoryCitation": {
+            "entries": [
+              {
+                "path": "MEMORY.md",
+                "lineStart": 377,
+                "lineEnd": 379,
+                "note": "consulted calculation evidence boundaries"
+              }
+            ],
+            "threadIds": []
+          },
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "client_requests": [],
+      "runtime_events": [],
+      "stages": {
+        "first_model_activity_seconds": 10.91,
+        "first_public_output_seconds": 10.91,
+        "first_mcp_call_seconds": 39.572,
+        "reconnect_count": 0,
+        "failure_layer": null,
+        "calls": [
+          {
+            "server": "fatebridge",
+            "tool": "two_person_compatibility",
+            "started_seconds": 39.572,
+            "completed_seconds": 39.753,
+            "duration_ms": 180,
+            "status": "completed"
+          },
+          {
+            "server": "fatebridge",
+            "tool": "two_person_compatibility",
+            "started_seconds": 51.726,
+            "completed_seconds": 51.731,
+            "duration_ms": 4,
+            "status": "completed"
+          }
+        ],
+        "unfinished_mcp_count": 0,
+        "host_background_commands": [
+          {
+            "at_seconds": 15.67,
+            "category": "memory"
+          },
+          {
+            "at_seconds": 15.717,
+            "category": "other_host_command"
+          }
+        ]
+      }
+    },
+    {
+      "prompt": "不同规则的分数看起来不一样，到底该相信哪个？能不能据此说我们一定合适？",
+      "id": "01a13332-abe6-77a2-9734-9909639cbc58",
+      "status": "completed",
+      "error": null,
+      "duration_seconds": 15.77,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "01a13332-ac43-76b1-912d-6f6af9d97755",
+          "clientId": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "不同规则的分数看起来不一样，到底该相信哪个？能不能据此说我们一定合适？",
+              "text_elements": []
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "msg_0dc12f2aa83f1e4a016acd9e67d1b88191836f6255cb538d38",
+          "text": "**不能据此说你们一定合适。这些分数是在汇总不同传统规则，并不是经过现实关系验证的预测。**\n\n这次结果的区别是：\n\n- **综合分51.1/100**：把多个维度加权汇总，适合概括工具的整体判断——有支持，也有挑战。\n- **传统净分+8**：把合、冲、刑、害等规则加减，0为中性。它标注“非常匹配”，只代表这项算法的评价。\n- **传统维度39/100**：从50分起按冲、害、刑扣分，更集中地反映摩擦信号。\n\n所以，**如果只是理解 FateBridge 的总评，看综合分；如果判断现实中是否合适，这些分数都不能作定论。** 它们也不能平均，更不能换算成成功概率。\n\n对上一条解读也要收紧边界：“互相施压”“一方迁就”只是观察提醒，出生资料不能证明你们实际如此。更值得相信的是相处证据：能否尊重拒绝、分歧后能否修复、付出是否长期公平、重要生活目标是否一致。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "client_requests": [],
+      "runtime_events": [],
+      "stages": {
+        "first_model_activity_seconds": 6.618,
+        "first_public_output_seconds": 6.622,
+        "first_mcp_call_seconds": null,
+        "reconnect_count": 0,
+        "failure_layer": null,
+        "calls": [],
+        "unfinished_mcp_count": 0,
+        "host_background_commands": []
+      }
+    }
+  ],
+  "host": {
+    "id": "01a13330-ef34-7af0-bc84-a2b73d514b17",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "ephemeral": true,
+    "configured_model": "gpt-6.1-sol",
+    "model_selection": "configured model",
+    "cli_path": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex",
+    "cli_version": "codex-cli 0.162.0-alpha.17.2",
+    "process_id": 15402,
+    "native_unbounded_retries": false,
+    "limits": {
+      "turn_seconds": 240,
+      "idle_seconds": 90,
+      "max_reconnects": 3
+    },
+    "mcp_server_sha256": "3f5f37cd118cd4866b164c3c1c6c96935c68dd916083a7dfe9128f0b5bec2ce3"
+  },
+  "inventory": [
+    {
+      "name": "atlassian",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "axiom",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "browser-use",
+      "tool_names": [
+        "browser_exec",
+        "browser_screenshot"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "browser-use",
+        "title": null,
+        "version": "0.13.11",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 1086
+    },
+    {
+      "name": "circleback",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "code-review",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "codex-security",
+      "tool_names": [
+        "attach_codex_security_scan_continuation_thread",
+        "cancel_codex_security_finding_remediation_request",
+        "cancel_codex_security_scan",
+        "cancel_codex_security_scan_from_app",
+        "claim_codex_security_finding_remediation_resend",
+        "claim_codex_security_scan_handoff_delivery",
+        "complete_codex_security_scan",
+        "export_codex_security_findings",
+        "fail_codex_security_scan",
+        "get_codex_security_completed_scan",
+        "get_codex_security_daybreak_access",
+        "get_codex_security_scan",
+        "get_codex_security_scan_context",
+        "inspect_codex_security_setup",
+        "inspect_codex_security_target",
+        "list_codex_security_candidates",
+        "list_codex_security_findings",
+        "list_codex_security_global_findings",
+        "list_codex_security_repositories",
+        "list_codex_security_review_items",
+        "list_codex_security_scans",
+        "mark_codex_security_finding_remediation_delivered",
+        "mark_codex_security_scan_handoff_delivered",
+        "open_codex_security_workspace",
+        "prepare_codex_security_review_items",
+        "read_codex_security_artifact",
+        "record_candidate_attack_paths",
+        "record_codex_security_candidate_validations",
+        "record_codex_security_discovery_candidates",
+        "record_codex_security_scan_draft",
+        "recover_codex_security_scan_results",
+        "release_codex_security_finding_remediation_claim",
+        "release_codex_security_scan_handoff_delivery",
+        "request_codex_security_finding_remediation",
+        "request_codex_security_finding_remediation_action",
+        "request_codex_security_user_input",
+        "save_codex_security_artifact",
+        "set_codex_security_finding_remediation",
+        "set_codex_security_finding_triage",
+        "start_codex_security_deep_scan",
+        "start_codex_security_prompt_only_scan",
+        "start_codex_security_scan",
+        "start_codex_security_standard_scan",
+        "submit_codex_security_setup",
+        "update_codex_security_scan_context",
+        "update_codex_security_scan_context_from_app",
+        "update_codex_security_scan_progress"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "codex-security",
+        "title": null,
+        "version": "0.1.160",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 86498
+    },
+    {
+      "name": "codex_app",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "codex_apps",
+      "tool_names": [
+        "appdeploy.apply_app_version",
+        "appdeploy.configure_custom_domain",
+        "appdeploy.create_secret_entry",
+        "appdeploy.delete_app",
+        "appdeploy.delete_app_secrets",
+        "appdeploy.deploy_app",
+        "appdeploy.get_app_status",
+        "appdeploy.get_app_versions",
+        "appdeploy.get_appdeploy_sdk_reference",
+        "appdeploy.get_apps",
+        "appdeploy.get_custom_domain_instructions",
+        "appdeploy.get_deploy_instructions",
+        "appdeploy.get_e2e_qa_run_details",
+        "appdeploy.get_mode_reminder_status",
+        "appdeploy.get_secret_entry_status",
+        "appdeploy.list_app_secrets",
+        "appdeploy.set_app_secrets",
+        "appdeploy.src_glob",
+        "appdeploy.src_grep",
+        "appdeploy.src_read",
+        "appdeploy.upload_assets",
+        "atlassian.addGraphContext",
+        "atlassian.addOrEditJiraIssueComment",
+        "atlassian.atlassianHome",
+        "atlassian.atlassianUserInfo",
+        "atlassian.createConfluenceContent",
+        "atlassian.createJiraIssue",
+        "atlassian.discover",
+        "atlassian.editJiraIssue",
+        "atlassian.executeDestructive",
+        "atlassian.executeRead",
+        "atlassian.executeWrite",
+        "atlassian.getAccessibleAtlassianResources",
+        "atlassian.getCollaborators",
+        "atlassian.getConfluenceContent",
+        "atlassian.getGraphContext",
+        "atlassian.getGraphObject",
+        "atlassian.getJiraIssue",
+        "atlassian.getLoomVideo",
+        "atlassian.getPeopleInfo",
+        "atlassian.getWorkActivity",
+        "atlassian.search",
+        "atlassian.searchConfluence",
+        "atlassian.searchJiraIssuesUsingJql",
+        "atlassian.search_mentions",
+        "atlassian.transitionJiraIssue",
+        "atlassian.updateConfluenceContent",
+        "chatgpt_space.attach_automation_to_page",
+        "chatgpt_space.create_canvas",
+        "chatgpt_space.create_controller_automation",
+        "chatgpt_space.create_page",
+        "chatgpt_space.create_page_visualization",
+        "chatgpt_space.create_presentation",
+        "chatgpt_space.create_space",
+        "chatgpt_space.create_spreadsheet",
+        "chatgpt_space.edit_page",
+        "chatgpt_space.execute_artifact_code",
+        "chatgpt_space.find_pages",
+        "chatgpt_space.get_artifact_execution_status",
+        "chatgpt_space.get_page_auto_update",
+        "chatgpt_space.get_page_sharing",
+        "chatgpt_space.get_sharing_availability",
+        "chatgpt_space.get_space",
+        "chatgpt_space.get_space_sharing",
+        "chatgpt_space.inspect_artifact",
+        "chatgpt_space.inspect_page_reference",
+        "chatgpt_space.list_page_automations",
+        "chatgpt_space.list_page_comments",
+        "chatgpt_space.list_pages",
+        "chatgpt_space.list_spaces",
+        "chatgpt_space.manage_page_comment",
+        "chatgpt_space.move_page",
+        "chatgpt_space.patch_page",
+        "chatgpt_space.progress_update",
+        "chatgpt_space.read_page",
+        "chatgpt_space.read_page_changes",
+        "chatgpt_space.read_page_reference",
+        "chatgpt_space.read_page_transcript",
+        "chatgpt_space.reply_page_comment",
+        "chatgpt_space.run_page_auto_update",
+        "chatgpt_space.search_sharing_recipients",
+        "chatgpt_space.set_page_auto_update",
+        "chatgpt_space.trash_page",
+        "chatgpt_space.update_page_sharing",
+        "chatgpt_space.update_space_sharing",
+        "chatgpt_space.upload_artifact_images",
+        "chatgpt_space.write_page_reference",
+        "codex_document_control.execute_document_command",
+        "codex_document_control.get_document_tool_schemas",
+        "codex_document_control.list_document_sessions",
+        "context7.query-docs",
+        "context7.resolve-library-id",
+        "figma.add_code_connect_map",
+        "figma.authorize_mcp_app",
+        "figma.create_generative_plugin",
+        "figma.create_new_file",
+        "figma.create_shader",
+        "figma.download_assets",
+        "figma.export_video",
+        "figma.generate_deck",
+        "figma.generate_diagram",
+        "figma.generate_figma_design",
+        "figma.generate_image",
+        "figma.get_code_connect_map",
+        "figma.get_code_connect_suggestions",
+        "figma.get_context_for_code_connect",
+        "figma.get_design_context",
+        "figma.get_figjam",
+        "figma.get_generative_plugin",
+        "figma.get_libraries",
+        "figma.get_metadata",
+        "figma.get_motion_context",
+        "figma.get_screenshot",
+        "figma.get_shader",
+        "figma.get_variable_defs",
+        "figma.list_file_components_for_code_connect",
+        "figma.list_file_shaders",
+        "figma.list_generative_plugins",
+        "figma.list_shaders",
+        "figma.open_figma_mcp_app_in_thread",
+        "figma.report_mcp_app_failure",
+        "figma.search_design_system",
+        "figma.send_code_connect_mappings",
+        "figma.update_generative_plugin",
+        "figma.update_shader",
+        "figma.upload_assets",
+        "figma.use_figma",
+        "figma.weave_cancel_tool_run",
+        "figma.weave_find_model",
+        "figma.weave_get_model_run_output",
+        "figma.weave_get_tool_inputs",
+        "figma.weave_get_tool_run_output",
+        "figma.weave_list_tools",
+        "figma.weave_run_model",
+        "figma.weave_run_tool",
+        "figma.weave_upload_asset",
+        "figma.whoami",
+        "firecrawl.firecrawl_agent",
+        "firecrawl.firecrawl_agent_status",
+        "firecrawl.firecrawl_check_crawl_status",
+        "firecrawl.firecrawl_crawl",
+        "firecrawl.firecrawl_credit_usage",
+        "firecrawl.firecrawl_developer_search",
+        "firecrawl.firecrawl_feedback",
+        "firecrawl.firecrawl_find_tools",
+        "firecrawl.firecrawl_gov_search",
+        "firecrawl.firecrawl_interact",
+        "firecrawl.firecrawl_interact_stop",
+        "firecrawl.firecrawl_map",
+        "firecrawl.firecrawl_monitor_check",
+        "firecrawl.firecrawl_monitor_checks",
+        "firecrawl.firecrawl_monitor_create",
+        "firecrawl.firecrawl_monitor_delete",
+        "firecrawl.firecrawl_monitor_get",
+        "firecrawl.firecrawl_monitor_list",
+        "firecrawl.firecrawl_monitor_run",
+        "firecrawl.firecrawl_monitor_update",
+        "firecrawl.firecrawl_parse",
+        "firecrawl.firecrawl_research_inspect_paper",
+        "firecrawl.firecrawl_research_read_paper",
+        "firecrawl.firecrawl_research_related_papers",
+        "firecrawl.firecrawl_research_search_papers",
+        "firecrawl.firecrawl_scrape",
+        "firecrawl.firecrawl_search",
+        "firecrawl.firecrawl_search_feedback",
+        "github.add_comment_to_issue",
+        "github.add_issue_assignees",
+        "github.add_issue_labels",
+        "github.add_reaction_to_issue_comment",
+        "github.add_reaction_to_pr",
+        "github.add_reaction_to_pr_review_comment",
+        "github.add_review_to_pr",
+        "github.compare_commits",
+        "github.convert_pull_request_to_draft",
+        "github.create_blob",
+        "github.create_branch",
+        "github.create_commit",
+        "github.create_file",
+        "github.create_issue",
+        "github.create_pull_request",
+        "github.create_tree",
+        "github.delete_file",
+        "github.dismiss_pull_request_review",
+        "github.download_user_content",
+        "github.download_workflow_artifact",
+        "github.enable_auto_merge",
+        "github.fetch",
+        "github.fetch_blob",
+        "github.fetch_commit",
+        "github.fetch_commit_workflow_runs",
+        "github.fetch_file",
+        "github.fetch_issue",
+        "github.fetch_issue_comments",
+        "github.fetch_pr",
+        "github.fetch_pr_comments",
+        "github.fetch_pr_file_patch",
+        "github.fetch_pr_patch",
+        "github.fetch_workflow_job_logs",
+        "github.fetch_workflow_job_steps",
+        "github.fetch_workflow_run_artifacts",
+        "github.fetch_workflow_run_jobs",
+        "github.get_commit_combined_status",
+        "github.get_issue_comment_reactions",
+        "github.get_pr_diff",
+        "github.get_pr_info",
+        "github.get_pr_mergeability",
+        "github.get_pr_reactions",
+        "github.get_pr_review_comment_reactions",
+        "github.get_pr_statuses",
+        "github.get_profile",
+        "github.get_repo",
+        "github.get_repo_collaborator_permission",
+        "github.get_user_login",
+        "github.get_users_recent_prs_in_repo",
+        "github.label_pr",
+        "github.list_installations",
+        "github.list_installed_accounts",
+        "github.list_pr_changed_filenames",
+        "github.list_pull_request_review_threads",
+        "github.list_pull_request_reviews",
+        "github.list_recent_issues",
+        "github.list_repositories",
+        "github.list_repositories_by_affiliation",
+        "github.list_repositories_by_installation",
+        "github.list_user_org_memberships",
+        "github.list_user_orgs",
+        "github.lock_issue_conversation",
+        "github.mark_pull_request_ready_for_review",
+        "github.merge_pull_request",
+        "github.remove_issue_assignees",
+        "github.remove_issue_label",
+        "github.remove_pull_request_reviewers",
+        "github.remove_reaction_from_issue_comment",
+        "github.remove_reaction_from_pr",
+        "github.remove_reaction_from_pr_review_comment",
+        "github.reply_to_review_comment",
+        "github.request_pull_request_reviewers",
+        "github.rerun_failed_workflow_run_jobs",
+        "github.rerun_workflow_job",
+        "github.resolve_review_thread",
+        "github.search",
+        "github.search_branches",
+        "github.search_commits",
+        "github.search_installed_repositories_streaming",
+        "github.search_installed_repositories_v2",
+        "github.search_issues",
+        "github.search_prs",
+        "github.search_repositories",
+        "github.unlock_issue_conversation",
+        "github.unresolve_review_thread",
+        "github.update_file",
+        "github.update_issue",
+        "github.update_issue_comment",
+        "github.update_pull_request",
+        "github.update_ref",
+        "github.update_review_comment",
+        "gmail.apply_labels_to_emails",
+        "gmail.archive_emails",
+        "gmail.batch_modify_email",
+        "gmail.batch_read_email",
+        "gmail.batch_read_email_threads",
+        "gmail.bulk_label_matching_emails",
+        "gmail.create_draft",
+        "gmail.create_label",
+        "gmail.delete_emails",
+        "gmail.forward_emails",
+        "gmail.get_profile",
+        "gmail.list_drafts",
+        "gmail.list_labels",
+        "gmail.read_attachment",
+        "gmail.read_email",
+        "gmail.read_email_thread",
+        "gmail.search_email_ids",
+        "gmail.search_emails",
+        "gmail.send_draft",
+        "gmail.send_email",
+        "gmail.update_draft",
+        "google_calendar.batch_read_event",
+        "google_calendar.create_event",
+        "google_calendar.delete_event",
+        "google_calendar.fetch",
+        "google_calendar.get_availability",
+        "google_calendar.get_colors",
+        "google_calendar.get_profile",
+        "google_calendar.list_calendars",
+        "google_calendar.list_event_labels",
+        "google_calendar.read_event",
+        "google_calendar.respond_event",
+        "google_calendar.search",
+        "google_calendar.search_events",
+        "google_calendar.set_event_label_silently",
+        "google_calendar.update_event",
+        "google_contacts.get_profile",
+        "google_contacts.read_contact",
+        "google_contacts.search_contacts",
+        "google_drive.batch_update_document",
+        "google_drive.batch_update_presentation",
+        "google_drive.batch_update_spreadsheet",
+        "google_drive.bulk_update_file_comments",
+        "google_drive.copy_file",
+        "google_drive.create_file",
+        "google_drive.create_folder",
+        "google_drive.create_presentation_from_template",
+        "google_drive.delete_file",
+        "google_drive.duplicate_sheet_in_new_spreadsheet",
+        "google_drive.export_file",
+        "google_drive.fetch",
+        "google_drive.fetch_file_revision",
+        "google_drive.find_document_text_range",
+        "google_drive.get_document",
+        "google_drive.get_document_comments",
+        "google_drive.get_document_paragraph_range",
+        "google_drive.get_document_tables",
+        "google_drive.get_document_text",
+        "google_drive.get_file_comments",
+        "google_drive.get_file_metadata",
+        "google_drive.get_presentation",
+        "google_drive.get_presentation_comments",
+        "google_drive.get_presentation_outline",
+        "google_drive.get_presentation_tables",
+        "google_drive.get_presentation_text",
+        "google_drive.get_profile",
+        "google_drive.get_slide",
+        "google_drive.get_slide_thumbnail",
+        "google_drive.get_spreadsheet_cells",
+        "google_drive.get_spreadsheet_comments",
+        "google_drive.get_spreadsheet_metadata",
+        "google_drive.get_spreadsheet_range",
+        "google_drive.import_document",
+        "google_drive.import_presentation",
+        "google_drive.import_spreadsheet",
+        "google_drive.list_drives",
+        "google_drive.list_file_revisions",
+        "google_drive.list_folder",
+        "google_drive.recent_documents",
+        "google_drive.search",
+        "google_drive.search_spreadsheet_rows",
+        "google_drive.share_file",
+        "google_drive.update_file",
+        "google_drive.upload_file",
+        "hotline.get_local_hotline",
+        "hugging_face.dataset_search",
+        "hugging_face.hf_doc_fetch",
+        "hugging_face.hf_doc_search",
+        "hugging_face.hf_jobs",
+        "hugging_face.hf_whoami",
+        "hugging_face.hub_repo_details",
+        "hugging_face.model_search",
+        "hugging_face.paper_search",
+        "hugging_face.space_search",
+        "linear.create_attachment",
+        "linear.create_attachment_from_upload",
+        "linear.create_initiative_label",
+        "linear.create_issue_label",
+        "linear.delete_attachment",
+        "linear.delete_comment",
+        "linear.delete_customer",
+        "linear.delete_customer_need",
+        "linear.delete_diff_comment",
+        "linear.delete_status_update",
+        "linear.extract_images",
+        "linear.fetch",
+        "linear.get_agent_skill",
+        "linear.get_attachment",
+        "linear.get_diff",
+        "linear.get_diff_threads",
+        "linear.get_document",
+        "linear.get_initiative",
+        "linear.get_issue",
+        "linear.get_issue_status",
+        "linear.get_milestone",
+        "linear.get_notifications",
+        "linear.get_project",
+        "linear.get_release",
+        "linear.get_release_note",
+        "linear.get_status_updates",
+        "linear.get_team",
+        "linear.get_template",
+        "linear.get_user",
+        "linear.get_workspace",
+        "linear.list_agent_skills",
+        "linear.list_comments",
+        "linear.list_customers",
+        "linear.list_cycles",
+        "linear.list_diffs",
+        "linear.list_documents",
+        "linear.list_initiative_labels",
+        "linear.list_initiatives",
+        "linear.list_issue_labels",
+        "linear.list_issue_statuses",
+        "linear.list_issues",
+        "linear.list_milestones",
+        "linear.list_project_labels",
+        "linear.list_projects",
+        "linear.list_release_notes",
+        "linear.list_release_pipelines",
+        "linear.list_releases",
+        "linear.list_teams",
+        "linear.list_templates",
+        "linear.list_users",
+        "linear.mark_notification",
+        "linear.merge_diff",
+        "linear.prepare_attachment_upload",
+        "linear.resolve_diff_thread",
+        "linear.save_comment",
+        "linear.save_customer",
+        "linear.save_customer_need",
+        "linear.save_diff_comment",
+        "linear.save_document",
+        "linear.save_initiative",
+        "linear.save_initiative_label",
+        "linear.save_issue",
+        "linear.save_issue_label",
+        "linear.save_milestone",
+        "linear.save_project",
+        "linear.save_project_label",
+        "linear.save_release",
+        "linear.save_release_note",
+        "linear.save_status_update",
+        "linear.search",
+        "linear.search_documentation",
+        "linear.share_issue",
+        "linear.submit_diff_review",
+        "linear.unshare_issue",
+        "openai_platform.create_encrypted_openai_api_key",
+        "openai_platform.get_api_key_expiration_policy",
+        "openai_platform.get_dashboard_summary",
+        "openai_platform.list_openai_api_key_targets",
+        "openai_platform.open_codex_api_key_setup",
+        "openai_platform.open_dashboard",
+        "parallel_search.web_fetch",
+        "parallel_search.web_search",
+        "pets.adopt",
+        "pets.create_pet",
+        "pets.delete_pet",
+        "pets.get_pet_download_link",
+        "pets.list_pets",
+        "pets.prepare_pet_upload",
+        "pets.select_pet",
+        "pets.share_pet",
+        "pets.unshare_pet",
+        "pets.update_pet",
+        "pets.validate_pet_spritesheet",
+        "plugin_management.get_app_permissions",
+        "plugin_management.get_plugin_dependencies",
+        "plugin_management.search_plugins",
+        "plugin_management.suggest_plugins",
+        "plugin_management.uninstall_app",
+        "plugin_management.update_app_permissions",
+        "safety_settings.get_family_info",
+        "safety_settings.get_parental_controls",
+        "safety_settings.get_trusted_contact",
+        "safety_settings.prepare_parental_control_update",
+        "safety_settings.update_parental_control",
+        "search_service.web_run",
+        "sites.add_custom_domain",
+        "sites.change_site_slug",
+        "sites.check_slug_availability",
+        "sites.create_schedule",
+        "sites.create_site",
+        "sites.create_source_repository_write_credential",
+        "sites.delete_site",
+        "sites.deploy_private_site_version",
+        "sites.deploy_site_version",
+        "sites.generate_siwc_bypass_token",
+        "sites.get_database_overview",
+        "sites.get_database_table_rows",
+        "sites.get_deployment_status",
+        "sites.get_environment",
+        "sites.get_environment_variables",
+        "sites.get_project",
+        "sites.get_site",
+        "sites.get_site_analytics_overview",
+        "sites.get_site_version",
+        "sites.get_site_worker_logs",
+        "sites.list_custom_domains",
+        "sites.list_projects",
+        "sites.list_site_analytics_events",
+        "sites.list_site_versions",
+        "sites.list_sites",
+        "sites.list_sites_creator_control_panel_projects",
+        "sites.query_site_analytics_event",
+        "sites.read_database_overview",
+        "sites.read_database_table_rows",
+        "sites.refresh_custom_domain_status",
+        "sites.remove_custom_domain",
+        "sites.save_site_version",
+        "sites.save_version_and_deploy_private",
+        "sites.update_access",
+        "sites.update_environment",
+        "sites.update_environment_variables",
+        "sites.update_site_access",
+        "sites.update_site_metadata",
+        "sites.validate_suggested_schedule",
+        "supabase.apply_migration",
+        "supabase.confirm_cost",
+        "supabase.create_branch",
+        "supabase.create_project",
+        "supabase.delete_branch",
+        "supabase.deploy_edge_function",
+        "supabase.execute_sql",
+        "supabase.generate_typescript_types",
+        "supabase.get_advisors",
+        "supabase.get_cost",
+        "supabase.get_edge_function",
+        "supabase.get_organization",
+        "supabase.get_project",
+        "supabase.get_project_url",
+        "supabase.get_publishable_keys",
+        "supabase.list_branches",
+        "supabase.list_edge_functions",
+        "supabase.list_extensions",
+        "supabase.list_migrations",
+        "supabase.list_organizations",
+        "supabase.list_projects",
+        "supabase.list_tables",
+        "supabase.merge_branch",
+        "supabase.pause_project",
+        "supabase.query_logs",
+        "supabase.rebase_branch",
+        "supabase.reset_branch",
+        "supabase.restore_project",
+        "supabase.search_docs",
+        "vercel.accept_project_transfer_request",
+        "vercel.activate_kms_signing_key",
+        "vercel.add_project_domain",
+        "vercel.add_route",
+        "vercel.add_toolbar_reaction",
+        "vercel.aggregate_events",
+        "vercel.aggregate_pageviews",
+        "vercel.approve_rolling_release_stage",
+        "vercel.artifact_query",
+        "vercel.assign_alias",
+        "vercel.buy_domain",
+        "vercel.buy_domains",
+        "vercel.buy_single_domain",
+        "vercel.cancel_deployment",
+        "vercel.change_toolbar_thread_resolve_status",
+        "vercel.complete_rolling_release",
+        "vercel.count_events",
+        "vercel.count_pageviews",
+        "vercel.create_deployment",
+        "vercel.create_drain",
+        "vercel.create_edge_config",
+        "vercel.create_edge_config_token",
+        "vercel.create_flag",
+        "vercel.create_git_project",
+        "vercel.create_kms_issuer",
+        "vercel.create_kms_issuer_policy",
+        "vercel.create_kms_signing_key",
+        "vercel.create_observability_query",
+        "vercel.create_or_transfer_domain",
+        "vercel.create_project",
+        "vercel.create_project_env",
+        "vercel.create_sandboxes_sessions_by_session_id_snapshot_v2",
+        "vercel.create_sandboxes_sessions_by_session_id_snapshot_v3",
+        "vercel.create_sandboxes_v2",
+        "vercel.create_sandboxes_v3",
+        "vercel.create_sandboxes_v4",
+        "vercel.create_sdk_key",
+        "vercel.create_session_directory",
+        "vercel.create_storage_stores_blob",
+        "vercel.create_trace_session",
+        "vercel.edit_project_env",
+        "vercel.edit_route",
+        "vercel.edit_toolbar_message",
+        "vercel.extend_session_timeout",
+        "vercel.filter_project_envs",
+        "vercel.generate_route",
+        "vercel.get_access_to_vercel_url",
+        "vercel.get_active_attack_status",
+        "vercel.get_agent_run",
+        "vercel.get_agent_run_trace",
+        "vercel.get_alias",
+        "vercel.get_auth_user",
+        "vercel.get_bulk_availability",
+        "vercel.get_bulk_price",
+        "vercel.get_bypass_ip",
+        "vercel.get_cert_by_id",
+        "vercel.get_configuration",
+        "vercel.get_connector",
+        "vercel.get_connector_project_connection",
+        "vercel.get_contact_info_schema",
+        "vercel.get_custom_environment",
+        "vercel.get_deployment",
+        "vercel.get_deployment_feature_flags",
+        "vercel.get_deployment_file_contents",
+        "vercel.get_domain",
+        "vercel.get_domain_availability",
+        "vercel.get_domain_config",
+        "vercel.get_domain_contact_verification",
+        "vercel.get_domain_order",
+        "vercel.get_domain_price",
+        "vercel.get_domain_project_domains",
+        "vercel.get_domain_verification_record",
+        "vercel.get_domains_records_by_record_id",
+        "vercel.get_drain",
+        "vercel.get_edge_config",
+        "vercel.get_edge_config_backup",
+        "vercel.get_edge_config_backups",
+        "vercel.get_edge_config_item",
+        "vercel.get_edge_config_items",
+        "vercel.get_edge_config_tokens",
+        "vercel.get_edge_configs",
+        "vercel.get_firewall_config",
+        "vercel.get_flag",
+        "vercel.get_flag_segment",
+        "vercel.get_flag_settings",
+        "vercel.get_git_deployment_context",
+        "vercel.get_kms_issuer",
+        "vercel.get_microfrontends_config",
+        "vercel.get_microfrontends_config_for_project",
+        "vercel.get_named_sandbox",
+        "vercel.get_observability_configuration_projects",
+        "vercel.get_observability_schema",
+        "vercel.get_order",
+        "vercel.get_project",
+        "vercel.get_project_deletion_link",
+        "vercel.get_project_domain",
+        "vercel.get_project_env",
+        "vercel.get_project_trace",
+        "vercel.get_purchase_quote",
+        "vercel.get_records",
+        "vercel.get_remote_cache_status",
+        "vercel.get_rolling_release",
+        "vercel.get_rolling_release_billing_status",
+        "vercel.get_rolling_release_config",
+        "vercel.get_runtime_errors",
+        "vercel.get_runtime_logs",
+        "vercel.get_session",
+        "vercel.get_session_command",
+        "vercel.get_session_command_logs",
+        "vercel.get_session_snapshot",
+        "vercel.get_shared_env_var",
+        "vercel.get_storage_stores_by_id",
+        "vercel.get_team",
+        "vercel.get_tld",
+        "vercel.get_tld_price",
+        "vercel.get_toolbar_thread",
+        "vercel.get_vercel_ci_invocation",
+        "vercel.get_vercel_ci_invocation_logs",
+        "vercel.get_vercel_ci_invocation_tree",
+        "vercel.get_vercel_ci_job_definition",
+        "vercel.get_vercel_ci_job_run",
+        "vercel.get_vercel_ci_job_run_logs",
+        "vercel.get_vercel_ci_task_logs",
+        "vercel.get_vercel_ci_task_run_logs",
+        "vercel.get_webhooks",
+        "vercel.git_namespaces",
+        "vercel.import-claude-design-from-url",
+        "vercel.invalidate_by_src_images",
+        "vercel.invalidate_by_tags",
+        "vercel.issue_cert",
+        "vercel.kill_session_command",
+        "vercel.list_access_group_members",
+        "vercel.list_access_group_projects",
+        "vercel.list_access_groups",
+        "vercel.list_agent_run_projects",
+        "vercel.list_agent_runs",
+        "vercel.list_aliases",
+        "vercel.list_billing_charges",
+        "vercel.list_bulk_redirect_versions",
+        "vercel.list_bulk_redirects",
+        "vercel.list_certs",
+        "vercel.list_connector_project_connections",
+        "vercel.list_connectors",
+        "vercel.list_contract_commitments",
+        "vercel.list_deployment_aliases",
+        "vercel.list_deployment_events",
+        "vercel.list_deployment_files",
+        "vercel.list_deployments",
+        "vercel.list_domains",
+        "vercel.list_drains",
+        "vercel.list_event_types",
+        "vercel.list_feature_flag_sdk_keys",
+        "vercel.list_flag_segments",
+        "vercel.list_flag_versions",
+        "vercel.list_flags",
+        "vercel.list_flags_v2",
+        "vercel.list_integration_billing_plans",
+        "vercel.list_integration_configuration_products",
+        "vercel.list_integration_configurations",
+        "vercel.list_kms_issuers",
+        "vercel.list_named_sandboxes",
+        "vercel.list_project_connector_connections",
+        "vercel.list_project_custom_environments",
+        "vercel.list_project_domains",
+        "vercel.list_project_route_versions",
+        "vercel.list_project_routes",
+        "vercel.list_projects",
+        "vercel.list_promote_aliases",
+        "vercel.list_session_commands",
+        "vercel.list_session_snapshots",
+        "vercel.list_sessions",
+        "vercel.list_supported_tlds",
+        "vercel.list_team_flag_settings",
+        "vercel.list_team_flags",
+        "vercel.list_team_flags_v2",
+        "vercel.list_team_members",
+        "vercel.list_teams",
+        "vercel.list_toolbar_threads",
+        "vercel.list_user_events",
+        "vercel.list_vercel_ci_invocation_attempts",
+        "vercel.list_vercel_ci_invocations",
+        "vercel.list_vercel_ci_job_definitions",
+        "vercel.list_vercel_ci_job_runs",
+        "vercel.list_vercel_ci_task_definitions",
+        "vercel.list_vercel_ci_task_runs",
+        "vercel.open_deployments",
+        "vercel.patch_edge_config_items",
+        "vercel.patch_url_protection_bypass",
+        "vercel.pause_project",
+        "vercel.put_firewall_config",
+        "vercel.read_access_group",
+        "vercel.read_access_group_project",
+        "vercel.read_session_file",
+        "vercel.record_events",
+        "vercel.replace_domain_dns_records",
+        "vercel.reply_to_toolbar_thread",
+        "vercel.request_promote",
+        "vercel.request_rollback",
+        "vercel.rerequest_check",
+        "vercel.restore_edge_config_backup",
+        "vercel.restore_redirects",
+        "vercel.retry_vercel_ci_invocation",
+        "vercel.revoke_kms_signing_key",
+        "vercel.run_session_command",
+        "vercel.search_domains",
+        "vercel.search_repo",
+        "vercel.search_vercel_documentation",
+        "vercel.stage_redirects",
+        "vercel.stage_routes",
+        "vercel.start_rolling_release",
+        "vercel.stop_session",
+        "vercel.test_drain",
+        "vercel.ui_get_build_log_excerpt",
+        "vercel.unpause_project",
+        "vercel.update_attack_challenge_mode",
+        "vercel.update_bulk_redirect_version",
+        "vercel.update_connector",
+        "vercel.update_drain",
+        "vercel.update_edge_config",
+        "vercel.update_firewall_config",
+        "vercel.update_flag",
+        "vercel.update_flag_segment",
+        "vercel.update_flag_settings",
+        "vercel.update_kms_issuer",
+        "vercel.update_kms_issuer_policy",
+        "vercel.update_project",
+        "vercel.update_project_protection_bypass",
+        "vercel.update_record",
+        "vercel.update_rolling_release_config",
+        "vercel.update_route_versions",
+        "vercel.update_sandbox",
+        "vercel.update_session_network_policy",
+        "vercel.upload_artifact",
+        "vercel.upload_file",
+        "vercel.upsert_connector_project_connection",
+        "vercel.verify_project_domain",
+        "vercel.web_fetch_vercel_url",
+        "vercel.write_session_files"
+      ],
+      "resources": [
+        "plugin://plugin_asdk_app_6956e6ff740481919946ceae8e5d6304",
+        "plugin://plugins_6a8bb4f188108191a09e14d3adfef354",
+        "plugin://plugins~Plugin_f1b845ac33888191ac156169c58733c2",
+        "plugin://plugins~Plugin_b80dd84519148191a409cde181c9b3d6",
+        "plugin://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c",
+        "plugin://Plugin_1e648473be9c8191a91ac3947151af55",
+        "plugin://plugin_asdk_app_69ef18c674308191a2f952431f91ea61",
+        "plugin://Plugin_fc9843a6fb34819195d6c7802398a8a7",
+        "plugin://plugin_connector_1p_2330815c823c8191941e5dc465bb899f",
+        "plugin://plugin_connector_68df038e0ba48191908c8434991bbac2",
+        "plugin://plugin_connector_693864f100e4819093e6ed9b651239f1",
+        "plugin://plugin_asdk_app_6a314a73f8ac819195b0d55e36b9c609",
+        "plugin://plugin_connector_1p_1a69035c238881919c4190932b2df699",
+        "plugin://plugin_connector_1p_95d39881713c8191931482a62d6edff9",
+        "plugin://plugin_connector_1p_f8509de903288191b14a160c6c5d20b0",
+        "plugin://plugin_connector_1p_c97194162860819190a6f840a61b9889",
+        "plugin://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7",
+        "plugin://plugin_asdk_app_6939e86417648191b7bda087d872685b",
+        "plugin://plugin_connector_1p_32dba5a7095c8191adca04ee30276304",
+        "plugin://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c",
+        "plugin://plugin_asdk_app_69fb9378663481919a68e8a2109644e5",
+        "plugin://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa",
+        "plugin://plugin_connector_1p_b3438d6beb9081918fba3625bc988128",
+        "plugin://Plugin_fa77aec24fc08191bc6e57f377126d76",
+        "plugin://plugin_connector_1p_689987207de08191979cf68eca2941c6",
+        "plugin://plugin_asdk_app_69d3e5ee6a708191baa733f7b8931995",
+        "plugin://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-drive",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-sheets",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-docs",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/index",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/index",
+        "skill://plugin_asdk_app_69d3e5ee6a708191baa733f7b8931995/supabase",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generate-design",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/build-report",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/product-business-analysis",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-create-new-file",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-slides",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/validate-data",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/analyze-data-quality",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/frontend-app-builder",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generate-library",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/visualize-data",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/gather-business-context",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/deployments-cicd",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-design-to-code",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/get-context",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/user-context",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/jupyter-notebooks",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/audit",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/build-dashboard",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/frontend-testing-debugging",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/market-sizing",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/design-kpis",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/openai-platform-api-key",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/security-scan",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-analytics-dashboard",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-business-review",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-design-report",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-experiment-analysis",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-financial-budget",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-investment-committee-memo",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-legal-memorandum",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-market-trends-report",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-minimal-letterhead",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-operating-calendar",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-operating-review",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-project-kickoff",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-project-tracker",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-sales-pipeline",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-simple-dark-mode",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-simple-light-mode",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-strategy-memorandum",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-system-design",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-team-alignment",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-three-statement-forecast",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-drive-comments",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/agents",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/devday-guide",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/openai-api-troubleshooting",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/maintain-space",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/manage-schedules",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/organize-space",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/write-page",
+        "skill://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa/create-pet",
+        "skill://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa/pets",
+        "skill://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa/update-pet",
+        "skill://plugin_connector_1p_b3438d6beb9081918fba3625bc988128/plugin-management",
+        "skill://plugin_connector_1p_689987207de08191979cf68eca2941c6/sites",
+        "skill://plugins_6a8bb4f188108191a09e14d3adfef354/browser-act",
+        "skill://plugins_6a8bb4f188108191a09e14d3adfef354/browser-act-skill-forge",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-app-intents",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-debugger-agent",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-ettrace-performance",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-memgraph-leaks",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-simulator-browser",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-liquid-glass",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-performance-audit",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-ui-patterns",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-view-refactor",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/appkit-interop",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/build-run-debug",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/liquid-glass",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/packaging-notarization",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/signing-entitlements",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/swiftpm-macos",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/swiftui-patterns",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/telemetry",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/test-triage",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/view-refactor",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/window-management",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/react-best-practices",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/shadcn",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/stripe-best-practices",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/supabase-postgres-best-practices",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/assess-patch-risk",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/attack-path-analysis",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/deep-security-scan",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/define-security-policy",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/finding-discovery",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/fix-finding",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/propose-security-hardening",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/security-diff-scan",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/threat-model",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/track-findings",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/triage-finding",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/validation",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/verify-fix",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/vulnerability-writeup",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/convert-to-doc",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/convert-to-slides",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/create-data-context",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/kpi-reporting",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/metric-diagnostics",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/publish-artifact-to-sites",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/report-to-pdf",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/schedule-refresh-jobs",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/share-artifact-summary",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-code-connect",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generate-diagram",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generative-plugins",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-implement-motion",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-shaders",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-swiftui",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use-figjam",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use-motion",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use-slides",
+        "skill://plugin_asdk_app_6a314a73f8ac819195b0d55e36b9c609/firecrawl",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/hf-cli",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-community-evals",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-datasets",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-gradio",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-jobs",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-llm-trainer",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-paper-publisher",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-papers",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-trackio",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/transformers-js",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-vision-trainer",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/design-qa",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/ideate",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/image-to-code",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/research",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/share",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/url-to-code",
+        "skill://plugin_asdk_app_69d3e5ee6a708191baa733f7b8931995/supabase-postgres-best-practices",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/access-protected-vercel-deployment",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/ai-gateway",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/ai-sdk",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/auth",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/bootstrap",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/build-agents",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/cdn-caching",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/chat-sdk",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/create-a-backend",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/custom-metrics",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/domains",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/env-vars",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/eve",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/flags-sdk",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/is-agentic",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/knowledge-update",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/marketplace",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/microfrontends",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/queues",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/react-best-practices",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/routing-middleware",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/runtime-cache",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-agent",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-cli",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-connect",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-firewall",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-functions",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-sandbox",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-services",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-storage",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/verification",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/workflow"
+      ],
+      "server_info": {
+        "name": "plugin-runtime",
+        "title": null,
+        "version": "0.1.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 2454468
+    },
+    {
+      "name": "computer-use",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "context7",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "cua_repl",
+      "tool_names": [
+        "js",
+        "js_reset",
+        "turn_ended"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "rmcp",
+        "title": null,
+        "version": "1.5.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 4833
+    },
+    {
+      "name": "design-converter",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "everme",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "fatebridge",
+      "tool_names": [
+        "analyze_destiny",
+        "astro_agepoint",
+        "astro_balbillus",
+        "astro_chart",
+        "astro_chart13",
+        "astro_distributions",
+        "astro_election",
+        "astro_extrareturns",
+        "astro_germany_chart",
+        "astro_guolao_chart",
+        "astro_harmonic",
+        "astro_hellen_chart",
+        "astro_horary",
+        "astro_india_chart",
+        "astro_jaynesprog",
+        "astro_keypoints",
+        "astro_lunation_phase",
+        "astro_mundane",
+        "astro_persiandirected",
+        "astro_planetary_ages",
+        "astro_planetaryarc",
+        "astro_relative_chart",
+        "astro_triplicity_rulers",
+        "astro_vedicprog",
+        "astro_yearsystem129",
+        "bazi_birth",
+        "bazi_career",
+        "bazi_children",
+        "bazi_education",
+        "bazi_health",
+        "bazi_marriage",
+        "bazi_personality",
+        "bazi_relatives",
+        "bazi_romance",
+        "bazi_wealth",
+        "canping",
+        "dayun_analysis",
+        "decennials",
+        "export_parse",
+        "export_registry",
+        "fengshui_annual_stars",
+        "fengshui_assess",
+        "fengshui_bazhai",
+        "fengshui_directions",
+        "fengshui_jinsuo",
+        "fengshui_minggua",
+        "fengshui_xuankong_natal",
+        "firdaria",
+        "givenyear",
+        "gua_lookup",
+        "gua_meiyi",
+        "heluo",
+        "jieqi_timeline_analysis",
+        "jieqi_year",
+        "jinkou",
+        "knowledge_read",
+        "knowledge_registry",
+        "liunian_analysis",
+        "liureng_gods",
+        "liureng_runyear",
+        "liuri_analysis",
+        "liushi_analysis",
+        "liuyue_analysis",
+        "lunarreturn",
+        "meihua_analysis",
+        "nongli_time",
+        "otherbu",
+        "pd",
+        "pdchart",
+        "profection",
+        "qimen",
+        "sanshiunited",
+        "sixyao",
+        "solararc",
+        "solarreturn",
+        "sukuyo_compatibility",
+        "suzhan",
+        "taiyi",
+        "timing_analysis",
+        "tongshefa",
+        "transit",
+        "two_person_compatibility",
+        "western_timing_analysis",
+        "ziwei_birth",
+        "ziwei_horoscope",
+        "ziwei_rules",
+        "zr"
+      ],
+      "resources": [
+        "fatebridge://catalog/summary",
+        "fatebridge://scenarios"
+      ],
+      "server_info": {
+        "name": "fatebridge",
+        "title": null,
+        "version": "0.2.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 4305860
+    },
+    {
+      "name": "figma",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "github",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "greptile",
+      "tool_names": [
+        "create_custom_context",
+        "get_analytics_overview",
+        "get_code_review",
+        "get_custom_context",
+        "get_knowledge_base_document",
+        "get_me",
+        "get_merge_request",
+        "list_analytics_filter_options",
+        "list_analytics_findings",
+        "list_code_reviews",
+        "list_custom_context",
+        "list_knowledge_base_documents",
+        "list_knowledge_bases",
+        "list_merge_request_comments",
+        "list_merge_requests",
+        "list_pull_requests",
+        "list_repositories",
+        "search_custom_context",
+        "search_greptile_comments",
+        "search_knowledge_base",
+        "trigger_code_review"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "Greptile MCP Server",
+        "title": null,
+        "version": "1.0.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 49023
+    },
+    {
+      "name": "huggingface-skills",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "linear",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "node_repl",
+      "tool_names": [
+        "js",
+        "js_add_node_module_dir",
+        "js_reset",
+        "turn_ended"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "rmcp",
+        "title": null,
+        "version": "1.5.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 2659
+    },
+    {
+      "name": "openai-api-key-local-confirmation",
+      "tool_names": [
+        "confirm_openai_api_key_local_destination"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "OpenAI Developers MCP",
+        "title": null,
+        "version": "0.1.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 1041
+    },
+    {
+      "name": "openaiDeveloperDocs",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "pinecone",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "playwright",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "sentry",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "supabase",
+      "tool_names": [
+        "apply_migration",
+        "confirm_cost",
+        "create_branch",
+        "create_project",
+        "delete_branch",
+        "deploy_edge_function",
+        "execute_sql",
+        "generate_typescript_types",
+        "get_advisors",
+        "get_cost",
+        "get_edge_function",
+        "get_organization",
+        "get_project",
+        "get_project_url",
+        "get_publishable_keys",
+        "list_branches",
+        "list_edge_functions",
+        "list_extensions",
+        "list_migrations",
+        "list_organizations",
+        "list_projects",
+        "list_tables",
+        "merge_branch",
+        "pause_project",
+        "query_logs",
+        "rebase_branch",
+        "reset_branch",
+        "restore_project",
+        "search_docs"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "supabase",
+        "title": "Supabase",
+        "version": "0.13.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 23521
+    },
+    {
+      "name": "vercel",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "wechat-devtools",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-ai-assist",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-all",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-build",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-interact",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-launch",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-meta",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-setup",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-testing",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xcodebuildmcp",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    }
+  ],
+  "rpc_timings": [
+    {
+      "method": "initialize",
+      "duration_seconds": 0.158
+    },
+    {
+      "method": "model/list",
+      "duration_seconds": 0.002
+    },
+    {
+      "method": "config/read",
+      "duration_seconds": 0.005
+    },
+    {
+      "method": "thread/start",
+      "duration_seconds": 0.533
+    },
+    {
+      "method": "mcpServerStatus/list",
+      "duration_seconds": 45.348
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.257
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.019
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.263
+    },
+    {
+      "method": "thread/start",
+      "duration_seconds": 0.093
+    },
+    {
+      "method": "mcpServerStatus/list",
+      "duration_seconds": 19.764
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.016
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.018
+    },
+    {
+      "method": "thread/start",
+      "duration_seconds": 0.09
+    },
+    {
+      "method": "mcpServerStatus/list",
+      "duration_seconds": 19.175
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.016
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.019
+    },
+    {
+      "method": "thread/start",
+      "duration_seconds": 0.161
+    },
+    {
+      "method": "mcpServerStatus/list",
+      "duration_seconds": 21.115
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.016
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.018
+    }
+  ],
+  "semantic_review": "needs repair: assumed marriage; resolved in final phase"
+}

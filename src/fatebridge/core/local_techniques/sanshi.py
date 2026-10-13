@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import copy
 
-from ...utils.helpers import create_pillar_dict
+from fatebridge.utils.formatting import create_pillar_dict
+
 from ..metaphysics import build_liureng_board, build_taiyi_board
 from .chart import (
     DAY_GANZHI_STRATEGY_STANDARD,

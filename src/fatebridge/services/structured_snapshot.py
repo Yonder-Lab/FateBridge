@@ -23,6 +23,7 @@ _KEY_LABELS: Dict[str, str] = {
     "notes": "说明",
     "note": "说明",
     "score": "评分",
+    "score_basis": "计分依据",
     "level": "层级",
     "pattern": "格局",
     "patterns": "格局",

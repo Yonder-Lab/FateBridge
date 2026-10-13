@@ -1,42 +1,37 @@
 """MCP protocol contracts around the shared catalog execution functions."""
 
 import json
-from typing import Any, Callable, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.tools import ToolResult
 from mcp.types import CallToolResult
 from pydantic import ConfigDict, ValidationError
 
-from fatebridge.core.discovery import discover_specs
+from fatebridge.application.description import describe_input_spec, resolve_spec
+from fatebridge.application.discovery import discover_specs
+from fatebridge.application.scenarios import discover_scenarios
 from fatebridge.core.execution_context import (
     ExecutionOptions,
     correlate_error,
     safe_correlation,
 )
-from fatebridge.core.scenarios import discover_scenarios
 from fatebridge.utils.errors import validation_error_result
 
 
 def _serializable_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
-    """Keep standard refs when FastMCP's inliner creates a Python object cycle.
+    """Preserve standard JSON Schema refs rather than expanding shared models.
 
-    FastMCP 3.0 may inline a recursive output into a cyclic dict instead of
-    retaining its $defs. Preserve input and nonrecursive output inlining for
-    existing hosts; a recursive schema must retain refs to be valid wire JSON.
+    Inlining repeats snapshots/receipts throughout every tool, doubles the
+    output-schema wire payload and can turn recursive definitions into cycles.
+    Pydantic's original $defs/$ref graph is the complete, serializable contract.
     """
-    from fastmcp.utilities.json_schema import dereference_refs
-
-    expanded = dereference_refs(schema)
-    try:
-        json.dumps(expanded)
-    except (ValueError, RecursionError):
-        return schema
-    return expanded
+    json.dumps(schema)  # Fail on invalid wire data, never publish a Python cycle.
+    return schema
 
 
 class SerializableSchemaMiddleware(Middleware):
-    """Publish serializable schemas on both the minimum and current FastMCP."""
+    """Publish referenced schemas on minimum and current FastMCP versions."""
 
     async def on_list_tools(self, context: Any, call_next: Any) -> Any:
         tools = await call_next(context)
@@ -83,9 +78,26 @@ def register_discovery_resources(
     @app.resource("fatebridge://tools/{tool}", mime_type="application/json")
     def tool_contract(tool: str) -> str:
         """Full shared contract for one exposed tool; hidden tools stay hidden."""
-        if tool not in allowed:
+        spec = resolve_spec(catalog, tool)
+        if spec is None or spec.tool_name not in allowed:
             raise ValueError("工具未在当前 MCP 配置中公开")
-        return lookup(tool=tool, detail="full")
+        return lookup(tool=spec.tool_name, detail="full")
+
+    @app.resource("fatebridge://tools/{tool}/input", mime_type="application/json")
+    def tool_input_contract(tool: str) -> str:
+        """Small call contract and output roots; full schemas remain on demand."""
+        spec = resolve_spec(catalog, tool)
+        if spec is None or spec.tool_name not in allowed:
+            raise ValueError("工具未在当前 MCP 配置中公开")
+        return json.dumps(
+            {
+                "detail": "input",
+                "matched_count": 1,
+                "tools": [describe_input_spec(spec)],
+            },
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
 
     @app.resource("fatebridge://scenarios", mime_type="application/json")
     def scenarios_summary() -> str:
@@ -144,22 +156,6 @@ def protocol_result(
         structured_content=payload,
         failed=failed,
     )
-
-
-def native_tool_function(legacy_fn: Callable[..., str]) -> Callable[..., Any]:
-    def invoke(**kwargs: Any) -> ToolResult:
-        rendered = legacy_fn(**kwargs)
-        payload = json.loads(rendered)
-        # The legacy renderer runs after the shared error classifier; an error
-        # envelope is always a protocol failure, never ordinary text success.
-        return protocol_result(payload, failed="error_code" in payload, text=rendered)
-
-    invoke.__name__ = legacy_fn.__name__
-    invoke.__doc__ = legacy_fn.__doc__
-    invoke.__signature__ = legacy_fn.__signature__  # type: ignore[attr-defined]
-    invoke.__annotations__ = {**legacy_fn.__annotations__, "return": ToolResult}
-    invoke.__fb_legacy_fn__ = legacy_fn  # type: ignore[attr-defined]
-    return invoke
 
 
 class OutputFlags(ExecutionOptions):

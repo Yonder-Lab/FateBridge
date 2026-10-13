@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from fatebridge.core.request_models import (
+from fatebridge.core.requests.metaphysics import (
     JinkouAnalysisRequest,
     LiuRengGodsRequest,
     LiuRengRunyearRequest,
@@ -21,7 +21,7 @@ from fatebridge.services.metaphysics import (
     calculate_ziwei_birth,
     calculate_ziwei_rules,
 )
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
@@ -983,7 +983,7 @@ def test_ziwei_snapshot_text_annotates_brightness():
 
 
 def test_ziwei_horoscope_request_requires_target_datetime():
-    from fatebridge.core.request_models import ZiweiHoroscopeRequest
+    from fatebridge.core.requests.metaphysics import ZiweiHoroscopeRequest
 
     req = ZiweiHoroscopeRequest(
         gender="男",

@@ -1,0 +1,518 @@
+[
+  {
+    "case": "career",
+    "tool": "bazi_career",
+    "run_metadata": {
+      "run_id": "9852cd729a6d476e837160e0b6faf5e6",
+      "trace_id": "0fe8395a43cc40ccb172a21681ceec1b",
+      "tool_name": "bazi_career",
+      "generated_at": "2026-10-12T16:08:16.986120Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "9e3ba6f781cbc6324649594bc8dca72fc94586a6753ae34cc56776ad7defc3e3",
+      "input_sha256": "0341561147043338aac92fd70c9ab2b8cb7e0adb25435a79f4f37679b58259d1",
+      "business_output_sha256": "e37469d3713e706b862b86e225e122150e581f2111567051e422b911c815d709",
+      "duration_ms": 37.023,
+      "effective_time": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": []
+    }
+  },
+  {
+    "case": "career",
+    "tool": "timing_analysis",
+    "run_metadata": {
+      "run_id": "b3348743caac4fe3a3cb043df787a511",
+      "trace_id": "0fe8395a43cc40ccb172a21681ceec1b",
+      "tool_name": "timing_analysis",
+      "generated_at": "2026-10-12T16:08:27.121354Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "228fef7b85dadea6d444e30feb7fafd1c33854b01b65fc77577ea6437026f216",
+      "input_sha256": "588150b2dd395e59248b113babce27ee5ca0859bc5b2099114c61677319cc293",
+      "business_output_sha256": "32a3fb5138736e8709a955fc80fd66e82ffc2d52a228a249d53e9b37fd05000c",
+      "duration_ms": 6.864,
+      "effective_time": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": [],
+      "parent_run_id": "9852cd729a6d476e837160e0b6faf5e6"
+    }
+  },
+  {
+    "case": "career",
+    "tool": "bazi_wealth",
+    "run_metadata": {
+      "run_id": "6da77b8080504d1393b562d30ec2b715",
+      "trace_id": "0fe8395a43cc40ccb172a21681ceec1b",
+      "tool_name": "bazi_wealth",
+      "generated_at": "2026-10-12T16:08:37.259787Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "9d8cd427d9fb80db1f9d5786b10f405e75d08461d3eabccd8d64086ec100c5d5",
+      "input_sha256": "a7aa5643b5d17d685de1ddeccd7784a5f7dc0b9ca80c39585982a700fd752dc2",
+      "business_output_sha256": "9561692e205b473d99542b63b48718558479b8cd975489d369fe06527cc82fbf",
+      "duration_ms": 0.726,
+      "effective_time": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": [],
+      "parent_run_id": "b3348743caac4fe3a3cb043df787a511"
+    }
+  },
+  {
+    "case": "missing",
+    "tool": "bazi_career",
+    "run_metadata": {
+      "run_id": "5c48c266c20d4c2d911a750647ef5244",
+      "trace_id": "6e447f92800f4fa0b43ae040558247cd",
+      "tool_name": "bazi_career",
+      "generated_at": "2026-10-12T16:06:09.220574Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "9e3ba6f781cbc6324649594bc8dca72fc94586a6753ae34cc56776ad7defc3e3",
+      "input_sha256": "6a89c0947f4592f0fface1270135d9feab663e19749f43a3803ba712009eac8e",
+      "business_output_sha256": "e37469d3713e706b862b86e225e122150e581f2111567051e422b911c815d709",
+      "duration_ms": 58.533,
+      "effective_time": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": []
+    }
+  },
+  {
+    "case": "missing",
+    "tool": "timing_analysis",
+    "run_metadata": {
+      "run_id": "0c597db7c55e48a6b5825c60c3d1804c",
+      "trace_id": "6e447f92800f4fa0b43ae040558247cd",
+      "tool_name": "timing_analysis",
+      "generated_at": "2026-10-12T16:06:13.969423Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "228fef7b85dadea6d444e30feb7fafd1c33854b01b65fc77577ea6437026f216",
+      "input_sha256": "b89bd078cd037233ce411e0dc20826db81f067d91b091d7711b061275e430b04",
+      "business_output_sha256": "6b625b8a638768c1816c8d3ee804e3516c7ac4fb6b71cdbad1e7aa8fb635dd80",
+      "duration_ms": 6.438,
+      "effective_time": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": [],
+      "parent_run_id": "5c48c266c20d4c2d911a750647ef5244"
+    }
+  },
+  {
+    "case": "relationship",
+    "tool": "two_person_compatibility",
+    "run_metadata": {
+      "run_id": "ff6c558e254c48cd965e52700a619005",
+      "trace_id": "9cea93e76a5e4b12a06324e5d2531803",
+      "tool_name": "two_person_compatibility",
+      "generated_at": "2026-10-12T16:07:37.064933Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "602bfdc977d20b024663d5add2b97a384a66a8d1a332131265788cd76d9b9717",
+      "input_sha256": "dab1b789db9af39c84f3d58cf3da8706453380eaceaff410caa53b89aa241ba5",
+      "business_output_sha256": "5c99d35d8b79a8d03d19883802f51f0d26c91871196248d21f9df79a12267785",
+      "duration_ms": 36.972,
+      "effective_time": {
+        "as_of": "2026-10-12T16:07:36.980576Z",
+        "clock_timezones": []
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-12T16:07:36.980576Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": []
+    }
+  },
+  {
+    "case": "relationship",
+    "tool": "astro_relative_chart",
+    "run_metadata": {
+      "run_id": "a1b6cb1b08084c01974ac03f99210166",
+      "trace_id": "9cea93e76a5e4b12a06324e5d2531803",
+      "tool_name": "astro_relative_chart",
+      "generated_at": "2026-10-12T16:07:56.780392Z",
+      "engine": "swisseph_api",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "38aac972cdad7345524c4ab4920169f42ecc155560941e8e085eb8f52488eaa7",
+      "input_sha256": "c64076bdb1b39c478e59b0b297783958d08868302ec6e40f43031dd4e1033082",
+      "business_output_sha256": "2efde2084a4a128366eec599cfcd3f9b481da6978df5c04856d7f80307147a4f",
+      "duration_ms": 11.85,
+      "effective_time": {
+        "as_of": "2026-10-12T16:07:56.767097Z",
+        "clock_timezones": []
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {
+        "engine_precision": [
+          "ephemeris_runtime_model"
+        ]
+      },
+      "replay": {
+        "as_of": "2026-10-12T16:07:56.767097Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": [],
+      "parent_run_id": "ff6c558e254c48cd965e52700a619005"
+    }
+  },
+  {
+    "case": "invalid",
+    "tool": "bazi_career",
+    "run_metadata": {
+      "run_id": "d8425baeab4043ffafee2bc3bd8cc40c",
+      "trace_id": "55572726bb2a44a98d8244c3a89b596d",
+      "tool_name": "bazi_career",
+      "generated_at": "2026-10-12T16:08:15.445149Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "9e3ba6f781cbc6324649594bc8dca72fc94586a6753ae34cc56776ad7defc3e3",
+      "input_sha256": "6a89c0947f4592f0fface1270135d9feab663e19749f43a3803ba712009eac8e",
+      "business_output_sha256": "e37469d3713e706b862b86e225e122150e581f2111567051e422b911c815d709",
+      "duration_ms": 42.727,
+      "effective_time": {
+        "as_of": "2026-10-11T16:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "6796781335155abb617d5d7ce72aa1521bfdad68d8f6ba221d7842e563d752a7",
+        "bundled_data_sha256": "cec945cc25b1144f1f729a163f14cb5cce0b00a7414fb2090bf452a627ffe181",
+        "environment_sha256": "393c00fffe2b9f88666f8aa52397d6b19435b0fc11e658b5160e1baaa9f6ac61",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-11T16:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": []
+    }
+  }
+]

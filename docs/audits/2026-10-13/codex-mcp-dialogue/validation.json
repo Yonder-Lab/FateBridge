@@ -1,0 +1,172 @@
+{
+  "native_host": "desktop-bundled Codex app-server, ephemeral authenticated conversations; no desktop UI clicks",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "natural_prompts_without_tool_choices": true,
+  "saved_config_verified": true,
+  "other_parsed_codex_settings_preserved": true,
+  "cases": {
+    "career": {
+      "phase": "registered-final",
+      "effective_tool_count": 87,
+      "turns": [
+        {
+          "status": "completed",
+          "duration_seconds": 118.98,
+          "business_tools": [
+            "bazi_career",
+            "timing_analysis",
+            "bazi_wealth"
+          ],
+          "host_background_commands": 2
+        },
+        {
+          "status": "completed",
+          "duration_seconds": 30.8,
+          "business_tools": [],
+          "host_background_commands": 0
+        }
+      ],
+      "manual_interpretation_review": "passed"
+    },
+    "missing": {
+      "phase": "registered-final",
+      "effective_tool_count": 87,
+      "turns": [
+        {
+          "status": "completed",
+          "duration_seconds": 25.07,
+          "business_tools": [],
+          "host_background_commands": 2
+        },
+        {
+          "status": "completed",
+          "duration_seconds": 86.84,
+          "business_tools": [
+            "bazi_career",
+            "timing_analysis"
+          ],
+          "host_background_commands": 0
+        },
+        {
+          "status": "completed",
+          "duration_seconds": 8.09,
+          "business_tools": [],
+          "host_background_commands": 0
+        }
+      ],
+      "manual_interpretation_review": "passed"
+    },
+    "relationship": {
+      "phase": "scenarios-final",
+      "effective_tool_count": 10,
+      "turns": [
+        {
+          "status": "completed",
+          "duration_seconds": 97.77,
+          "business_tools": [
+            "two_person_compatibility",
+            "astro_relative_chart"
+          ],
+          "host_background_commands": 3
+        },
+        {
+          "status": "completed",
+          "duration_seconds": 17.3,
+          "business_tools": [],
+          "host_background_commands": 0
+        }
+      ],
+      "manual_interpretation_review": "passed"
+    },
+    "fengshui": {
+      "phase": "scenarios-final",
+      "effective_tool_count": 7,
+      "turns": [
+        {
+          "status": "completed",
+          "duration_seconds": 39.48,
+          "business_tools": [],
+          "host_background_commands": 2
+        }
+      ],
+      "manual_interpretation_review": "passed"
+    },
+    "invalid": {
+      "phase": "desktop-final",
+      "effective_tool_count": 7,
+      "turns": [
+        {
+          "status": "completed",
+          "duration_seconds": 305.55,
+          "business_tools": [],
+          "host_background_commands": 2
+        },
+        {
+          "status": "completed",
+          "duration_seconds": 170.53,
+          "business_tools": [
+            "bazi_career"
+          ],
+          "host_background_commands": 0
+        }
+      ],
+      "manual_interpretation_review": "passed"
+    }
+  },
+  "contract_bytes": {
+    "bazi_career": {
+      "full": 23483,
+      "input": 7955
+    },
+    "timing_analysis": {
+      "full": 30906,
+      "input": 8810
+    },
+    "two_person_compatibility": {
+      "full": 22442,
+      "input": 10957
+    },
+    "astro_relative_chart": {
+      "full": 39038,
+      "input": 12319
+    }
+  },
+  "full_pytest": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "89",
+    "tests": "2029",
+    "time": "255.921",
+    "timestamp": "2026-10-13T00:06:47.308064+08:00",
+    "hostname": "zuoyoubushirendeMacBook-Pro.local"
+  },
+  "source_matches_isolated_test_copy": true,
+  "black": true,
+  "isort": true,
+  "mypy": true,
+  "diff_check": true,
+  "limitations": [
+    "Small real-model sample; no latency SLA or exhaustive 87-tool dialogue test.",
+    "Global Codex memory/working-directory discovery still creates host background commands.",
+    "Intermediate invalid-date reply took 305.55s before any FateBridge computation.",
+    "Current root chat was not hot-reloaded; acceptance uses new native ephemeral conversations.",
+    "Linux-only golden tests remain skipped on macOS; two golden display changes preserve all original numeric leaves.",
+    "Latest extra invalid-date rerun failed in Codex workspace routing before any MCP call; retained alongside earlier successful invalid-date conversations."
+  ],
+  "surfaces_ok": true,
+  "latest_registration_retry": {
+    "status": "failed",
+    "message": "workspace routing discovery timed out",
+    "duration_seconds": 208.62,
+    "business_calls": 0,
+    "receipt": "host-failures/registered-invalid.json"
+  },
+  "intermediate_timeout": {
+    "case": "fengshui",
+    "local_deadline_seconds": 360,
+    "recorded_turns": 0,
+    "receipt": "host-failures/intermediate-fengshui-timeout.json"
+  }
+}

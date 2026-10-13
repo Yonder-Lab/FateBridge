@@ -37,6 +37,7 @@ dependencies = [
     # Version 6 changes return calculations and bundled ephemeris data layout.
     "kerykeion>=5.5.0,<6",
     "lunardate>=0.2.2",
+    "packaging>=23.0",  # doctor checks installed dependency version constraints
     "pydantic>=2.0.0",
     "pyswisseph>=2.10.0",
     "python-dateutil>=2.8.0",

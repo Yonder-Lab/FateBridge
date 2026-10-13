@@ -12,12 +12,9 @@ from jsonschema import Draft202012Validator
 
 import fatebridge.api as api
 import fatebridge.mcp_server as mcp
+from fatebridge.application.description import spec_is_cli_safe
+from fatebridge.application.execution import OutputContractError, execute_spec
 from fatebridge.cli import run as cli_run
-from fatebridge.core.tool_spec import (
-    OutputContractError,
-    execute_spec,
-    spec_is_cli_safe,
-)
 from fatebridge.services.tool_catalog import CATALOG
 from tests.fixtures.surface_payloads import MCP_CASES, REST_POST_CASES
 
@@ -381,7 +378,8 @@ def test_execution_failures_agree_and_do_not_leak(
     from fastmcp import FastMCP
 
     import fatebridge.cli as cli_module
-    from fatebridge.core.tool_spec import register_mcp, register_rest
+    from fatebridge.transports.mcp import register_mcp
+    from fatebridge.transports.rest import register_rest
 
     def fail():
         if exception is None:
@@ -398,8 +396,8 @@ def test_execution_failures_agree_and_do_not_leak(
     register_mcp(
         mcp_app,
         [broken],
-        render_response=mcp._render_tool_response,
-        render_error=mcp._render_tool_error,
+        render_response=mcp._render_protocol_response,
+        render_error=mcp._render_protocol_error,
     )
 
     async def call():

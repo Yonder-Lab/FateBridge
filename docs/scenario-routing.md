@@ -209,7 +209,6 @@ MCP 端工具名差异：本表 4 个流派盘的列名是 catalog key，但 MCP
 | `jieqi_year` `jieqi_timeline_analysis` `nongli_time` | 节气表 / 节气时间轴 / 公历农历换算，历法支撑。 |
 | `knowledge_registry` `knowledge_read` | 内置知识域目录与读取，解读查证用。 |
 | `export_registry` `export_parse` | 导出协议注册表 / 快照文本解析，工程支撑。 |
-| `calculate_legacy` | 旧版 `/api/calculate` 扁平结构，仅兼容老客户端，新接入用 `bazi_birth`，不进场景路由。 |
 
 ## 覆盖核对清单
 
@@ -226,7 +225,6 @@ MCP 端工具名差异：本表 4 个流派盘的列名是 catalog key，但 MCP
 - `bazi_marriage` — 缘分
 - `bazi_romance` — 缘分
 - `bazi_health` — 健康
-- `calculate_legacy` — 旧版兼容
 - `ziwei_birth` — 紫微主证
 - `ziwei_horoscope` — 时运（紫微运限）
 - `ziwei_rules` — 命格查表（深）

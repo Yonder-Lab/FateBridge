@@ -1,0 +1,16 @@
+{
+  "canonical_entrypoints": "[console_scripts]\nfatebridge = fatebridge.cli:main\nfatebridge-api = fatebridge.api:main\nfatebridge-mcp = fatebridge.mcp_server:main\n",
+  "package_facades_have_no_exports": true,
+  "retired_modules_absent": [
+    "core/tool_spec.py",
+    "core/discovery.py",
+    "core/scenarios.py",
+    "core/request_models.py",
+    "core/astrology.py",
+    "utils/helpers.py"
+  ],
+  "scenario_data_matches_verified_source": true,
+  "sha256": "f0786a6fa5b152c220459dbe4f6c2944355193aa9f839caa34ced5d861ab910f",
+  "verified_source_and_data_files": 203,
+  "wheel": "fatebridge-0.2.0-py3-none-any.whl"
+}

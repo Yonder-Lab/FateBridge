@@ -33,7 +33,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from fatebridge.core.astrology import ELEMENT_BY_SIGN
+from fatebridge.core.astrology_tables import ELEMENT_BY_SIGN
 from fatebridge.core.predictive._common import (
     TIMING_POINT_NAMES,
     collect_aspect_hits,

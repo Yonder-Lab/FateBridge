@@ -5,7 +5,8 @@
 标明统计口径。
 """
 
-from fatebridge.core.astrology import BALANCE_BASIS, NODE_BODIES, _balance
+from fatebridge.core.astro.parts import _balance
+from fatebridge.core.astro.reference import BALANCE_BASIS, NODE_BODIES
 
 
 def _planet(pid, element, modality):

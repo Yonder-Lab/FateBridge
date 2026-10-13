@@ -76,7 +76,7 @@ def test_arbitrary_urls_and_methods_have_bounded_metrics(monkeypatch, auth_enabl
                 401 if auth_enabled else 404
             )
             client.options(unknown)
-        assert client.post("/api/calculate", json={}).status_code == (
+        assert client.post("/api/cn/bazi/birth", json={}).status_code == (
             401 if auth_enabled else 422
         )
 
@@ -86,7 +86,7 @@ def test_arbitrary_urls_and_methods_have_bounded_metrics(monkeypatch, auth_enabl
     assert len(metrics._duration_sums) == 4
     assert {path for _, path in metrics._duration_counts} == {
         "/unknown",
-        "/api/calculate",
+        "/api/cn/bazi/birth",
     }
     assert ("OTHER", "/unknown") in metrics._duration_counts
 
@@ -116,7 +116,7 @@ def test_invalid_http_bodies_use_safe_common_error_envelope(monkeypatch, body):
     )
     with TestClient(api_module.app) as client:
         response = client.post(
-            "/api/calculate",
+            "/api/cn/bazi/birth",
             content=body,
             headers={"Content-Type": "application/json"},
         )
@@ -169,7 +169,7 @@ def test_openapi_validation_error_schema_matches_real_http_response(monkeypatch)
     )
     with TestClient(api_module.app) as client:
         schema = client.get("/openapi.json").json()
-        response = client.post("/api/calculate", json={})
+        response = client.post("/api/cn/bazi/birth", json={})
     for routes in schema["paths"].values():
         for operation in routes.values():
             advertised = operation["responses"].get("422")

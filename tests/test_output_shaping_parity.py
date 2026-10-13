@@ -97,7 +97,9 @@ def test_rest_reserved_field_guard_rejects_clashing_model():
     """A request model that declares a reserved transport field must fail loud."""
     from pydantic import BaseModel
 
-    from fatebridge.core.tool_spec import ToolSpec, person_invoke, register_rest
+    from fatebridge.application.bindings import person_invoke
+    from fatebridge.application.tool_spec import ToolSpec
+    from fatebridge.transports.rest import register_rest
 
     class _Clashing(BaseModel):
         fields: str = ""  # collides with the REST projection query param

@@ -5,7 +5,7 @@
 - REST API：FastAPI，默认 `http://localhost:8010`
 - FastMCP：`python -m fatebridge.mcp_server` 启动的 MCP 工具面
 
-> 当前实际暴露 87 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）和 87 个 FastMCP 工具。两个数字由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定。
+> 当前实际暴露 86 个业务 REST 路由（另含 `/health`、`/ready`、`/metrics` 三个运维端点）和 87 个 FastMCP 工具。两个数字由中央目录派生，并由 `tests/test_doc_tool_counts.py` 锁定。
 
 ## 1. 基础信息
 
@@ -89,7 +89,7 @@ REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央�
 
 - `run_metadata` 默认附加于成功工具结果，错误和发现接口不保证附带；CLI 可用 `--no-metadata` 关闭
 - `run_id` / `trace_id` 是本次响应生成的轻量标识
-- `tool_name` 来自 `ToolSpec.run_metadata_name`；旧 `/api/calculate` 为兼容仍标记 `analyze_destiny`，并不表示与 MCP 同名工具使用同一计算
+- `tool_name` 来自 `ToolSpec.run_metadata_name`，由工具声明明确指定
 - `generated_at` 是 UTC ISO 8601 时间戳
 - `engine` 是从当前 payload 推导出的运行引擎标识
 - `engine_is_approximate` 标识轨道近似或被识别的 Moshier / mixed 星历降级；不是所有算法准确性的评级
@@ -119,12 +119,11 @@ REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央�
 
 ### 2.4 三端能力边界
 
-中央目录含 89 条记录；REST / MCP 默认各公开 87 项，CLI 可执行 88 条目录命令（另有 `list`、`discover`、`describe`、`profile`）。13 个 family 的能力矩阵按 MCP 集合统计，不能把目录长度当作单端工具数。
+中央目录含 88 条记录；REST 默认公开 86 项，MCP 默认公开 87 项，CLI 可执行 87 条目录命令（另有 `list`、`discover`、`describe`、`profile`）。13 个 family 的能力矩阵按 MCP 集合统计，不能把目录长度当作单端工具数。
 
 | 能力 | REST | MCP / CLI | 差异 |
 | --- | --- | --- | --- |
 | 独立八字命盘 | `/api/cn/bazi/birth` | `bazi_birth` | 推荐的新接入入口，业务数据在 `bazi_birth` |
-| 旧版八字命盘 | `/api/calculate` | CLI `calculate_legacy`；无同名 MCP | `calculate_bazi_birth` 的扁平兼容输出 |
 | 综合命理分析 | 无独立 REST 路由 | `analyze_destiny` | 使用 `calculate_destiny_analysis`；不能用旧 REST 等同替换 |
 | 关系盘 | `/api/astro/relative`（目录 key `astro_relative`） | `astro_relative_chart` | REST 用嵌套 `inner` / `outer`；MCP / CLI 用 `inner_birth_*` / `outer_birth_*` |
 | 家居风水 | `/api/fengshui/*` | `fengshui_*` | 七个工具同名三端；CLI 用 JSON `--request-file` 或 JSON 对象／数组参数 |
@@ -200,7 +199,6 @@ CLI profile 沿用批量入口，子工具共用 as_of / trace，parent_run_id �
 
 用于：
 
-- `/api/calculate`
 - `/api/cn/bazi/*`
 - `/api/timing/*`
 
@@ -294,7 +292,6 @@ CLI profile 沿用批量入口，子工具共用 as_of / trace，parent_run_id �
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `POST` | `/api/calculate` | 旧版八字命盘扁平兼容输出（非 MCP `analyze_destiny` 的综合分析） |
 | `POST` | `/api/cn/bazi/birth` | 独立八字命盘 |
 | `POST` | `/api/compatibility` | 双人配合分析 |
 | `POST` | `/api/compatibility/sukuyo` | 宿曜双人相性分析（三九の秘法，二十七宿） |
@@ -476,40 +473,9 @@ descriptor 形如：
 
 以下示例默认未开启 API Key 鉴权；开启后加 `-H "X-API-Key: <secret>"`。
 
-### 5.1 旧版扁平命盘（兼容入口）
+### 5.1 旧入口迁移
 
-```bash
-curl -X POST http://localhost:8010/api/calculate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "张三",
-    "gender": "男",
-    "birth_year": 1990,
-    "birth_month": 5,
-    "birth_day": 15,
-    "birth_hour": 10,
-    "birth_minute": 30,
-    "birth_timezone": "Asia/Shanghai",
-    "birth_place": "北京",
-    "use_true_solar_time": true
-  }'
-```
-
-返回重点：
-
-- `person_info.time_adjustment`
-- `four_pillars`
-- `day_master`
-- `structure_profile`
-- `patterns`
-- `calendar_context`
-
-说明：
-
-- `structure_profile` 会给出 `dominant_structure`、`secondary_structures`、`useful_elements`、`avoid_elements`、`useful_ten_gods` 和 `harmony_effects`
-- `patterns.special` 现在同时包含 `recognized_structures` 与 `metadata`，便于区分“已识别格局”与“辅助元数据”
-
-新接入使用 `/api/cn/bazi/birth`，相同出生字段下读取 `bazi_birth.four_pillars`、`bazi_birth.day_master` 等嵌套业务字段。综合命理 `analyze_destiny` 使用 MCP / CLI。
+`/api/calculate` 和 CLI `calculate_legacy` 已移除。独立八字命盘使用 `/api/cn/bazi/birth` 或 `bazi_birth`，命盘字段位于 `bazi_birth` 对象；综合命理使用 MCP / CLI 的 `analyze_destiny`。
 
 ### 5.2 核心占星盘
 

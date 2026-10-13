@@ -15,16 +15,18 @@ from __future__ import annotations
 
 import pytest
 
-from fatebridge.core.request_models import (
-    AstroChartRequest,
-    BaziBirthRequest,
+from fatebridge.core.requests.astrology import AstroChartRequest
+from fatebridge.core.requests.bazi import BaziBirthRequest
+from fatebridge.core.requests.birth import FateBridgeRequest
+from fatebridge.core.requests.compatibility import TwoPersonCompatibilityRequest
+from fatebridge.core.requests.divination import (
     CanpingRequest,
-    FateBridgeRequest,
     HeluoRequest,
+    SanShiUnitedRequest,
+)
+from fatebridge.core.requests.metaphysics import (
     LiuRengGodsRequest,
     QimenAnalysisRequest,
-    SanShiUnitedRequest,
-    TwoPersonCompatibilityRequest,
     ZiweiBirthRequest,
 )
 

@@ -2,7 +2,7 @@ from fatebridge.analysis.compatibility import AdvancedCompatibility
 from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.rules import BaZiRules
 from fatebridge.services.calculation import calculate_destiny_analysis
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 
 def _build_minimal_analysis(

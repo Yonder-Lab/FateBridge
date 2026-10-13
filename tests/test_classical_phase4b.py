@@ -11,13 +11,14 @@ from __future__ import annotations
 
 import pytest
 
-from fatebridge.core import astrology
-from fatebridge.core.astrology import build_astro_birth_info, build_core_chart_payload
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
 from fatebridge.core.classical_western import (
     NODE_BENDING_ORB,
     _aspect_is_applying,
     build_classical_patterns,
 )
+from fatebridge.core.ephemeris_runtime import swe
 from fatebridge.services.astrology import _build_classical_patterns_lines
 
 _NATAL = dict(
@@ -157,7 +158,7 @@ def test_nodal_bending_empty_without_node():
 # ── integration + rendering ───────────────────────────────────────────────────
 
 
-@pytest.mark.skipif(astrology.swe is None, reason="swisseph 不可用")
+@pytest.mark.skipif(swe is None, reason="swisseph 不可用")
 def test_chart_exposes_phase4b_keys_as_lists():
     info = build_astro_birth_info(use_true_solar_time=True, **_NATAL)
     patterns = build_core_chart_payload(info, "hellen_chart")["classical_patterns"]

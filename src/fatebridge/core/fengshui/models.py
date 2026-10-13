@@ -5,7 +5,7 @@ from typing import List, Literal, Optional
 
 from pydantic import Field, field_validator, model_validator
 
-from fatebridge.core.request_models import _DeferredModel
+from fatebridge.core.requests.base import _DeferredModel
 from fatebridge.utils.timezones import parse_timezone_name
 
 Direction = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]

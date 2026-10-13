@@ -24,13 +24,14 @@ from fatebridge.core.classical import (
 )
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.metaphysics import kongwang_for_ganzhi
-from fatebridge.services.calculation import (
+from fatebridge.services.birth_context import (
     BirthComputationContext,
-    _build_birth_computation_context,
-    _render_destiny_analysis,
+    build_birth_computation_context,
 )
+from fatebridge.services.birth_payload import build_destiny_payload
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
-from fatebridge.services.timing import _build_current_timing_state
+from fatebridge.services.timing_state import build_current_timing_state
+from fatebridge.utils.birth_input import PersonInfo
 from fatebridge.utils.data import (
     BRANCH_HIDDEN_STEMS,
     EARTHLY_BRANCHES,
@@ -39,7 +40,7 @@ from fatebridge.utils.data import (
     get_ten_god,
 )
 from fatebridge.utils.errors import calculation_guard, handle_calculation_error
-from fatebridge.utils.helpers import PersonInfo, format_birth_datetime_display
+from fatebridge.utils.formatting import format_birth_datetime_display
 
 PILLAR_LABELS = {
     "year": "年柱",
@@ -585,7 +586,7 @@ def _build_timing_overview(
     analysis_date: datetime,
     analysis_calendar_context: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    timing_state = _build_current_timing_state(
+    timing_state = build_current_timing_state(
         birth_context,
         analysis_date=analysis_date,
     )
@@ -800,11 +801,11 @@ def _build_base_bazi_payload(
     person: PersonInfo,
     analysis_date: datetime,
 ) -> Dict[str, Any]:
-    birth_context = _build_birth_computation_context(person)
+    birth_context = build_birth_computation_context(person)
     normalized_birth_time = birth_context.normalized_birth_time
     input_birth_datetime = normalized_birth_time.input_datetime
     normalized_birth_datetime = normalized_birth_time.corrected_datetime
-    base_analysis = _render_destiny_analysis(birth_context)
+    base_analysis = build_destiny_payload(birth_context)
     three_origins = _build_three_origins(birth_context.birth_pillars)
     shensha_entries = _build_shensha_entries(
         pillars=birth_context.birth_pillars,
@@ -924,7 +925,7 @@ def _derive_current_pillars(
     analysis_date: datetime,
 ) -> Tuple[Optional[Tuple[str, str]], Optional[Tuple[str, str]], Dict[str, Any]]:
     """从命盘 + 分析日期内部推算当前大运、流年柱（用户无需自己知道大运）。"""
-    state = _build_current_timing_state(birth_context, analysis_date=analysis_date)
+    state = build_current_timing_state(birth_context, analysis_date=analysis_date)
     dayun_result = state.get("dayun_analysis", {}) or {}
     liunian_result = state.get("liunian_analysis", {}) or {}
     dayun_pillar_str = (dayun_result.get("dayun_info") or {}).get("pillar")
@@ -962,7 +963,7 @@ def _run_bazi_dimension_analysis(
     用户无需自己知道大运；如显式传入 dayun_pillar / liunian_pillar 则作为覆盖。
     """
     try:
-        birth_context = _build_birth_computation_context(person)
+        birth_context = build_birth_computation_context(person)
         pillars = birth_context.birth_pillars
 
         dayun = _parse_pillar_str(dayun_pillar)

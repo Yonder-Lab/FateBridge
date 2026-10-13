@@ -7,12 +7,13 @@ from typing import ClassVar
 import pytest
 from pydantic import BaseModel, create_model
 
+from fatebridge.application.execution import execute_tool
+from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.core.schema_cache import (
     clear_contract_caches,
     contract_fingerprint,
     model_schema,
 )
-from fatebridge.core.tool_spec import ToolSpec, execute_tool
 from fatebridge.services.replay_metadata import digest
 
 

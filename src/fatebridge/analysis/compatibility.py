@@ -995,10 +995,20 @@ class AdvancedCompatibility:
                 dimension_score = analysis_data.get("normalized_score", 0)
             if dimension_score >= 68:
                 if analysis_data.get("details"):
-                    result["strengths"].extend(analysis_data["details"][:2])
+                    result["strengths"].extend(
+                        list(dict.fromkeys(analysis_data["details"]))[:2]
+                    )
             elif dimension_score <= 46:
                 if analysis_data.get("details"):
-                    result["challenges"].extend(analysis_data["details"][:2])
+                    result["challenges"].extend(
+                        list(dict.fromkeys(analysis_data["details"]))[:2]
+                    )
+
+        # Different dimensions can yield the same presentation sentence. Keep
+        # detailed evidence and numeric weights, but show that sentence once.
+        for key in ("strengths", "challenges", "recommendations"):
+            if key in result:
+                result[key] = list(dict.fromkeys(result[key]))
 
         if overall_score >= 82:
             result["summary"] = "非常匹配，各方面都很协调，是理想的组合"

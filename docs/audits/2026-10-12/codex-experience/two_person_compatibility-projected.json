@@ -1,0 +1,75 @@
+{
+  "summary": {
+    "overall_score": 51.1,
+    "compatibility_level": "需要努力，存在一些挑战，但通过努力可以改善",
+    "relationship_type": "marriage"
+  },
+  "strengths": [
+    "第一人命局提供比肩，正好契合第二人当前格局所需",
+    "第一人命局提供劫财，正好契合第二人当前格局所需"
+  ],
+  "challenges": [
+    "一方受益而另一方承压，属于拉扯型事件。",
+    "事件带来明显张力，需要结合格局取用判断。",
+    "午与丑六害",
+    "巳与寅六害"
+  ],
+  "run_metadata": {
+    "run_id": "3d328579840844c3b80cbddef344832a",
+    "trace_id": "0a80d8d434e9439fa5d120ef24bd0762",
+    "tool_name": "two_person_compatibility",
+    "generated_at": "2026-10-12T15:30:19.787775Z",
+    "engine": "fatebridge-offline",
+    "engine_is_approximate": false,
+    "metadata_schema_version": "1.0",
+    "package_version": "0.2.0",
+    "contract_sha256": "602bfdc977d20b024663d5add2b97a384a66a8d1a332131265788cd76d9b9717",
+    "input_sha256": "22e20a42c73b8ba25b871bd8f1a880dc5ddcbae604ecb5db6a95939e0a1cf660",
+    "business_output_sha256": "ac5fd5a670f3d4b334e8ead766cb4de01f00af0aa143e6b3c5d88006a90fcc18",
+    "duration_ms": 1.026,
+    "effective_time": {
+      "as_of": "2026-10-12T04:00:00Z",
+      "clock_timezones": []
+    },
+    "determinism": {
+      "uses_current_time": false,
+      "current_time_fields_defaulted": [],
+      "randomness_used": false,
+      "seed_generated": false,
+      "replayable_with_receipt": true,
+      "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+    },
+    "runtime": {
+      "package_version": "0.2.0",
+      "python": "3.13.5",
+      "platform": "Darwin-arm64",
+      "dependencies": {
+        "pydantic": "2.13.4",
+        "kerykeion": "5.12.9",
+        "pyswisseph": "2.10.3.2",
+        "lunardate": "0.2.2",
+        "python-dateutil": "2.9.0.post0",
+        "pytz": "2026.2"
+      },
+      "implementation_sha256": "f6d063fa96cc155b8063062f4916879b8dcf648ac1bd2b61600edf5f9fbf1de6",
+      "bundled_data_sha256": "2b4d2efc43677800a80e416cffe05d2ccc736c99e1dfa0c594f0e0f6f3a9c06f",
+      "environment_sha256": "02259c96bbfd012915298068a02390d942b0889441bb416fd1f4fc5685a34665",
+      "ephemeris": {
+        "scope": "configured_se1_inventory; actual model is reported separately",
+        "files": {
+          "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+          "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+          "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+        },
+        "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+      }
+    },
+    "provenance": {},
+    "replay": {
+      "as_of": "2026-10-12T04:00:00Z",
+      "overrides": {},
+      "requires_original_input": true
+    },
+    "warnings": []
+  }
+}

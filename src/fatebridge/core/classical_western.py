@@ -2,8 +2,8 @@
 
 Phase 1 of the 西占古典深度段 project: per-planet essential + accidental
 condition, shared by ``astro_chart`` (the new ``classical`` layer) and the
-horary engine. Dignity tables are reused from :mod:`fatebridge.core.astrology`
-and :mod:`fatebridge.core.predictive` (single source); only the genuinely
+horary engine. Dignity tables are reused from :mod:`fatebridge.core.astrology_tables`
+(single source); only the genuinely
 missing pieces — Chaldean faces, Dorothean triplicity rulers, Lilly dignity
 scores, combustion / orientality / sect / joy — are added here.
 
@@ -18,15 +18,15 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from fatebridge.core.astrology import (
+from fatebridge.core.astrology_tables import (
     DOMICILE_RULERS,
+    EGYPTIAN_BOUNDS_BY_SIGN,
     ELEMENT_BY_SIGN,
     EXALTATION_SIGNS,
     RULER_BY_SIGN,
     SIGNS,
     _opposite_sign,
 )
-from fatebridge.core.predictive._common import EGYPTIAN_BOUNDS_BY_SIGN
 
 # Chaldean decan faces — each sign's three 10° faces, Chaldean order from Mars at
 # 0° Aries. Ported verbatim from horosa data/dignities.js FACES (lowercased there).

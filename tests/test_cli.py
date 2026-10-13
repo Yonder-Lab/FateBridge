@@ -2,8 +2,9 @@
 
 import json
 
+from fatebridge.application.execution import result_is_error
+from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.cli import build_parser, run
-from fatebridge.core.tool_spec import ToolSpec, result_is_error
 from fatebridge.services.tool_catalog import CATALOG
 
 

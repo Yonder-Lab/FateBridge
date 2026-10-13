@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from fatebridge.services.astrology import calculate_core_chart_analysis
-from fatebridge.utils.helpers import (
+from fatebridge.utils.solar_time import (
     SOLAR_TIME_STRATEGY_APPARENT,
     calculate_solar_time_adjustment,
 )
@@ -67,7 +67,7 @@ def test_core_chart_request_default_timezone_is_none():
     # Pydantic filled birth_timezone='UTC' when omitted, pre-empting the
     # place-based inference in build_astro_birth_info. The core chart model must
     # default to None so an omitted timezone falls through to the birth place.
-    from fatebridge.core.request_models import AstroChartRequest
+    from fatebridge.core.requests.astrology import AstroChartRequest
 
     req = AstroChartRequest(
         birth_year=2000, birth_month=12, birth_day=10, birth_hour=9, birth_place="上海"
@@ -79,7 +79,7 @@ def test_omitted_timezone_uses_birth_place_not_utc():
     # End-to-end through the request layer: a known birth place with no timezone
     # must infer the place's timezone (as BaZi does), not fall back to 'UTC' and
     # rotate the whole chart.
-    from fatebridge.core.request_models import AstroChartRequest
+    from fatebridge.core.requests.astrology import AstroChartRequest
 
     req = AstroChartRequest(
         birth_year=2000,

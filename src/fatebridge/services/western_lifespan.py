@@ -16,12 +16,9 @@ import json
 from datetime import timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-from fatebridge.core.astrology import (
-    PLANET_SWISSEPH_IDS,
-    _ayanamsha,
-    _julian_day,
-    _swisseph_planet_state,
-)
+from fatebridge.core.astro.ephemeris import _swisseph_planet_state
+from fatebridge.core.astro.geometry import _ayanamsha, _julian_day
+from fatebridge.core.astro.reference import PLANET_SWISSEPH_IDS
 from fatebridge.core.astrology_lifespan import (
     build_age_point_payload,
     build_balbillus_payload,

@@ -1,0 +1,7 @@
+{
+  "passed": 1941,
+  "skipped": 88,
+  "failed": 1,
+  "failure": "test_checklist_covers_every_catalog_tool_exactly: scenario-routing.md still listed calculate_legacy",
+  "duration_seconds": 117.7
+}

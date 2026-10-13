@@ -6,7 +6,8 @@ Pure relocation from the package facade.
 
 from __future__ import annotations
 
-from ...utils.helpers import create_pillar_dict
+from fatebridge.utils.formatting import create_pillar_dict
+
 from ..canping import build_snapshot_text as _canping_snapshot_text
 from ..canping import calculate as _canping_calculate
 from ..canping import liunian_series as _canping_liunian_series

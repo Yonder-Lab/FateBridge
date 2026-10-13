@@ -1,0 +1,16 @@
+[
+  {
+    "source": "astrology.py",
+    "unchanged_definitions": 122,
+    "normalized_changes": "runtime attribute ownership and shared builder names only"
+  },
+  {
+    "source": "timing.py",
+    "unchanged_definitions": 30,
+    "normalized_changes": "runtime attribute ownership and shared builder names only"
+  },
+  {
+    "source": "calculation.py",
+    "unchanged_definitions": 1
+  }
+]

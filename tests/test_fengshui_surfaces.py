@@ -11,9 +11,9 @@ from jsonschema import Draft202012Validator
 
 import fatebridge.api as api
 import fatebridge.mcp_server as mcp
+from fatebridge.application.description import describe_spec, spec_is_cli_safe
 from fatebridge.cli import run
 from fatebridge.core import almanac
-from fatebridge.core.tool_spec import describe_spec, spec_is_cli_safe
 from fatebridge.services.tool_catalog import CATALOG
 from tests.fixtures.fengshui import PAYLOADS, payload
 

@@ -26,7 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from fatebridge.core.tool_spec import spec_is_cli_safe
+from fatebridge.application.description import spec_is_cli_safe
 from fatebridge.services.tool_catalog import CATALOG
 
 _SKILLS_ROOT = Path(__file__).resolve().parents[1] / "skills"

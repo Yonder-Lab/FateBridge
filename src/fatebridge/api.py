@@ -40,72 +40,12 @@ load_runtime_env()
 # isort: split
 
 from fatebridge import __version__ as APP_VERSION
-from fatebridge.core import astrology as astrology_core
-from fatebridge.core import predictive as astrology_predictive_core
-from fatebridge.core.discovery import discover_specs
+from fatebridge.application.discovery import discover_specs
+from fatebridge.application.scenarios import discover_scenarios
+from fatebridge.core.astro import runtime as astrology_core
 from fatebridge.core.execution_context import correlate_error, safe_correlation
-
-# Re-exported so callers and tests can import request models from `api`
-# directly (the canonical definitions live in fatebridge.core.request_models).
-from fatebridge.core.request_models import (  # noqa: F401
-    AstroBirthRequest,
-    AstroChartRequest,
-    AstroRelativePartyRequest,
-    AstroRelativeRequest,
-    BaziBirthRequest,
-    BaziCareerRequest,
-    BaziChildrenRequest,
-    BaziEducationRequest,
-    BaziHealthRequest,
-    BaziMarriageRequest,
-    BaziWealthRequest,
-    DayunAnalysisRequest,
-    ExportParseRequest,
-    ExportRegistryRequest,
-    FateBridgeRequest,
-    GuaLookupRequest,
-    GuaMeiyiRequest,
-    JieqiTimelineRequest,
-    JieqiYearRequest,
-    JinkouAnalysisRequest,
-    KnowledgeReadRequest,
-    KnowledgeRegistryRequest,
-    LiunianAnalysisRequest,
-    LiuRengGodsRequest,
-    LiuRengRunyearRequest,
-    LiuriAnalysisRequest,
-    LiushiAnalysisRequest,
-    LiuyueAnalysisRequest,
-    MeihuaAnalysisRequest,
-    NongliTimeRequest,
-    OtherBuRequest,
-    QimenAnalysisRequest,
-    SanShiUnitedRequest,
-    SixYaoLineRequest,
-    SixYaoRequest,
-    SuZhanRequest,
-    TaiyiAnalysisRequest,
-    TimingAnalysisRequest,
-    TongSheFaRequest,
-    TwoPersonCompatibilityRequest,
-    WesternTimingModuleRequest,
-    WesternTimingRequest,
-    ZiweiBirthRequest,
-    ZiweiRulesRequest,
-)
-from fatebridge.core.scenarios import discover_scenarios
-
-# Re-exported for back-compat / test identity checks: some tests assert the
-# threadpool offload runs exactly these service objects via `api.<name>`.
-from fatebridge.services.astrology import (  # noqa: F401
-    calculate_core_chart_analysis,
-    calculate_relative_chart_analysis,
-)
-from fatebridge.services.bazi import calculate_bazi_birth  # noqa: F401
+from fatebridge.core.predictive import _common as astrology_predictive_core
 from fatebridge.services.run_metadata import attach_run_metadata
-from fatebridge.services.western_timing import (  # noqa: F401
-    calculate_western_timing_analysis,
-)
 from fatebridge.utils.errors import (
     ErrorEnvelope,
     ParameterError,
@@ -616,13 +556,11 @@ async def metrics_endpoint() -> PlainTextResponse:
 # the catalog — not this file.
 # ============================================================================
 
-from fatebridge.core.tool_spec import (  # noqa: E402
-    register_rest,
-)
 from fatebridge.services.tool_catalog import (  # noqa: E402
     CATALOG,
     rest_specs,
 )
+from fatebridge.transports.rest import register_rest
 
 register_rest(
     app,
@@ -702,35 +640,6 @@ async def list_scenarios(
         )
     except ParameterError as exc:
         raise HTTPException(status_code=422, detail=exc.as_result())
-
-
-# Backward-compatible direct-call handlers. Older tests / integrations call the
-# REST handlers as plain coroutines (e.g. ``await calculate_astro_chart(req)``);
-# expose those names as catalog-driven handlers so they keep working.
-_REST_HANDLER_ALIASES = {
-    "calculate_destiny": "calculate_legacy",
-    "calculate_two_person_compatibility": "two_person_compatibility",
-    "calculate_astro_chart": "astro_chart",
-    "calculate_relative_chart": "astro_relative",
-    "calculate_timing_analysis": "timing_analysis",
-    "calculate_dayun": "dayun_analysis",
-    "calculate_liunian": "liunian_analysis",
-    "calculate_liushi": "liushi_analysis",
-    "calculate_western_timing": "western_timing_analysis",
-    "calculate_solarreturn_module": "solarreturn",
-    "calculate_pdchart_module": "pdchart",
-    "get_qimen_analysis": "qimen",
-    "get_taiyi_analysis": "taiyi",
-    "get_jinkou_analysis": "jinkou",
-    "knowledge_read_helper": "knowledge_read",
-    "knowledge_registry_helper": "knowledge_registry",
-    "export_registry_helper": "export_registry",
-}
-_REST_ENDPOINTS = {
-    route.name: route.endpoint for route in app.routes if isinstance(route, Route)
-}
-for _alias, _key in _REST_HANDLER_ALIASES.items():
-    globals()[_alias] = _REST_ENDPOINTS[f"rest_{_key}"]
 
 
 def main() -> None:

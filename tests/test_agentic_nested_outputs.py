@@ -14,7 +14,7 @@ from jsonschema import ValidationError as SchemaError
 from pydantic import ValidationError
 
 import fatebridge.api as api
-import fatebridge.core.tool_spec as execution
+import fatebridge.application.execution as execution
 import fatebridge.mcp_server as mcp
 from fatebridge.cli import run as cli_run
 from fatebridge.services.tool_catalog import CATALOG

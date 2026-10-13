@@ -6,21 +6,29 @@ import pytest
 from fastapi import HTTPException
 
 import fatebridge.api as api_module
-from fatebridge.core.request_models import (
+from fatebridge.core.requests.astrology import (
     AstroChartRequest,
     AstroRelativePartyRequest,
     AstroRelativeRequest,
-    DayunAnalysisRequest,
-    ExportRegistryRequest,
+)
+from fatebridge.core.requests.compatibility import TwoPersonCompatibilityRequest
+from fatebridge.core.requests.metaphysics import (
     JinkouAnalysisRequest,
-    KnowledgeReadRequest,
-    KnowledgeRegistryRequest,
-    LiunianAnalysisRequest,
-    LiushiAnalysisRequest,
     QimenAnalysisRequest,
     TaiyiAnalysisRequest,
+)
+from fatebridge.core.requests.reference import (
+    ExportRegistryRequest,
+    KnowledgeReadRequest,
+    KnowledgeRegistryRequest,
+)
+from fatebridge.core.requests.timing import (
+    DayunAnalysisRequest,
+    LiunianAnalysisRequest,
+    LiushiAnalysisRequest,
     TimingAnalysisRequest,
-    TwoPersonCompatibilityRequest,
+)
+from fatebridge.core.requests.western_timing import (
     WesternTimingModuleRequest,
     WesternTimingRequest,
 )
@@ -686,7 +694,7 @@ def test_selected_sections_only_trim_export_text_not_structured_payload():
 
 
 def _offloaded_service(captured):
-    from fatebridge.core.tool_spec import execute_tool
+    from fatebridge.application.execution import execute_tool
 
     assert captured["func"] is execute_tool
     spec, request = captured["args"]

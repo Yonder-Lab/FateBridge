@@ -7,7 +7,8 @@
 
 import pytest
 
-from fatebridge.core.astrology import _essential_dignity, _opposite_sign
+from fatebridge.core.astro.parts import _essential_dignity
+from fatebridge.core.astrology_tables import _opposite_sign
 
 
 @pytest.mark.parametrize(

@@ -91,7 +91,7 @@ def golden_diff_skip_reason() -> str:
 # ---------------------------------------------------------------------------
 # 时钟冻结
 # ---------------------------------------------------------------------------
-# 凡是不提供 analysis_* 日期的 payload（如 /api/calculate、/api/cn/bazi/birth）
+# 凡是不提供 analysis_* 日期的 payload（如 /api/cn/bazi/birth）
 # 都会在服务层落到 datetime.now() 回退路径，导致基线随日历漂移。
 # 在 compute_outputs() 期间把所有工具模块里的 datetime 替换成此固定子类，
 # 使 now()/today() 永远返回同一瞬间，无需任何三方库。
@@ -108,7 +108,7 @@ _DATETIME_PATCH_TARGETS = [
     "fatebridge.services.bazi.datetime",
     "fatebridge.services.timing.datetime",
     "fatebridge.analysis.timing_effects.datetime",
-    "fatebridge.utils.helpers.datetime",
+    "fatebridge.utils.birth_input.datetime",
     "fatebridge.core.timing.datetime",
     "fatebridge.core.predictive._common.datetime",
 ]

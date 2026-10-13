@@ -9,13 +9,13 @@ a valid verdict) rather than ephemeris-sensitive exact verdicts — the byte-lev
 output is locked separately by the golden master.
 """
 
-from fatebridge.core.astrology import RULER_BY_SIGN
 from fatebridge.core.astrology_horary import (
     CATEGORY_LABELS_ZH,
     HOUSE_BY_CATEGORY,
     _applying_aspect,
     _moon_void_of_course,
 )
+from fatebridge.core.astrology_tables import RULER_BY_SIGN
 from fatebridge.services.western_horary import calculate_horary
 
 VALID_VERDICTS = {"yes", "no", "qualified_yes", "uncertain"}

@@ -5,11 +5,11 @@ from datetime import datetime
 import pytest
 
 import fatebridge.services.bazi as bazi_module
-import fatebridge.services.calculation as calculation_module
+import fatebridge.services.birth_context as birth_context_module
 from fatebridge.analysis.timing_effects import TimingEffectsAnalysis
 from fatebridge.core.elements import ElementAnalysis
 from fatebridge.core.timing import TimingAnalysis
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 from tests.fixtures.transports import rest_handler
 
 
@@ -39,9 +39,9 @@ def test_bazi_services_reuse_shared_birth_context(monkeypatch, service):
         "get_four_pillars": 0,
     }
 
-    original_normalize_birth_time = calculation_module.normalize_birth_time
+    original_normalize_birth_time = birth_context_module.normalize_birth_time
     original_get_four_pillars = (
-        calculation_module.BaZiCalendar.get_four_pillars.__func__
+        birth_context_module.BaZiCalendar.get_four_pillars.__func__
     )
 
     def counting_normalize_birth_time(*args, **kwargs):
@@ -53,12 +53,12 @@ def test_bazi_services_reuse_shared_birth_context(monkeypatch, service):
         return original_get_four_pillars(cls, *args, **kwargs)
 
     monkeypatch.setattr(
-        calculation_module,
+        birth_context_module,
         "normalize_birth_time",
         counting_normalize_birth_time,
     )
     monkeypatch.setattr(
-        calculation_module.BaZiCalendar,
+        birth_context_module.BaZiCalendar,
         "get_four_pillars",
         classmethod(counting_get_four_pillars),
     )
@@ -177,7 +177,7 @@ async def test_heavy_api_routes_honor_shared_concurrency_limit(monkeypatch):
         pytest.skip("api.py requires Python 3.10+ to import")
 
     import fatebridge.api as api_module
-    from fatebridge.core.request_models import TimingAnalysisRequest
+    from fatebridge.core.requests.timing import TimingAnalysisRequest
 
     api_module._reset_runtime_state_for_tests()
     api_module.HEAVY_CALC_SEMAPHORE = asyncio.Semaphore(2)

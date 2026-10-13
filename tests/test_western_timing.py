@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from fatebridge.core import astrology as astrology_core
+from fatebridge.core.ephemeris_runtime import swe
 from fatebridge.core.predictive._common import (
     build_lot_payloads,
     build_natal_subject,
@@ -21,7 +21,7 @@ from fatebridge.core.predictive.western_timing import build_western_timing_paylo
 from fatebridge.core.predictive.zodiacal_releasing import (
     build_releasing_level_within_interval,
 )
-from fatebridge.core.request_models import WesternTimingRequest
+from fatebridge.core.requests.western_timing import WesternTimingRequest
 from fatebridge.services.astrology import calculate_core_chart_analysis
 from fatebridge.services.western_timing import calculate_western_timing_analysis
 from fatebridge.utils.timezones import parse_timezone_name
@@ -357,9 +357,7 @@ def test_core_chart_supports_fixed_offset_timezones():
 
     assert result["chart_profile"]["chart_type"] == "chart"
     expected_precision = (
-        "ephemeris_runtime_model"
-        if astrology_core.swe is not None
-        else "approximate_orbital_model"
+        "ephemeris_runtime_model" if swe is not None else "approximate_orbital_model"
     )
     assert result["chart_profile"]["engine_precision"] == expected_precision
 

@@ -1,7 +1,7 @@
 import pytest
 
 from fatebridge.core.predictive import western_timing as astrology_predictive
-from fatebridge.core.request_models import WesternTimingModuleRequest
+from fatebridge.core.requests.western_timing import WesternTimingModuleRequest
 from fatebridge.services.western_timing_tools import (
     calculate_decennials,
     calculate_firdaria,

@@ -23,14 +23,14 @@ from datetime import datetime
 
 import pytest
 
-from fatebridge.core.astrology import _resolve_offline_house_system
+from fatebridge.core.astro.profiles import _resolve_offline_house_system
 from fatebridge.core.elements import ElementAnalysis
-from fatebridge.core.local_techniques import (
+from fatebridge.core.local_techniques.chart import (
     _normalize_date_text,
     _normalize_time_text,
-    build_sixyao_result,
 )
-from fatebridge.utils.helpers import (
+from fatebridge.core.local_techniques.sixyao import build_sixyao_result
+from fatebridge.utils.solar_time import (
     SOLAR_TIME_STRATEGY_APPARENT,
     SOLAR_TIME_STRATEGY_LONGITUDE_ONLY,
     calculate_solar_time_adjustment,
@@ -191,7 +191,7 @@ def test_dayun_analysis_exposes_precise_start_age_and_direction() -> None:
     起运 is ~7.25岁, consumers need ``start_age_precise`` to reconcile the
     fractional ``dayun_age`` and show the correct 顺/逆行 direction."""
     from fatebridge.services.timing import calculate_dayun_analysis
-    from fatebridge.utils.helpers import PersonInfo
+    from fatebridge.utils.birth_input import PersonInfo
 
     person = PersonInfo(
         name="zhang",

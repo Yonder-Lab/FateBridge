@@ -1,12 +1,12 @@
 import json
 
-from fatebridge.core.request_models import (
-    GuaMeiyiRequest,
-    JieqiYearRequest,
-    NongliTimeRequest,
+from fatebridge.core.requests.calendar import JieqiYearRequest, NongliTimeRequest
+from fatebridge.core.requests.divination import GuaMeiyiRequest
+from fatebridge.services.calendar_tools import (
+    calculate_jieqi_year,
+    calculate_nongli_time,
 )
 from fatebridge.services.divination import calculate_gua_meiyi
-from fatebridge.services.timing import calculate_jieqi_year, calculate_nongli_time
 from tests.fixtures.transports import mcp_parameters, mcp_text
 
 

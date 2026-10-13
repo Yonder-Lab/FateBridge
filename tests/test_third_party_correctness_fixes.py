@@ -17,7 +17,7 @@ from fatebridge.services.metaphysics import (
     _build_person_seed,
     calculate_ziwei_horoscope,
 )
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 
 @pytest.mark.parametrize(

@@ -9,12 +9,13 @@ from fastmcp import Client, FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, ConfigDict, Field
 
-from fatebridge.core.request_models import (
-    FateBridgeRequest,
-    TwoPersonCompatibilityRequest,
-)
-from fatebridge.core.tool_spec import ToolSpec, pair_invoke, register_mcp
+from fatebridge.application.bindings import pair_invoke
+from fatebridge.application.tool_spec import ToolSpec
+from fatebridge.core.requests.birth import FateBridgeRequest
+from fatebridge.core.requests.compatibility import TwoPersonCompatibilityRequest
+from fatebridge.mcp_transport import protocol_result
 from fatebridge.services.tool_catalog import CATALOG
+from fatebridge.transports.mcp import register_mcp
 
 BIRTH = dict(birth_year=1990, birth_month=6, birth_day=15, birth_hour=10, gender="男")
 ANALYSIS = dict(analysis_year=2024, analysis_month=6, analysis_day=15, analysis_hour=10)
@@ -25,8 +26,10 @@ def _app(spec: ToolSpec) -> FastMCP:
     register_mcp(
         app,
         [spec],
-        render_response=lambda result, **kwargs: json.dumps(result),
-        render_error=lambda result, *args, **kwargs: json.dumps(result),
+        render_response=lambda result, **kwargs: protocol_result(result, failed=False),
+        render_error=lambda result, *args, **kwargs: protocol_result(
+            result, failed=True
+        ),
     )
     return app
 

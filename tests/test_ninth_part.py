@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import pytest
 
-from fatebridge.core import astrology
-from fatebridge.core.astrology import build_astro_birth_info, build_core_chart_payload
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
 from fatebridge.core.classical_western import ninth_part
+from fatebridge.core.ephemeris_runtime import swe
 from fatebridge.services.astrology import calculate_core_chart_analysis
 
 _NATAL = dict(
@@ -50,7 +51,7 @@ def test_non_zodiacal_sign_is_none():
     assert ninth_part("Ophiuchus", 5.0) is None
 
 
-@pytest.mark.skipif(astrology.swe is None, reason="swisseph 不可用")
+@pytest.mark.skipif(swe is None, reason="swisseph 不可用")
 def test_chart_planets_carry_ninth_part():
     info = build_astro_birth_info(use_true_solar_time=True, **_NATAL)
     planets = build_core_chart_payload(info, "hellen_chart")["classical"]["planets"]

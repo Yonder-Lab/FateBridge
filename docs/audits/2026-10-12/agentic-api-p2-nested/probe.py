@@ -19,8 +19,8 @@ sys.path.insert(0, str(ROOT))
 
 import fatebridge.api as api
 import fatebridge.mcp_server as mcp
-from fatebridge.core.discovery import discover_specs
-from fatebridge.core.tool_spec import spec_is_cli_safe
+from fatebridge.application.discovery import discover_specs
+from fatebridge.application.description import spec_is_cli_safe
 from fatebridge.services.tool_catalog import CATALOG
 from tests.test_agentic_nested_outputs import (
     AS_OF,

@@ -1,0 +1,98 @@
+{
+  "bazi_birth": {
+    "four_pillars": {
+      "year": {
+        "stem": "庚",
+        "branch": "午"
+      },
+      "month": {
+        "stem": "辛",
+        "branch": "巳"
+      },
+      "day": {
+        "stem": "庚",
+        "branch": "辰"
+      },
+      "hour": {
+        "stem": "辛",
+        "branch": "巳"
+      }
+    },
+    "day_master": {
+      "stem": "庚",
+      "element": "金",
+      "polarity": "阳",
+      "strength": "中和"
+    }
+  },
+  "run_metadata": {
+    "run_id": "57a03e0f7ddd4f92a7c605ae61ae7ad7",
+    "trace_id": "1b0aec6bf7a44b7e82ef094e960eabfb",
+    "tool_name": "bazi_birth",
+    "generated_at": "2026-10-12T15:30:17.453107Z",
+    "engine": "fatebridge-offline",
+    "engine_is_approximate": false,
+    "metadata_schema_version": "1.0",
+    "package_version": "0.2.0",
+    "contract_sha256": "6d0d3bbdc903cb36b130cd93a4a296c798d801dc349c048ec4b2fdf3b2f3a589",
+    "input_sha256": "54466f56dda202665cb3b1154e33df9ad4489ccea9b6353283433fd52101b123",
+    "business_output_sha256": "ef95dd625b7e6348f19eadc26a3b798346a6061accf109f25c92bbcb2bc2bbdd",
+    "duration_ms": 1.243,
+    "effective_time": {
+      "as_of": "2026-10-12T04:00:00Z",
+      "clock_timezones": [
+        "Asia/Shanghai"
+      ]
+    },
+    "determinism": {
+      "uses_current_time": true,
+      "current_time_fields_defaulted": [
+        "analysis_year",
+        "analysis_month",
+        "analysis_day"
+      ],
+      "randomness_used": false,
+      "seed_generated": false,
+      "replayable_with_receipt": true,
+      "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+    },
+    "runtime": {
+      "package_version": "0.2.0",
+      "python": "3.13.5",
+      "platform": "Darwin-arm64",
+      "dependencies": {
+        "pydantic": "2.13.4",
+        "kerykeion": "5.12.9",
+        "pyswisseph": "2.10.3.2",
+        "lunardate": "0.2.2",
+        "python-dateutil": "2.9.0.post0",
+        "pytz": "2026.2"
+      },
+      "implementation_sha256": "f6d063fa96cc155b8063062f4916879b8dcf648ac1bd2b61600edf5f9fbf1de6",
+      "bundled_data_sha256": "2b4d2efc43677800a80e416cffe05d2ccc736c99e1dfa0c594f0e0f6f3a9c06f",
+      "environment_sha256": "02259c96bbfd012915298068a02390d942b0889441bb416fd1f4fc5685a34665",
+      "ephemeris": {
+        "scope": "configured_se1_inventory; actual model is reported separately",
+        "files": {
+          "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+          "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+          "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+        },
+        "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+      }
+    },
+    "provenance": {
+      "time_algorithm": [
+        "真太阳时"
+      ]
+    },
+    "replay": {
+      "as_of": "2026-10-12T04:00:00Z",
+      "overrides": {},
+      "requires_original_input": true
+    },
+    "warnings": [
+      "current_time_frozen"
+    ]
+  }
+}

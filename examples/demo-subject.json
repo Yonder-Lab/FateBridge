@@ -1,0 +1,13 @@
+{
+  "name": "演示甲",
+  "gender": "男",
+  "birth_year": 1990,
+  "birth_month": 5,
+  "birth_day": 15,
+  "birth_hour": 10,
+  "birth_minute": 30,
+  "birth_timezone": "Asia/Shanghai",
+  "birth_place": "北京",
+  "birth_longitude": 116.4074,
+  "birth_latitude": 39.9042
+}

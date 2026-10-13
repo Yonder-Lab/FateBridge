@@ -8,9 +8,10 @@ from fastapi.testclient import TestClient
 
 import fatebridge.api as api_module
 from fatebridge import mcp_server as fastmcp_server
-from fatebridge.core.request_models import FateBridgeRequest, WesternTimingRequest
+from fatebridge.core.requests.bazi import BaziBirthRequest
+from fatebridge.core.requests.western_timing import WesternTimingRequest
 from fatebridge.utils.errors import handle_calculation_error
-from fatebridge.utils.helpers import format_error_response
+from fatebridge.utils.formatting import format_error_response
 from fatebridge.utils.runtime import (
     load_runtime_env,
     parse_allowed_origins,
@@ -18,7 +19,7 @@ from fatebridge.utils.runtime import (
 )
 from tests.fixtures.transports import rest_handler
 
-calculate_destiny = rest_handler("calculate_legacy")
+calculate_birth = rest_handler("bazi_birth")
 calculate_western_timing = rest_handler("western_timing_analysis")
 
 
@@ -110,7 +111,7 @@ def test_cli_entrypoints_are_callable():
     assert callable(fastmcp_server.main)
 
 
-def test_calculate_destiny_route_executes_service_via_threadpool(monkeypatch):
+def test_calculate_birth_route_executes_service_via_threadpool(monkeypatch):
     captured = {}
 
     async def fake_run_in_threadpool(func, *args, **kwargs):
@@ -121,7 +122,7 @@ def test_calculate_destiny_route_executes_service_via_threadpool(monkeypatch):
 
     monkeypatch.setattr(api_module, "run_in_threadpool", fake_run_in_threadpool)
 
-    request = FateBridgeRequest(
+    request = BaziBirthRequest(
         name="张三",
         gender="男",
         birth_year=1990,
@@ -134,23 +135,23 @@ def test_calculate_destiny_route_executes_service_via_threadpool(monkeypatch):
         birth_place="上海",
     )
 
-    result = asyncio.run(calculate_destiny(request))
+    result = asyncio.run(calculate_birth(request))
 
     assert result["status"] == "ok"
-    assert result["run_metadata"]["tool_name"] == "analyze_destiny"
+    assert result["run_metadata"]["tool_name"] == "bazi_birth"
     assert result["run_metadata"]["engine"] == "fatebridge-offline"
     assert result["run_metadata"]["run_id"]
     assert result["run_metadata"]["trace_id"]
     assert result["run_metadata"]["generated_at"]
-    from fatebridge.core.tool_spec import execute_tool
+    from fatebridge.application.execution import execute_tool
 
     assert captured["func"] is execute_tool
-    assert captured["args"][0].key == "calculate_legacy"
+    assert captured["args"][0].key == "bazi_birth"
     assert captured["args"][1].name == "张三"
 
 
-def test_calculate_destiny_route_includes_snapshot_contract():
-    request = FateBridgeRequest(
+def test_calculate_birth_route_includes_snapshot_contract():
+    request = BaziBirthRequest(
         name="张三",
         gender="男",
         birth_year=1990,
@@ -163,15 +164,15 @@ def test_calculate_destiny_route_includes_snapshot_contract():
         birth_place="上海",
     )
 
-    result = asyncio.run(calculate_destiny(request))
+    result = asyncio.run(calculate_birth(request))
 
-    assert "person_info" in result
-    assert "four_pillars" in result
+    assert "person_info" in result["bazi_birth"]
+    assert "four_pillars" in result["bazi_birth"]
     assert "snapshot_text" in result
     assert "snapshot_export" in result
     assert "[起盘信息]" in result["snapshot_text"]
     assert result["snapshot_export"]["export_text"] == result["snapshot_text"]
-    assert result["run_metadata"]["tool_name"] == "analyze_destiny"
+    assert result["run_metadata"]["tool_name"] == "bazi_birth"
 
 
 def test_western_timing_route_uses_structured_service_error_status(monkeypatch):

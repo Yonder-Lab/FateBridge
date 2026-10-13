@@ -15,7 +15,7 @@ import pytest
 import fatebridge.services.bazi as bazi
 from fatebridge.core.elements import ElementAnalysis
 from fatebridge.services.bazi import _resolve_analysis_date
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 # ---- B1: true solar time uses longitude-derived meridian when no timezone ----
 

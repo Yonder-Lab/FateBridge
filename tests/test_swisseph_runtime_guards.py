@@ -20,13 +20,11 @@ from __future__ import annotations
 
 import pytest
 
-import fatebridge.core.astrology as astrology_core
-from fatebridge.core.astrology import (
-    _julian_day,
-    _planetary_hours,
-    build_astro_birth_info,
-    build_core_chart_payload,
-)
+import fatebridge.core.astro.runtime as astrology_core
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
+from fatebridge.core.astro.classical import _planetary_hours
+from fatebridge.core.astro.geometry import _julian_day
 
 _requires_swe = pytest.mark.skipif(
     astrology_core.swe is None, reason="swisseph 不可用：运行时守卫测试需要 swe"

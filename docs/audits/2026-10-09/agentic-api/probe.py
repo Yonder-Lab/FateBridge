@@ -12,7 +12,7 @@ from fastmcp import Client
 
 import fatebridge.api as api
 import fatebridge.mcp_server as mcp
-from fatebridge.core.tool_spec import describe_spec
+from fatebridge.application.description import describe_spec
 from fatebridge.services.tool_catalog import CATALOG
 
 OUT = Path(__file__).resolve().parent

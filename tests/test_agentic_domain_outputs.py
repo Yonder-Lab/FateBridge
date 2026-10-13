@@ -11,7 +11,7 @@ from jsonschema import Draft202012Validator
 from jsonschema import ValidationError as SchemaError
 from pydantic import ValidationError
 
-import fatebridge.core.tool_spec as execution
+import fatebridge.application.execution as execution
 import fatebridge.mcp_server as mcp
 from fatebridge.cli import run as cli_run
 from fatebridge.core.export_contracts import AI_EXPORT_TECHNIQUES

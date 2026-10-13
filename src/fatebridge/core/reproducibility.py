@@ -74,6 +74,6 @@ def policy_for(key: str, model: Type[BaseModel]) -> ReproducibilityPolicy:
         clock_fields = ("target_year",)
     return ReproducibilityPolicy(
         current_time_fields=clock_fields,
-        implicit_current_time=key in {"calculate_legacy", "analyze_destiny"},
+        implicit_current_time=key == "analyze_destiny",
         random_seed_field="seed" if key == "sixyao" else "",
     )

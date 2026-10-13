@@ -17,10 +17,10 @@ except ImportError:  # MCP SDK 2.x uses the capitalized spelling.
     from mcp.shared.exceptions import MCPError as McpError
 
 import fatebridge.api as api
-import fatebridge.core.discovery as discovery
+import fatebridge.application.discovery as discovery
 import fatebridge.mcp_server as mcp
+from fatebridge.application.projection import project_fields
 from fatebridge.cli import run
-from fatebridge.core.tool_spec import project_fields
 from fatebridge.services.tool_catalog import CATALOG
 from fatebridge.utils.errors import ParameterError
 from tests.fixtures.surface_payloads import REST_POST_CASES
@@ -393,7 +393,9 @@ def test_execution_annotation_overrides_are_shared_and_not_hardcoded():
 
     from fastmcp import FastMCP
 
-    from fatebridge.core.tool_spec import ExecutionHints, describe_spec, register_mcp
+    from fatebridge.application.description import describe_spec
+    from fatebridge.application.tool_spec import ExecutionHints
+    from fatebridge.transports.mcp import register_mcp
 
     original = next(spec for spec in CATALOG if spec.key == "bazi_birth")
     synthetic = replace(
@@ -406,8 +408,8 @@ def test_execution_annotation_overrides_are_shared_and_not_hardcoded():
     register_mcp(
         server,
         [synthetic],
-        render_response=mcp._render_tool_response,
-        render_error=mcp._render_tool_error,
+        render_response=mcp._render_protocol_response,
+        render_error=mcp._render_protocol_error,
     )
 
     async def check():

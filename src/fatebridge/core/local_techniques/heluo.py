@@ -6,7 +6,8 @@ Pure relocation from the package facade.
 
 from __future__ import annotations
 
-from ...utils.helpers import create_pillar_dict
+from fatebridge.utils.formatting import create_pillar_dict
+
 from ..heluo import build_snapshot_text as _heluo_snapshot_text
 from ..heluo import calculate as _heluo_calculate
 from ..heluo import da_yun as _heluo_da_yun

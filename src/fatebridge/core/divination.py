@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Tuple
 from ..utils.data import EARTHLY_BRANCHES
 from .gua_meanings import (
     HEXAGRAM_INTERPRETATIONS,
+    caution_phrase,
     get_hexagram_meaning,
     get_trigram_meaning,
 )
@@ -410,7 +411,7 @@ def build_moving_line_oracle(
     favorable = (
         f"{detail['favorable']}；并顺着本卦所宜{hexagram.get('favorable', '顺势推进')}"
     )
-    caution = f"{detail['caution']}；并防本卦所忌{hexagram.get('caution', '失衡冒进')}"
+    caution = f"{detail['caution']}；并防本卦所忌{caution_phrase(hexagram.get('caution', '失衡冒进'))}"
     summary = (
         f"动{moving_line}爻居{detail['position']}，{judgement}{transition}"
         f"宜{favorable}，忌{caution}。"
@@ -655,9 +656,9 @@ def build_meihua_interpretation(
         f"并逐步过渡到{changed.get('favorable', '稳步成事')}。"
     )
     risk_hint = (
-        f"需防{base.get('caution', '失衡冒进')}，"
+        f"需防{caution_phrase(base.get('caution', '失衡冒进'))}，"
         f"动爻位最忌{moving_line_oracle['caution']}，"
-        f"并留意反面镜像里的{opposite.get('caution', '内外失序')}。"
+        f"并留意反面镜像里的{caution_phrase(opposite.get('caution', '内外失序'))}。"
     )
 
     outline = [
@@ -678,7 +679,7 @@ def build_meihua_interpretation(
         f"当前更应把握{phase['stage']}这一步，"
         f"{moving_line_oracle['judgement']}"
         f"宜{base.get('favorable', '顺势推进')}，"
-        f"忌{base.get('caution', '失衡冒进')}。"
+        f"忌{caution_phrase(base.get('caution', '失衡冒进'))}。"
     )
 
     return {
@@ -719,7 +720,7 @@ def lookup_hexagram_by_code(code: str) -> Dict[str, Any]:
         f"{hexagram.get('judgement', '')}"
         f"上卦{upper['name']}({upper['keywords']})，下卦{lower['name']}({lower['keywords']})。"
         f"{hexagram.get('guidance', '')}"
-        f"宜{hexagram.get('favorable', '顺势推进')}，忌{hexagram.get('caution', '失衡冒进')}。"
+        f"宜{hexagram.get('favorable', '顺势推进')}，忌{caution_phrase(hexagram.get('caution', '失衡冒进'))}。"
     )
     return hexagram
 
@@ -733,7 +734,7 @@ def lookup_trigram_by_code(code: str) -> Dict[str, Any]:
     trigram["summary"] = (
         f"{trigram['name']}卦：{trigram.get('theme', trigram['keywords'])}。"
         f"{trigram.get('guidance', '')}"
-        f"宜{trigram.get('favorable', '顺势而行')}，忌{trigram.get('caution', '避免失衡')}。"
+        f"宜{trigram.get('favorable', '顺势而行')}，忌{caution_phrase(trigram.get('caution', '避免失衡'))}。"
     )
     return trigram
 
@@ -752,7 +753,7 @@ def lookup_hexagram_by_name(name: str) -> Dict[str, Any]:
                 f"{hexagram['name']}：{hexagram.get('theme', '卦意聚焦待补充')}。"
                 f"{hexagram.get('judgement', '')}"
                 f"{hexagram.get('guidance', '')}"
-                f"宜{hexagram.get('favorable', '顺势推进')}，忌{hexagram.get('caution', '失衡冒进')}。"
+                f"宜{hexagram.get('favorable', '顺势推进')}，忌{caution_phrase(hexagram.get('caution', '失衡冒进'))}。"
             )
             return hexagram
     raise ValueError(f"未能定位卦名对应的结构：{name}")
@@ -767,7 +768,7 @@ def lookup_trigram_by_name(name: str) -> Dict[str, Any]:
     trigram["summary"] = (
         f"{trigram['name']}卦：{trigram.get('theme', trigram['keywords'])}。"
         f"{trigram.get('guidance', '')}"
-        f"宜{trigram.get('favorable', '顺势而行')}，忌{trigram.get('caution', '避免失衡')}。"
+        f"宜{trigram.get('favorable', '顺势而行')}，忌{caution_phrase(trigram.get('caution', '避免失衡'))}。"
     )
     return trigram
 

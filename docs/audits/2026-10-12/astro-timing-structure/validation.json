@@ -1,0 +1,74 @@
+{
+  "scope": "local macOS working tree; no golden baselines regenerated",
+  "recorded_at": "2026-10-12T15:33:04.661984+00:00",
+  "environment": {
+    "python": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 11:23:37) [Clang 14.0.6 ]",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "packages": {
+      "pytest": "9.1.1",
+      "pyswisseph": "2.10.3.2",
+      "kerykeion": "5.12.9",
+      "pydantic": "2.13.4",
+      "fastapi": "0.138.0",
+      "fastmcp": "3.4.2"
+    }
+  },
+  "output_comparison": {
+    "matched": 154,
+    "changed": [],
+    "fixed_as_of": "2026-10-12T12:00:00+08:00",
+    "excluded_business_field": "run_metadata",
+    "files": [
+      "before-hashes.json",
+      "after-hashes.json"
+    ]
+  },
+  "definition_comparison": {
+    "matched": 153,
+    "normalized": "runtime.foo attribute ownership; shared builder names",
+    "files": [
+      "definition-baselines.json",
+      "definition-comparison.json"
+    ]
+  },
+  "full_pytest": {
+    "tests": 2006,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 89,
+    "passed": 1917,
+    "duration_seconds": 256.284,
+    "exit_code": 0,
+    "changed_during_tests": [],
+    "input_snapshot_sha256": "bdafb6fa08d6d1e80b391dcb743586a1ab9023b4c7e9a93eeae008234827ddb9",
+    "skip_reasons": {
+      "golden 基线锁定参考环境 Linux-x86_64 / Python 3.12；当前 Darwin-arm64 / Python 3.13，星历浮点与派生量跨环境微差，字节比对仅在参考环境进行": 89
+    }
+  },
+  "targeted_pytest": {
+    "passed": 136
+  },
+  "architecture_and_compatibility_pytest": {
+    "passed": 20
+  },
+  "documentation_pytest": {
+    "passed": 27
+  },
+  "static_checks": {
+    "black": "passed; 291 files unchanged",
+    "isort": "passed",
+    "mypy": "passed; 166 source files",
+    "git_diff_check": "passed",
+    "edited_document_links_fences": "5 files passed",
+    "audit_json": "passed"
+  },
+  "not_run": [
+    "platform-gated Linux golden byte comparison",
+    "remote CI for this refactor"
+  ],
+  "retained_low_priority_hotspots": [
+    "core/request_models.py",
+    "services/tool_catalog.py declaration organization",
+    "utils/helpers.py"
+  ]
+}

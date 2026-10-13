@@ -8,14 +8,10 @@ from collections import Counter
 from typing import Any, Dict, List, Optional
 
 from fatebridge.core import guolao_moira
-from fatebridge.core.astrology import (
-    SIGN_LABELS_ZH,
-    AstroBirthInfo,
-    build_astro_birth_info,
-    build_core_chart_payload,
-    build_midpoint_payload,
-    build_relative_payload,
-)
+from fatebridge.core.astro.birth import AstroBirthInfo, build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload, build_midpoint_payload
+from fatebridge.core.astro.relationship import build_relative_payload
+from fatebridge.core.astrology_tables import SIGN_LABELS_ZH
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,

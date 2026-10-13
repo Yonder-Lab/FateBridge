@@ -1,0 +1,453 @@
+{
+  "input": {
+    "date": "2026-10-12",
+    "time": "12:00:00",
+    "zone": "+08:00",
+    "lat": "39n54",
+    "lon": "116e24",
+    "seed": 42
+  },
+  "result": {
+    "analysis_type": "六爻 / 易卦",
+    "input_normalized": {
+      "date": "2026-10-12",
+      "time": "12:00:00",
+      "zone": "+08:00",
+      "lat": "39n54",
+      "lon": "116e24",
+      "gpsLat": null,
+      "gpsLon": null,
+      "question": null,
+      "gua_code": "110101",
+      "changed_code": "100101"
+    },
+    "nongli": {
+      "birth": "2026-10-12 12:00:00",
+      "nongli": "九月初三",
+      "yearJieqi": "丙午",
+      "year": "丙午",
+      "yearGanZi": "丙午",
+      "monthGanZi": "戊戌",
+      "dayGanZi": "己未",
+      "time": "庚午",
+      "jieqi": "寒露",
+      "jiedelta": "寒露后第4天",
+      "monthInt": 9,
+      "dayInt": 3,
+      "month": "九月",
+      "day": "初三",
+      "leap": false
+    },
+    "current_code": "110101",
+    "changed_code": "100101",
+    "cast": {
+      "method": "time_meihua",
+      "source": "梅花时间起卦（按起卦时刻装卦）"
+    },
+    "lines": [
+      {
+        "value": 1,
+        "change": false,
+        "god": "腾蛇",
+        "name": "初爻",
+        "position": 1,
+        "branch": "巳",
+        "element": "火",
+        "liuqin": "父母",
+        "liushen": "腾蛇",
+        "shi_ying": "应",
+        "changed_branch": "子",
+        "changed_liuqin": "妻财"
+      },
+      {
+        "value": 1,
+        "change": true,
+        "god": "白虎",
+        "name": "二爻",
+        "position": 2,
+        "branch": "卯",
+        "element": "木",
+        "liuqin": "官鬼",
+        "liushen": "白虎",
+        "shi_ying": "",
+        "changed_branch": "寅",
+        "changed_liuqin": "官鬼"
+      },
+      {
+        "value": 0,
+        "change": false,
+        "god": "玄武",
+        "name": "三爻",
+        "position": 3,
+        "branch": "丑",
+        "element": "土",
+        "liuqin": "兄弟",
+        "liushen": "玄武",
+        "shi_ying": "",
+        "changed_branch": "辰",
+        "changed_liuqin": "兄弟"
+      },
+      {
+        "value": 1,
+        "change": false,
+        "god": "青龙",
+        "name": "四爻",
+        "position": 4,
+        "branch": "酉",
+        "element": "金",
+        "liuqin": "子孙",
+        "liushen": "青龙",
+        "shi_ying": "世"
+      },
+      {
+        "value": 0,
+        "change": false,
+        "god": "朱雀",
+        "name": "五爻",
+        "position": 5,
+        "branch": "未",
+        "element": "土",
+        "liuqin": "兄弟",
+        "liushen": "朱雀",
+        "shi_ying": ""
+      },
+      {
+        "value": 1,
+        "change": false,
+        "god": "勾陈",
+        "name": "上爻",
+        "position": 6,
+        "branch": "巳",
+        "element": "火",
+        "liuqin": "父母",
+        "liushen": "勾陈",
+        "shi_ying": ""
+      }
+    ],
+    "moving_lines": [
+      2
+    ],
+    "hexagram_info": {
+      "current_palace": "艮",
+      "current_position": "四世",
+      "current_palace_element": "土",
+      "shi_line": 4,
+      "ying_line": 1,
+      "changed_palace": "巽",
+      "changed_position": "五世",
+      "changed_palace_element": "木"
+    },
+    "patterns": [],
+    "pattern_flags": {
+      "liuchong_base": false,
+      "liuhe_base": false,
+      "liuchong_changed": false,
+      "liuhe_changed": false
+    },
+    "question": null,
+    "descriptions": {
+      "110101": {
+        "code": "110101",
+        "name": "火泽睽",
+        "theme": "异中求同",
+        "卦辞": "分歧是常态，能求小同便有路。",
+        "象曰": "火泽异向，彼此不同，贵在求同存异。",
+        "guidance": "分歧难免，宜先找共识点，不必处处求一。",
+        "favorable": "对齐最小共识、拆分议题",
+        "caution": "忌强求一致、把分歧升级",
+        "summary": "火泽睽：异中求同。分歧是常态，能求小同便有路。上卦离(光明、表达、洞察)，下卦兑(喜悦、交流、润泽)。分歧难免，宜先找共识点，不必处处求一。宜对齐最小共识、拆分议题，忌强求一致、把分歧升级。",
+        "raw": {
+          "name": "火泽睽",
+          "upper": {
+            "name": "离",
+            "nature": "火",
+            "element": "火",
+            "lines": [
+              1,
+              0,
+              1
+            ],
+            "symbol": "☲",
+            "keywords": "光明、表达、洞察",
+            "theme": "明辨显化",
+            "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+            "image": "火光附丽，主显明与辨析。",
+            "favorable": "表达、曝光、识别",
+            "caution": "虚火、急躁、表强里弱"
+          },
+          "lower": {
+            "name": "兑",
+            "nature": "泽",
+            "element": "金",
+            "lines": [
+              1,
+              1,
+              0
+            ],
+            "symbol": "☱",
+            "keywords": "喜悦、交流、润泽",
+            "theme": "喜悦沟通",
+            "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+            "image": "泽气外悦，主口才与感通。",
+            "favorable": "谈判、传播、联络",
+            "caution": "浮浅、贪快、失守"
+          },
+          "lines": [
+            1,
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "binary_code": "110101",
+          "symbol": "☲☱",
+          "theme": "异中求同",
+          "guidance": "分歧难免，宜先找共识点，不必处处求一。",
+          "judgement": "分歧是常态，能求小同便有路。",
+          "image": "火泽异向，彼此不同，贵在求同存异。",
+          "favorable": "对齐最小共识、拆分议题",
+          "caution": "忌强求一致、把分歧升级",
+          "summary": "火泽睽：异中求同。分歧是常态，能求小同便有路。上卦离(光明、表达、洞察)，下卦兑(喜悦、交流、润泽)。分歧难免，宜先找共识点，不必处处求一。宜对齐最小共识、拆分议题，忌强求一致、把分歧升级。",
+          "code": "110101"
+        }
+      },
+      "100101": {
+        "code": "100101",
+        "name": "火雷噬嗑",
+        "theme": "断难除障",
+        "卦辞": "遇卡点要硬啃，拖久更伤。",
+        "象曰": "火雷相激，宜断难除障，处理顽结。",
+        "guidance": "遇阻宜果断处理细节与旧患，不能含糊。",
+        "favorable": "解决旧问题、清理流程堵点",
+        "caution": "忌含糊、姑息、只说不做",
+        "summary": "火雷噬嗑：断难除障。遇卡点要硬啃，拖久更伤。上卦离(光明、表达、洞察)，下卦震(发动、突破、惊醒)。遇阻宜果断处理细节与旧患，不能含糊。宜解决旧问题、清理流程堵点，忌含糊、姑息、只说不做。",
+        "raw": {
+          "name": "火雷噬嗑",
+          "upper": {
+            "name": "离",
+            "nature": "火",
+            "element": "火",
+            "lines": [
+              1,
+              0,
+              1
+            ],
+            "symbol": "☲",
+            "keywords": "光明、表达、洞察",
+            "theme": "明辨显化",
+            "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+            "image": "火光附丽，主显明与辨析。",
+            "favorable": "表达、曝光、识别",
+            "caution": "虚火、急躁、表强里弱"
+          },
+          "lower": {
+            "name": "震",
+            "nature": "雷",
+            "element": "木",
+            "lines": [
+              1,
+              0,
+              0
+            ],
+            "symbol": "☳",
+            "keywords": "发动、突破、惊醒",
+            "theme": "发动突破",
+            "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+            "image": "雷动初发，主惊醒与突破。",
+            "favorable": "启动、破局、提速",
+            "caution": "惊扰、冒进、节奏乱"
+          },
+          "lines": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            1
+          ],
+          "binary_code": "100101",
+          "symbol": "☲☳",
+          "theme": "断难除障",
+          "guidance": "遇阻宜果断处理细节与旧患，不能含糊。",
+          "judgement": "遇卡点要硬啃，拖久更伤。",
+          "image": "火雷相激，宜断难除障，处理顽结。",
+          "favorable": "解决旧问题、清理流程堵点",
+          "caution": "忌含糊、姑息、只说不做",
+          "summary": "火雷噬嗑：断难除障。遇卡点要硬啃，拖久更伤。上卦离(光明、表达、洞察)，下卦震(发动、突破、惊醒)。遇阻宜果断处理细节与旧患，不能含糊。宜解决旧问题、清理流程堵点，忌含糊、姑息、只说不做。",
+          "code": "100101"
+        }
+      }
+    },
+    "current_hexagram": {
+      "name": "火泽睽",
+      "upper": {
+        "name": "离",
+        "nature": "火",
+        "element": "火",
+        "lines": [
+          1,
+          0,
+          1
+        ],
+        "symbol": "☲",
+        "keywords": "光明、表达、洞察",
+        "theme": "明辨显化",
+        "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+        "image": "火光附丽，主显明与辨析。",
+        "favorable": "表达、曝光、识别",
+        "caution": "虚火、急躁、表强里弱"
+      },
+      "lower": {
+        "name": "兑",
+        "nature": "泽",
+        "element": "金",
+        "lines": [
+          1,
+          1,
+          0
+        ],
+        "symbol": "☱",
+        "keywords": "喜悦、交流、润泽",
+        "theme": "喜悦沟通",
+        "guidance": "宜协商、表达、联络资源，忌只图一时轻快而失深度。",
+        "image": "泽气外悦，主口才与感通。",
+        "favorable": "谈判、传播、联络",
+        "caution": "浮浅、贪快、失守"
+      },
+      "lines": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "binary_code": "110101",
+      "symbol": "☲☱",
+      "theme": "异中求同",
+      "guidance": "分歧难免，宜先找共识点，不必处处求一。",
+      "judgement": "分歧是常态，能求小同便有路。",
+      "image": "火泽异向，彼此不同，贵在求同存异。",
+      "favorable": "对齐最小共识、拆分议题",
+      "caution": "忌强求一致、把分歧升级",
+      "summary": "火泽睽：异中求同。分歧是常态，能求小同便有路。上卦离(光明、表达、洞察)，下卦兑(喜悦、交流、润泽)。分歧难免，宜先找共识点，不必处处求一。宜对齐最小共识、拆分议题，忌强求一致、把分歧升级。",
+      "code": "110101"
+    },
+    "changed_hexagram": {
+      "name": "火雷噬嗑",
+      "upper": {
+        "name": "离",
+        "nature": "火",
+        "element": "火",
+        "lines": [
+          1,
+          0,
+          1
+        ],
+        "symbol": "☲",
+        "keywords": "光明、表达、洞察",
+        "theme": "明辨显化",
+        "guidance": "宜看清关键、公开表达、借助名声与光亮，忌虚火上扬。",
+        "image": "火光附丽，主显明与辨析。",
+        "favorable": "表达、曝光、识别",
+        "caution": "虚火、急躁、表强里弱"
+      },
+      "lower": {
+        "name": "震",
+        "nature": "雷",
+        "element": "木",
+        "lines": [
+          1,
+          0,
+          0
+        ],
+        "symbol": "☳",
+        "keywords": "发动、突破、惊醒",
+        "theme": "发动突破",
+        "guidance": "宜先动后整、借势起步、打破停滞，忌惊扰过度。",
+        "image": "雷动初发，主惊醒与突破。",
+        "favorable": "启动、破局、提速",
+        "caution": "惊扰、冒进、节奏乱"
+      },
+      "lines": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "binary_code": "100101",
+      "symbol": "☲☳",
+      "theme": "断难除障",
+      "guidance": "遇阻宜果断处理细节与旧患，不能含糊。",
+      "judgement": "遇卡点要硬啃，拖久更伤。",
+      "image": "火雷相激，宜断难除障，处理顽结。",
+      "favorable": "解决旧问题、清理流程堵点",
+      "caution": "忌含糊、姑息、只说不做",
+      "summary": "火雷噬嗑：断难除障。遇卡点要硬啃，拖久更伤。上卦离(光明、表达、洞察)，下卦震(发动、突破、惊醒)。遇阻宜果断处理细节与旧患，不能含糊。宜解决旧问题、清理流程堵点，忌含糊、姑息、只说不做。",
+      "code": "100101"
+    },
+    "snapshot_text": "[起盘信息]\n日期：2026-10-12 12:00:00\n时区：+08:00\n经纬度：116e24 39n54\n起卦时间：2026-10-12 12:00:00\n干支：年丙午 月戊戌 日己未 时庚午\n\n[卦象]\n本卦：火泽睽\n之卦：火雷噬嗑\n\n[六爻与动爻]\n第1爻：阳爻（静），六神:腾蛇，爻名:初爻\n第2爻：阳爻（动），六神:白虎，爻名:二爻\n第3爻：阴爻（静），六神:玄武，爻名:三爻\n第4爻：阳爻（静），六神:青龙，爻名:四爻\n第5爻：阴爻（静），六神:朱雀，爻名:五爻\n第6爻：阳爻（静），六神:勾陈，爻名:上爻\n\n[卦辞与断语]\n本卦：火泽睽\n卦辞：分歧是常态，能求小同便有路。\n之卦：火雷噬嗑\n之卦卦辞：遇卡点要硬啃，拖久更伤。",
+    "summary": "已生成易卦 / 六爻输出。本卦编码：110101。之卦编码：100101。",
+    "run_metadata": {
+      "run_id": "653bad6440a34589ae75beed212e03bf",
+      "trace_id": "17d7bc01a7f646eeb271cffadb3282f2",
+      "tool_name": "sixyao",
+      "generated_at": "2026-10-12T15:30:20.379324Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "c971a8bcd6cc0800c28bb2ded1544c90fecd28ead0c7ba1961a5520ae7572abd",
+      "input_sha256": "e590f59bb55d85db4693bd65e3e8aa26a8bde1a13771f57967dd45de185d935e",
+      "business_output_sha256": "249502f352b27cb3a04fccdbdb932f915ab4bec7e3af2d46fb34af77a5141c4e",
+      "duration_ms": 12.764,
+      "effective_time": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "clock_timezones": []
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "f6d063fa96cc155b8063062f4916879b8dcf648ac1bd2b61600edf5f9fbf1de6",
+        "bundled_data_sha256": "2b4d2efc43677800a80e416cffe05d2ccc736c99e1dfa0c594f0e0f6f3a9c06f",
+        "environment_sha256": "02259c96bbfd012915298068a02390d942b0889441bb416fd1f4fc5685a34665",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-12T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": []
+    }
+  }
+}

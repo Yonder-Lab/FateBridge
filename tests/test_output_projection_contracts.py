@@ -13,9 +13,9 @@ from pydantic import ValidationError
 
 import fatebridge.api as api
 import fatebridge.mcp_server as mcp
+from fatebridge.application.projection import project_fields
 from fatebridge.cli import run
 from fatebridge.core.fengshui.output import Ruleset
-from fatebridge.core.tool_spec import project_fields
 from fatebridge.services.tool_catalog import CATALOG
 from tests.fixtures.fengshui import PAYLOADS, payload
 

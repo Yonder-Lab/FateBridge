@@ -1,0 +1,10 @@
+{
+  "snapshot": "api_compatibility.json",
+  "scope": "add explicit score bases and Chinese display labels; preserve all existing numeric leaves",
+  "numeric_leaves_unchanged": true,
+  "added_fields": [
+    "summary.score_basis",
+    "detailed_analysis.traditional_analysis.score_basis",
+    "traditional_compatibility.score_basis"
+  ]
+}

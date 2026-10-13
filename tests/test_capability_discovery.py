@@ -13,13 +13,14 @@ from typing import get_args
 from fastapi.testclient import TestClient
 
 from fatebridge.api import app
-from fatebridge.core.tool_spec import _make_mcp_fn, describe_spec
+from fatebridge.application.description import describe_spec
 from fatebridge.services.tool_catalog import CATALOG, mcp_specs, rest_specs
+from fatebridge.transports.mcp import _make_mcp_fn
 
 # Intentional single-surface tools — test-locked 口径 aliases: a nested-model REST
 # variant + its flat MCP twin, plus the legacy aggregate alias. If this set
 # changes, the parity tests below fail on purpose so the change is reviewed.
-_REST_ONLY = {"astro_relative", "calculate_legacy"}
+_REST_ONLY = {"astro_relative"}
 _MCP_ONLY = {"analyze_destiny", "astro_relative_chart"}
 
 

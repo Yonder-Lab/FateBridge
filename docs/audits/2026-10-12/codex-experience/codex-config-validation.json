@@ -1,0 +1,26 @@
+{
+  "scope": "local Codex CLI configuration parsing via invocation overrides; no persisted config or LLM execution",
+  "config": {
+    "name": "fatebridge_experience_check",
+    "enabled": true,
+    "disabled_reason": null,
+    "transport": {
+      "type": "stdio",
+      "command": "/Users/thomas/Desktop/FateBridge/.venv/bin/python",
+      "args": [
+        "-m",
+        "fatebridge.mcp_server"
+      ],
+      "env": {
+        "FATEBRIDGE_MCP_FAMILIES": "",
+        "FATEBRIDGE_MCP_SCENARIOS": "onda-shiye"
+      },
+      "env_vars": [],
+      "cwd": null
+    },
+    "enabled_tools": null,
+    "disabled_tools": null,
+    "startup_timeout_sec": null,
+    "tool_timeout_sec": null
+  }
+}

@@ -12,7 +12,7 @@ from fatebridge.services.metaphysics import (
     calculate_taiyi_analysis,
     calculate_ziwei_birth,
 )
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 
 def test_ziwei_rejects_date_outside_lunar_range():

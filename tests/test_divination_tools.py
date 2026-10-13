@@ -2,9 +2,9 @@ import json
 
 import pytest
 
-from fatebridge.core import astrology as astrology_core
-from fatebridge.core.local_techniques import build_pseudo_chart
-from fatebridge.core.request_models import (
+from fatebridge.core.ephemeris_runtime import swe
+from fatebridge.core.local_techniques.chart import build_pseudo_chart
+from fatebridge.core.requests.divination import (
     GuaLookupRequest,
     GuaMeiyiRequest,
     MeihuaAnalysisRequest,
@@ -28,7 +28,7 @@ from tests.fixtures.transports import mcp_parameters, mcp_text
 
 
 def _expected_offline_engine() -> tuple[str, str]:
-    if astrology_core.swe is not None:
+    if swe is not None:
         return ("ephemeris_runtime_model", "swisseph_api")
     return ("approximate_orbital_model", "fatebridge_approximate_orbital_model")
 

@@ -18,11 +18,16 @@ from pydantic import BaseModel
 
 import fatebridge.api as api
 import fatebridge.mcp_server as mcp
-from fatebridge.core.discovery import discover_specs
+from fatebridge.application.discovery import discover_specs
+from fatebridge.application.execution import execute_tool
+from fatebridge.application.scenarios import (
+    definitions,
+    discover_scenarios,
+    scenario_keys,
+)
+from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.core.execution_context import ExecutionOptions, current_datetime
 from fatebridge.core.reproducibility import ReproducibilityPolicy
-from fatebridge.core.scenarios import definitions, discover_scenarios, scenario_keys
-from fatebridge.core.tool_spec import ToolSpec, execute_tool
 from fatebridge.services.replay_metadata import digest
 from fatebridge.services.tool_catalog import CATALOG
 from scripts.build_scenario_manifest import build_manifest

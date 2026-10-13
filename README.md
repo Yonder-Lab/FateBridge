@@ -15,7 +15,7 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 - **MCP** —— 用 FastMCP 暴露给 Claude、Cursor、Codex 等 Agent；
 - **CLI** —— 命令行直接交互，适合本地调试与自动化脚本。
 
-当前版本将所有工具（87 个）同时暴露为 **87 个业务 REST 路由** 与 **87 个 FastMCP 工具**，三端由同一份中央目录派生；目录含 89 条记录，CLI 可执行其中 88 条。各端的名称与请求形态差异见 [API 参考](docs/api-reference.md#24-三端能力边界)。
+当前版本暴露 **86 个业务 REST 路由** 与所有工具（87 个）的 **87 个 FastMCP 工具**，三端由同一份中央目录派生；目录含 88 条记录，CLI 可执行其中 87 条。各端的名称与请求形态差异见 [API 参考](docs/api-reference.md#24-三端能力边界)。
 
 > 当前版本为 **Beta 0.2.0**，API 仍可能微调，欢迎试用与反馈。
 
@@ -52,6 +52,8 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 ---
 
 ## 快速开始
+
+**用 Codex 体验：** 先看 [Codex 使用指南](docs/codex-guide.md)。安装后运行 `fatebridge doctor --mcp --scenario onda-shiye` 检查接入，按返回的绝对路径命令注册；当前聊天尚未加载 MCP 时可直接使用 CLI。
 
 ### 1. 安装
 
@@ -110,7 +112,7 @@ curl -X POST http://localhost:8010/api/cn/bazi/birth \
   }'
 ```
 
-这是推荐的独立八字命盘入口，业务字段位于 `bazi_birth`。`/api/calculate` 保留旧版扁平响应；综合命理 `analyze_destiny` 通过 MCP / CLI 调用。若配置了 `FATEBRIDGE_API_KEYS`，请求需额外带上 `X-API-Key`。
+这是推荐的独立八字命盘入口，业务字段位于 `bazi_birth`。旧版 `/api/calculate` 已移除；综合命理 `analyze_destiny` 通过 MCP / CLI 调用。若配置了 `FATEBRIDGE_API_KEYS`，请求需额外带上 `X-API-Key`。
 
 ### 4. 命令行用法
 

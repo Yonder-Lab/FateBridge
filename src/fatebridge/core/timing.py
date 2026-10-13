@@ -14,6 +14,8 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Dict, List, Optional
 
+from fatebridge.utils.birth_input import normalize_gender
+
 from ..utils.data import (
     EARTHLY_BRANCHES,
     HEAVENLY_STEMS,
@@ -23,7 +25,6 @@ from ..utils.data import (
     get_nayin,
     get_shishen,
 )
-from ..utils.helpers import normalize_gender
 from .almanac import (
     BAZI_MONTH_START_TERMS,
     DEFAULT_TIMEZONE,

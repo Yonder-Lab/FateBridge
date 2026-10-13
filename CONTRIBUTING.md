@@ -29,8 +29,8 @@ Bug 报告请提供实际版本/提交、Python 与依赖版本、操作系统�
 
 ## 修改约束
 
-- 工具定义以 `services/tool_catalog.py` 的 `CATALOG` 为准，请求模型在 `core/request_models.py`；领域逻辑放在 `core` / `analysis` / `services`，不要在 transport 内复制算法。
-- 输入归一化、星历共享状态、快照导出复用现有公共实现。接口或默认值变化要考虑 REST / MCP / CLI 的差异与兼容入口。
+- 工具定义位于 `services/catalog/`，由 `services/tool_catalog.py` 有序装配为唯一 `CATALOG`；请求模型位于 `core/requests/`。领域逻辑放在 `core` / `analysis` / `services`，不要在 transport 内复制算法。
+- 输入归一化、星历共享状态、快照导出复用现有公共实现。接口或默认值变化要检查 REST / MCP / CLI 的差异。
 - 算法修复提供有依据的边界/回归用例；不能用“更新黄金快照”替代正确性验证。黄金字节基线仅在指定参考平台上更新。
 - 文档职责与同步范围见 [文档维护与验证](docs/development-guide.md#文档维护与验证)。涉及技能工具或输入时同步 `agents/interface.yaml`。
 - Python 代码遵循现有格式与类型约定；提交中保留无关工作，不进行顺带的大面积改写。

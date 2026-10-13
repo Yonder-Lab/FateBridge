@@ -13,7 +13,7 @@ from fatebridge.core.almanac import (
     build_calendar_context,
 )
 from fatebridge.core.calendar import BaZiCalendar
-from fatebridge.core.local_techniques import (
+from fatebridge.core.local_techniques.qimen import (
     build_qimen_snapshot_text,
     build_qimen_with_options,
 )
@@ -33,16 +33,18 @@ from fatebridge.services.snapshot_builders import (
 from fatebridge.services.snapshot_builders import (
     render_snapshot_text as _render_snapshot_text,
 )
+from fatebridge.utils.birth_input import PersonInfo
 from fatebridge.utils.errors import calculation_guard
-from fatebridge.utils.helpers import (
-    SOLAR_TIME_STRATEGY_APPARENT,
-    PersonInfo,
-    calculate_solar_time_adjustment,
+from fatebridge.utils.formatting import (
     create_pillar_dict,
     format_birth_datetime_display,
-    normalize_birth_time,
 )
 from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
+from fatebridge.utils.solar_time import (
+    SOLAR_TIME_STRATEGY_APPARENT,
+    calculate_solar_time_adjustment,
+    normalize_birth_time,
+)
 
 
 def _build_analysis_seed(

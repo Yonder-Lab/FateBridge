@@ -1,8 +1,8 @@
 import json
 
-from fatebridge.core.request_models import BaziBirthRequest
+from fatebridge.core.requests.bazi import BaziBirthRequest
 from fatebridge.services.bazi import calculate_bazi_birth
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 from tests.fixtures.transports import mcp_parameters, mcp_text
 
 

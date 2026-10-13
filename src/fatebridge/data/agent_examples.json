@@ -1,0 +1,232 @@
+{
+  "note": "仅为虚构演示，不能作为用户的默认出生资料。",
+  "subjects": {
+    "demo": {
+      "name": "演示甲",
+      "gender": "男",
+      "birth_year": 1990,
+      "birth_month": 5,
+      "birth_day": 15,
+      "birth_hour": 10,
+      "birth_minute": 30,
+      "birth_timezone": "Asia/Shanghai",
+      "birth_place": "北京",
+      "birth_longitude": 116.4074,
+      "birth_latitude": 39.9042
+    }
+  },
+  "tools": {
+    "analyze_destiny": "demo",
+    "bazi_birth": "demo",
+    "bazi_marriage": "demo",
+    "bazi_career": "demo",
+    "bazi_wealth": "demo",
+    "bazi_health": "demo",
+    "bazi_children": "demo",
+    "bazi_education": "demo",
+    "bazi_personality": "demo",
+    "bazi_relatives": "demo",
+    "bazi_romance": "demo",
+    "ziwei_birth": "demo",
+    "astro_chart": "demo",
+    "astro_chart13": "demo",
+    "astro_hellen": "demo",
+    "astro_guolao": "demo",
+    "astro_india": "demo",
+    "astro_germany": "demo",
+    "timing_analysis": {
+      "name": "演示甲",
+      "gender": "男",
+      "birth_year": 1990,
+      "birth_month": 5,
+      "birth_day": 15,
+      "birth_hour": 10,
+      "birth_minute": 30,
+      "birth_timezone": "Asia/Shanghai",
+      "birth_place": "北京",
+      "birth_longitude": 116.4074,
+      "birth_latitude": 39.9042,
+      "analysis_year": 2026,
+      "analysis_month": 10,
+      "analysis_day": 12
+    },
+    "liunian_analysis": {
+      "name": "演示甲",
+      "gender": "男",
+      "birth_year": 1990,
+      "birth_month": 5,
+      "birth_day": 15,
+      "birth_hour": 10,
+      "birth_minute": 30,
+      "birth_timezone": "Asia/Shanghai",
+      "birth_place": "北京",
+      "birth_longitude": 116.4074,
+      "birth_latitude": 39.9042,
+      "target_year": 2026
+    },
+    "meihua_analysis": {
+      "analysis_year": 2026,
+      "analysis_month": 10,
+      "analysis_day": 12,
+      "analysis_hour": 12,
+      "analysis_minute": 0,
+      "analysis_timezone": "Asia/Shanghai",
+      "question": "演示：安排学习计划"
+    },
+    "qimen": {
+      "analysis_year": 2026,
+      "analysis_month": 10,
+      "analysis_day": 12,
+      "analysis_hour": 12,
+      "analysis_minute": 0,
+      "analysis_timezone": "Asia/Shanghai",
+      "analysis_longitude": 116.4074
+    },
+    "sixyao": {
+      "date": "2026-10-12",
+      "time": "12:00:00",
+      "zone": "+08:00",
+      "lat": "39n54",
+      "lon": "116e24",
+      "seed": 42
+    },
+    "knowledge_registry": {
+      "domain": "bazi"
+    },
+    "knowledge_read": {
+      "domain": "bazi",
+      "category": "wealth",
+      "key": "财库"
+    },
+    "fengshui_directions": {},
+    "two_person_compatibility": {
+      "person1_name": "演示甲",
+      "person1_gender": "男",
+      "person1_birth_year": 1990,
+      "person1_birth_month": 5,
+      "person1_birth_day": 15,
+      "person1_birth_hour": 10,
+      "person1_birth_minute": 30,
+      "person1_birth_timezone": "Asia/Shanghai",
+      "person1_birth_place": "北京",
+      "person1_birth_longitude": 116.4074,
+      "person2_name": "演示乙",
+      "person2_gender": "女",
+      "person2_birth_year": 1992,
+      "person2_birth_month": 3,
+      "person2_birth_day": 2,
+      "person2_birth_hour": 8,
+      "person2_birth_minute": 30,
+      "person2_birth_timezone": "Asia/Shanghai",
+      "person2_birth_place": "北京",
+      "person2_birth_longitude": 116.4074,
+      "relationship_type": "general"
+    },
+    "astro_relative_chart": {
+      "inner_name": "演示甲",
+      "inner_birth_year": 1990,
+      "inner_birth_month": 5,
+      "inner_birth_day": 15,
+      "inner_birth_hour": 10,
+      "inner_birth_minute": 30,
+      "inner_birth_timezone": "Asia/Shanghai",
+      "inner_birth_place": "北京",
+      "inner_birth_longitude": 116.4074,
+      "inner_birth_latitude": 39.9042,
+      "inner_use_true_solar_time": false,
+      "outer_name": "演示乙",
+      "outer_birth_year": 1992,
+      "outer_birth_month": 3,
+      "outer_birth_day": 2,
+      "outer_birth_hour": 8,
+      "outer_birth_minute": 30,
+      "outer_birth_timezone": "Asia/Shanghai",
+      "outer_birth_place": "北京",
+      "outer_birth_longitude": 116.4074,
+      "outer_birth_latitude": 39.9042,
+      "outer_use_true_solar_time": false
+    }
+  },
+  "suggested_fields": {
+    "bazi_birth": [
+      "bazi_birth.four_pillars",
+      "bazi_birth.day_master"
+    ],
+    "bazi_career": [
+      "career_analysis.dominant_ten_gods.primary_career_type",
+      "career_analysis.career_timing",
+      "career_analysis.timing_context",
+      "career_analysis.career_structure",
+      "career_analysis.entrepreneurship",
+      "career_analysis.suggestions"
+    ],
+    "timing_analysis": [
+      "dayun_analysis.current_dayun",
+      "liunian_analysis.summary",
+      "comprehensive_summary",
+      "calendar_context",
+      "analysis_calendar"
+    ],
+    "ziwei_birth": [
+      "ziwei_birth.ming_gong",
+      "ziwei_birth.shen_gong"
+    ],
+    "astro_chart": [
+      "angles",
+      "chart_profile",
+      "interpretation.core_identity"
+    ],
+    "astro_hellen": [
+      "angles",
+      "chart_profile",
+      "hellenistic"
+    ],
+    "two_person_compatibility": [
+      "summary",
+      "strengths",
+      "challenges",
+      "traditional_compatibility",
+      "detailed_analysis",
+      "recommendations",
+      "person_info",
+      "element_relationship"
+    ],
+    "meihua_analysis": [
+      "meihua.base_hexagram",
+      "meihua.changed_hexagram",
+      "summary"
+    ],
+    "sixyao": [
+      "current_hexagram",
+      "changed_hexagram",
+      "moving_lines",
+      "summary"
+    ],
+    "qimen": [
+      "qimen.ju_text",
+      "qimen.dun_type",
+      "analysis_context"
+    ],
+    "fengshui_directions": [
+      "status",
+      "layers.directions",
+      "coverage",
+      "rulesets"
+    ],
+    "knowledge_read": [
+      "title",
+      "lines",
+      "source",
+      "citation"
+    ],
+    "bazi_wealth": [
+      "wealth_analysis"
+    ],
+    "astro_relative_chart": [
+      "summary",
+      "compatibility",
+      "relationship_profile",
+      "synastry_aspects"
+    ]
+  }
+}

@@ -46,6 +46,8 @@ API_HOST=127.0.0.1 API_PORT=8011 python -m fatebridge.api
 
 ### MCP host 连不上
 
+先用同一安装环境执行 `fatebridge doctor --mcp`，或加 `--scenario onda-shiye` 验证所选场景；它会从无关工作目录启动独立进程。Codex 的原生配置与检查步骤见 [Codex 使用指南](codex-guide.md)。
+
 默认 MCP 是 stdio 进程，不创建 HTTP URL。host 配置应使用已安装本仓库的解释器绝对路径，例如 `/absolute/path/to/FateBridge/.venv/bin/python` 和参数 `-m fatebridge.mcp_server`。不要依赖 GUI host 继承 shell 的环境激活状态。确认 host 的进程日志、解释器和包路径，配置结构见 [接入指南](agent-guide.md#fastmcpagent-host)。
 
 ## REST 鉴权与错误
@@ -95,9 +97,9 @@ MCP 已知工具的模型/业务失败返回 `isError=true` 与结构化错误�
 
 ### 命盘字段层级不同或无时盘报错
 
-新独立八字入口 `/api/cn/bazi/birth` 的业务字段在 `bazi_birth` 下；旧 `/api/calculate` 是扁平兼容输出。MCP / CLI `analyze_destiny` 执行综合分析，与旧 REST 不是同一个 service。
+新独立八字入口 `/api/cn/bazi/birth` 的业务字段在 `bazi_birth` 下；旧 `/api/calculate` 已移除。MCP / CLI `analyze_destiny` 执行综合分析。
 
-当前出生类模型要求小时，不能省略 `birth_hour` 来生成无时盘，也不能无依据填 0。字段投影的点号路径从响应根开始，路径错了会被忽略，不会深搜同名字段。
+当前出生类模型要求小时，不能省略 `birth_hour` 来生成无时盘，也不能无依据填 0。字段投影的点号路径从响应根开始，不会深搜同名字段；无效路径默认附 `projection_warnings`，使用 `strict_fields=true` / `--strict-fields` 可明确拒绝。
 
 ## 占星与推运
 
@@ -131,4 +133,9 @@ CLI 不自动读取 `.env`，`SE_EPHE_PATH` 应在启动前设进程环境。GUI
 
 报告问题时提供以下脱敏证据：版本/提交、解释器与依赖版本、端口及鉴权是否开启（不含值）、原始请求、状态/退出码、错误码、输入时区和坐标、太阳时策略、分析日期、星历模型、运行 ID（若有）。不要只提供解读文本。
 
-文档漂移优先核对 `services/tool_catalog.py`、`core/request_models.py` 与实际 OpenAPI/MCP schema，再按 [文档维护流程](development-guide.md#文档维护与验证) 同步修正。
+文档漂移优先核对 `services/tool_catalog.py` 的装配、`services/catalog/` 的领域声明、`core/requests/` 的模型与实际 OpenAPI/MCP schema，再按 [文档维护流程](development-guide.md#文档维护与验证) 同步修正。
+
+
+### Codex 桌面版与终端 CLI 的模型不一致
+
+若终端 CLI 报模型不受 ChatGPT 账号支持，而桌面聊天可正常使用，先用 `fatebridge doctor` 查看 `codex.cli`。桌面版的 `CODEX_CLI_PATH` 和 PATH 中的 CLI 可能是不同版本；按 doctor 返回的完整 `codex.add_command` 注册，不必为此修改用户模型。保存配置不代表当前聊天已经重载 MCP，请在新聊天检查连接。

@@ -12,7 +12,7 @@ from fatebridge.services.compatibility import calculate_compatibility_analysis
 from fatebridge.services.structured_snapshot import (
     render_structured_snapshot_text,
 )
-from fatebridge.utils.helpers import PersonInfo
+from fatebridge.utils.birth_input import PersonInfo
 
 
 def _person(name: str, year: int) -> PersonInfo:

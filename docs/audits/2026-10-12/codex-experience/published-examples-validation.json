@@ -1,0 +1,168 @@
+{
+  "scope": "all published fictional CLI examples executed from fixed source snapshot",
+  "count": 27,
+  "results": [
+    {
+      "tool": "analyze_destiny",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_birth",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_marriage",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_career",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_wealth",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_health",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_children",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_education",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_personality",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_relatives",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "bazi_romance",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "two_person_compatibility",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "timing_analysis",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "liunian_analysis",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "meihua_analysis",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "sixyao",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "ziwei_birth",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "qimen",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "knowledge_registry",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "knowledge_read",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "astro_chart",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "astro_chart13",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "astro_hellen_chart",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "astro_guolao_chart",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "astro_india_chart",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "astro_germany_chart",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    },
+    {
+      "tool": "fengshui_directions",
+      "exit_code": 0,
+      "ok": true,
+      "error_code": null
+    }
+  ]
+}

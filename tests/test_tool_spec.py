@@ -5,14 +5,11 @@ import inspect
 import pytest
 from pydantic import BaseModel
 
-from fatebridge.core.tool_spec import (
-    ToolSpec,
-    _make_mcp_fn,
-    execute_spec,
-    invalid_input_result,
-    project_fields,
-)
+from fatebridge.application.execution import execute_spec, invalid_input_result
+from fatebridge.application.projection import project_fields
+from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.services.tool_catalog import CATALOG
+from fatebridge.transports.mcp import _make_mcp_fn
 
 
 class _Empty(BaseModel):
@@ -151,20 +148,9 @@ def test_mcp_fn_exposes_fields_param_and_threads_it():
     assert captured["fields"] == ["wealth_analysis"]
 
 
-def test_execute_spec_applies_transform_on_success():
-    spec = _spec(lambda: {"a": 1}, result_transform=lambda r: {"a": r["a"] + 1})
-    assert execute_spec(spec, _Empty()) == {"a": 2}
-
-
-def test_execute_spec_skips_transform_on_error():
-    # M1: a transform must NOT run on an error result (parity with REST, which
-    # short-circuits the fatal error before applying the transform). Here the
-    # transform would KeyError if it ran, proving it is skipped.
-    spec = _spec(
-        lambda: {"error": "boom"},
-        result_transform=lambda r: {"only": r["missing_key"]},
-    )
-    assert execute_spec(spec, _Empty()) == {"error": "boom"}
+def test_execute_spec_preserves_domain_result_and_error():
+    for payload in ({"a": 1}, {"error": "boom"}):
+        assert execute_spec(_spec(lambda: payload), _Empty()) == payload
 
 
 def test_invalid_input_result_shape_mirrors_rest_400():

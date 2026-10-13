@@ -15,13 +15,11 @@ from __future__ import annotations
 
 import pytest
 
-import fatebridge.core.astrology as astrology_core
-from fatebridge.core.astrology import (
-    _build_houses,
-    build_astro_birth_info,
-    build_core_chart_payload,
-    normalize_angle,
-)
+import fatebridge.core.astro.runtime as astrology_core
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
+from fatebridge.core.astro.geometry import normalize_angle
+from fatebridge.core.astro.parts import _build_houses
 from fatebridge.services.astrology import calculate_core_chart_analysis
 
 # Synthetic birth: ascendant and MC+90 fall in different signs, so equal_mc and

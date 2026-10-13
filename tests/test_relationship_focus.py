@@ -1,4 +1,4 @@
-from fatebridge.core.astrology import relationship_focus_block
+from fatebridge.core.astro.relationship import relationship_focus_block
 from fatebridge.services.astrology import calculate_relative_chart_analysis
 
 

@@ -105,7 +105,7 @@ def test_rest_post_endpoints_all_accept_representative_payloads(monkeypatch):
 
 
 def test_shared_execution_accepts_all_mcp_representative_payloads():
-    from fatebridge.core.tool_spec import execute_tool
+    from fatebridge.application.execution import execute_tool
     from fatebridge.services.tool_catalog import CATALOG
 
     by_name = {spec.tool_name: spec for spec in CATALOG}

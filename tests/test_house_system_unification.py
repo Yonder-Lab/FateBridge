@@ -64,10 +64,8 @@ def test_western_models_accept_every_convention(value):
     # numeric string, a key, or an SE letter — the same mental model as the
     # integer ``hsys`` family. (Previously the field was typed ``str`` and a bare
     # integer raised a ValidationError.)
-    from fatebridge.core.request_models import (
-        AstroHoraryRequest,
-        WesternTimingRequest,
-    )
+    from fatebridge.core.requests.western_events import AstroHoraryRequest
+    from fatebridge.core.requests.western_timing import WesternTimingRequest
 
     common = dict(
         birth_year=2000,
@@ -104,10 +102,8 @@ def test_western_models_accept_every_convention(value):
 def test_western_default_house_system_unchanged():
     # The unification must not move any default: timing stays Placidus, horary
     # stays Regiomontanus (golden output must be byte-stable).
-    from fatebridge.core.request_models import (
-        AstroHoraryRequest,
-        WesternTimingRequest,
-    )
+    from fatebridge.core.requests.western_events import AstroHoraryRequest
+    from fatebridge.core.requests.western_timing import WesternTimingRequest
 
     timing = WesternTimingRequest(
         birth_year=2000,

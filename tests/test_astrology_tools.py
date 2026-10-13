@@ -2,9 +2,17 @@ import asyncio
 
 import pytest
 
-from fatebridge.core import astrology as astrology_core
-from fatebridge.core.astrology import _julian_day, build_astro_birth_info
-from fatebridge.core.request_models import (
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.ephemeris import (
+    _swisseph_angles,
+)
+from fatebridge.core.astro.geometry import (
+    _angles,
+    _julian_day,
+    _sign_name,
+)
+from fatebridge.core.ephemeris_runtime import swe
+from fatebridge.core.requests.astrology import (
     AstroChartRequest,
     AstroRelativePartyRequest,
     AstroRelativeRequest,
@@ -215,7 +223,7 @@ def test_core_chart_can_infer_coordinates_from_birth_place():
     assert chart["person_info"]["birth_timezone"] == "Asia/Shanghai"
     assert chart["person_info"]["birth_longitude"] == 116.4074
     assert chart["person_info"]["birth_latitude"] == 39.9042
-    if astrology_core.swe is not None:
+    if swe is not None:
         birth_info = build_astro_birth_info(
             name="测试者",
             birth_year=1993,
@@ -228,13 +236,13 @@ def test_core_chart_can_infer_coordinates_from_birth_place():
             birth_latitude=39.9042,
             birth_place="北京",
         )
-        angle_state = astrology_core._swisseph_angles(
+        angle_state = _swisseph_angles(
             _julian_day(birth_info.utc_datetime),
             birth_info.longitude,
             birth_info.latitude,
         )
         assert angle_state is not None
-        expected_asc_sign = astrology_core._sign_name(angle_state["ascendant"])
+        expected_asc_sign = _sign_name(angle_state["ascendant"])
     else:
         expected_asc_sign = "Leo"
     assert chart["angles"]["ascendant"]["sign"] == expected_asc_sign
@@ -402,14 +410,10 @@ def test_germany_chart_respects_core_house_and_zodiac_overrides():
 def test_germany_chart_inherits_runtime_precision_from_base_chart():
     result = calculate_germany_chart_analysis(**_build_birth_payload())
     expected_precision = (
-        "ephemeris_runtime_model"
-        if astrology_core.swe is not None
-        else "approximate_orbital_model"
+        "ephemeris_runtime_model" if swe is not None else "approximate_orbital_model"
     )
     expected_backend = (
-        "swisseph_api"
-        if astrology_core.swe is not None
-        else "fatebridge_approximate_orbital_model"
+        "swisseph_api" if swe is not None else "fatebridge_approximate_orbital_model"
     )
 
     assert result["chart_profile"]["engine_precision"] == expected_precision
@@ -427,11 +431,8 @@ def test_hsys_int_family_defaults_are_consistent():
     # The 宿曜 suzhan/otherbu charts are a separate lunar-mansion tradition and
     # keep their own neutral equal_mc (8) default — house system is incidental
     # there, so they are intentionally NOT migrated to Placidus.
-    from fatebridge.core.request_models import (
-        AstroRelativeFlatRequest,
-        OtherBuRequest,
-        SuZhanRequest,
-    )
+    from fatebridge.core.requests.astrology import AstroRelativeFlatRequest
+    from fatebridge.core.requests.divination import OtherBuRequest, SuZhanRequest
 
     assert SuZhanRequest(date="2000-12-10", time="09:55:00").hsys == 8
     assert OtherBuRequest(date="2000-12-10", time="09:55:00").hsys == 8
@@ -509,14 +510,10 @@ def test_relative_chart_returns_legacy_style_layers_and_metadata():
 
 def test_relative_derived_layers_inherit_runtime_precision_from_sources():
     expected_precision = (
-        "ephemeris_runtime_model"
-        if astrology_core.swe is not None
-        else "approximate_orbital_model"
+        "ephemeris_runtime_model" if swe is not None else "approximate_orbital_model"
     )
     expected_backend = (
-        "swisseph_api"
-        if astrology_core.swe is not None
-        else "fatebridge_approximate_orbital_model"
+        "swisseph_api" if swe is not None else "fatebridge_approximate_orbital_model"
     )
     outer_payload = {
         **_build_birth_payload(),
@@ -1083,8 +1080,8 @@ def test_offline_angles_match_swisseph_across_charts():
     ]
     for year, month, day, hour, lon, lat in cases:
         jd = _julian_day(datetime(year, month, day, hour, tzinfo=timezone.utc))
-        offline = astrology_core._angles(jd, lon, lat)
-        truth = astrology_core._swisseph_angles(jd, lon, lat)
+        offline = _angles(jd, lon, lat)
+        truth = _swisseph_angles(jd, lon, lat)
         assert truth is not None
         for key in ("ascendant", "midheaven"):
             diff = abs((offline[key] - truth[key] + 180.0) % 360.0 - 180.0)
@@ -1138,8 +1135,8 @@ def test_cli_no_true_solar_time_flag_actually_disables_correction():
     """End-to-end CLI dispatch: ``--no-use-true-solar-time`` must leave the
     birth clock untouched (no longitude/equation-of-time rebasing)."""
     pytest.importorskip("swisseph")
+    from fatebridge.application.execution import execute_spec
     from fatebridge.cli import build_parser
-    from fatebridge.core.tool_spec import execute_spec
 
     parser = build_parser()
     base = [
@@ -1189,7 +1186,7 @@ def test_relative_requests_default_timezone_to_none_not_utc():
     为 None 后，引擎走 birth_place 推断时区（与核心 AstroChartRequest 一致），
     仅在无法识别地名时回退 UTC。
     """
-    from fatebridge.core.request_models import (
+    from fatebridge.core.requests.astrology import (
         AstroRelativeFlatRequest,
         AstroRelativePartyRequest,
     )

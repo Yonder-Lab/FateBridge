@@ -2,15 +2,17 @@
 
 这份文档写给两类调用方：想在自己的应用或脚本里集成 FateBridge 的开发者，以及把 FateBridge 当作工具集让模型自主调用的 Agent。
 
+Codex 用户可直接从 [Codex 使用指南](codex-guide.md) 开始：独立 stdio 诊断、原生 TOML/CLI 配置、虚构对话示例、结果裁剪和错误恢复。
+
 FateBridge 的领域能力通过三条通道暴露出来：
 
 - REST：`python -m fatebridge.api`，默认监听 `:8010`，适合 Web、后端服务或脚本调用
 - FastMCP：`python -m fatebridge.mcp_server`，供 Claude / Cursor / Codex 等 MCP host 使用
 - CLI：`fatebridge <tool> ...`，适合 Agentic 流程、shell 或自动化脚本
 
-三条通道的工具声明来自 `src/fatebridge/services/tool_catalog.py`，请求字段来自 `core/request_models.py`。共享领域计算和错误字段，各端仍有名称、绑定和校验阶段差异。
+三条通道共用 `src/fatebridge/services/tool_catalog.py` 装配的中央目录，领域声明位于 `services/catalog/`，请求字段定义于 `core/requests/`。共享领域计算和错误字段，各端仍有名称、绑定和校验阶段差异。
 
-> 目前 REST 和 MCP 各暴露 87 个工具；目录共有 89 条记录，其中 CLI 可执行 88 条。`calculate_legacy` 是旧版 REST 的绑定，`astro_relative` 是嵌套 REST 请求；它们分别与 MCP 能力存在对应关系，不是所有记录都能按同名跨端调用。完整算法清单见 [algorithm-coverage.md](algorithm-coverage.md)，完整端点说明见 [api-reference.md](api-reference.md)。
+> 目前 REST 暴露 86 个工具，MCP 暴露 87 个工具；目录共有 88 条记录，其中 CLI 可执行 87 条。`astro_relative` 是嵌套 REST 请求，与 MCP 的扁平请求存在对应关系，不是所有记录都能按同名跨端调用。完整算法清单见 [algorithm-coverage.md](algorithm-coverage.md)，完整端点说明见 [api-reference.md](api-reference.md)。
 
 ---
 
@@ -31,7 +33,7 @@ curl 'http://localhost:8010/api/tools?tool=bazi_birth&detail=full'
 
 ```json
 {
-  "counts": {"rest": 87, "mcp": 87, "total": 89},
+  "counts": {"rest": 86, "mcp": 87, "total": 88},
   "tools": [
     {
       "tool": "bazi_wealth",
@@ -60,6 +62,8 @@ fatebridge list --family astro --json # 文本 list 可按需改为 JSON 摘要
 ```
 
 `describe` 的输出比 REST 多一个 `cli_example` 字段，可以直接复制运行。
+
+`cli_example` 仅在提供了经过模型校验的虚构示例时返回；`cli_usage` 是需要替换占位符的语法模板。可用 `describe <tool> --detail input` 暂时省略输出 Schema。目录 key 和公开名称均可用于发现与 CLI，正式名称见 `surfaces.cli_name` / `mcp_name`。
 
 ### FastMCP
 
@@ -285,7 +289,7 @@ fatebridge profile --systems bazi,ziwei,astro \
   --birth-longitude 116.40 --birth-latitude 39.90
 ```
 
-`profile` 保留各体系默认太阳时策略，不是全工具并行运行；它的选项以 `profile --help` 为准，不能直接套用所有单工具输出开关。
+`profile` 保留各体系默认太阳时策略，不是全工具并行运行。支持 `--fields profile.bazi.bazi_birth.day_master`、`--strict-fields`、`--compact` 与 `--no-include-snapshot-text`；后者移除各子结果顶层快照。投影保留已选子结果的运行凭据和所有失败项，任一体系失败仍退出 1。按实际工具去重，空体系列表会失败；选项以 `profile --help` 为准。
 
 ---
 

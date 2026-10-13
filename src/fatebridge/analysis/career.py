@@ -342,7 +342,7 @@ class CareerAnalysis:
         score = 60  # 基准分
         notes: List[str] = []
 
-        # 1. 官印相生 → 事业格局高
+        # 1. 官印相生 is one positive contribution, not the overall grade.
         has_officer = False
         has_seal = False
         for e in iter_pillar_gods(pillars, day_stem, skip_day_pillar=True):
@@ -353,7 +353,7 @@ class CareerAnalysis:
 
         if has_officer and has_seal:
             score += 15
-            notes.append("官印相生，事业格局高，易得权力与地位")
+            notes.append("官印相生，为事业格局加分；总体层级以综合评分为准")
 
         # 2. 食伤生财 → 经商格局
         has_food_hurt = False

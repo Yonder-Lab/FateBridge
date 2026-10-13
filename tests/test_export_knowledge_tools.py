@@ -1,6 +1,6 @@
 import json
 
-from fatebridge.core.request_models import (
+from fatebridge.core.requests.reference import (
     ExportParseRequest,
     ExportRegistryRequest,
     KnowledgeReadRequest,

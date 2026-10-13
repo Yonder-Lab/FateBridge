@@ -19,7 +19,7 @@ FateBridge 才是天文正确的一方。本测试把这两个已核验的临界
 """
 
 from fatebridge.services.bazi import calculate_bazi_birth
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 
 def _pillars(year, month, day, hour, minute):

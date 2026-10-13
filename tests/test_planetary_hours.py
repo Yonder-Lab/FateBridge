@@ -14,12 +14,13 @@ from __future__ import annotations
 
 import pytest
 
-from fatebridge.core import astrology
-from fatebridge.core.astrology import build_astro_birth_info, build_core_chart_payload
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
 from fatebridge.core.classical_western import planetary_hour_sequence
+from fatebridge.core.ephemeris_runtime import swe
 from fatebridge.services.astrology import calculate_core_chart_analysis
 
-_SWE_AVAILABLE = astrology.swe is not None
+_SWE_AVAILABLE = swe is not None
 _requires_swe = pytest.mark.skipif(
     not _SWE_AVAILABLE, reason="swisseph 不可用：行星时需要 rise_trans"
 )

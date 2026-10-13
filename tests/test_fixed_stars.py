@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import pytest
 
-from fatebridge.core import astrology
-from fatebridge.core.astrology import build_astro_birth_info, build_core_chart_payload
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
 from fatebridge.core.classical_western import (
     _J2000_JD,
     FIXED_STARS,
@@ -24,7 +24,7 @@ from fatebridge.core.classical_western import (
     build_fixed_star_hits,
     fixed_star_longitude,
 )
-from fatebridge.core.ephemeris_runtime import preserve_ephemeris_path
+from fatebridge.core.ephemeris_runtime import preserve_ephemeris_path, swe
 from fatebridge.services.astrology import calculate_core_chart_analysis
 
 _NATAL = dict(
@@ -47,7 +47,7 @@ def _configure_star_catalogue() -> bool:
     Returns True when ``fixstar_ut`` then works; False (→ skip) otherwise, e.g.
     in CI where the catalogue file is not on the swisseph search path.
     """
-    if astrology.swe is None:
+    if swe is None:
         return False
     try:
         import pathlib
@@ -59,8 +59,8 @@ def _configure_star_catalogue() -> bool:
         # Verify the file before probing so other stars cannot fail later.
         if not (catalogue_dir / "sefstars.txt").is_file():
             return False
-        astrology.swe.set_ephe_path(str(catalogue_dir))
-        astrology.swe.fixstar_ut("Spica", _J2000_JD, astrology.swe.FLG_SWIEPH)
+        swe.set_ephe_path(str(catalogue_dir))
+        swe.fixstar_ut("Spica", _J2000_JD, swe.FLG_SWIEPH)
         return True
     except Exception:
         return False
@@ -71,11 +71,11 @@ def test_catalogue_probe_rejects_missing_file_even_with_cached_star(
 ):
     import kerykeion
 
-    if astrology.swe is None:
+    if swe is None:
         pytest.skip("swisseph unavailable")
     calls = []
     monkeypatch.setattr(kerykeion, "__file__", str(tmp_path / "__init__.py"))
-    monkeypatch.setattr(astrology.swe, "fixstar_ut", lambda *args: calls.append(args))
+    monkeypatch.setattr(swe, "fixstar_ut", lambda *args: calls.append(args))
     assert not _configure_star_catalogue()
     assert calls == []
 
@@ -169,6 +169,6 @@ def test_vendored_longitudes_match_swisseph_within_conjunction_orb(star_catalogu
     for jd in (_J2000_JD - 365.25 * 150, _J2000_JD, _J2000_JD + 365.25 * 150):
         for star, data in FIXED_STARS.items():
             mine = fixed_star_longitude(data["lon2000"], jd)
-            coords, _, _ = astrology.swe.fixstar_ut(star, jd, astrology.swe.FLG_SWIEPH)
+            coords, _, _ = swe.fixstar_ut(star, jd, swe.FLG_SWIEPH)
             delta = abs(((mine - coords[0] + 180.0) % 360.0) - 180.0)
             assert delta < 0.05, f"{star} off by {delta * 3600:.0f}″ at jd {jd}"

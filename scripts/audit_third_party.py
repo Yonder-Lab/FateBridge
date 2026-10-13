@@ -24,7 +24,8 @@ from pathlib import Path
 from lunar_python import Solar
 
 from fatebridge.core.almanac import get_lunar_context, get_solar_terms_for_year
-from fatebridge.core.astrology import build_astro_birth_info, build_core_chart_payload
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.metaphysics import build_ziwei_chart, build_ziwei_horoscope
 from fatebridge.core.timing import TimingAnalysis
@@ -609,7 +610,7 @@ def solar_time_and_returns_audit(out, ephemeris):
         calculate_lunarreturn,
         calculate_solarreturn,
     )
-    from fatebridge.utils.helpers import calculate_solar_time_adjustment
+    from fatebridge.utils.solar_time import calculate_solar_time_adjustment
 
     eph, ts = load_file(str(ephemeris)), load.timescale(builtin=True)
     # Apparent solar hour from topocentric Sun hour angle, independent of

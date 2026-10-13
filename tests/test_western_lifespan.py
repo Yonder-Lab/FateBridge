@@ -224,7 +224,7 @@ def test_distributions_first_period_starts_at_ascendant_bound():
 
 def _seven_planet_natal(longitudes: dict) -> dict:
     """Build a natal_reference stub from {planet: absolute_degree}."""
-    from fatebridge.core.astrology import SIGNS
+    from fatebridge.core.astrology_tables import SIGNS
 
     natal = {}
     for planet, lon in longitudes.items():

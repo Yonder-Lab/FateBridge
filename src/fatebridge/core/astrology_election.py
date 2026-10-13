@@ -25,11 +25,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from fatebridge.core.astrology import (
-    EXALTATION_SIGNS,
-    RULER_BY_SIGN,
-    SIGNS,
-)
+from fatebridge.core.astrology_tables import EXALTATION_SIGNS, RULER_BY_SIGN, SIGNS
 from fatebridge.core.predictive._common import (
     normalize_sign_name,
     planet_label,

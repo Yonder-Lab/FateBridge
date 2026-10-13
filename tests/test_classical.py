@@ -11,7 +11,7 @@ from fatebridge.core.classical import (
     twelve_life_stage,
 )
 from fatebridge.services.bazi import calculate_bazi_birth
-from fatebridge.utils.helpers import PersonInfo
+from fatebridge.utils.birth_input import PersonInfo
 
 # --- 十二长生 --------------------------------------------------------------- #
 

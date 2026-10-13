@@ -151,13 +151,12 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 
 ## 全量工具地图（按家族）
 
-每个场景 Skill 只需引用与自己相关的几个；这张表是全集，公开 REST / MCP 各 87 项，目录共 89 条；CLI 可执行 88 条。名称/嵌套请求差异以 `describe` 和 [API 参考](../../docs/api-reference.md#24-三端能力边界) 为准。
+每个场景 Skill 只需引用与自己相关的几个；这张表是全集，REST 公开 86 项，MCP 公开 87 项，目录共 88 条；CLI 可执行 87 条。名称/嵌套请求差异以 `describe` 和 [API 参考](../../docs/api-reference.md#24-三端能力边界) 为准。
 
 ### 八字 · 命主本命（snapshot_text）
 
 - `bazi_birth`：完整命盘，含四柱三元、纳音、十神、藏干、格局调候、十二长生、当前大运流年、神煞。
 - `analyze_destiny`：综合命理，八字 + 喜用 + 格局，一站式。
-- `calculate_legacy`：兼容旧版扁平命盘结构。
 
 ### 八字 · 九大专项（结构化 JSON，自动带时机信号）
 

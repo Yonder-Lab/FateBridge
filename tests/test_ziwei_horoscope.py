@@ -4,7 +4,7 @@ from fatebridge.core.metaphysics import (
     build_ziwei_horoscope,
 )
 from fatebridge.services.metaphysics import _build_analysis_seed, _build_person_seed
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 SCOPES = ["大限", "小限", "流年", "流月", "流日", "流时"]
 BIRTH = dict(birth_year=1994, birth_month=8, birth_day=23, birth_hour=14, gender="男")

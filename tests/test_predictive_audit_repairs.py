@@ -179,7 +179,7 @@ def test_concurrent_direct_call_waits_for_third_party_path_restoration(monkeypat
 
 
 def test_real_kerykeion_does_not_change_subsequent_core_precision(monkeypatch):
-    from fatebridge.core.astrology import build_core_chart_payload
+    from fatebridge.core.astro.chart import build_core_chart_payload
 
     pytest.importorskip("swisseph")
     paths = []

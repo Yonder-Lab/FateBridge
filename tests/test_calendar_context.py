@@ -12,7 +12,7 @@ from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.timing import TimingAnalysis
 from fatebridge.services.calculation import calculate_destiny_analysis
 from fatebridge.services.timing import calculate_comprehensive_timing
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 
 def test_lichun_boundary_updates_bazi_year_and_month():

@@ -231,7 +231,6 @@ def _export_content() -> str:
 
 
 REST_POST_CASES = {
-    "/api/calculate": lambda: _birth_payload(),
     "/api/cn/bazi/birth": lambda: _birth_payload(),
     "/api/cn/bazi/marriage": lambda: {
         **_birth_payload(),

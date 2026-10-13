@@ -18,8 +18,9 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'src'))
 
-from fatebridge.core.discovery import discover_specs
-from fatebridge.core.tool_spec import execute_tool, spec_is_cli_safe
+from fatebridge.application.discovery import discover_specs
+from fatebridge.application.execution import execute_tool
+from fatebridge.application.description import spec_is_cli_safe
 from fatebridge.services import replay_metadata
 from fatebridge.services.tool_catalog import CATALOG, mcp_specs, rest_specs
 from tests.fixtures.surface_payloads import MCP_CASES, REST_POST_CASES
@@ -75,7 +76,7 @@ def run():
     from fastmcp import Client
     import fatebridge.api as api
     import fatebridge.mcp_server as mcp
-    import fatebridge.core.tool_spec as tool_spec
+    import fatebridge.application.execution as tool_spec
 
     logging.getLogger().setLevel(logging.ERROR)
     original_validate = tool_spec.validate_output

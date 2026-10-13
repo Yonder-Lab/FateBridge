@@ -7,13 +7,12 @@ from typing import Any, Dict
 from fatebridge.analysis.compatibility import AdvancedCompatibility, RelationshipType
 from fatebridge.core.export_parser import parse_export_content
 from fatebridge.core.rules import BaZiRules
-from fatebridge.services.calculation import (
-    _build_birth_computation_context,
-    _render_destiny_analysis,
-)
+from fatebridge.services.birth_context import build_birth_computation_context
+from fatebridge.services.birth_payload import build_destiny_payload
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
+from fatebridge.utils.birth_input import PersonInfo
+from fatebridge.utils.elements import get_element_relationship
 from fatebridge.utils.errors import calculation_guard
-from fatebridge.utils.helpers import PersonInfo, get_element_relationship
 
 
 @calculation_guard("配合度分析")
@@ -31,10 +30,10 @@ def calculate_compatibility_analysis(
     Returns:
         dict: 配合度分析结果
     """
-    context1 = _build_birth_computation_context(person1)
-    context2 = _build_birth_computation_context(person2)
-    analysis1 = _render_destiny_analysis(context1)
-    analysis2 = _render_destiny_analysis(context2)
+    context1 = build_birth_computation_context(person1)
+    context2 = build_birth_computation_context(person2)
+    analysis1 = build_destiny_payload(context1)
+    analysis2 = build_destiny_payload(context2)
 
     # 转换关系类型
     rel_type_map = {
@@ -69,6 +68,7 @@ def calculate_compatibility_analysis(
             "overall_score": advanced_analysis["overall_score"],
             "compatibility_level": advanced_analysis["summary"],
             "relationship_type": relationship_type,
+            "score_basis": "多维度规则加权的 0–100 分；不是关系成功概率。",
         },
         "detailed_analysis": {
             "element_balance": advanced_analysis["detailed_analysis"][
@@ -88,6 +88,10 @@ def calculate_compatibility_analysis(
                 "score": advanced_analysis["detailed_analysis"]["traditional_analysis"][
                     "normalized_score"
                 ],
+                "score_basis": (
+                    "从 50 分起，按跨盘冲、害、刑扣分并截断至 0–100；"
+                    "是综合分的一个维度，与 traditional_compatibility 的净分独立。"
+                ),
             },
         },
         "strengths": advanced_analysis["strengths"],
@@ -119,6 +123,11 @@ def calculate_compatibility_analysis(
             "score": traditional_compatibility["overall_score"],
             "level": traditional_compatibility["level"],
             "details": traditional_compatibility.get("details", []),
+            "score_basis": (
+                "合与冲、刑、害等规则加减后的净分，0 为中性；不是 0–100 分。"
+                "level 只评价该净分，不能替代 summary 的综合等级；"
+                "与 detailed_analysis.traditional_analysis 使用不同计分规则。"
+            ),
         },
     }
     snapshot_text = render_structured_snapshot_text(result, title="双人配合度分析")

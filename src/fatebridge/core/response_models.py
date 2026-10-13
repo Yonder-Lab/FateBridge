@@ -245,7 +245,6 @@ _FIELD_TYPES: Dict[str, Any] = {
 }
 
 _TOOL_FIELDS = {
-    "calculate_legacy": "calendar_context day_master element_distribution favorable_elements four_pillars patterns person_info structure_profile ten_gods",
     "analyze_destiny": "calendar_context day_master element_distribution element_distribution_adjusted element_distribution_basis element_relations element_seasonal_phase favorable_elements four_pillars patterns person_info structure_profile ten_gods",
     "bazi_birth": "analysis_type bazi_birth",
     "bazi_marriage": "analysis_type marriage_analysis",

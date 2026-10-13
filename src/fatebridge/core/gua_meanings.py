@@ -633,6 +633,11 @@ HEXAGRAM_ORACLE_DETAILS: Dict[str, Dict[str, str]] = {
 }
 
 
+def caution_phrase(text: str) -> str:
+    """Return the advice body when a renderer supplies its own 忌/需防 prefix."""
+    return text.removeprefix("忌")
+
+
 def get_trigram_meaning(name: str) -> Dict[str, str]:
     detail = dict(TRIGRAM_INTERPRETATIONS.get(name, {}))
     detail.update(TRIGRAM_ORACLE_DETAILS.get(name, {}))

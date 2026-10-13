@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from fatebridge.core.request_models import (
+from fatebridge.core.requests.birth import FateBridgeRequest
+from fatebridge.core.requests.timing import (
     DayunAnalysisRequest,
-    FateBridgeRequest,
     JieqiTimelineRequest,
     LiunianAnalysisRequest,
     LiuriAnalysisRequest,
@@ -23,8 +23,9 @@ from fatebridge.services.timing import (
     calculate_liushi_analysis,
     calculate_liuyue_analysis,
 )
-from fatebridge.utils.helpers import create_person_info, normalize_birth_time
+from fatebridge.utils.birth_input import create_person_info
 from fatebridge.utils.places import resolve_birth_place_context
+from fatebridge.utils.solar_time import normalize_birth_time
 from fatebridge.utils.timezones import parse_timezone_name
 from tests.fixtures.transports import mcp_parameters
 

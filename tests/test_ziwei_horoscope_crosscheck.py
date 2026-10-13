@@ -6,7 +6,7 @@ from fatebridge.core.metaphysics import (
     build_ziwei_horoscope,
 )
 from fatebridge.services.metaphysics import _build_analysis_seed, _build_person_seed
-from fatebridge.utils.helpers import create_person_info
+from fatebridge.utils.birth_input import create_person_info
 
 FIXTURE = (
     Path(__file__).resolve().parent / "fixtures" / "ziwei_horoscope_reference.json"

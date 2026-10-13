@@ -17,11 +17,9 @@ from __future__ import annotations
 
 import pytest
 
-from fatebridge.core import astrology
-from fatebridge.core.astrology import (
-    build_astro_birth_info,
-    build_core_chart_payload,
-)
+from fatebridge.core.astro.birth import build_astro_birth_info
+from fatebridge.core.astro.chart import build_core_chart_payload
+from fatebridge.core.astro.geometry import _julian_day
 from fatebridge.core.classical_western import (
     OUT_OF_BOUNDS_LIMIT,
     build_almuten_figuris,
@@ -29,9 +27,10 @@ from fatebridge.core.classical_western import (
     is_retrograde,
     out_of_bounds,
 )
+from fatebridge.core.ephemeris_runtime import swe
 from fatebridge.services.astrology import calculate_core_chart_analysis
 
-_SWE_AVAILABLE = astrology.swe is not None
+_SWE_AVAILABLE = swe is not None
 _requires_swe = pytest.mark.skipif(
     not _SWE_AVAILABLE, reason="swisseph 不可用：逆行/出界/朔望需要星历"
 )
@@ -183,7 +182,7 @@ def test_dec_2000_jupiter_and_saturn_are_retrograde(natal_chart):
 @_requires_swe
 def test_prenatal_syzygy_precedes_birth_and_is_a_lunation(natal_chart):
     info = build_astro_birth_info(use_true_solar_time=True, **_NATAL)
-    birth_jd = astrology._julian_day(info.utc_datetime)
+    birth_jd = _julian_day(info.utc_datetime)
     syzygy = natal_chart["classical"]["syzygy"]
     assert syzygy is not None
     assert syzygy["type"] in {"new", "full"}

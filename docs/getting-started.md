@@ -100,7 +100,7 @@ curl -X POST http://localhost:8010/api/cn/bazi/birth \
 
 开启鉴权时加 `-H "X-API-Key: replace-me"`。响应业务字段在 `bazi_birth`，包含 `four_pillars`、`day_master` 等；此外还有 `person_info`、`snapshot_text`、`snapshot_export` 和 `run_metadata`。
 
-`/api/calculate` 为旧版扁平命盘兼容入口。综合命理 `analyze_destiny` 使用 MCP / CLI，不能用该旧路由等同替换。详情见 [三端能力边界](api-reference.md#24-三端能力边界)。
+旧版 `/api/calculate` 已移除。独立命盘使用 `/api/cn/bazi/birth`，综合命理 `analyze_destiny` 使用 MCP / CLI。详情见 [三端能力边界](api-reference.md#24-三端能力边界)。
 
 中式出生信息默认开启真太阳时，显式 true 时必须提供可解析地点或经度；没有经度且只使用模型默认值时，按钟表时间计算并附提示。小时必填。固定时区、经度和分析日期有助于复现。
 

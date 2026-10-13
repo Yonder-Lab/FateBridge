@@ -23,10 +23,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
-from fatebridge.core.astrology import (
-    EXALTATION_SIGNS,
-    RULER_BY_SIGN,
-)
+from fatebridge.core.astrology_tables import EXALTATION_SIGNS, RULER_BY_SIGN
 from fatebridge.core.classical_western import bound_lord as _bound_lord
 from fatebridge.core.classical_western import triplicity_members
 from fatebridge.core.predictive._common import (

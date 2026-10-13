@@ -49,3 +49,5 @@ Black / isort（252 文件）、mypy（130 源文件）和 `git diff --check` �
 数据来自同机、相同依赖的代表 payload，各执行探针取五次中位数，discovery 取三次；这是本地探针，不能当作线上 SLA 或负载压测。原始数据：[清理前](audits/2026-10-12/cleanup/performance-before.json)、[清理后](audits/2026-10-12/cleanup/performance-after.json)，附[探针代码](audits/2026-10-12/cleanup/performance-probe.py)。REST 输出校验由三次降至两次，MCP 保持两次；文本与结构化输出一致，事件循环内导入的 coroutine 警告已消除。
 
 这些结果属于提交前的本地阶段。独立 PR 以 `5fafc61` 为基准，仅纳入清理与对应文档，保留原工作区其他改动。托管 CI 按 PR 的准确 head 独立运行 Python 3.10–3.13 全量测试、格式与类型检查，并通过全新 runner 执行 `uv pip install --system --resolution lowest-direct -e ".[dev]"` 后的全量测试。每个作业上传实际依赖版本与 JUnit，结果以对应 GitHub Actions 运行和 PR 验收说明为准；本地 FastMCP 下限测试不替代真正的最低直接依赖回归。
+
+2026-10-13 后续更新：本报告记录的旧导入路径、Python 别名和 `/api/calculate` 兼容入口已按用户要求删除。当前迁移方式及验证证据见[旧入口与兼容层清理验收](legacy-entry-cleanup-validation-2026-10-13.md)。历史 AST 基线对应当时源码；输出捕获脚本已改为从职责模块导入，不应将当前目录哈希与旧全目录哈希直接相等比较。

@@ -10,13 +10,15 @@ from typing import Any, Dict, List, Optional, cast
 
 import pytz
 
-from fatebridge.core.astrology import (
+from fatebridge.core.astro.birth import AstroBirthInfo, build_astro_birth_info
+from fatebridge.core.astro.geometry import normalize_angle
+from fatebridge.core.astrology_tables import (
+    EGYPTIAN_BOUNDS_BY_SIGN as EGYPTIAN_BOUNDS_BY_SIGN,
+)
+from fatebridge.core.astrology_tables import (
     RULER_BY_SIGN,
     SIGN_LABELS_ZH,
     SIGNS,
-    AstroBirthInfo,
-    build_astro_birth_info,
-    normalize_angle,
 )
 from fatebridge.core.ephemeris_runtime import (
     ephemeris_call,
@@ -150,92 +152,6 @@ SWISSEPH_PLANET_IDS = {
     "Mars": 4,
     "Jupiter": 5,
     "Saturn": 6,
-}
-EGYPTIAN_BOUNDS_BY_SIGN = {
-    "Aries": [
-        ("Jupiter", 0.0, 6.0),
-        ("Venus", 6.0, 12.0),
-        ("Mercury", 12.0, 20.0),
-        ("Mars", 20.0, 25.0),
-        ("Saturn", 25.0, 30.0),
-    ],
-    "Taurus": [
-        ("Venus", 0.0, 8.0),
-        ("Mercury", 8.0, 14.0),
-        ("Jupiter", 14.0, 22.0),
-        ("Saturn", 22.0, 27.0),
-        ("Mars", 27.0, 30.0),
-    ],
-    "Gemini": [
-        ("Mercury", 0.0, 6.0),
-        ("Jupiter", 6.0, 12.0),
-        ("Venus", 12.0, 17.0),
-        ("Mars", 17.0, 24.0),
-        ("Saturn", 24.0, 30.0),
-    ],
-    "Cancer": [
-        ("Mars", 0.0, 7.0),
-        ("Venus", 7.0, 13.0),
-        ("Mercury", 13.0, 19.0),
-        ("Jupiter", 19.0, 26.0),
-        ("Saturn", 26.0, 30.0),
-    ],
-    "Leo": [
-        ("Jupiter", 0.0, 6.0),
-        ("Venus", 6.0, 11.0),
-        ("Saturn", 11.0, 18.0),
-        ("Mercury", 18.0, 24.0),
-        ("Mars", 24.0, 30.0),
-    ],
-    "Virgo": [
-        ("Mercury", 0.0, 7.0),
-        ("Venus", 7.0, 17.0),
-        ("Jupiter", 17.0, 21.0),
-        ("Mars", 21.0, 28.0),
-        ("Saturn", 28.0, 30.0),
-    ],
-    "Libra": [
-        ("Saturn", 0.0, 6.0),
-        ("Mercury", 6.0, 14.0),
-        ("Jupiter", 14.0, 21.0),
-        ("Venus", 21.0, 28.0),
-        ("Mars", 28.0, 30.0),
-    ],
-    "Scorpio": [
-        ("Mars", 0.0, 7.0),
-        ("Venus", 7.0, 11.0),
-        ("Mercury", 11.0, 19.0),
-        ("Jupiter", 19.0, 24.0),
-        ("Saturn", 24.0, 30.0),
-    ],
-    "Sagittarius": [
-        ("Jupiter", 0.0, 12.0),
-        ("Venus", 12.0, 17.0),
-        ("Mercury", 17.0, 21.0),
-        ("Saturn", 21.0, 26.0),
-        ("Mars", 26.0, 30.0),
-    ],
-    "Capricorn": [
-        ("Mercury", 0.0, 7.0),
-        ("Jupiter", 7.0, 14.0),
-        ("Venus", 14.0, 22.0),
-        ("Saturn", 22.0, 26.0),
-        ("Mars", 26.0, 30.0),
-    ],
-    "Aquarius": [
-        ("Mercury", 0.0, 7.0),
-        ("Venus", 7.0, 13.0),
-        ("Jupiter", 13.0, 20.0),
-        ("Mars", 20.0, 25.0),
-        ("Saturn", 25.0, 30.0),
-    ],
-    "Pisces": [
-        ("Venus", 0.0, 12.0),
-        ("Jupiter", 12.0, 16.0),
-        ("Mercury", 16.0, 19.0),
-        ("Mars", 19.0, 28.0),
-        ("Saturn", 28.0, 30.0),
-    ],
 }
 
 LOT_LABELS = {

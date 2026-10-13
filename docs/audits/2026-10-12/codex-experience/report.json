@@ -1,0 +1,254 @@
+{
+  "version": "0.2.0",
+  "as_of": "2026-10-12T04:00:00Z",
+  "scope": "local CLI, in-process REST, independent stdio MCP; fictional inputs",
+  "mcp_profiles": {
+    "all": {
+      "tool_count": 87,
+      "startup_and_list_ms": 3063.83,
+      "tools_wire_bytes": 4306321
+    },
+    "career": {
+      "tool_count": 7,
+      "startup_and_list_ms": 789.26,
+      "tools_wire_bytes": 288697
+    }
+  },
+  "cases": [
+    {
+      "tool": "bazi_birth",
+      "ok": true,
+      "full_bytes": 42667,
+      "projected_bytes": 2441,
+      "fields": [
+        "bazi_birth.four_pillars",
+        "bazi_birth.day_master"
+      ],
+      "business_sha256": "ef95dd625b7e6348f19eadc26a3b798346a6061accf109f25c92bbcb2bc2bbdd"
+    },
+    {
+      "tool": "bazi_career",
+      "ok": true,
+      "full_bytes": 15605,
+      "projected_bytes": 2570,
+      "fields": [
+        "career_analysis.dominant_ten_gods.primary_career_type",
+        "career_analysis.career_timing",
+        "career_analysis.timing_context"
+      ],
+      "business_sha256": "ba5b19182acd262f51a1f11b475fc77390ddc800a0df6d8117dec87a8af2aafc"
+    },
+    {
+      "tool": "timing_analysis",
+      "ok": true,
+      "full_bytes": 75277,
+      "projected_bytes": 2380,
+      "fields": [
+        "dayun_analysis.current_dayun",
+        "liunian_analysis.summary",
+        "comprehensive_summary"
+      ],
+      "business_sha256": "ff70d60b90a0a3708b31e6988a9981acadeab2296f311b592a9deb8812addb78"
+    },
+    {
+      "tool": "ziwei_birth",
+      "ok": true,
+      "full_bytes": 26880,
+      "projected_bytes": 2223,
+      "fields": [
+        "ziwei_birth.ming_gong",
+        "ziwei_birth.shen_gong"
+      ],
+      "business_sha256": "4d6d1987c520ccb643212d57bbfec78804c7f5531702ca6dba048ec76c0ee343"
+    },
+    {
+      "tool": "astro_chart",
+      "ok": true,
+      "full_bytes": 43984,
+      "projected_bytes": 2863,
+      "fields": [
+        "angles",
+        "chart_profile",
+        "interpretation.core_identity"
+      ],
+      "business_sha256": "a83d0819daa7d4ac6b38b044e91741b41f699f8f3fafa0a33554efafa013aa73"
+    },
+    {
+      "tool": "astro_hellen_chart",
+      "ok": true,
+      "full_bytes": 36432,
+      "projected_bytes": 2907,
+      "fields": [
+        "angles",
+        "chart_profile",
+        "hellenistic"
+      ],
+      "business_sha256": "8822481c23d0bf19912ea96bf5b85913a470e1ab1ad71ae6287bcc5b455d4bfc"
+    },
+    {
+      "tool": "two_person_compatibility",
+      "ok": true,
+      "full_bytes": 45929,
+      "projected_bytes": 2544,
+      "fields": [
+        "summary",
+        "strengths",
+        "challenges"
+      ],
+      "business_sha256": "ac5fd5a670f3d4b334e8ead766cb4de01f00af0aa143e6b3c5d88006a90fcc18"
+    },
+    {
+      "tool": "meihua_analysis",
+      "ok": true,
+      "full_bytes": 40142,
+      "projected_bytes": 5139,
+      "fields": [
+        "meihua.base_hexagram",
+        "meihua.changed_hexagram",
+        "summary"
+      ],
+      "business_sha256": "bab9d25425a185f3b56fac2dbd08046fd05520847dd1f1865c32522b8a346414"
+    },
+    {
+      "tool": "sixyao",
+      "ok": true,
+      "full_bytes": 12589,
+      "projected_bytes": 5162,
+      "fields": [
+        "current_hexagram",
+        "changed_hexagram",
+        "moving_lines",
+        "summary"
+      ],
+      "business_sha256": "249502f352b27cb3a04fccdbdb932f915ab4bec7e3af2d46fb34af77a5141c4e"
+    },
+    {
+      "tool": "qimen",
+      "ok": true,
+      "full_bytes": 28508,
+      "projected_bytes": 2439,
+      "fields": [
+        "qimen.ju_text",
+        "qimen.dun_type",
+        "analysis_context"
+      ],
+      "business_sha256": "521a3c3bb485a2328fdf36e5bc26e0a1ca5489f161954ff265d09ad165b45278"
+    },
+    {
+      "tool": "fengshui_directions",
+      "ok": true,
+      "full_bytes": 9354,
+      "projected_bytes": 5046,
+      "fields": [
+        "status",
+        "layers.directions",
+        "coverage",
+        "rulesets"
+      ],
+      "business_sha256": "4ade20543bac698a17681fedeeff8100b731630ba7ce1319ce146b236d6f653b"
+    },
+    {
+      "tool": "knowledge_read",
+      "ok": true,
+      "full_bytes": 8519,
+      "projected_bytes": 2515,
+      "fields": [
+        "title",
+        "lines",
+        "source",
+        "citation"
+      ],
+      "business_sha256": "3715ff3f73156eae373d0af557b8f5cf366b16b06bc307b925da0567c6b66a30"
+    }
+  ],
+  "errors": [
+    {
+      "overrides": {
+        "birth_month": 2,
+        "birth_day": 30
+      },
+      "result": {
+        "error": "请求参数无效",
+        "error_code": "validation_error",
+        "status_code": 422,
+        "retryable": false,
+        "issues": [
+          {
+            "path": "birth_date",
+            "code": "invalid_calendar_date"
+          }
+        ]
+      }
+    },
+    {
+      "overrides": {
+        "birth_hour": null
+      },
+      "result": {
+        "error": "请求参数无效",
+        "error_code": "validation_error",
+        "status_code": 422,
+        "retryable": false,
+        "issues": [
+          {
+            "path": "birth_hour",
+            "code": "int_type"
+          }
+        ]
+      }
+    },
+    {
+      "overrides": {
+        "birth_minut": 31
+      },
+      "result": {
+        "error": "请求参数无效",
+        "error_code": "validation_error",
+        "status_code": 422,
+        "retryable": false,
+        "issues": [
+          {
+            "path": "birth_minut",
+            "code": "extra_forbidden"
+          }
+        ]
+      }
+    },
+    {
+      "overrides": {
+        "fields": [
+          "bazi_birth.day_mastr"
+        ],
+        "strict_fields": true
+      },
+      "result": {
+        "error": "输出字段投影无效",
+        "error_code": "validation_error",
+        "status_code": 422,
+        "retryable": false,
+        "operation": "八字命盘",
+        "issues": [
+          {
+            "path": "bazi_birth.day_mastr",
+            "code": "unknown_projection_path"
+          }
+        ]
+      }
+    }
+  ],
+  "error_recovery": true,
+  "rest": {
+    "search_count": 7,
+    "invalid_status": 422,
+    "corrected_status": 200
+  },
+  "cli": {
+    "profile_exit": 0,
+    "profile_bytes": 4940,
+    "deduplicated_systems": [
+      "bazi",
+      "astro"
+    ]
+  },
+  "ok": true
+}

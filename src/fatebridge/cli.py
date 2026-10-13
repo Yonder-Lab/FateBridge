@@ -17,33 +17,32 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 from pathlib import Path
 from typing import Any, Dict, List, NoReturn, Optional, get_origin
 
 from pydantic import ValidationError
 
-from fatebridge.core.discovery import discover_specs
+from fatebridge.application.description import describe_input_spec, describe_spec
+from fatebridge.application.description import field_type_name as _type_name
+from fatebridge.application.description import is_model_field, resolve_spec
+from fatebridge.application.description import spec_is_cli_safe as _cli_safe
+from fatebridge.application.description import unwrap_optional as _unwrap_optional
+from fatebridge.application.discovery import discover_specs
+from fatebridge.application.execution import (
+    execute_tool,
+    invalid_input_result,
+    result_is_error,
+)
+from fatebridge.application.projection import project_fields
+from fatebridge.application.scenarios import discover_scenarios
+from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.core.execution_context import (
     ExecutionOptions,
     call_clock,
     correlate_error,
     safe_correlation,
 )
-from fatebridge.core.scenarios import discover_scenarios
-from fatebridge.core.tool_spec import (
-    ToolSpec,
-    describe_spec,
-    execute_tool,
-)
-from fatebridge.core.tool_spec import field_type_name as _type_name
-from fatebridge.core.tool_spec import (
-    invalid_input_result,
-    is_model_field,
-    project_fields,
-    result_is_error,
-)
-from fatebridge.core.tool_spec import spec_is_cli_safe as _cli_safe
-from fatebridge.core.tool_spec import unwrap_optional as _unwrap_optional
 from fatebridge.services.run_metadata import attach_run_metadata
 from fatebridge.services.tool_catalog import CATALOG
 from fatebridge.utils.errors import (
@@ -51,7 +50,7 @@ from fatebridge.utils.errors import (
     handle_calculation_error,
     validation_error_result,
 )
-from fatebridge.utils.helpers import format_json_response
+from fatebridge.utils.formatting import format_json_response
 from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE, resolve_birth_place_context
 
 
@@ -176,23 +175,30 @@ def _command_name(spec: ToolSpec) -> str:
     return spec.mcp_name or spec.key
 
 
-def _describe_spec(spec: ToolSpec) -> dict:
+def _describe_spec(spec: ToolSpec, detail: str = "full") -> dict:
     """CLI view of a tool: the shared descriptor plus a copy-pasteable example.
 
     The transport-agnostic schema (surfaces, parameters, family) comes from
     :func:`describe_spec` — the same record REST serves at ``GET /api/tools`` —
     so the CLI only adds the CLI-specific ``cli_example`` / ``cli_hint``.
     """
-    info = describe_spec(spec)
+    info = describe_input_spec(spec) if detail == "input" else describe_spec(spec)
     if info["surfaces"]["cli"]:
-        info["cli_example"] = _cli_example(spec)
+        info["cli_usage"] = _cli_usage(spec)
+        from fatebridge.application.examples import example_input
+
+        example = example_input(spec)
+        if example is not None:
+            info["example_input"] = example
+            info["cli_example"] = _cli_example(spec, example)
+            info["example_note"] = "虚构演示资料；使用时替换为已确认的用户输入。"
     else:
         info["cli_hint"] = _unsupported_hint(spec)
     return info
 
 
-def _cli_example(spec: ToolSpec) -> str:
-    """A copy-pasteable example invocation showing the required flags."""
+def _cli_usage(spec: ToolSpec) -> str:
+    """Syntax template, explicitly distinct from a runnable example."""
     parts = ["fatebridge", _command_name(spec)]
     if spec.cli_request_file:
         return " ".join(parts + ["--request-file request.json"])
@@ -201,6 +207,21 @@ def _cli_example(spec: ToolSpec) -> str:
             flag = "--" + name.replace("_", "-")
             parts.append(f"{flag} <{_type_name(field.annotation)}>")
     return " ".join(parts)
+
+
+def _cli_example(spec: ToolSpec, inputs: Dict[str, Any]) -> str:
+    parts = ["fatebridge", _command_name(spec)]
+    for name, value in inputs.items():
+        parts.append("--" + name.replace("_", "-"))
+        if isinstance(value, bool):
+            parts.append(str(value).lower())
+        elif isinstance(value, (dict, list)) and spec.cli_request_file:
+            parts.append(json.dumps(value, ensure_ascii=False))
+        elif isinstance(value, list):
+            parts.extend(str(item) for item in value)
+        else:
+            parts.append(str(value))
+    return shlex.join(parts)
 
 
 def _add_field_argument(
@@ -318,6 +339,17 @@ def build_parser(
     describe_parser.add_argument(
         "tool", nargs="?", help="工具命令名（见 `fatebridge list`）"
     )
+    describe_parser.add_argument(
+        "--detail",
+        choices=("input", "full"),
+        default="full",
+        help="input 只取输入契约及示例；full 还含输出契约",
+    )
+
+    doctor = sub.add_parser("doctor", help="检查安装；--mcp 验证独立 stdio 进程")
+    doctor.add_argument("--mcp", action="store_true")
+    doctor.add_argument("--family", help="检查这些 MCP 分类（CSV）")
+    doctor.add_argument("--scenario", help="检查这些 MCP 场景（CSV）")
 
     _add_profile_parser(sub)
 
@@ -327,13 +359,18 @@ def build_parser(
             # argparse's opaque "invalid choice".
             sp = sub.add_parser(
                 _command_name(spec),
+                aliases=[spec.key] if spec.key != _command_name(spec) else [],
                 help=f"{spec.summary}（CLI 暂不支持：含嵌套结构，见提示）",
             )
             sp.set_defaults(
                 _spec=spec, _cli_unsupported=True, _hint=_unsupported_hint(spec)
             )
             continue
-        sp = sub.add_parser(_command_name(spec), help=spec.summary)
+        sp = sub.add_parser(
+            _command_name(spec),
+            help=spec.summary,
+            aliases=[spec.key] if spec.key != _command_name(spec) else [],
+        )
         for fname, field in spec.request_model.model_fields.items():
             _add_field_argument(
                 sp,
@@ -367,6 +404,24 @@ def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
     passed naturally after the tool name, e.g. `fatebridge bazi_wealth ... --fields summary`.
     """
     _add_execution_flags(parser)
+    _add_output_flags(parser)
+    parser.add_argument(
+        "--subject-file",
+        dest="subject_file",
+        default=None,
+        metavar="PATH",
+        help="从 JSON/YAML 档案读取命主默认值；显式参数优先。",
+    )
+
+
+def _add_output_flags(parser: argparse.ArgumentParser) -> None:
+    # SUPPRESS preserves a --no-metadata passed before the subcommand too.
+    parser.add_argument(
+        "--no-metadata",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="不附加 run_metadata",
+    )
     parser.add_argument(
         "--strict-fields",
         action=_BooleanFlagAction,
@@ -397,16 +452,6 @@ def _add_transport_flags(parser: argparse.ArgumentParser) -> None:
         help=(
             "是否包含人类可读的 snapshot_text 文本段（默认随工具而定）；"
             "用 --no-include-snapshot-text 关闭可显著省 token。"
-        ),
-    )
-    parser.add_argument(
-        "--subject-file",
-        dest="subject_file",
-        default=None,
-        metavar="PATH",
-        help=(
-            "从 JSON/YAML 档案读取命主信息（name/gender/birth_* 等）作为默认值，"
-            "省去多次调用时重复输入；命令行显式参数优先于档案值。"
         ),
     )
 
@@ -575,6 +620,7 @@ def _add_profile_parser(sub: Any) -> None:
         help="综合命盘：一次为同一命主排多套盘（默认 八字/紫微/西占）",
     )
     _add_execution_flags(parser)
+    _add_output_flags(parser)
     parser.add_argument(
         "--systems",
         default=None,
@@ -603,13 +649,15 @@ def _resolve_profile_systems(
 ) -> "tuple[List[tuple[str, ToolSpec]], List[str]]":
     resolved: List[tuple[str, ToolSpec]] = []
     unknown: List[str] = []
+    seen = set()
     for token in tokens:
         name = SYSTEM_ALIASES.get(token.lower(), token)
-        spec = next((s for s in CATALOG if _command_name(s) == name), None)
+        spec = resolve_spec(CATALOG, name)
         if spec is None or not _cli_safe(spec):
             unknown.append(token)
-        else:
+        elif spec.key not in seen:
             resolved.append((token, spec))
+            seen.add(spec.key)
     return resolved, unknown
 
 
@@ -622,7 +670,7 @@ def _unify_birth_instant(inputs: Dict[str, Any]) -> None:
     western leg read a China wall-clock time as UTC — landing it ~8h off the
     Chinese legs and rotating the whole chart. We resolve the timezone once here
     (mirroring the BaZi normalizer: ``explicit -> place-derived ->
-    DEFAULT_BIRTH_TIMEZONE``; see ``normalize_birth_time`` in utils/helpers) and
+    DEFAULT_BIRTH_TIMEZONE``; see ``normalize_birth_time`` in utils/birth_input) and
     inject it into every leg so they share one civil instant.
 
     True-solar policy is deliberately NOT unified: each leg keeps its own
@@ -652,8 +700,19 @@ def _run_profile(
         return _emit_error(
             correlate_error(validation_error_result(exc), safe_correlation(controls)), 1
         )
-    raw = getattr(args, "systems", None) or DEFAULT_PROFILE_SYSTEMS
+    raw = getattr(args, "systems", None)
+    if raw is None:
+        raw = DEFAULT_PROFILE_SYSTEMS
     tokens = [t.strip() for t in raw.split(",") if t.strip()]
+    if not tokens:
+        return _emit_error(
+            {
+                "error": "--systems 至少需要一个体系或工具",
+                "error_code": "usage_error",
+                "retryable": False,
+            },
+            2,
+        )
     resolved, unknown = _resolve_profile_systems(tokens)
     if unknown:
         return _emit_error(
@@ -738,7 +797,24 @@ def _run_profile(
     }
     if not args.no_metadata:
         output["run_metadata"] = {**root_metadata, "effective_time": {"as_of": as_of}}
-    print(json.dumps(output, ensure_ascii=False, indent=2, default=str))
+    if args.fields:
+        try:
+            output = project_fields(
+                output, args.fields, strict_fields=args.strict_fields
+            )
+        except ParameterError as exc:
+            return _emit_error(correlate_error(exc.as_result(), options), 1)
+        # Keep failures visible even when projecting an unrelated successful leg.
+        for token, spec in resolved:
+            leg = profile[token]
+            if result_is_error(spec, leg):
+                output.setdefault("profile", {})[token] = leg
+            elif token in output.get("profile", {}) and "run_metadata" in leg:
+                output["profile"][token]["run_metadata"] = leg["run_metadata"]
+    if args.include_snapshot_text is False:
+        for leg in output.get("profile", {}).values():
+            leg.pop("snapshot_text", None)
+    print(format_json_response(output, compact=args.compact))
     return 1 if any_error else 0
 
 
@@ -781,7 +857,7 @@ def _print_tools(names: Optional[set[str]] = None) -> None:
     print("可用工具命令：\n" + "\n".join(rows))
 
 
-def _run_describe(tool_name: Optional[str]) -> int:
+def _run_describe(tool_name: Optional[str], detail: str = "full") -> int:
     if not tool_name:
         return _emit_error(
             {
@@ -792,7 +868,7 @@ def _run_describe(tool_name: Optional[str]) -> int:
             },
             2,
         )
-    spec = next((s for s in CATALOG if _command_name(s) == tool_name), None)
+    spec = resolve_spec(CATALOG, tool_name)
     if spec is None:
         return _emit_error(
             {
@@ -803,7 +879,11 @@ def _run_describe(tool_name: Optional[str]) -> int:
             },
             2,
         )
-    print(json.dumps(_describe_spec(spec), ensure_ascii=False, indent=2, default=str))
+    print(
+        json.dumps(
+            _describe_spec(spec, detail), ensure_ascii=False, indent=2, default=str
+        )
+    )
     return 0
 
 
@@ -870,7 +950,14 @@ def run(argv: Optional[List[str]] = None) -> int:
         return 0
 
     if args.command == "describe":
-        return _run_describe(getattr(args, "tool", None))
+        return _run_describe(getattr(args, "tool", None), args.detail)
+
+    if args.command == "doctor":
+        from fatebridge.diagnostics import diagnose
+
+        result = diagnose(mcp=args.mcp, family=args.family, scenario=args.scenario)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result["ok"] else 1
 
     if getattr(args, "_profile", False):
         return _run_profile(args, subject_data)

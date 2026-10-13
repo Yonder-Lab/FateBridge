@@ -10,15 +10,14 @@ from typing import Any, Dict, List, Optional
 from fatebridge.core.almanac import build_calendar_context
 from fatebridge.core.calendar import BaZiCalendar
 from fatebridge.core.divination import build_meihua_interpretation, lookup_gua
-from fatebridge.core.local_techniques import (
-    build_canping_result,
-    build_heluo_result,
-    build_otherbu_result,
-    build_sanshiunited_result,
-    build_sixyao_result,
-    build_suzhan_result,
-    build_tongshefa_result,
-)
+from fatebridge.core.gua_meanings import caution_phrase
+from fatebridge.core.local_techniques.canping import build_canping_result
+from fatebridge.core.local_techniques.heluo import build_heluo_result
+from fatebridge.core.local_techniques.otherbu import build_otherbu_result
+from fatebridge.core.local_techniques.sanshi import build_sanshiunited_result
+from fatebridge.core.local_techniques.sixyao import build_sixyao_result
+from fatebridge.core.local_techniques.suzhan import build_suzhan_result
+from fatebridge.core.local_techniques.tongshefa import build_tongshefa_result
 from fatebridge.core.sukuyo import su28_to_su27, sukuyo_relation
 from fatebridge.services.snapshot_builders import (
     build_snapshot_export as _build_snapshot_export,
@@ -28,7 +27,7 @@ from fatebridge.services.snapshot_builders import (
 )
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.utils.errors import calculation_guard
-from fatebridge.utils.helpers import create_pillar_dict
+from fatebridge.utils.formatting import create_pillar_dict
 from fatebridge.utils.places import DEFAULT_BIRTH_TIMEZONE
 
 
@@ -256,7 +255,7 @@ def calculate_gua_meiyi(
             f"{item['name']}：{item.get('theme', '当前之势')}。"
             f"{item.get('judgement') or item.get('guidance', '')}"
             f"宜{item.get('favorable', '顺势推进')}，"
-            f"忌{item.get('caution', '失衡冒进')}。"
+            f"忌{caution_phrase(item.get('caution', '失衡冒进'))}。"
         )
         results[query] = {
             "name": item["name"],

@@ -13,8 +13,8 @@ from fastmcp import Client
 
 import fatebridge.api as api
 import fatebridge.mcp_server as mcp
-from fatebridge.core.scenarios import discover_scenarios, scenario_keys
-from fatebridge.core.tool_spec import spec_is_cli_safe
+from fatebridge.application.scenarios import discover_scenarios, scenario_keys
+from fatebridge.application.description import spec_is_cli_safe
 from fatebridge.services.replay_metadata import digest
 from fatebridge.services.tool_catalog import CATALOG
 

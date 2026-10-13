@@ -40,6 +40,8 @@ FateBridge/
 │       ├── api.py          # REST (FastAPI) 入口
 │       ├── mcp_server.py   # MCP (FastMCP) 入口
 │       ├── cli.py          # CLI 入口
+│       ├── application/   # 工具声明、绑定、执行与发现
+│       ├── transports/    # REST/MCP 协议注册
 │       ├── analysis/
 │       ├── core/
 │       ├── data/
@@ -53,18 +55,21 @@ FateBridge/
 
 各目录的职责大致如下：
 
-- `src/fatebridge/services/tool_catalog.py`：中央工具目录（`ToolSpec` / `CATALOG`），REST、MCP、CLI 三端共用这一份信源。
-- `src/fatebridge/core/tool_spec.py`：`ToolSpec` 定义，以及 `register_rest` / `register_mcp` 注册器。
-- `src/fatebridge/core/discovery.py`：先筛选再描述目录，三端共用摘要与完整发现记录。
+- `src/fatebridge/services/catalog/`：各领域唯一工具声明及绑定；`tool_catalog.py` 按固定顺序装配 `CATALOG` 并补全合同，REST、MCP、CLI 共用这一份目录。
+- `src/fatebridge/application/tool_spec.py`：`ToolSpec` 定义；`bindings.py`、`execution.py`、`projection.py` 分别负责绑定、执行和投影。
+- `src/fatebridge/transports/rest.py`、`transports/mcp.py`：`register_rest` / `register_mcp` 注册器。
+- 应用编排从 `application` 的定义模块导入，协议注册从 `transports` 导入；旧 core 兼容入口已删除。
+- `src/fatebridge/application/discovery.py`：先筛选再描述目录，三端共用摘要与完整发现记录。
 - `src/fatebridge/api.py`：从目录派生 REST 路由，处理 HTTP 层错误。
 - `src/fatebridge/core/response_models.py`：公开根输出模型；`output_base.py`、`output_western.py`、`output_charts.py`、`output_chinese.py`、`output_bazi.py`、`output_reference.py` 共用部分响应基类，声明专业嵌套事实。
-- `src/fatebridge/mcp_server.py`：从目录派生 MCP 工具，保留 JSON 文本兼容入口。
+- `src/fatebridge/mcp_server.py`：从目录派生 MCP 工具，使用原生 FastMCP 协议工具。
 - `src/fatebridge/mcp_transport.py`：原生 MCP 结构化结果、失败标记及安全输入校验。
 - `src/fatebridge/cli.py`：从目录派生 CLI 子命令，支持 `list` / `describe` 自助发现。
 - `src/fatebridge/core`：核心算法与合同。
 - `src/fatebridge/services`：面向 transport 的编排层。
 - `src/fatebridge/analysis`：复合分析逻辑。
-- `src/fatebridge/utils`：时间、地点、输入归一化等辅助函数。
+- `src/fatebridge/core/requests/`：请求基类与领域模型。
+- `src/fatebridge/utils`：出生输入、太阳时、展示、分析时钟、五行关系、地点与时区等公共能力。
 - `tests`：回归测试、合同测试、API/MCP 对齐测试。
 - `docs`：用户文档与开发者文档。
 
@@ -125,9 +130,9 @@ mypy src/fatebridge/
 
 1. 先改 `src/fatebridge/core/*` 或 `src/fatebridge/analysis/*`。
 2. 在 `src/fatebridge/services/*` 封装成对 transport 友好的返回结构。
-3. 在 `src/fatebridge/core/request_models.py` 定义工具的 Pydantic 请求模型。
+3. 在 `src/fatebridge/core/requests/` 的对应领域模块定义 Pydantic 请求模型，调用方直接导入定义模块。
    大型独立领域也可拆为领域模型（如 `core/fengshui/models.py`）。在 `core/response_models.py` 声明响应根字段，复用 `core/output_*.py` 的专业嵌套类型，或在 ToolSpec 显式绑定领域 `output_model`；根输出继承 `ProjectedOutput` 以声明兼容投影警告，嵌套业务模型继承 `PartialOutput`，字段需支持投影缺省。动态字典键保持开放，值和列表条目应使用领域模型；同名但语义不同的根字段按工具覆写，避免以宽泛 union 掩盖错误。模型只校验、不回写响应。新增字段须检查真实构建器、可空与非默认分支，不能只照一个快照收紧类型。新工具缺少输出声明会在目录加载时失败。
-4. 在 `src/fatebridge/services/tool_catalog.py` 的 `CATALOG` 追加一个 `ToolSpec`。声明的 REST / MCP 入口及 CLI 可支持的命令会自动派生，常规新增不需要再改 `api.py`、`mcp_server.py` 或 `cli.py`。`execution_hints` 默认描述已有本地只读计算；新增外部访问或写入能力时须声明实际环境影响，不能用 `idempotentHint` 表示结果确定性。
+4. 在 `src/fatebridge/services/catalog/` 的对应领域 `SPECS` 追加一个 `ToolSpec`；新领域还须接入 `tool_catalog.py` 的有序装配。声明的 REST / MCP 入口及 CLI 可支持的命令会自动派生，常规新增不需要再改 `api.py`、`mcp_server.py` 或 `cli.py`。`execution_hints` 默认描述已有本地只读计算；新增外部访问或写入能力时须声明实际环境影响，不能用 `idempotentHint` 表示结果确定性。
 5. 在 `tests/` 增加能力测试。三端 parity 由 `tests/test_full_surface_validation.py` 自动覆盖，记得为新工具补一个代表性的 payload fixture。
    修改输出合同时运行 `tests/test_output_projection_contracts.py`：检查全目录可投影对象的必填字段、黄金样例的合法叶路径，以及原生 MCP 客户端与 REST、CLI 的结果。可经点路径裁剪的对象不能要求兄弟字段同时存在；数组条目与始终整块保留的 `run_metadata` 可保留必填事实。
 6. 更新 `docs/api-reference.md`、`docs/algorithm-coverage.md`、`docs/scenario-routing.md` 与相关技能说明；若改了技能工具/输入，同步 `agents/interface.yaml`。工具计数、路由覆盖和技能契约均有现成测试。
@@ -136,7 +141,7 @@ mypy src/fatebridge/
 
 ### 只改 transport 行为，不改算法
 
-如果只是调整某一端的绑定（例如自定义 REST 绑定、CLI 不支持嵌套模型时的降级提示），改动应集中在 `src/fatebridge/core/tool_spec.py` 的注册器，或 `tool_catalog.py` 的命名绑定处，并补充：
+如果只是调整某一端的绑定（例如自定义 REST 绑定、CLI 不支持嵌套模型时的降级提示），改动应集中在 `src/fatebridge/transports/rest.py` / `transports/mcp.py` 的注册器，或 `services/catalog/` 的相应绑定处，并补充：
 
 - request model 验证用例；
 - `tests/test_full_surface_validation.py` 覆盖的三端 parity。
@@ -169,9 +174,21 @@ mypy src/fatebridge/
 
 新增能力时，不要把领域逻辑直接写进 `src/fatebridge/api.py`、`src/fatebridge/mcp_server.py` 或 `src/fatebridge/cli.py`。这三处只是从 `tool_catalog.py` 派生的 adapter，业务实现应留在 `services` / `core`，工具声明应留在 `CATALOG`。
 
+### 维护依赖方向
+
+核心算法、分析规则和共享工具不得导入应用层、领域服务或协议适配器。工具目录承担装配职责；协议签名与 FastAPI/FastMCP 注册放在 `transports`，执行时钟、receipt 和字段投影放在 `application`。共享出生计算从 `services.birth_context` 导入；共用占星基础表从 `core.astrology_tables` 导入。
+
+请求模型从 `core.requests` 的领域定义模块导入；输入与显示分别使用 `utils.birth_input`、`solar_time`、`formatting`、`analysis_clock`、`elements`。领域工具声明不反向导入中央 `tool_catalog`，服务使用 `lazy_service` 代理保持延迟加载。保留全目录顺序、唯一性和公共合同；不得新增历史入口的兼容包装。
+
+星盘内部代码从 `core.astro.birth`、`chart`、`relationship` 等定义模块导入，旧 `core.astrology` 已删除。故障注入应针对 `core.astro.runtime` 的 `swe`、`ephemeris_call` 或日志状态，以验证真实后端调用。原有 Swiss Ephemeris 锁与目录恢复仍由 `core.ephemeris_runtime` 管理。
+
+出生公共响应使用 `services.birth_payload.build_destiny_payload`，当前时运状态使用 `services.timing_state.build_current_timing_state`。共享构造器不回调 `calculation`、`bazi`、`compatibility` 或 `timing` 用例服务；快照渲染留在 `timing_snapshots`，节气/农历查询留在 `calendar_tools`。这使计算状态和文本调整能分别维护，同时保持已有公开响应。
+
+结构整理后运行 `pytest -q tests/test_architecture_boundaries.py tests/test_public_compatibility.py`，并核对全工具输出与发现合同。完整测试和类型检查仍必须通过；不得为纯结构调整重新冻结数值基线。
+
 ## 测试策略
 
-测试从已安装的 `src` 包导入，仓库根 `conftest.py` 负责 `tests.*` 命名空间；测试文件不再单独修改 `sys.path`。请求模型从 `core.request_models` 导入，工具实现从定义模块导入。`tests/fixtures/transports.py` 提供已挂载 REST endpoint 查询及原生 FastMCP Client 调用，协议测试检查 text JSON 与 structuredContent 一致。只有 `test_public_compatibility.py` 专门测试旧 `.fn`、REST 别名和模型重导出。
+测试从已安装的 `src` 包导入，仓库根 `conftest.py` 负责 `tests.*` 命名空间；测试文件不再单独修改 `sys.path`。请求模型从 `core.requests` 领域模块导入，工具实现从定义模块导入。`tests/fixtures/transports.py` 提供已挂载 REST endpoint 查询及原生 FastMCP Client 调用，协议测试检查 text JSON 与 structuredContent 一致。`test_retired_entries.py` 检查旧模块、路由和包装保持移除，并验证原生协议成功/错误响应；`test_request_catalog_isolation.py` 在新进程验证独立嵌套模型 Schema、延迟编译与目录不加载计算引擎。
 
 修改合同缓存时运行 `tests/test_schema_cache.py`，检查副本隔离、并发冷启动、同名类／输出覆写、模型重建、失败不缓存及逐次业务执行。不要缓存业务输入或结果。核心数值变更之外的清理，应先保存同环境的业务输出和发现合同，再与修改后结果比较；黄金快照仍需在规定的 Linux 环境完整核对，不应为清理重新冻结。
 

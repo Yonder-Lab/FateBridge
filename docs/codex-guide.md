@@ -1,0 +1,139 @@
+# Codex 使用 FateBridge
+
+Codex 负责理解问题、选择工具和解释结果，FateBridge 负责计算。已经接入的聊天可以直接说“用 FateBridge 看看最近换工作的事”，说明已知的出生资料和分析日期即可；Codex 应自动选工具，缺信息时先询问。无需记工具名、手动排盘或在每次咨询前运行诊断。
+
+首次接入先验证本地安装和 MCP，再用一个场景完成小规模调用。CLI 可以直接使用，无需启动 REST。
+
+## 1. 确认安装与接入范围
+
+在已经按[快速入门](getting-started.md#安装)安装的仓库中执行：
+
+```bash
+.venv/bin/fatebridge doctor --mcp --scenario onda-shiye
+```
+
+`ok=true` 表示依赖版本检查、独立 stdio 进程初始化、工具发现、资源读取和一条虚构计算通过。进程在仓库之外的临时目录启动，能检查 GUI host 常见的工作目录问题。它不证明所有工具、真实对话或远程部署都已验证。
+
+`codex.add_command` 给出使用当前解释器绝对路径的注册命令；`codex.cli` 记录 CLI 来源。桌面环境存在 `CODEX_CLI_PATH` 时优先使用桌面版自带 CLI，避免 PATH 中旧版 CLI 与账号可用模型不一致。诊断只输出配置，不修改 Codex 设置。`--scenario` 限制实际公开的工具；`--family` 可以进一步筛选，二者取交集。没有筛选时检查全部 MCP 工具。无效分类和空交集返回失败，先修正筛选。
+
+普通安装检查可用 `fatebridge doctor`；它不启动 MCP，也不验证星历精度。全量工具 Schema 较大，建议从当前问题对应的场景开始，需要更多能力时扩大范围。
+
+## 2. 注册到 Codex
+
+复制 doctor 输出中的 `codex.add_command` 执行。下面是事业场景的语法示例；桌面环境请将示例中的 `codex` 换成 doctor 返回的 CLI 绝对路径：
+
+```bash
+codex mcp add fatebridge \
+  --env FATEBRIDGE_MCP_FAMILIES= \
+  --env FATEBRIDGE_MCP_SCENARIOS=onda-shiye \
+  -- "$PWD/.venv/bin/python" -m fatebridge.mcp_server
+codex mcp get fatebridge
+```
+
+也可以在 Codex 的 `config.toml` 加入下列配置，替换成 doctor 确认的绝对路径：
+
+```toml
+[mcp_servers.fatebridge]
+command = "/absolute/path/to/FateBridge/.venv/bin/python"
+args = ["-m", "fatebridge.mcp_server"]
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+
+[mcp_servers.fatebridge.env]
+FATEBRIDGE_MCP_FAMILIES = ""
+FATEBRIDGE_MCP_SCENARIOS = "onda-shiye"
+```
+
+Codex 使用 `[mcp_servers.fatebridge]`；其他 host 的 `mcpServers` JSON 不能直接粘进 TOML。stdio 服务由 Codex 启动，无需另外开一个终端运行，也不使用 `http://localhost:8010`。
+
+注册或调整范围后，在新聊天中检查 FateBridge 工具是否可见；CLI TUI 可用 `/mcp` 查看连接。`codex mcp get` 只证明配置存在，doctor 只证明 MCP 进程可用，都不等于当前聊天已加载。配置约定依据 [OpenAI 官方 MCP 文档](https://developers.openai.com/codex/mcp)。
+
+想公开全部工具时，清空两个筛选变量并重新启动连接；想查住宅风水时可以只设 `FATEBRIDGE_MCP_FAMILIES=fengshui` 并清空场景变量。更新已有配置中的同一条目即可。范围受限的连接不能调用隐藏工具，读取场景详情时检查 `availability`。
+
+## 3. 完成第一次对话
+
+可在接入后的 Codex 聊天中使用以下提示：
+
+> 请用 FateBridge 帮我看看事业。我最近想换工作，也在考虑自己做点生意。以下是虚构体验资料：男，公历 1990 年 5 月 15 日 10:30，北京，Asia/Shanghai，经度 116.4074、纬度 39.9042。以 2026 年 10 月 12 日为分析日期。请用普通人能懂的话讲。
+
+Codex 应按以下流程调用：
+
+1. 先核对当前用户已确认的资料；缺小时或只有时段时先简短追问，不能补零点、借用示例或沿用确定时刻的盘。双人关系未说明类型时用 `general`，不能从性别推断婚姻。
+2. 已发布工具的参数 Schema 和描述够用时直接计算。描述包含经过验证的首轮 `fields` 建议，先选一项主证，必要时才补旁证。普通咨询无需先列资源、读完整输出契约或搜索仓库。
+3. 仅在选择不明确时读场景/目录；参数不清楚时读 `fatebridge://tools/{tool}/input`，需要更细字段时读完整工具契约。资源用于补足缺口，不是每轮必经步骤。
+4. 冻结明确的分析日期，例如 `as_of="2026-10-12T04:00:00Z"` 对应上海中午 12 点；设置 `strict_fields=true`、`include_snapshot_text=false`，按问题取必要字段。明确的分析日期仍优先。
+5. 先检查 `isError`，再读取 `structuredContent`。保存原输入与 `run_metadata`；后续调用沿用前次 `trace_id`，用前次 `run_id` 作为 `parent_run_id`。不要把同一出生资料的多次计算当成独立证据。
+6. 先回答问题，再说明字段依据，区分可复算计算、传统规则和现实建议；用户要求深入时再扩展。日期、时区、地点、太阳时及精度以实际返回为准。
+
+双人关系中，`summary.overall_score` 是 0–100 的规则加权分，`traditional_compatibility.score` 是加减净分，`detailed_analysis.traditional_analysis.score` 是独立摩擦维度；三处的 `score_basis` 说明口径。不能平均、视为成功概率或用一个子项等级替代整体评价。首轮建议字段保留完整依据、人物和建议，避免为了补解释再计算一遍。
+
+## 4. 当前聊天尚未加载 MCP 时直接用 CLI
+
+```bash
+# 先按问题发现工具，再取输入契约；默认 describe full 还包含输出 Schema。
+.venv/bin/fatebridge discover --query 跳槽 --surface cli
+.venv/bin/fatebridge scenarios --scenario onda-shiye --detail full
+.venv/bin/fatebridge describe bazi_career --detail input
+
+# 同一份虚构资料可以用于多次调用。
+.venv/bin/fatebridge bazi_career \
+  --subject-file examples/demo-subject.json \
+  --as-of 2026-10-12T04:00:00Z \
+  --fields career_analysis.dominant_ten_gods.primary_career_type \
+           career_analysis.career_timing career_analysis.timing_context \
+  --strict-fields --compact
+
+# 综合命盘也支持裁剪；子结果与根结果的运行凭据保留。
+.venv/bin/fatebridge profile --systems bazi,astro \
+  --subject-file examples/demo-subject.json \
+  --as-of 2026-10-12T04:00:00Z \
+  --fields profile.bazi.bazi_birth.day_master profile.astro.chart_profile \
+  --strict-fields --compact
+```
+
+`describe` 区分两种输出：`cli_usage` 是需替换占位符的语法模板；有 `cli_example` 时，该命令使用已验证的虚构输入，可直接执行。目录 key（如 `astro_hellen`）与公开名称（`astro_hellen_chart`）均可用于 CLI、describe 和发现查询；MCP 的 `tools/call` 仍使用实际发布的 `mcp_name`。`surfaces.cli_name` 明确标出正式命令。
+
+`profile` 按实际工具去重，`bazi,八字` 只计算一次并保留第一个标签；空体系列表会报错。单个体系失败时退出码为 1，即使只投影成功体系也会保留失败项，不能把部分失败解释为全部成功。`--no-include-snapshot-text` 移除各子结果顶层快照；导出文本仍可能保留，需要更小输出时用 `--fields`。
+
+真实资料请保存到用户选择的文件位置，不要覆盖演示文件或提交到仓库。需要删除元数据时，`--no-metadata` 可放在工具命令前或后。
+
+## 5. 出错后的恢复
+
+| 现象 | 下一步 |
+| --- | --- |
+| `isError=true` / 退出码非零 | 读 `error_code` 和 `issues`，不要先解读业务数据 |
+| 缺少 `birth_hour` | 向用户确认小时；当前没有无时盘入口 |
+| 日期无效、未知字段、投影拼错 | 按字段路径修正后重发；不要重复发送原请求 |
+| `dependency_missing` | 用 doctor 检查同一解释器，再核对具体后端/星历；不伪造成功结果 |
+| 工具或资源不可见 | 检查 family/scenario 交集与当前连接的 `tools/list` |
+| 有结果但近似 / `partial` | 按精度与 coverage 字段说明已算范围和缺失信息 |
+
+CLI 错误 JSON 写 stdout，日志写 stderr；0 成功、1 模型/计算失败、2 用法错误。MCP 工具错误使用原生 `isError`，资源错误使用资源协议错误。完整错误、投影与复现合同见 [Agent 接入指南](agent-guide.md)。
+
+## 可复现体验
+
+开发环境安装 `.[dev]` 后，可重跑独立 stdio、CLI 和本地 REST 流程：
+
+```bash
+.venv/bin/python scripts/experience_codex.py --output /tmp/fatebridge-experience
+```
+
+脚本用虚构资料检查多种计算、输出 Schema、裁剪前后业务摘要、错误恢复和场景范围，输出报告及原始结果。它不启动另一位模型，也不修改 Codex 配置；实际 Codex 聊天的选工具与解读质量需在连接加载后另行观察。
+
+
+真实模型对话可使用桌面版 Codex 的原生 app-server 重跑：
+
+```bash
+# 先完成注册；直接使用已保存配置，不覆盖范围或用户模型。
+.venv/bin/python scripts/experience_codex_host.py \
+  --registered --output /tmp/fatebridge-codex-dialogue
+```
+
+它创建临时多轮对话，保留现有插件、MCP 和模型设置，提交自然语言问题；不指定工具名称或预置答案。输出实际工具参数、公开回答、时长和宿主清单，省略推理流及宿主后台命令的本地文件输出。默认不用 `--registered` 时只为该进程设置 FateBridge 场景范围；`--all-tools` 可验收全量工具。需要已有 Codex 登录，会消耗正常模型额度。
+
+[2026-10-13 原生宿主与真实对话验收](codex-mcp-dialogue-2026-10-13.md)已验证保存后的全量连接及多轮对话；当前聊天加载状态仍需与新连接区分。
+
+
+[2026-10-13 根因定位与优化](codex-mcp-root-cause-2026-10-13.md)进一步记录了引用式 Schema、直接调用、共享宿主及阶段计时。体验脚本现在整组案例复用一个宿主，独立临时对话保留；全插件清单在所有对话结束后收集，连接重试/无进展/总时长分别有边界。重试设置只作用于该验收进程，不修改桌面全局配置。
+
+如果要对比任务角色，使用 `--consultation-role`：它为临时对话添加“独立咨询”的 `developerInstructions`，不指定工具或预置答案，仍使用原模型和推理强度。代码任务的历史/仓库探索与咨询资料应分别处理；MCP 服务不能覆盖 Codex 更高优先级的全局指令。这个选项不是桌面默认聊天已自动切换角色的证明。

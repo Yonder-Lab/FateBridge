@@ -1,0 +1,21 @@
+{
+  "counts": {
+    "tests": 1971,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "golden_byte_cases_passed": 88,
+  "selected_modules_passed_without_skips": {
+    "tests.test_golden_master": 89,
+    "tests.golden.test_runner": 3,
+    "tests.test_agentic_contracts": 18,
+    "tests.test_agentic_nested_outputs": 139,
+    "tests.test_agentic_domain_outputs": 216,
+    "tests.test_output_projection_contracts": 200,
+    "tests.test_public_compatibility": 5,
+    "tests.test_schema_cache": 6
+  },
+  "junit_sha256": "2086126e5241d8b1a8ad922b191a068f4b6d72528cc73725256818b3df4e87ad",
+  "dependency_list_sha256": "c628c4f4cd63ef6d6863e58037adea3a558004b7c9ff55e037345c6dbc6e03e0"
+}

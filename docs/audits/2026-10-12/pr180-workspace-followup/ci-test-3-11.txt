@@ -1,0 +1,523 @@
+﻿2026-10-12T13:39:11.2985284Z Current runner version: '2.337.0'
+2026-10-12T13:39:11.3007789Z ##[group]Runner Image Provisioner
+2026-10-12T13:39:11.3008533Z Hosted Compute Agent
+2026-10-12T13:39:11.3009065Z Version: 20261002.596
+2026-10-12T13:39:11.3009596Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-12T13:39:11.3010489Z Build Date: 2026-10-02T22:28:27Z
+2026-10-12T13:39:11.3011099Z Worker ID: {b8790d1d-4dea-4bfc-b9a4-4a628ffee62c}
+2026-10-12T13:39:11.3011716Z Region: westus3
+2026-10-12T13:39:11.3012153Z Cloud: Azure
+2026-10-12T13:39:11.3012685Z ##[endgroup]
+2026-10-12T13:39:11.3013855Z ##[group]Operating System
+2026-10-12T13:39:11.3014419Z Ubuntu
+2026-10-12T13:39:11.3014881Z 24.04.5
+2026-10-12T13:39:11.3015291Z LTS
+2026-10-12T13:39:11.3015770Z ##[endgroup]
+2026-10-12T13:39:11.3016222Z ##[group]Runner Image
+2026-10-12T13:39:11.3016733Z Image: ubuntu-24.04
+2026-10-12T13:39:11.3017237Z Version: 20261004.327.1
+2026-10-12T13:39:11.3018375Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-12T13:39:11.3019581Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-12T13:39:11.3020615Z ##[endgroup]
+2026-10-12T13:39:11.3021633Z ##[group]GITHUB_TOKEN Permissions
+2026-10-12T13:39:11.3023239Z Contents: read
+2026-10-12T13:39:11.3023772Z Metadata: read
+2026-10-12T13:39:11.3024236Z Packages: read
+2026-10-12T13:39:11.3024773Z ##[endgroup]
+2026-10-12T13:39:11.3026477Z Secret source: Actions
+2026-10-12T13:39:11.3027282Z Cache mode: write
+2026-10-12T13:39:11.3027884Z Prepare workflow directory
+2026-10-12T13:39:11.3339441Z Prepare all required actions
+2026-10-12T13:39:11.3379428Z Getting action download info
+2026-10-12T13:39:11.6311080Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-12T13:39:11.7593013Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-12T13:39:12.0964722Z Download action repository 'astral-sh/setup-uv@v8.2.0' (SHA:fac544c07dec837d0ccb6301d7b5580bf5edae39)
+2026-10-12T13:39:13.1436360Z Complete job name: test (3.11)
+2026-10-12T13:39:13.2078034Z ##[group]Run actions/checkout@v4
+2026-10-12T13:39:13.2078766Z with:
+2026-10-12T13:39:13.2079162Z   repository: Yonder-Lab/FateBridge
+2026-10-12T13:39:13.2082837Z   token: ***
+2026-10-12T13:39:13.2083229Z   ssh-strict: true
+2026-10-12T13:39:13.2083629Z   ssh-user: git
+2026-10-12T13:39:13.2084021Z   persist-credentials: true
+2026-10-12T13:39:13.2084447Z   clean: true
+2026-10-12T13:39:13.2084850Z   sparse-checkout-cone-mode: true
+2026-10-12T13:39:13.2085291Z   fetch-depth: 1
+2026-10-12T13:39:13.2085675Z   fetch-tags: false
+2026-10-12T13:39:13.2086065Z   show-progress: true
+2026-10-12T13:39:13.2086457Z   lfs: false
+2026-10-12T13:39:13.2086840Z   submodules: false
+2026-10-12T13:39:13.2087253Z   set-safe-directory: true
+2026-10-12T13:39:13.2087694Z   allow-unsafe-pr-checkout: false
+2026-10-12T13:39:13.2088316Z ##[endgroup]
+2026-10-12T13:39:13.2932443Z Syncing repository: Yonder-Lab/FateBridge
+2026-10-12T13:39:13.2935120Z ##[group]Getting Git version info
+2026-10-12T13:39:13.2936303Z Working directory is '/home/runner/work/FateBridge/FateBridge'
+2026-10-12T13:39:13.2937979Z [command]/usr/bin/git version
+2026-10-12T13:39:13.3028620Z git version 2.55.0
+2026-10-12T13:39:13.3049274Z ##[endgroup]
+2026-10-12T13:39:13.3063760Z Temporarily overriding HOME='/home/runner/work/_temp/c4f3fe0f-88e7-4e57-a576-4a1105d85ff3' before making global git config changes
+2026-10-12T13:39:13.3065783Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-12T13:39:13.3069158Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/FateBridge/FateBridge
+2026-10-12T13:39:13.3117132Z Deleting the contents of '/home/runner/work/FateBridge/FateBridge'
+2026-10-12T13:39:13.3123531Z ##[group]Initializing the repository
+2026-10-12T13:39:13.3127154Z [command]/usr/bin/git init /home/runner/work/FateBridge/FateBridge
+2026-10-12T13:39:13.3655578Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-12T13:39:13.3657275Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-12T13:39:13.3658211Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-12T13:39:13.3659087Z hint: call:
+2026-10-12T13:39:13.3659963Z hint:
+2026-10-12T13:39:13.3660847Z hint: 	git config --global init.defaultBranch <name>
+2026-10-12T13:39:13.3661644Z hint:
+2026-10-12T13:39:13.3662180Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-12T13:39:13.3663129Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-12T13:39:13.3664057Z hint:
+2026-10-12T13:39:13.3664442Z hint: 	git branch -m <name>
+2026-10-12T13:39:13.3664862Z hint:
+2026-10-12T13:39:13.3665428Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-12T13:39:13.3666320Z Initialized empty Git repository in /home/runner/work/FateBridge/FateBridge/.git/
+2026-10-12T13:39:13.3671005Z [command]/usr/bin/git remote add origin https://github.com/Yonder-Lab/FateBridge
+2026-10-12T13:39:13.3725624Z ##[endgroup]
+2026-10-12T13:39:13.3726311Z ##[group]Disabling automatic garbage collection
+2026-10-12T13:39:13.3730179Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-12T13:39:13.3764147Z ##[endgroup]
+2026-10-12T13:39:13.3765540Z ##[group]Setting up auth
+2026-10-12T13:39:13.3770202Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-12T13:39:13.3803609Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-12T13:39:13.4110928Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-12T13:39:13.4141932Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-12T13:39:13.4331508Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-12T13:39:13.4362114Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-12T13:39:13.4560327Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-12T13:39:13.4596889Z ##[endgroup]
+2026-10-12T13:39:13.4598013Z ##[group]Fetching the repository
+2026-10-12T13:39:13.4606235Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +bfdf8df67498c438aba8ddff212e5160312325d0:refs/remotes/pull/180/merge
+2026-10-12T13:39:15.0004310Z From https://github.com/Yonder-Lab/FateBridge
+2026-10-12T13:39:15.0006010Z  * [new ref]         bfdf8df67498c438aba8ddff212e5160312325d0 -> pull/180/merge
+2026-10-12T13:39:15.0010432Z ##[endgroup]
+2026-10-12T13:39:15.0011468Z ##[group]Determining the checkout info
+2026-10-12T13:39:15.0012531Z ##[endgroup]
+2026-10-12T13:39:15.0015130Z [command]/usr/bin/git sparse-checkout disable
+2026-10-12T13:39:15.0063993Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-12T13:39:15.0100189Z ##[group]Checking out the ref
+2026-10-12T13:39:15.0102772Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/180/merge
+2026-10-12T13:39:15.0880535Z Note: switching to 'refs/remotes/pull/180/merge'.
+2026-10-12T13:39:15.0881558Z 
+2026-10-12T13:39:15.0882350Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-12T13:39:15.0884161Z changes and commit them, and you can discard any commits you make in this
+2026-10-12T13:39:15.0886019Z state without impacting any branches by switching back to a branch.
+2026-10-12T13:39:15.0887129Z 
+2026-10-12T13:39:15.0887888Z If you want to create a new branch to retain commits you create, you may
+2026-10-12T13:39:15.0890123Z do so (now or later) by using -c with the switch command. Example:
+2026-10-12T13:39:15.0891116Z 
+2026-10-12T13:39:15.0891546Z   git switch -c <new-branch-name>
+2026-10-12T13:39:15.0892107Z 
+2026-10-12T13:39:15.0892481Z Or undo this operation with:
+2026-10-12T13:39:15.0893097Z 
+2026-10-12T13:39:15.0893433Z   git switch -
+2026-10-12T13:39:15.0894001Z 
+2026-10-12T13:39:15.0894899Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-12T13:39:15.0896033Z 
+2026-10-12T13:39:15.0897130Z HEAD is now at bfdf8df Merge 951c20d26dca194d34dc5dbe987992426e19e24b into 49ce0228358b09d46458153f8b2ef14472bb0a4a
+2026-10-12T13:39:15.0901363Z ##[endgroup]
+2026-10-12T13:39:15.0937170Z [command]/usr/bin/git log -1 --format=%H
+2026-10-12T13:39:15.0960624Z bfdf8df67498c438aba8ddff212e5160312325d0
+2026-10-12T13:39:15.1282480Z ##[group]Run actions/setup-python@v5
+2026-10-12T13:39:15.1283424Z with:
+2026-10-12T13:39:15.1284139Z   python-version: 3.11
+2026-10-12T13:39:15.1284951Z   check-latest: false
+2026-10-12T13:39:15.1292938Z   token: ***
+2026-10-12T13:39:15.1293692Z   update-environment: true
+2026-10-12T13:39:15.1294552Z   allow-prereleases: false
+2026-10-12T13:39:15.1295422Z   freethreaded: false
+2026-10-12T13:39:15.1296210Z ##[endgroup]
+2026-10-12T13:39:15.2383159Z ##[group]Installed versions
+2026-10-12T13:39:15.4265769Z (node:2143) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-12T13:39:15.4266910Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-12T13:39:15.4267471Z Successfully set up CPython (3.11.17)
+2026-10-12T13:39:15.4268311Z ##[endgroup]
+2026-10-12T13:39:15.4531394Z ##[group]Run astral-sh/setup-uv@v8.2.0
+2026-10-12T13:39:15.4531740Z with:
+2026-10-12T13:39:15.4531963Z   enable-cache: true
+2026-10-12T13:39:15.4532216Z   activate-environment: false
+2026-10-12T13:39:15.4532483Z   no-project: false
+2026-10-12T13:39:15.4532784Z   working-directory: /home/runner/work/FateBridge/FateBridge
+2026-10-12T13:39:15.4535223Z   github-token: ***
+2026-10-12T13:39:15.4535757Z   cache-dependency-glob: **/*requirements*.txt
+**/*requirements*.in
+**/*constraints*.txt
+**/*constraints*.in
+**/pyproject.toml
+**/uv.lock
+**/*.py.lock
+
+2026-10-12T13:39:15.4536317Z   restore-cache: true
+2026-10-12T13:39:15.4536556Z   save-cache: true
+2026-10-12T13:39:15.4536779Z   prune-cache: true
+2026-10-12T13:39:15.4537000Z   cache-python: false
+2026-10-12T13:39:15.4537248Z   ignore-nothing-to-cache: false
+2026-10-12T13:39:15.4537519Z   ignore-empty-workdir: false
+2026-10-12T13:39:15.4537804Z   download-from-astral-mirror: true
+2026-10-12T13:39:15.4538081Z   add-problem-matchers: true
+2026-10-12T13:39:15.4538375Z   quiet: false
+2026-10-12T13:39:15.4538599Z   resolution-strategy: highest
+2026-10-12T13:39:15.4538844Z env:
+2026-10-12T13:39:15.4539103Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:15.4539524Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-12T13:39:15.4540040Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:15.4540405Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:15.4540762Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:15.4541120Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-12T13:39:15.4541428Z ##[endgroup]
+2026-10-12T13:39:15.6395314Z Trying to find version for uv in: /home/runner/work/FateBridge/FateBridge/uv.toml
+2026-10-12T13:39:15.6396705Z Could not find file: /home/runner/work/FateBridge/FateBridge/uv.toml
+2026-10-12T13:39:15.6397803Z Trying to find version for uv in: /home/runner/work/FateBridge/FateBridge/pyproject.toml
+2026-10-12T13:39:15.6400253Z Could not determine uv version from uv.toml or pyproject.toml. Falling back to latest.
+2026-10-12T13:39:15.6403040Z Fetching manifest data from https://raw.githubusercontent.com/astral-sh/versions/main/v1/uv.ndjson ...
+2026-10-12T13:39:15.7237567Z Downloading uv from "https://releases.astral.sh/github/uv/releases/download/0.13.0/uv-x86_64-unknown-linux-gnu.tar.gz" ...
+2026-10-12T13:39:16.3545807Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/827b4402-e468-44bd-a9d1-284245da81a6 -f /home/runner/work/_temp/1b748c04-a7bd-43dc-9654-b17443eb44ea
+2026-10-12T13:39:16.7370866Z Added /home/runner/.local/bin to the path
+2026-10-12T13:39:16.7373230Z Added /opt/hostedtoolcache/uv/0.13.0/x86_64 to the path
+2026-10-12T13:39:16.7374541Z Set UV_PYTHON_INSTALL_DIR to /home/runner/work/_temp/uv-python-dir
+2026-10-12T13:39:16.7375090Z Added /home/runner/work/_temp/uv-python-dir to the path
+2026-10-12T13:39:16.7384294Z Set UV_CACHE_DIR to /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:39:16.7384771Z Successfully installed uv version 0.13.0
+2026-10-12T13:39:19.0503891Z Searching files using cache dependency glob: /home/runner/work/FateBridge/FateBridge/**/*requirements*.txt,/home/runner/work/FateBridge/FateBridge/**/*requirements*.in,/home/runner/work/FateBridge/FateBridge/**/*constraints*.txt,/home/runner/work/FateBridge/FateBridge/**/*constraints*.in,/home/runner/work/FateBridge/FateBridge/**/pyproject.toml,/home/runner/work/FateBridge/FateBridge/**/uv.lock,/home/runner/work/FateBridge/FateBridge/**/*.py.lock
+2026-10-12T13:39:19.0894197Z /home/runner/work/FateBridge/FateBridge/pyproject.toml
+2026-10-12T13:39:19.1285011Z Found 1 files to hash.
+2026-10-12T13:39:19.1346607Z Trying to restore cache from GitHub Actions cache with key: setup-uv-2-x86_64-unknown-linux-gnu-ubuntu-24.04-3.11.17-pruned-4951057ac0534baea61d04636dd19924b7d1e745fe8a1908349ec21365571e8f
+2026-10-12T13:39:19.3245833Z No GitHub Actions cache found for key: setup-uv-2-x86_64-unknown-linux-gnu-ubuntu-24.04-3.11.17-pruned-4951057ac0534baea61d04636dd19924b7d1e745fe8a1908349ec21365571e8f
+2026-10-12T13:39:19.4380863Z ##[group]Run uv pip install --system -e ".[dev]"
+2026-10-12T13:39:19.4381217Z [36;1muv pip install --system -e ".[dev]"[0m
+2026-10-12T13:39:19.4734970Z shell: /usr/bin/bash -e {0}
+2026-10-12T13:39:19.4735252Z env:
+2026-10-12T13:39:19.4735490Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:19.4735848Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-12T13:39:19.4736181Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:19.4736478Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:19.4736782Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:19.4737080Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-12T13:39:19.4737394Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-10-12T13:39:19.4737683Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:39:19.4737926Z ##[endgroup]
+2026-10-12T13:39:19.5223778Z Using Python 3.11.17 environment at: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:22.9210858Z Resolved 101 packages in 3.35s
+2026-10-12T13:39:22.9268634Z    Building fatebridge @ file:///home/runner/work/FateBridge/FateBridge
+2026-10-12T13:39:22.9764669Z Downloading pyswisseph (1.7MiB)
+2026-10-12T13:39:23.0123236Z Downloading isort (1.5MiB)
+2026-10-12T13:39:23.0127359Z Downloading ast-serialize (1.3MiB)
+2026-10-12T13:39:23.0131147Z Downloading cryptography (4.5MiB)
+2026-10-12T13:39:23.0140324Z Downloading pygments (1.2MiB)
+2026-10-12T13:39:23.0140813Z Downloading mypy (14.7MiB)
+2026-10-12T13:39:23.0465922Z Downloading pydantic-core (2.1MiB)
+2026-10-12T13:39:23.0471033Z Downloading beartype (1.5MiB)
+2026-10-12T13:39:23.0480880Z Downloading black (1.9MiB)
+2026-10-12T13:39:23.1222390Z    Building scour==0.38.2
+2026-10-12T13:39:23.4652954Z  Downloaded pygments
+2026-10-12T13:39:23.4751576Z  Downloaded ast-serialize
+2026-10-12T13:39:23.5123600Z       Built fatebridge @ file:///home/runner/work/FateBridge/FateBridge
+2026-10-12T13:39:23.5141821Z       Built scour==0.38.2
+2026-10-12T13:39:23.5143731Z  Downloaded isort
+2026-10-12T13:39:23.5144284Z  Downloaded pyswisseph
+2026-10-12T13:39:23.5229145Z  Downloaded pydantic-core
+2026-10-12T13:39:23.5250858Z  Downloaded black
+2026-10-12T13:39:23.5257457Z  Downloaded beartype
+2026-10-12T13:39:23.5425747Z  Downloaded cryptography
+2026-10-12T13:39:23.6353834Z  Downloaded mypy
+2026-10-12T13:39:23.6355141Z Prepared 100 packages in 712ms
+2026-10-12T13:39:23.8484249Z Installed 101 packages in 212ms
+2026-10-12T13:39:23.8486844Z  + aiofile==3.12.3
+2026-10-12T13:39:23.8487148Z  + annotated-doc==0.0.5
+2026-10-12T13:39:23.8487471Z  + annotated-types==0.8.0
+2026-10-12T13:39:23.8487888Z  + anyio==4.15.1
+2026-10-12T13:39:23.8488208Z  + ast-serialize==0.12.1
+2026-10-12T13:39:23.8490737Z  + attrs==26.1.0
+2026-10-12T13:39:23.8491012Z  + authlib==1.8.0
+2026-10-12T13:39:23.8491305Z  + backports-tarfile==1.2.0
+2026-10-12T13:39:23.8491610Z  + beartype==0.23.1
+2026-10-12T13:39:23.8491913Z  + black==26.10.1
+2026-10-12T13:39:23.8492169Z  + cachetools==7.2.1
+2026-10-12T13:39:23.8492420Z  + caio==0.12.9
+2026-10-12T13:39:23.8492653Z  + cattrs==26.2.1
+2026-10-12T13:39:23.8492889Z  + certifi==2026.7.22
+2026-10-12T13:39:23.8493159Z  + cffi==2.1.1
+2026-10-12T13:39:23.8493420Z  + charset-normalizer==3.5.2
+2026-10-12T13:39:23.8493716Z  + click==8.5.0
+2026-10-12T13:39:23.8493974Z  + cryptography==50.0.2
+2026-10-12T13:39:23.8494249Z  + cyclopts==5.2.0
+2026-10-12T13:39:23.8494493Z  + dnspython==2.9.0
+2026-10-12T13:39:23.8494754Z  + docstring-parser==0.18.0
+2026-10-12T13:39:23.8495057Z  + email-validator==2.3.0
+2026-10-12T13:39:23.8495343Z  + exceptiongroup==1.3.1
+2026-10-12T13:39:23.8495612Z  + fastapi==0.143.0
+2026-10-12T13:39:23.8495858Z  + fastmcp==4.1.0
+2026-10-12T13:39:23.8496104Z  + fastmcp-slim==4.1.0
+2026-10-12T13:39:23.8496518Z  + fatebridge==0.2.0 (from file:///home/runner/work/FateBridge/FateBridge)
+2026-10-12T13:39:23.8496991Z  + griffelib==2.3.2
+2026-10-12T13:39:23.8497508Z  + h11==0.16.0
+2026-10-12T13:39:23.8497748Z  + httpcore2==2.13.1
+2026-10-12T13:39:23.8498020Z  + httpx2==2.13.1
+2026-10-12T13:39:23.8498258Z  + idna==3.20
+2026-10-12T13:39:23.8498514Z  + importlib-metadata==9.0.1
+2026-10-12T13:39:23.8498831Z  + iniconfig==2.3.1
+2026-10-12T13:39:23.8499086Z  + isort==9.0.2
+2026-10-12T13:39:23.8499345Z  + jaraco-classes==3.4.0
+2026-10-12T13:39:23.8499637Z  + jaraco-context==6.1.2
+2026-10-12T13:39:23.8500091Z  + jaraco-functools==4.6.0
+2026-10-12T13:39:23.8500370Z  + jeepney==0.9.0
+2026-10-12T13:39:23.8500612Z  + joserfc==1.7.5
+2026-10-12T13:39:23.8500850Z  + jsonref==1.1.0
+2026-10-12T13:39:23.8501092Z  + jsonschema==4.26.0
+2026-10-12T13:39:23.8501357Z  + jsonschema-path==0.5.0
+2026-10-12T13:39:23.8501665Z  + jsonschema-specifications==2025.9.1
+2026-10-12T13:39:23.8501996Z  + kerykeion==5.12.10
+2026-10-12T13:39:23.8502264Z  + keyring==25.7.0
+2026-10-12T13:39:23.8502510Z  + librt==0.16.0
+2026-10-12T13:39:23.8502865Z  + lunardate==0.3.0
+2026-10-12T13:39:23.8503181Z  + markdown-it-py==4.2.0
+2026-10-12T13:39:23.8503495Z  + mcp==2.3.0
+2026-10-12T13:39:23.8503775Z  + mcp-types==2.3.0
+2026-10-12T13:39:23.8504040Z  + mdurl==0.1.2
+2026-10-12T13:39:23.8504425Z  + more-itertools==11.1.0
+2026-10-12T13:39:23.8504711Z  + mypy==2.4.0
+2026-10-12T13:39:23.8504994Z  + mypy-extensions==1.1.0
+2026-10-12T13:39:23.8505359Z  + openapi-pydantic==0.6.0
+2026-10-12T13:39:23.8505694Z  + opentelemetry-api==1.45.1
+2026-10-12T13:39:23.8505999Z  + packaging==26.3
+2026-10-12T13:39:23.8506260Z  + pathable==0.6.0
+2026-10-12T13:39:23.8506558Z  + pathspec==1.1.1
+2026-10-12T13:39:23.8506940Z  + platformdirs==4.13.0
+2026-10-12T13:39:23.8507211Z  + pluggy==1.6.0
+2026-10-12T13:39:23.8507497Z  + py-key-value-aio==0.4.6
+2026-10-12T13:39:23.8507793Z  + pycparser==3.11
+2026-10-12T13:39:23.8508235Z  + pydantic==2.14.1
+2026-10-12T13:39:23.8508538Z  + pydantic-core==2.50.1
+2026-10-12T13:39:23.8508827Z  + pydantic-settings==2.15.0
+2026-10-12T13:39:23.8509121Z  + pygments==2.21.0
+2026-10-12T13:39:23.8509369Z  + pyjwt==2.15.1
+2026-10-12T13:39:23.8509685Z  + pyperclip==1.11.0
+2026-10-12T13:39:23.8510210Z  + pyswisseph==2.10.3.2
+2026-10-12T13:39:23.8528499Z  + pytest==9.1.1
+2026-10-12T13:39:23.8528873Z  + pytest-asyncio==1.4.0
+2026-10-12T13:39:23.8529427Z  + python-dateutil==2.9.0.post0
+2026-10-12T13:39:23.8529871Z  + python-dotenv==1.2.4
+2026-10-12T13:39:23.8530165Z  + python-multipart==0.0.32
+2026-10-12T13:39:23.8530451Z  + pytokens==0.4.1
+2026-10-12T13:39:23.8530706Z  + pytz==2026.5
+2026-10-12T13:39:23.8530948Z  + pyyaml==6.0.3
+2026-10-12T13:39:23.8531216Z  + referencing==0.37.0
+2026-10-12T13:39:23.8531486Z  + requests==2.34.2
+2026-10-12T13:39:23.8531762Z  + requests-cache==1.3.3
+2026-10-12T13:39:23.8532031Z  + rich==15.0.0
+2026-10-12T13:39:23.8532274Z  + rich-rst==2.2.0
+2026-10-12T13:39:23.8532520Z  + rpds-py==2026.9.1
+2026-10-12T13:39:23.8532777Z  + scour==0.38.2
+2026-10-12T13:39:23.8533024Z  + secretstorage==3.5.0
+2026-10-12T13:39:23.8533308Z  + simple-ascii-tables==1.0.1
+2026-10-12T13:39:23.8533594Z  + six==1.17.0
+2026-10-12T13:39:23.8533854Z  + sse-starlette==3.5.0
+2026-10-12T13:39:23.8534132Z  + starlette==1.7.0
+2026-10-12T13:39:23.8534387Z  + truststore==0.10.4
+2026-10-12T13:39:23.8534670Z  + typing-extensions==4.16.0
+2026-10-12T13:39:23.8534990Z  + typing-inspection==0.4.4
+2026-10-12T13:39:23.8535279Z  + uncalled-for==0.4.1
+2026-10-12T13:39:23.8535548Z  + url-normalize==3.0.1
+2026-10-12T13:39:23.8535813Z  + urllib3==2.8.0
+2026-10-12T13:39:23.8536059Z  + uvicorn==0.54.0
+2026-10-12T13:39:23.8536313Z  + watchfiles==1.3.0
+2026-10-12T13:39:23.8536569Z  + websockets==17.2
+2026-10-12T13:39:23.8536816Z  + zipp==4.1.1
+2026-10-12T13:39:23.8763141Z ##[group]Run pytest -q
+2026-10-12T13:39:23.8763418Z [36;1mpytest -q[0m
+2026-10-12T13:39:23.8820917Z shell: /usr/bin/bash -e {0}
+2026-10-12T13:39:23.8821137Z env:
+2026-10-12T13:39:23.8821372Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:23.8821714Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-12T13:39:23.8822043Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:23.8822343Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:23.8822641Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:39:23.8822953Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-12T13:39:23.8823264Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-10-12T13:39:23.8823559Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:39:23.8823807Z ##[endgroup]
+2026-10-12T13:42:39.2620391Z .......s................................................................ [  3%]
+2026-10-12T13:42:48.5681527Z ........................................................................ [  7%]
+2026-10-12T13:43:00.5752974Z ........................................................................ [ 10%]
+2026-10-12T13:43:30.4004402Z ........................................................................ [ 14%]
+2026-10-12T13:43:34.0308003Z ........................................................................ [ 18%]
+2026-10-12T13:45:46.9720711Z ........................................................................ [ 21%]
+2026-10-12T13:46:37.4849266Z ........................................................................ [ 25%]
+2026-10-12T13:46:47.7945554Z ........................................................................ [ 29%]
+2026-10-12T13:46:48.3588703Z ........................................................................ [ 32%]
+2026-10-12T13:47:05.8020801Z ........................................................................ [ 36%]
+2026-10-12T13:47:06.0223377Z ........................................................................ [ 40%]
+2026-10-12T13:47:11.9635350Z ........................................................................ [ 43%]
+2026-10-12T13:47:12.0449380Z ........................................................................ [ 47%]
+2026-10-12T13:47:24.4833045Z ........................................................................ [ 51%]
+2026-10-12T13:48:32.1367031Z ........................................................................ [ 54%]
+2026-10-12T13:48:57.1859729Z ...sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 58%]
+2026-10-12T13:48:58.2076169Z sssssssssssssssssss..................................................... [ 62%]
+2026-10-12T13:49:01.8531311Z ........................................................................ [ 65%]
+2026-10-12T13:49:03.7877958Z ........................................................................ [ 69%]
+2026-10-12T13:49:49.6677470Z ........................................................................ [ 73%]
+2026-10-12T13:50:29.9700583Z ........................................................................ [ 76%]
+2026-10-12T13:50:43.6456292Z ........................................................................ [ 80%]
+2026-10-12T13:50:44.4858856Z ........................................................................ [ 84%]
+2026-10-12T13:50:46.1006037Z ........................................................................ [ 87%]
+2026-10-12T13:50:46.9198070Z ........................................................................ [ 91%]
+2026-10-12T13:50:46.9648872Z ........................................................................ [ 94%]
+2026-10-12T13:50:48.4451739Z ........................................................................ [ 98%]
+2026-10-12T13:50:50.2720968Z ...........................                                              [100%]
+2026-10-12T13:50:50.2722030Z =============================== warnings summary ===============================
+2026-10-12T13:50:50.2722798Z ../../../../../opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2346
+2026-10-12T13:50:50.2723769Z tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[None-internal_error-500-True]
+2026-10-12T13:50:50.2724686Z tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[exception1-internal_error-500-True]
+2026-10-12T13:50:50.2725600Z tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[exception2-dependency_missing-503-False]
+2026-10-12T13:50:50.2726559Z tests/test_agentic_contracts.py::test_execution_failures_agree_and_do_not_leak[exception3-timeout-504-True]
+2026-10-12T13:50:50.2729234Z   /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2346: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'request' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+2026-10-12T13:50:50.2731731Z     warnings.warn(
+2026-10-12T13:50:50.2731883Z 
+2026-10-12T13:50:50.2732022Z src/fatebridge/core/almanac.py:200: 10 warnings
+2026-10-12T13:50:50.2732375Z tests/test_agentic_contracts.py: 1 warning
+2026-10-12T13:50:50.2732700Z tests/test_agentic_replay.py: 2 warnings
+2026-10-12T13:50:50.2733027Z tests/test_audit_corrections.py: 4 warnings
+2026-10-12T13:50:50.2733352Z tests/test_audit_fixes.py: 1 warning
+2026-10-12T13:50:50.2733671Z tests/test_birth_time_precision.py: 5 warnings
+2026-10-12T13:50:50.2734033Z tests/test_calendar_audit_repairs.py: 6 warnings
+2026-10-12T13:50:50.2734395Z tests/test_calendar_helper_tools.py: 1 warning
+2026-10-12T13:50:50.2734791Z tests/test_chinese_metaphysics.py: 4 warnings
+2026-10-12T13:50:50.2735140Z tests/test_cli.py: 3 warnings
+2026-10-12T13:50:50.2735449Z tests/test_jieqi_boundary_precision.py: 2 warnings
+2026-10-12T13:50:50.2735807Z tests/test_mcp_audit_repairs.py: 1 warning
+2026-10-12T13:50:50.2736145Z tests/test_structured_snapshot.py: 1 warning
+2026-10-12T13:50:50.2736526Z tests/test_third_party_correctness_fixes.py: 19 warnings
+2026-10-12T13:50:50.2736941Z tests/test_ziwei_horoscope_crosscheck.py: 13 warnings
+2026-10-12T13:50:50.2737332Z tests/test_ziwei_lunar_year_boundary.py: 4 warnings
+2026-10-12T13:50:50.2738156Z   /home/runner/work/FateBridge/FateBridge/src/fatebridge/core/almanac.py:200: DeprecationWarning: fromSolarDate is deprecated, use from_solar_date instead
+2026-10-12T13:50:50.2739292Z     lunar = LunarDate.fromSolarDate(solar_date.year, solar_date.month, solar_date.day)
+2026-10-12T13:50:50.2739688Z 
+2026-10-12T13:50:50.2740062Z src/fatebridge/core/almanac.py:201: 10 warnings
+2026-10-12T13:50:50.2740434Z tests/test_agentic_contracts.py: 1 warning
+2026-10-12T13:50:50.2740763Z tests/test_agentic_replay.py: 2 warnings
+2026-10-12T13:50:50.2741091Z tests/test_audit_corrections.py: 4 warnings
+2026-10-12T13:50:50.2741419Z tests/test_audit_fixes.py: 1 warning
+2026-10-12T13:50:50.2741740Z tests/test_birth_time_precision.py: 5 warnings
+2026-10-12T13:50:50.2742092Z tests/test_calendar_audit_repairs.py: 6 warnings
+2026-10-12T13:50:50.2742444Z tests/test_calendar_helper_tools.py: 1 warning
+2026-10-12T13:50:50.2742790Z tests/test_chinese_metaphysics.py: 4 warnings
+2026-10-12T13:50:50.2743117Z tests/test_cli.py: 3 warnings
+2026-10-12T13:50:50.2743417Z tests/test_jieqi_boundary_precision.py: 2 warnings
+2026-10-12T13:50:50.2743769Z tests/test_mcp_audit_repairs.py: 1 warning
+2026-10-12T13:50:50.2744098Z tests/test_structured_snapshot.py: 1 warning
+2026-10-12T13:50:50.2744496Z tests/test_third_party_correctness_fixes.py: 19 warnings
+2026-10-12T13:50:50.2744903Z tests/test_ziwei_horoscope_crosscheck.py: 13 warnings
+2026-10-12T13:50:50.2745427Z tests/test_ziwei_lunar_year_boundary.py: 4 warnings
+2026-10-12T13:50:50.2746213Z   /home/runner/work/FateBridge/FateBridge/src/fatebridge/core/almanac.py:201: DeprecationWarning: toSolarDate is deprecated, use to_solar_date instead
+2026-10-12T13:50:50.2746973Z     if lunar.toSolarDate() != solar_date:
+2026-10-12T13:50:50.2747184Z 
+2026-10-12T13:50:50.2747531Z ../../../../../opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/lunardate.py:143: 10 warnings
+2026-10-12T13:50:50.2748090Z tests/test_agentic_contracts.py: 1 warning
+2026-10-12T13:50:50.2748407Z tests/test_agentic_replay.py: 2 warnings
+2026-10-12T13:50:50.2748746Z tests/test_audit_corrections.py: 4 warnings
+2026-10-12T13:50:50.2749064Z tests/test_audit_fixes.py: 1 warning
+2026-10-12T13:50:50.2749386Z tests/test_birth_time_precision.py: 5 warnings
+2026-10-12T13:50:50.2749738Z tests/test_calendar_audit_repairs.py: 6 warnings
+2026-10-12T13:50:50.2750254Z tests/test_calendar_helper_tools.py: 1 warning
+2026-10-12T13:50:50.2750602Z tests/test_chinese_metaphysics.py: 4 warnings
+2026-10-12T13:50:50.2750918Z tests/test_cli.py: 3 warnings
+2026-10-12T13:50:50.2751218Z tests/test_jieqi_boundary_precision.py: 2 warnings
+2026-10-12T13:50:50.2751558Z tests/test_mcp_audit_repairs.py: 1 warning
+2026-10-12T13:50:50.2751884Z tests/test_structured_snapshot.py: 1 warning
+2026-10-12T13:50:50.2752253Z tests/test_third_party_correctness_fixes.py: 4 warnings
+2026-10-12T13:50:50.2752655Z tests/test_ziwei_horoscope_crosscheck.py: 13 warnings
+2026-10-12T13:50:50.2753031Z tests/test_ziwei_lunar_year_boundary.py: 4 warnings
+2026-10-12T13:50:50.2753694Z   /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/lunardate.py:143: DeprecationWarning: use is_leap_month
+2026-10-12T13:50:50.2754395Z     warnings.warn("use is_leap_month", DeprecationWarning)
+2026-10-12T13:50:50.2754678Z 
+2026-10-12T13:50:50.2754982Z tests/test_agentic_contracts.py::test_all_tools_publish_matching_output_contracts
+2026-10-12T13:50:50.2756295Z   /home/runner/work/FateBridge/FateBridge/tests/test_agentic_contracts.py:250: FastMCPDeprecationWarning: Accessing `Tool.outputSchema` is deprecated; MCP SDK v2 renamed this field to `output_schema`. Update your code to read `.output_schema` instead.
+2026-10-12T13:50:50.2757487Z     published = tools[spec.tool_name].outputSchema
+2026-10-12T13:50:50.2757715Z 
+2026-10-12T13:50:50.2757961Z tests/test_astrology_tools.py::test_fastmcp_astro_tools_expose_geo_parameters
+2026-10-12T13:50:50.2759207Z   /home/runner/work/FateBridge/FateBridge/tests/fixtures/transports.py:37: FastMCPDeprecationWarning: Accessing `Tool.inputSchema` is deprecated; MCP SDK v2 renamed this field to `input_schema`. Update your code to read `.input_schema` instead.
+2026-10-12T13:50:50.2760698Z     return {tool.name: tool.inputSchema for tool in await client.list_tools()}
+2026-10-12T13:50:50.2761035Z 
+2026-10-12T13:50:50.2761191Z tests/test_third_party_correctness_fixes.py: 15 warnings
+2026-10-12T13:50:50.2761997Z   /home/runner/work/FateBridge/FateBridge/src/fatebridge/core/almanac.py:207: DeprecationWarning: toSolarDate is deprecated, use to_solar_date instead
+2026-10-12T13:50:50.2762787Z     new_year = LunarDate(lunar.year, 1, 1).toSolarDate()
+2026-10-12T13:50:50.2763032Z 
+2026-10-12T13:50:50.2763275Z -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2026-10-12T13:50:50.2763795Z 1882 passed, 89 skipped, 238 warnings in 683.11s (0:11:23)
+2026-10-12T13:50:52.0881441Z ##[group]Run black --check src/fatebridge scripts tests
+2026-10-12T13:50:52.0881789Z [36;1mblack --check src/fatebridge scripts tests[0m
+2026-10-12T13:50:52.0938908Z shell: /usr/bin/bash -e {0}
+2026-10-12T13:50:52.0939132Z env:
+2026-10-12T13:50:52.0939353Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:52.0939699Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-12T13:50:52.0940252Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:52.0940557Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:52.0940853Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:52.0941142Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-12T13:50:52.0941452Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-10-12T13:50:52.0941738Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:50:52.0941975Z ##[endgroup]
+2026-10-12T13:50:57.2972178Z All done! ✨ 🍰 ✨
+2026-10-12T13:50:57.2972526Z 252 files would be left unchanged.
+2026-10-12T13:50:57.3237376Z ##[group]Run isort --check-only src/fatebridge scripts tests
+2026-10-12T13:50:57.3249495Z [36;1misort --check-only src/fatebridge scripts tests[0m
+2026-10-12T13:50:57.3306948Z shell: /usr/bin/bash -e {0}
+2026-10-12T13:50:57.3307154Z env:
+2026-10-12T13:50:57.3307379Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.3307738Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-12T13:50:57.3308071Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.3308365Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.3308657Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.3308951Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-12T13:50:57.3309264Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-10-12T13:50:57.3309560Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:50:57.3310005Z ##[endgroup]
+2026-10-12T13:50:57.7660739Z ##[group]Run mypy src/fatebridge/
+2026-10-12T13:50:57.7661005Z [36;1mmypy src/fatebridge/[0m
+2026-10-12T13:50:57.7717273Z shell: /usr/bin/bash -e {0}
+2026-10-12T13:50:57.7717477Z env:
+2026-10-12T13:50:57.7717701Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.7718036Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-12T13:50:57.7718363Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.7718660Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.7718944Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-12T13:50:57.7719231Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-12T13:50:57.7719540Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-10-12T13:50:57.7720001Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:50:57.7720248Z ##[endgroup]
+2026-10-12T13:51:05.4624330Z Success: no issues found in 130 source files
+2026-10-12T13:51:05.5031608Z Post job cleanup.
+2026-10-12T13:51:05.5956903Z UV_CACHE_DIR is already set to /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:51:05.5960775Z UV_PYTHON_INSTALL_DIR is already set to /home/runner/work/_temp/uv-python-dir
+2026-10-12T13:51:05.5970253Z Pruning cache...
+2026-10-12T13:51:05.5983058Z [command]/opt/hostedtoolcache/uv/0.13.0/x86_64/uv cache prune --ci --force
+2026-10-12T13:51:05.6067090Z Pruning cache at: /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:51:05.8190516Z Removed 7299 files (5.6MiB)
+2026-10-12T13:51:05.8212865Z Including uv cache path: /home/runner/work/_temp/setup-uv-cache
+2026-10-12T13:51:05.8324985Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/FateBridge/FateBridge --files-from manifest.txt --use-compress-program zstdmt
+2026-10-12T13:51:06.8474751Z Sent 5937851 of 5937851 (100.0%), 7.4 MBs/sec
+2026-10-12T13:51:07.0866592Z uv cache saved with key: setup-uv-2-x86_64-unknown-linux-gnu-ubuntu-24.04-3.11.17-pruned-4951057ac0534baea61d04636dd19924b7d1e745fe8a1908349ec21365571e8f
+2026-10-12T13:51:07.1980471Z Post job cleanup.
+2026-10-12T13:51:07.2949037Z (node:4370) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-12T13:51:07.2949642Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-12T13:51:07.3197908Z Post job cleanup.
+2026-10-12T13:51:07.3922756Z [command]/usr/bin/git version
+2026-10-12T13:51:07.3962136Z git version 2.55.0
+2026-10-12T13:51:07.3995954Z Temporarily overriding HOME='/home/runner/work/_temp/db1c5df3-eda2-471a-97cc-da43daa15796' before making global git config changes
+2026-10-12T13:51:07.3996742Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-12T13:51:07.4001589Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/FateBridge/FateBridge
+2026-10-12T13:51:07.4038473Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-12T13:51:07.4067872Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-12T13:51:07.4291337Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-12T13:51:07.4317017Z http.https://github.com/.extraheader
+2026-10-12T13:51:07.4325733Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-12T13:51:07.4356278Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-12T13:51:07.4580474Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-12T13:51:07.4616091Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-12T13:51:07.4972929Z Cleaning up orphan processes
+2026-10-12T13:51:07.5213568Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

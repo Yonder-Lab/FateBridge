@@ -12,13 +12,14 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple, cast
 
+from fatebridge.utils.birth_input import normalize_gender
+
 from ...utils.data import (
     EARTHLY_BRANCHES,
     HEAVENLY_STEMS,
     ZIWEI_BRANCH_SEQUENCE,
     get_nayin,
 )
-from ...utils.helpers import normalize_gender
 from ..ziwei_tables import lookup_star_brightness, split_star_mutagen
 from .common import MetaphysicsSeed, require_lunar_month_day, sexagenary_index_for
 
