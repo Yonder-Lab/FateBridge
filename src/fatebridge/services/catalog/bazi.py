@@ -78,7 +78,11 @@ def _bazi_dimension_spec(name: str, service: Any, model: Any, label: str) -> Too
         key=f"bazi_{name}",
         bind=person_invoke(service),
         request_model=model,
-        summary=f"{label}（可传 dayun_pillar / liunian_pillar 输出时机信号）。",
+        summary=(
+            f"{label}：已按出生资料与分析日期自动推算大运、流年和时机依据；"
+            "首轮无需先调用 timing_analysis 或手动传大运柱。"
+            "仅有明确外部口径时用 dayun_pillar / liunian_pillar 覆盖。"
+        ),
         operation_label_zh=label,
         family="bazi",
         rest_path=f"/api/cn/bazi/{name}",

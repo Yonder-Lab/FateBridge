@@ -23,6 +23,71 @@ def message(method, **params):
     }
 
 
+@pytest.mark.parametrize(
+    "item",
+    [
+        {"type": "reasoning", "content": "private", "encrypted_content": "secret"},
+        {"type": "message", "role": "system", "content": "private"},
+        {"type": "custom_tool_call_output", "output": "private token secret"},
+    ],
+)
+def test_raw_diagnostics_retain_no_message_reasoning_or_tool_output(item):
+    result = host_module.raw_event_metadata("rawResponseItem/completed", {"item": item})
+    encoded = json.dumps(result)
+    assert "private" not in encoded and "secret" not in encoded
+
+
+def test_code_mode_diagnostics_distinguish_discovery_from_execution():
+    observation = host_module.TurnObservation()
+    for at, code in [
+        (10, "text(ALL_TOOLS.filter(t => /career/.test(t.name)))"),
+        (17, "text(await tools.mcp__fatebridge__bazi_career({private:'secret'}))"),
+    ]:
+        metadata = host_module.raw_event_metadata(
+            "rawResponseItem/completed",
+            {"item": {"type": "custom_tool_call", "name": "exec", "input": code}},
+        )
+        observation.observe(
+            "rawResponseItem/completed", {"safe_metadata": metadata}, at
+        )
+    events = observation.summary(duration=30)["tool_loading_events"]
+    assert "ALL_TOOLS.filter" in events[0]["callees"]
+    assert events[1]["tool_identifiers"] == ["mcp__fatebridge__bazi_career"]
+    assert events[1]["at_seconds"] == 17
+    assert "secret" not in json.dumps(events) and "private" not in json.dumps(events)
+
+
+def test_raw_response_diagnostic_discards_usage_metadata():
+    assert host_module.raw_event_metadata(
+        "rawResponse/completed", {"usageMetadata": {"private": "secret"}}
+    ) == {"kind": "response_completed"}
+
+
+def test_read_sanitizes_raw_events_before_queueing():
+    host = object.__new__(host_module.Host)
+    host.incoming = queue.Queue()
+    host.notification_counts = host_module.Counter()
+    host.process = type(
+        "Process",
+        (),
+        {
+            "stdout": [
+                json.dumps(
+                    message(
+                        "rawResponseItem/completed",
+                        item={"type": "reasoning", "content": "private secret"},
+                    )
+                )
+            ],
+            "poll": lambda _: 0,
+        },
+    )()
+    host._read()
+    result = host.incoming.get_nowait()
+    assert result["params"]["safe_metadata"] == {"kind": "reasoning"}
+    assert "private" not in json.dumps(result) and "secret" not in json.dumps(result)
+
+
 @pytest.fixture
 def fake_host(monkeypatch):
     clock = [0.0]
@@ -195,6 +260,64 @@ def test_shared_host_ignores_notifications_from_previous_conversation(fake_host)
     result = host.turn("new conversation")
     assert result["items"] == []
     assert result["stages"]["first_public_output_seconds"] is None
+
+
+def test_usage_and_final_stream_are_distinct_from_commentary():
+    observation = host_module.TurnObservation({"inputTokens": 100, "outputTokens": 20})
+    observation.observe(
+        "item/started",
+        {"item": {"id": "c", "type": "agentMessage", "phase": "commentary"}},
+        1,
+    )
+    observation.observe(
+        "item/agentMessage/delta", {"itemId": "c", "delta": "Working"}, 2
+    )
+    observation.observe(
+        "item/agentMessage/delta", {"itemId": "final", "delta": "Answer"}, 12
+    )
+    observation.observe(
+        "item/completed",
+        {
+            "item": {
+                "id": "final",
+                "type": "agentMessage",
+                "phase": "final_answer",
+                "text": "Answer",
+            }
+        },
+        15,
+    )
+    usage = {
+        "tokenUsage": {
+            "last": {"inputTokens": 50, "outputTokens": 10},
+            "total": {"inputTokens": 150, "outputTokens": 30},
+        }
+    }
+    observation.observe("thread/tokenUsage/updated", usage, 15)
+    observation.observe("thread/tokenUsage/updated", usage, 15.1)
+    summary = observation.summary(duration=16)
+    assert summary["first_public_output_seconds"] == 1
+    assert summary["first_final_answer_delta_seconds"] == 12
+    assert summary["turn_token_usage"] == {"inputTokens": 50, "outputTokens": 10}
+    assert len(summary["token_usage_samples"]) == 1
+    assert "Working" not in json.dumps(summary) and "Answer" not in json.dumps(summary)
+
+
+def test_parallel_mcp_intervals_are_not_double_counted():
+    observation = host_module.TurnObservation()
+    for identity, begin, end in [("long", 10, 30), ("short", 15, 20)]:
+        observation.observe(
+            "item/started", {"item": {"id": identity, "type": "mcpToolCall"}}, begin
+        )
+        observation.observe(
+            "item/completed",
+            {"item": {"id": identity, "type": "mcpToolCall", "status": "completed"}},
+            end,
+        )
+    summary = observation.summary(duration=40)
+    assert summary["time_partition"]["mcp_active_wall_seconds"] == 20
+    assert summary["time_partition"]["before_first_mcp_seconds"] == 10
+    assert summary["time_partition"]["after_last_mcp_seconds"] == 10
 
 
 def test_rpc_deadline_does_not_wait_past_remaining_budget(monkeypatch):

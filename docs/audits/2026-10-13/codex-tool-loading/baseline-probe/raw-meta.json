@@ -1,0 +1,366 @@
+[
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 9.835
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 9.835
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 9.835
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 9.835
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 9.836
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 14.232
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "custom_tool_call",
+    "name": "exec",
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 88,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 14.774
+  },
+  {
+    "method": "rawResponse/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "responseId",
+      "usage",
+      "usageMetadata"
+    ],
+    "type": null,
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 14.847
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "custom_tool_call_output",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 14.855
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "custom_tool_call",
+    "name": "exec",
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 62,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 22.091
+  },
+  {
+    "method": "rawResponse/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "responseId",
+      "usage",
+      "usageMetadata"
+    ],
+    "type": null,
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 22.149
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "custom_tool_call_output",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 22.149
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "custom_tool_call",
+    "name": "exec",
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 578,
+    "referenced_tools": [
+      "mcp__fatebridge__bazi_career"
+    ],
+    "tool_count": null,
+    "at": 28.697
+  },
+  {
+    "method": "rawResponse/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "responseId",
+      "usage",
+      "usageMetadata"
+    ],
+    "type": null,
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 28.897
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "custom_tool_call_output",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 28.897
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "reasoning",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 35.375
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 43.298
+  },
+  {
+    "method": "rawResponse/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "responseId",
+      "usage",
+      "usageMetadata"
+    ],
+    "type": null,
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 43.345
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 43.672
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 43.683
+  },
+  {
+    "method": "rawResponseItem/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "item"
+    ],
+    "type": "message",
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 56.9
+  },
+  {
+    "method": "rawResponse/completed",
+    "keys": [
+      "threadId",
+      "turnId",
+      "responseId",
+      "usage",
+      "usageMetadata"
+    ],
+    "type": null,
+    "name": null,
+    "namespace": null,
+    "recipient": null,
+    "argument_bytes": 0,
+    "referenced_tools": [],
+    "tool_count": null,
+    "at": 56.941
+  }
+]

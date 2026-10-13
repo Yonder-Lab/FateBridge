@@ -161,11 +161,16 @@
       "career_analysis.suggestions"
     ],
     "timing_analysis": [
-      "dayun_analysis.current_dayun",
-      "liunian_analysis.summary",
+      "dayun_analysis",
+      "liunian_analysis",
+      "liuyue_analysis",
       "comprehensive_summary",
-      "calendar_context",
-      "analysis_calendar"
+      "personal_info.analysis_datetime",
+      "personal_info.time_adjustment",
+      "analysis_calendar.analysis_date_context.timezone",
+      "analysis_calendar.analysis_date_context.current_solar_term",
+      "analysis_calendar.analysis_date_context.next_solar_term",
+      "analysis_calendar.analysis_date_context.bazi_month_boundary"
     ],
     "ziwei_birth": [
       "ziwei_birth.ming_gong",

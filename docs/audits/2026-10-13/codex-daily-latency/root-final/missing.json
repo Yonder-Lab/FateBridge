@@ -1,0 +1,3553 @@
+{
+  "case": "missing",
+  "scenario": null,
+  "registered_config": true,
+  "host_lifecycle": "shared process; independent ephemeral conversations",
+  "turns": [
+    {
+      "prompt": "用 FateBridge 帮我看一下最近换工作的事。虚构资料：男，公历1990年5月15日，北京出生，出生时间我没写。现在是2026年10月12日。",
+      "id": "01a13378-53b5-71b2-bd95-b2319f49e7fe",
+      "status": "completed",
+      "error": null,
+      "duration_seconds": 15.67,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "01a13378-6842-7710-9aec-835c4c0071aa",
+          "clientId": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "用 FateBridge 帮我看一下最近换工作的事。虚构资料：男，公历1990年5月15日，北京出生，出生时间我没写。现在是2026年10月12日。",
+              "text_elements": []
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "msg_029ae079dc20955c016acdb043bb0c8191a24d006435ce92ff",
+          "text": "还需要补充出生时间：**1990年5月15日几点几分（北京时间）？**\n\n如果确实不知道，FateBridge 目前没有无时盘接口，无法排盘分析换工作时机，我也不会猜一个时刻。补齐后，可按你指定的 **2026年10月12日** 看近期求职与变动倾向。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "client_requests": [],
+      "runtime_events": [],
+      "stages": {
+        "first_model_activity_seconds": 13.641,
+        "first_public_output_seconds": 13.642,
+        "first_mcp_call_seconds": null,
+        "reconnect_count": 0,
+        "failure_layer": null,
+        "calls": [],
+        "unfinished_mcp_count": 0,
+        "host_background_commands": [],
+        "mcp_startup_notifications": [
+          {
+            "at_seconds": 0.01,
+            "server": "circleback",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "context7",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "huggingface-skills",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "wechat-devtools",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "axiom",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "atlassian",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "vercel",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "codex-security",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "xc-build",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "browser-use",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "supabase",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "everme",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "xc-launch",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "xc-meta",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.01,
+            "server": "xc-ai-assist",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "codex_apps",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "xc-interact",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "github",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "cua_repl",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "xc-setup",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "linear",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "pinecone",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "xc-all",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "openai-api-key-local-confirmation",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "greptile",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "xc-testing",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "playwright",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "design-converter",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "sentry",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "openaiDeveloperDocs",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "node_repl",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "xcodebuildmcp",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "fatebridge",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.011,
+            "server": "figma",
+            "status": "starting"
+          },
+          {
+            "at_seconds": 0.03,
+            "server": "xc-ai-assist",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.03,
+            "server": "xc-all",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.036,
+            "server": "xc-setup",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.047,
+            "server": "xc-testing",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.047,
+            "server": "xc-meta",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.051,
+            "server": "xc-build",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.051,
+            "server": "openai-api-key-local-confirmation",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 0.052,
+            "server": "xc-interact",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.073,
+            "server": "pinecone",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.074,
+            "server": "everme",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.074,
+            "server": "design-converter",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.074,
+            "server": "xc-launch",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 0.236,
+            "server": "codex-security",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 0.243,
+            "server": "node_repl",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 0.262,
+            "server": "cua_repl",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 0.267,
+            "server": "wechat-devtools",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 1.552,
+            "server": "atlassian",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 1.552,
+            "server": "linear",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 1.555,
+            "server": "sentry",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 1.764,
+            "server": "playwright",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 1.897,
+            "server": "huggingface-skills",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 1.949,
+            "server": "vercel",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 2.052,
+            "server": "xcodebuildmcp",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 2.063,
+            "server": "fatebridge",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 2.082,
+            "server": "circleback",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 2.174,
+            "server": "axiom",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 2.412,
+            "server": "github",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 2.414,
+            "server": "context7",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 2.822,
+            "server": "supabase",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 3.464,
+            "server": "openaiDeveloperDocs",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 3.862,
+            "server": "figma",
+            "status": "failed"
+          },
+          {
+            "at_seconds": 3.864,
+            "server": "greptile",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 4.644,
+            "server": "browser-use",
+            "status": "ready"
+          },
+          {
+            "at_seconds": 8.764,
+            "server": "codex_apps",
+            "status": "ready"
+          }
+        ],
+        "agent_messages": [
+          {
+            "started_seconds": 13.642,
+            "phase": "final_answer",
+            "first_delta_seconds": 13.642,
+            "last_delta_seconds": 15.212,
+            "completed_seconds": 15.28,
+            "characters": 126
+          }
+        ],
+        "first_final_answer_delta_seconds": 13.642,
+        "reasoning_activity_count": 2,
+        "token_usage_samples": [
+          {
+            "at_seconds": 15.664,
+            "last": {
+              "totalTokens": 25425,
+              "inputTokens": 25212,
+              "cachedInputTokens": 8960,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 213,
+              "reasoningOutputTokens": 125
+            },
+            "total": {
+              "totalTokens": 25425,
+              "inputTokens": 25212,
+              "cachedInputTokens": 8960,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 213,
+              "reasoningOutputTokens": 125
+            }
+          }
+        ],
+        "turn_token_usage": {
+          "totalTokens": 25425,
+          "inputTokens": 25212,
+          "cachedInputTokens": 8960,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 213,
+          "reasoningOutputTokens": 125
+        },
+        "time_partition": {
+          "before_first_mcp_seconds": null,
+          "mcp_active_wall_seconds": 0,
+          "between_mcp_calls_seconds": null,
+          "after_last_mcp_seconds": null,
+          "boundary": "Host-observed intervals; non-MCP time includes planning, network and streaming, not pure model compute"
+        }
+      }
+    },
+    {
+      "prompt": "我查到了，是上午10点30分，北京当地时间。",
+      "id": "01a13378-90d9-7ca1-94dc-582da4d67325",
+      "status": "completed",
+      "error": null,
+      "duration_seconds": 33.27,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "01a13378-9192-7eb0-af00-3f84a8ee1afe",
+          "clientId": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "我查到了，是上午10点30分，北京当地时间。",
+              "text_elements": []
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "msg_029ae079dc20955c016acdb04917d48191863a5da58b0370c3",
+          "text": "我会用这组虚构资料，按你指定的2026年10月12日分析近期换工作的倾向。",
+          "phase": "commentary",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-4dc1080a-b007-4d06-ab0b-100ecc9b8fff",
+          "server": "fatebridge",
+          "tool": "bazi_career",
+          "status": "completed",
+          "arguments": {
+            "birth_year": 1990,
+            "birth_month": 5,
+            "birth_day": 15,
+            "birth_hour": 10,
+            "birth_minute": 30,
+            "birth_place": "北京",
+            "birth_timezone": "Asia/Shanghai",
+            "gender": "男",
+            "analysis_year": 2026,
+            "analysis_month": 10,
+            "analysis_day": 12,
+            "as_of": "2026-10-12T12:00:00+08:00",
+            "fields": [
+              "career_analysis.dominant_ten_gods.primary_career_type",
+              "career_analysis.career_timing",
+              "career_analysis.timing_context",
+              "career_analysis.career_structure",
+              "career_analysis.entrepreneurship",
+              "career_analysis.suggestions"
+            ],
+            "strict_fields": true,
+            "include_snapshot_text": false
+          },
+          "appContext": null,
+          "mcpAppUi": null,
+          "pluginId": null,
+          "readOnlyHint": true,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"career_analysis\":{\"dominant_ten_gods\":{\"primary_career_type\":\"独立经营\"},\"career_timing\":{\"timing_signals\":[\"大运甲申见财星，财运亨通，利于投资经营\",\"流年丙午见官杀，当年事业有变动或机遇\"]},\"timing_context\":{\"analysis_date\":\"2026-10-12\",\"dayun_pillar\":\"甲申\",\"liunian_pillar\":\"丙午\",\"dayun_age\":28.7,\"source\":\"auto-derived\",\"overridden\":{\"dayun_pillar\":false,\"liunian_pillar\":false}},\"career_structure\":{\"score\":75,\"level\":\"中等格局\",\"notes\":[\"官印相生，为事业格局加分；总体层级以综合评分为准\"]},\"entrepreneurship\":{\"score\":73,\"tendency\":\"强烈创业倾向\",\"notes\":[\"偏星为主，性格独立，适合创业\",\"杀印相生，有领导力，适合管理型创业\"]},\"suggestions\":[\"主导事业类型为独立经营，建议发挥自身优势\",\"事业格局中等，稳扎稳打，步步为营\",\"命局适合创业，但需做好充分准备，不宜盲目冒进\",\"推荐行业：金融银行、法律司法、机械制造等\"]},\"run_metadata\":{\"run_id\":\"e2f5dd46ae1d4ca99e34d89d3cde5f46\",\"trace_id\":\"80bcc2ce6556439e97082db5a76f0dc0\",\"tool_name\":\"bazi_career\",\"generated_at\":\"2026-10-13T04:15:18.096534Z\",\"engine\":\"fatebridge-offline\",\"engine_is_approximate\":false,\"metadata_schema_version\":\"1.0\",\"package_version\":\"0.2.0\",\"contract_sha256\":\"9e3ba6f781cbc6324649594bc8dca72fc94586a6753ae34cc56776ad7defc3e3\",\"input_sha256\":\"e1096cd7397a0578bdeb0895bc9325542eec87135586e19a046d771c9f850ad3\",\"business_output_sha256\":\"e37469d3713e706b862b86e225e122150e581f2111567051e422b911c815d709\",\"duration_ms\":36.204,\"effective_time\":{\"as_of\":\"2026-10-12T04:00:00Z\",\"clock_timezones\":[\"Asia/Shanghai\"]},\"determinism\":{\"uses_current_time\":false,\"current_time_fields_defaulted\":[],\"randomness_used\":false,\"seed_generated\":false,\"replayable_with_receipt\":true,\"scope\":\"business payload in identical implementation/data/runtime; metadata IDs and duration vary\"},\"runtime\":{\"package_version\":\"0.2.0\",\"python\":\"3.13.5\",\"platform\":\"Darwin-arm64\",\"dependencies\":{\"pydantic\":\"2.13.4\",\"kerykeion\":\"5.12.9\",\"pyswisseph\":\"2.10.3.2\",\"lunardate\":\"0.2.2\",\"python-dateutil\":\"2.9.0.post0\",\"pytz\":\"2026.2\"},\"implementation_sha256\":\"53085355739f179d7bcaf898662987e70b259e22dda57ed8706f9ab80f886c46\",\"bundled_data_sha256\":\"9460368c7c929301692dbf7c3b4da4be86fefb737ab20eb648df80503c6c0702\",\"environment_sha256\":\"74cab1d76ad571293800007656afa071f5faa582e58f660d4884ef16136d6515\",\"ephemeris\":{\"scope\":\"configured_se1_inventory; actual model is reported separately\",\"files\":{\"0/seas_18.se1\":\"5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b\",\"0/semo_18.se1\":\"1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7\",\"0/sepl_18.se1\":\"ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66\"},\"sha256\":\"b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566\"}},\"provenance\":{},\"replay\":{\"as_of\":\"2026-10-12T04:00:00Z\",\"overrides\":{},\"requires_original_input\":true},\"warnings\":[]}}"
+              }
+            ],
+            "structuredContent": {
+              "career_analysis": {
+                "dominant_ten_gods": {
+                  "primary_career_type": "独立经营"
+                },
+                "career_timing": {
+                  "timing_signals": [
+                    "大运甲申见财星，财运亨通，利于投资经营",
+                    "流年丙午见官杀，当年事业有变动或机遇"
+                  ]
+                },
+                "timing_context": {
+                  "analysis_date": "2026-10-12",
+                  "dayun_pillar": "甲申",
+                  "liunian_pillar": "丙午",
+                  "dayun_age": 28.7,
+                  "source": "auto-derived",
+                  "overridden": {
+                    "dayun_pillar": false,
+                    "liunian_pillar": false
+                  }
+                },
+                "career_structure": {
+                  "score": 75,
+                  "level": "中等格局",
+                  "notes": [
+                    "官印相生，为事业格局加分；总体层级以综合评分为准"
+                  ]
+                },
+                "entrepreneurship": {
+                  "score": 73,
+                  "tendency": "强烈创业倾向",
+                  "notes": [
+                    "偏星为主，性格独立，适合创业",
+                    "杀印相生，有领导力，适合管理型创业"
+                  ]
+                },
+                "suggestions": [
+                  "主导事业类型为独立经营，建议发挥自身优势",
+                  "事业格局中等，稳扎稳打，步步为营",
+                  "命局适合创业，但需做好充分准备，不宜盲目冒进",
+                  "推荐行业：金融银行、法律司法、机械制造等"
+                ]
+              },
+              "run_metadata": {
+                "run_id": "e2f5dd46ae1d4ca99e34d89d3cde5f46",
+                "trace_id": "80bcc2ce6556439e97082db5a76f0dc0",
+                "tool_name": "bazi_career",
+                "generated_at": "2026-10-13T04:15:18.096534Z",
+                "engine": "fatebridge-offline",
+                "engine_is_approximate": false,
+                "metadata_schema_version": "1.0",
+                "package_version": "0.2.0",
+                "contract_sha256": "9e3ba6f781cbc6324649594bc8dca72fc94586a6753ae34cc56776ad7defc3e3",
+                "input_sha256": "e1096cd7397a0578bdeb0895bc9325542eec87135586e19a046d771c9f850ad3",
+                "business_output_sha256": "e37469d3713e706b862b86e225e122150e581f2111567051e422b911c815d709",
+                "duration_ms": 36.204,
+                "effective_time": {
+                  "as_of": "2026-10-12T04:00:00Z",
+                  "clock_timezones": [
+                    "Asia/Shanghai"
+                  ]
+                },
+                "determinism": {
+                  "uses_current_time": false,
+                  "current_time_fields_defaulted": [],
+                  "randomness_used": false,
+                  "seed_generated": false,
+                  "replayable_with_receipt": true,
+                  "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+                },
+                "runtime": {
+                  "package_version": "0.2.0",
+                  "python": "3.13.5",
+                  "platform": "Darwin-arm64",
+                  "dependencies": {
+                    "pydantic": "2.13.4",
+                    "kerykeion": "5.12.9",
+                    "pyswisseph": "2.10.3.2",
+                    "lunardate": "0.2.2",
+                    "python-dateutil": "2.9.0.post0",
+                    "pytz": "2026.2"
+                  },
+                  "implementation_sha256": "53085355739f179d7bcaf898662987e70b259e22dda57ed8706f9ab80f886c46",
+                  "bundled_data_sha256": "9460368c7c929301692dbf7c3b4da4be86fefb737ab20eb648df80503c6c0702",
+                  "environment_sha256": "74cab1d76ad571293800007656afa071f5faa582e58f660d4884ef16136d6515",
+                  "ephemeris": {
+                    "scope": "configured_se1_inventory; actual model is reported separately",
+                    "files": {
+                      "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+                      "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+                      "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+                    },
+                    "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+                  }
+                },
+                "provenance": {},
+                "replay": {
+                  "as_of": "2026-10-12T04:00:00Z",
+                  "overrides": {},
+                  "requires_original_input": true
+                },
+                "warnings": []
+              }
+            },
+            "_meta": null
+          },
+          "error": null,
+          "durationMs": 62
+        },
+        {
+          "type": "agentMessage",
+          "id": "msg_029ae079dc20955c016acdb05d85508191afab3da7674cb6dc",
+          "text": "按这组虚构资料、以 **2026年10月12日** 为分析日期，FateBridge 的传统八字解读倾向于：**可以积极接触新机会，重点看职责和自主权能否提升；不能据此认定现在辞职一定有利。**\n\n依据有三点：\n\n- **当前甲申大运见财星**：传统上关联经营与资源机会，可作为关注岗位回报的参考。\n- **2026丙午流年见官杀**：工具提示事业变动或机遇，可解读为职位、责任发生调整的主题。\n- **事业类型偏独立经营，兼有官印相生**：更值得考察能独立负责项目、发挥专业能力或承担管理职责的岗位。\n\n这次返回的是**大运和年度信号**，不足以判断10月哪天跳槽最好，也不能推算拿到 offer 的概率。\n\n现实建议：先在职面试，把新旧岗位的薪酬、直属上级、职责权限和试用期条件列出来比较，拿到书面 offer 后再评估离职。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "client_requests": [],
+      "runtime_events": [],
+      "stages": {
+        "first_model_activity_seconds": 4.013,
+        "first_public_output_seconds": 4.013,
+        "first_mcp_call_seconds": 16.189,
+        "reconnect_count": 0,
+        "failure_layer": null,
+        "calls": [
+          {
+            "server": "fatebridge",
+            "tool": "bazi_career",
+            "started_seconds": 16.189,
+            "completed_seconds": 16.252,
+            "duration_ms": 62,
+            "status": "completed",
+            "result_wire_bytes": 6382
+          }
+        ],
+        "unfinished_mcp_count": 0,
+        "host_background_commands": [],
+        "mcp_startup_notifications": [],
+        "agent_messages": [
+          {
+            "started_seconds": 4.013,
+            "phase": "commentary",
+            "first_delta_seconds": 4.013,
+            "last_delta_seconds": 4.095,
+            "completed_seconds": 4.095,
+            "characters": 37
+          },
+          {
+            "started_seconds": 23.628,
+            "phase": "final_answer",
+            "first_delta_seconds": 23.629,
+            "last_delta_seconds": 33.262,
+            "completed_seconds": 33.263,
+            "characters": 365
+          }
+        ],
+        "first_final_answer_delta_seconds": 23.629,
+        "reasoning_activity_count": 2,
+        "token_usage_samples": [
+          {
+            "at_seconds": 5.603,
+            "last": {
+              "totalTokens": 25513,
+              "inputTokens": 25444,
+              "cachedInputTokens": 25088,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 69,
+              "reasoningOutputTokens": 0
+            },
+            "total": {
+              "totalTokens": 50938,
+              "inputTokens": 50656,
+              "cachedInputTokens": 34048,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 282,
+              "reasoningOutputTokens": 125
+            }
+          },
+          {
+            "at_seconds": 10.207,
+            "last": {
+              "totalTokens": 36248,
+              "inputTokens": 36200,
+              "cachedInputTokens": 25216,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 48,
+              "reasoningOutputTokens": 0
+            },
+            "total": {
+              "totalTokens": 87186,
+              "inputTokens": 86856,
+              "cachedInputTokens": 59264,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 330,
+              "reasoningOutputTokens": 125
+            }
+          },
+          {
+            "at_seconds": 16.253,
+            "last": {
+              "totalTokens": 38993,
+              "inputTokens": 38828,
+              "cachedInputTokens": 35968,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 165,
+              "reasoningOutputTokens": 0
+            },
+            "total": {
+              "totalTokens": 126179,
+              "inputTokens": 125684,
+              "cachedInputTokens": 95232,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 495,
+              "reasoningOutputTokens": 125
+            }
+          },
+          {
+            "at_seconds": 33.272,
+            "last": {
+              "totalTokens": 41494,
+              "inputTokens": 41153,
+              "cachedInputTokens": 38656,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 341,
+              "reasoningOutputTokens": 89
+            },
+            "total": {
+              "totalTokens": 167673,
+              "inputTokens": 166837,
+              "cachedInputTokens": 133888,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 836,
+              "reasoningOutputTokens": 214
+            }
+          }
+        ],
+        "turn_token_usage": {
+          "totalTokens": 142248,
+          "inputTokens": 141625,
+          "cachedInputTokens": 124928,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 623,
+          "reasoningOutputTokens": 89
+        },
+        "time_partition": {
+          "before_first_mcp_seconds": 16.189,
+          "mcp_active_wall_seconds": 0.063,
+          "between_mcp_calls_seconds": 0.0,
+          "after_last_mcp_seconds": 17.022,
+          "boundary": "Host-observed intervals; non-MCP time includes planning, network and streaming, not pure model compute"
+        }
+      }
+    },
+    {
+      "prompt": "如果我其实只知道上午、不知道几点，还能直接用刚才的结果吗？",
+      "id": "01a13379-12d4-7612-8caf-3efe8f719990",
+      "status": "completed",
+      "error": null,
+      "duration_seconds": 9.01,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "01a13379-1326-7261-8f27-c760f7f323b1",
+          "clientId": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "如果我其实只知道上午、不知道几点，还能直接用刚才的结果吗？",
+              "text_elements": []
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "msg_029ae079dc20955c016acdb06b4b848191ad0b4d6ff3c75f8b",
+          "text": "**不能直接沿用。**刚才的结果按上午10:30计算；如果只知道“上午”，这个时刻就不能作为确定资料。\n\n上午可能跨多个时辰，会影响时柱及相关事业判断。刚才的甲申大运、丙午流年可能仍相同，但事业结构、独立经营倾向等结论不能直接视为有效，需要核对。\n\nFateBridge 目前没有无时盘接口，因此不能把“上午”随意填成某个时间继续排盘。刚才的解读应保留为**“假设10:30出生”的示例**。在职面试、比较岗位条件等现实建议仍可独立参考。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "client_requests": [],
+      "runtime_events": [],
+      "stages": {
+        "first_model_activity_seconds": 4.19,
+        "first_public_output_seconds": 4.19,
+        "first_mcp_call_seconds": null,
+        "reconnect_count": 0,
+        "failure_layer": null,
+        "calls": [],
+        "unfinished_mcp_count": 0,
+        "host_background_commands": [],
+        "mcp_startup_notifications": [],
+        "agent_messages": [
+          {
+            "started_seconds": 4.19,
+            "phase": "final_answer",
+            "first_delta_seconds": 4.19,
+            "last_delta_seconds": 8.907,
+            "completed_seconds": 8.907,
+            "characters": 219
+          }
+        ],
+        "first_final_answer_delta_seconds": 4.19,
+        "reasoning_activity_count": 0,
+        "token_usage_samples": [
+          {
+            "at_seconds": 9.005,
+            "last": {
+              "totalTokens": 41675,
+              "inputTokens": 41519,
+              "cachedInputTokens": 40960,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 156,
+              "reasoningOutputTokens": 0
+            },
+            "total": {
+              "totalTokens": 209348,
+              "inputTokens": 208356,
+              "cachedInputTokens": 174848,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 992,
+              "reasoningOutputTokens": 214
+            }
+          }
+        ],
+        "turn_token_usage": {
+          "totalTokens": 41675,
+          "inputTokens": 41519,
+          "cachedInputTokens": 40960,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 156,
+          "reasoningOutputTokens": 0
+        },
+        "time_partition": {
+          "before_first_mcp_seconds": null,
+          "mcp_active_wall_seconds": 0,
+          "between_mcp_calls_seconds": null,
+          "after_last_mcp_seconds": null,
+          "boundary": "Host-observed intervals; non-MCP time includes planning, network and streaming, not pure model compute"
+        }
+      }
+    }
+  ],
+  "host": {
+    "id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "turn_effort_override": null,
+    "direct_tools_process_override": false,
+    "instruction_sources": [
+      "/Users/thomas/Desktop/FateBridge/AGENTS.md"
+    ],
+    "ephemeral": true,
+    "configured_model": "gpt-6.1-sol",
+    "model_selection": "configured model",
+    "cli_path": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex",
+    "cli_version": "codex-cli 0.162.0-alpha.17.2",
+    "process_id": 61698,
+    "role": "host defaults",
+    "native_unbounded_retries": false,
+    "limits": {
+      "turn_seconds": 240,
+      "idle_seconds": 90,
+      "max_reconnects": 3
+    },
+    "mcp_server_sha256": "76a7c56a1cd79cda50563b96cb13a6ce0c46dc04b02187d046e50482c7a72b31"
+  },
+  "rpc_timings": [
+    {
+      "method": "initialize",
+      "duration_seconds": 0.039
+    },
+    {
+      "method": "model/list",
+      "duration_seconds": 0.002
+    },
+    {
+      "method": "config/read",
+      "duration_seconds": 0.005
+    },
+    {
+      "method": "thread/start",
+      "duration_seconds": 0.499
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.034
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.26
+    },
+    {
+      "method": "thread/start",
+      "duration_seconds": 0.108
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.102
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.02
+    },
+    {
+      "method": "turn/start",
+      "duration_seconds": 0.014
+    },
+    {
+      "method": "mcpServerStatus/list",
+      "duration_seconds": 14.576
+    }
+  ],
+  "mcp_startup_events": [
+    {
+      "since_host_boot_seconds": 0.558,
+      "server": "browser-use",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.558,
+      "server": "supabase",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.558,
+      "server": "github",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "vercel",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "cua_repl",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-meta",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "openaiDeveloperDocs",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-ai-assist",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "codex_apps",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "axiom",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-interact",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "atlassian",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "design-converter",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "sentry",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-setup",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "figma",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "pinecone",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "circleback",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "greptile",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "context7",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-all",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "fatebridge",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "playwright",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "node_repl",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "huggingface-skills",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-testing",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "linear",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-build",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-launch",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "wechat-devtools",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "everme",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "pinecone",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-meta",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "everme",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-all",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-ai-assist",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-testing",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-launch",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-setup",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-build",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "xc-interact",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.559,
+      "server": "design-converter",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.72,
+      "server": "node_repl",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.728,
+      "server": "cua_repl",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 0.733,
+      "server": "wechat-devtools",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.062,
+      "server": "atlassian",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.078,
+      "server": "linear",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.103,
+      "server": "sentry",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.251,
+      "server": "circleback",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.277,
+      "server": "huggingface-skills",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.322,
+      "server": "vercel",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.587,
+      "server": "axiom",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 1.7,
+      "server": "playwright",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.097,
+      "server": "supabase",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.225,
+      "server": "context7",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.225,
+      "server": "github",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.583,
+      "server": "fatebridge",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.738,
+      "server": "xc-testing",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "github",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "vercel",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "xc-interact",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "xc-launch",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "xcodebuildmcp",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "wechat-devtools",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "axiom",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "sentry",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "codex-security",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "pinecone",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "atlassian",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "xc-all",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.739,
+      "server": "xc-setup",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "xc-build",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "context7",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "xc-meta",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "playwright",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "xc-ai-assist",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "linear",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "openai-api-key-local-confirmation",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "everme",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "circleback",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "design-converter",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.74,
+      "server": "huggingface-skills",
+      "status": "starting",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.794,
+      "server": "xc-meta",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.794,
+      "server": "xc-setup",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.794,
+      "server": "xc-testing",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.794,
+      "server": "xc-ai-assist",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.794,
+      "server": "xc-all",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.794,
+      "server": "xc-build",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.794,
+      "server": "xc-interact",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.795,
+      "server": "xc-launch",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.795,
+      "server": "design-converter",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.795,
+      "server": "pinecone",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.795,
+      "server": "openai-api-key-local-confirmation",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.796,
+      "server": "everme",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.802,
+      "server": "browser-use",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.893,
+      "server": "codex-security",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.919,
+      "server": "wechat-devtools",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 2.919,
+      "server": "figma",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.401,
+      "server": "linear",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.402,
+      "server": "atlassian",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.43,
+      "server": "sentry",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.578,
+      "server": "openaiDeveloperDocs",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.601,
+      "server": "circleback",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.638,
+      "server": "huggingface-skills",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.638,
+      "server": "vercel",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.88,
+      "server": "axiom",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.955,
+      "server": "greptile",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 3.994,
+      "server": "playwright",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 4.031,
+      "server": "xcodebuildmcp",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 4.284,
+      "server": "context7",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 4.293,
+      "server": "github",
+      "status": "failed",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 5.405,
+      "server": "codex_apps",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 5.405,
+      "server": "fatebridge",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 5.405,
+      "server": "supabase",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 5.405,
+      "server": "node_repl",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 5.405,
+      "server": "cua_repl",
+      "status": "ready",
+      "thread_id": "01a13377-6352-75c2-9807-b1d7a61b78ed"
+    },
+    {
+      "since_host_boot_seconds": 61.594,
+      "server": "circleback",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "context7",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "huggingface-skills",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "wechat-devtools",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "axiom",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "atlassian",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "vercel",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "codex-security",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-build",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "browser-use",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "supabase",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "everme",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-launch",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-meta",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-ai-assist",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "codex_apps",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-interact",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "github",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "cua_repl",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-setup",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "linear",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "pinecone",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-all",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "openai-api-key-local-confirmation",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "greptile",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xc-testing",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "playwright",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "design-converter",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "sentry",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "openaiDeveloperDocs",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "node_repl",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "xcodebuildmcp",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "fatebridge",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.595,
+      "server": "figma",
+      "status": "starting",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.614,
+      "server": "xc-ai-assist",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.614,
+      "server": "xc-all",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.62,
+      "server": "xc-setup",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.631,
+      "server": "xc-testing",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.631,
+      "server": "xc-meta",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.635,
+      "server": "xc-build",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.636,
+      "server": "openai-api-key-local-confirmation",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.637,
+      "server": "xc-interact",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.657,
+      "server": "pinecone",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.658,
+      "server": "everme",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.658,
+      "server": "design-converter",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.658,
+      "server": "xc-launch",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.821,
+      "server": "codex-security",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.828,
+      "server": "node_repl",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.846,
+      "server": "cua_repl",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 61.852,
+      "server": "wechat-devtools",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.136,
+      "server": "atlassian",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.136,
+      "server": "linear",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.139,
+      "server": "sentry",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.348,
+      "server": "playwright",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.481,
+      "server": "huggingface-skills",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.533,
+      "server": "vercel",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.636,
+      "server": "xcodebuildmcp",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.648,
+      "server": "fatebridge",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.666,
+      "server": "circleback",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.758,
+      "server": "axiom",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.997,
+      "server": "github",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 63.998,
+      "server": "context7",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 64.406,
+      "server": "supabase",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 65.048,
+      "server": "openaiDeveloperDocs",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 65.446,
+      "server": "figma",
+      "status": "failed",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 65.448,
+      "server": "greptile",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 66.229,
+      "server": "browser-use",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    },
+    {
+      "since_host_boot_seconds": 70.348,
+      "server": "codex_apps",
+      "status": "ready",
+      "thread_id": "01a13378-533c-7ac0-a74c-e1be3aa26fe6"
+    }
+  ],
+  "notification_counts": {
+    "remoteControl/status/changed": 1,
+    "thread/started": 2,
+    "warning": 7,
+    "mcpServer/startupStatus/updated": 184,
+    "thread/status/changed": 10,
+    "turn/started": 5,
+    "account/updated": 1,
+    "item/started": 18,
+    "item/completed": 18,
+    "item/agentMessage/delta": 1057,
+    "thread/tokenUsage/updated": 11,
+    "account/rateLimits/updated": 11,
+    "turn/completed": 5
+  },
+  "inventory": [
+    {
+      "name": "atlassian",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "axiom",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "browser-use",
+      "tool_names": [
+        "browser_exec",
+        "browser_screenshot"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "browser-use",
+        "title": null,
+        "version": "0.13.11",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 1086
+    },
+    {
+      "name": "circleback",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "code-review",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "codex-security",
+      "tool_names": [
+        "attach_codex_security_scan_continuation_thread",
+        "cancel_codex_security_finding_remediation_request",
+        "cancel_codex_security_scan",
+        "cancel_codex_security_scan_from_app",
+        "claim_codex_security_finding_remediation_resend",
+        "claim_codex_security_scan_handoff_delivery",
+        "complete_codex_security_scan",
+        "export_codex_security_findings",
+        "fail_codex_security_scan",
+        "get_codex_security_completed_scan",
+        "get_codex_security_daybreak_access",
+        "get_codex_security_scan",
+        "get_codex_security_scan_context",
+        "inspect_codex_security_setup",
+        "inspect_codex_security_target",
+        "list_codex_security_candidates",
+        "list_codex_security_findings",
+        "list_codex_security_global_findings",
+        "list_codex_security_repositories",
+        "list_codex_security_review_items",
+        "list_codex_security_scans",
+        "mark_codex_security_finding_remediation_delivered",
+        "mark_codex_security_scan_handoff_delivered",
+        "open_codex_security_workspace",
+        "prepare_codex_security_review_items",
+        "read_codex_security_artifact",
+        "record_candidate_attack_paths",
+        "record_codex_security_candidate_validations",
+        "record_codex_security_discovery_candidates",
+        "record_codex_security_scan_draft",
+        "recover_codex_security_scan_results",
+        "release_codex_security_finding_remediation_claim",
+        "release_codex_security_scan_handoff_delivery",
+        "request_codex_security_finding_remediation",
+        "request_codex_security_finding_remediation_action",
+        "request_codex_security_user_input",
+        "save_codex_security_artifact",
+        "set_codex_security_finding_remediation",
+        "set_codex_security_finding_triage",
+        "start_codex_security_deep_scan",
+        "start_codex_security_prompt_only_scan",
+        "start_codex_security_scan",
+        "start_codex_security_standard_scan",
+        "submit_codex_security_setup",
+        "update_codex_security_scan_context",
+        "update_codex_security_scan_context_from_app",
+        "update_codex_security_scan_progress"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "codex-security",
+        "title": null,
+        "version": "0.1.160",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 86498
+    },
+    {
+      "name": "codex_app",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "codex_apps",
+      "tool_names": [
+        "appdeploy.apply_app_version",
+        "appdeploy.configure_custom_domain",
+        "appdeploy.create_secret_entry",
+        "appdeploy.delete_app",
+        "appdeploy.delete_app_secrets",
+        "appdeploy.deploy_app",
+        "appdeploy.get_app_status",
+        "appdeploy.get_app_versions",
+        "appdeploy.get_appdeploy_sdk_reference",
+        "appdeploy.get_apps",
+        "appdeploy.get_custom_domain_instructions",
+        "appdeploy.get_deploy_instructions",
+        "appdeploy.get_e2e_qa_run_details",
+        "appdeploy.get_mode_reminder_status",
+        "appdeploy.get_secret_entry_status",
+        "appdeploy.list_app_secrets",
+        "appdeploy.set_app_secrets",
+        "appdeploy.src_glob",
+        "appdeploy.src_grep",
+        "appdeploy.src_read",
+        "appdeploy.upload_assets",
+        "atlassian.addGraphContext",
+        "atlassian.addOrEditJiraIssueComment",
+        "atlassian.atlassianHome",
+        "atlassian.atlassianUserInfo",
+        "atlassian.createConfluenceContent",
+        "atlassian.createJiraIssue",
+        "atlassian.discover",
+        "atlassian.editJiraIssue",
+        "atlassian.executeDestructive",
+        "atlassian.executeRead",
+        "atlassian.executeWrite",
+        "atlassian.getAccessibleAtlassianResources",
+        "atlassian.getCollaborators",
+        "atlassian.getConfluenceContent",
+        "atlassian.getGraphContext",
+        "atlassian.getGraphObject",
+        "atlassian.getJiraIssue",
+        "atlassian.getLoomVideo",
+        "atlassian.getPeopleInfo",
+        "atlassian.getWorkActivity",
+        "atlassian.search",
+        "atlassian.searchConfluence",
+        "atlassian.searchJiraIssuesUsingJql",
+        "atlassian.search_mentions",
+        "atlassian.transitionJiraIssue",
+        "atlassian.updateConfluenceContent",
+        "chatgpt_space.attach_automation_to_page",
+        "chatgpt_space.create_canvas",
+        "chatgpt_space.create_controller_automation",
+        "chatgpt_space.create_page",
+        "chatgpt_space.create_page_visualization",
+        "chatgpt_space.create_presentation",
+        "chatgpt_space.create_space",
+        "chatgpt_space.create_spreadsheet",
+        "chatgpt_space.edit_page",
+        "chatgpt_space.execute_artifact_code",
+        "chatgpt_space.find_pages",
+        "chatgpt_space.get_artifact_execution_status",
+        "chatgpt_space.get_page_auto_update",
+        "chatgpt_space.get_page_sharing",
+        "chatgpt_space.get_sharing_availability",
+        "chatgpt_space.get_space",
+        "chatgpt_space.get_space_sharing",
+        "chatgpt_space.inspect_artifact",
+        "chatgpt_space.inspect_page_reference",
+        "chatgpt_space.list_page_automations",
+        "chatgpt_space.list_page_comments",
+        "chatgpt_space.list_pages",
+        "chatgpt_space.list_spaces",
+        "chatgpt_space.manage_page_comment",
+        "chatgpt_space.move_page",
+        "chatgpt_space.patch_page",
+        "chatgpt_space.progress_update",
+        "chatgpt_space.read_page",
+        "chatgpt_space.read_page_changes",
+        "chatgpt_space.read_page_reference",
+        "chatgpt_space.read_page_transcript",
+        "chatgpt_space.reply_page_comment",
+        "chatgpt_space.run_page_auto_update",
+        "chatgpt_space.search_sharing_recipients",
+        "chatgpt_space.set_page_auto_update",
+        "chatgpt_space.trash_page",
+        "chatgpt_space.update_page_sharing",
+        "chatgpt_space.update_space_sharing",
+        "chatgpt_space.upload_artifact_images",
+        "chatgpt_space.write_page_reference",
+        "codex_document_control.execute_document_command",
+        "codex_document_control.get_document_tool_schemas",
+        "codex_document_control.list_document_sessions",
+        "context7.query-docs",
+        "context7.resolve-library-id",
+        "figma.add_code_connect_map",
+        "figma.authorize_mcp_app",
+        "figma.create_generative_plugin",
+        "figma.create_new_file",
+        "figma.create_shader",
+        "figma.download_assets",
+        "figma.export_video",
+        "figma.generate_deck",
+        "figma.generate_diagram",
+        "figma.generate_figma_design",
+        "figma.generate_image",
+        "figma.get_code_connect_map",
+        "figma.get_code_connect_suggestions",
+        "figma.get_context_for_code_connect",
+        "figma.get_design_context",
+        "figma.get_figjam",
+        "figma.get_generative_plugin",
+        "figma.get_libraries",
+        "figma.get_metadata",
+        "figma.get_motion_context",
+        "figma.get_screenshot",
+        "figma.get_shader",
+        "figma.get_variable_defs",
+        "figma.list_file_components_for_code_connect",
+        "figma.list_file_shaders",
+        "figma.list_generative_plugins",
+        "figma.list_shaders",
+        "figma.open_figma_mcp_app_in_thread",
+        "figma.report_mcp_app_failure",
+        "figma.search_design_system",
+        "figma.send_code_connect_mappings",
+        "figma.update_generative_plugin",
+        "figma.update_shader",
+        "figma.upload_assets",
+        "figma.use_figma",
+        "figma.weave_cancel_tool_run",
+        "figma.weave_find_model",
+        "figma.weave_get_model_run_output",
+        "figma.weave_get_tool_inputs",
+        "figma.weave_get_tool_run_output",
+        "figma.weave_list_tools",
+        "figma.weave_run_model",
+        "figma.weave_run_tool",
+        "figma.weave_upload_asset",
+        "figma.whoami",
+        "firecrawl.firecrawl_agent",
+        "firecrawl.firecrawl_agent_status",
+        "firecrawl.firecrawl_check_crawl_status",
+        "firecrawl.firecrawl_crawl",
+        "firecrawl.firecrawl_credit_usage",
+        "firecrawl.firecrawl_developer_search",
+        "firecrawl.firecrawl_feedback",
+        "firecrawl.firecrawl_find_tools",
+        "firecrawl.firecrawl_gov_search",
+        "firecrawl.firecrawl_interact",
+        "firecrawl.firecrawl_interact_stop",
+        "firecrawl.firecrawl_map",
+        "firecrawl.firecrawl_monitor_check",
+        "firecrawl.firecrawl_monitor_checks",
+        "firecrawl.firecrawl_monitor_create",
+        "firecrawl.firecrawl_monitor_delete",
+        "firecrawl.firecrawl_monitor_get",
+        "firecrawl.firecrawl_monitor_list",
+        "firecrawl.firecrawl_monitor_run",
+        "firecrawl.firecrawl_monitor_update",
+        "firecrawl.firecrawl_parse",
+        "firecrawl.firecrawl_research_inspect_paper",
+        "firecrawl.firecrawl_research_read_paper",
+        "firecrawl.firecrawl_research_related_papers",
+        "firecrawl.firecrawl_research_search_papers",
+        "firecrawl.firecrawl_scrape",
+        "firecrawl.firecrawl_search",
+        "firecrawl.firecrawl_search_feedback",
+        "github.add_comment_to_issue",
+        "github.add_issue_assignees",
+        "github.add_issue_labels",
+        "github.add_reaction_to_issue_comment",
+        "github.add_reaction_to_pr",
+        "github.add_reaction_to_pr_review_comment",
+        "github.add_review_to_pr",
+        "github.compare_commits",
+        "github.convert_pull_request_to_draft",
+        "github.create_blob",
+        "github.create_branch",
+        "github.create_commit",
+        "github.create_file",
+        "github.create_issue",
+        "github.create_pull_request",
+        "github.create_tree",
+        "github.delete_file",
+        "github.dismiss_pull_request_review",
+        "github.download_user_content",
+        "github.download_workflow_artifact",
+        "github.enable_auto_merge",
+        "github.fetch",
+        "github.fetch_blob",
+        "github.fetch_commit",
+        "github.fetch_commit_workflow_runs",
+        "github.fetch_file",
+        "github.fetch_issue",
+        "github.fetch_issue_comments",
+        "github.fetch_pr",
+        "github.fetch_pr_comments",
+        "github.fetch_pr_file_patch",
+        "github.fetch_pr_patch",
+        "github.fetch_workflow_job_logs",
+        "github.fetch_workflow_job_steps",
+        "github.fetch_workflow_run_artifacts",
+        "github.fetch_workflow_run_jobs",
+        "github.get_commit_combined_status",
+        "github.get_issue_comment_reactions",
+        "github.get_pr_diff",
+        "github.get_pr_info",
+        "github.get_pr_mergeability",
+        "github.get_pr_reactions",
+        "github.get_pr_review_comment_reactions",
+        "github.get_pr_statuses",
+        "github.get_profile",
+        "github.get_repo",
+        "github.get_repo_collaborator_permission",
+        "github.get_user_login",
+        "github.get_users_recent_prs_in_repo",
+        "github.label_pr",
+        "github.list_installations",
+        "github.list_installed_accounts",
+        "github.list_pr_changed_filenames",
+        "github.list_pull_request_review_threads",
+        "github.list_pull_request_reviews",
+        "github.list_recent_issues",
+        "github.list_repositories",
+        "github.list_repositories_by_affiliation",
+        "github.list_repositories_by_installation",
+        "github.list_user_org_memberships",
+        "github.list_user_orgs",
+        "github.lock_issue_conversation",
+        "github.mark_pull_request_ready_for_review",
+        "github.merge_pull_request",
+        "github.remove_issue_assignees",
+        "github.remove_issue_label",
+        "github.remove_pull_request_reviewers",
+        "github.remove_reaction_from_issue_comment",
+        "github.remove_reaction_from_pr",
+        "github.remove_reaction_from_pr_review_comment",
+        "github.reply_to_review_comment",
+        "github.request_pull_request_reviewers",
+        "github.rerun_failed_workflow_run_jobs",
+        "github.rerun_workflow_job",
+        "github.resolve_review_thread",
+        "github.search",
+        "github.search_branches",
+        "github.search_commits",
+        "github.search_installed_repositories_streaming",
+        "github.search_installed_repositories_v2",
+        "github.search_issues",
+        "github.search_prs",
+        "github.search_repositories",
+        "github.unlock_issue_conversation",
+        "github.unresolve_review_thread",
+        "github.update_file",
+        "github.update_issue",
+        "github.update_issue_comment",
+        "github.update_pull_request",
+        "github.update_ref",
+        "github.update_review_comment",
+        "gmail.apply_labels_to_emails",
+        "gmail.archive_emails",
+        "gmail.batch_modify_email",
+        "gmail.batch_read_email",
+        "gmail.batch_read_email_threads",
+        "gmail.bulk_label_matching_emails",
+        "gmail.create_draft",
+        "gmail.create_label",
+        "gmail.delete_emails",
+        "gmail.forward_emails",
+        "gmail.get_profile",
+        "gmail.list_drafts",
+        "gmail.list_labels",
+        "gmail.read_attachment",
+        "gmail.read_email",
+        "gmail.read_email_thread",
+        "gmail.search_email_ids",
+        "gmail.search_emails",
+        "gmail.send_draft",
+        "gmail.send_email",
+        "gmail.update_draft",
+        "google_calendar.batch_read_event",
+        "google_calendar.create_event",
+        "google_calendar.delete_event",
+        "google_calendar.fetch",
+        "google_calendar.get_availability",
+        "google_calendar.get_colors",
+        "google_calendar.get_profile",
+        "google_calendar.list_calendars",
+        "google_calendar.list_event_labels",
+        "google_calendar.read_event",
+        "google_calendar.respond_event",
+        "google_calendar.search",
+        "google_calendar.search_events",
+        "google_calendar.set_event_label_silently",
+        "google_calendar.update_event",
+        "google_contacts.get_profile",
+        "google_contacts.read_contact",
+        "google_contacts.search_contacts",
+        "google_drive.batch_update_document",
+        "google_drive.batch_update_presentation",
+        "google_drive.batch_update_spreadsheet",
+        "google_drive.bulk_update_file_comments",
+        "google_drive.copy_file",
+        "google_drive.create_file",
+        "google_drive.create_folder",
+        "google_drive.create_presentation_from_template",
+        "google_drive.delete_file",
+        "google_drive.duplicate_sheet_in_new_spreadsheet",
+        "google_drive.export_file",
+        "google_drive.fetch",
+        "google_drive.fetch_file_revision",
+        "google_drive.find_document_text_range",
+        "google_drive.get_document",
+        "google_drive.get_document_comments",
+        "google_drive.get_document_paragraph_range",
+        "google_drive.get_document_tables",
+        "google_drive.get_document_text",
+        "google_drive.get_file_comments",
+        "google_drive.get_file_metadata",
+        "google_drive.get_presentation",
+        "google_drive.get_presentation_comments",
+        "google_drive.get_presentation_outline",
+        "google_drive.get_presentation_tables",
+        "google_drive.get_presentation_text",
+        "google_drive.get_profile",
+        "google_drive.get_slide",
+        "google_drive.get_slide_thumbnail",
+        "google_drive.get_spreadsheet_cells",
+        "google_drive.get_spreadsheet_comments",
+        "google_drive.get_spreadsheet_metadata",
+        "google_drive.get_spreadsheet_range",
+        "google_drive.import_document",
+        "google_drive.import_presentation",
+        "google_drive.import_spreadsheet",
+        "google_drive.list_drives",
+        "google_drive.list_file_revisions",
+        "google_drive.list_folder",
+        "google_drive.recent_documents",
+        "google_drive.search",
+        "google_drive.search_spreadsheet_rows",
+        "google_drive.share_file",
+        "google_drive.update_file",
+        "google_drive.upload_file",
+        "hotline.get_local_hotline",
+        "hugging_face.dataset_search",
+        "hugging_face.hf_doc_fetch",
+        "hugging_face.hf_doc_search",
+        "hugging_face.hf_jobs",
+        "hugging_face.hf_whoami",
+        "hugging_face.hub_repo_details",
+        "hugging_face.model_search",
+        "hugging_face.paper_search",
+        "hugging_face.space_search",
+        "linear.create_attachment",
+        "linear.create_attachment_from_upload",
+        "linear.create_initiative_label",
+        "linear.create_issue_label",
+        "linear.delete_attachment",
+        "linear.delete_comment",
+        "linear.delete_customer",
+        "linear.delete_customer_need",
+        "linear.delete_diff_comment",
+        "linear.delete_status_update",
+        "linear.extract_images",
+        "linear.fetch",
+        "linear.get_agent_skill",
+        "linear.get_attachment",
+        "linear.get_diff",
+        "linear.get_diff_threads",
+        "linear.get_document",
+        "linear.get_initiative",
+        "linear.get_issue",
+        "linear.get_issue_status",
+        "linear.get_milestone",
+        "linear.get_notifications",
+        "linear.get_project",
+        "linear.get_release",
+        "linear.get_release_note",
+        "linear.get_status_updates",
+        "linear.get_team",
+        "linear.get_template",
+        "linear.get_user",
+        "linear.get_workspace",
+        "linear.list_agent_skills",
+        "linear.list_comments",
+        "linear.list_customers",
+        "linear.list_cycles",
+        "linear.list_diffs",
+        "linear.list_documents",
+        "linear.list_initiative_labels",
+        "linear.list_initiatives",
+        "linear.list_issue_labels",
+        "linear.list_issue_statuses",
+        "linear.list_issues",
+        "linear.list_milestones",
+        "linear.list_project_labels",
+        "linear.list_projects",
+        "linear.list_release_notes",
+        "linear.list_release_pipelines",
+        "linear.list_releases",
+        "linear.list_teams",
+        "linear.list_templates",
+        "linear.list_users",
+        "linear.mark_notification",
+        "linear.merge_diff",
+        "linear.prepare_attachment_upload",
+        "linear.resolve_diff_thread",
+        "linear.save_comment",
+        "linear.save_customer",
+        "linear.save_customer_need",
+        "linear.save_diff_comment",
+        "linear.save_document",
+        "linear.save_initiative",
+        "linear.save_initiative_label",
+        "linear.save_issue",
+        "linear.save_issue_label",
+        "linear.save_milestone",
+        "linear.save_project",
+        "linear.save_project_label",
+        "linear.save_release",
+        "linear.save_release_note",
+        "linear.save_status_update",
+        "linear.search",
+        "linear.search_documentation",
+        "linear.share_issue",
+        "linear.submit_diff_review",
+        "linear.unshare_issue",
+        "openai_platform.create_encrypted_openai_api_key",
+        "openai_platform.get_api_key_expiration_policy",
+        "openai_platform.get_dashboard_summary",
+        "openai_platform.list_openai_api_key_targets",
+        "openai_platform.open_codex_api_key_setup",
+        "openai_platform.open_dashboard",
+        "parallel_search.web_fetch",
+        "parallel_search.web_search",
+        "pets.adopt",
+        "pets.create_pet",
+        "pets.delete_pet",
+        "pets.get_pet_download_link",
+        "pets.list_pets",
+        "pets.prepare_pet_upload",
+        "pets.select_pet",
+        "pets.share_pet",
+        "pets.unshare_pet",
+        "pets.update_pet",
+        "pets.validate_pet_spritesheet",
+        "plugin_management.get_app_permissions",
+        "plugin_management.get_plugin_dependencies",
+        "plugin_management.search_plugins",
+        "plugin_management.suggest_plugins",
+        "plugin_management.uninstall_app",
+        "plugin_management.update_app_permissions",
+        "safety_settings.get_family_info",
+        "safety_settings.get_parental_controls",
+        "safety_settings.get_trusted_contact",
+        "safety_settings.prepare_parental_control_update",
+        "safety_settings.update_parental_control",
+        "search_service.web_run",
+        "sites.add_custom_domain",
+        "sites.change_site_slug",
+        "sites.check_slug_availability",
+        "sites.create_schedule",
+        "sites.create_site",
+        "sites.create_source_repository_write_credential",
+        "sites.delete_site",
+        "sites.deploy_private_site_version",
+        "sites.deploy_site_version",
+        "sites.generate_siwc_bypass_token",
+        "sites.get_database_overview",
+        "sites.get_database_table_rows",
+        "sites.get_deployment_status",
+        "sites.get_environment",
+        "sites.get_environment_variables",
+        "sites.get_project",
+        "sites.get_site",
+        "sites.get_site_analytics_overview",
+        "sites.get_site_version",
+        "sites.get_site_worker_logs",
+        "sites.list_custom_domains",
+        "sites.list_projects",
+        "sites.list_site_analytics_events",
+        "sites.list_site_versions",
+        "sites.list_sites",
+        "sites.list_sites_creator_control_panel_projects",
+        "sites.query_site_analytics_event",
+        "sites.read_database_overview",
+        "sites.read_database_table_rows",
+        "sites.refresh_custom_domain_status",
+        "sites.remove_custom_domain",
+        "sites.save_site_version",
+        "sites.save_version_and_deploy_private",
+        "sites.update_access",
+        "sites.update_environment",
+        "sites.update_environment_variables",
+        "sites.update_site_access",
+        "sites.update_site_metadata",
+        "sites.validate_suggested_schedule",
+        "supabase.apply_migration",
+        "supabase.confirm_cost",
+        "supabase.create_branch",
+        "supabase.create_project",
+        "supabase.delete_branch",
+        "supabase.deploy_edge_function",
+        "supabase.execute_sql",
+        "supabase.generate_typescript_types",
+        "supabase.get_advisors",
+        "supabase.get_cost",
+        "supabase.get_edge_function",
+        "supabase.get_organization",
+        "supabase.get_project",
+        "supabase.get_project_url",
+        "supabase.get_publishable_keys",
+        "supabase.list_branches",
+        "supabase.list_edge_functions",
+        "supabase.list_extensions",
+        "supabase.list_migrations",
+        "supabase.list_organizations",
+        "supabase.list_projects",
+        "supabase.list_tables",
+        "supabase.merge_branch",
+        "supabase.pause_project",
+        "supabase.query_logs",
+        "supabase.rebase_branch",
+        "supabase.reset_branch",
+        "supabase.restore_project",
+        "supabase.search_docs",
+        "vercel.accept_project_transfer_request",
+        "vercel.activate_kms_signing_key",
+        "vercel.add_project_domain",
+        "vercel.add_route",
+        "vercel.add_toolbar_reaction",
+        "vercel.aggregate_events",
+        "vercel.aggregate_pageviews",
+        "vercel.approve_rolling_release_stage",
+        "vercel.artifact_query",
+        "vercel.assign_alias",
+        "vercel.buy_domain",
+        "vercel.buy_domains",
+        "vercel.buy_single_domain",
+        "vercel.cancel_deployment",
+        "vercel.change_toolbar_thread_resolve_status",
+        "vercel.complete_rolling_release",
+        "vercel.count_events",
+        "vercel.count_pageviews",
+        "vercel.create_deployment",
+        "vercel.create_drain",
+        "vercel.create_edge_config",
+        "vercel.create_edge_config_token",
+        "vercel.create_flag",
+        "vercel.create_git_project",
+        "vercel.create_kms_issuer",
+        "vercel.create_kms_issuer_policy",
+        "vercel.create_kms_signing_key",
+        "vercel.create_observability_query",
+        "vercel.create_or_transfer_domain",
+        "vercel.create_project",
+        "vercel.create_project_env",
+        "vercel.create_sandboxes_sessions_by_session_id_snapshot_v2",
+        "vercel.create_sandboxes_sessions_by_session_id_snapshot_v3",
+        "vercel.create_sandboxes_v2",
+        "vercel.create_sandboxes_v3",
+        "vercel.create_sandboxes_v4",
+        "vercel.create_sdk_key",
+        "vercel.create_session_directory",
+        "vercel.create_storage_stores_blob",
+        "vercel.create_trace_session",
+        "vercel.edit_project_env",
+        "vercel.edit_route",
+        "vercel.edit_toolbar_message",
+        "vercel.extend_session_timeout",
+        "vercel.filter_project_envs",
+        "vercel.generate_route",
+        "vercel.get_access_to_vercel_url",
+        "vercel.get_active_attack_status",
+        "vercel.get_agent_run",
+        "vercel.get_agent_run_trace",
+        "vercel.get_alias",
+        "vercel.get_auth_user",
+        "vercel.get_bulk_availability",
+        "vercel.get_bulk_price",
+        "vercel.get_bypass_ip",
+        "vercel.get_cert_by_id",
+        "vercel.get_configuration",
+        "vercel.get_connector",
+        "vercel.get_connector_project_connection",
+        "vercel.get_contact_info_schema",
+        "vercel.get_custom_environment",
+        "vercel.get_deployment",
+        "vercel.get_deployment_feature_flags",
+        "vercel.get_deployment_file_contents",
+        "vercel.get_domain",
+        "vercel.get_domain_availability",
+        "vercel.get_domain_config",
+        "vercel.get_domain_contact_verification",
+        "vercel.get_domain_order",
+        "vercel.get_domain_price",
+        "vercel.get_domain_project_domains",
+        "vercel.get_domain_verification_record",
+        "vercel.get_domains_records_by_record_id",
+        "vercel.get_drain",
+        "vercel.get_edge_config",
+        "vercel.get_edge_config_backup",
+        "vercel.get_edge_config_backups",
+        "vercel.get_edge_config_item",
+        "vercel.get_edge_config_items",
+        "vercel.get_edge_config_tokens",
+        "vercel.get_edge_configs",
+        "vercel.get_firewall_config",
+        "vercel.get_flag",
+        "vercel.get_flag_segment",
+        "vercel.get_flag_settings",
+        "vercel.get_git_deployment_context",
+        "vercel.get_kms_issuer",
+        "vercel.get_microfrontends_config",
+        "vercel.get_microfrontends_config_for_project",
+        "vercel.get_named_sandbox",
+        "vercel.get_observability_configuration_projects",
+        "vercel.get_observability_schema",
+        "vercel.get_order",
+        "vercel.get_project",
+        "vercel.get_project_deletion_link",
+        "vercel.get_project_domain",
+        "vercel.get_project_env",
+        "vercel.get_project_trace",
+        "vercel.get_purchase_quote",
+        "vercel.get_records",
+        "vercel.get_remote_cache_status",
+        "vercel.get_rolling_release",
+        "vercel.get_rolling_release_billing_status",
+        "vercel.get_rolling_release_config",
+        "vercel.get_runtime_errors",
+        "vercel.get_runtime_logs",
+        "vercel.get_session",
+        "vercel.get_session_command",
+        "vercel.get_session_command_logs",
+        "vercel.get_session_snapshot",
+        "vercel.get_shared_env_var",
+        "vercel.get_storage_stores_by_id",
+        "vercel.get_team",
+        "vercel.get_tld",
+        "vercel.get_tld_price",
+        "vercel.get_toolbar_thread",
+        "vercel.get_vercel_ci_invocation",
+        "vercel.get_vercel_ci_invocation_logs",
+        "vercel.get_vercel_ci_invocation_tree",
+        "vercel.get_vercel_ci_job_definition",
+        "vercel.get_vercel_ci_job_run",
+        "vercel.get_vercel_ci_job_run_logs",
+        "vercel.get_vercel_ci_task_logs",
+        "vercel.get_vercel_ci_task_run_logs",
+        "vercel.get_webhooks",
+        "vercel.git_namespaces",
+        "vercel.import-claude-design-from-url",
+        "vercel.invalidate_by_src_images",
+        "vercel.invalidate_by_tags",
+        "vercel.issue_cert",
+        "vercel.kill_session_command",
+        "vercel.list_access_group_members",
+        "vercel.list_access_group_projects",
+        "vercel.list_access_groups",
+        "vercel.list_agent_run_projects",
+        "vercel.list_agent_runs",
+        "vercel.list_aliases",
+        "vercel.list_billing_charges",
+        "vercel.list_bulk_redirect_versions",
+        "vercel.list_bulk_redirects",
+        "vercel.list_certs",
+        "vercel.list_connector_project_connections",
+        "vercel.list_connectors",
+        "vercel.list_contract_commitments",
+        "vercel.list_deployment_aliases",
+        "vercel.list_deployment_events",
+        "vercel.list_deployment_files",
+        "vercel.list_deployments",
+        "vercel.list_domains",
+        "vercel.list_drains",
+        "vercel.list_event_types",
+        "vercel.list_feature_flag_sdk_keys",
+        "vercel.list_flag_segments",
+        "vercel.list_flag_versions",
+        "vercel.list_flags",
+        "vercel.list_flags_v2",
+        "vercel.list_integration_billing_plans",
+        "vercel.list_integration_configuration_products",
+        "vercel.list_integration_configurations",
+        "vercel.list_kms_issuers",
+        "vercel.list_named_sandboxes",
+        "vercel.list_project_connector_connections",
+        "vercel.list_project_custom_environments",
+        "vercel.list_project_domains",
+        "vercel.list_project_route_versions",
+        "vercel.list_project_routes",
+        "vercel.list_projects",
+        "vercel.list_promote_aliases",
+        "vercel.list_session_commands",
+        "vercel.list_session_snapshots",
+        "vercel.list_sessions",
+        "vercel.list_supported_tlds",
+        "vercel.list_team_flag_settings",
+        "vercel.list_team_flags",
+        "vercel.list_team_flags_v2",
+        "vercel.list_team_members",
+        "vercel.list_teams",
+        "vercel.list_toolbar_threads",
+        "vercel.list_user_events",
+        "vercel.list_vercel_ci_invocation_attempts",
+        "vercel.list_vercel_ci_invocations",
+        "vercel.list_vercel_ci_job_definitions",
+        "vercel.list_vercel_ci_job_runs",
+        "vercel.list_vercel_ci_task_definitions",
+        "vercel.list_vercel_ci_task_runs",
+        "vercel.open_deployments",
+        "vercel.patch_edge_config_items",
+        "vercel.patch_url_protection_bypass",
+        "vercel.pause_project",
+        "vercel.put_firewall_config",
+        "vercel.read_access_group",
+        "vercel.read_access_group_project",
+        "vercel.read_session_file",
+        "vercel.record_events",
+        "vercel.replace_domain_dns_records",
+        "vercel.reply_to_toolbar_thread",
+        "vercel.request_promote",
+        "vercel.request_rollback",
+        "vercel.rerequest_check",
+        "vercel.restore_edge_config_backup",
+        "vercel.restore_redirects",
+        "vercel.retry_vercel_ci_invocation",
+        "vercel.revoke_kms_signing_key",
+        "vercel.run_session_command",
+        "vercel.search_domains",
+        "vercel.search_repo",
+        "vercel.search_vercel_documentation",
+        "vercel.stage_redirects",
+        "vercel.stage_routes",
+        "vercel.start_rolling_release",
+        "vercel.stop_session",
+        "vercel.test_drain",
+        "vercel.ui_get_build_log_excerpt",
+        "vercel.unpause_project",
+        "vercel.update_attack_challenge_mode",
+        "vercel.update_bulk_redirect_version",
+        "vercel.update_connector",
+        "vercel.update_drain",
+        "vercel.update_edge_config",
+        "vercel.update_firewall_config",
+        "vercel.update_flag",
+        "vercel.update_flag_segment",
+        "vercel.update_flag_settings",
+        "vercel.update_kms_issuer",
+        "vercel.update_kms_issuer_policy",
+        "vercel.update_project",
+        "vercel.update_project_protection_bypass",
+        "vercel.update_record",
+        "vercel.update_rolling_release_config",
+        "vercel.update_route_versions",
+        "vercel.update_sandbox",
+        "vercel.update_session_network_policy",
+        "vercel.upload_artifact",
+        "vercel.upload_file",
+        "vercel.upsert_connector_project_connection",
+        "vercel.verify_project_domain",
+        "vercel.web_fetch_vercel_url",
+        "vercel.write_session_files"
+      ],
+      "resources": [
+        "plugin://plugin_asdk_app_6956e6ff740481919946ceae8e5d6304",
+        "plugin://plugins_6a8bb4f188108191a09e14d3adfef354",
+        "plugin://plugins~Plugin_f1b845ac33888191ac156169c58733c2",
+        "plugin://plugins~Plugin_b80dd84519148191a409cde181c9b3d6",
+        "plugin://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c",
+        "plugin://Plugin_1e648473be9c8191a91ac3947151af55",
+        "plugin://plugin_asdk_app_69ef18c674308191a2f952431f91ea61",
+        "plugin://Plugin_fc9843a6fb34819195d6c7802398a8a7",
+        "plugin://plugin_connector_1p_2330815c823c8191941e5dc465bb899f",
+        "plugin://plugin_connector_68df038e0ba48191908c8434991bbac2",
+        "plugin://plugin_asdk_app_6a314a73f8ac819195b0d55e36b9c609",
+        "plugin://plugin_connector_1p_1a69035c238881919c4190932b2df699",
+        "plugin://plugin_connector_1p_95d39881713c8191931482a62d6edff9",
+        "plugin://plugin_connector_1p_f8509de903288191b14a160c6c5d20b0",
+        "plugin://plugin_connector_1p_c97194162860819190a6f840a61b9889",
+        "plugin://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7",
+        "plugin://plugin_asdk_app_6939e86417648191b7bda087d872685b",
+        "plugin://plugin_connector_1p_32dba5a7095c8191adca04ee30276304",
+        "plugin://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c",
+        "plugin://plugin_asdk_app_69fb9378663481919a68e8a2109644e5",
+        "plugin://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa",
+        "plugin://plugin_connector_1p_b3438d6beb9081918fba3625bc988128",
+        "plugin://Plugin_fa77aec24fc08191bc6e57f377126d76",
+        "plugin://plugin_connector_1p_689987207de08191979cf68eca2941c6",
+        "plugin://plugin_asdk_app_69d3e5ee6a708191baa733f7b8931995",
+        "plugin://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-drive",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-sheets",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-docs",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/index",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/index",
+        "skill://plugin_asdk_app_69d3e5ee6a708191baa733f7b8931995/supabase",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generate-design",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/build-report",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/product-business-analysis",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-create-new-file",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-slides",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/validate-data",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/analyze-data-quality",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/frontend-app-builder",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generate-library",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/visualize-data",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/gather-business-context",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/deployments-cicd",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-design-to-code",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/get-context",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/user-context",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/jupyter-notebooks",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/audit",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/build-dashboard",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/frontend-testing-debugging",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/market-sizing",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/design-kpis",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/openai-platform-api-key",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/security-scan",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-analytics-dashboard",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-business-review",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-design-report",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-experiment-analysis",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-financial-budget",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-investment-committee-memo",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-legal-memorandum",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-market-trends-report",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-minimal-letterhead",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-operating-calendar",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-operating-review",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-project-kickoff",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-project-tracker",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-sales-pipeline",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-simple-dark-mode",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-simple-light-mode",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-strategy-memorandum",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-system-design",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-team-alignment",
+        "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f/artifact-template-three-statement-forecast",
+        "skill://plugin_connector_1p_ab21a553bfbc81919ea8fd1858e3ffa7/google-drive-comments",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/agents",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/devday-guide",
+        "skill://plugin_connector_1p_32dba5a7095c8191adca04ee30276304/openai-api-troubleshooting",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/maintain-space",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/manage-schedules",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/organize-space",
+        "skill://plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c/write-page",
+        "skill://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa/create-pet",
+        "skill://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa/pets",
+        "skill://plugin_connector_1p_bccf6c8660c08191ae4470d9ae4877fa/update-pet",
+        "skill://plugin_connector_1p_b3438d6beb9081918fba3625bc988128/plugin-management",
+        "skill://plugin_connector_1p_689987207de08191979cf68eca2941c6/sites",
+        "skill://plugins_6a8bb4f188108191a09e14d3adfef354/browser-act",
+        "skill://plugins_6a8bb4f188108191a09e14d3adfef354/browser-act-skill-forge",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-app-intents",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-debugger-agent",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-ettrace-performance",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-memgraph-leaks",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/ios-simulator-browser",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-liquid-glass",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-performance-audit",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-ui-patterns",
+        "skill://plugins~Plugin_f1b845ac33888191ac156169c58733c2/swiftui-view-refactor",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/appkit-interop",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/build-run-debug",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/liquid-glass",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/packaging-notarization",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/signing-entitlements",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/swiftpm-macos",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/swiftui-patterns",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/telemetry",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/test-triage",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/view-refactor",
+        "skill://plugins~Plugin_b80dd84519148191a409cde181c9b3d6/window-management",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/react-best-practices",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/shadcn",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/stripe-best-practices",
+        "skill://plugins~Plugin_d0e159446ee48191b94ce1960780cc3c/supabase-postgres-best-practices",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/assess-patch-risk",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/attack-path-analysis",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/deep-security-scan",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/define-security-policy",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/finding-discovery",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/fix-finding",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/propose-security-hardening",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/security-diff-scan",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/threat-model",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/track-findings",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/triage-finding",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/validation",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/verify-fix",
+        "skill://Plugin_1e648473be9c8191a91ac3947151af55/vulnerability-writeup",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/convert-to-doc",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/convert-to-slides",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/create-data-context",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/kpi-reporting",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/metric-diagnostics",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/publish-artifact-to-sites",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/report-to-pdf",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/schedule-refresh-jobs",
+        "skill://Plugin_fc9843a6fb34819195d6c7802398a8a7/share-artifact-summary",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-code-connect",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generate-diagram",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-generative-plugins",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-implement-motion",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-shaders",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-swiftui",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use-figjam",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use-motion",
+        "skill://plugin_connector_68df038e0ba48191908c8434991bbac2/figma-use-slides",
+        "skill://plugin_asdk_app_6a314a73f8ac819195b0d55e36b9c609/firecrawl",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/hf-cli",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-community-evals",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-datasets",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-gradio",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-jobs",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-llm-trainer",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-paper-publisher",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-papers",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-trackio",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/transformers-js",
+        "skill://plugin_asdk_app_6939e86417648191b7bda087d872685b/huggingface-vision-trainer",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/design-qa",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/ideate",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/image-to-code",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/research",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/share",
+        "skill://Plugin_fa77aec24fc08191bc6e57f377126d76/url-to-code",
+        "skill://plugin_asdk_app_69d3e5ee6a708191baa733f7b8931995/supabase-postgres-best-practices",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/access-protected-vercel-deployment",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/ai-gateway",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/ai-sdk",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/auth",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/bootstrap",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/build-agents",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/cdn-caching",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/chat-sdk",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/create-a-backend",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/custom-metrics",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/domains",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/env-vars",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/eve",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/flags-sdk",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/is-agentic",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/knowledge-update",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/marketplace",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/microfrontends",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/queues",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/react-best-practices",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/routing-middleware",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/runtime-cache",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-agent",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-cli",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-connect",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-firewall",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-functions",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-sandbox",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-services",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/vercel-storage",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/verification",
+        "skill://plugin_connector_690a90ec05c881918afb6a55dc9bbaa1/workflow"
+      ],
+      "server_info": {
+        "name": "plugin-runtime",
+        "title": null,
+        "version": "0.1.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 2454468
+    },
+    {
+      "name": "computer-use",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "context7",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "cua_repl",
+      "tool_names": [
+        "js",
+        "js_reset",
+        "turn_ended"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "rmcp",
+        "title": null,
+        "version": "1.5.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 4833
+    },
+    {
+      "name": "design-converter",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "everme",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "fatebridge",
+      "tool_names": [
+        "analyze_destiny",
+        "astro_agepoint",
+        "astro_balbillus",
+        "astro_chart",
+        "astro_chart13",
+        "astro_distributions",
+        "astro_election",
+        "astro_extrareturns",
+        "astro_germany_chart",
+        "astro_guolao_chart",
+        "astro_harmonic",
+        "astro_hellen_chart",
+        "astro_horary",
+        "astro_india_chart",
+        "astro_jaynesprog",
+        "astro_keypoints",
+        "astro_lunation_phase",
+        "astro_mundane",
+        "astro_persiandirected",
+        "astro_planetary_ages",
+        "astro_planetaryarc",
+        "astro_relative_chart",
+        "astro_triplicity_rulers",
+        "astro_vedicprog",
+        "astro_yearsystem129",
+        "bazi_birth",
+        "bazi_career",
+        "bazi_children",
+        "bazi_education",
+        "bazi_health",
+        "bazi_marriage",
+        "bazi_personality",
+        "bazi_relatives",
+        "bazi_romance",
+        "bazi_wealth",
+        "canping",
+        "dayun_analysis",
+        "decennials",
+        "export_parse",
+        "export_registry",
+        "fengshui_annual_stars",
+        "fengshui_assess",
+        "fengshui_bazhai",
+        "fengshui_directions",
+        "fengshui_jinsuo",
+        "fengshui_minggua",
+        "fengshui_xuankong_natal",
+        "firdaria",
+        "givenyear",
+        "gua_lookup",
+        "gua_meiyi",
+        "heluo",
+        "jieqi_timeline_analysis",
+        "jieqi_year",
+        "jinkou",
+        "knowledge_read",
+        "knowledge_registry",
+        "liunian_analysis",
+        "liureng_gods",
+        "liureng_runyear",
+        "liuri_analysis",
+        "liushi_analysis",
+        "liuyue_analysis",
+        "lunarreturn",
+        "meihua_analysis",
+        "nongli_time",
+        "otherbu",
+        "pd",
+        "pdchart",
+        "profection",
+        "qimen",
+        "sanshiunited",
+        "sixyao",
+        "solararc",
+        "solarreturn",
+        "sukuyo_compatibility",
+        "suzhan",
+        "taiyi",
+        "timing_analysis",
+        "tongshefa",
+        "transit",
+        "two_person_compatibility",
+        "western_timing_analysis",
+        "ziwei_birth",
+        "ziwei_horoscope",
+        "ziwei_rules",
+        "zr"
+      ],
+      "resources": [
+        "fatebridge://catalog/summary",
+        "fatebridge://scenarios"
+      ],
+      "server_info": {
+        "name": "fatebridge",
+        "title": null,
+        "version": "0.2.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 2201110
+    },
+    {
+      "name": "figma",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "github",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "greptile",
+      "tool_names": [
+        "create_custom_context",
+        "get_analytics_overview",
+        "get_code_review",
+        "get_custom_context",
+        "get_knowledge_base_document",
+        "get_me",
+        "get_merge_request",
+        "list_analytics_filter_options",
+        "list_analytics_findings",
+        "list_code_reviews",
+        "list_custom_context",
+        "list_knowledge_base_documents",
+        "list_knowledge_bases",
+        "list_merge_request_comments",
+        "list_merge_requests",
+        "list_pull_requests",
+        "list_repositories",
+        "search_custom_context",
+        "search_greptile_comments",
+        "search_knowledge_base",
+        "trigger_code_review"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "Greptile MCP Server",
+        "title": null,
+        "version": "1.0.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 49023
+    },
+    {
+      "name": "huggingface-skills",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "linear",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "node_repl",
+      "tool_names": [
+        "js",
+        "js_add_node_module_dir",
+        "js_reset",
+        "turn_ended"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "rmcp",
+        "title": null,
+        "version": "1.5.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 2659
+    },
+    {
+      "name": "openai-api-key-local-confirmation",
+      "tool_names": [
+        "confirm_openai_api_key_local_destination"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "OpenAI Developers MCP",
+        "title": null,
+        "version": "0.1.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 1041
+    },
+    {
+      "name": "openaiDeveloperDocs",
+      "tool_names": [
+        "fetch_openai_doc",
+        "get_openapi_spec",
+        "list_api_endpoints",
+        "list_openai_docs",
+        "search_openai_docs"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "openai-docs-mcp",
+        "title": null,
+        "version": "1.0.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 3288
+    },
+    {
+      "name": "pinecone",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "playwright",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "sentry",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "supabase",
+      "tool_names": [
+        "apply_migration",
+        "confirm_cost",
+        "create_branch",
+        "create_project",
+        "delete_branch",
+        "deploy_edge_function",
+        "execute_sql",
+        "generate_typescript_types",
+        "get_advisors",
+        "get_cost",
+        "get_edge_function",
+        "get_organization",
+        "get_project",
+        "get_project_url",
+        "get_publishable_keys",
+        "list_branches",
+        "list_edge_functions",
+        "list_extensions",
+        "list_migrations",
+        "list_organizations",
+        "list_projects",
+        "list_tables",
+        "merge_branch",
+        "pause_project",
+        "query_logs",
+        "rebase_branch",
+        "reset_branch",
+        "restore_project",
+        "search_docs"
+      ],
+      "resources": [],
+      "server_info": {
+        "name": "supabase",
+        "title": "Supabase",
+        "version": "0.13.0",
+        "description": null,
+        "icons": null,
+        "websiteUrl": null
+      },
+      "tool_schema_wire_bytes": 23521
+    },
+    {
+      "name": "vercel",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "wechat-devtools",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-ai-assist",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-all",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-build",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-interact",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-launch",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-meta",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-setup",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xc-testing",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    },
+    {
+      "name": "xcodebuildmcp",
+      "tool_names": [],
+      "resources": [],
+      "server_info": null,
+      "tool_schema_wire_bytes": 2
+    }
+  ],
+  "inventory_scope": "shared-host snapshot after all conversations",
+  "semantic_review": "passed"
+}

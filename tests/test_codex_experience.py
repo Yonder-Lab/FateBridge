@@ -362,3 +362,47 @@ def test_relationship_example_and_default_do_not_assume_marriage(capsys):
     code, result, _ = invoke(capsys, *shlex.split(cli._cli_example(spec, inputs))[1:])
     assert code == 0 and result["summary"]["relationship_type"] == "general"
     assert result["summary"]["overall_score"] == 54.5
+
+
+@pytest.mark.asyncio
+async def test_explicit_pillar_context_can_be_projected_without_a_retry():
+    spec = next(s for s in CATALOG if s.key == "bazi_career")
+    inputs = {**example_input(spec), "dayun_pillar": "甲申", "liunian_pillar": "丙午"}
+    async with Client(create_mcp_app(families="bazi")) as client:
+        response = await client.call_tool(
+            spec.tool_name,
+            {
+                **inputs,
+                "fields": suggested_fields(spec),
+                "strict_fields": True,
+                "include_snapshot_text": False,
+            },
+        )
+    assert not response.is_error
+    career = response.structured_content["career_analysis"]
+    assert career["career_structure"]["score"] == 75
+    assert career["timing_context"]["source"] == "explicit_pillar_overrides"
+    assert "analysis_date" not in career["timing_context"]
+    assert "dayun_age" not in career["timing_context"]
+
+
+def test_timing_first_view_keeps_current_basis_without_year_grids(capsys):
+    spec = next(s for s in CATALOG if s.key == "timing_analysis")
+    code, result, _ = invoke(
+        capsys,
+        *shlex.split(cli._cli_example(spec, example_input(spec)))[1:],
+        "--fields",
+        *suggested_fields(spec),
+        "--strict-fields",
+        "--as-of",
+        "2026-10-12T04:00:00Z",
+    )
+    assert code == 0
+    calendar = result["analysis_calendar"]
+    assert set(calendar) == {"analysis_date_context"}
+    context = calendar["analysis_date_context"]
+    assert context["timezone"] == "Asia/Shanghai"
+    assert context["current_solar_term"] and context["next_solar_term"]
+    assert context["bazi_month_boundary"]
+    assert result["dayun_analysis"] and result["liunian_analysis"]
+    assert len(json.dumps(result, ensure_ascii=False).encode()) < 10000

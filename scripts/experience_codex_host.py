@@ -10,11 +10,14 @@ import argparse
 import hashlib
 import json
 import queue
+import re
 import subprocess
 import sys
 import tempfile
 import threading
 import time
+from collections import Counter
+from contextlib import nullcontext
 from pathlib import Path
 
 import fatebridge
@@ -94,10 +97,39 @@ def public_item(item):
     return item
 
 
+def raw_event_metadata(method, params):
+    """Allowlist timing/tool identifiers; never retain raw messages or reasoning."""
+    if method == "rawResponse/completed":
+        return {"kind": "response_completed"}
+    if method != "rawResponseItem/completed":
+        return None
+    item = params.get("item", {})
+    kind = item.get("type")
+    result = {"kind": kind}
+    if kind in {"custom_tool_call", "function_call"}:
+        code = item.get("input", item.get("arguments", ""))
+        code = code if isinstance(code, str) else ""
+        result.update(
+            name=item.get("name"),
+            code_bytes=len(code.encode()),
+            callees=sorted(
+                set(re.findall(r"\b([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\s*\(", code))
+            ),
+            tool_identifiers=sorted(set(re.findall(r"\bmcp__[A-Za-z_0-9]+", code))),
+        )
+    elif kind in {"custom_tool_call_output", "function_call_output"}:
+        result["output_bytes"] = len(
+            json.dumps(item.get("output", ""), ensure_ascii=False).encode()
+        )
+    elif kind == "message":
+        result.update(role=item.get("role"), phase=item.get("phase"))
+    return result
+
+
 class TurnObservation:
     """Measure stages without retaining private reasoning or command contents."""
 
-    def __init__(self):
+    def __init__(self, previous_tokens=None):
         self.first_model_activity = None
         self.first_public_output = None
         self.first_mcp_call = None
@@ -108,8 +140,41 @@ class TurnObservation:
         self.calls = []
         self.background = []
         self.backend_error = None
+        self.previous_tokens = previous_tokens or {}
+        self.token_samples = []
+        self.agent_messages = {}
+        self.reasoning_activity_count = 0
+        self.startups = []
+        self.tool_loading_events = []
 
     def observe(self, method, params, elapsed):
+        if method in {"rawResponse/completed", "rawResponseItem/completed"}:
+            metadata = params.get("safe_metadata")
+            if metadata is not None:
+                self.tool_loading_events.append({"at_seconds": elapsed, **metadata})
+        if method == "thread/tokenUsage/updated":
+            usage = params.get("tokenUsage", {})
+            # Numeric usage only; no raw API items, prompts or reasoning text.
+            sample = {"at_seconds": elapsed}
+            for part in ["last", "total"]:
+                sample[part] = {
+                    k: v
+                    for k, v in usage.get(part, {}).items()
+                    if isinstance(v, int) and not isinstance(v, bool)
+                }
+            if (
+                not self.token_samples
+                or sample["total"] != self.token_samples[-1]["total"]
+            ):
+                self.token_samples.append(sample)
+        if method == "mcpServer/startupStatus/updated":
+            self.startups.append(
+                {
+                    "at_seconds": elapsed,
+                    "server": params.get("name", params.get("server")),
+                    "status": params.get("status"),
+                }
+            )
         if method == "error":
             message = params.get("error", {}).get("message", "")
             reconnect = message.startswith("Reconnecting")
@@ -125,6 +190,20 @@ class TurnObservation:
             )
         item = params.get("item", {})
         kind = item.get("type")
+        if kind == "reasoning" or method.startswith("item/reasoning/"):
+            self.reasoning_activity_count += 1
+        if kind == "agentMessage" or method == "item/agentMessage/delta":
+            identity = item.get("id", params.get("itemId"))
+            entry = self.agent_messages.setdefault(identity, {})
+            entry.setdefault("started_seconds", elapsed)
+            if method == "item/agentMessage/delta":
+                entry.setdefault("first_delta_seconds", elapsed)
+                entry["last_delta_seconds"] = elapsed
+            if kind == "agentMessage":
+                entry["phase"] = item.get("phase")
+            if method == "item/completed":
+                entry["completed_seconds"] = elapsed
+                entry["characters"] = len(item.get("text", ""))
         if method.startswith("item/") and (
             kind in {"agentMessage", "reasoning", "mcpToolCall", "commandExecution"}
             or method.lower().endswith("delta")
@@ -159,10 +238,15 @@ class TurnObservation:
                         "completed_seconds": elapsed,
                         "duration_ms": item.get("durationMs"),
                         "status": item.get("status"),
+                        "result_wire_bytes": len(
+                            json.dumps(
+                                item.get("result", {}), ensure_ascii=False
+                            ).encode()
+                        ),
                     }
                 )
 
-    def summary(self, error=None):
+    def summary(self, error=None, duration=None):
         message = str((error or {}).get("message", ""))
         failure = self.backend_error
         if "workspace routing" in message.lower():
@@ -174,6 +258,21 @@ class TurnObservation:
                 failure = "mcp_inflight_unknown"
             else:
                 failure = "codex_turn_incomplete"
+        totals = self.token_samples[-1]["total"] if self.token_samples else {}
+        intervals = sorted(
+            (c["started_seconds"], c["completed_seconds"])
+            for c in self.calls
+            if c["started_seconds"] is not None
+        )
+        merged = []
+        for begin, end in intervals:
+            if merged and begin <= merged[-1][1]:
+                merged[-1][1] = max(end, merged[-1][1])
+            else:
+                merged.append([begin, end])
+        final = [
+            v for v in self.agent_messages.values() if v.get("phase") == "final_answer"
+        ]
         return {
             "first_model_activity_seconds": self.first_model_activity,
             "first_public_output_seconds": self.first_public_output,
@@ -183,6 +282,40 @@ class TurnObservation:
             "calls": self.calls,
             "unfinished_mcp_count": len(self.inflight),
             "host_background_commands": self.background,
+            "mcp_startup_notifications": self.startups,
+            "agent_messages": list(self.agent_messages.values()),
+            "first_final_answer_delta_seconds": min(
+                (v["first_delta_seconds"] for v in final if "first_delta_seconds" in v),
+                default=None,
+            ),
+            "reasoning_activity_count": self.reasoning_activity_count,
+            "token_usage_samples": self.token_samples,
+            "tool_loading_events": self.tool_loading_events,
+            "turn_token_usage": (
+                {k: v - self.previous_tokens.get(k, 0) for k, v in totals.items()}
+                if totals
+                else None
+            ),
+            "time_partition": {
+                "before_first_mcp_seconds": intervals[0][0] if intervals else None,
+                "mcp_active_wall_seconds": round(sum(b - a for a, b in merged), 3),
+                "between_mcp_calls_seconds": (
+                    round(
+                        max(b for _, b in intervals)
+                        - intervals[0][0]
+                        - sum(b - a for a, b in merged),
+                        3,
+                    )
+                    if intervals
+                    else None
+                ),
+                "after_last_mcp_seconds": (
+                    round(duration - max(b for _, b in intervals), 3)
+                    if intervals and duration is not None
+                    else None
+                ),
+                "boundary": "Host-observed intervals; non-MCP time includes planning, network and streaming, not pure model compute",
+            },
         }
 
 
@@ -196,11 +329,20 @@ class Host:
         idle_timeout=90,
         max_reconnects=3,
         consultation_role=False,
+        effort=None,
+        direct_tools=False,
+        trace_tool_loading=False,
     ):
         self.turn_timeout = turn_timeout
         self.idle_timeout = idle_timeout
         self.max_reconnects = max_reconnects
         self.consultation_role = consultation_role
+        self.effort = effort
+        self.direct_tools = direct_tools
+        self.trace_tool_loading = trace_tool_loading
+        self.token_totals = {}
+        self.startup_events = []
+        self.notification_counts = Counter()
         self.rpc_timings = []
         self.model_selection = None
         self.boot_started = time.monotonic()
@@ -215,6 +357,8 @@ class Host:
             "--disable",
             "unbounded_connection_retries",
         ]
+        if direct_tools:
+            args += ["--disable", "code_mode_host"]
         overrides = {
             "mcp_servers.fatebridge.command": sys.executable,
             "mcp_servers.fatebridge.args": ["-m", "fatebridge.mcp_server"],
@@ -244,7 +388,14 @@ class Host:
         try:
             self.rpc(
                 "initialize",
-                {"clientInfo": {"name": "fatebridge-experience", "version": "1.0"}},
+                {
+                    "clientInfo": {"name": "fatebridge-experience", "version": "1.0"},
+                    **(
+                        {"capabilities": {"experimentalApi": True}}
+                        if trace_tool_loading
+                        else {}
+                    ),
+                },
             )
         except Exception:
             self.log.seek(0)
@@ -271,7 +422,34 @@ class Host:
     def _read(self):
         for line in self.process.stdout:
             try:
-                self.incoming.put(json.loads(line))
+                message = json.loads(line)
+                message["_received_at"] = time.monotonic()
+                metadata = raw_event_metadata(
+                    message.get("method"), message.get("params", {})
+                )
+                if metadata is not None:
+                    params = message.get("params", {})
+                    # Sanitize before enqueueing, not just before writing reports.
+                    message["params"] = {
+                        "threadId": params.get("threadId"),
+                        "turnId": params.get("turnId"),
+                        "safe_metadata": metadata,
+                    }
+                if "method" in message:
+                    self.notification_counts[message["method"]] += 1
+                if message.get("method") == "mcpServer/startupStatus/updated":
+                    params = message.get("params", {})
+                    self.startup_events.append(
+                        {
+                            "since_host_boot_seconds": round(
+                                message["_received_at"] - self.boot_started, 3
+                            ),
+                            "server": params.get("name"),
+                            "status": params.get("status"),
+                            "thread_id": params.get("threadId"),
+                        }
+                    )
+                self.incoming.put(message)
             except json.JSONDecodeError:
                 continue
         self.incoming.put({"hostExited": self.process.poll()})
@@ -345,6 +523,7 @@ class Host:
                 "ephemeral": True,
                 "sandbox": "read-only",
                 "approvalPolicy": "never",
+                **({"experimentalRawEvents": True} if self.trace_tool_loading else {}),
                 **(
                     {"developerInstructions": CONSULTATION_ROLE}
                     if self.consultation_role
@@ -354,11 +533,16 @@ class Host:
             },
         )
         self.thread_id = response["thread"]["id"]
+        self.token_totals = {}
         print("Ephemeral conversation ready:", response["model"], flush=True)
         return {
             "id": self.thread_id,
             "model": response["model"],
             "reasoning_effort": response.get("reasoningEffort"),
+            "turn_effort_override": self.effort,
+            "direct_tools_process_override": self.direct_tools,
+            "trace_tool_loading": self.trace_tool_loading,
+            "instruction_sources": response.get("instructionSources", []),
             "ephemeral": True,
             "configured_model": self.configured_model,
             "model_selection": (
@@ -404,12 +588,16 @@ class Host:
         started = time.monotonic()
         response = self.rpc(
             "turn/start",
-            {"threadId": self.thread_id, "input": [{"type": "text", "text": text}]},
+            {
+                "threadId": self.thread_id,
+                "input": [{"type": "text", "text": text}],
+                **({"effort": self.effort} if getattr(self, "effort", None) else {}),
+            },
         )
         turn_id = response["turn"]["id"]
         public = {}
         requests = []
-        observation = TurnObservation()
+        observation = TurnObservation(getattr(self, "token_totals", {}))
         stop_error = None
         while time.monotonic() - started < self.turn_timeout:
             elapsed = round(time.monotonic() - started, 3)
@@ -446,12 +634,15 @@ class Host:
                 break
             method = message.get("method", "")
             params = message.get("params", {})
-            if (
-                params.get("threadId", self.thread_id) != self.thread_id
-                or params.get("turnId", turn_id) != turn_id
-            ):
+            if params.get("threadId") not in [None, self.thread_id] or params.get(
+                "turnId"
+            ) not in [None, turn_id]:
                 continue
-            observation.observe(method, params, round(time.monotonic() - started, 3))
+            observation.observe(
+                method,
+                params,
+                round(message.get("_received_at", time.monotonic()) - started, 3),
+            )
             if method == "error":
                 print(
                     "Codex runtime error:",
@@ -468,6 +659,8 @@ class Host:
                 requests.append({"method": method, "params": params})
             if method == "turn/completed" and params["turn"]["id"] == turn_id:
                 turn = params["turn"]
+                if observation.token_samples:
+                    self.token_totals = observation.token_samples[-1]["total"]
                 for item in turn.get("items", []):
                     if item["type"] != "reasoning":
                         public[item["id"]] = public_item(item)
@@ -480,7 +673,9 @@ class Host:
                     "items": list(public.values()),
                     "client_requests": requests,
                     "runtime_events": observation.events,
-                    "stages": observation.summary(turn.get("error")),
+                    "stages": observation.summary(
+                        turn.get("error"), time.monotonic() - started
+                    ),
                 }
         stop_error = stop_error or {
             "message": "Codex turn exceeded total deadline",
@@ -503,7 +698,7 @@ class Host:
             "items": list(public.values()),
             "client_requests": requests,
             "runtime_events": observation.events,
-            "stages": observation.summary(stop_error),
+            "stages": observation.summary(stop_error, time.monotonic() - started),
         }
 
     def close(self):
@@ -520,6 +715,26 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--case", choices=CASES, action="append")
+    parser.add_argument(
+        "--trace-tool-loading",
+        action="store_true",
+        help="Opt into native raw events but retain only timing, call identifiers and sizes",
+    )
+    parser.add_argument(
+        "--direct-tools",
+        action="store_true",
+        help="A/B native direct tool calling versus code_mode_host; subprocess only",
+    )
+    parser.add_argument(
+        "--cwd",
+        type=Path,
+        help="Use a real consultation workspace and its normal instructions/config; otherwise use a temporary directory",
+    )
+    parser.add_argument(
+        "--effort",
+        choices=["low", "medium", "high"],
+        help="Compare per-conversation reasoning effort on the same model; no global setting changes",
+    )
     parser.add_argument(
         "--registered",
         action="store_true",
@@ -545,20 +760,28 @@ def main():
     )
     # Desktop clients keep one host alive. Repeated cold hosts add routing/auth
     # discovery and plugin startup; they are a separate stress test, not normal UX.
-    with tempfile.TemporaryDirectory(prefix="fatebridge-codex-user-") as cwd:
+    workspace = (
+        nullcontext(str(args.cwd.resolve()))
+        if args.cwd
+        else tempfile.TemporaryDirectory(prefix="fatebridge-codex-user-")
+    )
+    with workspace as cwd:
         host = Host(
             scenario,
             cwd,
             registered=args.registered,
             consultation_role=args.consultation_role,
+            effort=args.effort,
+            direct_tools=args.direct_tools,
+            trace_tool_loading=args.trace_tool_loading,
         )
         failed = False
         records = []
         try:
             for key in keys:
                 case = CASES[key]
-                case_cwd = str(Path(cwd) / key)
-                Path(case_cwd).mkdir()
+                case_cwd = cwd if args.cwd else str(Path(cwd) / key)
+                Path(case_cwd).mkdir(exist_ok=True)
                 record = {
                     "case": key,
                     "scenario": None if args.registered else scenario,
@@ -602,6 +825,10 @@ def main():
                 inventory = None
                 inventory_error = type(exc).__name__
             for record in records:
+                record["mcp_startup_events"] = list(getattr(host, "startup_events", []))
+                record["notification_counts"] = dict(
+                    getattr(host, "notification_counts", {})
+                )
                 record["inventory"] = inventory
                 record["inventory_scope"] = (
                     "shared-host snapshot after all conversations"

@@ -297,7 +297,14 @@ def test_gender_and_timing_variants(dimension, gender, timing):
     spec.output_model.model_validate(result)
     Draft202012Validator(spec.output_model.model_json_schema()).validate(result)
     analysis = result[dimension.removeprefix("bazi_") + "_analysis"]
-    assert ("timing_context" in analysis) == (timing != "both-overridden")
+    assert "timing_context" in analysis
+    if timing == "both-overridden":
+        assert analysis["timing_context"] == {
+            "dayun_pillar": "甲子",
+            "liunian_pillar": "乙丑",
+            "source": "explicit_pillar_overrides",
+            "overridden": {"dayun_pillar": True, "liunian_pillar": True},
+        }
 
 
 @pytest.mark.parametrize("item", AI_EXPORT_TECHNIQUES, ids=lambda item: item["key"])

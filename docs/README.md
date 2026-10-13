@@ -8,6 +8,9 @@
 
 - 想把服务跑起来：看 [getting-started.md](getting-started.md)
 - 想用 Codex 直接体验：看 [codex-guide.md](codex-guide.md)
+- 想定位 Codex 工具加载与模型往返延迟：看 [codex-tool-loading-2026-10-13.md](codex-tool-loading-2026-10-13.md)
+- 想查看实际 Codex 桌面新聊天与宿主等待拆解：看 [codex-desktop-latency-2026-10-13.md](codex-desktop-latency-2026-10-13.md)
+- 想继续拆解首次宿主准备与双人调用等待：看 [codex-host-preparation-2026-10-13.md](codex-host-preparation-2026-10-13.md)
 - 想看完整接口清单：看 [api-reference.md](api-reference.md)
 - 想把 FateBridge 接进应用或 Agent：看 [agent-guide.md](agent-guide.md)
 - 想理解系统结构：看 [architecture.md](architecture.md)
@@ -83,3 +86,5 @@
 2026-10-13 的 [Codex MCP 根因定位与优化](codex-mcp-root-cause-2026-10-13.md)记录了 Schema 传输、发现流程、宿主生命周期和角色边界的后续优化。
 
 [旧入口与兼容层清理验收](legacy-entry-cleanup-validation-2026-10-13.md)记录已删除的历史模块、Python 包装与旧 REST/CLI 入口，列出正式迁移路径和回归证据。
+
+- [Codex 日常对话耗时拆解与优化](codex-daily-latency-2026-10-13.md)

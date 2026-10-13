@@ -1,0 +1,35 @@
+Installed 84 packages in 186ms
+.................................................                        [100%]
+=============================== warnings summary ===============================
+../../.cache/uv/archive-v0/vwVf1gBxSC4BMhUU/lib/python3.13/site-packages/fastmcp/server/auth/providers/jwt.py:11
+  /Users/thomas/.cache/uv/archive-v0/vwVf1gBxSC4BMhUU/lib/python3.13/site-packages/fastmcp/server/auth/providers/jwt.py:11: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+  It will be compatible before version 2.0.0.
+    from authlib.jose import JsonWebKey, JsonWebToken
+
+../../.cache/uv/builds-v0/.tmpHNBRCA/lib/python3.13/site-packages/kerykeion/backword.py:158
+  /Users/thomas/.cache/uv/builds-v0/.tmpHNBRCA/lib/python3.13/site-packages/kerykeion/backword.py:158: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    NOW = _dt.utcnow()
+
+tests/test_codex_experience.py::test_published_example_is_runnable[bazi_birth]
+tests/test_codex_experience.py::test_published_example_is_runnable[bazi_birth]
+tests/test_codex_experience.py::test_relationship_summary_deduplicates_without_losing_evidence
+tests/test_codex_experience.py::test_profile_deduplicates_and_preserves_projected_receipts
+  /Users/thomas/Desktop/FateBridge/src/fatebridge/core/almanac.py:200: DeprecationWarning: fromSolarDate is deprecated, use from_solar_date instead
+    lunar = LunarDate.fromSolarDate(solar_date.year, solar_date.month, solar_date.day)
+
+tests/test_codex_experience.py::test_published_example_is_runnable[bazi_birth]
+tests/test_codex_experience.py::test_published_example_is_runnable[bazi_birth]
+tests/test_codex_experience.py::test_relationship_summary_deduplicates_without_losing_evidence
+tests/test_codex_experience.py::test_profile_deduplicates_and_preserves_projected_receipts
+  /Users/thomas/Desktop/FateBridge/src/fatebridge/core/almanac.py:201: DeprecationWarning: toSolarDate is deprecated, use to_solar_date instead
+    if lunar.toSolarDate() != solar_date:
+
+tests/test_codex_experience.py::test_published_example_is_runnable[bazi_birth]
+tests/test_codex_experience.py::test_published_example_is_runnable[bazi_birth]
+tests/test_codex_experience.py::test_relationship_summary_deduplicates_without_losing_evidence
+tests/test_codex_experience.py::test_profile_deduplicates_and_preserves_projected_receipts
+  /Users/thomas/.cache/uv/builds-v0/.tmpHNBRCA/lib/python3.13/site-packages/lunardate.py:143: DeprecationWarning: use is_leap_month
+    warnings.warn("use is_leap_month", DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+49 passed, 14 warnings in 12.12s

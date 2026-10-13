@@ -1,0 +1,9 @@
+{
+  "AGENTS.md": "49894cc0338935af9f069c8fb54907c76df5c50b93d80b9649a075dcbf917a85",
+  "scripts/build_codex_call_contracts.py": "0a0ef15db368dd0aa62505a981cfc776d082512c5b741ab854a5816066a041e1",
+  "scripts/observe_codex_desktop.py": "3c559fcbc0eb9ee047b5bb2beee99fe360833e0e2d8f5a09d12fde7c68f1f189",
+  "tests/test_codex_call_contracts.py": "d0ecf34b81200b1d9c637c9b97387540b90bec3bfe7753d804b86068153a2c0a",
+  "tests/test_codex_desktop_observation.py": "f995cc41e9200ea57ed43c705a2578888eb4e474dc5aa7fb6f4fb5ab57e49e6e",
+  "docs/codex-guide.md": "c10f0af667508e9b2f24afa0f690da4341b3c17eaaa2fed5eb3c7c8521320e1f",
+  "docs/codex-desktop-latency-2026-10-13.md": "fae79e30a29f80b647da72d1e9284d46825e184cf1e9a9eb6f8009c395a8d96a"
+}

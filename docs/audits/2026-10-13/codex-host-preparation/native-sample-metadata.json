@@ -1,0 +1,415 @@
+{
+  "duration_seconds": 9,
+  "sampling_interval_ms": 10,
+  "scope": "Native desktop app-server process during a selected new fictional chat; concurrent host activity may be included. Inclusive samples are not exclusive latency and must not be added as stage milliseconds.",
+  "symbols": [
+    {
+      "inclusive_samples": 4,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 4,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 5,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 5,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 4,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 3,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 51,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 12,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 10,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 4,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 63,
+      "symbol": "codex_skills_extension::shadow_selection_experiment::ShadowSelectionExperiment::rank::h7276b89638856019"
+    },
+    {
+      "inclusive_samples": 5,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 3,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 4,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 7,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 3,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 3,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 37,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 11,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 8,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 16,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 9,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 6,
+      "symbol": "codex_skills_extension::loader::namespace::SkillNamespaceResolver::for_skill::hc8246af4d36fd04d"
+    },
+    {
+      "inclusive_samples": 5,
+      "symbol": "codex_skills_extension::loader::namespace::SkillNamespaceResolver::for_skill::hc8246af4d36fd04d"
+    },
+    {
+      "inclusive_samples": 5,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core::tools::spec_plan::build_tool_router::hdf282419f31f245c"
+    },
+    {
+      "inclusive_samples": 8,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 2,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 1,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 15,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    },
+    {
+      "inclusive_samples": 11,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 10,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 8,
+      "symbol": "codex_core_plugins::manifest::manifest_cache::ManifestCache::load::h4386b7a0c1735d8d"
+    },
+    {
+      "inclusive_samples": 6,
+      "symbol": "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+    }
+  ],
+  "plugin_lookup_ancestry": [
+    {
+      "inclusive_samples": 4,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 4,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 5,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 5,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 3,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 51,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 1,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 5,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 1,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 3,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 2,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 1,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 4,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 7,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 1,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 2,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 3,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 1,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 37,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 2,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 8,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 15,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    },
+    {
+      "inclusive_samples": 6,
+      "allowlisted_ancestry": [
+        "codex_core_plugins::manager::PluginsManager::list_marketplaces_for_context::ha5cb93b0dfcb302d"
+      ]
+    }
+  ]
+}

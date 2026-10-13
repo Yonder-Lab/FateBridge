@@ -1,0 +1,8 @@
+{
+  "scripts/observe_codex_desktop.py": "177ba0f161dbea1438af3cce7138e33aea76bc8f77fe070f75ea94f006593bda",
+  "tests/test_codex_desktop_observation.py": "c71375768b278f6ac310229192a0bab9bd9e893debb4400f12ce0cfa0808e124",
+  "docs/codex-host-preparation-2026-10-13.md": "5ed136541fd019d7afc7a7fd020361cd7728df472de526ada571b339b410d835",
+  "AGENTS.md": "49894cc0338935af9f069c8fb54907c76df5c50b93d80b9649a075dcbf917a85",
+  "src/fatebridge/mcp_server.py": "5a6fbefc94617fe8efe01fdb846348acbec846fa50e3b36a41b83bd7fb6c9393",
+  "src/fatebridge/transports/mcp.py": "a7d4ca133dc235fd810b40b55d58a657f83caf018431802b484766a62267d7c4"
+}

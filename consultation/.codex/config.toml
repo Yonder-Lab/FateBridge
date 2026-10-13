@@ -1,0 +1,2 @@
+# Scoped to this consultation workspace; retain the user's model and plugins.
+model_reasoning_effort = "medium"

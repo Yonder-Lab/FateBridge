@@ -985,6 +985,15 @@ def _run_bazi_dimension_analysis(
                 dayun = auto_dayun
             if liunian is None:
                 liunian = auto_liunian
+        else:
+            # Explicit pillars still have a provenance contract. They do not
+            # have an automatically derived age/date; do not invent those.
+            timing_context = {
+                "dayun_pillar": dayun_pillar,
+                "liunian_pillar": liunian_pillar,
+                "source": "explicit_pillar_overrides",
+                "overridden": {"dayun_pillar": True, "liunian_pillar": True},
+            }
 
         analysis = analyzer(
             pillars,
