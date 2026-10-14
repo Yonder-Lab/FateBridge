@@ -1,0 +1,70 @@
+{
+  "scope": "Independent product probe of object-to-actual-user membership; core calculation only, not model conversation",
+  "baseline_commit": "1da5e4f24873ef2f7c31b43eebc0bda2f882e381",
+  "synthetic_people": true,
+  "probe_code": "import json\nfrom fatebridge.services.fengshui import assess\npeople=[{'subject_id':'a','birth_date':'1990-05-15','gender_convention':'male'},{'subject_id':'b','birth_date':'2000-12-10','gender_convention':'male'},{'subject_id':'c','birth_date':'1990-06-16','gender_convention':'female'}]\nbase={'methods':['bazhai'],'analyze_layout':True,'placements':[{'object_id':'couple-bed','purpose':'bed','facing_direction':'N','facing_role':'headboard'}]}\nout={}\nfor label,occupants in [('actual_users_only',people[:2]),('all_home_residents',people)]:\n r=assess(**base,occupants=occupants); o=r['layout_analysis']['adjustment_options'][0]\n out[label]={'current_result':o['current_result'],'subjects':[s['subject_id'] for s in o['scopes']],'intersection':o['agreed_matching_directions']}\nbase['placements'][0]['subject_ids']=['a','b']\ntry:\n r=assess(**base,occupants=people);o=r['layout_analysis']['adjustment_options'][0]\n out['explicit_subset']={'current_result':o['current_result'],'subjects':[s['subject_id'] for s in o['scopes']],'intersection':o['agreed_matching_directions']}\nexcept Exception as e: out['explicit_subset']={'validation_error':str(e)}\nprint(json.dumps(out,ensure_ascii=False))\n",
+  "before": {
+    "actual_users_only": {
+      "current_result": "matches_selected_conventions",
+      "subjects": [
+        "a",
+        "b"
+      ],
+      "intersection": [
+        "N",
+        "E",
+        "SE",
+        "S"
+      ]
+    },
+    "all_home_residents": {
+      "current_result": "scope_difference",
+      "subjects": [
+        "a",
+        "b",
+        "c"
+      ],
+      "intersection": []
+    },
+    "explicit_subset": {
+      "validation_error": "1 validation error for AssessRequest\nplacements.0.subject_ids\n  Extra inputs are not permitted [type=extra_forbidden, input_value=['a', 'b'], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+    }
+  },
+  "after": {
+    "actual_users_only": {
+      "current_result": "matches_selected_conventions",
+      "subjects": [
+        "a",
+        "b"
+      ],
+      "intersection": [
+        "N",
+        "E",
+        "SE",
+        "S"
+      ]
+    },
+    "all_home_residents": {
+      "current_result": "scope_difference",
+      "subjects": [
+        "a",
+        "b",
+        "c"
+      ],
+      "intersection": []
+    },
+    "explicit_subset": {
+      "current_result": "matches_selected_conventions",
+      "subjects": [
+        "a",
+        "b"
+      ],
+      "intersection": [
+        "N",
+        "E",
+        "SE",
+        "S"
+      ]
+    }
+  }
+}

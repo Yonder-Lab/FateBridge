@@ -153,6 +153,12 @@ _PLACEMENT_SCHEMA_CONSTRAINTS: Dict[str, Any] = {
             }
             for purpose, role in _PLACEMENT_FACING_ROLES.items()
         ],
+        {
+            "anyOf": [
+                {"properties": {"subject_id": {"type": "null"}}},
+                {"properties": {"subject_ids": {"type": "null"}}},
+            ]
+        },
     ]
 }
 
@@ -182,11 +188,33 @@ class Placement(_DeferredModel):
         default=None,
         description="与 facing_direction 成对：door=door_facing、bed=headboard、desk=desk_facing、stove=fire_mouth",
     )
-    subject_id: Optional[str] = None
+    subject_id: Optional[str] = Field(
+        default=None,
+        description="单人使用；与 subject_ids 互斥，两者省略时应用全部已提供住户",
+    )
+    subject_ids: Optional[List[str]] = Field(
+        default=None,
+        min_length=1,
+        max_length=50,
+        json_schema_extra={"uniqueItems": True},
+        description="对象实际共用住户 ID 集合；与 subject_id 互斥，不纳入其他住户，宅盘仍单独保留",
+    )
     observation_basis: Basis = "user_confirmed"
+
+    def applies_to_occupant(self, subject_id: str) -> bool:
+        """Use one scope predicate for findings and inverse direction options."""
+        if self.subject_ids is not None:
+            return subject_id in self.subject_ids
+        return self.subject_id is None or self.subject_id == subject_id
 
     @model_validator(mode="after")
     def facing_semantics(self) -> "Placement":
+        if self.subject_id is not None and self.subject_ids is not None:
+            raise ValueError("subject_id 和 subject_ids 只能提供一项")
+        if self.subject_ids is not None and len(set(self.subject_ids)) != len(
+            self.subject_ids
+        ):
+            raise ValueError("对象共用住户 subject_ids 必须唯一")
         if self.location_direction is None and self.facing_direction is None:
             raise ValueError("布局对象至少提供位置或朝向，不猜测缺失位置")
         if (self.facing_direction is None) != (self.facing_role is None):
@@ -216,8 +244,13 @@ class BazhaiRequest(_DeferredModel):
         if self.house is not None and self.house.object_id in objects:
             raise ValueError("布局对象 ID 不得与住宅 ID 重复")
         if any(
-            p.subject_id is not None and p.subject_id not in ids
+            referenced not in ids
             for p in self.placements
+            for referenced in (
+                p.subject_ids
+                if p.subject_ids is not None
+                else [p.subject_id] if p.subject_id is not None else []
+            )
         ):
             raise ValueError("布局对象引用了未提供的住户")
         return self

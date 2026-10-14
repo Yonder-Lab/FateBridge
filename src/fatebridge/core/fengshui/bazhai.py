@@ -169,7 +169,7 @@ def bazhai(req: BazhaiRequest) -> Dict[str, Any]:
         if house is not None:
             bases.append((house["object_id"], "house", house["sectors"], None))
         for o in occupants:
-            if placement.subject_id is None or placement.subject_id == o["subject_id"]:
+            if placement.applies_to_occupant(o["subject_id"]):
                 for c in o["candidates"]:
                     bases.append(
                         (

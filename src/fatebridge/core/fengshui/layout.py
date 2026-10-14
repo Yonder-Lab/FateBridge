@@ -97,11 +97,7 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
             scope_options = []
             confirmed_sets = []
             for subject, kind, convention, candidate_only, chart in charts:
-                if (
-                    kind == "occupant"
-                    and placement.subject_id is not None
-                    and placement.subject_id != subject
-                ):
+                if kind == "occupant" and not placement.applies_to_occupant(subject):
                     continue
                 directions = [
                     d for d, p in chart.items() if p["star"]["polarity"] == expected

@@ -55,7 +55,7 @@ for _name, _service, _model, _summary in (
         "assess",
         "assess",
         AssessRequest,
-        "通用家居风水与布局合参：门/床/书桌/灶的位置/朝向放 placements，设 analyze_layout=true；床/书桌/灶的形态关系放 form_observations（入口可见、直线、实体背靠分别确认），其他家具不映射为这些用途。独立形态可 methods=[]，无需生辰/宅向。element_adjustments 须绑定已计算对象、方法、作用域和调节目标；物件/颜色取所选作者的有条件候选，不推喜用神。年度候选须显式 annual_remedy_ruleset_id=pang_2026_annual_v1，仅2026南5/西北2，不外推。距离无通用吉凶阈值，照片只作待确认观察；各层及作者分歧分列。",
+        "通用家居风水与布局合参：门/床/书桌/灶的位置/朝向放 placements，设 analyze_layout=true；关联使用人一人用 subject_id、多人用 subject_ids，二者互斥；未指定关联则应用全部已提供住户，不将同住推成共用。床/书桌/灶的形态关系放 form_observations（入口可见、直线、实体背靠分别确认），其他家具不映射为这些用途。独立形态可 methods=[]，无需生辰/宅向。element_adjustments 须绑定已计算对象、方法、作用域和调节目标；物件/颜色取所选作者的有条件候选，不推喜用神。年度候选须显式 annual_remedy_ruleset_id=pang_2026_annual_v1，仅2026南5/西北2，不外推。距离无通用吉凶阈值，照片只作待确认观察；各层及作者分歧分列。",
     ),
 ):
     SPECS.append(
