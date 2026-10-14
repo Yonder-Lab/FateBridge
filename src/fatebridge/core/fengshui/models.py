@@ -1,9 +1,9 @@
 """Residential inputs: location, facing and observed form stay distinct."""
 
 from datetime import date, datetime
-from typing import List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from fatebridge.core.requests.base import _DeferredModel
 from fatebridge.utils.timezones import parse_timezone_name
@@ -110,16 +110,78 @@ class House(_DeferredModel):
         return self
 
 
+_PLACEMENT_FACING_ROLES = {
+    "door": "door_facing",
+    "bed": "headboard",
+    "desk": "desk_facing",
+    "stove": "fire_mouth",
+}
+
+
+_PLACEMENT_SCHEMA_CONSTRAINTS: Dict[str, Any] = {
+    "allOf": [
+        {
+            "anyOf": [
+                {
+                    "required": [field],
+                    "properties": {field: {"type": "string"}},
+                }
+                for field in ("location_direction", "facing_direction")
+            ]
+        },
+        {
+            "anyOf": [
+                {
+                    "properties": {
+                        field: {"type": "null"}
+                        for field in ("facing_direction", "facing_role")
+                    }
+                },
+                {
+                    "required": ["facing_direction", "facing_role"],
+                    "properties": {
+                        field: {"type": "string"}
+                        for field in ("facing_direction", "facing_role")
+                    },
+                },
+            ]
+        },
+        *[
+            {
+                "if": {"properties": {"purpose": {"const": purpose}}},
+                "then": {"properties": {"facing_role": {"enum": [None, role]}}},
+            }
+            for purpose, role in _PLACEMENT_FACING_ROLES.items()
+        ],
+    ]
+}
+
+
 class Placement(_DeferredModel):
+    """门床桌灶的已确认方位。至少提供位置或朝向；两者均未知时省略本对象，
+    可在 form_observations 中独立提供形态。朝向和对应 facing_role 必须成对。
+    """
+
+    # Publish the same cross-field constraints that facing_semantics enforces.
+    # Optional fields may be omitted or explicitly null; neither is a bearing.
+    model_config = ConfigDict(json_schema_extra=_PLACEMENT_SCHEMA_CONSTRAINTS)
+
     object_id: str = Field(min_length=1, max_length=100)
     purpose: Literal["door", "bed", "desk", "stove"]
-    location_direction: Optional[Direction] = None
+    location_direction: Optional[Direction] = Field(
+        default=None,
+        description="已确认对象相对全宅中心的落宫；未知则省略，不能由朝向推断",
+    )
     facing_direction: Optional[Direction] = Field(
-        default=None, description="门朝向、床头、书桌朝向或已确认的灶火门，独立于位置"
+        default=None,
+        description="门朝向、床头、书桌朝向或已确认的灶火门，独立于位置；提供时必须同时提供对应 facing_role",
     )
     facing_role: Optional[
         Literal["door_facing", "headboard", "desk_facing", "fire_mouth"]
-    ] = None
+    ] = Field(
+        default=None,
+        description="与 facing_direction 成对：door=door_facing、bed=headboard、desk=desk_facing、stove=fire_mouth",
+    )
     subject_id: Optional[str] = None
     observation_basis: Basis = "user_confirmed"
 
@@ -127,15 +189,12 @@ class Placement(_DeferredModel):
     def facing_semantics(self) -> "Placement":
         if self.location_direction is None and self.facing_direction is None:
             raise ValueError("布局对象至少提供位置或朝向，不猜测缺失位置")
-        roles = {
-            "door": "door_facing",
-            "bed": "headboard",
-            "desk": "desk_facing",
-            "stove": "fire_mouth",
-        }
         if (self.facing_direction is None) != (self.facing_role is None):
             raise ValueError("facing_direction 和 facing_role 必须一起提供")
-        if self.facing_role is not None and self.facing_role != roles[self.purpose]:
+        if (
+            self.facing_role is not None
+            and self.facing_role != _PLACEMENT_FACING_ROLES[self.purpose]
+        ):
             raise ValueError("facing_role 与 purpose 不匹配")
         return self
 

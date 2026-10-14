@@ -1,0 +1,592 @@
+{
+  "case": "fengshui-form",
+  "evidence_scope": "all_observed_native_fatebridge_calls_shared_schema_confirmed_facts_business_results_and_receipts",
+  "turns": [
+    {
+      "call_evidence_status": "fail",
+      "failures": [
+        "assessment_call_not_completed",
+        "invalid_call_arguments:fengshui_assess:business:placements.0:anyOf",
+        "invalid_call_arguments:fengshui_assess:business:placements.0:value_error",
+        "unconfirmed_argument_supplied:placements.0.object_id",
+        "unconfirmed_argument_supplied:placements.0.purpose",
+        "unconfirmed_fact_supplied:placements",
+        "unconfirmed_object_count:placements"
+      ],
+      "unavailable_evidence": [],
+      "assessment_calls": [
+        {
+          "item_id": "exec-f9461b14-47e1-4c4b-865a-b35bfb4e4958",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": false
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            }
+          ],
+          "parameter_validation_errors": [
+            "business:placements.0:anyOf",
+            "business:placements.0:value_error"
+          ]
+        },
+        {
+          "item_id": "exec-f786582c-2819-4de5-8382-10caa4599243",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            }
+          ],
+          "parameter_validation_errors": [],
+          "receipt_input_binding": "verified_current_request_model",
+          "receipt_business_binding": "full_payload_digest_not_recomputable_from_projection"
+        }
+      ],
+      "fatebridge_calls": [
+        {
+          "item_id": "exec-95bd1f7e-77cc-4c39-805d-a4045acb0995",
+          "tool": "list_mcp_resources",
+          "checks": []
+        },
+        {
+          "item_id": "exec-5b799de1-8982-47da-a8a8-1b3fa7869719",
+          "tool": "list_mcp_resource_templates",
+          "checks": []
+        },
+        {
+          "item_id": "exec-f43c779e-b93f-4e8e-b422-41bdd2199ba4",
+          "tool": "read_mcp_resource",
+          "checks": []
+        },
+        {
+          "item_id": "exec-f9461b14-47e1-4c4b-865a-b35bfb4e4958",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": false
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            }
+          ],
+          "parameter_validation_errors": [
+            "business:placements.0:anyOf",
+            "business:placements.0:value_error"
+          ]
+        },
+        {
+          "item_id": "exec-f786582c-2819-4de5-8382-10caa4599243",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            }
+          ],
+          "parameter_validation_errors": [],
+          "receipt_input_binding": "verified_current_request_model",
+          "receipt_business_binding": "full_payload_digest_not_recomputable_from_projection"
+        }
+      ],
+      "human_review": {
+        "status": "pending",
+        "criteria": [
+          "answer_claims_trace_to_confirmed_facts_and_selected_rules",
+          "action_respects_mobility_shared_use_and_user_goal",
+          "correction_replaces_stale_facts",
+          "unknowns_and_method_disagreements_remain_visible",
+          "conditional_objects_do_not_become_guaranteed_cures"
+        ],
+        "required_evidence": "cite public answer and corresponding tool finding"
+      },
+      "consultation_success": "not_established_by_call_checks"
+    },
+    {
+      "call_evidence_status": "fail",
+      "failures": [
+        "unconfirmed_argument_supplied:form_observations.0.view_via_mirror"
+      ],
+      "unavailable_evidence": [],
+      "assessment_calls": [
+        {
+          "item_id": "exec-1ae7df27-e522-47e4-ae40-912059da5d85",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": true
+            }
+          ],
+          "parameter_validation_errors": [],
+          "receipt_input_binding": "verified_current_request_model",
+          "receipt_business_binding": "full_payload_digest_not_recomputable_from_projection"
+        }
+      ],
+      "fatebridge_calls": [
+        {
+          "item_id": "exec-1ae7df27-e522-47e4-ae40-912059da5d85",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": true
+            }
+          ],
+          "parameter_validation_errors": [],
+          "receipt_input_binding": "verified_current_request_model",
+          "receipt_business_binding": "full_payload_digest_not_recomputable_from_projection"
+        }
+      ],
+      "human_review": {
+        "status": "pending",
+        "criteria": [
+          "answer_claims_trace_to_confirmed_facts_and_selected_rules",
+          "action_respects_mobility_shared_use_and_user_goal",
+          "correction_replaces_stale_facts",
+          "unknowns_and_method_disagreements_remain_visible",
+          "conditional_objects_do_not_become_guaranteed_cures"
+        ],
+        "required_evidence": "cite public answer and corresponding tool finding"
+      },
+      "consultation_success": "not_established_by_call_checks"
+    },
+    {
+      "call_evidence_status": "fail",
+      "failures": [
+        "unconfirmed_argument_supplied:form_observations.0.entrance_position",
+        "unconfirmed_argument_supplied:form_observations.0.view_via_mirror",
+        "unconfirmed_fact_supplied:form_observations.0.entrance_position"
+      ],
+      "unavailable_evidence": [],
+      "assessment_calls": [
+        {
+          "item_id": "exec-83d7df45-519d-4951-8d85-92afa7bfd781",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": false
+            }
+          ],
+          "parameter_validation_errors": [],
+          "receipt_input_binding": "verified_current_request_model",
+          "receipt_business_binding": "full_payload_digest_not_recomputable_from_projection"
+        }
+      ],
+      "fatebridge_calls": [
+        {
+          "item_id": "exec-83d7df45-519d-4951-8d85-92afa7bfd781",
+          "tool": "fengshui_assess",
+          "checks": [
+            {
+              "path": "form_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.purpose",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.observation_basis",
+              "passed": true
+            },
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_visible",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_direct_line",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.solid_backing",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.backing_distance_m",
+              "passed": true
+            },
+            {
+              "path": "analyze_layout",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            },
+            {
+              "path": "placements",
+              "passed": true
+            },
+            {
+              "path": "form_observations.0.entrance_position",
+              "passed": false
+            }
+          ],
+          "parameter_validation_errors": [],
+          "receipt_input_binding": "verified_current_request_model",
+          "receipt_business_binding": "full_payload_digest_not_recomputable_from_projection"
+        }
+      ],
+      "human_review": {
+        "status": "pending",
+        "criteria": [
+          "answer_claims_trace_to_confirmed_facts_and_selected_rules",
+          "action_respects_mobility_shared_use_and_user_goal",
+          "correction_replaces_stale_facts",
+          "unknowns_and_method_disagreements_remain_visible",
+          "conditional_objects_do_not_become_guaranteed_cures"
+        ],
+        "required_evidence": "cite public answer and corresponding tool finding"
+      },
+      "consultation_success": "not_established_by_call_checks"
+    }
+  ],
+  "expected_turn_count": 3,
+  "observed_turn_count": 3,
+  "status": "fail",
+  "consultation_success": "requires_independent_answer_review"
+}

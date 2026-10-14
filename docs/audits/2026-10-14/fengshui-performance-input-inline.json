@@ -1,0 +1,4328 @@
+{
+  "environment": {
+    "python": "3.13.5",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "measured_at_utc": "2026-10-14T04:03:36.900926+00:00",
+    "git_head": "059030a9a8402415c44dbf5f0db99ea081d9f3eb",
+    "source_hashes": {
+      "src/fatebridge/__init__.py": "feef7e44bf4c217d2cc529504bd4655b2968d58a93ff1f18913695709fec840e",
+      "src/fatebridge/analysis/__init__.py": "a34922049a2fed384547d88d90841aeb54c1f0a4e846dc55788a71a2e87407f9",
+      "src/fatebridge/analysis/career.py": "380aff79d973dbdc5d9a2cdb74bf768563ee74926d6f51bf1bc9831ed52e3326",
+      "src/fatebridge/analysis/children.py": "c5208a18917b68a02604e6f133785bf5aaa974ce3a190c575670028a8f883642",
+      "src/fatebridge/analysis/compatibility.py": "3b0b0b41d3c3e476113ea57b131df0eb82d0d2af4c2ec18b75c3f37109f3ab73",
+      "src/fatebridge/analysis/education.py": "c8cacac1d26668fdc0147827e454621a9f082fc929b0ca2d945fc4f9085699fc",
+      "src/fatebridge/analysis/health.py": "6eb715914d6d62dad1c8437f66eda56249ded4f37650a6a62c16716945eeb58a",
+      "src/fatebridge/analysis/life_dimensions.py": "4ca1aca6627bb1cc09d574005dcdfffca30f5aee7ac52e61e84dd05d2f753d38",
+      "src/fatebridge/analysis/marriage.py": "58bb35ef1a1ef56f944ac4a0afc251a4279b293584985c42e5b853ec0c89fab7",
+      "src/fatebridge/analysis/personality.py": "008f109f734288128646e389c4e7c23588d58466c6f81a9b5a95452da1cf8775",
+      "src/fatebridge/analysis/relatives.py": "c793ed9a6435755cfda372366899c3dd8626ba0f60a6e5a51a2dcad2971531ed",
+      "src/fatebridge/analysis/romance.py": "82bb69b0f3afed0e23375857495bef943756185edcf4d8a382f280e1a41065ed",
+      "src/fatebridge/analysis/timing_effects.py": "c05a02581ee2a84b4cbd52c198ed3680b7b409abe5e7480dcaab2a60322cce43",
+      "src/fatebridge/analysis/wealth.py": "f0eb6edb297e912f291ddb64588eace9c61c0b02d9623a4a4277d72c2c28fb60",
+      "src/fatebridge/api.py": "0e54d9b6bd827679485bf7fdfe2cfad487865222d9947997cda4da6c925779c2",
+      "src/fatebridge/application/__init__.py": "f4d3375aea7ca2969d2fc925f042d7cc6f8f5e805c94b537bfcf286b33dddc58",
+      "src/fatebridge/application/bindings.py": "36beb94c2ec314e1599207bf0f8173519baacef1d20f8f553b23bd2bb376abcc",
+      "src/fatebridge/application/description.py": "851a4f2651603b150fecc7805c0079a14f2723a7c9f234ad9f6fed3b5108b0e2",
+      "src/fatebridge/application/discovery.py": "f121378dee479d7d0a4d575eb93a00729e93afe534c0eb2322d66749be4f9ec3",
+      "src/fatebridge/application/examples.py": "d0c7aaeca00077b23b4798ba84e9bc3780e4ee246926472a5229912f458f1ffb",
+      "src/fatebridge/application/execution.py": "692b13cbcc120e18352d044db436e5fb5e57fa6e056b972a315df43e1db3c5a7",
+      "src/fatebridge/application/projection.py": "3e11f726d8d25db23d538e4a10216f3fa907e0c37d7c9f2c3a91960044356111",
+      "src/fatebridge/application/scenarios.py": "0d2e4d84715daef885b633c1569e4c36884bab9326ceada91d64cbe0e08aadc8",
+      "src/fatebridge/application/tool_spec.py": "152180934a9f47600b1bc57c36b2d293ece8704a4c13af1996177c7d8c0f1429",
+      "src/fatebridge/cli.py": "5efdd9c1215567ad2a9614409e3078a5c55827f0ac1acd876c478ee41282ff97",
+      "src/fatebridge/core/__init__.py": "17cdf034277b7bfe8edf0be8613a70879e3fcbd896ed56e1d6828c6c263b6825",
+      "src/fatebridge/core/almanac.py": "bd39e0bd49ab90fa89dde81cb5c7a86ed32e07e023e6ad3402c9c206bedf458f",
+      "src/fatebridge/core/astro/__init__.py": "8cd555515625e801e7f03bea514d659d3081e51600aca0d4609cc720e71c48fe",
+      "src/fatebridge/core/astro/aspects.py": "51408af1f7856bade6fd7a2e6bf410606d6c9e9c473c0568c242e9ac71704591",
+      "src/fatebridge/core/astro/birth.py": "257ac827bf0e4e9574b0c9d8b09471ce55e2c0a8c2cbbfb218603da991dc0210",
+      "src/fatebridge/core/astro/chart.py": "9c2ba9385c6882a3d529a91e3b58b72ac0e11bf3df69010ed01217b6a26098d6",
+      "src/fatebridge/core/astro/classical.py": "835a3d9678cad659f75822c887cb20fd9f13b5dc2e12bd305e77c2612e78a91c",
+      "src/fatebridge/core/astro/ephemeris.py": "ff316a94a985160dff1c75a912dd5464b918f85734755210d44f510ee96471f5",
+      "src/fatebridge/core/astro/geometry.py": "f1d2de7b66644eb609176e803443dc79f790fedc1394f71ed320d436efdef467",
+      "src/fatebridge/core/astro/layout.py": "aca09426f836291230b2377e663f9f49c8b9ef896d603852d88353e1b17d1819",
+      "src/fatebridge/core/astro/orbits.py": "3117254efb92ca9f3b0628e5a7d0732336c728e39e9ca0018c69fbd24640072b",
+      "src/fatebridge/core/astro/parts.py": "16c5c48aa4d4ffa021f923a1feee250aa2ecc6e586f6d96b652b0c9064865a14",
+      "src/fatebridge/core/astro/profiles.py": "5fd001e7d7e319eeef5ef484db30ecacb2f11ef0e938ddce501caeccee625d94",
+      "src/fatebridge/core/astro/reference.py": "aba73cc16d361089a6775ca0e5c78c85a57f6bda177f51bd62cdd6c28a98026f",
+      "src/fatebridge/core/astro/relationship.py": "49548152008b726f4e2d288c87061ed026dd939e9097296d4b114bbb502d85d0",
+      "src/fatebridge/core/astro/relationship_charts.py": "7b3a751fb4dcfdda604ef9e016fb9316d641efc724950ab3521885e63a936c8f",
+      "src/fatebridge/core/astro/runtime.py": "bba994e1cd300aea44416c82933d8c8a4f460b26780c6760334e1fb7becf18e6",
+      "src/fatebridge/core/astrology_election.py": "ee99c0b0630d2ea5ecb56ca18df5bfc1d2bef6cc98aa4030e1320a89c632050f",
+      "src/fatebridge/core/astrology_events.py": "15d98ce1b4c99c9997d83c49348234c3e4abe5b346f6bedd7970b4a2fc04e930",
+      "src/fatebridge/core/astrology_horary.py": "7f094d28f615d74bf01a4e5064ac1936ec138eb46676ffe2ca09ceb0420f2eec",
+      "src/fatebridge/core/astrology_lifespan.py": "5c7a1acbf22d92426f7954d58c94d259d0f146d7796f3e7336882c86f3acd2c6",
+      "src/fatebridge/core/astrology_tables.py": "e912df885273a83af3247e63fecca90af2de2762ec77c6dcb5046c4f2384c16c",
+      "src/fatebridge/core/calendar.py": "2bd94e7a97aeac64a0cd319ed796d60da1c57d84e7f546fa470fe6400f341d1e",
+      "src/fatebridge/core/canping.py": "f2c809ad3fac3c142c59e5f4f375822b15dfe79287b871969c240e13b54cf746",
+      "src/fatebridge/core/classical.py": "d671d85841f9af2cfc836519257f1bbccb1ad41dd2f6030c3d7126929bce092f",
+      "src/fatebridge/core/classical_western.py": "af0225db80f905db85cae7fc90d52667ea19568279815ab0253cc237d7a581ec",
+      "src/fatebridge/core/divination.py": "5e55e8aa588cf65f6e0759bdf86cad39f1a230e9955a72006bca2301df1e27da",
+      "src/fatebridge/core/element_relations.py": "c49ee52a7603c3f396b5a5bff7248fce94d5a5967778a1192c04ae7a478b8e42",
+      "src/fatebridge/core/elements.py": "5bf824356b79762595609d374db259ca1286bebd2b0a6b41ec9c33adb26b8baf",
+      "src/fatebridge/core/ephemeris_runtime.py": "7e42f9d3b62f6e998a3ec8aa44f22fe9286aa25801ccfbe00f303ed250fd6fd3",
+      "src/fatebridge/core/execution_context.py": "602dde81428ca1b295c237c6afb77639408e0ab463c3406795f91ae437e697fd",
+      "src/fatebridge/core/export_contracts.py": "6e09e29a73d733f3e248d4af94dca7790fc5bf4379d6837daf37fb2fa72ddfed",
+      "src/fatebridge/core/export_parser.py": "f7f6e580aef418939ed1d53eb232805c432e932ff086b63a181067a73fcb44f4",
+      "src/fatebridge/core/fengshui/__init__.py": "e01b04abde92232473311b45d5b4d5ca8aa15f731da1a6b592ce966a383d696f",
+      "src/fatebridge/core/fengshui/annual.py": "06c70297df3db25dc98820385cc3bd3ea63b54bfd5c608f23f38286e938eeb6b",
+      "src/fatebridge/core/fengshui/bazhai.py": "80a45a2a95216356840a850ebdef675d36eafef90e771740efb4bc217287912d",
+      "src/fatebridge/core/fengshui/calendar.py": "445636e3d14213fea93afa1111484b8bb85af8e78573a4cc138ab0d0aaeedd2c",
+      "src/fatebridge/core/fengshui/directions.py": "2c374dba98021e8e91ba34a0247f1460b76e0361a47e047e120fb62afeb6ada9",
+      "src/fatebridge/core/fengshui/jinsuo.py": "1f6803beea17639c5c9a471a407f072e100f130af37b4879c16a2f974c419132",
+      "src/fatebridge/core/fengshui/layout.py": "01b4b0833251b9ed43310424671c9968026dc8897ab5021fefcc5fa6a25cc4e4",
+      "src/fatebridge/core/fengshui/layout_inputs.py": "2ca7fa9f63923c06394d13265d39d5fa1ce5d1259c4ab3dca5eaad6b07a6a17d",
+      "src/fatebridge/core/fengshui/layout_supplements.py": "473fcae085f0ef12711b16a2597be56d19e1150cd27ed8dea6ef102bfa49ea85",
+      "src/fatebridge/core/fengshui/models.py": "39f4901b7734cb6be4c6ad2f1bc9c7ccc05a6aa7f53f25250ffeab7ed99e1b0b",
+      "src/fatebridge/core/fengshui/output.py": "eea8b2d8a6e8349e2f8bdb70655312f5934dc8ea463feeff36d95e5a7e5fbd57",
+      "src/fatebridge/core/fengshui/snapshot.py": "7df22a7490502c227a8ee400f6aa17192a02f79d3470dcfc82b89764f36052bc",
+      "src/fatebridge/core/fengshui/xuankong.py": "de09af0187cfa9ed7550b99c3a1369338ff6b4a611bc220a65d221c334109b8c",
+      "src/fatebridge/core/gua_meanings.py": "ac4843e64bc824084a0edc46d6be249bb49fed68c21e2aef9d90a65dfdb833a6",
+      "src/fatebridge/core/guolao_moira.py": "c7cd4f0d437c044bc7b6f6376f796ba6269a977917f6f4fb6dc3e8599463c442",
+      "src/fatebridge/core/heluo.py": "c325d7cc3f439ee51f2ed12616567faafa794e7789139adeec6497f4b14f5b1f",
+      "src/fatebridge/core/knowledge_store.py": "87c8d2f4186d9375f6874b6e5f98391e65714a5fb415660396f3fde9a6530ed3",
+      "src/fatebridge/core/local_techniques/__init__.py": "0cb0307527db5a53d20f4f7a9161ae07b3a7fb2a63358d316b623b064d2fcb91",
+      "src/fatebridge/core/local_techniques/canping.py": "cbc4a8fd09526f47e082f3992c0363fc7586617b9eeb54e0fd476da902993501",
+      "src/fatebridge/core/local_techniques/chart.py": "ed5173da45083725975a6ec129aea56cb9a07e06edfd9a854e09f70f883c9e54",
+      "src/fatebridge/core/local_techniques/heluo.py": "d58c4740820dd81e11a891eaf24549ad40723a643ca46f230869a6688476e0a5",
+      "src/fatebridge/core/local_techniques/otherbu.py": "a6a586b4c035369c808234e7d79bcdd91b9cd56f1b050eeca782025ab5e241a5",
+      "src/fatebridge/core/local_techniques/qimen.py": "2e1e9b9d058821e3284e69e03a26426bd65c008deef146f595559d9a0f97f056",
+      "src/fatebridge/core/local_techniques/sanshi.py": "f030ab723da0b312c2badd6d6d4d56fbfe78ca953ad9cc48e27e2d98bbc53e1a",
+      "src/fatebridge/core/local_techniques/sixyao.py": "5dd30f556c22aae7237106d79bf0257e830c7f8f99d8586188c233ad830488ec",
+      "src/fatebridge/core/local_techniques/suzhan.py": "4676b5e681133c215262f0e2889fcc40568659b131046df7323f22d6565df947",
+      "src/fatebridge/core/local_techniques/tongshefa.py": "90efbf4f306709ba9389cce95fe0ed7703153cd62c8a9b4a773db495b989e179",
+      "src/fatebridge/core/metaphysics/__init__.py": "38e6e1d6e52407c4ab59348fbdd9c67123d938ed50e688fe75d66fff85478ed5",
+      "src/fatebridge/core/metaphysics/common.py": "f9418713e7df56e7b47339478f79130075d427c2dbc74872133e50964d9f627c",
+      "src/fatebridge/core/metaphysics/jinkou.py": "2ea1e16a3104232dfdab93b87e54b3e0bf8d4df29696b4af31638673b98a7610",
+      "src/fatebridge/core/metaphysics/liureng.py": "9e484c02bec5ecf770678e5d70e9945e478bfc54ddf6114426e0105962793abf",
+      "src/fatebridge/core/metaphysics/liureng_transmissions.py": "0283c4ceb6a9ff27ff1ecfcebcd15d019930a8bb34ba1ad7a8694c44ad2cee16",
+      "src/fatebridge/core/metaphysics/qimen.py": "d654ae69ad996613a68285fb8951309bd2eb8f1f33a30d6c9611b97635737a6d",
+      "src/fatebridge/core/metaphysics/taiyi.py": "c69b51c88d29c3758883f1f226b08961a83ce679def37cac46be09ff05c9d99c",
+      "src/fatebridge/core/metaphysics/ziwei.py": "4cbd2406c2850ff187374d5fb38b1192194f81d48f75f6ecb27443df36614a5f",
+      "src/fatebridge/core/output_base.py": "cc2c9a51bc829733aa8bb8461bbee6b6f8b3752bd5f834209eff641c65819d13",
+      "src/fatebridge/core/output_bazi.py": "84af8a23e1ac39377ed1dee5b8bf8580e508918ab515d968cb423e08ae60911b",
+      "src/fatebridge/core/output_charts.py": "89f6a16d460458fafa51b43c3571d4554a01968c435001571929c0447b0e242f",
+      "src/fatebridge/core/output_chinese.py": "1fb14a2e24c07af17299126c3cd00487a19ff31195c74804a4b968ace5631257",
+      "src/fatebridge/core/output_reference.py": "b4cca1dbc4b51072b460a9ee987d459f8507ea797504ff0892b85cab22976a09",
+      "src/fatebridge/core/output_western.py": "3da27ae5f7a0d12b98df7db00ed99f9e07050927757b27580fd10b50d2ffcabc",
+      "src/fatebridge/core/predictive/__init__.py": "a981268368889799c634e89e8a3ff4034e29ab387dc2982348761262dde07f26",
+      "src/fatebridge/core/predictive/_common.py": "2ffcdf1b611e8bdc82261a7c705f87c03b790bb5628e3076ad7b9c203b68ef4d",
+      "src/fatebridge/core/predictive/decennials.py": "9eefea928d8387e8475acc3078b9a4e87e734c3a0f841f9feda8f949b02d8ec3",
+      "src/fatebridge/core/predictive/firdaria.py": "d60c5692f9d64b99fa1c781ababbf62cb7162fd8834a6d1255dd3bfee6cea440",
+      "src/fatebridge/core/predictive/primary_directions.py": "d71b82d7092acb778092378740e682634cff7c83a650dc013d50f62233548618",
+      "src/fatebridge/core/predictive/profections.py": "861503add5f85e21a6b6d7af9b33ade6c8a4a194fe6d404aab723fcfd6eb82d9",
+      "src/fatebridge/core/predictive/progressions.py": "a96f91e45fb3fa6d7cc66e84d8b02d9bc6bc58175ee5f77f373d1b799afa71b3",
+      "src/fatebridge/core/predictive/returns.py": "7af9c2769fea479d001035f37dfee2405a692736a51ca59e71d0fee1d0f905f2",
+      "src/fatebridge/core/predictive/solar_arc.py": "123a5d140beec87eea34229b60477baf2e70ae935bb8d76007389d7afccba55d",
+      "src/fatebridge/core/predictive/transit.py": "5675a4cc99f830561f391ecaeab699bbd2049d1e6f2a9a920de50abf7221a9aa",
+      "src/fatebridge/core/predictive/western_timing.py": "9eb0fc98ca669a87a38883d9973d975a310b1c3c46f7c523672c1d975c24b591",
+      "src/fatebridge/core/predictive/zodiacal_releasing.py": "16ebcd66faeb9160477012e231e4917c3dc2d1373934567d39f506ff63cad8ad",
+      "src/fatebridge/core/reproducibility.py": "bda33e3941cdda68ace7dd9a40ff318af25bf3952537d4ff4d7da071217ad498",
+      "src/fatebridge/core/requests/__init__.py": "6ce6c1eeecba2569b296342ff989254ea5e1dfc81ebbe8f7b035baecae9eb46d",
+      "src/fatebridge/core/requests/astrology.py": "d0054ff1227911aa77f5ce9e678ff20e6db360fefbd31dfaed3e1a587a931734",
+      "src/fatebridge/core/requests/base.py": "eed1aeccad827ec7c201b438eb0f90f79d608b56fa36bd72578e5d34442ec073",
+      "src/fatebridge/core/requests/bazi.py": "e3c3828022768fc7865129aba433cafea9def263f08a94aa9dd12e5bbd3056b4",
+      "src/fatebridge/core/requests/birth.py": "617eea14dbf925f6057e5dc3ceea52f7d43b048869050119d0f8daf6408a3962",
+      "src/fatebridge/core/requests/calendar.py": "9ee9a94dd8b63ad1a9d21debaa8ca67bbed1291705a426be03bfdff97688b485",
+      "src/fatebridge/core/requests/compatibility.py": "32ba216c49c1b2b6f899870aba4ececafb4b6777f9f3709d925832174bfdad37",
+      "src/fatebridge/core/requests/divination.py": "0fd74ecc70a10e140ac51a91abd9c022b10c88309ef50b5b95df4750d33eb9ad",
+      "src/fatebridge/core/requests/metaphysics.py": "72d3f7220afe0f81bf2876ea47278a3a05e2f8554307bcfe4cab17772c49a870",
+      "src/fatebridge/core/requests/reference.py": "564eff28db3c8716f5de3539d6753aececed4c87ed53148c8d1946a6bda8c0c1",
+      "src/fatebridge/core/requests/timing.py": "6c2ec51b540824908f680ca8e430ead6958fa0e40461391e1e9815db9c182811",
+      "src/fatebridge/core/requests/western_events.py": "f15d8fda467c93cfa8f306b578118b1697bd731c4f36449f3ad19d686bef56c2",
+      "src/fatebridge/core/requests/western_lifespan.py": "aca7b6c07570dd4c993ab15bcd53294946852a66a9d02f8ae126e72552a0bee4",
+      "src/fatebridge/core/requests/western_timing.py": "d3d93e5584104395cf27573ded64b8e719dc03fd18b90434fcaffbd9b34c67bb",
+      "src/fatebridge/core/response_models.py": "5d6f88d78500f5b838218f0752b87af7dd657b900b53e0c2bc31f6889f597c81",
+      "src/fatebridge/core/rules.py": "230c33661b61c04ec533db2b5c2534701fa42fe82d17e4382da8749b94853fed",
+      "src/fatebridge/core/schema_cache.py": "f85dd000128a5af7c96f510d6269e95ca66f348694e458d931dabe3e6e563638",
+      "src/fatebridge/core/sukuyo.py": "d0275680fef12bf9b2e4bdd8da89f23a647a7382e4bfbe8a47c0ef81115c10ff",
+      "src/fatebridge/core/timing.py": "d568d175d29466fc1e116edeba91e8cabaa5ec4f2c27617c45bc5e6afc5ce8fd",
+      "src/fatebridge/core/ziwei_tables.py": "74c661aefb18f4ee39fc5be17b183a4a9e3c65166d2b774af7ec80ea99cad56e",
+      "src/fatebridge/data/canping/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "src/fatebridge/data/heluo/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "src/fatebridge/data/knowledge/__init__.py": "eeb39ece6121c9f6145979f3f60ab89da036f8d1ac1e813648c19bfdf3983e5a",
+      "src/fatebridge/diagnostics.py": "6534c841a07d8f80445be1e55ae96725325bf1ce567479b94878e129a37b2696",
+      "src/fatebridge/fetch_ephe.py": "a1ba7c1f02214385b706c40751f093db1e4e101ea8c45aca4752e2e86bc6265b",
+      "src/fatebridge/mcp_server.py": "b7171c833f12e3cfd336295abaffe397c8e689c2394ad4c829901f98840ea507",
+      "src/fatebridge/mcp_transport.py": "30e817a5892bba67854278beef9bf89d65b50cb34d3c65c231eb35bb5bf1a8ee",
+      "src/fatebridge/services/astrology.py": "a9dcec77e3590d6e5b89929a3ae136f085ac6eafff6e1424ba62114ff545ed93",
+      "src/fatebridge/services/bazi.py": "604387b9bc08bd07a66d8b369af66746caa854d2a02a9fc9172ae33f69a6cc37",
+      "src/fatebridge/services/birth_context.py": "982b28f05d48f630f955baf3530ee2ccd34b03beb687b291e92bc792a0db992b",
+      "src/fatebridge/services/birth_payload.py": "1a142b362c89f269e24c3e2a07db948e8bde4c01d4f7d9df5dcbfd866c786361",
+      "src/fatebridge/services/calculation.py": "b17311ea7cd21d2096972e2a90898b24d838aefcb8d7e2293f7e8149c9e24c60",
+      "src/fatebridge/services/calendar_input.py": "38c6c63b48b86a1a36d975971b70001d6e295a55be9d8b4486932b07c8e39025",
+      "src/fatebridge/services/calendar_tools.py": "6c27061ab249a99907e8a0cc02900c286a7b699c1d756fde7ffa50a30ba656f2",
+      "src/fatebridge/services/catalog/__init__.py": "8c4607f0bd7fcaf8d1951494cde5017c0e60b48f475e5b64d91961226de53104",
+      "src/fatebridge/services/catalog/astro_bindings.py": "6bc2fe85a41ebd4732be113611a571275dd59e2b843d40e6395e4b40956336c4",
+      "src/fatebridge/services/catalog/astrology.py": "36f28096a1507b3e313f3433fe7f732a89b9331f1a01cd927dc58593065265c6",
+      "src/fatebridge/services/catalog/bazi.py": "b444096a1d7146d8dc19b8e4c7c331a1600ed187ddbcae96a13d8e28b6253647",
+      "src/fatebridge/services/catalog/compatibility.py": "dbf34eb26caaed9d63e108cd6f70f7773fcee37191d74f14adb8aa218938e1b7",
+      "src/fatebridge/services/catalog/divination.py": "f5a4029dbe9f5041eb7f5af1f9a84f99bd8a888de6e67e78f31a33f71d601013",
+      "src/fatebridge/services/catalog/fengshui.py": "f0b983f386f95df080677d801e66ced593ab389df49e75df53a2ba143a8d88e2",
+      "src/fatebridge/services/catalog/metaphysics.py": "f08261b13166fa76b2ca607fbbd556540c006e281b29c906e663ee5e9f943616",
+      "src/fatebridge/services/catalog/reference.py": "6ad2d59dc7de7508f4b75bcde21726eece268d1e45e92d6fdb77c078a85dcf7d",
+      "src/fatebridge/services/catalog/timing.py": "f61ae47b4fcc038566e67b3b5d21aab873778f121bd8100ddca5a1f8791b50fe",
+      "src/fatebridge/services/catalog/western_events.py": "ebe8128aca365525f17a8d3d650dc7e4bf899f2c637bae6d75d0e80a7b30fd69",
+      "src/fatebridge/services/catalog/western_lifespan.py": "3f3ac58b9873eefa7cd7f064da67a17243f603e8d04124ca227d77dd0c016e96",
+      "src/fatebridge/services/catalog/western_timing.py": "a2a9e630fbbf41799ac09050922439df9fc2998eb1f734f5828274acf2436896",
+      "src/fatebridge/services/compatibility.py": "0e981d4a5587e88816cc703746ebbe3bdc57b7a34b273e2d361efc0404e1045d",
+      "src/fatebridge/services/divination.py": "e85a7c6d43bd296f78ed71de713b9494538c7bd97833ee86125d3a34791f272c",
+      "src/fatebridge/services/export_tools.py": "d48f0e5f319075e1a7e0def1704438ed0e7b0184ca36349c0bcd2f87af344f64",
+      "src/fatebridge/services/fengshui.py": "bf2d701dcf3d8e504321b9101231930c00c140fae383fbfa4c194de008246dc7",
+      "src/fatebridge/services/knowledge.py": "e742dafb247bb6e40cada23706b3a1f77ff917ab3a598df8ab27dad0f58d19f0",
+      "src/fatebridge/services/metaphysics.py": "be7e1e927bb9123d613e2a29bceeab1916397133d80b7cb1675f10fcd8e1afea",
+      "src/fatebridge/services/replay_metadata.py": "de67eeeb2907fa19301c6ddffadd2e5e83a6a8a50ad14417c5fdeaae10ad5dc2",
+      "src/fatebridge/services/run_metadata.py": "06034c48ed2af311b1e963f7af4e88dad85f901c173f42427629eabb4d474f6f",
+      "src/fatebridge/services/snapshot_builders.py": "cb032751e59d2d3f032b30a4de18c8378afafa9d77ebcb195e70c0da38bb7e79",
+      "src/fatebridge/services/structured_snapshot.py": "19eab009531cf82d78a642dc1bde612b478dd689f7124ccceac7e51562b93e8b",
+      "src/fatebridge/services/timing.py": "133145c27f2fcb914645637effed3a268e22d0c3ebae7833952b7209a8f3d66c",
+      "src/fatebridge/services/timing_snapshots.py": "12775465a89eb194a935b8692d8c93fdbd3d3bd4fa620dafa2d60a8703620976",
+      "src/fatebridge/services/timing_state.py": "fff34efd76f33d4f84bdcda3fa9a1d9053411990d966e3940d3ec290706c38cb",
+      "src/fatebridge/services/tool_catalog.py": "dadd070dfb9da6e1cb10560f9c355228b40d4d94c5098bc333fe3c9afdaabf18",
+      "src/fatebridge/services/western_election.py": "112f55cb3969e47c081abf3cedc24ead2e5f03a97ad03f78860b29b809bbcc2a",
+      "src/fatebridge/services/western_events.py": "90e75b9851b24d656d4c127a93d8803ed6af5507f5689513e661dcb5b31a3df0",
+      "src/fatebridge/services/western_horary.py": "cca3547f8f910a63b9bb2db95bee087f937e87954c97f065ee7182fe174e89d0",
+      "src/fatebridge/services/western_lifespan.py": "f7339838ebde7701277758035dd4508d28749406cb492cb0d736dc3923520961",
+      "src/fatebridge/services/western_timing.py": "49af89dc23b3f0545f6bbd0e5d732faa04c95381de32c299057e55ca77cf8f4e",
+      "src/fatebridge/services/western_timing_tools.py": "4c6071ea2e6af9e42e189bf6fa7019d57ce3eaca4ce32a363782d820fb6dbb01",
+      "src/fatebridge/transports/__init__.py": "ddb1bc12843f3a0f0da87dc9cc3f85148b5765a9f6f5a7c299cbf5552b1219cc",
+      "src/fatebridge/transports/flags.py": "e5ed3be93a506ba49532c8508962fff5fd948e7eafb64e042f16a969b16f510f",
+      "src/fatebridge/transports/mcp.py": "2b5878284d3b90a38942a0dc31277d96355256d067a6ec9331e1ebce6d503948",
+      "src/fatebridge/transports/rest.py": "ff21dc716e3340ef6fe29fafe051b583d454e161c8ac9a4952ce01e9005570fe",
+      "src/fatebridge/utils/__init__.py": "ed29dbc69c4a10d2bed9e7142f935f9d9f6890623b08e298c38585e3ad7bd873",
+      "src/fatebridge/utils/analysis_clock.py": "2dd057ba86f5d54ab49d990b8921e1a10290197f0ff38a5946d0e0c423a7afae",
+      "src/fatebridge/utils/birth_input.py": "12160f536d0e0985b9d74dc21021752d40abb286c361afa65b5c4e1857732938",
+      "src/fatebridge/utils/data.py": "5606f17c98781835dd1e908c6b4df5d5dfe17cfc0e3b52571ba1e4009c812f87",
+      "src/fatebridge/utils/elements.py": "1ccb4591dc7f94dc600d9a24db70af416a0bb8c8d979d92eedf2b964000fff89",
+      "src/fatebridge/utils/errors.py": "9ca95267700a2efca9cf11486f18744480809e3fc768a8bf9f52fbe87ed8b335",
+      "src/fatebridge/utils/formatting.py": "24967dea8e9a9d2a7083134b7f043cb4c9f4fe16090a3875f60e0adeca089090",
+      "src/fatebridge/utils/house_systems.py": "9fdd1fa6ee7c064e44c123dc5023018d0ba9c4e96640cf1216cc2a78849475d7",
+      "src/fatebridge/utils/places.py": "b71d0b419e360ca4a3ad893d6d8ba9dfa336c4b553d0e350e117016c4a293a26",
+      "src/fatebridge/utils/runtime.py": "963ef4db400401df2130c2e1158104f42d16b93f2f840719f7a20c465604e4a1",
+      "src/fatebridge/utils/solar_time.py": "c783730e5979b1ed75d19ad4b5cac947e5425a25c85f6d2749dffd1d085d72d6",
+      "src/fatebridge/utils/timezones.py": "1c29dd87258a95c9952180948b363a752aaa0458243e27a47f8c950c1899d434"
+    },
+    "source_files_changed_during_run": []
+  },
+  "methodology": {
+    "repeats": 5,
+    "warmups": 1,
+    "frozen_as_of": "2026-10-14T04:00:00Z",
+    "first_view_fields": [
+      "status",
+      "layout_analysis",
+      "coverage",
+      "conflicts",
+      "rule_trace"
+    ],
+    "timing_boundary": "local wall clock; validation/execution/render/serialization separately sampled",
+    "token_counts": "not measured: tokenizer/host representation unspecified; bytes are not tokens",
+    "model_latency": "not measured",
+    "network_latency": "not measured",
+    "first_calls": "shared process caches, not fresh-process cold starts",
+    "mcp_max_object_size": 8
+  },
+  "cases": {
+    "forms-1": {
+      "inputs": {
+        "methods": [],
+        "analyze_layout": true,
+        "form_observations": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          }
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 0,
+        "occupants": 0,
+        "form_observations": 1,
+        "conflicts": 0
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.142,
+        "samples_ms": [
+          0.1772,
+          0.1024,
+          0.1382,
+          0.1096,
+          0.101
+        ],
+        "median_ms": 0.1096,
+        "p95_ms": 0.1694,
+        "min_ms": 0.101,
+        "max_ms": 0.1772
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.2328,
+        "samples_ms": [
+          0.2165,
+          0.2018,
+          0.1673,
+          0.1667,
+          0.1612
+        ],
+        "median_ms": 0.1673,
+        "p95_ms": 0.2135,
+        "min_ms": 0.1612,
+        "max_ms": 0.2165
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 0.5045,
+        "samples_ms": [
+          0.3943,
+          0.391,
+          0.3886,
+          0.3809,
+          0.3805
+        ],
+        "median_ms": 0.3886,
+        "p95_ms": 0.3937,
+        "min_ms": 0.3805,
+        "max_ms": 0.3943
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 16247,
+          "json_characters": 12615,
+          "render_projection": {
+            "first_case_call_ms": 0.0013,
+            "samples_ms": [
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0003,
+            "min_ms": 0.0003,
+            "max_ms": 0.0003
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0443,
+            "samples_ms": [
+              0.0355,
+              0.0349,
+              0.0351,
+              0.0338,
+              0.0346
+            ],
+            "median_ms": 0.0349,
+            "p95_ms": 0.0354,
+            "min_ms": 0.0338,
+            "max_ms": 0.0355
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 7461,
+          "json_characters": 6559,
+          "render_projection": {
+            "first_case_call_ms": 0.0059,
+            "samples_ms": [
+              0.0031,
+              0.003,
+              0.005,
+              0.0028,
+              0.0026
+            ],
+            "median_ms": 0.003,
+            "p95_ms": 0.0047,
+            "min_ms": 0.0026,
+            "max_ms": 0.005
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0242,
+            "samples_ms": [
+              0.0199,
+              0.0197,
+              0.0192,
+              0.0192,
+              0.0194
+            ],
+            "median_ms": 0.0194,
+            "p95_ms": 0.0198,
+            "min_ms": 0.0192,
+            "max_ms": 0.0199
+          }
+        }
+      }
+    },
+    "bazhai-1": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 16
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.261,
+        "samples_ms": [
+          0.2362,
+          0.2387,
+          0.235,
+          0.2244,
+          0.253
+        ],
+        "median_ms": 0.2362,
+        "p95_ms": 0.2502,
+        "min_ms": 0.2244,
+        "max_ms": 0.253
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.5892,
+        "samples_ms": [
+          0.6934,
+          0.6258,
+          0.5529,
+          0.6173,
+          0.6206
+        ],
+        "median_ms": 0.6206,
+        "p95_ms": 0.6799,
+        "min_ms": 0.5529,
+        "max_ms": 0.6934
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 1.6828,
+        "samples_ms": [
+          1.5853,
+          1.5676,
+          1.4308,
+          1.6371,
+          2.2306
+        ],
+        "median_ms": 1.5853,
+        "p95_ms": 2.1119,
+        "min_ms": 1.4308,
+        "max_ms": 2.2306
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 49649,
+          "json_characters": 43239,
+          "render_projection": {
+            "first_case_call_ms": 0.0012,
+            "samples_ms": [
+              0.0004,
+              0.0003,
+              0.0003,
+              0.0002,
+              0.0002
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0004,
+            "min_ms": 0.0002,
+            "max_ms": 0.0004
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.2079,
+            "samples_ms": [
+              0.1458,
+              0.1454,
+              0.1435,
+              0.1584,
+              0.1598
+            ],
+            "median_ms": 0.1458,
+            "p95_ms": 0.1595,
+            "min_ms": 0.1435,
+            "max_ms": 0.1598
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 18958,
+          "json_characters": 18228,
+          "render_projection": {
+            "first_case_call_ms": 0.0052,
+            "samples_ms": [
+              0.0033,
+              0.003,
+              0.0029,
+              0.0028,
+              0.0027
+            ],
+            "median_ms": 0.0029,
+            "p95_ms": 0.0033,
+            "min_ms": 0.0027,
+            "max_ms": 0.0033
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0661,
+            "samples_ms": [
+              0.063,
+              0.0626,
+              0.0624,
+              0.0625,
+              0.0626
+            ],
+            "median_ms": 0.0626,
+            "p95_ms": 0.0629,
+            "min_ms": 0.0624,
+            "max_ms": 0.063
+          }
+        }
+      }
+    },
+    "foundation-1": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 24
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.2727,
+        "samples_ms": [
+          0.3363,
+          0.2704,
+          0.2464,
+          0.227,
+          0.2345
+        ],
+        "median_ms": 0.2464,
+        "p95_ms": 0.3231,
+        "min_ms": 0.227,
+        "max_ms": 0.3363
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.8332,
+        "samples_ms": [
+          0.7809,
+          0.8143,
+          0.7812,
+          0.7849,
+          0.7899
+        ],
+        "median_ms": 0.7849,
+        "p95_ms": 0.8094,
+        "min_ms": 0.7809,
+        "max_ms": 0.8143
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 2.1676,
+        "samples_ms": [
+          2.2156,
+          2.0445,
+          2.1065,
+          2.3541,
+          2.2499
+        ],
+        "median_ms": 2.2156,
+        "p95_ms": 2.3333,
+        "min_ms": 2.0445,
+        "max_ms": 2.3541
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 73914,
+          "json_characters": 63928,
+          "render_projection": {
+            "first_case_call_ms": 0.0009,
+            "samples_ms": [
+              0.0003,
+              0.0003,
+              0.0002,
+              0.0002,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0003,
+            "min_ms": 0.0002,
+            "max_ms": 0.0003
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.2282,
+            "samples_ms": [
+              0.2094,
+              0.2105,
+              0.21,
+              0.214,
+              0.2084
+            ],
+            "median_ms": 0.21,
+            "p95_ms": 0.2133,
+            "min_ms": 0.2084,
+            "max_ms": 0.214
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 25306,
+          "json_characters": 24398,
+          "render_projection": {
+            "first_case_call_ms": 0.0054,
+            "samples_ms": [
+              0.003,
+              0.0032,
+              0.0032,
+              0.0029,
+              0.0028
+            ],
+            "median_ms": 0.003,
+            "p95_ms": 0.0032,
+            "min_ms": 0.0028,
+            "max_ms": 0.0032
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0948,
+            "samples_ms": [
+              0.0882,
+              0.0878,
+              0.0877,
+              0.0879,
+              0.0878
+            ],
+            "median_ms": 0.0878,
+            "p95_ms": 0.0881,
+            "min_ms": 0.0877,
+            "max_ms": 0.0882
+          }
+        }
+      }
+    },
+    "all-methods-1": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars",
+          "xuankong_natal"
+        ],
+        "xuankong": {
+          "period": {
+            "basis": "construction_completion",
+            "effective_event_year": 2004,
+            "evidence": "Synthetic benchmark: confirmed completion"
+          }
+        }
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 24
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.417,
+        "samples_ms": [
+          0.3637,
+          0.3644,
+          0.3613,
+          0.3663,
+          0.3517
+        ],
+        "median_ms": 0.3637,
+        "p95_ms": 0.3659,
+        "min_ms": 0.3517,
+        "max_ms": 0.3663
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 1.4976,
+        "samples_ms": [
+          1.3883,
+          1.3222,
+          1.4045,
+          1.4383,
+          1.3635
+        ],
+        "median_ms": 1.3883,
+        "p95_ms": 1.4315,
+        "min_ms": 1.3222,
+        "max_ms": 1.4383
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 3.496,
+        "samples_ms": [
+          3.37,
+          3.3435,
+          3.183,
+          3.3207,
+          3.2123
+        ],
+        "median_ms": 3.3207,
+        "p95_ms": 3.3647,
+        "min_ms": 3.183,
+        "max_ms": 3.37
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 104186,
+          "json_characters": 87876,
+          "render_projection": {
+            "first_case_call_ms": 0.001,
+            "samples_ms": [
+              0.0004,
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0002
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0004,
+            "min_ms": 0.0002,
+            "max_ms": 0.0004
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.3435,
+            "samples_ms": [
+              0.3208,
+              0.3074,
+              0.2777,
+              0.3023,
+              0.3516
+            ],
+            "median_ms": 0.3074,
+            "p95_ms": 0.3455,
+            "min_ms": 0.2777,
+            "max_ms": 0.3516
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 28497,
+          "json_characters": 27455,
+          "render_projection": {
+            "first_case_call_ms": 0.0064,
+            "samples_ms": [
+              0.003,
+              0.0031,
+              0.0028,
+              0.0027,
+              0.0028
+            ],
+            "median_ms": 0.0028,
+            "p95_ms": 0.0031,
+            "min_ms": 0.0027,
+            "max_ms": 0.0031
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.1091,
+            "samples_ms": [
+              0.1111,
+              0.1028,
+              0.1049,
+              0.1092,
+              0.1096
+            ],
+            "median_ms": 0.1092,
+            "p95_ms": 0.1108,
+            "min_ms": 0.1028,
+            "max_ms": 0.1111
+          }
+        }
+      }
+    },
+    "forms-8": {
+      "inputs": {
+        "methods": [],
+        "analyze_layout": true,
+        "form_observations": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          },
+          {
+            "object_id": "object-1",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          },
+          {
+            "object_id": "object-2",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          },
+          {
+            "object_id": "object-3",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          },
+          {
+            "object_id": "object-4",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          },
+          {
+            "object_id": "object-5",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          },
+          {
+            "object_id": "object-6",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          },
+          {
+            "object_id": "object-7",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          }
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 0,
+        "occupants": 0,
+        "form_observations": 8,
+        "conflicts": 0
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.2865,
+        "samples_ms": [
+          0.2783,
+          0.2838,
+          0.2606,
+          0.2727,
+          0.2611
+        ],
+        "median_ms": 0.2727,
+        "p95_ms": 0.2827,
+        "min_ms": 0.2606,
+        "max_ms": 0.2838
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.3818,
+        "samples_ms": [
+          0.3501,
+          0.3695,
+          0.358,
+          0.3575,
+          0.3727
+        ],
+        "median_ms": 0.358,
+        "p95_ms": 0.3721,
+        "min_ms": 0.3501,
+        "max_ms": 0.3727
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 0.9359,
+        "samples_ms": [
+          0.8966,
+          0.83,
+          0.8215,
+          0.8324,
+          0.8702
+        ],
+        "median_ms": 0.8324,
+        "p95_ms": 0.8913,
+        "min_ms": 0.8215,
+        "max_ms": 0.8966
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 36750,
+          "json_characters": 30962,
+          "render_projection": {
+            "first_case_call_ms": 0.0008,
+            "samples_ms": [
+              0.0004,
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0004,
+            "min_ms": 0.0003,
+            "max_ms": 0.0004
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0943,
+            "samples_ms": [
+              0.0782,
+              0.0855,
+              0.0774,
+              0.0867,
+              0.0823
+            ],
+            "median_ms": 0.0823,
+            "p95_ms": 0.0864,
+            "min_ms": 0.0774,
+            "max_ms": 0.0867
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 19921,
+          "json_characters": 17955,
+          "render_projection": {
+            "first_case_call_ms": 0.0044,
+            "samples_ms": [
+              0.003,
+              0.0029,
+              0.0028,
+              0.0028,
+              0.0029
+            ],
+            "median_ms": 0.0029,
+            "p95_ms": 0.003,
+            "min_ms": 0.0028,
+            "max_ms": 0.003
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0617,
+            "samples_ms": [
+              0.0552,
+              0.058,
+              0.0552,
+              0.0505,
+              0.0503
+            ],
+            "median_ms": 0.0552,
+            "p95_ms": 0.0574,
+            "min_ms": 0.0503,
+            "max_ms": 0.058
+          }
+        }
+      }
+    },
+    "bazhai-8": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-1",
+            "purpose": "desk",
+            "location_direction": "NE",
+            "facing_direction": "SE",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-2",
+            "purpose": "desk",
+            "location_direction": "E",
+            "facing_direction": "S",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-3",
+            "purpose": "desk",
+            "location_direction": "SE",
+            "facing_direction": "SW",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-4",
+            "purpose": "desk",
+            "location_direction": "S",
+            "facing_direction": "W",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-5",
+            "purpose": "desk",
+            "location_direction": "SW",
+            "facing_direction": "NW",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-6",
+            "purpose": "desk",
+            "location_direction": "W",
+            "facing_direction": "N",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-7",
+            "purpose": "desk",
+            "location_direction": "NW",
+            "facing_direction": "NE",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-1",
+            "direction": "NE",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-2",
+            "direction": "E",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-3",
+            "direction": "SE",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-4",
+            "direction": "S",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-5",
+            "direction": "SW",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-6",
+            "direction": "W",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-7",
+            "direction": "NW",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 8,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 16
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.6966,
+        "samples_ms": [
+          0.6688,
+          0.7749,
+          0.7485,
+          0.7445,
+          0.7349
+        ],
+        "median_ms": 0.7445,
+        "p95_ms": 0.7696,
+        "min_ms": 0.6688,
+        "max_ms": 0.7749
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 1.5112,
+        "samples_ms": [
+          1.4218,
+          1.4309,
+          1.3726,
+          1.4617,
+          1.4674
+        ],
+        "median_ms": 1.4309,
+        "p95_ms": 1.4663,
+        "min_ms": 1.3726,
+        "max_ms": 1.4674
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 4.2405,
+        "samples_ms": [
+          3.8618,
+          4.1563,
+          3.9999,
+          4.0763,
+          3.9762
+        ],
+        "median_ms": 3.9999,
+        "p95_ms": 4.1403,
+        "min_ms": 3.8618,
+        "max_ms": 4.1563
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 136859,
+          "json_characters": 122973,
+          "render_projection": {
+            "first_case_call_ms": 0.0025,
+            "samples_ms": [
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0002,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0003,
+            "min_ms": 0.0002,
+            "max_ms": 0.0003
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.4382,
+            "samples_ms": [
+              0.4118,
+              0.4708,
+              0.4118,
+              0.4008,
+              0.4424
+            ],
+            "median_ms": 0.4118,
+            "p95_ms": 0.4651,
+            "min_ms": 0.4008,
+            "max_ms": 0.4708
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 77466,
+          "json_characters": 75224,
+          "render_projection": {
+            "first_case_call_ms": 0.0055,
+            "samples_ms": [
+              0.003,
+              0.0035,
+              0.0029,
+              0.0028,
+              0.0027
+            ],
+            "median_ms": 0.0029,
+            "p95_ms": 0.0034,
+            "min_ms": 0.0027,
+            "max_ms": 0.0035
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.254,
+            "samples_ms": [
+              0.2474,
+              0.2492,
+              0.2715,
+              0.2833,
+              0.2847
+            ],
+            "median_ms": 0.2715,
+            "p95_ms": 0.2844,
+            "min_ms": 0.2474,
+            "max_ms": 0.2847
+          }
+        }
+      }
+    },
+    "foundation-8": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-1",
+            "purpose": "desk",
+            "location_direction": "NE",
+            "facing_direction": "SE",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-2",
+            "purpose": "desk",
+            "location_direction": "E",
+            "facing_direction": "S",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-3",
+            "purpose": "desk",
+            "location_direction": "SE",
+            "facing_direction": "SW",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-4",
+            "purpose": "desk",
+            "location_direction": "S",
+            "facing_direction": "W",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-5",
+            "purpose": "desk",
+            "location_direction": "SW",
+            "facing_direction": "NW",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-6",
+            "purpose": "desk",
+            "location_direction": "W",
+            "facing_direction": "N",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-7",
+            "purpose": "desk",
+            "location_direction": "NW",
+            "facing_direction": "NE",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-1",
+            "direction": "NE",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-2",
+            "direction": "E",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-3",
+            "direction": "SE",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-4",
+            "direction": "S",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-5",
+            "direction": "SW",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-6",
+            "direction": "W",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-7",
+            "direction": "NW",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 8,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 24
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.8032,
+        "samples_ms": [
+          0.6857,
+          0.6788,
+          0.7507,
+          0.7417,
+          0.7887
+        ],
+        "median_ms": 0.7417,
+        "p95_ms": 0.7811,
+        "min_ms": 0.6788,
+        "max_ms": 0.7887
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 1.9674,
+        "samples_ms": [
+          1.7746,
+          1.7785,
+          1.902,
+          1.7725,
+          1.8315
+        ],
+        "median_ms": 1.7785,
+        "p95_ms": 1.8879,
+        "min_ms": 1.7725,
+        "max_ms": 1.902
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 5.3208,
+        "samples_ms": [
+          5.4142,
+          5.3288,
+          5.0959,
+          5.2669,
+          5.1735
+        ],
+        "median_ms": 5.2669,
+        "p95_ms": 5.3971,
+        "min_ms": 5.0959,
+        "max_ms": 5.4142
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 183898,
+          "json_characters": 166002,
+          "render_projection": {
+            "first_case_call_ms": 0.0014,
+            "samples_ms": [
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0002,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0003,
+            "min_ms": 0.0002,
+            "max_ms": 0.0003
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.5758,
+            "samples_ms": [
+              0.5407,
+              0.5232,
+              0.5196,
+              0.5911,
+              0.578
+            ],
+            "median_ms": 0.5407,
+            "p95_ms": 0.5885,
+            "min_ms": 0.5196,
+            "max_ms": 0.5911
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 101817,
+          "json_characters": 99173,
+          "render_projection": {
+            "first_case_call_ms": 0.0067,
+            "samples_ms": [
+              0.0029,
+              0.0032,
+              0.003,
+              0.0027,
+              0.0028
+            ],
+            "median_ms": 0.0029,
+            "p95_ms": 0.0031,
+            "min_ms": 0.0027,
+            "max_ms": 0.0032
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.3593,
+            "samples_ms": [
+              0.3308,
+              0.3303,
+              0.333,
+              0.3359,
+              0.3305
+            ],
+            "median_ms": 0.3308,
+            "p95_ms": 0.3353,
+            "min_ms": 0.3303,
+            "max_ms": 0.3359
+          }
+        }
+      }
+    },
+    "all-methods-8": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-1",
+            "purpose": "desk",
+            "location_direction": "NE",
+            "facing_direction": "SE",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-2",
+            "purpose": "desk",
+            "location_direction": "E",
+            "facing_direction": "S",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-3",
+            "purpose": "desk",
+            "location_direction": "SE",
+            "facing_direction": "SW",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-4",
+            "purpose": "desk",
+            "location_direction": "S",
+            "facing_direction": "W",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-5",
+            "purpose": "desk",
+            "location_direction": "SW",
+            "facing_direction": "NW",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-6",
+            "purpose": "desk",
+            "location_direction": "W",
+            "facing_direction": "N",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          },
+          {
+            "object_id": "object-7",
+            "purpose": "desk",
+            "location_direction": "NW",
+            "facing_direction": "NE",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-1",
+            "direction": "NE",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-2",
+            "direction": "E",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-3",
+            "direction": "SE",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-4",
+            "direction": "S",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-5",
+            "direction": "SW",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-6",
+            "direction": "W",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          },
+          {
+            "object_id": "feature-7",
+            "direction": "NW",
+            "classification": "sand",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars",
+          "xuankong_natal"
+        ],
+        "xuankong": {
+          "period": {
+            "basis": "construction_completion",
+            "effective_event_year": 2004,
+            "evidence": "Synthetic benchmark: confirmed completion"
+          }
+        }
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 8,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 24
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.9127,
+        "samples_ms": [
+          0.8839,
+          0.8778,
+          0.8542,
+          0.8845,
+          0.8725
+        ],
+        "median_ms": 0.8778,
+        "p95_ms": 0.8844,
+        "min_ms": 0.8542,
+        "max_ms": 0.8845
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 2.6401,
+        "samples_ms": [
+          2.4033,
+          2.5904,
+          2.3724,
+          2.2535,
+          2.2387
+        ],
+        "median_ms": 2.3724,
+        "p95_ms": 2.553,
+        "min_ms": 2.2387,
+        "max_ms": 2.5904
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 7.2702,
+        "samples_ms": [
+          7.3209,
+          6.702,
+          7.1027,
+          6.9747,
+          6.9291
+        ],
+        "median_ms": 6.9747,
+        "p95_ms": 7.2772,
+        "min_ms": 6.702,
+        "max_ms": 7.3209
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 234238,
+          "json_characters": 209654,
+          "render_projection": {
+            "first_case_call_ms": 0.0011,
+            "samples_ms": [
+              0.0003,
+              0.0003,
+              0.0002,
+              0.0003,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0003,
+            "min_ms": 0.0002,
+            "max_ms": 0.0003
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.6697,
+            "samples_ms": [
+              0.7064,
+              0.709,
+              0.6646,
+              0.6867,
+              0.7094
+            ],
+            "median_ms": 0.7064,
+            "p95_ms": 0.7093,
+            "min_ms": 0.6646,
+            "max_ms": 0.7094
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 125076,
+          "json_characters": 121934,
+          "render_projection": {
+            "first_case_call_ms": 0.006,
+            "samples_ms": [
+              0.0029,
+              0.0032,
+              0.0029,
+              0.0028,
+              0.0028
+            ],
+            "median_ms": 0.0029,
+            "p95_ms": 0.0031,
+            "min_ms": 0.0028,
+            "max_ms": 0.0032
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.414,
+            "samples_ms": [
+              0.4478,
+              0.449,
+              0.4741,
+              0.4549,
+              0.4862
+            ],
+            "median_ms": 0.4549,
+            "p95_ms": 0.4838,
+            "min_ms": 0.4478,
+            "max_ms": 0.4862
+          }
+        }
+      }
+    },
+    "partial-facing-only": {
+      "inputs": {
+        "methods": [
+          "bazhai",
+          "annual_stars"
+        ],
+        "effective_year": 2026,
+        "analyze_layout": true,
+        "occupants": [
+          {
+            "subject_id": "a",
+            "birth_date": "2000-12-10",
+            "gender_convention": "male"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "desk",
+            "purpose": "desk",
+            "facing_direction": "W",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "element_adjustments": [
+          {
+            "request_id": "r",
+            "object_id": "desk",
+            "target_method": "bazhai",
+            "subject_id": "a",
+            "aspect": "facing",
+            "goal": "drain",
+            "evidence": "Synthetic benchmark: explicit target"
+          }
+        ]
+      },
+      "status": "partial",
+      "layout_status": "partial",
+      "counts": {
+        "placements": 1,
+        "occupants": 1,
+        "form_observations": 0,
+        "conflicts": 0
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.1743,
+        "samples_ms": [
+          0.1594,
+          0.1668,
+          0.1564,
+          0.1738,
+          0.1508
+        ],
+        "median_ms": 0.1594,
+        "p95_ms": 0.1724,
+        "min_ms": 0.1508,
+        "max_ms": 0.1738
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.5059,
+        "samples_ms": [
+          0.4818,
+          0.5468,
+          0.4994,
+          0.5116,
+          0.4683
+        ],
+        "median_ms": 0.4994,
+        "p95_ms": 0.5397,
+        "min_ms": 0.4683,
+        "max_ms": 0.5468
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 1.2448,
+        "samples_ms": [
+          1.0055,
+          1.2848,
+          1.2112,
+          1.2042,
+          1.1371
+        ],
+        "median_ms": 1.2042,
+        "p95_ms": 1.2701,
+        "min_ms": 1.0055,
+        "max_ms": 1.2848
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 41094,
+          "json_characters": 32236,
+          "render_projection": {
+            "first_case_call_ms": 0.0009,
+            "samples_ms": [
+              0.0004,
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0004,
+            "min_ms": 0.0003,
+            "max_ms": 0.0004
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.1115,
+            "samples_ms": [
+              0.1035,
+              0.1065,
+              0.1009,
+              0.1017,
+              0.1007
+            ],
+            "median_ms": 0.1017,
+            "p95_ms": 0.1059,
+            "min_ms": 0.1007,
+            "max_ms": 0.1065
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 10256,
+          "json_characters": 9204,
+          "render_projection": {
+            "first_case_call_ms": 0.0047,
+            "samples_ms": [
+              0.003,
+              0.0029,
+              0.0029,
+              0.0027,
+              0.0028
+            ],
+            "median_ms": 0.0029,
+            "p95_ms": 0.0029,
+            "min_ms": 0.0027,
+            "max_ms": 0.003
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0322,
+            "samples_ms": [
+              0.0284,
+              0.0282,
+              0.0284,
+              0.0308,
+              0.0278
+            ],
+            "median_ms": 0.0284,
+            "p95_ms": 0.0303,
+            "min_ms": 0.0278,
+            "max_ms": 0.0308
+          }
+        }
+      }
+    },
+    "50-occupants": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "person-0",
+            "effective_birth_year": 1970,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-1",
+            "effective_birth_year": 1971,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-2",
+            "effective_birth_year": 1972,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-3",
+            "effective_birth_year": 1973,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-4",
+            "effective_birth_year": 1974,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-5",
+            "effective_birth_year": 1975,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-6",
+            "effective_birth_year": 1976,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-7",
+            "effective_birth_year": 1977,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-8",
+            "effective_birth_year": 1978,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-9",
+            "effective_birth_year": 1979,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-10",
+            "effective_birth_year": 1980,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-11",
+            "effective_birth_year": 1981,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-12",
+            "effective_birth_year": 1982,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-13",
+            "effective_birth_year": 1983,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-14",
+            "effective_birth_year": 1984,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-15",
+            "effective_birth_year": 1985,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-16",
+            "effective_birth_year": 1986,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-17",
+            "effective_birth_year": 1987,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-18",
+            "effective_birth_year": 1988,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-19",
+            "effective_birth_year": 1989,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-20",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-21",
+            "effective_birth_year": 1991,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-22",
+            "effective_birth_year": 1992,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-23",
+            "effective_birth_year": 1993,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-24",
+            "effective_birth_year": 1994,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-25",
+            "effective_birth_year": 1995,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-26",
+            "effective_birth_year": 1996,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-27",
+            "effective_birth_year": 1997,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-28",
+            "effective_birth_year": 1998,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-29",
+            "effective_birth_year": 1999,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-30",
+            "effective_birth_year": 2000,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-31",
+            "effective_birth_year": 2001,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-32",
+            "effective_birth_year": 2002,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-33",
+            "effective_birth_year": 2003,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-34",
+            "effective_birth_year": 2004,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-35",
+            "effective_birth_year": 2005,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-36",
+            "effective_birth_year": 2006,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-37",
+            "effective_birth_year": 2007,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-38",
+            "effective_birth_year": 2008,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-39",
+            "effective_birth_year": 2009,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-40",
+            "effective_birth_year": 2010,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-41",
+            "effective_birth_year": 2011,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-42",
+            "effective_birth_year": 2012,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-43",
+            "effective_birth_year": 2013,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-44",
+            "effective_birth_year": 2014,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-45",
+            "effective_birth_year": 2015,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-46",
+            "effective_birth_year": 2016,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-47",
+            "effective_birth_year": 2017,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-48",
+            "effective_birth_year": 2018,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-49",
+            "effective_birth_year": 2019,
+            "gender_convention": "male"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 50,
+        "form_observations": 0,
+        "conflicts": 5160
+      },
+      "request_validation": {
+        "first_case_call_ms": 1.4226,
+        "samples_ms": [
+          1.4538,
+          1.4134,
+          1.3597,
+          1.3175,
+          1.333
+        ],
+        "median_ms": 1.3597,
+        "p95_ms": 1.4457,
+        "min_ms": 1.3175,
+        "max_ms": 1.4538
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 28.8311,
+        "samples_ms": [
+          101.5768,
+          29.5062,
+          29.3663,
+          28.8722,
+          28.9193
+        ],
+        "median_ms": 29.3663,
+        "p95_ms": 87.1627,
+        "min_ms": 28.8722,
+        "max_ms": 101.5768
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 105.0844,
+        "samples_ms": [
+          104.6612,
+          178.7173,
+          104.5986,
+          176.9403,
+          104.1092
+        ],
+        "median_ms": 104.6612,
+        "p95_ms": 178.3619,
+        "min_ms": 104.1092,
+        "max_ms": 178.7173
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 4074534,
+          "json_characters": 3929680,
+          "render_projection": {
+            "first_case_call_ms": 0.0076,
+            "samples_ms": [
+              0.0005,
+              0.0003,
+              0.0003,
+              0.0003,
+              0.0003
+            ],
+            "median_ms": 0.0003,
+            "p95_ms": 0.0005,
+            "min_ms": 0.0003,
+            "max_ms": 0.0005
+          },
+          "serialize_json": {
+            "first_case_call_ms": 15.0755,
+            "samples_ms": [
+              15.0847,
+              14.6336,
+              15.2665,
+              14.9415,
+              16.4946
+            ],
+            "median_ms": 15.0847,
+            "p95_ms": 16.249,
+            "min_ms": 14.6336,
+            "max_ms": 16.4946
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 2436360,
+          "json_characters": 2368528,
+          "render_projection": {
+            "first_case_call_ms": 0.0281,
+            "samples_ms": [
+              0.0034,
+              0.0033,
+              0.0033,
+              0.0029,
+              0.0028
+            ],
+            "median_ms": 0.0033,
+            "p95_ms": 0.0034,
+            "min_ms": 0.0028,
+            "max_ms": 0.0034
+          },
+          "serialize_json": {
+            "first_case_call_ms": 10.0602,
+            "samples_ms": [
+              9.8048,
+              9.9424,
+              9.7222,
+              10.0205,
+              10.0747
+            ],
+            "median_ms": 9.9424,
+            "p95_ms": 10.0639,
+            "min_ms": 9.7222,
+            "max_ms": 10.0747
+          }
+        }
+      }
+    }
+  },
+  "profile_largest_execution": [
+    {
+      "function": "benchmark_fengshui.py:424:<lambda>",
+      "calls": 1,
+      "self_ms": 0.0298,
+      "cumulative_ms": 19.3788
+    },
+    {
+      "function": "execution.py:24:execute_tool",
+      "calls": 1,
+      "self_ms": 0.0363,
+      "cumulative_ms": 17.64
+    },
+    {
+      "function": "execution.py:16:execute_spec",
+      "calls": 1,
+      "self_ms": 0.0181,
+      "cumulative_ms": 9.8117
+    },
+    {
+      "function": "fengshui.py:244:assess",
+      "calls": 1,
+      "self_ms": 0.0571,
+      "cumulative_ms": 8.0032
+    },
+    {
+      "function": "~:0:<method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects>",
+      "calls": 13,
+      "self_ms": 2.412,
+      "cumulative_ms": 7.0707
+    },
+    {
+      "function": "main.py:693:model_validate",
+      "calls": 7,
+      "self_ms": 0.0145,
+      "cumulative_ms": 6.643
+    },
+    {
+      "function": "copy.py:119:deepcopy",
+      "calls": 5977,
+      "self_ms": 2.232,
+      "cumulative_ms": 4.4338
+    },
+    {
+      "function": "copy.py:218:_deepcopy_dict",
+      "calls": 505,
+      "self_ms": 0.7239,
+      "cumulative_ms": 4.2916
+    },
+    {
+      "function": "replay_metadata.py:132:execution_receipt",
+      "calls": 1,
+      "self_ms": 0.0253,
+      "cumulative_ms": 4.142
+    },
+    {
+      "function": "directions.py:17:rule_data",
+      "calls": 54,
+      "self_ms": 0.0218,
+      "cumulative_ms": 3.6476
+    },
+    {
+      "function": "base.py:26:_validate_calendar_dates",
+      "calls": 83,
+      "self_ms": 0.3457,
+      "cumulative_ms": 3.5204
+    },
+    {
+      "function": "execution.py:106:validate_output",
+      "calls": 2,
+      "self_ms": 0.1297,
+      "cumulative_ms": 3.3775
+    },
+    {
+      "function": "~:0:<built-in method builtins.getattr>",
+      "calls": 2038,
+      "self_ms": 0.5344,
+      "cumulative_ms": 3.0748
+    },
+    {
+      "function": "replay_metadata.py:95:provenance_values",
+      "calls": 1,
+      "self_ms": 1.5275,
+      "cumulative_ms": 2.6136
+    },
+    {
+      "function": "main.py:1015:__getattr__",
+      "calls": 1992,
+      "self_ms": 1.0503,
+      "cumulative_ms": 2.5404
+    },
+    {
+      "function": "run_metadata.py:115:attach_run_metadata",
+      "calls": 1,
+      "self_ms": 0.0153,
+      "cumulative_ms": 1.9943
+    },
+    {
+      "function": "run_metadata.py:81:_ephemeris_is_downgraded",
+      "calls": 1,
+      "self_ms": 0.5638,
+      "cumulative_ms": 1.9289
+    },
+    {
+      "function": "fengshui.py:161:_natal_layer",
+      "calls": 1,
+      "self_ms": 0.0138,
+      "cumulative_ms": 1.728
+    },
+    {
+      "function": "layout.py:33:analyze_layout",
+      "calls": 1,
+      "self_ms": 0.1655,
+      "cumulative_ms": 1.7028
+    },
+    {
+      "function": "~:0:<built-in method builtins.hasattr>",
+      "calls": 1993,
+      "self_ms": 0.8312,
+      "cumulative_ms": 1.4905
+    }
+  ],
+  "discovery": {
+    "input_contract": {
+      "first_case_call_ms": 1.4174,
+      "samples_ms": [
+        0.7805,
+        0.809,
+        0.7068,
+        0.6988,
+        1.4515
+      ],
+      "median_ms": 0.7805,
+      "p95_ms": 1.323,
+      "min_ms": 0.6988,
+      "max_ms": 1.4515,
+      "utf8_json_bytes": 18686,
+      "json_characters": 16489
+    },
+    "full_contract": {
+      "first_case_call_ms": 1.3738,
+      "samples_ms": [
+        1.5384,
+        1.6933,
+        1.2319,
+        1.1887,
+        1.3198
+      ],
+      "median_ms": 1.3198,
+      "p95_ms": 1.6623,
+      "min_ms": 1.1887,
+      "max_ms": 1.6933,
+      "utf8_json_bytes": 43260,
+      "json_characters": 41157
+    }
+  },
+  "mcp": {
+    "scope": "in_process_FastMCP_no_network_no_model",
+    "cases": {
+      "forms-1": {
+        "full": {
+          "samples_ms": [
+            127.315,
+            128.8067,
+            127.2389,
+            127.1725,
+            126.7998
+          ],
+          "median_ms": 127.2389,
+          "p95_ms": 128.5084,
+          "min_ms": 126.7998,
+          "max_ms": 128.8067,
+          "structured_content": {
+            "utf8_json_bytes": 16247,
+            "json_characters": 12615
+          },
+          "text_content_utf8_bytes": 16247,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            125.0501,
+            125.7722,
+            125.3944,
+            125.6427,
+            126.9435
+          ],
+          "median_ms": 125.6427,
+          "p95_ms": 126.7092,
+          "min_ms": 125.0501,
+          "max_ms": 126.9435,
+          "structured_content": {
+            "utf8_json_bytes": 7461,
+            "json_characters": 6559
+          },
+          "text_content_utf8_bytes": 7461,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "bazhai-1": {
+        "full": {
+          "samples_ms": [
+            136.4108,
+            136.3857,
+            136.9458,
+            136.2943,
+            138.1401
+          ],
+          "median_ms": 136.4108,
+          "p95_ms": 137.9012,
+          "min_ms": 136.2943,
+          "max_ms": 138.1401,
+          "structured_content": {
+            "utf8_json_bytes": 49649,
+            "json_characters": 43239
+          },
+          "text_content_utf8_bytes": 49649,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            131.1972,
+            133.4708,
+            130.6808,
+            130.7473,
+            132.8093
+          ],
+          "median_ms": 131.1972,
+          "p95_ms": 133.3385,
+          "min_ms": 130.6808,
+          "max_ms": 133.4708,
+          "structured_content": {
+            "utf8_json_bytes": 18958,
+            "json_characters": 18228
+          },
+          "text_content_utf8_bytes": 18958,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "foundation-1": {
+        "full": {
+          "samples_ms": [
+            179.3465,
+            169.2741,
+            161.6553,
+            160.3114,
+            141.4813
+          ],
+          "median_ms": 161.6553,
+          "p95_ms": 177.332,
+          "min_ms": 141.4813,
+          "max_ms": 179.3465,
+          "structured_content": {
+            "utf8_json_bytes": 73914,
+            "json_characters": 63928
+          },
+          "text_content_utf8_bytes": 73914,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            193.2547,
+            274.6418,
+            271.5909,
+            291.1244,
+            428.8605
+          ],
+          "median_ms": 274.6418,
+          "p95_ms": 401.3133,
+          "min_ms": 193.2547,
+          "max_ms": 428.8605,
+          "structured_content": {
+            "utf8_json_bytes": 25306,
+            "json_characters": 24398
+          },
+          "text_content_utf8_bytes": 25306,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "all-methods-1": {
+        "full": {
+          "samples_ms": [
+            252.9381,
+            219.2996,
+            261.1169,
+            371.5516,
+            401.236
+          ],
+          "median_ms": 261.1169,
+          "p95_ms": 395.2991,
+          "min_ms": 219.2996,
+          "max_ms": 401.236,
+          "structured_content": {
+            "utf8_json_bytes": 104187,
+            "json_characters": 87877
+          },
+          "text_content_utf8_bytes": 104187,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            590.8028,
+            511.5634,
+            209.4108,
+            269.0228,
+            282.343
+          ],
+          "median_ms": 282.343,
+          "p95_ms": 574.9549,
+          "min_ms": 209.4108,
+          "max_ms": 590.8028,
+          "structured_content": {
+            "utf8_json_bytes": 28497,
+            "json_characters": 27455
+          },
+          "text_content_utf8_bytes": 28497,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "forms-8": {
+        "full": {
+          "samples_ms": [
+            334.2068,
+            203.7867,
+            163.0479,
+            217.1966,
+            226.7262
+          ],
+          "median_ms": 217.1966,
+          "p95_ms": 312.7107,
+          "min_ms": 163.0479,
+          "max_ms": 334.2068,
+          "structured_content": {
+            "utf8_json_bytes": 36750,
+            "json_characters": 30962
+          },
+          "text_content_utf8_bytes": 36750,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            169.6735,
+            169.2921,
+            187.2607,
+            172.4042,
+            181.8063
+          ],
+          "median_ms": 172.4042,
+          "p95_ms": 186.1699,
+          "min_ms": 169.2921,
+          "max_ms": 187.2607,
+          "structured_content": {
+            "utf8_json_bytes": 19921,
+            "json_characters": 17955
+          },
+          "text_content_utf8_bytes": 19921,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "bazhai-8": {
+        "full": {
+          "samples_ms": [
+            176.5981,
+            220.0761,
+            186.0677,
+            243.6527,
+            233.0912
+          ],
+          "median_ms": 220.0761,
+          "p95_ms": 241.5404,
+          "min_ms": 176.5981,
+          "max_ms": 243.6527,
+          "structured_content": {
+            "utf8_json_bytes": 136859,
+            "json_characters": 122973
+          },
+          "text_content_utf8_bytes": 136859,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            175.9966,
+            182.775,
+            171.419,
+            166.5253,
+            165.0603
+          ],
+          "median_ms": 171.419,
+          "p95_ms": 181.4193,
+          "min_ms": 165.0603,
+          "max_ms": 182.775,
+          "structured_content": {
+            "utf8_json_bytes": 77466,
+            "json_characters": 75224
+          },
+          "text_content_utf8_bytes": 77466,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "foundation-8": {
+        "full": {
+          "samples_ms": [
+            229.0077,
+            221.916,
+            240.2188,
+            212.8567,
+            244.857
+          ],
+          "median_ms": 229.0077,
+          "p95_ms": 243.9294,
+          "min_ms": 212.8567,
+          "max_ms": 244.857,
+          "structured_content": {
+            "utf8_json_bytes": 183899,
+            "json_characters": 166003
+          },
+          "text_content_utf8_bytes": 183899,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            200.0158,
+            195.6225,
+            197.4247,
+            206.0312,
+            193.4676
+          ],
+          "median_ms": 197.4247,
+          "p95_ms": 204.8281,
+          "min_ms": 193.4676,
+          "max_ms": 206.0312,
+          "structured_content": {
+            "utf8_json_bytes": 101818,
+            "json_characters": 99174
+          },
+          "text_content_utf8_bytes": 101818,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "all-methods-8": {
+        "full": {
+          "samples_ms": [
+            225.8288,
+            222.2694,
+            216.5613,
+            205.8659,
+            220.512
+          ],
+          "median_ms": 220.512,
+          "p95_ms": 225.1169,
+          "min_ms": 205.8659,
+          "max_ms": 225.8288,
+          "structured_content": {
+            "utf8_json_bytes": 234238,
+            "json_characters": 209654
+          },
+          "text_content_utf8_bytes": 234238,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            192.6663,
+            178.1415,
+            177.4391,
+            177.328,
+            180.9084
+          ],
+          "median_ms": 178.1415,
+          "p95_ms": 190.3147,
+          "min_ms": 177.328,
+          "max_ms": 192.6663,
+          "structured_content": {
+            "utf8_json_bytes": 125076,
+            "json_characters": 121934
+          },
+          "text_content_utf8_bytes": 125076,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "partial-facing-only": {
+        "full": {
+          "samples_ms": [
+            144.5746,
+            164.0712,
+            144.5019,
+            151.9812,
+            139.3908
+          ],
+          "median_ms": 144.5746,
+          "p95_ms": 161.6532,
+          "min_ms": 139.3908,
+          "max_ms": 164.0712,
+          "structured_content": {
+            "utf8_json_bytes": 41094,
+            "json_characters": 32236
+          },
+          "text_content_utf8_bytes": 41094,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            140.5097,
+            143.5645,
+            140.1669,
+            161.9896,
+            146.2045
+          ],
+          "median_ms": 143.5645,
+          "p95_ms": 158.8326,
+          "min_ms": 140.1669,
+          "max_ms": 161.9896,
+          "structured_content": {
+            "utf8_json_bytes": 10256,
+            "json_characters": 9204
+          },
+          "text_content_utf8_bytes": 10256,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      },
+      "50-occupants": {
+        "full": {
+          "samples_ms": [
+            920.7036,
+            813.1028,
+            903.9544,
+            1002.9998,
+            1017.2711
+          ],
+          "median_ms": 920.7036,
+          "p95_ms": 1014.4168,
+          "min_ms": 813.1028,
+          "max_ms": 1017.2711,
+          "structured_content": {
+            "utf8_json_bytes": 4074534,
+            "json_characters": 3929680
+          },
+          "text_content_utf8_bytes": 4074534,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        },
+        "first_view": {
+          "samples_ms": [
+            777.7728,
+            802.0151,
+            727.878,
+            857.4089,
+            732.1258
+          ],
+          "median_ms": 777.7728,
+          "p95_ms": 846.3302,
+          "min_ms": 727.878,
+          "max_ms": 857.4089,
+          "structured_content": {
+            "utf8_json_bytes": 2436360,
+            "json_characters": 2368528
+          },
+          "text_content_utf8_bytes": 2436360,
+          "duplication_note": "MCP carries text plus structuredContent; host tokenization may deduplicate"
+        }
+      }
+    },
+    "discovery_all": {
+      "app_creation_ms": 230.6306,
+      "list_tools_single_call_ms": 14.6354,
+      "tool_count": 87,
+      "utf8_json_bytes": 2049396,
+      "json_characters": 2007900,
+      "coverage_note": "Different exposure scopes; family reduction is not a like-for-like speedup",
+      "schemas": {
+        "analyze_destiny": {
+          "input": {
+            "utf8_json_bytes": 2960,
+            "json_characters": 2528
+          },
+          "output": {
+            "utf8_json_bytes": 22911,
+            "json_characters": 22911
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 56
+        },
+        "bazi_birth": {
+          "input": {
+            "utf8_json_bytes": 3501,
+            "json_characters": 3069
+          },
+          "output": {
+            "utf8_json_bytes": 22443,
+            "json_characters": 22443
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 52
+        },
+        "bazi_marriage": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 15082,
+            "json_characters": 15082
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 28
+        },
+        "bazi_career": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 14820,
+            "json_characters": 14820
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 31
+        },
+        "bazi_wealth": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 15167,
+            "json_characters": 15167
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 30
+        },
+        "bazi_health": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 13169,
+            "json_characters": 13169
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 27
+        },
+        "bazi_children": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 13440,
+            "json_characters": 13440
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 27
+        },
+        "bazi_education": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 12862,
+            "json_characters": 12862
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 26
+        },
+        "bazi_personality": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 12587,
+            "json_characters": 12587
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 25
+        },
+        "bazi_relatives": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 12241,
+            "json_characters": 12241
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 25
+        },
+        "bazi_romance": {
+          "input": {
+            "utf8_json_bytes": 3673,
+            "json_characters": 3233
+          },
+          "output": {
+            "utf8_json_bytes": 12851,
+            "json_characters": 12851
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 26
+        },
+        "two_person_compatibility": {
+          "input": {
+            "utf8_json_bytes": 4521,
+            "json_characters": 3975
+          },
+          "output": {
+            "utf8_json_bytes": 11132,
+            "json_characters": 11132
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 27
+        },
+        "timing_analysis": {
+          "input": {
+            "utf8_json_bytes": 3912,
+            "json_characters": 3480
+          },
+          "output": {
+            "utf8_json_bytes": 20725,
+            "json_characters": 20725
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "dayun_analysis": {
+          "input": {
+            "utf8_json_bytes": 3163,
+            "json_characters": 2737
+          },
+          "output": {
+            "utf8_json_bytes": 19868,
+            "json_characters": 19868
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 45
+        },
+        "liunian_analysis": {
+          "input": {
+            "utf8_json_bytes": 3197,
+            "json_characters": 2765
+          },
+          "output": {
+            "utf8_json_bytes": 20019,
+            "json_characters": 20019
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 46
+        },
+        "liuyue_analysis": {
+          "input": {
+            "utf8_json_bytes": 3785,
+            "json_characters": 3353
+          },
+          "output": {
+            "utf8_json_bytes": 20654,
+            "json_characters": 20654
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 50
+        },
+        "liuri_analysis": {
+          "input": {
+            "utf8_json_bytes": 3785,
+            "json_characters": 3353
+          },
+          "output": {
+            "utf8_json_bytes": 20029,
+            "json_characters": 20029
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 46
+        },
+        "liushi_analysis": {
+          "input": {
+            "utf8_json_bytes": 3785,
+            "json_characters": 3353
+          },
+          "output": {
+            "utf8_json_bytes": 20350,
+            "json_characters": 20350
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 48
+        },
+        "jieqi_timeline_analysis": {
+          "input": {
+            "utf8_json_bytes": 3217,
+            "json_characters": 2785
+          },
+          "output": {
+            "utf8_json_bytes": 19856,
+            "json_characters": 19856
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 45
+        },
+        "jieqi_year": {
+          "input": {
+            "utf8_json_bytes": 2215,
+            "json_characters": 1945
+          },
+          "output": {
+            "utf8_json_bytes": 10326,
+            "json_characters": 10326
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 24
+        },
+        "nongli_time": {
+          "input": {
+            "utf8_json_bytes": 2809,
+            "json_characters": 2449
+          },
+          "output": {
+            "utf8_json_bytes": 23815,
+            "json_characters": 23815
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 51
+        },
+        "gua_lookup": {
+          "input": {
+            "utf8_json_bytes": 1710,
+            "json_characters": 1440
+          },
+          "output": {
+            "utf8_json_bytes": 12639,
+            "json_characters": 12639
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 23
+        },
+        "gua_meiyi": {
+          "input": {
+            "utf8_json_bytes": 1623,
+            "json_characters": 1353
+          },
+          "output": {
+            "utf8_json_bytes": 12630,
+            "json_characters": 12630
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 23
+        },
+        "meihua_analysis": {
+          "input": {
+            "utf8_json_bytes": 2184,
+            "json_characters": 1914
+          },
+          "output": {
+            "utf8_json_bytes": 22308,
+            "json_characters": 22308
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 50
+        },
+        "tongshefa": {
+          "input": {
+            "utf8_json_bytes": 1768,
+            "json_characters": 1490
+          },
+          "output": {
+            "utf8_json_bytes": 13427,
+            "json_characters": 13427
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 28
+        },
+        "sixyao": {
+          "input": {
+            "utf8_json_bytes": 3680,
+            "json_characters": 3151
+          },
+          "output": {
+            "utf8_json_bytes": 17638,
+            "json_characters": 17638
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 35
+        },
+        "canping": {
+          "input": {
+            "utf8_json_bytes": 2615,
+            "json_characters": 2229
+          },
+          "output": {
+            "utf8_json_bytes": 25486,
+            "json_characters": 25486
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 55
+        },
+        "heluo": {
+          "input": {
+            "utf8_json_bytes": 2490,
+            "json_characters": 2134
+          },
+          "output": {
+            "utf8_json_bytes": 25977,
+            "json_characters": 25977
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 58
+        },
+        "suzhan": {
+          "input": {
+            "utf8_json_bytes": 2853,
+            "json_characters": 2439
+          },
+          "output": {
+            "utf8_json_bytes": 11332,
+            "json_characters": 11332
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 26
+        },
+        "sukuyo_compatibility": {
+          "input": {
+            "utf8_json_bytes": 3209,
+            "json_characters": 2931
+          },
+          "output": {
+            "utf8_json_bytes": 11049,
+            "json_characters": 11049
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 22
+        },
+        "otherbu": {
+          "input": {
+            "utf8_json_bytes": 2810,
+            "json_characters": 2540
+          },
+          "output": {
+            "utf8_json_bytes": 12149,
+            "json_characters": 12149
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 30
+        },
+        "sanshiunited": {
+          "input": {
+            "utf8_json_bytes": 2890,
+            "json_characters": 2610
+          },
+          "output": {
+            "utf8_json_bytes": 38418,
+            "json_characters": 38418
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 86
+        },
+        "ziwei_birth": {
+          "input": {
+            "utf8_json_bytes": 3113,
+            "json_characters": 2681
+          },
+          "output": {
+            "utf8_json_bytes": 27098,
+            "json_characters": 27098
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 55
+        },
+        "ziwei_horoscope": {
+          "input": {
+            "utf8_json_bytes": 3521,
+            "json_characters": 3089
+          },
+          "output": {
+            "utf8_json_bytes": 13801,
+            "json_characters": 13801
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 23
+        },
+        "ziwei_rules": {
+          "input": {
+            "utf8_json_bytes": 1634,
+            "json_characters": 1362
+          },
+          "output": {
+            "utf8_json_bytes": 10381,
+            "json_characters": 10381
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 20
+        },
+        "liureng_gods": {
+          "input": {
+            "utf8_json_bytes": 2714,
+            "json_characters": 2372
+          },
+          "output": {
+            "utf8_json_bytes": 27505,
+            "json_characters": 27505
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 56
+        },
+        "liureng_runyear": {
+          "input": {
+            "utf8_json_bytes": 3945,
+            "json_characters": 3513
+          },
+          "output": {
+            "utf8_json_bytes": 28020,
+            "json_characters": 28020
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 57
+        },
+        "qimen": {
+          "input": {
+            "utf8_json_bytes": 2664,
+            "json_characters": 2380
+          },
+          "output": {
+            "utf8_json_bytes": 25873,
+            "json_characters": 25873
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 53
+        },
+        "taiyi": {
+          "input": {
+            "utf8_json_bytes": 2721,
+            "json_characters": 2375
+          },
+          "output": {
+            "utf8_json_bytes": 26108,
+            "json_characters": 26108
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "jinkou": {
+          "input": {
+            "utf8_json_bytes": 2823,
+            "json_characters": 2481
+          },
+          "output": {
+            "utf8_json_bytes": 30134,
+            "json_characters": 30134
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 63
+        },
+        "export_registry": {
+          "input": {
+            "utf8_json_bytes": 1464,
+            "json_characters": 1194
+          },
+          "output": {
+            "utf8_json_bytes": 10038,
+            "json_characters": 10038
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 23
+        },
+        "export_parse": {
+          "input": {
+            "utf8_json_bytes": 1964,
+            "json_characters": 1694
+          },
+          "output": {
+            "utf8_json_bytes": 9912,
+            "json_characters": 9912
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 21
+        },
+        "knowledge_registry": {
+          "input": {
+            "utf8_json_bytes": 1614,
+            "json_characters": 1344
+          },
+          "output": {
+            "utf8_json_bytes": 12076,
+            "json_characters": 12076
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 24
+        },
+        "knowledge_read": {
+          "input": {
+            "utf8_json_bytes": 2894,
+            "json_characters": 2468
+          },
+          "output": {
+            "utf8_json_bytes": 12825,
+            "json_characters": 12825
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 22
+        },
+        "astro_chart": {
+          "input": {
+            "utf8_json_bytes": 4368,
+            "json_characters": 3914
+          },
+          "output": {
+            "utf8_json_bytes": 27543,
+            "json_characters": 27543
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 48
+        },
+        "astro_chart13": {
+          "input": {
+            "utf8_json_bytes": 4220,
+            "json_characters": 3766
+          },
+          "output": {
+            "utf8_json_bytes": 28070,
+            "json_characters": 28070
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "astro_hellen_chart": {
+          "input": {
+            "utf8_json_bytes": 4220,
+            "json_characters": 3766
+          },
+          "output": {
+            "utf8_json_bytes": 28138,
+            "json_characters": 28138
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 50
+        },
+        "astro_guolao_chart": {
+          "input": {
+            "utf8_json_bytes": 4220,
+            "json_characters": 3766
+          },
+          "output": {
+            "utf8_json_bytes": 29481,
+            "json_characters": 29481
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 51
+        },
+        "astro_india_chart": {
+          "input": {
+            "utf8_json_bytes": 4220,
+            "json_characters": 3766
+          },
+          "output": {
+            "utf8_json_bytes": 28007,
+            "json_characters": 28007
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "astro_germany_chart": {
+          "input": {
+            "utf8_json_bytes": 4220,
+            "json_characters": 3766
+          },
+          "output": {
+            "utf8_json_bytes": 16901,
+            "json_characters": 16901
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 31
+        },
+        "astro_relative_chart": {
+          "input": {
+            "utf8_json_bytes": 5055,
+            "json_characters": 4757
+          },
+          "output": {
+            "utf8_json_bytes": 23617,
+            "json_characters": 23617
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "western_timing_analysis": {
+          "input": {
+            "utf8_json_bytes": 4867,
+            "json_characters": 4581
+          },
+          "output": {
+            "utf8_json_bytes": 44328,
+            "json_characters": 44328
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 116
+        },
+        "solarreturn": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 20254,
+            "json_characters": 20254
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "lunarreturn": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 20254,
+            "json_characters": 20254
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "transit": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 20246,
+            "json_characters": 20246
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "solararc": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 20248,
+            "json_characters": 20248
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "givenyear": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 20250,
+            "json_characters": 20250
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "profection": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 15594,
+            "json_characters": 15594
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 37
+        },
+        "pd": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 28990,
+            "json_characters": 28990
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 67
+        },
+        "pdchart": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 29000,
+            "json_characters": 29000
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 67
+        },
+        "zr": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 18794,
+            "json_characters": 18794
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 49
+        },
+        "firdaria": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 16391,
+            "json_characters": 16391
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 41
+        },
+        "decennials": {
+          "input": {
+            "utf8_json_bytes": 5011,
+            "json_characters": 4725
+          },
+          "output": {
+            "utf8_json_bytes": 16812,
+            "json_characters": 16812
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 42
+        },
+        "astro_harmonic": {
+          "input": {
+            "utf8_json_bytes": 3560,
+            "json_characters": 3266
+          },
+          "output": {
+            "utf8_json_bytes": 16005,
+            "json_characters": 16005
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_planetary_ages": {
+          "input": {
+            "utf8_json_bytes": 3706,
+            "json_characters": 3420
+          },
+          "output": {
+            "utf8_json_bytes": 16255,
+            "json_characters": 16255
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_triplicity_rulers": {
+          "input": {
+            "utf8_json_bytes": 3599,
+            "json_characters": 3311
+          },
+          "output": {
+            "utf8_json_bytes": 17159,
+            "json_characters": 17159
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_lunation_phase": {
+          "input": {
+            "utf8_json_bytes": 3402,
+            "json_characters": 3116
+          },
+          "output": {
+            "utf8_json_bytes": 16304,
+            "json_characters": 16304
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 38
+        },
+        "astro_distributions": {
+          "input": {
+            "utf8_json_bytes": 3531,
+            "json_characters": 3244
+          },
+          "output": {
+            "utf8_json_bytes": 17252,
+            "json_characters": 17252
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_balbillus": {
+          "input": {
+            "utf8_json_bytes": 3671,
+            "json_characters": 3385
+          },
+          "output": {
+            "utf8_json_bytes": 17023,
+            "json_characters": 17023
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_keypoints": {
+          "input": {
+            "utf8_json_bytes": 3540,
+            "json_characters": 3254
+          },
+          "output": {
+            "utf8_json_bytes": 16778,
+            "json_characters": 16778
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 41
+        },
+        "astro_yearsystem129": {
+          "input": {
+            "utf8_json_bytes": 3552,
+            "json_characters": 3266
+          },
+          "output": {
+            "utf8_json_bytes": 16460,
+            "json_characters": 16460
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 38
+        },
+        "astro_planetaryarc": {
+          "input": {
+            "utf8_json_bytes": 3950,
+            "json_characters": 3664
+          },
+          "output": {
+            "utf8_json_bytes": 16361,
+            "json_characters": 16361
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_persiandirected": {
+          "input": {
+            "utf8_json_bytes": 3406,
+            "json_characters": 3119
+          },
+          "output": {
+            "utf8_json_bytes": 16065,
+            "json_characters": 16065
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 38
+        },
+        "astro_agepoint": {
+          "input": {
+            "utf8_json_bytes": 3409,
+            "json_characters": 3123
+          },
+          "output": {
+            "utf8_json_bytes": 16817,
+            "json_characters": 16817
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_vedicprog": {
+          "input": {
+            "utf8_json_bytes": 3817,
+            "json_characters": 3529
+          },
+          "output": {
+            "utf8_json_bytes": 16162,
+            "json_characters": 16162
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 39
+        },
+        "astro_jaynesprog": {
+          "input": {
+            "utf8_json_bytes": 3807,
+            "json_characters": 3521
+          },
+          "output": {
+            "utf8_json_bytes": 16204,
+            "json_characters": 16204
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 38
+        },
+        "astro_mundane": {
+          "input": {
+            "utf8_json_bytes": 2436,
+            "json_characters": 2146
+          },
+          "output": {
+            "utf8_json_bytes": 13938,
+            "json_characters": 13938
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 25
+        },
+        "astro_extrareturns": {
+          "input": {
+            "utf8_json_bytes": 3678,
+            "json_characters": 3392
+          },
+          "output": {
+            "utf8_json_bytes": 14406,
+            "json_characters": 14406
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 26
+        },
+        "astro_horary": {
+          "input": {
+            "utf8_json_bytes": 3096,
+            "json_characters": 2826
+          },
+          "output": {
+            "utf8_json_bytes": 19175,
+            "json_characters": 19175
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 33
+        },
+        "astro_election": {
+          "input": {
+            "utf8_json_bytes": 3115,
+            "json_characters": 2845
+          },
+          "output": {
+            "utf8_json_bytes": 12763,
+            "json_characters": 12763
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 23
+        },
+        "fengshui_directions": {
+          "input": {
+            "utf8_json_bytes": 1660,
+            "json_characters": 1390
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_minggua": {
+          "input": {
+            "utf8_json_bytes": 2461,
+            "json_characters": 1961
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_bazhai": {
+          "input": {
+            "utf8_json_bytes": 5003,
+            "json_characters": 4206
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_jinsuo": {
+          "input": {
+            "utf8_json_bytes": 2190,
+            "json_characters": 1870
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_annual_stars": {
+          "input": {
+            "utf8_json_bytes": 1913,
+            "json_characters": 1557
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_xuankong_natal": {
+          "input": {
+            "utf8_json_bytes": 3393,
+            "json_characters": 2996
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_assess": {
+          "input": {
+            "utf8_json_bytes": 11822,
+            "json_characters": 10340
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        }
+      }
+    },
+    "discovery_fengshui": {
+      "app_creation_ms": 26.512,
+      "list_tools_single_call_ms": 4.485,
+      "tool_count": 7,
+      "utf8_json_bytes": 209095,
+      "json_characters": 203793,
+      "coverage_note": "Different exposure scopes; family reduction is not a like-for-like speedup",
+      "schemas": {
+        "fengshui_directions": {
+          "input": {
+            "utf8_json_bytes": 1660,
+            "json_characters": 1390
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_minggua": {
+          "input": {
+            "utf8_json_bytes": 2461,
+            "json_characters": 1961
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_bazhai": {
+          "input": {
+            "utf8_json_bytes": 5003,
+            "json_characters": 4206
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_jinsuo": {
+          "input": {
+            "utf8_json_bytes": 2190,
+            "json_characters": 1870
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_annual_stars": {
+          "input": {
+            "utf8_json_bytes": 1913,
+            "json_characters": 1557
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_xuankong_natal": {
+          "input": {
+            "utf8_json_bytes": 3393,
+            "json_characters": 2996
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        },
+        "fengshui_assess": {
+          "input": {
+            "utf8_json_bytes": 11822,
+            "json_characters": 10340
+          },
+          "output": {
+            "utf8_json_bytes": 25128,
+            "json_characters": 25128
+          },
+          "input_ref_count": 0,
+          "output_ref_count": 69
+        }
+      }
+    },
+    "profile_first_case": {
+      "name": "forms-1",
+      "warning": "Profiled timing is instrumented; use unprofiled samples for latency",
+      "functions": [
+        {
+          "function": "~:0:<method 'run' of '_contextvars.Context' objects>",
+          "calls": 27,
+          "self_ms": 0.05,
+          "cumulative_ms": 472.6219
+        },
+        {
+          "function": "base_events.py:1962:_run_once",
+          "calls": 20,
+          "self_ms": 0.1295,
+          "cumulative_ms": 471.2913
+        },
+        {
+          "function": "events.py:87:_run",
+          "calls": 25,
+          "self_ms": 0.0198,
+          "cumulative_ms": 470.8069
+        },
+        {
+          "function": "validators.py:1265:validate",
+          "calls": 2,
+          "self_ms": 0.0202,
+          "cumulative_ms": 466.064
+        },
+        {
+          "function": "validators.py:349:iter_errors",
+          "calls": 4,
+          "self_ms": 0.01,
+          "cumulative_ms": 465.9059
+        },
+        {
+          "function": "validators.py:396:descend",
+          "calls": 27152,
+          "self_ms": 39.0851,
+          "cumulative_ms": 465.8449
+        },
+        {
+          "function": "_keywords.py:274:ref",
+          "calls": 11006,
+          "self_ms": 6.6732,
+          "cumulative_ms": 465.3875
+        },
+        {
+          "function": "_keywords.py:290:properties",
+          "calls": 10998,
+          "self_ms": 7.6287,
+          "cumulative_ms": 465.2877
+        },
+        {
+          "function": "_keywords.py:36:additionalProperties",
+          "calls": 130,
+          "self_ms": 0.558,
+          "cumulative_ms": 454.8544
+        },
+        {
+          "function": "validators.py:306:check_schema",
+          "calls": 2,
+          "self_ms": 0.0084,
+          "cumulative_ms": 454.3194
+        },
+        {
+          "function": "_keywords.py:332:allOf",
+          "calls": 1368,
+          "self_ms": 3.3123,
+          "cumulative_ms": 454.2167
+        },
+        {
+          "function": "_keywords.py:278:dynamicRef",
+          "calls": 1366,
+          "self_ms": 0.7838,
+          "cumulative_ms": 452.8997
+        },
+        {
+          "function": "_keywords.py:59:items",
+          "calls": 460,
+          "self_ms": 0.9673,
+          "cumulative_ms": 288.5278
+        },
+        {
+          "function": "_tasks.py:273:_run_coro",
+          "calls": 15,
+          "self_ms": 0.0231,
+          "cumulative_ms": 243.7862
+        },
+        {
+          "function": "server.py:698:_handle_message",
+          "calls": 6,
+          "self_ms": 0.0408,
+          "cumulative_ms": 242.589
+        },
+        {
+          "function": "server.py:725:_handle_request",
+          "calls": 6,
+          "self_ms": 0.0196,
+          "cumulative_ms": 242.5204
+        },
+        {
+          "function": "server.py:527:handler",
+          "calls": 5,
+          "self_ms": 0.0243,
+          "cumulative_ms": 242.1905
+        },
+        {
+          "function": "session.py:386:call_tool",
+          "calls": 4,
+          "self_ms": 0.017,
+          "cumulative_ms": 224.9071
+        },
+        {
+          "function": "session.py:417:_validate_tool_result",
+          "calls": 1,
+          "self_ms": 0.0176,
+          "cumulative_ms": 224.6706
+        },
+        {
+          "function": "validators.py:459:_validate_reference",
+          "calls": 12364,
+          "self_ms": 4.2046,
+          "cumulative_ms": 216.5052
+        }
+      ]
+    }
+  },
+  "isolated_layout_comparison": {
+    "baseline_ref": "HEAD",
+    "baseline_source_sha256": "129c19dc2cc75b9b4672ba4064b6765a2f1db3dcdbe512476400007980623f2f",
+    "scope": "Same precomputed layers and all selected methods; domain readiness fixes excluded",
+    "cases": {
+      "1": {
+        "result_exactly_equal": true,
+        "baseline": {
+          "first_case_call_ms": 0.0687,
+          "samples_ms": [
+            0.0545,
+            0.0575,
+            0.0528,
+            0.0533,
+            0.0525
+          ],
+          "median_ms": 0.0533,
+          "p95_ms": 0.0569,
+          "min_ms": 0.0525,
+          "max_ms": 0.0575
+        },
+        "current": {
+          "first_case_call_ms": 0.0602,
+          "samples_ms": [
+            0.0678,
+            0.0864,
+            0.0861,
+            0.0582,
+            0.0553
+          ],
+          "median_ms": 0.0678,
+          "p95_ms": 0.0863,
+          "min_ms": 0.0553,
+          "max_ms": 0.0864
+        }
+      },
+      "8": {
+        "result_exactly_equal": true,
+        "baseline": {
+          "first_case_call_ms": 0.4011,
+          "samples_ms": [
+            0.7832,
+            0.7543,
+            0.8493,
+            0.5503,
+            0.4937
+          ],
+          "median_ms": 0.7543,
+          "p95_ms": 0.8361,
+          "min_ms": 0.4937,
+          "max_ms": 0.8493
+        },
+        "current": {
+          "first_case_call_ms": 0.4582,
+          "samples_ms": [
+            0.349,
+            0.4327,
+            0.3684,
+            0.3568,
+            0.349
+          ],
+          "median_ms": 0.3568,
+          "p95_ms": 0.4198,
+          "min_ms": 0.349,
+          "max_ms": 0.4327
+        }
+      }
+    }
+  }
+}

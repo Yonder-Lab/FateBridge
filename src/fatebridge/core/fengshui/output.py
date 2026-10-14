@@ -140,6 +140,9 @@ class Coverage(PartialOutput):
     unavailable_layers: Optional[List[str]] = None
     not_requested_layers: Optional[List[str]] = None
     supplemental_rulesets: Optional[List[str]] = None
+    layout_status: Optional[Literal["complete", "partial"]] = None
+    layout_missing_inputs: Optional[List[str]] = None
+    requested_analysis_status: Optional[Literal["complete", "partial"]] = None
 
 
 class FengshuiOutput(ProjectedOutput):

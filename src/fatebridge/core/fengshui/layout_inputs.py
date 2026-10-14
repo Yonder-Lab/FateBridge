@@ -8,6 +8,10 @@ from fatebridge.core.requests.base import _DeferredModel
 
 
 class FormObservation(_DeferredModel):
+    """床桌灶的独立室内形态。无需罗盘、生辰或 placements；未知字段省略，
+    至少提供一项观察。入口可见性不能推导精确相对位置或入口直线关系。
+    """
+
     object_id: str = Field(min_length=1, max_length=100)
     purpose: Literal["bed", "desk", "stove"]
     entrance_position: Optional[

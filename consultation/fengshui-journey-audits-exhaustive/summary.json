@@ -1,0 +1,91 @@
+[
+  {
+    "record": "consultation/fengshui-codex-experience/fengshui-facing.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-experience--fengshui-facing.json",
+    "status": "pass",
+    "turns": [
+      "pass",
+      "pass"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-experience/fengshui-form.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-experience--fengshui-form.json",
+    "status": "fail",
+    "turns": [
+      "fail",
+      "fail",
+      "fail"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-experience/fengshui.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-experience--fengshui.json",
+    "status": "pass",
+    "turns": [
+      "pass"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-final/fengshui-facing.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-final--fengshui-facing.json",
+    "status": "fail",
+    "turns": [
+      "fail",
+      "pass"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-final/fengshui-form-transfer.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-final--fengshui-form-transfer.json",
+    "status": "pass",
+    "turns": [
+      "pass",
+      "pass"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-schema-transfer/fengshui-bed-transfer.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-schema-transfer--fengshui-bed-transfer.json",
+    "status": "fail",
+    "turns": [
+      "fail",
+      "fail"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-transfer/fengshui-annual.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-transfer--fengshui-annual.json",
+    "status": "fail",
+    "turns": [
+      "fail",
+      "pass"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-transfer/fengshui-conflicting.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-transfer--fengshui-conflicting.json",
+    "status": "pass",
+    "turns": [
+      "pass",
+      "pass"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-transfer/fengshui-shared.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-transfer--fengshui-shared.json",
+    "status": "pass",
+    "turns": [
+      "pass",
+      "pass"
+    ]
+  },
+  {
+    "record": "consultation/fengshui-codex-transfer/fengshui-unsupported.json",
+    "report": "consultation/fengshui-journey-audits-exhaustive/fengshui-codex-transfer--fengshui-unsupported.json",
+    "status": "pass",
+    "turns": [
+      "pass"
+    ]
+  }
+]

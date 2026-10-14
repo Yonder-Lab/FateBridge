@@ -102,8 +102,14 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
             f"布局计算状态：{layout['status']}；范围：{layout['calculation_scope']}"
         ]
         for option in layout["adjustment_options"]:
+            agreement = (
+                "尚无已确认作用域"
+                if option["resolution"] == "no_confirmed_scope"
+                else "、".join(option["agreed_matching_directions"])
+                or "已确认作用域之间没有共同匹配方位"
+            )
             lines.append(
-                f"对象{option['object_id']} {option['aspect']} 当前{option['current_direction']}；已确认作用域共同匹配方位：{'、'.join(option['agreed_matching_directions']) or '无'}"
+                f"对象{option['object_id']} {option['aspect']} 当前{option['current_direction']}；已确认作用域共同匹配方位：{agreement}"
             )
             for scope in option["scopes"]:
                 lines.append(
@@ -140,6 +146,16 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
             "覆盖范围",
             [
                 "缺失输入：" + "、".join(result["coverage"]["missing_inputs"]),
+                *(
+                    [
+                        "请求整体状态："
+                        + result["coverage"]["requested_analysis_status"],
+                        "布局缺失输入："
+                        + "、".join(result["coverage"]["layout_missing_inputs"]),
+                    ]
+                    if "layout_status" in result["coverage"]
+                    else []
+                ),
                 "未实现层：" + "、".join(result["coverage"]["unavailable_layers"]),
             ],
         )

@@ -1,0 +1,2389 @@
+{
+  "environment": {
+    "python": "3.13.5",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "measured_at_utc": "2026-10-14T04:07:09.898886+00:00",
+    "git_head": "059030a9a8402415c44dbf5f0db99ea081d9f3eb",
+    "source_hashes": {
+      "src/fatebridge/__init__.py": "feef7e44bf4c217d2cc529504bd4655b2968d58a93ff1f18913695709fec840e",
+      "src/fatebridge/analysis/__init__.py": "a34922049a2fed384547d88d90841aeb54c1f0a4e846dc55788a71a2e87407f9",
+      "src/fatebridge/analysis/career.py": "380aff79d973dbdc5d9a2cdb74bf768563ee74926d6f51bf1bc9831ed52e3326",
+      "src/fatebridge/analysis/children.py": "c5208a18917b68a02604e6f133785bf5aaa974ce3a190c575670028a8f883642",
+      "src/fatebridge/analysis/compatibility.py": "3b0b0b41d3c3e476113ea57b131df0eb82d0d2af4c2ec18b75c3f37109f3ab73",
+      "src/fatebridge/analysis/education.py": "c8cacac1d26668fdc0147827e454621a9f082fc929b0ca2d945fc4f9085699fc",
+      "src/fatebridge/analysis/health.py": "6eb715914d6d62dad1c8437f66eda56249ded4f37650a6a62c16716945eeb58a",
+      "src/fatebridge/analysis/life_dimensions.py": "4ca1aca6627bb1cc09d574005dcdfffca30f5aee7ac52e61e84dd05d2f753d38",
+      "src/fatebridge/analysis/marriage.py": "58bb35ef1a1ef56f944ac4a0afc251a4279b293584985c42e5b853ec0c89fab7",
+      "src/fatebridge/analysis/personality.py": "008f109f734288128646e389c4e7c23588d58466c6f81a9b5a95452da1cf8775",
+      "src/fatebridge/analysis/relatives.py": "c793ed9a6435755cfda372366899c3dd8626ba0f60a6e5a51a2dcad2971531ed",
+      "src/fatebridge/analysis/romance.py": "82bb69b0f3afed0e23375857495bef943756185edcf4d8a382f280e1a41065ed",
+      "src/fatebridge/analysis/timing_effects.py": "c05a02581ee2a84b4cbd52c198ed3680b7b409abe5e7480dcaab2a60322cce43",
+      "src/fatebridge/analysis/wealth.py": "f0eb6edb297e912f291ddb64588eace9c61c0b02d9623a4a4277d72c2c28fb60",
+      "src/fatebridge/api.py": "0e54d9b6bd827679485bf7fdfe2cfad487865222d9947997cda4da6c925779c2",
+      "src/fatebridge/application/__init__.py": "f4d3375aea7ca2969d2fc925f042d7cc6f8f5e805c94b537bfcf286b33dddc58",
+      "src/fatebridge/application/bindings.py": "36beb94c2ec314e1599207bf0f8173519baacef1d20f8f553b23bd2bb376abcc",
+      "src/fatebridge/application/description.py": "851a4f2651603b150fecc7805c0079a14f2723a7c9f234ad9f6fed3b5108b0e2",
+      "src/fatebridge/application/discovery.py": "f121378dee479d7d0a4d575eb93a00729e93afe534c0eb2322d66749be4f9ec3",
+      "src/fatebridge/application/examples.py": "d0c7aaeca00077b23b4798ba84e9bc3780e4ee246926472a5229912f458f1ffb",
+      "src/fatebridge/application/execution.py": "692b13cbcc120e18352d044db436e5fb5e57fa6e056b972a315df43e1db3c5a7",
+      "src/fatebridge/application/projection.py": "3e11f726d8d25db23d538e4a10216f3fa907e0c37d7c9f2c3a91960044356111",
+      "src/fatebridge/application/scenarios.py": "0d2e4d84715daef885b633c1569e4c36884bab9326ceada91d64cbe0e08aadc8",
+      "src/fatebridge/application/tool_spec.py": "152180934a9f47600b1bc57c36b2d293ece8704a4c13af1996177c7d8c0f1429",
+      "src/fatebridge/cli.py": "5efdd9c1215567ad2a9614409e3078a5c55827f0ac1acd876c478ee41282ff97",
+      "src/fatebridge/core/__init__.py": "17cdf034277b7bfe8edf0be8613a70879e3fcbd896ed56e1d6828c6c263b6825",
+      "src/fatebridge/core/almanac.py": "bd39e0bd49ab90fa89dde81cb5c7a86ed32e07e023e6ad3402c9c206bedf458f",
+      "src/fatebridge/core/astro/__init__.py": "8cd555515625e801e7f03bea514d659d3081e51600aca0d4609cc720e71c48fe",
+      "src/fatebridge/core/astro/aspects.py": "51408af1f7856bade6fd7a2e6bf410606d6c9e9c473c0568c242e9ac71704591",
+      "src/fatebridge/core/astro/birth.py": "257ac827bf0e4e9574b0c9d8b09471ce55e2c0a8c2cbbfb218603da991dc0210",
+      "src/fatebridge/core/astro/chart.py": "9c2ba9385c6882a3d529a91e3b58b72ac0e11bf3df69010ed01217b6a26098d6",
+      "src/fatebridge/core/astro/classical.py": "835a3d9678cad659f75822c887cb20fd9f13b5dc2e12bd305e77c2612e78a91c",
+      "src/fatebridge/core/astro/ephemeris.py": "ff316a94a985160dff1c75a912dd5464b918f85734755210d44f510ee96471f5",
+      "src/fatebridge/core/astro/geometry.py": "f1d2de7b66644eb609176e803443dc79f790fedc1394f71ed320d436efdef467",
+      "src/fatebridge/core/astro/layout.py": "aca09426f836291230b2377e663f9f49c8b9ef896d603852d88353e1b17d1819",
+      "src/fatebridge/core/astro/orbits.py": "3117254efb92ca9f3b0628e5a7d0732336c728e39e9ca0018c69fbd24640072b",
+      "src/fatebridge/core/astro/parts.py": "16c5c48aa4d4ffa021f923a1feee250aa2ecc6e586f6d96b652b0c9064865a14",
+      "src/fatebridge/core/astro/profiles.py": "5fd001e7d7e319eeef5ef484db30ecacb2f11ef0e938ddce501caeccee625d94",
+      "src/fatebridge/core/astro/reference.py": "aba73cc16d361089a6775ca0e5c78c85a57f6bda177f51bd62cdd6c28a98026f",
+      "src/fatebridge/core/astro/relationship.py": "49548152008b726f4e2d288c87061ed026dd939e9097296d4b114bbb502d85d0",
+      "src/fatebridge/core/astro/relationship_charts.py": "7b3a751fb4dcfdda604ef9e016fb9316d641efc724950ab3521885e63a936c8f",
+      "src/fatebridge/core/astro/runtime.py": "bba994e1cd300aea44416c82933d8c8a4f460b26780c6760334e1fb7becf18e6",
+      "src/fatebridge/core/astrology_election.py": "ee99c0b0630d2ea5ecb56ca18df5bfc1d2bef6cc98aa4030e1320a89c632050f",
+      "src/fatebridge/core/astrology_events.py": "15d98ce1b4c99c9997d83c49348234c3e4abe5b346f6bedd7970b4a2fc04e930",
+      "src/fatebridge/core/astrology_horary.py": "7f094d28f615d74bf01a4e5064ac1936ec138eb46676ffe2ca09ceb0420f2eec",
+      "src/fatebridge/core/astrology_lifespan.py": "5c7a1acbf22d92426f7954d58c94d259d0f146d7796f3e7336882c86f3acd2c6",
+      "src/fatebridge/core/astrology_tables.py": "e912df885273a83af3247e63fecca90af2de2762ec77c6dcb5046c4f2384c16c",
+      "src/fatebridge/core/calendar.py": "2bd94e7a97aeac64a0cd319ed796d60da1c57d84e7f546fa470fe6400f341d1e",
+      "src/fatebridge/core/canping.py": "f2c809ad3fac3c142c59e5f4f375822b15dfe79287b871969c240e13b54cf746",
+      "src/fatebridge/core/classical.py": "d671d85841f9af2cfc836519257f1bbccb1ad41dd2f6030c3d7126929bce092f",
+      "src/fatebridge/core/classical_western.py": "af0225db80f905db85cae7fc90d52667ea19568279815ab0253cc237d7a581ec",
+      "src/fatebridge/core/divination.py": "5e55e8aa588cf65f6e0759bdf86cad39f1a230e9955a72006bca2301df1e27da",
+      "src/fatebridge/core/element_relations.py": "c49ee52a7603c3f396b5a5bff7248fce94d5a5967778a1192c04ae7a478b8e42",
+      "src/fatebridge/core/elements.py": "5bf824356b79762595609d374db259ca1286bebd2b0a6b41ec9c33adb26b8baf",
+      "src/fatebridge/core/ephemeris_runtime.py": "7e42f9d3b62f6e998a3ec8aa44f22fe9286aa25801ccfbe00f303ed250fd6fd3",
+      "src/fatebridge/core/execution_context.py": "602dde81428ca1b295c237c6afb77639408e0ab463c3406795f91ae437e697fd",
+      "src/fatebridge/core/export_contracts.py": "6e09e29a73d733f3e248d4af94dca7790fc5bf4379d6837daf37fb2fa72ddfed",
+      "src/fatebridge/core/export_parser.py": "f7f6e580aef418939ed1d53eb232805c432e932ff086b63a181067a73fcb44f4",
+      "src/fatebridge/core/fengshui/__init__.py": "e01b04abde92232473311b45d5b4d5ca8aa15f731da1a6b592ce966a383d696f",
+      "src/fatebridge/core/fengshui/annual.py": "06c70297df3db25dc98820385cc3bd3ea63b54bfd5c608f23f38286e938eeb6b",
+      "src/fatebridge/core/fengshui/bazhai.py": "80a45a2a95216356840a850ebdef675d36eafef90e771740efb4bc217287912d",
+      "src/fatebridge/core/fengshui/calendar.py": "445636e3d14213fea93afa1111484b8bb85af8e78573a4cc138ab0d0aaeedd2c",
+      "src/fatebridge/core/fengshui/directions.py": "2c374dba98021e8e91ba34a0247f1460b76e0361a47e047e120fb62afeb6ada9",
+      "src/fatebridge/core/fengshui/jinsuo.py": "1f6803beea17639c5c9a471a407f072e100f130af37b4879c16a2f974c419132",
+      "src/fatebridge/core/fengshui/layout.py": "01b4b0833251b9ed43310424671c9968026dc8897ab5021fefcc5fa6a25cc4e4",
+      "src/fatebridge/core/fengshui/layout_inputs.py": "2ca7fa9f63923c06394d13265d39d5fa1ce5d1259c4ab3dca5eaad6b07a6a17d",
+      "src/fatebridge/core/fengshui/layout_supplements.py": "473fcae085f0ef12711b16a2597be56d19e1150cd27ed8dea6ef102bfa49ea85",
+      "src/fatebridge/core/fengshui/models.py": "39f4901b7734cb6be4c6ad2f1bc9c7ccc05a6aa7f53f25250ffeab7ed99e1b0b",
+      "src/fatebridge/core/fengshui/output.py": "eea8b2d8a6e8349e2f8bdb70655312f5934dc8ea463feeff36d95e5a7e5fbd57",
+      "src/fatebridge/core/fengshui/snapshot.py": "7df22a7490502c227a8ee400f6aa17192a02f79d3470dcfc82b89764f36052bc",
+      "src/fatebridge/core/fengshui/xuankong.py": "de09af0187cfa9ed7550b99c3a1369338ff6b4a611bc220a65d221c334109b8c",
+      "src/fatebridge/core/gua_meanings.py": "ac4843e64bc824084a0edc46d6be249bb49fed68c21e2aef9d90a65dfdb833a6",
+      "src/fatebridge/core/guolao_moira.py": "c7cd4f0d437c044bc7b6f6376f796ba6269a977917f6f4fb6dc3e8599463c442",
+      "src/fatebridge/core/heluo.py": "c325d7cc3f439ee51f2ed12616567faafa794e7789139adeec6497f4b14f5b1f",
+      "src/fatebridge/core/knowledge_store.py": "87c8d2f4186d9375f6874b6e5f98391e65714a5fb415660396f3fde9a6530ed3",
+      "src/fatebridge/core/local_techniques/__init__.py": "0cb0307527db5a53d20f4f7a9161ae07b3a7fb2a63358d316b623b064d2fcb91",
+      "src/fatebridge/core/local_techniques/canping.py": "cbc4a8fd09526f47e082f3992c0363fc7586617b9eeb54e0fd476da902993501",
+      "src/fatebridge/core/local_techniques/chart.py": "ed5173da45083725975a6ec129aea56cb9a07e06edfd9a854e09f70f883c9e54",
+      "src/fatebridge/core/local_techniques/heluo.py": "d58c4740820dd81e11a891eaf24549ad40723a643ca46f230869a6688476e0a5",
+      "src/fatebridge/core/local_techniques/otherbu.py": "a6a586b4c035369c808234e7d79bcdd91b9cd56f1b050eeca782025ab5e241a5",
+      "src/fatebridge/core/local_techniques/qimen.py": "2e1e9b9d058821e3284e69e03a26426bd65c008deef146f595559d9a0f97f056",
+      "src/fatebridge/core/local_techniques/sanshi.py": "f030ab723da0b312c2badd6d6d4d56fbfe78ca953ad9cc48e27e2d98bbc53e1a",
+      "src/fatebridge/core/local_techniques/sixyao.py": "5dd30f556c22aae7237106d79bf0257e830c7f8f99d8586188c233ad830488ec",
+      "src/fatebridge/core/local_techniques/suzhan.py": "4676b5e681133c215262f0e2889fcc40568659b131046df7323f22d6565df947",
+      "src/fatebridge/core/local_techniques/tongshefa.py": "90efbf4f306709ba9389cce95fe0ed7703153cd62c8a9b4a773db495b989e179",
+      "src/fatebridge/core/metaphysics/__init__.py": "38e6e1d6e52407c4ab59348fbdd9c67123d938ed50e688fe75d66fff85478ed5",
+      "src/fatebridge/core/metaphysics/common.py": "f9418713e7df56e7b47339478f79130075d427c2dbc74872133e50964d9f627c",
+      "src/fatebridge/core/metaphysics/jinkou.py": "2ea1e16a3104232dfdab93b87e54b3e0bf8d4df29696b4af31638673b98a7610",
+      "src/fatebridge/core/metaphysics/liureng.py": "9e484c02bec5ecf770678e5d70e9945e478bfc54ddf6114426e0105962793abf",
+      "src/fatebridge/core/metaphysics/liureng_transmissions.py": "0283c4ceb6a9ff27ff1ecfcebcd15d019930a8bb34ba1ad7a8694c44ad2cee16",
+      "src/fatebridge/core/metaphysics/qimen.py": "d654ae69ad996613a68285fb8951309bd2eb8f1f33a30d6c9611b97635737a6d",
+      "src/fatebridge/core/metaphysics/taiyi.py": "c69b51c88d29c3758883f1f226b08961a83ce679def37cac46be09ff05c9d99c",
+      "src/fatebridge/core/metaphysics/ziwei.py": "4cbd2406c2850ff187374d5fb38b1192194f81d48f75f6ecb27443df36614a5f",
+      "src/fatebridge/core/output_base.py": "cc2c9a51bc829733aa8bb8461bbee6b6f8b3752bd5f834209eff641c65819d13",
+      "src/fatebridge/core/output_bazi.py": "84af8a23e1ac39377ed1dee5b8bf8580e508918ab515d968cb423e08ae60911b",
+      "src/fatebridge/core/output_charts.py": "89f6a16d460458fafa51b43c3571d4554a01968c435001571929c0447b0e242f",
+      "src/fatebridge/core/output_chinese.py": "1fb14a2e24c07af17299126c3cd00487a19ff31195c74804a4b968ace5631257",
+      "src/fatebridge/core/output_reference.py": "b4cca1dbc4b51072b460a9ee987d459f8507ea797504ff0892b85cab22976a09",
+      "src/fatebridge/core/output_western.py": "3da27ae5f7a0d12b98df7db00ed99f9e07050927757b27580fd10b50d2ffcabc",
+      "src/fatebridge/core/predictive/__init__.py": "a981268368889799c634e89e8a3ff4034e29ab387dc2982348761262dde07f26",
+      "src/fatebridge/core/predictive/_common.py": "2ffcdf1b611e8bdc82261a7c705f87c03b790bb5628e3076ad7b9c203b68ef4d",
+      "src/fatebridge/core/predictive/decennials.py": "9eefea928d8387e8475acc3078b9a4e87e734c3a0f841f9feda8f949b02d8ec3",
+      "src/fatebridge/core/predictive/firdaria.py": "d60c5692f9d64b99fa1c781ababbf62cb7162fd8834a6d1255dd3bfee6cea440",
+      "src/fatebridge/core/predictive/primary_directions.py": "d71b82d7092acb778092378740e682634cff7c83a650dc013d50f62233548618",
+      "src/fatebridge/core/predictive/profections.py": "861503add5f85e21a6b6d7af9b33ade6c8a4a194fe6d404aab723fcfd6eb82d9",
+      "src/fatebridge/core/predictive/progressions.py": "a96f91e45fb3fa6d7cc66e84d8b02d9bc6bc58175ee5f77f373d1b799afa71b3",
+      "src/fatebridge/core/predictive/returns.py": "7af9c2769fea479d001035f37dfee2405a692736a51ca59e71d0fee1d0f905f2",
+      "src/fatebridge/core/predictive/solar_arc.py": "123a5d140beec87eea34229b60477baf2e70ae935bb8d76007389d7afccba55d",
+      "src/fatebridge/core/predictive/transit.py": "5675a4cc99f830561f391ecaeab699bbd2049d1e6f2a9a920de50abf7221a9aa",
+      "src/fatebridge/core/predictive/western_timing.py": "9eb0fc98ca669a87a38883d9973d975a310b1c3c46f7c523672c1d975c24b591",
+      "src/fatebridge/core/predictive/zodiacal_releasing.py": "16ebcd66faeb9160477012e231e4917c3dc2d1373934567d39f506ff63cad8ad",
+      "src/fatebridge/core/reproducibility.py": "bda33e3941cdda68ace7dd9a40ff318af25bf3952537d4ff4d7da071217ad498",
+      "src/fatebridge/core/requests/__init__.py": "6ce6c1eeecba2569b296342ff989254ea5e1dfc81ebbe8f7b035baecae9eb46d",
+      "src/fatebridge/core/requests/astrology.py": "d0054ff1227911aa77f5ce9e678ff20e6db360fefbd31dfaed3e1a587a931734",
+      "src/fatebridge/core/requests/base.py": "eed1aeccad827ec7c201b438eb0f90f79d608b56fa36bd72578e5d34442ec073",
+      "src/fatebridge/core/requests/bazi.py": "e3c3828022768fc7865129aba433cafea9def263f08a94aa9dd12e5bbd3056b4",
+      "src/fatebridge/core/requests/birth.py": "617eea14dbf925f6057e5dc3ceea52f7d43b048869050119d0f8daf6408a3962",
+      "src/fatebridge/core/requests/calendar.py": "9ee9a94dd8b63ad1a9d21debaa8ca67bbed1291705a426be03bfdff97688b485",
+      "src/fatebridge/core/requests/compatibility.py": "32ba216c49c1b2b6f899870aba4ececafb4b6777f9f3709d925832174bfdad37",
+      "src/fatebridge/core/requests/divination.py": "0fd74ecc70a10e140ac51a91abd9c022b10c88309ef50b5b95df4750d33eb9ad",
+      "src/fatebridge/core/requests/metaphysics.py": "72d3f7220afe0f81bf2876ea47278a3a05e2f8554307bcfe4cab17772c49a870",
+      "src/fatebridge/core/requests/reference.py": "564eff28db3c8716f5de3539d6753aececed4c87ed53148c8d1946a6bda8c0c1",
+      "src/fatebridge/core/requests/timing.py": "6c2ec51b540824908f680ca8e430ead6958fa0e40461391e1e9815db9c182811",
+      "src/fatebridge/core/requests/western_events.py": "f15d8fda467c93cfa8f306b578118b1697bd731c4f36449f3ad19d686bef56c2",
+      "src/fatebridge/core/requests/western_lifespan.py": "aca7b6c07570dd4c993ab15bcd53294946852a66a9d02f8ae126e72552a0bee4",
+      "src/fatebridge/core/requests/western_timing.py": "d3d93e5584104395cf27573ded64b8e719dc03fd18b90434fcaffbd9b34c67bb",
+      "src/fatebridge/core/response_models.py": "5d6f88d78500f5b838218f0752b87af7dd657b900b53e0c2bc31f6889f597c81",
+      "src/fatebridge/core/rules.py": "230c33661b61c04ec533db2b5c2534701fa42fe82d17e4382da8749b94853fed",
+      "src/fatebridge/core/schema_cache.py": "f85dd000128a5af7c96f510d6269e95ca66f348694e458d931dabe3e6e563638",
+      "src/fatebridge/core/sukuyo.py": "d0275680fef12bf9b2e4bdd8da89f23a647a7382e4bfbe8a47c0ef81115c10ff",
+      "src/fatebridge/core/timing.py": "d568d175d29466fc1e116edeba91e8cabaa5ec4f2c27617c45bc5e6afc5ce8fd",
+      "src/fatebridge/core/ziwei_tables.py": "74c661aefb18f4ee39fc5be17b183a4a9e3c65166d2b774af7ec80ea99cad56e",
+      "src/fatebridge/data/canping/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "src/fatebridge/data/heluo/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "src/fatebridge/data/knowledge/__init__.py": "eeb39ece6121c9f6145979f3f60ab89da036f8d1ac1e813648c19bfdf3983e5a",
+      "src/fatebridge/diagnostics.py": "6534c841a07d8f80445be1e55ae96725325bf1ce567479b94878e129a37b2696",
+      "src/fatebridge/fetch_ephe.py": "a1ba7c1f02214385b706c40751f093db1e4e101ea8c45aca4752e2e86bc6265b",
+      "src/fatebridge/mcp_server.py": "b7171c833f12e3cfd336295abaffe397c8e689c2394ad4c829901f98840ea507",
+      "src/fatebridge/mcp_transport.py": "30e817a5892bba67854278beef9bf89d65b50cb34d3c65c231eb35bb5bf1a8ee",
+      "src/fatebridge/services/astrology.py": "a9dcec77e3590d6e5b89929a3ae136f085ac6eafff6e1424ba62114ff545ed93",
+      "src/fatebridge/services/bazi.py": "604387b9bc08bd07a66d8b369af66746caa854d2a02a9fc9172ae33f69a6cc37",
+      "src/fatebridge/services/birth_context.py": "982b28f05d48f630f955baf3530ee2ccd34b03beb687b291e92bc792a0db992b",
+      "src/fatebridge/services/birth_payload.py": "1a142b362c89f269e24c3e2a07db948e8bde4c01d4f7d9df5dcbfd866c786361",
+      "src/fatebridge/services/calculation.py": "b17311ea7cd21d2096972e2a90898b24d838aefcb8d7e2293f7e8149c9e24c60",
+      "src/fatebridge/services/calendar_input.py": "38c6c63b48b86a1a36d975971b70001d6e295a55be9d8b4486932b07c8e39025",
+      "src/fatebridge/services/calendar_tools.py": "6c27061ab249a99907e8a0cc02900c286a7b699c1d756fde7ffa50a30ba656f2",
+      "src/fatebridge/services/catalog/__init__.py": "8c4607f0bd7fcaf8d1951494cde5017c0e60b48f475e5b64d91961226de53104",
+      "src/fatebridge/services/catalog/astro_bindings.py": "6bc2fe85a41ebd4732be113611a571275dd59e2b843d40e6395e4b40956336c4",
+      "src/fatebridge/services/catalog/astrology.py": "36f28096a1507b3e313f3433fe7f732a89b9331f1a01cd927dc58593065265c6",
+      "src/fatebridge/services/catalog/bazi.py": "b444096a1d7146d8dc19b8e4c7c331a1600ed187ddbcae96a13d8e28b6253647",
+      "src/fatebridge/services/catalog/compatibility.py": "dbf34eb26caaed9d63e108cd6f70f7773fcee37191d74f14adb8aa218938e1b7",
+      "src/fatebridge/services/catalog/divination.py": "f5a4029dbe9f5041eb7f5af1f9a84f99bd8a888de6e67e78f31a33f71d601013",
+      "src/fatebridge/services/catalog/fengshui.py": "f0b983f386f95df080677d801e66ced593ab389df49e75df53a2ba143a8d88e2",
+      "src/fatebridge/services/catalog/metaphysics.py": "f08261b13166fa76b2ca607fbbd556540c006e281b29c906e663ee5e9f943616",
+      "src/fatebridge/services/catalog/reference.py": "6ad2d59dc7de7508f4b75bcde21726eece268d1e45e92d6fdb77c078a85dcf7d",
+      "src/fatebridge/services/catalog/timing.py": "f61ae47b4fcc038566e67b3b5d21aab873778f121bd8100ddca5a1f8791b50fe",
+      "src/fatebridge/services/catalog/western_events.py": "ebe8128aca365525f17a8d3d650dc7e4bf899f2c637bae6d75d0e80a7b30fd69",
+      "src/fatebridge/services/catalog/western_lifespan.py": "3f3ac58b9873eefa7cd7f064da67a17243f603e8d04124ca227d77dd0c016e96",
+      "src/fatebridge/services/catalog/western_timing.py": "a2a9e630fbbf41799ac09050922439df9fc2998eb1f734f5828274acf2436896",
+      "src/fatebridge/services/compatibility.py": "0e981d4a5587e88816cc703746ebbe3bdc57b7a34b273e2d361efc0404e1045d",
+      "src/fatebridge/services/divination.py": "e85a7c6d43bd296f78ed71de713b9494538c7bd97833ee86125d3a34791f272c",
+      "src/fatebridge/services/export_tools.py": "d48f0e5f319075e1a7e0def1704438ed0e7b0184ca36349c0bcd2f87af344f64",
+      "src/fatebridge/services/fengshui.py": "bf2d701dcf3d8e504321b9101231930c00c140fae383fbfa4c194de008246dc7",
+      "src/fatebridge/services/knowledge.py": "e742dafb247bb6e40cada23706b3a1f77ff917ab3a598df8ab27dad0f58d19f0",
+      "src/fatebridge/services/metaphysics.py": "be7e1e927bb9123d613e2a29bceeab1916397133d80b7cb1675f10fcd8e1afea",
+      "src/fatebridge/services/replay_metadata.py": "de67eeeb2907fa19301c6ddffadd2e5e83a6a8a50ad14417c5fdeaae10ad5dc2",
+      "src/fatebridge/services/run_metadata.py": "06034c48ed2af311b1e963f7af4e88dad85f901c173f42427629eabb4d474f6f",
+      "src/fatebridge/services/snapshot_builders.py": "cb032751e59d2d3f032b30a4de18c8378afafa9d77ebcb195e70c0da38bb7e79",
+      "src/fatebridge/services/structured_snapshot.py": "19eab009531cf82d78a642dc1bde612b478dd689f7124ccceac7e51562b93e8b",
+      "src/fatebridge/services/timing.py": "133145c27f2fcb914645637effed3a268e22d0c3ebae7833952b7209a8f3d66c",
+      "src/fatebridge/services/timing_snapshots.py": "12775465a89eb194a935b8692d8c93fdbd3d3bd4fa620dafa2d60a8703620976",
+      "src/fatebridge/services/timing_state.py": "fff34efd76f33d4f84bdcda3fa9a1d9053411990d966e3940d3ec290706c38cb",
+      "src/fatebridge/services/tool_catalog.py": "dadd070dfb9da6e1cb10560f9c355228b40d4d94c5098bc333fe3c9afdaabf18",
+      "src/fatebridge/services/western_election.py": "112f55cb3969e47c081abf3cedc24ead2e5f03a97ad03f78860b29b809bbcc2a",
+      "src/fatebridge/services/western_events.py": "90e75b9851b24d656d4c127a93d8803ed6af5507f5689513e661dcb5b31a3df0",
+      "src/fatebridge/services/western_horary.py": "cca3547f8f910a63b9bb2db95bee087f937e87954c97f065ee7182fe174e89d0",
+      "src/fatebridge/services/western_lifespan.py": "f7339838ebde7701277758035dd4508d28749406cb492cb0d736dc3923520961",
+      "src/fatebridge/services/western_timing.py": "49af89dc23b3f0545f6bbd0e5d732faa04c95381de32c299057e55ca77cf8f4e",
+      "src/fatebridge/services/western_timing_tools.py": "4c6071ea2e6af9e42e189bf6fa7019d57ce3eaca4ce32a363782d820fb6dbb01",
+      "src/fatebridge/transports/__init__.py": "ddb1bc12843f3a0f0da87dc9cc3f85148b5765a9f6f5a7c299cbf5552b1219cc",
+      "src/fatebridge/transports/flags.py": "e5ed3be93a506ba49532c8508962fff5fd948e7eafb64e042f16a969b16f510f",
+      "src/fatebridge/transports/mcp.py": "2b5878284d3b90a38942a0dc31277d96355256d067a6ec9331e1ebce6d503948",
+      "src/fatebridge/transports/rest.py": "ff21dc716e3340ef6fe29fafe051b583d454e161c8ac9a4952ce01e9005570fe",
+      "src/fatebridge/utils/__init__.py": "ed29dbc69c4a10d2bed9e7142f935f9d9f6890623b08e298c38585e3ad7bd873",
+      "src/fatebridge/utils/analysis_clock.py": "2dd057ba86f5d54ab49d990b8921e1a10290197f0ff38a5946d0e0c423a7afae",
+      "src/fatebridge/utils/birth_input.py": "12160f536d0e0985b9d74dc21021752d40abb286c361afa65b5c4e1857732938",
+      "src/fatebridge/utils/data.py": "5606f17c98781835dd1e908c6b4df5d5dfe17cfc0e3b52571ba1e4009c812f87",
+      "src/fatebridge/utils/elements.py": "1ccb4591dc7f94dc600d9a24db70af416a0bb8c8d979d92eedf2b964000fff89",
+      "src/fatebridge/utils/errors.py": "9ca95267700a2efca9cf11486f18744480809e3fc768a8bf9f52fbe87ed8b335",
+      "src/fatebridge/utils/formatting.py": "24967dea8e9a9d2a7083134b7f043cb4c9f4fe16090a3875f60e0adeca089090",
+      "src/fatebridge/utils/house_systems.py": "9fdd1fa6ee7c064e44c123dc5023018d0ba9c4e96640cf1216cc2a78849475d7",
+      "src/fatebridge/utils/places.py": "b71d0b419e360ca4a3ad893d6d8ba9dfa336c4b553d0e350e117016c4a293a26",
+      "src/fatebridge/utils/runtime.py": "963ef4db400401df2130c2e1158104f42d16b93f2f840719f7a20c465604e4a1",
+      "src/fatebridge/utils/solar_time.py": "c783730e5979b1ed75d19ad4b5cac947e5425a25c85f6d2749dffd1d085d72d6",
+      "src/fatebridge/utils/timezones.py": "1c29dd87258a95c9952180948b363a752aaa0458243e27a47f8c950c1899d434"
+    },
+    "source_files_changed_during_run": []
+  },
+  "methodology": {
+    "repeats": 1,
+    "warmups": 0,
+    "frozen_as_of": "2026-10-14T04:00:00Z",
+    "first_view_fields": [
+      "status",
+      "layout_analysis.status",
+      "layout_analysis.calculation_scope",
+      "layout_analysis.placement_findings",
+      "layout_analysis.adjustment_options",
+      "layout_analysis.environment_adjustments",
+      "layout_analysis.form_analysis",
+      "layout_analysis.element_remedies",
+      "layout_analysis.annual_remedies",
+      "layout_analysis.supplement_statuses",
+      "layout_analysis.method_disagreements",
+      "layout_analysis.missing_inputs",
+      "layout_analysis.unsupported_queries",
+      "layout_analysis.limitations",
+      "coverage",
+      "conflicts",
+      "rule_trace"
+    ],
+    "timing_boundary": "local wall clock; validation/execution/render/serialization separately sampled",
+    "token_counts": "not measured: tokenizer/host representation unspecified; bytes are not tokens",
+    "model_latency": "not measured",
+    "network_latency": "not measured",
+    "first_calls": "shared process caches, not fresh-process cold starts"
+  },
+  "cases": {
+    "forms-1": {
+      "inputs": {
+        "methods": [],
+        "analyze_layout": true,
+        "form_observations": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "entrance_position": "back_right",
+            "entrance_visible": false,
+            "entrance_direct_line": false,
+            "solid_backing": true,
+            "observation_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: user-confirmed independent relations"
+          }
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 0,
+        "occupants": 0,
+        "form_observations": 1,
+        "conflicts": 0
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.1373,
+        "samples_ms": [
+          0.1076
+        ],
+        "median_ms": 0.1076,
+        "p95_ms": 0.1076,
+        "min_ms": 0.1076,
+        "max_ms": 0.1076
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.2124,
+        "samples_ms": [
+          0.1761
+        ],
+        "median_ms": 0.1761,
+        "p95_ms": 0.1761,
+        "min_ms": 0.1761,
+        "max_ms": 0.1761
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 0.4903,
+        "samples_ms": [
+          0.4243
+        ],
+        "median_ms": 0.4243,
+        "p95_ms": 0.4243,
+        "min_ms": 0.4243,
+        "max_ms": 0.4243
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 16247,
+          "json_characters": 12615,
+          "render_projection": {
+            "first_case_call_ms": 0.0013,
+            "samples_ms": [
+              0.0006
+            ],
+            "median_ms": 0.0006,
+            "p95_ms": 0.0006,
+            "min_ms": 0.0006,
+            "max_ms": 0.0006
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0426,
+            "samples_ms": [
+              0.037
+            ],
+            "median_ms": 0.037,
+            "p95_ms": 0.037,
+            "min_ms": 0.037,
+            "max_ms": 0.037
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 5754,
+          "json_characters": 5268,
+          "render_projection": {
+            "first_case_call_ms": 0.0161,
+            "samples_ms": [
+              0.0131
+            ],
+            "median_ms": 0.0131,
+            "p95_ms": 0.0131,
+            "min_ms": 0.0131,
+            "max_ms": 0.0131
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0211,
+            "samples_ms": [
+              0.0171
+            ],
+            "median_ms": 0.0171,
+            "p95_ms": 0.0171,
+            "min_ms": 0.0171,
+            "max_ms": 0.0171
+          }
+        }
+      }
+    },
+    "bazhai-1": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 16
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.2457,
+        "samples_ms": [
+          0.2227
+        ],
+        "median_ms": 0.2227,
+        "p95_ms": 0.2227,
+        "min_ms": 0.2227,
+        "max_ms": 0.2227
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.5781,
+        "samples_ms": [
+          0.5635
+        ],
+        "median_ms": 0.5635,
+        "p95_ms": 0.5635,
+        "min_ms": 0.5635,
+        "max_ms": 0.5635
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 1.5417,
+        "samples_ms": [
+          2.8983
+        ],
+        "median_ms": 2.8983,
+        "p95_ms": 2.8983,
+        "min_ms": 2.8983,
+        "max_ms": 2.8983
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 49649,
+          "json_characters": 43239,
+          "render_projection": {
+            "first_case_call_ms": 0.0018,
+            "samples_ms": [
+              0.0006
+            ],
+            "median_ms": 0.0006,
+            "p95_ms": 0.0006,
+            "min_ms": 0.0006,
+            "max_ms": 0.0006
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.1683,
+            "samples_ms": [
+              0.1481
+            ],
+            "median_ms": 0.1481,
+            "p95_ms": 0.1481,
+            "min_ms": 0.1481,
+            "max_ms": 0.1481
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 16261,
+          "json_characters": 15603,
+          "render_projection": {
+            "first_case_call_ms": 0.0215,
+            "samples_ms": [
+              0.0136
+            ],
+            "median_ms": 0.0136,
+            "p95_ms": 0.0136,
+            "min_ms": 0.0136,
+            "max_ms": 0.0136
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0719,
+            "samples_ms": [
+              0.0611
+            ],
+            "median_ms": 0.0611,
+            "p95_ms": 0.0611,
+            "min_ms": 0.0611,
+            "max_ms": 0.0611
+          }
+        }
+      }
+    },
+    "foundation-1": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 24
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.6785,
+        "samples_ms": [
+          0.2419
+        ],
+        "median_ms": 0.2419,
+        "p95_ms": 0.2419,
+        "min_ms": 0.2419,
+        "max_ms": 0.2419
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.9923,
+        "samples_ms": [
+          0.78
+        ],
+        "median_ms": 0.78,
+        "p95_ms": 0.78,
+        "min_ms": 0.78,
+        "max_ms": 0.78
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 2.1936,
+        "samples_ms": [
+          2.3001
+        ],
+        "median_ms": 2.3001,
+        "p95_ms": 2.3001,
+        "min_ms": 2.3001,
+        "max_ms": 2.3001
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 73914,
+          "json_characters": 63928,
+          "render_projection": {
+            "first_case_call_ms": 0.0017,
+            "samples_ms": [
+              0.0006
+            ],
+            "median_ms": 0.0006,
+            "p95_ms": 0.0006,
+            "min_ms": 0.0006,
+            "max_ms": 0.0006
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.4516,
+            "samples_ms": [
+              0.2782
+            ],
+            "median_ms": 0.2782,
+            "p95_ms": 0.2782,
+            "min_ms": 0.2782,
+            "max_ms": 0.2782
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 21481,
+          "json_characters": 20667,
+          "render_projection": {
+            "first_case_call_ms": 0.016,
+            "samples_ms": [
+              0.0126
+            ],
+            "median_ms": 0.0126,
+            "p95_ms": 0.0126,
+            "min_ms": 0.0126,
+            "max_ms": 0.0126
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0824,
+            "samples_ms": [
+              0.0738
+            ],
+            "median_ms": 0.0738,
+            "p95_ms": 0.0738,
+            "min_ms": 0.0738,
+            "max_ms": 0.0738
+          }
+        }
+      }
+    },
+    "all-methods-1": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "a",
+            "effective_birth_year": 1990,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "b",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars",
+          "xuankong_natal"
+        ],
+        "xuankong": {
+          "period": {
+            "basis": "construction_completion",
+            "effective_event_year": 2004,
+            "evidence": "Synthetic benchmark: confirmed completion"
+          }
+        }
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 2,
+        "form_observations": 0,
+        "conflicts": 24
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.3903,
+        "samples_ms": [
+          0.3463
+        ],
+        "median_ms": 0.3463,
+        "p95_ms": 0.3463,
+        "min_ms": 0.3463,
+        "max_ms": 0.3463
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 1.3933,
+        "samples_ms": [
+          1.4626
+        ],
+        "median_ms": 1.4626,
+        "p95_ms": 1.4626,
+        "min_ms": 1.4626,
+        "max_ms": 1.4626
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 3.9195,
+        "samples_ms": [
+          3.2567
+        ],
+        "median_ms": 3.2567,
+        "p95_ms": 3.2567,
+        "min_ms": 3.2567,
+        "max_ms": 3.2567
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 104187,
+          "json_characters": 87877,
+          "render_projection": {
+            "first_case_call_ms": 0.0013,
+            "samples_ms": [
+              0.0004
+            ],
+            "median_ms": 0.0004,
+            "p95_ms": 0.0004,
+            "min_ms": 0.0004,
+            "max_ms": 0.0004
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.3005,
+            "samples_ms": [
+              0.3071
+            ],
+            "median_ms": 0.3071,
+            "p95_ms": 0.3071,
+            "min_ms": 0.3071,
+            "max_ms": 0.3071
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 22319,
+          "json_characters": 21419,
+          "render_projection": {
+            "first_case_call_ms": 0.0165,
+            "samples_ms": [
+              0.0131
+            ],
+            "median_ms": 0.0131,
+            "p95_ms": 0.0131,
+            "min_ms": 0.0131,
+            "max_ms": 0.0131
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.198,
+            "samples_ms": [
+              0.1265
+            ],
+            "median_ms": 0.1265,
+            "p95_ms": 0.1265,
+            "min_ms": 0.1265,
+            "max_ms": 0.1265
+          }
+        }
+      }
+    },
+    "partial-facing-only": {
+      "inputs": {
+        "methods": [
+          "bazhai",
+          "annual_stars"
+        ],
+        "effective_year": 2026,
+        "analyze_layout": true,
+        "occupants": [
+          {
+            "subject_id": "a",
+            "birth_date": "2000-12-10",
+            "gender_convention": "male"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "desk",
+            "purpose": "desk",
+            "facing_direction": "W",
+            "facing_role": "desk_facing",
+            "subject_id": "a"
+          }
+        ],
+        "element_adjustments": [
+          {
+            "request_id": "r",
+            "object_id": "desk",
+            "target_method": "bazhai",
+            "subject_id": "a",
+            "aspect": "facing",
+            "goal": "drain",
+            "evidence": "Synthetic benchmark: explicit target"
+          }
+        ]
+      },
+      "status": "partial",
+      "layout_status": "partial",
+      "counts": {
+        "placements": 1,
+        "occupants": 1,
+        "form_observations": 0,
+        "conflicts": 0
+      },
+      "request_validation": {
+        "first_case_call_ms": 0.1669,
+        "samples_ms": [
+          0.154
+        ],
+        "median_ms": 0.154,
+        "p95_ms": 0.154,
+        "min_ms": 0.154,
+        "max_ms": 0.154
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 0.4421,
+        "samples_ms": [
+          0.4245
+        ],
+        "median_ms": 0.4245,
+        "p95_ms": 0.4245,
+        "min_ms": 0.4245,
+        "max_ms": 0.4245
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 1.3578,
+        "samples_ms": [
+          1.1012
+        ],
+        "median_ms": 1.1012,
+        "p95_ms": 1.1012,
+        "min_ms": 1.1012,
+        "max_ms": 1.1012
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 41094,
+          "json_characters": 32236,
+          "render_projection": {
+            "first_case_call_ms": 0.0009,
+            "samples_ms": [
+              0.0005
+            ],
+            "median_ms": 0.0005,
+            "p95_ms": 0.0005,
+            "min_ms": 0.0005,
+            "max_ms": 0.0005
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.1281,
+            "samples_ms": [
+              0.1105
+            ],
+            "median_ms": 0.1105,
+            "p95_ms": 0.1105,
+            "min_ms": 0.1105,
+            "max_ms": 0.1105
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 7732,
+          "json_characters": 7174,
+          "render_projection": {
+            "first_case_call_ms": 0.0146,
+            "samples_ms": [
+              0.0123
+            ],
+            "median_ms": 0.0123,
+            "p95_ms": 0.0123,
+            "min_ms": 0.0123,
+            "max_ms": 0.0123
+          },
+          "serialize_json": {
+            "first_case_call_ms": 0.0313,
+            "samples_ms": [
+              0.0262
+            ],
+            "median_ms": 0.0262,
+            "p95_ms": 0.0262,
+            "min_ms": 0.0262,
+            "max_ms": 0.0262
+          }
+        }
+      }
+    },
+    "50-occupants": {
+      "inputs": {
+        "analyze_layout": true,
+        "effective_year": 2026,
+        "house": {
+          "object_id": "home",
+          "facing_degrees": 255,
+          "north_reference": "magnetic"
+        },
+        "occupants": [
+          {
+            "subject_id": "person-0",
+            "effective_birth_year": 1970,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-1",
+            "effective_birth_year": 1971,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-2",
+            "effective_birth_year": 1972,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-3",
+            "effective_birth_year": 1973,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-4",
+            "effective_birth_year": 1974,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-5",
+            "effective_birth_year": 1975,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-6",
+            "effective_birth_year": 1976,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-7",
+            "effective_birth_year": 1977,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-8",
+            "effective_birth_year": 1978,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-9",
+            "effective_birth_year": 1979,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-10",
+            "effective_birth_year": 1980,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-11",
+            "effective_birth_year": 1981,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-12",
+            "effective_birth_year": 1982,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-13",
+            "effective_birth_year": 1983,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-14",
+            "effective_birth_year": 1984,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-15",
+            "effective_birth_year": 1985,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-16",
+            "effective_birth_year": 1986,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-17",
+            "effective_birth_year": 1987,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-18",
+            "effective_birth_year": 1988,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-19",
+            "effective_birth_year": 1989,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-20",
+            "effective_birth_year": 1990,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-21",
+            "effective_birth_year": 1991,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-22",
+            "effective_birth_year": 1992,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-23",
+            "effective_birth_year": 1993,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-24",
+            "effective_birth_year": 1994,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-25",
+            "effective_birth_year": 1995,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-26",
+            "effective_birth_year": 1996,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-27",
+            "effective_birth_year": 1997,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-28",
+            "effective_birth_year": 1998,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-29",
+            "effective_birth_year": 1999,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-30",
+            "effective_birth_year": 2000,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-31",
+            "effective_birth_year": 2001,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-32",
+            "effective_birth_year": 2002,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-33",
+            "effective_birth_year": 2003,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-34",
+            "effective_birth_year": 2004,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-35",
+            "effective_birth_year": 2005,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-36",
+            "effective_birth_year": 2006,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-37",
+            "effective_birth_year": 2007,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-38",
+            "effective_birth_year": 2008,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-39",
+            "effective_birth_year": 2009,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-40",
+            "effective_birth_year": 2010,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-41",
+            "effective_birth_year": 2011,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-42",
+            "effective_birth_year": 2012,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-43",
+            "effective_birth_year": 2013,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-44",
+            "effective_birth_year": 2014,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-45",
+            "effective_birth_year": 2015,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-46",
+            "effective_birth_year": 2016,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-47",
+            "effective_birth_year": 2017,
+            "gender_convention": "male"
+          },
+          {
+            "subject_id": "person-48",
+            "effective_birth_year": 2018,
+            "gender_convention": "female"
+          },
+          {
+            "subject_id": "person-49",
+            "effective_birth_year": 2019,
+            "gender_convention": "male"
+          }
+        ],
+        "placements": [
+          {
+            "object_id": "object-0",
+            "purpose": "desk",
+            "location_direction": "N",
+            "facing_direction": "E",
+            "facing_role": "desk_facing"
+          }
+        ],
+        "features": [
+          {
+            "object_id": "feature-0",
+            "direction": "N",
+            "classification": "water",
+            "classification_basis": "user_confirmed",
+            "evidence": "Synthetic benchmark: confirmed classification"
+          }
+        ],
+        "methods": [
+          "bazhai",
+          "jinsuo",
+          "annual_stars"
+        ]
+      },
+      "status": "complete",
+      "layout_status": "complete",
+      "counts": {
+        "placements": 1,
+        "occupants": 50,
+        "form_observations": 0,
+        "conflicts": 5160
+      },
+      "request_validation": {
+        "first_case_call_ms": 1.5093,
+        "samples_ms": [
+          1.3755
+        ],
+        "median_ms": 1.3755,
+        "p95_ms": 1.3755,
+        "min_ms": 1.3755,
+        "max_ms": 1.3755
+      },
+      "service_with_snapshot": {
+        "first_case_call_ms": 34.5053,
+        "samples_ms": [
+          31.1449
+        ],
+        "median_ms": 31.1449,
+        "p95_ms": 31.1449,
+        "min_ms": 31.1449,
+        "max_ms": 31.1449
+      },
+      "validated_execution_with_receipt": {
+        "first_case_call_ms": 188.844,
+        "samples_ms": [
+          112.3312
+        ],
+        "median_ms": 112.3312,
+        "p95_ms": 112.3312,
+        "min_ms": 112.3312,
+        "max_ms": 112.3312
+      },
+      "views": {
+        "full": {
+          "utf8_json_bytes": 4074534,
+          "json_characters": 3929680,
+          "render_projection": {
+            "first_case_call_ms": 0.0072,
+            "samples_ms": [
+              0.0014
+            ],
+            "median_ms": 0.0014,
+            "p95_ms": 0.0014,
+            "min_ms": 0.0014,
+            "max_ms": 0.0014
+          },
+          "serialize_json": {
+            "first_case_call_ms": 15.615,
+            "samples_ms": [
+              14.6488
+            ],
+            "median_ms": 14.6488,
+            "p95_ms": 14.6488,
+            "min_ms": 14.6488,
+            "max_ms": 14.6488
+          }
+        },
+        "first_view": {
+          "utf8_json_bytes": 2366667,
+          "json_characters": 2300693,
+          "render_projection": {
+            "first_case_call_ms": 0.0281,
+            "samples_ms": [
+              0.0135
+            ],
+            "median_ms": 0.0135,
+            "p95_ms": 0.0135,
+            "min_ms": 0.0135,
+            "max_ms": 0.0135
+          },
+          "serialize_json": {
+            "first_case_call_ms": 9.3625,
+            "samples_ms": [
+              9.0186
+            ],
+            "median_ms": 9.0186,
+            "p95_ms": 9.0186,
+            "min_ms": 9.0186,
+            "max_ms": 9.0186
+          }
+        }
+      }
+    }
+  },
+  "profile_largest_execution": [
+    {
+      "function": "benchmark_fengshui.py:503:<lambda>",
+      "calls": 1,
+      "self_ms": 0.0123,
+      "cumulative_ms": 10.9046
+    },
+    {
+      "function": "execution.py:24:execute_tool",
+      "calls": 1,
+      "self_ms": 0.022,
+      "cumulative_ms": 10.121
+    },
+    {
+      "function": "execution.py:16:execute_spec",
+      "calls": 1,
+      "self_ms": 0.0095,
+      "cumulative_ms": 6.6223
+    },
+    {
+      "function": "fengshui.py:244:assess",
+      "calls": 1,
+      "self_ms": 0.0435,
+      "cumulative_ms": 6.0279
+    },
+    {
+      "function": "copy.py:119:deepcopy",
+      "calls": 4395,
+      "self_ms": 1.9376,
+      "cumulative_ms": 3.8827
+    },
+    {
+      "function": "copy.py:218:_deepcopy_dict",
+      "calls": 379,
+      "self_ms": 0.6732,
+      "cumulative_ms": 3.7178
+    },
+    {
+      "function": "~:0:<method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects>",
+      "calls": 13,
+      "self_ms": 1.1017,
+      "cumulative_ms": 3.1912
+    },
+    {
+      "function": "directions.py:17:rule_data",
+      "calls": 40,
+      "self_ms": 0.0259,
+      "cumulative_ms": 3.1621
+    },
+    {
+      "function": "main.py:693:model_validate",
+      "calls": 7,
+      "self_ms": 0.0055,
+      "cumulative_ms": 3.0339
+    },
+    {
+      "function": "replay_metadata.py:132:execution_receipt",
+      "calls": 1,
+      "self_ms": 0.0162,
+      "cumulative_ms": 1.7915
+    },
+    {
+      "function": "base.py:26:_validate_calendar_dates",
+      "calls": 34,
+      "self_ms": 0.1742,
+      "cumulative_ms": 1.7266
+    },
+    {
+      "function": "fengshui.py:161:_natal_layer",
+      "calls": 1,
+      "self_ms": 0.0047,
+      "cumulative_ms": 1.542
+    },
+    {
+      "function": "~:0:<built-in method builtins.getattr>",
+      "calls": 862,
+      "self_ms": 0.2828,
+      "cumulative_ms": 1.5061
+    },
+    {
+      "function": "execution.py:106:validate_output",
+      "calls": 2,
+      "self_ms": 0.0651,
+      "cumulative_ms": 1.3365
+    },
+    {
+      "function": "bazhai.py:136:bazhai",
+      "calls": 1,
+      "self_ms": 0.0437,
+      "cumulative_ms": 1.3154
+    },
+    {
+      "function": "main.py:1015:__getattr__",
+      "calls": 816,
+      "self_ms": 0.5086,
+      "cumulative_ms": 1.2234
+    },
+    {
+      "function": "xuankong.py:222:xuankong_natal",
+      "calls": 1,
+      "self_ms": 0.0085,
+      "cumulative_ms": 1.1869
+    },
+    {
+      "function": "replay_metadata.py:95:provenance_values",
+      "calls": 1,
+      "self_ms": 0.6088,
+      "cumulative_ms": 1.0308
+    },
+    {
+      "function": "bazhai.py:20:sectors",
+      "calls": 3,
+      "self_ms": 0.0644,
+      "cumulative_ms": 0.999
+    },
+    {
+      "function": "run_metadata.py:115:attach_run_metadata",
+      "calls": 1,
+      "self_ms": 0.0099,
+      "cumulative_ms": 0.8853
+    }
+  ],
+  "discovery": {
+    "input_contract": {
+      "first_case_call_ms": 0.9678,
+      "samples_ms": [
+        1.1942
+      ],
+      "median_ms": 1.1942,
+      "p95_ms": 1.1942,
+      "min_ms": 1.1942,
+      "max_ms": 1.1942,
+      "utf8_json_bytes": 19124,
+      "json_characters": 16927
+    },
+    "full_contract": {
+      "first_case_call_ms": 2.0462,
+      "samples_ms": [
+        1.3662
+      ],
+      "median_ms": 1.3662,
+      "p95_ms": 1.3662,
+      "min_ms": 1.3662,
+      "max_ms": 1.3662,
+      "utf8_json_bytes": 43260,
+      "json_characters": 41157
+    }
+  },
+  "paired_mcp_input_comparison": {
+    "baseline_ref": "HEAD",
+    "scope": "Paired public MCP registration with identical current domain schemas and descriptions",
+    "families": {
+      "all": {
+        "baseline": {
+          "utf8_json_bytes": 2049864,
+          "json_characters": 2008415,
+          "tool_count": 87,
+          "schemas": {
+            "analyze_destiny": {
+              "input_bytes": 2960,
+              "output_sha256": "faf3ceccaae881754a9a35472dc76b0f8f9f8a7da04bc2d98a9865186a1811b3",
+              "input_ref_count": 0
+            },
+            "bazi_birth": {
+              "input_bytes": 3501,
+              "output_sha256": "d67b8f69885395627c20b938b4f5edba1c69931ea3c23a02cb0000565d88ce9b",
+              "input_ref_count": 0
+            },
+            "bazi_marriage": {
+              "input_bytes": 3673,
+              "output_sha256": "3cc825b8b5b7642cab5594242f0c84368ec918adad9b92642bf4ae63b74a7587",
+              "input_ref_count": 0
+            },
+            "bazi_career": {
+              "input_bytes": 3673,
+              "output_sha256": "1f031b7f852a5815b26d0012115d374b81bbad61410bfb18e514e49d5c15db23",
+              "input_ref_count": 0
+            },
+            "bazi_wealth": {
+              "input_bytes": 3673,
+              "output_sha256": "f36870c3e75b02bce01174f42360cc8eef7f3caa22d18d877aacc0881bc2f34e",
+              "input_ref_count": 0
+            },
+            "bazi_health": {
+              "input_bytes": 3673,
+              "output_sha256": "2bb9767db2d8179d80f3a63230dd99ef2f3cf292e927064b14c8c1b33db251ec",
+              "input_ref_count": 0
+            },
+            "bazi_children": {
+              "input_bytes": 3673,
+              "output_sha256": "0880307ccb86723d8d62f98a4c36b658248118a64038ea019f30347aee3efb2b",
+              "input_ref_count": 0
+            },
+            "bazi_education": {
+              "input_bytes": 3673,
+              "output_sha256": "cd5691b15c0d828c456172e63980214ef2f2311497b0678dd4e496918e332824",
+              "input_ref_count": 0
+            },
+            "bazi_personality": {
+              "input_bytes": 3673,
+              "output_sha256": "3288241353c7a5918fdc3440ef4ab0a5246754e0d84e3056d72e738277a4d000",
+              "input_ref_count": 0
+            },
+            "bazi_relatives": {
+              "input_bytes": 3673,
+              "output_sha256": "fbc3dd2032382498057e540eca4d744d56d28d6af91ca47058f2698b723249df",
+              "input_ref_count": 0
+            },
+            "bazi_romance": {
+              "input_bytes": 3673,
+              "output_sha256": "75470ca6e98aa46321d00fd99544d14f5ecfcbfe13ef6d4199e6230ada4ec0fe",
+              "input_ref_count": 0
+            },
+            "two_person_compatibility": {
+              "input_bytes": 4521,
+              "output_sha256": "c63ad080a40e14fff00bc6e20db4332bab778442b3055862883713affb180e92",
+              "input_ref_count": 0
+            },
+            "timing_analysis": {
+              "input_bytes": 3912,
+              "output_sha256": "ca4ad9a1fed53149f9ea82803421d263dfb91d9a9d7571c197575f950326b003",
+              "input_ref_count": 0
+            },
+            "dayun_analysis": {
+              "input_bytes": 3163,
+              "output_sha256": "8284a042e8cf869c0adcd171afb6e39d46719e939d9887b41572be782ef2b4a0",
+              "input_ref_count": 0
+            },
+            "liunian_analysis": {
+              "input_bytes": 3197,
+              "output_sha256": "46c52143ff232ba530c5a8ed3f2574f00578f83283e156e880e10b1299e3550d",
+              "input_ref_count": 0
+            },
+            "liuyue_analysis": {
+              "input_bytes": 3785,
+              "output_sha256": "0db01d4c7465eae93d786cdc5c277cdaa3c34b1d15af9b8369c214ddc6d716a4",
+              "input_ref_count": 0
+            },
+            "liuri_analysis": {
+              "input_bytes": 3785,
+              "output_sha256": "c681556563885efc6943f06475ba6b79d7c242740dcc9b2d8101ee7c331ee971",
+              "input_ref_count": 0
+            },
+            "liushi_analysis": {
+              "input_bytes": 3785,
+              "output_sha256": "c13db3ae5844c6efca3e6473ca24de87a38e47638f8c088ce1d68ccd35799f63",
+              "input_ref_count": 0
+            },
+            "jieqi_timeline_analysis": {
+              "input_bytes": 3217,
+              "output_sha256": "d07b4f8fe435fbf0bca71c0cff8970853ae9d275d556d3ca5f84f3a6a8f9b6b8",
+              "input_ref_count": 0
+            },
+            "jieqi_year": {
+              "input_bytes": 2215,
+              "output_sha256": "a84c765c33ca794e72bc8b39f55309feb3f7983f42589801001118dfacb7b08a",
+              "input_ref_count": 0
+            },
+            "nongli_time": {
+              "input_bytes": 2809,
+              "output_sha256": "6cc249f3aa0f1f4aa1a4f748788411db726078aa17091c76ce97aaf9d667c9b2",
+              "input_ref_count": 0
+            },
+            "gua_lookup": {
+              "input_bytes": 1710,
+              "output_sha256": "5c4c3b3aa2f19cd27629c77431912ceb33f192db92b4d2edcac750051a66be46",
+              "input_ref_count": 0
+            },
+            "gua_meiyi": {
+              "input_bytes": 1623,
+              "output_sha256": "0c16a890e64e24b06710dbdf50edd2845566724daad3eb203873c2597c356e02",
+              "input_ref_count": 0
+            },
+            "meihua_analysis": {
+              "input_bytes": 2184,
+              "output_sha256": "1f333c3fbff021cb83b49be5d22779af802cbb79a398cb8217de197c302eae7a",
+              "input_ref_count": 0
+            },
+            "tongshefa": {
+              "input_bytes": 1768,
+              "output_sha256": "d585fe668b6ed5898bc3fdbaa49e840f4f0e078310398ad758ed74b059fcafac",
+              "input_ref_count": 0
+            },
+            "sixyao": {
+              "input_bytes": 3747,
+              "output_sha256": "9badb9a3b79ac089a70a7199067e69358b7527e3ac9e257d24e3ec42dcebe285",
+              "input_ref_count": 1
+            },
+            "canping": {
+              "input_bytes": 2615,
+              "output_sha256": "3d2bcd1ec4acf14e2b67e36acd997d63461652d890f01840d3131d1fcf7f67e8",
+              "input_ref_count": 0
+            },
+            "heluo": {
+              "input_bytes": 2490,
+              "output_sha256": "dffb1b5bd5fbd3e93e49d75c229d0c351d7bea41fee8a44a12afa11afc0a80d9",
+              "input_ref_count": 0
+            },
+            "suzhan": {
+              "input_bytes": 2853,
+              "output_sha256": "d96c18c15acf483e0202b9a9348b3ecdb3e1277655b42490839f7b34730f6598",
+              "input_ref_count": 0
+            },
+            "sukuyo_compatibility": {
+              "input_bytes": 3209,
+              "output_sha256": "9e8384a62344ee266889d4d0a5739044aa3a572ab0f9a0010ba875d6f0721aef",
+              "input_ref_count": 0
+            },
+            "otherbu": {
+              "input_bytes": 2810,
+              "output_sha256": "b987ab599fb808c8b577d276581ebe3c5f3d548006eb2d1bce5e5a795fd557fd",
+              "input_ref_count": 0
+            },
+            "sanshiunited": {
+              "input_bytes": 2890,
+              "output_sha256": "8e6dc0aa3d2db9d3019ffd49ba6c15e847ba5453dc4c3fa73e2a9bb4d27cf0fa",
+              "input_ref_count": 0
+            },
+            "ziwei_birth": {
+              "input_bytes": 3113,
+              "output_sha256": "459ce912db0e352cc82be29baf0dcb12929db3f3c9b18024c670069a399aa9ed",
+              "input_ref_count": 0
+            },
+            "ziwei_horoscope": {
+              "input_bytes": 3521,
+              "output_sha256": "af0a773d5f7306344e2fa520792a892a4434ac5d277dc9c6159bc22c9d161d09",
+              "input_ref_count": 0
+            },
+            "ziwei_rules": {
+              "input_bytes": 1634,
+              "output_sha256": "4e9ff8f365b5bee868dffe7081202caaae178558c14bbdf0bd3e4053a3cf6d3d",
+              "input_ref_count": 0
+            },
+            "liureng_gods": {
+              "input_bytes": 2714,
+              "output_sha256": "841a1feffb70052519be0aad20683b4b7198bd19a12939b9512bf639062156fb",
+              "input_ref_count": 0
+            },
+            "liureng_runyear": {
+              "input_bytes": 3945,
+              "output_sha256": "09091f6a2fe4ac431fbde4ed006be3db886e43f9c4777a9660f730f1d38291fb",
+              "input_ref_count": 0
+            },
+            "qimen": {
+              "input_bytes": 2664,
+              "output_sha256": "7a4be13da44d65c718d9dee1ba655debca471d8a570615973a9db84a7d438d68",
+              "input_ref_count": 0
+            },
+            "taiyi": {
+              "input_bytes": 2721,
+              "output_sha256": "2a8378d010e330a8c3d11f2c953458fc05261a626200b2b06a88f471f685b7eb",
+              "input_ref_count": 0
+            },
+            "jinkou": {
+              "input_bytes": 2823,
+              "output_sha256": "635344eef083699f867ebd84e857865d1fba4ff1a966f5177f1e4bcba4bf1afe",
+              "input_ref_count": 0
+            },
+            "export_registry": {
+              "input_bytes": 1464,
+              "output_sha256": "2fe3374043e02e85f717dc2115d179b56d6798039e5f26feeb0dc59b38c6aa4a",
+              "input_ref_count": 0
+            },
+            "export_parse": {
+              "input_bytes": 1964,
+              "output_sha256": "ebd5822d0a8996c1f477ee73d95178f70c8346f7eda51fde4fbeb999e3c7b0cb",
+              "input_ref_count": 0
+            },
+            "knowledge_registry": {
+              "input_bytes": 1614,
+              "output_sha256": "dc6f67686ed493a16ee8869d0178aaee56cae5b828b1b2ac49efadc9787b0616",
+              "input_ref_count": 0
+            },
+            "knowledge_read": {
+              "input_bytes": 2894,
+              "output_sha256": "84d99c0db8cdc18aa637c0eff4762983d5d8ffc46758971a3cae73b510bbb15b",
+              "input_ref_count": 0
+            },
+            "astro_chart": {
+              "input_bytes": 4368,
+              "output_sha256": "fc9be90c79699886e3fe08d84ba8925d9490d6901db54ee8325b92605d28605a",
+              "input_ref_count": 0
+            },
+            "astro_chart13": {
+              "input_bytes": 4220,
+              "output_sha256": "21f20826d3bf0638f6b4c743f31490c33601bff77fecac8400009a9774c07a22",
+              "input_ref_count": 0
+            },
+            "astro_hellen_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "2e5260dbc59bf7499404e694db9580c26fa621448dd499fbc4eacbc3b79dc631",
+              "input_ref_count": 0
+            },
+            "astro_guolao_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "0c7c4b929c2aa276f653dc426901f3e8b09f7d190925ab40d4e4e7cd7c4d6baa",
+              "input_ref_count": 0
+            },
+            "astro_india_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "5900f402b8344e4fee5bebd1f9a402c7b66ab0deab87b9288a94367c802ae945",
+              "input_ref_count": 0
+            },
+            "astro_germany_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "9cc563a2f7d569eb183e537fdc54c91b244e1c33cf86f05870ddb74dc898ca6e",
+              "input_ref_count": 0
+            },
+            "astro_relative_chart": {
+              "input_bytes": 5055,
+              "output_sha256": "70c3cb67336c2c06d1abe60cb8b86eea1f1ba8085df0b5cc3daf7014c9e35ccb",
+              "input_ref_count": 0
+            },
+            "western_timing_analysis": {
+              "input_bytes": 4867,
+              "output_sha256": "a7780246d99e1068eb25e6dcef826c3e859a925488d78044c63e782099df43a2",
+              "input_ref_count": 0
+            },
+            "solarreturn": {
+              "input_bytes": 5011,
+              "output_sha256": "03683ae2e13395062f91995e8c7589359d4ff780b6f959ee036166c766984a39",
+              "input_ref_count": 0
+            },
+            "lunarreturn": {
+              "input_bytes": 5011,
+              "output_sha256": "de78291178a10cdb7725acb9f4acf076b54af1ebd7a6ce3a5a2774ba989d4aeb",
+              "input_ref_count": 0
+            },
+            "transit": {
+              "input_bytes": 5011,
+              "output_sha256": "728fc7df0f3f4af8b28c56d5011e21bdc249f34911b277025c20b0af2d58ac97",
+              "input_ref_count": 0
+            },
+            "solararc": {
+              "input_bytes": 5011,
+              "output_sha256": "cc5698edf14b9fb181d048faa19ee47acedef3471f95f11487ebcd25bec4c99f",
+              "input_ref_count": 0
+            },
+            "givenyear": {
+              "input_bytes": 5011,
+              "output_sha256": "385cb7063bd04b4ad75fd49a3c9b9cc682c8b0360ddbddeac949c3b55df5ff40",
+              "input_ref_count": 0
+            },
+            "profection": {
+              "input_bytes": 5011,
+              "output_sha256": "49f2a015a11b91e54b8ab55f543d52a29a0d94bbfabce61cf8495f5e90bb949b",
+              "input_ref_count": 0
+            },
+            "pd": {
+              "input_bytes": 5011,
+              "output_sha256": "e6e6fa65678f83c56c39691fd45690417bbd6839d06ac2c03bb011fb569a3288",
+              "input_ref_count": 0
+            },
+            "pdchart": {
+              "input_bytes": 5011,
+              "output_sha256": "28563ba00e0ba926db47b8245dbe037dbb9bc4c785cbfb8fb982d8c28d756ff8",
+              "input_ref_count": 0
+            },
+            "zr": {
+              "input_bytes": 5011,
+              "output_sha256": "54b989db59c795e646dffbd53a0f675dd6ab0e13189d664cfc4b2e4a4af20a37",
+              "input_ref_count": 0
+            },
+            "firdaria": {
+              "input_bytes": 5011,
+              "output_sha256": "5b0af47fff984ded7154cf492cd21186fc98ca5c4649c6b4be37f6c512cef377",
+              "input_ref_count": 0
+            },
+            "decennials": {
+              "input_bytes": 5011,
+              "output_sha256": "088406fedcb576732815a29333424235021bfd2c87a9f45a7e16a71068347afc",
+              "input_ref_count": 0
+            },
+            "astro_harmonic": {
+              "input_bytes": 3560,
+              "output_sha256": "e577e574b3045c88e731e95e5af29da06bc792766013271073d8f08857e553bb",
+              "input_ref_count": 0
+            },
+            "astro_planetary_ages": {
+              "input_bytes": 3706,
+              "output_sha256": "42c84c0fea6eb80cd91799206b1b821c694952e71293e9bfb904229c7eb00c85",
+              "input_ref_count": 0
+            },
+            "astro_triplicity_rulers": {
+              "input_bytes": 3599,
+              "output_sha256": "804be5ff87a472e405f520a2225f240dc9fd2552234c0ac4453b88f50fe5a6a4",
+              "input_ref_count": 0
+            },
+            "astro_lunation_phase": {
+              "input_bytes": 3402,
+              "output_sha256": "865c09ce99521895d4f03188c74c94948a210fecc511e9f18e4c60e90fbb0b2b",
+              "input_ref_count": 0
+            },
+            "astro_distributions": {
+              "input_bytes": 3531,
+              "output_sha256": "54c6702901cfdce2ec9bc534d7f4a16dd5a3005eef1ec78a5e2e781abff8deaf",
+              "input_ref_count": 0
+            },
+            "astro_balbillus": {
+              "input_bytes": 3671,
+              "output_sha256": "c9020a4e56a7b9929493edb0eb3116ef58730ffb8c1bd4b5081ffff471d698bd",
+              "input_ref_count": 0
+            },
+            "astro_keypoints": {
+              "input_bytes": 3540,
+              "output_sha256": "9154f7d8de9f0962b458767e0b2165fd143da4b9694d9268e09ea06cc8ecea1d",
+              "input_ref_count": 0
+            },
+            "astro_yearsystem129": {
+              "input_bytes": 3552,
+              "output_sha256": "fb5e87f7d6df2aa3b1f3641b996608e6d9543ad26bfe379899a40485613484d5",
+              "input_ref_count": 0
+            },
+            "astro_planetaryarc": {
+              "input_bytes": 3950,
+              "output_sha256": "4d0bc645dd75a8b722e8284a36d6e60f5908de63a6b6a71475a3822e7a8a44e0",
+              "input_ref_count": 0
+            },
+            "astro_persiandirected": {
+              "input_bytes": 3406,
+              "output_sha256": "99e399b35a4abe4273e23359f191a693ea3994908d8fd4fad192427319389db2",
+              "input_ref_count": 0
+            },
+            "astro_agepoint": {
+              "input_bytes": 3409,
+              "output_sha256": "d0eb28d80f61a705cd314eb44742fd5fdca513315dfd22c946a53e5a3306f978",
+              "input_ref_count": 0
+            },
+            "astro_vedicprog": {
+              "input_bytes": 3817,
+              "output_sha256": "cc5986618a94f69d62da562ac694fafdddaae2838efa7489899f0c29b8082ef8",
+              "input_ref_count": 0
+            },
+            "astro_jaynesprog": {
+              "input_bytes": 3807,
+              "output_sha256": "87905f64cf219aba83bda597e67d9adeb024f4733efb75400e01450234f7c902",
+              "input_ref_count": 0
+            },
+            "astro_mundane": {
+              "input_bytes": 2436,
+              "output_sha256": "7e116e18ce19221f21db09d030ba629250fa98113a55b8be0b9ce3ffd7d64c34",
+              "input_ref_count": 0
+            },
+            "astro_extrareturns": {
+              "input_bytes": 3678,
+              "output_sha256": "a6e7d9482c5298ac2e1b356739aa0f8b52884d1a3cfe8679f9473b4f7c468370",
+              "input_ref_count": 0
+            },
+            "astro_horary": {
+              "input_bytes": 3096,
+              "output_sha256": "31e843414cfe35e64d78e93c96da83264eeeda00bc4f13e4f899c5de348f8c12",
+              "input_ref_count": 0
+            },
+            "astro_election": {
+              "input_bytes": 3115,
+              "output_sha256": "ff11e217235a53dd3af7b8a84f9180fefee16f9c18a386259a9fd3c390fdbdde",
+              "input_ref_count": 0
+            },
+            "fengshui_directions": {
+              "input_bytes": 1660,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_minggua": {
+              "input_bytes": 2461,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_bazhai": {
+              "input_bytes": 5126,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 3
+            },
+            "fengshui_jinsuo": {
+              "input_bytes": 2259,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 1
+            },
+            "fengshui_annual_stars": {
+              "input_bytes": 1913,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_xuankong_natal": {
+              "input_bytes": 3481,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 2
+            },
+            "fengshui_assess": {
+              "input_bytes": 11469,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 9
+            }
+          }
+        },
+        "current": {
+          "utf8_json_bytes": 2049870,
+          "json_characters": 2008374,
+          "tool_count": 87,
+          "schemas": {
+            "analyze_destiny": {
+              "input_bytes": 2960,
+              "output_sha256": "faf3ceccaae881754a9a35472dc76b0f8f9f8a7da04bc2d98a9865186a1811b3",
+              "input_ref_count": 0
+            },
+            "bazi_birth": {
+              "input_bytes": 3501,
+              "output_sha256": "d67b8f69885395627c20b938b4f5edba1c69931ea3c23a02cb0000565d88ce9b",
+              "input_ref_count": 0
+            },
+            "bazi_marriage": {
+              "input_bytes": 3673,
+              "output_sha256": "3cc825b8b5b7642cab5594242f0c84368ec918adad9b92642bf4ae63b74a7587",
+              "input_ref_count": 0
+            },
+            "bazi_career": {
+              "input_bytes": 3673,
+              "output_sha256": "1f031b7f852a5815b26d0012115d374b81bbad61410bfb18e514e49d5c15db23",
+              "input_ref_count": 0
+            },
+            "bazi_wealth": {
+              "input_bytes": 3673,
+              "output_sha256": "f36870c3e75b02bce01174f42360cc8eef7f3caa22d18d877aacc0881bc2f34e",
+              "input_ref_count": 0
+            },
+            "bazi_health": {
+              "input_bytes": 3673,
+              "output_sha256": "2bb9767db2d8179d80f3a63230dd99ef2f3cf292e927064b14c8c1b33db251ec",
+              "input_ref_count": 0
+            },
+            "bazi_children": {
+              "input_bytes": 3673,
+              "output_sha256": "0880307ccb86723d8d62f98a4c36b658248118a64038ea019f30347aee3efb2b",
+              "input_ref_count": 0
+            },
+            "bazi_education": {
+              "input_bytes": 3673,
+              "output_sha256": "cd5691b15c0d828c456172e63980214ef2f2311497b0678dd4e496918e332824",
+              "input_ref_count": 0
+            },
+            "bazi_personality": {
+              "input_bytes": 3673,
+              "output_sha256": "3288241353c7a5918fdc3440ef4ab0a5246754e0d84e3056d72e738277a4d000",
+              "input_ref_count": 0
+            },
+            "bazi_relatives": {
+              "input_bytes": 3673,
+              "output_sha256": "fbc3dd2032382498057e540eca4d744d56d28d6af91ca47058f2698b723249df",
+              "input_ref_count": 0
+            },
+            "bazi_romance": {
+              "input_bytes": 3673,
+              "output_sha256": "75470ca6e98aa46321d00fd99544d14f5ecfcbfe13ef6d4199e6230ada4ec0fe",
+              "input_ref_count": 0
+            },
+            "two_person_compatibility": {
+              "input_bytes": 4521,
+              "output_sha256": "c63ad080a40e14fff00bc6e20db4332bab778442b3055862883713affb180e92",
+              "input_ref_count": 0
+            },
+            "timing_analysis": {
+              "input_bytes": 3912,
+              "output_sha256": "ca4ad9a1fed53149f9ea82803421d263dfb91d9a9d7571c197575f950326b003",
+              "input_ref_count": 0
+            },
+            "dayun_analysis": {
+              "input_bytes": 3163,
+              "output_sha256": "8284a042e8cf869c0adcd171afb6e39d46719e939d9887b41572be782ef2b4a0",
+              "input_ref_count": 0
+            },
+            "liunian_analysis": {
+              "input_bytes": 3197,
+              "output_sha256": "46c52143ff232ba530c5a8ed3f2574f00578f83283e156e880e10b1299e3550d",
+              "input_ref_count": 0
+            },
+            "liuyue_analysis": {
+              "input_bytes": 3785,
+              "output_sha256": "0db01d4c7465eae93d786cdc5c277cdaa3c34b1d15af9b8369c214ddc6d716a4",
+              "input_ref_count": 0
+            },
+            "liuri_analysis": {
+              "input_bytes": 3785,
+              "output_sha256": "c681556563885efc6943f06475ba6b79d7c242740dcc9b2d8101ee7c331ee971",
+              "input_ref_count": 0
+            },
+            "liushi_analysis": {
+              "input_bytes": 3785,
+              "output_sha256": "c13db3ae5844c6efca3e6473ca24de87a38e47638f8c088ce1d68ccd35799f63",
+              "input_ref_count": 0
+            },
+            "jieqi_timeline_analysis": {
+              "input_bytes": 3217,
+              "output_sha256": "d07b4f8fe435fbf0bca71c0cff8970853ae9d275d556d3ca5f84f3a6a8f9b6b8",
+              "input_ref_count": 0
+            },
+            "jieqi_year": {
+              "input_bytes": 2215,
+              "output_sha256": "a84c765c33ca794e72bc8b39f55309feb3f7983f42589801001118dfacb7b08a",
+              "input_ref_count": 0
+            },
+            "nongli_time": {
+              "input_bytes": 2809,
+              "output_sha256": "6cc249f3aa0f1f4aa1a4f748788411db726078aa17091c76ce97aaf9d667c9b2",
+              "input_ref_count": 0
+            },
+            "gua_lookup": {
+              "input_bytes": 1710,
+              "output_sha256": "5c4c3b3aa2f19cd27629c77431912ceb33f192db92b4d2edcac750051a66be46",
+              "input_ref_count": 0
+            },
+            "gua_meiyi": {
+              "input_bytes": 1623,
+              "output_sha256": "0c16a890e64e24b06710dbdf50edd2845566724daad3eb203873c2597c356e02",
+              "input_ref_count": 0
+            },
+            "meihua_analysis": {
+              "input_bytes": 2184,
+              "output_sha256": "1f333c3fbff021cb83b49be5d22779af802cbb79a398cb8217de197c302eae7a",
+              "input_ref_count": 0
+            },
+            "tongshefa": {
+              "input_bytes": 1768,
+              "output_sha256": "d585fe668b6ed5898bc3fdbaa49e840f4f0e078310398ad758ed74b059fcafac",
+              "input_ref_count": 0
+            },
+            "sixyao": {
+              "input_bytes": 3680,
+              "output_sha256": "9badb9a3b79ac089a70a7199067e69358b7527e3ac9e257d24e3ec42dcebe285",
+              "input_ref_count": 0
+            },
+            "canping": {
+              "input_bytes": 2615,
+              "output_sha256": "3d2bcd1ec4acf14e2b67e36acd997d63461652d890f01840d3131d1fcf7f67e8",
+              "input_ref_count": 0
+            },
+            "heluo": {
+              "input_bytes": 2490,
+              "output_sha256": "dffb1b5bd5fbd3e93e49d75c229d0c351d7bea41fee8a44a12afa11afc0a80d9",
+              "input_ref_count": 0
+            },
+            "suzhan": {
+              "input_bytes": 2853,
+              "output_sha256": "d96c18c15acf483e0202b9a9348b3ecdb3e1277655b42490839f7b34730f6598",
+              "input_ref_count": 0
+            },
+            "sukuyo_compatibility": {
+              "input_bytes": 3209,
+              "output_sha256": "9e8384a62344ee266889d4d0a5739044aa3a572ab0f9a0010ba875d6f0721aef",
+              "input_ref_count": 0
+            },
+            "otherbu": {
+              "input_bytes": 2810,
+              "output_sha256": "b987ab599fb808c8b577d276581ebe3c5f3d548006eb2d1bce5e5a795fd557fd",
+              "input_ref_count": 0
+            },
+            "sanshiunited": {
+              "input_bytes": 2890,
+              "output_sha256": "8e6dc0aa3d2db9d3019ffd49ba6c15e847ba5453dc4c3fa73e2a9bb4d27cf0fa",
+              "input_ref_count": 0
+            },
+            "ziwei_birth": {
+              "input_bytes": 3113,
+              "output_sha256": "459ce912db0e352cc82be29baf0dcb12929db3f3c9b18024c670069a399aa9ed",
+              "input_ref_count": 0
+            },
+            "ziwei_horoscope": {
+              "input_bytes": 3521,
+              "output_sha256": "af0a773d5f7306344e2fa520792a892a4434ac5d277dc9c6159bc22c9d161d09",
+              "input_ref_count": 0
+            },
+            "ziwei_rules": {
+              "input_bytes": 1634,
+              "output_sha256": "4e9ff8f365b5bee868dffe7081202caaae178558c14bbdf0bd3e4053a3cf6d3d",
+              "input_ref_count": 0
+            },
+            "liureng_gods": {
+              "input_bytes": 2714,
+              "output_sha256": "841a1feffb70052519be0aad20683b4b7198bd19a12939b9512bf639062156fb",
+              "input_ref_count": 0
+            },
+            "liureng_runyear": {
+              "input_bytes": 3945,
+              "output_sha256": "09091f6a2fe4ac431fbde4ed006be3db886e43f9c4777a9660f730f1d38291fb",
+              "input_ref_count": 0
+            },
+            "qimen": {
+              "input_bytes": 2664,
+              "output_sha256": "7a4be13da44d65c718d9dee1ba655debca471d8a570615973a9db84a7d438d68",
+              "input_ref_count": 0
+            },
+            "taiyi": {
+              "input_bytes": 2721,
+              "output_sha256": "2a8378d010e330a8c3d11f2c953458fc05261a626200b2b06a88f471f685b7eb",
+              "input_ref_count": 0
+            },
+            "jinkou": {
+              "input_bytes": 2823,
+              "output_sha256": "635344eef083699f867ebd84e857865d1fba4ff1a966f5177f1e4bcba4bf1afe",
+              "input_ref_count": 0
+            },
+            "export_registry": {
+              "input_bytes": 1464,
+              "output_sha256": "2fe3374043e02e85f717dc2115d179b56d6798039e5f26feeb0dc59b38c6aa4a",
+              "input_ref_count": 0
+            },
+            "export_parse": {
+              "input_bytes": 1964,
+              "output_sha256": "ebd5822d0a8996c1f477ee73d95178f70c8346f7eda51fde4fbeb999e3c7b0cb",
+              "input_ref_count": 0
+            },
+            "knowledge_registry": {
+              "input_bytes": 1614,
+              "output_sha256": "dc6f67686ed493a16ee8869d0178aaee56cae5b828b1b2ac49efadc9787b0616",
+              "input_ref_count": 0
+            },
+            "knowledge_read": {
+              "input_bytes": 2894,
+              "output_sha256": "84d99c0db8cdc18aa637c0eff4762983d5d8ffc46758971a3cae73b510bbb15b",
+              "input_ref_count": 0
+            },
+            "astro_chart": {
+              "input_bytes": 4368,
+              "output_sha256": "fc9be90c79699886e3fe08d84ba8925d9490d6901db54ee8325b92605d28605a",
+              "input_ref_count": 0
+            },
+            "astro_chart13": {
+              "input_bytes": 4220,
+              "output_sha256": "21f20826d3bf0638f6b4c743f31490c33601bff77fecac8400009a9774c07a22",
+              "input_ref_count": 0
+            },
+            "astro_hellen_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "2e5260dbc59bf7499404e694db9580c26fa621448dd499fbc4eacbc3b79dc631",
+              "input_ref_count": 0
+            },
+            "astro_guolao_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "0c7c4b929c2aa276f653dc426901f3e8b09f7d190925ab40d4e4e7cd7c4d6baa",
+              "input_ref_count": 0
+            },
+            "astro_india_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "5900f402b8344e4fee5bebd1f9a402c7b66ab0deab87b9288a94367c802ae945",
+              "input_ref_count": 0
+            },
+            "astro_germany_chart": {
+              "input_bytes": 4220,
+              "output_sha256": "9cc563a2f7d569eb183e537fdc54c91b244e1c33cf86f05870ddb74dc898ca6e",
+              "input_ref_count": 0
+            },
+            "astro_relative_chart": {
+              "input_bytes": 5055,
+              "output_sha256": "70c3cb67336c2c06d1abe60cb8b86eea1f1ba8085df0b5cc3daf7014c9e35ccb",
+              "input_ref_count": 0
+            },
+            "western_timing_analysis": {
+              "input_bytes": 4867,
+              "output_sha256": "a7780246d99e1068eb25e6dcef826c3e859a925488d78044c63e782099df43a2",
+              "input_ref_count": 0
+            },
+            "solarreturn": {
+              "input_bytes": 5011,
+              "output_sha256": "03683ae2e13395062f91995e8c7589359d4ff780b6f959ee036166c766984a39",
+              "input_ref_count": 0
+            },
+            "lunarreturn": {
+              "input_bytes": 5011,
+              "output_sha256": "de78291178a10cdb7725acb9f4acf076b54af1ebd7a6ce3a5a2774ba989d4aeb",
+              "input_ref_count": 0
+            },
+            "transit": {
+              "input_bytes": 5011,
+              "output_sha256": "728fc7df0f3f4af8b28c56d5011e21bdc249f34911b277025c20b0af2d58ac97",
+              "input_ref_count": 0
+            },
+            "solararc": {
+              "input_bytes": 5011,
+              "output_sha256": "cc5698edf14b9fb181d048faa19ee47acedef3471f95f11487ebcd25bec4c99f",
+              "input_ref_count": 0
+            },
+            "givenyear": {
+              "input_bytes": 5011,
+              "output_sha256": "385cb7063bd04b4ad75fd49a3c9b9cc682c8b0360ddbddeac949c3b55df5ff40",
+              "input_ref_count": 0
+            },
+            "profection": {
+              "input_bytes": 5011,
+              "output_sha256": "49f2a015a11b91e54b8ab55f543d52a29a0d94bbfabce61cf8495f5e90bb949b",
+              "input_ref_count": 0
+            },
+            "pd": {
+              "input_bytes": 5011,
+              "output_sha256": "e6e6fa65678f83c56c39691fd45690417bbd6839d06ac2c03bb011fb569a3288",
+              "input_ref_count": 0
+            },
+            "pdchart": {
+              "input_bytes": 5011,
+              "output_sha256": "28563ba00e0ba926db47b8245dbe037dbb9bc4c785cbfb8fb982d8c28d756ff8",
+              "input_ref_count": 0
+            },
+            "zr": {
+              "input_bytes": 5011,
+              "output_sha256": "54b989db59c795e646dffbd53a0f675dd6ab0e13189d664cfc4b2e4a4af20a37",
+              "input_ref_count": 0
+            },
+            "firdaria": {
+              "input_bytes": 5011,
+              "output_sha256": "5b0af47fff984ded7154cf492cd21186fc98ca5c4649c6b4be37f6c512cef377",
+              "input_ref_count": 0
+            },
+            "decennials": {
+              "input_bytes": 5011,
+              "output_sha256": "088406fedcb576732815a29333424235021bfd2c87a9f45a7e16a71068347afc",
+              "input_ref_count": 0
+            },
+            "astro_harmonic": {
+              "input_bytes": 3560,
+              "output_sha256": "e577e574b3045c88e731e95e5af29da06bc792766013271073d8f08857e553bb",
+              "input_ref_count": 0
+            },
+            "astro_planetary_ages": {
+              "input_bytes": 3706,
+              "output_sha256": "42c84c0fea6eb80cd91799206b1b821c694952e71293e9bfb904229c7eb00c85",
+              "input_ref_count": 0
+            },
+            "astro_triplicity_rulers": {
+              "input_bytes": 3599,
+              "output_sha256": "804be5ff87a472e405f520a2225f240dc9fd2552234c0ac4453b88f50fe5a6a4",
+              "input_ref_count": 0
+            },
+            "astro_lunation_phase": {
+              "input_bytes": 3402,
+              "output_sha256": "865c09ce99521895d4f03188c74c94948a210fecc511e9f18e4c60e90fbb0b2b",
+              "input_ref_count": 0
+            },
+            "astro_distributions": {
+              "input_bytes": 3531,
+              "output_sha256": "54c6702901cfdce2ec9bc534d7f4a16dd5a3005eef1ec78a5e2e781abff8deaf",
+              "input_ref_count": 0
+            },
+            "astro_balbillus": {
+              "input_bytes": 3671,
+              "output_sha256": "c9020a4e56a7b9929493edb0eb3116ef58730ffb8c1bd4b5081ffff471d698bd",
+              "input_ref_count": 0
+            },
+            "astro_keypoints": {
+              "input_bytes": 3540,
+              "output_sha256": "9154f7d8de9f0962b458767e0b2165fd143da4b9694d9268e09ea06cc8ecea1d",
+              "input_ref_count": 0
+            },
+            "astro_yearsystem129": {
+              "input_bytes": 3552,
+              "output_sha256": "fb5e87f7d6df2aa3b1f3641b996608e6d9543ad26bfe379899a40485613484d5",
+              "input_ref_count": 0
+            },
+            "astro_planetaryarc": {
+              "input_bytes": 3950,
+              "output_sha256": "4d0bc645dd75a8b722e8284a36d6e60f5908de63a6b6a71475a3822e7a8a44e0",
+              "input_ref_count": 0
+            },
+            "astro_persiandirected": {
+              "input_bytes": 3406,
+              "output_sha256": "99e399b35a4abe4273e23359f191a693ea3994908d8fd4fad192427319389db2",
+              "input_ref_count": 0
+            },
+            "astro_agepoint": {
+              "input_bytes": 3409,
+              "output_sha256": "d0eb28d80f61a705cd314eb44742fd5fdca513315dfd22c946a53e5a3306f978",
+              "input_ref_count": 0
+            },
+            "astro_vedicprog": {
+              "input_bytes": 3817,
+              "output_sha256": "cc5986618a94f69d62da562ac694fafdddaae2838efa7489899f0c29b8082ef8",
+              "input_ref_count": 0
+            },
+            "astro_jaynesprog": {
+              "input_bytes": 3807,
+              "output_sha256": "87905f64cf219aba83bda597e67d9adeb024f4733efb75400e01450234f7c902",
+              "input_ref_count": 0
+            },
+            "astro_mundane": {
+              "input_bytes": 2436,
+              "output_sha256": "7e116e18ce19221f21db09d030ba629250fa98113a55b8be0b9ce3ffd7d64c34",
+              "input_ref_count": 0
+            },
+            "astro_extrareturns": {
+              "input_bytes": 3678,
+              "output_sha256": "a6e7d9482c5298ac2e1b356739aa0f8b52884d1a3cfe8679f9473b4f7c468370",
+              "input_ref_count": 0
+            },
+            "astro_horary": {
+              "input_bytes": 3096,
+              "output_sha256": "31e843414cfe35e64d78e93c96da83264eeeda00bc4f13e4f899c5de348f8c12",
+              "input_ref_count": 0
+            },
+            "astro_election": {
+              "input_bytes": 3115,
+              "output_sha256": "ff11e217235a53dd3af7b8a84f9180fefee16f9c18a386259a9fd3c390fdbdde",
+              "input_ref_count": 0
+            },
+            "fengshui_directions": {
+              "input_bytes": 1660,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_minggua": {
+              "input_bytes": 2461,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_bazhai": {
+              "input_bytes": 5003,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_jinsuo": {
+              "input_bytes": 2190,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_annual_stars": {
+              "input_bytes": 1913,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_xuankong_natal": {
+              "input_bytes": 3393,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_assess": {
+              "input_bytes": 11822,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            }
+          }
+        },
+        "comparison": {
+          "output_schemas_exactly_equal": true,
+          "tools_json_bytes_delta": 6,
+          "input_bytes_delta": 6
+        }
+      },
+      "fengshui": {
+        "baseline": {
+          "utf8_json_bytes": 209496,
+          "json_characters": 204241,
+          "tool_count": 7,
+          "schemas": {
+            "fengshui_directions": {
+              "input_bytes": 1660,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_minggua": {
+              "input_bytes": 2461,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_bazhai": {
+              "input_bytes": 5126,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 3
+            },
+            "fengshui_jinsuo": {
+              "input_bytes": 2259,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 1
+            },
+            "fengshui_annual_stars": {
+              "input_bytes": 1913,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_xuankong_natal": {
+              "input_bytes": 3481,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 2
+            },
+            "fengshui_assess": {
+              "input_bytes": 11469,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 9
+            }
+          }
+        },
+        "current": {
+          "utf8_json_bytes": 209569,
+          "json_characters": 204267,
+          "tool_count": 7,
+          "schemas": {
+            "fengshui_directions": {
+              "input_bytes": 1660,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_minggua": {
+              "input_bytes": 2461,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_bazhai": {
+              "input_bytes": 5003,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_jinsuo": {
+              "input_bytes": 2190,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_annual_stars": {
+              "input_bytes": 1913,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_xuankong_natal": {
+              "input_bytes": 3393,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            },
+            "fengshui_assess": {
+              "input_bytes": 11822,
+              "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+              "input_ref_count": 0
+            }
+          }
+        },
+        "comparison": {
+          "output_schemas_exactly_equal": true,
+          "tools_json_bytes_delta": 73,
+          "input_bytes_delta": 73
+        }
+      }
+    }
+  }
+}

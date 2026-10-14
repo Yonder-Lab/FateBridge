@@ -75,6 +75,22 @@ def _compose(
     }
     if layout is not None:
         result["layout_analysis"] = layout
+        # Top-level status retains the raw-chart contract. Requested layout
+        # readiness is separate and must survive a coverage-only projection.
+        result["coverage"].update(
+            layout_status=layout["status"],
+            layout_missing_inputs=layout["missing_inputs"],
+            requested_analysis_status=(
+                "partial"
+                if status == "partial" or layout["status"] == "partial"
+                else "complete"
+            ),
+        )
+        result["summary"] = (
+            f"{summary}；layout: {layout['status']}"
+            if layers
+            else f"layout: {layout['status']}"
+        )
         extra_rules = layout["supplemental_rulesets"]
         if extra_rules:
             result["rulesets"].extend(extra_rules)

@@ -140,7 +140,10 @@ def _cross_scope_effects(
         {
             "method": p["method"],
             "subject_id": p.get("subject_id"),
+            "subject_kind": p.get("subject_kind"),
+            "gender_convention": p.get("gender_convention"),
             "aspect": p["aspect"],
+            "direction": p["direction"],
             "star_role": p.get("star_role"),
             "candidate_id": p.get("candidate_id"),
             "candidate_only": p.get("candidate_only", False),

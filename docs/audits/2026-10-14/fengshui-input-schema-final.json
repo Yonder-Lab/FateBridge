@@ -1,0 +1,988 @@
+{
+  "baseline_ref": "HEAD",
+  "scope": "Paired public MCP registration with identical current domain schemas and descriptions",
+  "families": {
+    "all": {
+      "baseline": {
+        "utf8_json_bytes": 2051658,
+        "json_characters": 2010209,
+        "tool_count": 87,
+        "schemas": {
+          "analyze_destiny": {
+            "input_bytes": 2960,
+            "output_sha256": "faf3ceccaae881754a9a35472dc76b0f8f9f8a7da04bc2d98a9865186a1811b3",
+            "input_ref_count": 0
+          },
+          "bazi_birth": {
+            "input_bytes": 3501,
+            "output_sha256": "d67b8f69885395627c20b938b4f5edba1c69931ea3c23a02cb0000565d88ce9b",
+            "input_ref_count": 0
+          },
+          "bazi_marriage": {
+            "input_bytes": 3673,
+            "output_sha256": "3cc825b8b5b7642cab5594242f0c84368ec918adad9b92642bf4ae63b74a7587",
+            "input_ref_count": 0
+          },
+          "bazi_career": {
+            "input_bytes": 3673,
+            "output_sha256": "1f031b7f852a5815b26d0012115d374b81bbad61410bfb18e514e49d5c15db23",
+            "input_ref_count": 0
+          },
+          "bazi_wealth": {
+            "input_bytes": 3673,
+            "output_sha256": "f36870c3e75b02bce01174f42360cc8eef7f3caa22d18d877aacc0881bc2f34e",
+            "input_ref_count": 0
+          },
+          "bazi_health": {
+            "input_bytes": 3673,
+            "output_sha256": "2bb9767db2d8179d80f3a63230dd99ef2f3cf292e927064b14c8c1b33db251ec",
+            "input_ref_count": 0
+          },
+          "bazi_children": {
+            "input_bytes": 3673,
+            "output_sha256": "0880307ccb86723d8d62f98a4c36b658248118a64038ea019f30347aee3efb2b",
+            "input_ref_count": 0
+          },
+          "bazi_education": {
+            "input_bytes": 3673,
+            "output_sha256": "cd5691b15c0d828c456172e63980214ef2f2311497b0678dd4e496918e332824",
+            "input_ref_count": 0
+          },
+          "bazi_personality": {
+            "input_bytes": 3673,
+            "output_sha256": "3288241353c7a5918fdc3440ef4ab0a5246754e0d84e3056d72e738277a4d000",
+            "input_ref_count": 0
+          },
+          "bazi_relatives": {
+            "input_bytes": 3673,
+            "output_sha256": "fbc3dd2032382498057e540eca4d744d56d28d6af91ca47058f2698b723249df",
+            "input_ref_count": 0
+          },
+          "bazi_romance": {
+            "input_bytes": 3673,
+            "output_sha256": "75470ca6e98aa46321d00fd99544d14f5ecfcbfe13ef6d4199e6230ada4ec0fe",
+            "input_ref_count": 0
+          },
+          "two_person_compatibility": {
+            "input_bytes": 4521,
+            "output_sha256": "c63ad080a40e14fff00bc6e20db4332bab778442b3055862883713affb180e92",
+            "input_ref_count": 0
+          },
+          "timing_analysis": {
+            "input_bytes": 3912,
+            "output_sha256": "ca4ad9a1fed53149f9ea82803421d263dfb91d9a9d7571c197575f950326b003",
+            "input_ref_count": 0
+          },
+          "dayun_analysis": {
+            "input_bytes": 3163,
+            "output_sha256": "8284a042e8cf869c0adcd171afb6e39d46719e939d9887b41572be782ef2b4a0",
+            "input_ref_count": 0
+          },
+          "liunian_analysis": {
+            "input_bytes": 3197,
+            "output_sha256": "46c52143ff232ba530c5a8ed3f2574f00578f83283e156e880e10b1299e3550d",
+            "input_ref_count": 0
+          },
+          "liuyue_analysis": {
+            "input_bytes": 3785,
+            "output_sha256": "0db01d4c7465eae93d786cdc5c277cdaa3c34b1d15af9b8369c214ddc6d716a4",
+            "input_ref_count": 0
+          },
+          "liuri_analysis": {
+            "input_bytes": 3785,
+            "output_sha256": "c681556563885efc6943f06475ba6b79d7c242740dcc9b2d8101ee7c331ee971",
+            "input_ref_count": 0
+          },
+          "liushi_analysis": {
+            "input_bytes": 3785,
+            "output_sha256": "c13db3ae5844c6efca3e6473ca24de87a38e47638f8c088ce1d68ccd35799f63",
+            "input_ref_count": 0
+          },
+          "jieqi_timeline_analysis": {
+            "input_bytes": 3217,
+            "output_sha256": "d07b4f8fe435fbf0bca71c0cff8970853ae9d275d556d3ca5f84f3a6a8f9b6b8",
+            "input_ref_count": 0
+          },
+          "jieqi_year": {
+            "input_bytes": 2215,
+            "output_sha256": "a84c765c33ca794e72bc8b39f55309feb3f7983f42589801001118dfacb7b08a",
+            "input_ref_count": 0
+          },
+          "nongli_time": {
+            "input_bytes": 2809,
+            "output_sha256": "6cc249f3aa0f1f4aa1a4f748788411db726078aa17091c76ce97aaf9d667c9b2",
+            "input_ref_count": 0
+          },
+          "gua_lookup": {
+            "input_bytes": 1710,
+            "output_sha256": "5c4c3b3aa2f19cd27629c77431912ceb33f192db92b4d2edcac750051a66be46",
+            "input_ref_count": 0
+          },
+          "gua_meiyi": {
+            "input_bytes": 1623,
+            "output_sha256": "0c16a890e64e24b06710dbdf50edd2845566724daad3eb203873c2597c356e02",
+            "input_ref_count": 0
+          },
+          "meihua_analysis": {
+            "input_bytes": 2184,
+            "output_sha256": "1f333c3fbff021cb83b49be5d22779af802cbb79a398cb8217de197c302eae7a",
+            "input_ref_count": 0
+          },
+          "tongshefa": {
+            "input_bytes": 1768,
+            "output_sha256": "d585fe668b6ed5898bc3fdbaa49e840f4f0e078310398ad758ed74b059fcafac",
+            "input_ref_count": 0
+          },
+          "sixyao": {
+            "input_bytes": 3747,
+            "output_sha256": "9badb9a3b79ac089a70a7199067e69358b7527e3ac9e257d24e3ec42dcebe285",
+            "input_ref_count": 1
+          },
+          "canping": {
+            "input_bytes": 2615,
+            "output_sha256": "3d2bcd1ec4acf14e2b67e36acd997d63461652d890f01840d3131d1fcf7f67e8",
+            "input_ref_count": 0
+          },
+          "heluo": {
+            "input_bytes": 2490,
+            "output_sha256": "dffb1b5bd5fbd3e93e49d75c229d0c351d7bea41fee8a44a12afa11afc0a80d9",
+            "input_ref_count": 0
+          },
+          "suzhan": {
+            "input_bytes": 2853,
+            "output_sha256": "d96c18c15acf483e0202b9a9348b3ecdb3e1277655b42490839f7b34730f6598",
+            "input_ref_count": 0
+          },
+          "sukuyo_compatibility": {
+            "input_bytes": 3209,
+            "output_sha256": "9e8384a62344ee266889d4d0a5739044aa3a572ab0f9a0010ba875d6f0721aef",
+            "input_ref_count": 0
+          },
+          "otherbu": {
+            "input_bytes": 2810,
+            "output_sha256": "b987ab599fb808c8b577d276581ebe3c5f3d548006eb2d1bce5e5a795fd557fd",
+            "input_ref_count": 0
+          },
+          "sanshiunited": {
+            "input_bytes": 2890,
+            "output_sha256": "8e6dc0aa3d2db9d3019ffd49ba6c15e847ba5453dc4c3fa73e2a9bb4d27cf0fa",
+            "input_ref_count": 0
+          },
+          "ziwei_birth": {
+            "input_bytes": 3113,
+            "output_sha256": "459ce912db0e352cc82be29baf0dcb12929db3f3c9b18024c670069a399aa9ed",
+            "input_ref_count": 0
+          },
+          "ziwei_horoscope": {
+            "input_bytes": 3521,
+            "output_sha256": "af0a773d5f7306344e2fa520792a892a4434ac5d277dc9c6159bc22c9d161d09",
+            "input_ref_count": 0
+          },
+          "ziwei_rules": {
+            "input_bytes": 1634,
+            "output_sha256": "4e9ff8f365b5bee868dffe7081202caaae178558c14bbdf0bd3e4053a3cf6d3d",
+            "input_ref_count": 0
+          },
+          "liureng_gods": {
+            "input_bytes": 2714,
+            "output_sha256": "841a1feffb70052519be0aad20683b4b7198bd19a12939b9512bf639062156fb",
+            "input_ref_count": 0
+          },
+          "liureng_runyear": {
+            "input_bytes": 3945,
+            "output_sha256": "09091f6a2fe4ac431fbde4ed006be3db886e43f9c4777a9660f730f1d38291fb",
+            "input_ref_count": 0
+          },
+          "qimen": {
+            "input_bytes": 2664,
+            "output_sha256": "7a4be13da44d65c718d9dee1ba655debca471d8a570615973a9db84a7d438d68",
+            "input_ref_count": 0
+          },
+          "taiyi": {
+            "input_bytes": 2721,
+            "output_sha256": "2a8378d010e330a8c3d11f2c953458fc05261a626200b2b06a88f471f685b7eb",
+            "input_ref_count": 0
+          },
+          "jinkou": {
+            "input_bytes": 2823,
+            "output_sha256": "635344eef083699f867ebd84e857865d1fba4ff1a966f5177f1e4bcba4bf1afe",
+            "input_ref_count": 0
+          },
+          "export_registry": {
+            "input_bytes": 1464,
+            "output_sha256": "2fe3374043e02e85f717dc2115d179b56d6798039e5f26feeb0dc59b38c6aa4a",
+            "input_ref_count": 0
+          },
+          "export_parse": {
+            "input_bytes": 1964,
+            "output_sha256": "ebd5822d0a8996c1f477ee73d95178f70c8346f7eda51fde4fbeb999e3c7b0cb",
+            "input_ref_count": 0
+          },
+          "knowledge_registry": {
+            "input_bytes": 1614,
+            "output_sha256": "dc6f67686ed493a16ee8869d0178aaee56cae5b828b1b2ac49efadc9787b0616",
+            "input_ref_count": 0
+          },
+          "knowledge_read": {
+            "input_bytes": 2894,
+            "output_sha256": "84d99c0db8cdc18aa637c0eff4762983d5d8ffc46758971a3cae73b510bbb15b",
+            "input_ref_count": 0
+          },
+          "astro_chart": {
+            "input_bytes": 4368,
+            "output_sha256": "fc9be90c79699886e3fe08d84ba8925d9490d6901db54ee8325b92605d28605a",
+            "input_ref_count": 0
+          },
+          "astro_chart13": {
+            "input_bytes": 4220,
+            "output_sha256": "21f20826d3bf0638f6b4c743f31490c33601bff77fecac8400009a9774c07a22",
+            "input_ref_count": 0
+          },
+          "astro_hellen_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "2e5260dbc59bf7499404e694db9580c26fa621448dd499fbc4eacbc3b79dc631",
+            "input_ref_count": 0
+          },
+          "astro_guolao_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "0c7c4b929c2aa276f653dc426901f3e8b09f7d190925ab40d4e4e7cd7c4d6baa",
+            "input_ref_count": 0
+          },
+          "astro_india_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "5900f402b8344e4fee5bebd1f9a402c7b66ab0deab87b9288a94367c802ae945",
+            "input_ref_count": 0
+          },
+          "astro_germany_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "9cc563a2f7d569eb183e537fdc54c91b244e1c33cf86f05870ddb74dc898ca6e",
+            "input_ref_count": 0
+          },
+          "astro_relative_chart": {
+            "input_bytes": 5055,
+            "output_sha256": "70c3cb67336c2c06d1abe60cb8b86eea1f1ba8085df0b5cc3daf7014c9e35ccb",
+            "input_ref_count": 0
+          },
+          "western_timing_analysis": {
+            "input_bytes": 4867,
+            "output_sha256": "a7780246d99e1068eb25e6dcef826c3e859a925488d78044c63e782099df43a2",
+            "input_ref_count": 0
+          },
+          "solarreturn": {
+            "input_bytes": 5011,
+            "output_sha256": "03683ae2e13395062f91995e8c7589359d4ff780b6f959ee036166c766984a39",
+            "input_ref_count": 0
+          },
+          "lunarreturn": {
+            "input_bytes": 5011,
+            "output_sha256": "de78291178a10cdb7725acb9f4acf076b54af1ebd7a6ce3a5a2774ba989d4aeb",
+            "input_ref_count": 0
+          },
+          "transit": {
+            "input_bytes": 5011,
+            "output_sha256": "728fc7df0f3f4af8b28c56d5011e21bdc249f34911b277025c20b0af2d58ac97",
+            "input_ref_count": 0
+          },
+          "solararc": {
+            "input_bytes": 5011,
+            "output_sha256": "cc5698edf14b9fb181d048faa19ee47acedef3471f95f11487ebcd25bec4c99f",
+            "input_ref_count": 0
+          },
+          "givenyear": {
+            "input_bytes": 5011,
+            "output_sha256": "385cb7063bd04b4ad75fd49a3c9b9cc682c8b0360ddbddeac949c3b55df5ff40",
+            "input_ref_count": 0
+          },
+          "profection": {
+            "input_bytes": 5011,
+            "output_sha256": "49f2a015a11b91e54b8ab55f543d52a29a0d94bbfabce61cf8495f5e90bb949b",
+            "input_ref_count": 0
+          },
+          "pd": {
+            "input_bytes": 5011,
+            "output_sha256": "e6e6fa65678f83c56c39691fd45690417bbd6839d06ac2c03bb011fb569a3288",
+            "input_ref_count": 0
+          },
+          "pdchart": {
+            "input_bytes": 5011,
+            "output_sha256": "28563ba00e0ba926db47b8245dbe037dbb9bc4c785cbfb8fb982d8c28d756ff8",
+            "input_ref_count": 0
+          },
+          "zr": {
+            "input_bytes": 5011,
+            "output_sha256": "54b989db59c795e646dffbd53a0f675dd6ab0e13189d664cfc4b2e4a4af20a37",
+            "input_ref_count": 0
+          },
+          "firdaria": {
+            "input_bytes": 5011,
+            "output_sha256": "5b0af47fff984ded7154cf492cd21186fc98ca5c4649c6b4be37f6c512cef377",
+            "input_ref_count": 0
+          },
+          "decennials": {
+            "input_bytes": 5011,
+            "output_sha256": "088406fedcb576732815a29333424235021bfd2c87a9f45a7e16a71068347afc",
+            "input_ref_count": 0
+          },
+          "astro_harmonic": {
+            "input_bytes": 3560,
+            "output_sha256": "e577e574b3045c88e731e95e5af29da06bc792766013271073d8f08857e553bb",
+            "input_ref_count": 0
+          },
+          "astro_planetary_ages": {
+            "input_bytes": 3706,
+            "output_sha256": "42c84c0fea6eb80cd91799206b1b821c694952e71293e9bfb904229c7eb00c85",
+            "input_ref_count": 0
+          },
+          "astro_triplicity_rulers": {
+            "input_bytes": 3599,
+            "output_sha256": "804be5ff87a472e405f520a2225f240dc9fd2552234c0ac4453b88f50fe5a6a4",
+            "input_ref_count": 0
+          },
+          "astro_lunation_phase": {
+            "input_bytes": 3402,
+            "output_sha256": "865c09ce99521895d4f03188c74c94948a210fecc511e9f18e4c60e90fbb0b2b",
+            "input_ref_count": 0
+          },
+          "astro_distributions": {
+            "input_bytes": 3531,
+            "output_sha256": "54c6702901cfdce2ec9bc534d7f4a16dd5a3005eef1ec78a5e2e781abff8deaf",
+            "input_ref_count": 0
+          },
+          "astro_balbillus": {
+            "input_bytes": 3671,
+            "output_sha256": "c9020a4e56a7b9929493edb0eb3116ef58730ffb8c1bd4b5081ffff471d698bd",
+            "input_ref_count": 0
+          },
+          "astro_keypoints": {
+            "input_bytes": 3540,
+            "output_sha256": "9154f7d8de9f0962b458767e0b2165fd143da4b9694d9268e09ea06cc8ecea1d",
+            "input_ref_count": 0
+          },
+          "astro_yearsystem129": {
+            "input_bytes": 3552,
+            "output_sha256": "fb5e87f7d6df2aa3b1f3641b996608e6d9543ad26bfe379899a40485613484d5",
+            "input_ref_count": 0
+          },
+          "astro_planetaryarc": {
+            "input_bytes": 3950,
+            "output_sha256": "4d0bc645dd75a8b722e8284a36d6e60f5908de63a6b6a71475a3822e7a8a44e0",
+            "input_ref_count": 0
+          },
+          "astro_persiandirected": {
+            "input_bytes": 3406,
+            "output_sha256": "99e399b35a4abe4273e23359f191a693ea3994908d8fd4fad192427319389db2",
+            "input_ref_count": 0
+          },
+          "astro_agepoint": {
+            "input_bytes": 3409,
+            "output_sha256": "d0eb28d80f61a705cd314eb44742fd5fdca513315dfd22c946a53e5a3306f978",
+            "input_ref_count": 0
+          },
+          "astro_vedicprog": {
+            "input_bytes": 3817,
+            "output_sha256": "cc5986618a94f69d62da562ac694fafdddaae2838efa7489899f0c29b8082ef8",
+            "input_ref_count": 0
+          },
+          "astro_jaynesprog": {
+            "input_bytes": 3807,
+            "output_sha256": "87905f64cf219aba83bda597e67d9adeb024f4733efb75400e01450234f7c902",
+            "input_ref_count": 0
+          },
+          "astro_mundane": {
+            "input_bytes": 2436,
+            "output_sha256": "7e116e18ce19221f21db09d030ba629250fa98113a55b8be0b9ce3ffd7d64c34",
+            "input_ref_count": 0
+          },
+          "astro_extrareturns": {
+            "input_bytes": 3678,
+            "output_sha256": "a6e7d9482c5298ac2e1b356739aa0f8b52884d1a3cfe8679f9473b4f7c468370",
+            "input_ref_count": 0
+          },
+          "astro_horary": {
+            "input_bytes": 3096,
+            "output_sha256": "31e843414cfe35e64d78e93c96da83264eeeda00bc4f13e4f899c5de348f8c12",
+            "input_ref_count": 0
+          },
+          "astro_election": {
+            "input_bytes": 3115,
+            "output_sha256": "ff11e217235a53dd3af7b8a84f9180fefee16f9c18a386259a9fd3c390fdbdde",
+            "input_ref_count": 0
+          },
+          "fengshui_directions": {
+            "input_bytes": 1660,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_minggua": {
+            "input_bytes": 2461,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_bazhai": {
+            "input_bytes": 6023,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 3
+          },
+          "fengshui_jinsuo": {
+            "input_bytes": 2259,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 1
+          },
+          "fengshui_annual_stars": {
+            "input_bytes": 1913,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_xuankong_natal": {
+            "input_bytes": 3481,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 2
+          },
+          "fengshui_assess": {
+            "input_bytes": 12366,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 9
+          }
+        }
+      },
+      "current": {
+        "utf8_json_bytes": 2051664,
+        "json_characters": 2010168,
+        "tool_count": 87,
+        "schemas": {
+          "analyze_destiny": {
+            "input_bytes": 2960,
+            "output_sha256": "faf3ceccaae881754a9a35472dc76b0f8f9f8a7da04bc2d98a9865186a1811b3",
+            "input_ref_count": 0
+          },
+          "bazi_birth": {
+            "input_bytes": 3501,
+            "output_sha256": "d67b8f69885395627c20b938b4f5edba1c69931ea3c23a02cb0000565d88ce9b",
+            "input_ref_count": 0
+          },
+          "bazi_marriage": {
+            "input_bytes": 3673,
+            "output_sha256": "3cc825b8b5b7642cab5594242f0c84368ec918adad9b92642bf4ae63b74a7587",
+            "input_ref_count": 0
+          },
+          "bazi_career": {
+            "input_bytes": 3673,
+            "output_sha256": "1f031b7f852a5815b26d0012115d374b81bbad61410bfb18e514e49d5c15db23",
+            "input_ref_count": 0
+          },
+          "bazi_wealth": {
+            "input_bytes": 3673,
+            "output_sha256": "f36870c3e75b02bce01174f42360cc8eef7f3caa22d18d877aacc0881bc2f34e",
+            "input_ref_count": 0
+          },
+          "bazi_health": {
+            "input_bytes": 3673,
+            "output_sha256": "2bb9767db2d8179d80f3a63230dd99ef2f3cf292e927064b14c8c1b33db251ec",
+            "input_ref_count": 0
+          },
+          "bazi_children": {
+            "input_bytes": 3673,
+            "output_sha256": "0880307ccb86723d8d62f98a4c36b658248118a64038ea019f30347aee3efb2b",
+            "input_ref_count": 0
+          },
+          "bazi_education": {
+            "input_bytes": 3673,
+            "output_sha256": "cd5691b15c0d828c456172e63980214ef2f2311497b0678dd4e496918e332824",
+            "input_ref_count": 0
+          },
+          "bazi_personality": {
+            "input_bytes": 3673,
+            "output_sha256": "3288241353c7a5918fdc3440ef4ab0a5246754e0d84e3056d72e738277a4d000",
+            "input_ref_count": 0
+          },
+          "bazi_relatives": {
+            "input_bytes": 3673,
+            "output_sha256": "fbc3dd2032382498057e540eca4d744d56d28d6af91ca47058f2698b723249df",
+            "input_ref_count": 0
+          },
+          "bazi_romance": {
+            "input_bytes": 3673,
+            "output_sha256": "75470ca6e98aa46321d00fd99544d14f5ecfcbfe13ef6d4199e6230ada4ec0fe",
+            "input_ref_count": 0
+          },
+          "two_person_compatibility": {
+            "input_bytes": 4521,
+            "output_sha256": "c63ad080a40e14fff00bc6e20db4332bab778442b3055862883713affb180e92",
+            "input_ref_count": 0
+          },
+          "timing_analysis": {
+            "input_bytes": 3912,
+            "output_sha256": "ca4ad9a1fed53149f9ea82803421d263dfb91d9a9d7571c197575f950326b003",
+            "input_ref_count": 0
+          },
+          "dayun_analysis": {
+            "input_bytes": 3163,
+            "output_sha256": "8284a042e8cf869c0adcd171afb6e39d46719e939d9887b41572be782ef2b4a0",
+            "input_ref_count": 0
+          },
+          "liunian_analysis": {
+            "input_bytes": 3197,
+            "output_sha256": "46c52143ff232ba530c5a8ed3f2574f00578f83283e156e880e10b1299e3550d",
+            "input_ref_count": 0
+          },
+          "liuyue_analysis": {
+            "input_bytes": 3785,
+            "output_sha256": "0db01d4c7465eae93d786cdc5c277cdaa3c34b1d15af9b8369c214ddc6d716a4",
+            "input_ref_count": 0
+          },
+          "liuri_analysis": {
+            "input_bytes": 3785,
+            "output_sha256": "c681556563885efc6943f06475ba6b79d7c242740dcc9b2d8101ee7c331ee971",
+            "input_ref_count": 0
+          },
+          "liushi_analysis": {
+            "input_bytes": 3785,
+            "output_sha256": "c13db3ae5844c6efca3e6473ca24de87a38e47638f8c088ce1d68ccd35799f63",
+            "input_ref_count": 0
+          },
+          "jieqi_timeline_analysis": {
+            "input_bytes": 3217,
+            "output_sha256": "d07b4f8fe435fbf0bca71c0cff8970853ae9d275d556d3ca5f84f3a6a8f9b6b8",
+            "input_ref_count": 0
+          },
+          "jieqi_year": {
+            "input_bytes": 2215,
+            "output_sha256": "a84c765c33ca794e72bc8b39f55309feb3f7983f42589801001118dfacb7b08a",
+            "input_ref_count": 0
+          },
+          "nongli_time": {
+            "input_bytes": 2809,
+            "output_sha256": "6cc249f3aa0f1f4aa1a4f748788411db726078aa17091c76ce97aaf9d667c9b2",
+            "input_ref_count": 0
+          },
+          "gua_lookup": {
+            "input_bytes": 1710,
+            "output_sha256": "5c4c3b3aa2f19cd27629c77431912ceb33f192db92b4d2edcac750051a66be46",
+            "input_ref_count": 0
+          },
+          "gua_meiyi": {
+            "input_bytes": 1623,
+            "output_sha256": "0c16a890e64e24b06710dbdf50edd2845566724daad3eb203873c2597c356e02",
+            "input_ref_count": 0
+          },
+          "meihua_analysis": {
+            "input_bytes": 2184,
+            "output_sha256": "1f333c3fbff021cb83b49be5d22779af802cbb79a398cb8217de197c302eae7a",
+            "input_ref_count": 0
+          },
+          "tongshefa": {
+            "input_bytes": 1768,
+            "output_sha256": "d585fe668b6ed5898bc3fdbaa49e840f4f0e078310398ad758ed74b059fcafac",
+            "input_ref_count": 0
+          },
+          "sixyao": {
+            "input_bytes": 3680,
+            "output_sha256": "9badb9a3b79ac089a70a7199067e69358b7527e3ac9e257d24e3ec42dcebe285",
+            "input_ref_count": 0
+          },
+          "canping": {
+            "input_bytes": 2615,
+            "output_sha256": "3d2bcd1ec4acf14e2b67e36acd997d63461652d890f01840d3131d1fcf7f67e8",
+            "input_ref_count": 0
+          },
+          "heluo": {
+            "input_bytes": 2490,
+            "output_sha256": "dffb1b5bd5fbd3e93e49d75c229d0c351d7bea41fee8a44a12afa11afc0a80d9",
+            "input_ref_count": 0
+          },
+          "suzhan": {
+            "input_bytes": 2853,
+            "output_sha256": "d96c18c15acf483e0202b9a9348b3ecdb3e1277655b42490839f7b34730f6598",
+            "input_ref_count": 0
+          },
+          "sukuyo_compatibility": {
+            "input_bytes": 3209,
+            "output_sha256": "9e8384a62344ee266889d4d0a5739044aa3a572ab0f9a0010ba875d6f0721aef",
+            "input_ref_count": 0
+          },
+          "otherbu": {
+            "input_bytes": 2810,
+            "output_sha256": "b987ab599fb808c8b577d276581ebe3c5f3d548006eb2d1bce5e5a795fd557fd",
+            "input_ref_count": 0
+          },
+          "sanshiunited": {
+            "input_bytes": 2890,
+            "output_sha256": "8e6dc0aa3d2db9d3019ffd49ba6c15e847ba5453dc4c3fa73e2a9bb4d27cf0fa",
+            "input_ref_count": 0
+          },
+          "ziwei_birth": {
+            "input_bytes": 3113,
+            "output_sha256": "459ce912db0e352cc82be29baf0dcb12929db3f3c9b18024c670069a399aa9ed",
+            "input_ref_count": 0
+          },
+          "ziwei_horoscope": {
+            "input_bytes": 3521,
+            "output_sha256": "af0a773d5f7306344e2fa520792a892a4434ac5d277dc9c6159bc22c9d161d09",
+            "input_ref_count": 0
+          },
+          "ziwei_rules": {
+            "input_bytes": 1634,
+            "output_sha256": "4e9ff8f365b5bee868dffe7081202caaae178558c14bbdf0bd3e4053a3cf6d3d",
+            "input_ref_count": 0
+          },
+          "liureng_gods": {
+            "input_bytes": 2714,
+            "output_sha256": "841a1feffb70052519be0aad20683b4b7198bd19a12939b9512bf639062156fb",
+            "input_ref_count": 0
+          },
+          "liureng_runyear": {
+            "input_bytes": 3945,
+            "output_sha256": "09091f6a2fe4ac431fbde4ed006be3db886e43f9c4777a9660f730f1d38291fb",
+            "input_ref_count": 0
+          },
+          "qimen": {
+            "input_bytes": 2664,
+            "output_sha256": "7a4be13da44d65c718d9dee1ba655debca471d8a570615973a9db84a7d438d68",
+            "input_ref_count": 0
+          },
+          "taiyi": {
+            "input_bytes": 2721,
+            "output_sha256": "2a8378d010e330a8c3d11f2c953458fc05261a626200b2b06a88f471f685b7eb",
+            "input_ref_count": 0
+          },
+          "jinkou": {
+            "input_bytes": 2823,
+            "output_sha256": "635344eef083699f867ebd84e857865d1fba4ff1a966f5177f1e4bcba4bf1afe",
+            "input_ref_count": 0
+          },
+          "export_registry": {
+            "input_bytes": 1464,
+            "output_sha256": "2fe3374043e02e85f717dc2115d179b56d6798039e5f26feeb0dc59b38c6aa4a",
+            "input_ref_count": 0
+          },
+          "export_parse": {
+            "input_bytes": 1964,
+            "output_sha256": "ebd5822d0a8996c1f477ee73d95178f70c8346f7eda51fde4fbeb999e3c7b0cb",
+            "input_ref_count": 0
+          },
+          "knowledge_registry": {
+            "input_bytes": 1614,
+            "output_sha256": "dc6f67686ed493a16ee8869d0178aaee56cae5b828b1b2ac49efadc9787b0616",
+            "input_ref_count": 0
+          },
+          "knowledge_read": {
+            "input_bytes": 2894,
+            "output_sha256": "84d99c0db8cdc18aa637c0eff4762983d5d8ffc46758971a3cae73b510bbb15b",
+            "input_ref_count": 0
+          },
+          "astro_chart": {
+            "input_bytes": 4368,
+            "output_sha256": "fc9be90c79699886e3fe08d84ba8925d9490d6901db54ee8325b92605d28605a",
+            "input_ref_count": 0
+          },
+          "astro_chart13": {
+            "input_bytes": 4220,
+            "output_sha256": "21f20826d3bf0638f6b4c743f31490c33601bff77fecac8400009a9774c07a22",
+            "input_ref_count": 0
+          },
+          "astro_hellen_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "2e5260dbc59bf7499404e694db9580c26fa621448dd499fbc4eacbc3b79dc631",
+            "input_ref_count": 0
+          },
+          "astro_guolao_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "0c7c4b929c2aa276f653dc426901f3e8b09f7d190925ab40d4e4e7cd7c4d6baa",
+            "input_ref_count": 0
+          },
+          "astro_india_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "5900f402b8344e4fee5bebd1f9a402c7b66ab0deab87b9288a94367c802ae945",
+            "input_ref_count": 0
+          },
+          "astro_germany_chart": {
+            "input_bytes": 4220,
+            "output_sha256": "9cc563a2f7d569eb183e537fdc54c91b244e1c33cf86f05870ddb74dc898ca6e",
+            "input_ref_count": 0
+          },
+          "astro_relative_chart": {
+            "input_bytes": 5055,
+            "output_sha256": "70c3cb67336c2c06d1abe60cb8b86eea1f1ba8085df0b5cc3daf7014c9e35ccb",
+            "input_ref_count": 0
+          },
+          "western_timing_analysis": {
+            "input_bytes": 4867,
+            "output_sha256": "a7780246d99e1068eb25e6dcef826c3e859a925488d78044c63e782099df43a2",
+            "input_ref_count": 0
+          },
+          "solarreturn": {
+            "input_bytes": 5011,
+            "output_sha256": "03683ae2e13395062f91995e8c7589359d4ff780b6f959ee036166c766984a39",
+            "input_ref_count": 0
+          },
+          "lunarreturn": {
+            "input_bytes": 5011,
+            "output_sha256": "de78291178a10cdb7725acb9f4acf076b54af1ebd7a6ce3a5a2774ba989d4aeb",
+            "input_ref_count": 0
+          },
+          "transit": {
+            "input_bytes": 5011,
+            "output_sha256": "728fc7df0f3f4af8b28c56d5011e21bdc249f34911b277025c20b0af2d58ac97",
+            "input_ref_count": 0
+          },
+          "solararc": {
+            "input_bytes": 5011,
+            "output_sha256": "cc5698edf14b9fb181d048faa19ee47acedef3471f95f11487ebcd25bec4c99f",
+            "input_ref_count": 0
+          },
+          "givenyear": {
+            "input_bytes": 5011,
+            "output_sha256": "385cb7063bd04b4ad75fd49a3c9b9cc682c8b0360ddbddeac949c3b55df5ff40",
+            "input_ref_count": 0
+          },
+          "profection": {
+            "input_bytes": 5011,
+            "output_sha256": "49f2a015a11b91e54b8ab55f543d52a29a0d94bbfabce61cf8495f5e90bb949b",
+            "input_ref_count": 0
+          },
+          "pd": {
+            "input_bytes": 5011,
+            "output_sha256": "e6e6fa65678f83c56c39691fd45690417bbd6839d06ac2c03bb011fb569a3288",
+            "input_ref_count": 0
+          },
+          "pdchart": {
+            "input_bytes": 5011,
+            "output_sha256": "28563ba00e0ba926db47b8245dbe037dbb9bc4c785cbfb8fb982d8c28d756ff8",
+            "input_ref_count": 0
+          },
+          "zr": {
+            "input_bytes": 5011,
+            "output_sha256": "54b989db59c795e646dffbd53a0f675dd6ab0e13189d664cfc4b2e4a4af20a37",
+            "input_ref_count": 0
+          },
+          "firdaria": {
+            "input_bytes": 5011,
+            "output_sha256": "5b0af47fff984ded7154cf492cd21186fc98ca5c4649c6b4be37f6c512cef377",
+            "input_ref_count": 0
+          },
+          "decennials": {
+            "input_bytes": 5011,
+            "output_sha256": "088406fedcb576732815a29333424235021bfd2c87a9f45a7e16a71068347afc",
+            "input_ref_count": 0
+          },
+          "astro_harmonic": {
+            "input_bytes": 3560,
+            "output_sha256": "e577e574b3045c88e731e95e5af29da06bc792766013271073d8f08857e553bb",
+            "input_ref_count": 0
+          },
+          "astro_planetary_ages": {
+            "input_bytes": 3706,
+            "output_sha256": "42c84c0fea6eb80cd91799206b1b821c694952e71293e9bfb904229c7eb00c85",
+            "input_ref_count": 0
+          },
+          "astro_triplicity_rulers": {
+            "input_bytes": 3599,
+            "output_sha256": "804be5ff87a472e405f520a2225f240dc9fd2552234c0ac4453b88f50fe5a6a4",
+            "input_ref_count": 0
+          },
+          "astro_lunation_phase": {
+            "input_bytes": 3402,
+            "output_sha256": "865c09ce99521895d4f03188c74c94948a210fecc511e9f18e4c60e90fbb0b2b",
+            "input_ref_count": 0
+          },
+          "astro_distributions": {
+            "input_bytes": 3531,
+            "output_sha256": "54c6702901cfdce2ec9bc534d7f4a16dd5a3005eef1ec78a5e2e781abff8deaf",
+            "input_ref_count": 0
+          },
+          "astro_balbillus": {
+            "input_bytes": 3671,
+            "output_sha256": "c9020a4e56a7b9929493edb0eb3116ef58730ffb8c1bd4b5081ffff471d698bd",
+            "input_ref_count": 0
+          },
+          "astro_keypoints": {
+            "input_bytes": 3540,
+            "output_sha256": "9154f7d8de9f0962b458767e0b2165fd143da4b9694d9268e09ea06cc8ecea1d",
+            "input_ref_count": 0
+          },
+          "astro_yearsystem129": {
+            "input_bytes": 3552,
+            "output_sha256": "fb5e87f7d6df2aa3b1f3641b996608e6d9543ad26bfe379899a40485613484d5",
+            "input_ref_count": 0
+          },
+          "astro_planetaryarc": {
+            "input_bytes": 3950,
+            "output_sha256": "4d0bc645dd75a8b722e8284a36d6e60f5908de63a6b6a71475a3822e7a8a44e0",
+            "input_ref_count": 0
+          },
+          "astro_persiandirected": {
+            "input_bytes": 3406,
+            "output_sha256": "99e399b35a4abe4273e23359f191a693ea3994908d8fd4fad192427319389db2",
+            "input_ref_count": 0
+          },
+          "astro_agepoint": {
+            "input_bytes": 3409,
+            "output_sha256": "d0eb28d80f61a705cd314eb44742fd5fdca513315dfd22c946a53e5a3306f978",
+            "input_ref_count": 0
+          },
+          "astro_vedicprog": {
+            "input_bytes": 3817,
+            "output_sha256": "cc5986618a94f69d62da562ac694fafdddaae2838efa7489899f0c29b8082ef8",
+            "input_ref_count": 0
+          },
+          "astro_jaynesprog": {
+            "input_bytes": 3807,
+            "output_sha256": "87905f64cf219aba83bda597e67d9adeb024f4733efb75400e01450234f7c902",
+            "input_ref_count": 0
+          },
+          "astro_mundane": {
+            "input_bytes": 2436,
+            "output_sha256": "7e116e18ce19221f21db09d030ba629250fa98113a55b8be0b9ce3ffd7d64c34",
+            "input_ref_count": 0
+          },
+          "astro_extrareturns": {
+            "input_bytes": 3678,
+            "output_sha256": "a6e7d9482c5298ac2e1b356739aa0f8b52884d1a3cfe8679f9473b4f7c468370",
+            "input_ref_count": 0
+          },
+          "astro_horary": {
+            "input_bytes": 3096,
+            "output_sha256": "31e843414cfe35e64d78e93c96da83264eeeda00bc4f13e4f899c5de348f8c12",
+            "input_ref_count": 0
+          },
+          "astro_election": {
+            "input_bytes": 3115,
+            "output_sha256": "ff11e217235a53dd3af7b8a84f9180fefee16f9c18a386259a9fd3c390fdbdde",
+            "input_ref_count": 0
+          },
+          "fengshui_directions": {
+            "input_bytes": 1660,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_minggua": {
+            "input_bytes": 2461,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_bazhai": {
+            "input_bytes": 5900,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_jinsuo": {
+            "input_bytes": 2190,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_annual_stars": {
+            "input_bytes": 1913,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_xuankong_natal": {
+            "input_bytes": 3393,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_assess": {
+            "input_bytes": 12719,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          }
+        }
+      },
+      "comparison": {
+        "output_schemas_exactly_equal": true,
+        "tools_json_bytes_delta": 6,
+        "input_bytes_delta": 6
+      }
+    },
+    "fengshui": {
+      "baseline": {
+        "utf8_json_bytes": 211290,
+        "json_characters": 206035,
+        "tool_count": 7,
+        "schemas": {
+          "fengshui_directions": {
+            "input_bytes": 1660,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_minggua": {
+            "input_bytes": 2461,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_bazhai": {
+            "input_bytes": 6023,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 3
+          },
+          "fengshui_jinsuo": {
+            "input_bytes": 2259,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 1
+          },
+          "fengshui_annual_stars": {
+            "input_bytes": 1913,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_xuankong_natal": {
+            "input_bytes": 3481,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 2
+          },
+          "fengshui_assess": {
+            "input_bytes": 12366,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 9
+          }
+        }
+      },
+      "current": {
+        "utf8_json_bytes": 211363,
+        "json_characters": 206061,
+        "tool_count": 7,
+        "schemas": {
+          "fengshui_directions": {
+            "input_bytes": 1660,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_minggua": {
+            "input_bytes": 2461,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_bazhai": {
+            "input_bytes": 5900,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_jinsuo": {
+            "input_bytes": 2190,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_annual_stars": {
+            "input_bytes": 1913,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_xuankong_natal": {
+            "input_bytes": 3393,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          },
+          "fengshui_assess": {
+            "input_bytes": 12719,
+            "output_sha256": "9a1fbacbf1d72be8464d305c2a91ee0891525681936ffbc881f56eabd69492fd",
+            "input_ref_count": 0
+          }
+        }
+      },
+      "comparison": {
+        "output_schemas_exactly_equal": true,
+        "tools_json_bytes_delta": 73,
+        "input_bytes_delta": 73
+      }
+    }
+  }
+}

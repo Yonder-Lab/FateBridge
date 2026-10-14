@@ -42,6 +42,9 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
     annual = layers.get("annual_stars", {})
     natal = layers.get("xuankong_natal", {})
     bazhai = layers.get("bazhai", {})
+    findings_by_object: Dict[str, List[Dict[str, Any]]] = {}
+    for finding in bazhai.get("placement_findings", []):
+        findings_by_object.setdefault(finding["object_id"], []).append(finding)
     charts = []
     if bazhai.get("house"):
         h = bazhai["house"]
@@ -79,19 +82,16 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         # A facing bearing cannot determine the object's palace around the house
         # centre. Annual/natal stars apply to location, never the facing direction.
         location = placement.location_direction
-        if location is None:
+        if location is None and any(
+            m in layers for m in ("bazhai", "annual_stars", "xuankong_natal")
+        ):
             missing.append(f"placements.{placement.object_id}.location_direction")
-        current = [
-            f
-            for f in bazhai.get("placement_findings", [])
-            if f["object_id"] == placement.object_id
-        ]
-        findings.extend(current)
+        findings.extend(findings_by_object.get(placement.object_id, []))
         for aspect, direction in (
             ("location", location),
             ("facing", placement.facing_direction),
         ):
-            if direction is None:
+            if direction is None or "bazhai" not in layers:
                 continue
             expected = placement_polarity(placement.purpose, aspect)
             scope_options = []

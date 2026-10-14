@@ -91,6 +91,7 @@ def register_mcp(
 ) -> List[Any]:
     """Register every spec with an ``mcp_name`` (or key) as a FastMCP tool."""
     from fastmcp.tools import Tool
+    from fastmcp.utilities.json_schema import dereference_refs
     from mcp.types import ToolAnnotations
 
     registered = []
@@ -122,6 +123,10 @@ def register_mcp(
                 tool.parameters["properties"][name]["default"] = field.get_default(
                     call_default_factory=True
                 )
+        # Some hosts render $ref array members as unknown in the model's tool
+        # context. Inline input contracts for all tools, using FastMCP's cycle-
+        # safe resolver. Keep output schemas shared and runtime validation intact.
+        tool.parameters = dereference_refs(tool.parameters)
         app.add_tool(tool)
         registered.append(tool)
     from fatebridge.mcp_transport import InputValidationMiddleware

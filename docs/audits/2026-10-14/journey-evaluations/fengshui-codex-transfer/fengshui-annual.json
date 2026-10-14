@@ -1,0 +1,141 @@
+{
+  "case": "fengshui-annual",
+  "evidence_scope": "observed_native_mcp_arguments_and_turn_completion_only",
+  "turns": [
+    {
+      "call_evidence_status": "fail",
+      "failures": [
+        "assessment_call_not_completed"
+      ],
+      "unavailable_evidence": [],
+      "assessment_calls": [
+        {
+          "item_id": "exec-9e43dcdf-0c11-4674-8a31-142092c78daa",
+          "checks": [
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "effective_year",
+              "passed": true
+            },
+            {
+              "path": "annual_remedy_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "placements.0.location_direction",
+              "passed": true
+            },
+            {
+              "path": "placements.0.facing_direction",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            }
+          ]
+        },
+        {
+          "item_id": "exec-5b1f2bef-f777-413e-8d66-a9ffc2998b65",
+          "checks": [
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "effective_year",
+              "passed": true
+            },
+            {
+              "path": "annual_remedy_ruleset_id",
+              "passed": true
+            },
+            {
+              "path": "placements.0.location_direction",
+              "passed": true
+            },
+            {
+              "path": "placements.0.facing_direction",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            }
+          ]
+        }
+      ],
+      "human_review": {
+        "status": "pending",
+        "criteria": [
+          "answer_claims_trace_to_confirmed_facts_and_selected_rules",
+          "action_respects_mobility_shared_use_and_user_goal",
+          "correction_replaces_stale_facts",
+          "unknowns_and_method_disagreements_remain_visible",
+          "conditional_objects_do_not_become_guaranteed_cures"
+        ],
+        "required_evidence": "cite public answer and corresponding tool finding"
+      },
+      "consultation_success": "not_established_by_call_checks"
+    },
+    {
+      "call_evidence_status": "pass",
+      "failures": [],
+      "unavailable_evidence": [],
+      "assessment_calls": [
+        {
+          "item_id": "exec-4cc3c9d2-5a54-4ab8-aa2a-69a51d81953c",
+          "checks": [
+            {
+              "path": "methods",
+              "passed": true
+            },
+            {
+              "path": "effective_year",
+              "passed": true
+            },
+            {
+              "path": "placements.0.location_direction",
+              "passed": true
+            },
+            {
+              "path": "house",
+              "passed": true
+            },
+            {
+              "path": "occupants",
+              "passed": true
+            }
+          ]
+        }
+      ],
+      "human_review": {
+        "status": "pending",
+        "criteria": [
+          "answer_claims_trace_to_confirmed_facts_and_selected_rules",
+          "action_respects_mobility_shared_use_and_user_goal",
+          "correction_replaces_stale_facts",
+          "unknowns_and_method_disagreements_remain_visible",
+          "conditional_objects_do_not_become_guaranteed_cures"
+        ],
+        "required_evidence": "cite public answer and corresponding tool finding"
+      },
+      "consultation_success": "not_established_by_call_checks"
+    }
+  ],
+  "expected_turn_count": 2,
+  "observed_turn_count": 2,
+  "status": "fail",
+  "consultation_success": "requires_independent_answer_review"
+}
