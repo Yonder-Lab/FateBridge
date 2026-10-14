@@ -1,5 +1,5 @@
 {
-  "bundle_version": "1.0.0",
+  "bundle_version": "1.1.0",
   "sources": {
     "F1": {
       "url": "https://www.ifsguild.org/the-feng-shui-command-position/",
@@ -55,22 +55,45 @@
       "kind": "author_published_position",
       "source_version": "2017 article, updated 2026-08-28",
       "scope": "作者反对以摆件作为化解，与E1/E2的物件路线存在方法立场差异；保留分歧，不强行统一"
+    },
+    "F3": {
+      "title": "Anjie Cho: How Feng Shui Can Help You Attract More Abundance in Your Career",
+      "url": "https://www.anjiecho.com/holistic-spaces-blog/attract-abundance-in-your-career-with-feng-shui",
+      "kind": "author_published_teaching",
+      "source_version": "2022-06-08 authored desk/career teaching",
+      "scope": "书桌窗在使用者侧边的作者条件；不把侧窗自动判凶，不推出窗与宅盘的砂水关系",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "d0d9ebe597be8dc22ef5282ca834cc60034acc8f74be9040573e7ee977c2207c",
+      "retrieved_bytes": 348199
+    },
+    "F4": {
+      "url": "https://www.wofs.com/7-quick-tips-career-success/",
+      "title": "WOFS: 7 Quick Tips to Bring You Career Success",
+      "kind": "author_published_teaching",
+      "source_version": "WOFS authored office guidance; scope excludes efficacy claims and wired-phone extrapolation",
+      "scope": "书桌座位避开直走道、裸露梁下及朝向人的家具尖角；尖角可选叶状植物作为条件屏障；不采纳健康财富预测",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "99ac6d76a5e586015a503875fcc5dc76c3879d24986ecb10f6e74a076aa97c18",
+      "retrieved_bytes": 220062
     }
   },
   "rulesets": {
     "indoor_command_authored_v1": {
-      "version": "1.0.0",
+      "version": "1.1.0",
       "method": "indoor_forms",
       "source_ids": [
         "F1",
-        "F2"
+        "F2",
+        "F3",
+        "F4"
       ],
       "scope": "现代作者室内控制位置规则，床桌灶适用条件；不等于完整峦头、金锁或玄空形法",
       "conventions": [
         "使用者坐姿/使用方向为参考；入口相对位置不等于全宅落宫",
         "直线冲与可见性必须分别确认；右后入口不自动认定门冲",
         "照片观察仅为候选，测量/用户确认方可作确认结论",
-        "没有距离吉凶阈值；实体背靠判定适用于床和桌，不强加给灶"
+        "没有距离吉凶阈值；实体背靠判定适用于床和桌，不强加给灶",
+        "实际入口与经过通道分别记录；只有明确窗位置时才检查侧窗作者条件"
       ]
     },
     "afsi_element_balance_v1": {
@@ -145,6 +168,45 @@
         "F2"
       ],
       "adjustment": "优先比较有实体背靠的位置；床可核对稳固床头支撑，不能以帘布等同实体背靠"
+    },
+    {
+      "criterion": "passage_direct_line",
+      "expected": false,
+      "purposes": [
+        "desk"
+      ],
+      "optional": true,
+      "rule_id": "indoor_command_authored_v1.passage_direct_line",
+      "source_ids": [
+        "F4"
+      ],
+      "adjustment": "核对可否偏移使用位置以避开已确认的直走道；不能调整时保留权衡"
+    },
+    {
+      "criterion": "exposed_beam_over_user",
+      "expected": false,
+      "purposes": [
+        "desk"
+      ],
+      "optional": true,
+      "rule_id": "indoor_command_authored_v1.exposed_beam_over_user",
+      "source_ids": [
+        "F4"
+      ],
+      "adjustment": "比较不在已确认裸露梁下的使用位置；不可移动时不承诺摆件化解"
+    },
+    {
+      "criterion": "sharp_corner_points_at_user",
+      "expected": false,
+      "purposes": [
+        "desk"
+      ],
+      "optional": true,
+      "rule_id": "indoor_command_authored_v1.sharp_corner_points_at_user",
+      "source_ids": [
+        "F4"
+      ],
+      "adjustment": "优先移开或转开已确认朝向人的尖角；仅在实际屏障可行且不挡入口时考虑叶状植物"
     }
   ],
   "representations": {

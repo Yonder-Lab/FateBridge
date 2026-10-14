@@ -129,6 +129,20 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
             lines.append(
                 f"对象{finding['object_id']} 元素方案：{finding['status']}；元素：{finding.get('introduced_element', '未生成')}；范围：{finding.get('application_scope', '条件不足或不适用')}"
             )
+        for surface in layout.get("surface_analysis", {}).get("findings", []):
+            lines.append(
+                f"桌面{surface['object_id']} 目标{surface['goal']}；参考系：坐者近侧桌沿，不是罗盘落宫"
+            )
+            for option in surface["action_options"]:
+                lines.append(
+                    f"物件{option['item_id'] or '可选代表物'} {option['action']} → {option['to_zone_label']}；"
+                    f"{option['status']}；规则{option['rule_id']}；{option['traditional_reason']}"
+                )
+            for item in surface["item_findings"]:
+                if item["status"] == "no_independent_placement_rule":
+                    lines.append(
+                        f"物件{item['object_id']}：没有独立摆放规则，不按名称推断五行或吉侧"
+                    )
         lines.extend(layout["limitations"])
         output.append(("布局计算", lines))
     output.append(

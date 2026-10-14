@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-14",
+  "source_commit": "8b2e751",
+  "evidence_scope": "current conversation audit plus connected MCP replay and local regression; no new model conversation benchmark; no fortune efficacy validation",
+  "original_consultation": {
+    "assess_calls": 3,
+    "discovery_calls": 5,
+    "methods": [
+      [
+        "bazhai"
+      ],
+      [
+        "bazhai"
+      ],
+      []
+    ],
+    "last_original_run_id": "8a6c7a13b0f446348abe9fd497ca21fe",
+    "unsupported_items_requested": [
+      "phone",
+      "bottles",
+      "figurines",
+      "plant"
+    ],
+    "constraints": {
+      "move": false,
+      "turn": false
+    },
+    "ambiguity": "left-side door OR main passage was collected as one question then entered as entrance"
+  },
+  "connected_replay": {
+    "run_id": "37d8c4aa430f40468da2aae327e57e50",
+    "trace_id": "4d8cfacba01c4877bf44f84f3f774ea1",
+    "version": "0.2.0",
+    "contract_sha256": "1eb955d6e87ff576190a72ed0916a4203a8b43317636d6f21f05c920025f39a3",
+    "minggua": [
+      {
+        "trigram": "离",
+        "palace_number": 9
+      }
+    ],
+    "facing": [
+      {
+        "direction": "W",
+        "star": {
+          "name": "五鬼",
+          "polarity": "inauspicious",
+          "element": "火"
+        }
+      }
+    ],
+    "form_checks": [
+      {
+        "criterion": "entrance_visible",
+        "observed": true,
+        "expected": true,
+        "finding": "matches_rule",
+        "candidate_only": false,
+        "adjustment": null,
+        "rule_id": "indoor_command_authored_v1.entrance_view",
+        "source_ids": [
+          "F1"
+        ]
+      },
+      {
+        "criterion": "entrance_direct_line",
+        "observed": false,
+        "expected": false,
+        "finding": "matches_rule",
+        "candidate_only": false,
+        "adjustment": null,
+        "rule_id": "indoor_command_authored_v1.off_entry_line",
+        "source_ids": [
+          "F1"
+        ]
+      },
+      {
+        "criterion": "solid_backing",
+        "observed": null,
+        "expected": true,
+        "finding": "undetermined",
+        "candidate_only": false,
+        "adjustment": null,
+        "rule_id": "indoor_command_authored_v1.solid_backing",
+        "source_ids": [
+          "F2"
+        ]
+      }
+    ],
+    "element": [
+      {
+        "target_element": "火",
+        "introduced_element": "土",
+        "status": "conditional_options",
+        "application_scope": "selected_afsi_element_goal_not_cancelled_orientation_or_verified_fortune_effect"
+      }
+    ],
+    "coverage": {
+      "implemented_layers": [
+        "bazhai"
+      ],
+      "missing_inputs": [
+        "house.sitting_trigram_or_confirmed_facing",
+        "placements.work_desk.location_direction"
+      ],
+      "unavailable_layers": [
+        "monthly_stars",
+        "jinsuo_24_mountains",
+        "jinsuo_forms_and_periods",
+        "automatic_floorplan_geometry"
+      ],
+      "not_requested_layers": [
+        "jinsuo",
+        "annual_stars",
+        "xuankong_natal"
+      ],
+      "layout_status": "partial",
+      "layout_missing_inputs": [
+        "placements.work_desk.location_direction",
+        "house.sitting_trigram_or_confirmed_facing",
+        "form_observations.work_desk.solid_backing"
+      ],
+      "requested_analysis_status": "partial",
+      "supplemental_rulesets": [
+        "indoor_command_authored_v1",
+        "afsi_element_balance_v1"
+      ]
+    }
+  },
+  "local_probe": {
+    "matches_connected_business_findings": true,
+    "unsupported_input_results": {
+      "phone": "literal_error: purpose permits door/bed/desk/stove",
+      "plant": "literal_error: purpose permits door/bed/desk/stove",
+      "can_move": "extra_forbidden",
+      "desktop_objects": "extra_forbidden"
+    }
+  },
+  "regression": {
+    "command": ".venv/bin/python -m pytest -q tests/test_fengshui_layout.py tests/test_fengshui_supplements.py tests/test_fengshui_scope_integrity.py tests/test_fengshui_surfaces.py",
+    "passed": 131,
+    "warnings": 9,
+    "elapsed_seconds": 13.51,
+    "environment": "macOS arm64 / Python 3.13; not Linux golden"
+  }
+}

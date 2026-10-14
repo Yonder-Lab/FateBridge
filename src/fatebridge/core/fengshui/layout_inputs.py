@@ -25,12 +25,51 @@ class FormObservation(_DeferredModel):
             "back_left",
             "back_right",
         ]
-    ] = Field(default=None, description="以实际使用者的正面为前；不是住宅分宫")
+    ] = Field(
+        default=None,
+        description="房间实际入口，以使用者正面为前；不把经过通道当入口，不是住宅分宫",
+    )
+    passage_position: Optional[
+        Literal[
+            "front",
+            "front_left",
+            "front_right",
+            "left",
+            "right",
+            "back",
+            "back_left",
+            "back_right",
+        ]
+    ] = Field(default=None, description="主要来人通道，单独保存；不触发入口规则")
+    window_position: Optional[
+        Literal[
+            "front",
+            "front_left",
+            "front_right",
+            "left",
+            "right",
+            "back",
+            "back_left",
+            "back_right",
+        ]
+    ] = Field(default=None, description="使用者相对窗的位置；不当住宅坐向或砂水分类")
     entrance_visible: Optional[StrictBool] = Field(
         default=None,
         description="正常使用方向下实际可见入口；转身才能看见不能传 true。镜面补视野须另外确认。",
     )
     entrance_direct_line: Optional[StrictBool] = None
+    passage_direct_line: Optional[StrictBool] = Field(
+        default=None,
+        description="书桌使用者是否正处于已确认直走道的延长线上；侧边经过不自动是直冲",
+    )
+    exposed_beam_over_user: Optional[StrictBool] = Field(
+        default=None,
+        description="已确认裸露横梁是否在书桌使用者正上方；照片天花照明不能自动当梁",
+    )
+    sharp_corner_points_at_user: Optional[StrictBool] = Field(
+        default=None,
+        description="已确认家具实体尖角是否指向书桌使用者；普通屏幕边框不自动当尖角",
+    )
     solid_backing: Optional[StrictBool] = None
     backing_distance_m: Optional[float] = Field(
         default=None, ge=0, allow_inf_nan=False, strict=True
@@ -52,6 +91,11 @@ class FormObservation(_DeferredModel):
                 self.entrance_direct_line,
                 self.solid_backing,
                 self.backing_distance_m,
+                self.passage_position,
+                self.window_position,
+                self.passage_direct_line,
+                self.exposed_beam_over_user,
+                self.sharp_corner_points_at_user,
             )
         ):
             raise ValueError("至少提供一项观察，未知值省略")

@@ -1,9 +1,10 @@
 """Small, explicitly fictional starter inputs shared by all transports."""
 
 import json
+from copy import deepcopy
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from fatebridge.application.tool_spec import ToolSpec
 
@@ -31,3 +32,9 @@ def suggested_fields(spec: ToolSpec) -> Optional[List[str]]:
     """Small first-response views; callers can expand for a deeper question."""
     fields = _examples().get("suggested_fields", {}).get(spec.key)
     return list(fields) if fields is not None else None
+
+
+def call_guidance(spec: ToolSpec) -> Optional[Dict[str, Any]]:
+    """Frame semantics shared by preloaded contracts and protocol discovery."""
+    guidance = _examples().get("call_guidance", {}).get(spec.key)
+    return cast(Dict[str, Any], deepcopy(guidance)) if guidance is not None else None

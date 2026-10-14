@@ -1,7 +1,8 @@
 {
   "schema_version": "1.0",
   "sources_sha256": {
-    "docs/scenario-routing.md": "a5d7ba2414aa23656319073420e5112b1184d9c5817e8f54de1812ba6fd4b8d4",
+    "docs/scenario-routing.md": "7fc8fe800f6a0d2f642c7aa9d921443d327100747a5d25cb7d4810f2fe5a9d1b",
+    "skills/onda-fengshui/agents/interface.yaml": "167737de9b6b6733fa1e4a552de287d94503a93f6585c2f79b18f438b852ac8a",
     "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
     "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",
     "skills/onda-shiye/agents/interface.yaml": "f76ba11182a38f90a0b8315dd3a126463456dc1649caaad9b13b03abc9305be9",
@@ -12,6 +13,152 @@
     "skills/onda-zige/agents/interface.yaml": "8bababf52e2f41cf65261c28dc9a1370efff82ca3f04c9abb94455792c06a32c"
   },
   "scenarios": [
+    {
+      "id": "onda-fengshui",
+      "name": "风水 · 空间布局",
+      "version": "0.1.0",
+      "summary": "用 FateBridge 核对空间、使用人和约束，按有来源的风水规则给出可执行布局建议",
+      "triggers": [
+        "风水布局",
+        "住宅风水",
+        "办公室风水",
+        "工位风水",
+        "桌面物件风水摆法",
+        "命卦方位",
+        "宅向",
+        "九宫年星",
+        "玄空宅盘",
+        "室内形态"
+      ],
+      "engine_tools": [
+        "fengshui_assess",
+        "fengshui_minggua",
+        "fengshui_bazhai",
+        "fengshui_directions",
+        "fengshui_jinsuo",
+        "fengshui_annual_stars",
+        "fengshui_xuankong_natal"
+      ],
+      "required_inputs": [],
+      "output": {
+        "kind": "interpretation",
+        "grounding": "engine_fields",
+        "voice": "onda-counsel"
+      },
+      "boundary": "选定传统及作者规则的文化参考；缺失观察保留不确定，不承诺财富、事业或健康结果。",
+      "license": "Apache-2.0",
+      "routing": [
+        {
+          "intent": "布局审查及行动方案",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "analyze_layout=true，按请求选方法"
+            }
+          ]
+        },
+        {
+          "intent": "独立室内形态",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "form_observations，methods=[]"
+            }
+          ]
+        },
+        {
+          "intent": "桌面物件风水摆法",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "显式桌面作者版本及边界，独立于罗盘"
+            }
+          ]
+        },
+        {
+          "intent": "个人命卦八方",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_minggua"
+              ],
+              "condition": "三选一生年路径"
+            }
+          ]
+        },
+        {
+          "intent": "单层八宅关系",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_bazhai"
+              ],
+              "condition": "宅与人、位置与朝向分开"
+            }
+          ]
+        },
+        {
+          "intent": "参考北与固定宫数",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_directions"
+              ],
+              "condition": "不推断进阶吉凶"
+            }
+          ]
+        },
+        {
+          "intent": "已确认砂水关系",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_jinsuo"
+              ],
+              "condition": "分类及依据"
+            }
+          ]
+        },
+        {
+          "intent": "某年九宫年星",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_annual_stars"
+              ],
+              "condition": "立春边界"
+            }
+          ]
+        },
+        {
+          "intent": "历史玄空宅盘",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_xuankong_natal"
+              ],
+              "condition": "磁北宅向及历史定运依据"
+            }
+          ]
+        }
+      ],
+      "source": "skills/onda-fengshui/agents/interface.yaml"
+    },
     {
       "id": "onda-jiankang",
       "name": "健康 · 身心",
@@ -1614,6 +1761,7 @@
         "命卦／个人八方",
         "布局是否要改／如何调整／元素关系",
         "室内形态／背门／背靠／条件式物件方案",
+        "桌面物件／固定桌面下的作者方案",
         "宅卦与各住户布局",
         "金锁基础砂水",
         "某年九宫年星",
@@ -1681,6 +1829,18 @@
                 "fengshui_assess"
               ],
               "condition": "form_observations 可 methods=[] 独立算；物件目标绑定已算作用域，年度作者规则限2026；照片待确认，不造距离阈值，不合并流派"
+            }
+          ]
+        },
+        {
+          "intent": "桌面物件／固定桌面下的作者方案",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "surface_layouts显式选desktop_bagua_btb_v1，矩形/坐者近沿/事业或丰盛目标；surface_constraints单独保存许可与可行区域，远左不当东南；无规则物件不编吉侧"
             }
           ]
         },

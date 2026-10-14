@@ -9,6 +9,7 @@ from fatebridge.core.requests.base import _DeferredModel
 from fatebridge.utils.timezones import parse_timezone_name
 
 from .layout_inputs import ElementAdjustment, FormObservation
+from .surface_inputs import SurfaceConstraints, SurfaceLayout
 
 Direction = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 Trigram = Literal["坎", "艮", "震", "巽", "离", "坤", "兑", "乾"]
@@ -33,6 +34,23 @@ class TimeInput(_DeferredModel):
 
 
 class MingguaRequest(TimeInput):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "allOf": [
+                {
+                    "anyOf": [
+                        {"properties": {left: {"type": "null"}}},
+                        {"properties": {right: {"type": "null"}}},
+                    ]
+                }
+                for left, right in [
+                    ("birth_date", "birth_at"),
+                    ("birth_date", "effective_birth_year"),
+                    ("birth_at", "effective_birth_year"),
+                ]
+            ]
+        }
+    )
     birth_date: Optional[date] = Field(
         default=None,
         description="公历出生日期；非立春当日无需出生时刻，与有效生年/出生时刻三选一",
@@ -372,6 +390,10 @@ class XuankongRequest(_DeferredModel):
 
 
 class AssessRequest(BazhaiRequest):
+    surface_layouts: List[SurfaceLayout] = Field(default_factory=list, max_length=100)
+    surface_constraints: List[SurfaceConstraints] = Field(
+        default_factory=list, max_length=100
+    )
     form_observations: List[FormObservation] = Field(
         default_factory=list, max_length=200
     )
@@ -406,10 +428,25 @@ class AssessRequest(BazhaiRequest):
 
     @model_validator(mode="after")
     def validate_layers(self) -> "AssessRequest":
-        if not self.methods and not self.form_observations:
+        if not self.methods and not self.form_observations and not self.surface_layouts:
             raise ValueError(
-                "至少选择一层计算；独立形态计算可用 methods=[] 并提供 form_observations"
+                "至少选择一层计算；独立形态/桌面作者计算可用 methods=[] 并提供相应观察"
             )
+        surfaces = {s.object_id: s for s in self.surface_layouts}
+        if len(surfaces) != len(self.surface_layouts):
+            raise ValueError("桌面对象不能重复")
+        constraints = {c.object_id: c for c in self.surface_constraints}
+        if len(constraints) != len(self.surface_constraints):
+            raise ValueError("同一桌面的动作约束不能重复")
+        if set(constraints) - set(surfaces):
+            raise ValueError("桌面约束必须关联已提供桌面")
+        for constraint in self.surface_constraints:
+            item_ids = {i.object_id for i in surfaces[constraint.object_id].items}
+            if set(constraint.locked_item_ids) - item_ids:
+                raise ValueError("固定物件必须属于关联桌面")
+        for placement in self.placements:
+            if placement.object_id in surfaces and placement.purpose != "desk":
+                raise ValueError("桌面作者规则只能关联实际书桌，不能套用其他家具")
         if any(a.target_method not in self.methods for a in self.element_adjustments):
             raise ValueError("元素目标须属于本次选中的计算方法")
         forms = {o.object_id: o for o in self.form_observations}

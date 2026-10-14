@@ -4,7 +4,7 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 
 我们的设计很简单：**计算交给 FateBridge 引擎，解读交给 Onda 河狸。** 引擎离线跑排盘，Onda 负责把结果讲得像个人。
 
-- 所有计算都在本地完成。干支、排盘、合婚分数这些，全部走 `python3 -m fatebridge.cli`，不交给 AI 手算——这样能复核计算过程；计算一致不等于现实预测已验证。
+- 所有计算都由 FateBridge 完成。已连接时优先 MCP，本地后备用 `python3 -m fatebridge.cli`；干支、排盘、合婚分数不交给 AI 手算。计算可复核、一致，不等于现实预测已验证。
 - 解读遵循 [人味儿写作](https://github.com/orange2ai/renwei-writing)：白描优先，不写金句，保留语气词，不排比、不用「不是 X 而是 Y」、不来万能展望式结尾。凶象也要翻译成能过的日子。
 
 ---
@@ -29,8 +29,10 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
   调标准/希腊/果老/印度/13 扇区盘、关系盘。
 - **我是一个什么样的人、全面自我分析** → [`onda-zige`](./onda-zige/SKILL.md)  
   八字+紫微+西占三套交叉印证，按主证、旁证与用户需求组织结果，避免重复调用。
+- **住宅、办公室、工位风水、物件摆法、宅向与年星** → [`onda-fengshui`](./onda-fengshui/SKILL.md)
+  核对现场、使用人及行动限制，调用风水工具，按来源与版本给具体布局方案；无需先提供完整生辰。
 
-个人命理工具按这 8 个场景组织；新增的家居风水基础计算通过独立 `fengshui_*` 工具调用，住宅输入与三法分层合同见 [家居风水](../docs/fengshui.md)。当前 REST 公开 86 个工具，MCP 公开 87 个工具，各端绑定差异见 [API 参考](../docs/api-reference.md#24-三端能力边界)，完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
+个人命理工具按 8 个场景组织，独立风水咨询通过第 9 个 `onda-fengshui` 场景调用 `fengshui_*` 工具；住宅输入与分层合同见 [家居风水](../docs/fengshui.md)。当前 REST 公开 86 个工具，MCP 公开 87 个工具，各端绑定差异见 [API 参考](../docs/api-reference.md#24-三端能力边界)，完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
 ---
 
@@ -50,13 +52,16 @@ skills/
 ├── onda-zhanbu/               抉择 · 问事占卜
 ├── onda-mingge/               认识自己 · 性格天赋
 ├── onda-xingpan/              星盘 · 占星自观
-└── onda-zige/                 全面自我画像 · 三套交叉印证
+├── onda-zige/                 全面自我画像 · 三套交叉印证
+└── onda-fengshui/             风水 · 空间布局（另含 references/ 与 agents/openai.yaml）
                                （每个 onda-* 都含 SKILL.md + agents/interface.yaml）
 ```
 
 每个场景 Skill 有两份契约。`SKILL.md` 给人读，薄一点，讲清楚「问什么、调哪个工具、怎么共情」。`agents/interface.yaml` 给 agent 运行时读，机器能直接发现场景触发词、要调的引擎工具、必填出生字段和输出契约。计算和声音两层共用 `_shared/`。
 
 这两份描述都被 `tests/test_skills_interface_contract.py` 锁到引擎 catalog 和 SKILL.md 上。任一方对不上，CI 就挂。
+
+`onda-fengshui` 另有 Codex 原生 `agents/openai.yaml`，允许自动选择，也可显式输入 `$onda-fengshui`。仓库 `.agents/skills/onda-fengshui` 是指向本目录的发现入口；引用依赖随仓库保留，不只复制单个 SKILL.md。新 Codex 会话扫描项目技能，已有会话可能需要重新加载。MCP 可按 `FATEBRIDGE_MCP_SCENARIOS=onda-fengshui` 暴露该场景；这与技能发现是两个入口。
 
 ---
 

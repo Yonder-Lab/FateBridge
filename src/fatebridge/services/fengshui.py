@@ -278,6 +278,7 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
             analyze_layout(req, layers)
             if req.analyze_layout
             or req.form_observations
+            or req.surface_layouts
             or req.element_adjustments
             or req.annual_remedy_ruleset_id is not None
             else None

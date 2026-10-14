@@ -10,6 +10,7 @@ from fatebridge.core.divination import ELEMENT_CONTROLS, ELEMENT_GENERATES
 
 from .bazhai import placement_polarity
 from .models import AssessRequest
+from .surface import evaluate_surfaces, surface_provenance
 
 
 @lru_cache(maxsize=1)
@@ -41,6 +42,8 @@ def evaluate_forms(req: AssessRequest) -> Dict[str, Any]:
                 continue
             key = rule["criterion"]
             value = getattr(obs, key)
+            if rule.get("optional") and value is None:
+                continue
             matches = None if value is None else value == rule["expected"]
             if value is None:
                 missing.append(f"form_observations.{obs.object_id}.{key}")
@@ -64,6 +67,34 @@ def evaluate_forms(req: AssessRequest) -> Dict[str, Any]:
             missing.append(
                 f"form_observations.{obs.object_id}.user_or_measurement_confirmation"
             )
+        if obs.purpose == "desk" and obs.window_position is not None:
+            side = obs.window_position in {"left", "right"}
+            checks.append(
+                {
+                    "criterion": "window_to_side",
+                    "observed": obs.window_position,
+                    "expected": "left_or_right",
+                    "finding": (
+                        "matches_rule"
+                        if side
+                        else (
+                            "opposes_rule"
+                            if obs.window_position == "front"
+                            else "undetermined"
+                        )
+                    ),
+                    "candidate_only": obs.observation_basis == "image_observed",
+                    "adjustment": (
+                        None if side else "核对是否直接面对窗及调整可行性，保留入口视野"
+                    ),
+                    "rule_id": "indoor_command_authored_v1.window_to_side",
+                    "source_ids": ["F3"],
+                }
+            )
+            if not side and obs.window_position != "front":
+                missing.append(
+                    f"form_observations.{obs.object_id}.window_side_or_direct_front_relation"
+                )
         unknown = any(c["finding"] == "undetermined" for c in checks)
         finding = (
             "needs_confirmation"
@@ -376,17 +407,24 @@ def analyze_supplements(
         "element_adjustments": targets["status"],
         "annual_remedies": annual["status"],
     }
+    surface = evaluate_surfaces(req) if req.surface_layouts else None
+    extra = {}
+    if surface is not None:
+        statuses["surfaces"] = surface["status"]
+        extra["surface_analysis"] = surface
     return {
         "form_analysis": forms,
         "element_remedies": targets["findings"],
         "annual_remedies": annual,
-        "supplemental_rulesets": [supplement_provenance(key) for key in keys],
+        "supplemental_rulesets": [supplement_provenance(key) for key in keys]
+        + ([surface_provenance()] if surface is not None else []),
         "supplement_statuses": statuses,
         "missing_inputs": list(
             dict.fromkeys(
                 forms["missing_inputs"]
                 + targets["missing_inputs"]
                 + annual["missing_inputs"]
+                + (surface["missing_inputs"] if surface is not None else [])
             )
         ),
         "incomplete_requested_supplements": any(
@@ -397,4 +435,5 @@ def analyze_supplements(
             if req.element_adjustments or req.annual_remedy_ruleset_id is not None
             else []
         ),
+        **extra,
     }

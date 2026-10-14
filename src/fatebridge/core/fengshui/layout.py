@@ -254,6 +254,11 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
             else "complete"
         ),
         "calculation_scope": "selected_methods_and_authored_rules_on_supplied_objects",
+        **(
+            {"surface_analysis": supplements["surface_analysis"]}
+            if "surface_analysis" in supplements
+            else {}
+        ),
         "placement_findings": findings,
         "adjustment_options": options,
         "environment_adjustments": environment,

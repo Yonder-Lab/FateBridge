@@ -344,7 +344,9 @@
     "fengshui_directions": [
       "status",
       "layers.directions",
-      "coverage"
+      "coverage",
+      "rulesets",
+      "rule_trace"
     ],
     "knowledge_read": [
       "title",
@@ -366,27 +368,37 @@
       "layers.minggua.candidates",
       "layers.minggua.time_context",
       "layers.minggua.missing_inputs",
-      "coverage"
+      "coverage",
+      "rulesets",
+      "rule_trace"
     ],
     "fengshui_bazhai": [
       "status",
       "layers.bazhai",
-      "coverage"
+      "coverage",
+      "rulesets",
+      "rule_trace"
     ],
     "fengshui_jinsuo": [
       "status",
       "layers.jinsuo",
-      "coverage"
+      "coverage",
+      "rulesets",
+      "rule_trace"
     ],
     "fengshui_annual_stars": [
       "status",
       "layers.annual_stars",
-      "coverage"
+      "coverage",
+      "rulesets",
+      "rule_trace"
     ],
     "fengshui_xuankong_natal": [
       "status",
       "layers.xuankong_natal",
-      "coverage"
+      "coverage",
+      "rulesets",
+      "rule_trace"
     ],
     "fengshui_assess": [
       "status",
@@ -405,7 +417,27 @@
       "layout_analysis.limitations",
       "coverage",
       "conflicts",
-      "rule_trace"
+      "rule_trace",
+      "rulesets"
     ]
+  },
+  "call_guidance": {
+    "fengshui_assess": {
+      "surface_frame": "以坐着使用的桌沿为近沿near，远离坐者的桌沿为far；这是桌面坐标，不是房间前后或罗盘方向",
+      "zone_legend": {
+        "near_left": "左前/靠身体左",
+        "near_center": "近中/靠身体中",
+        "near_right": "右前/靠身体右",
+        "middle_left": "左中",
+        "middle_center": "中心",
+        "middle_right": "右中",
+        "far_left": "左后/远沿左",
+        "far_center": "远中/远沿中",
+        "far_right": "右后/远沿右"
+      },
+      "item_fields": "object_id,label,representation,observation_basis,evidence必填；zone与zone_observation_basis成对可选，属性确认与位置确认分别保存；只确认左右不能补近远，照片位置为image_observed",
+      "feasibility": "feasible_zones只含用户逐区明确确认能容纳对象并保持视野的区域，不从照片空白、物件属性确认或允许移动扩展；其余省略",
+      "birth_choice": "birth_date、birth_at、effective_birth_year最多传一个，不能同时传日期和时刻"
+    }
   }
 }

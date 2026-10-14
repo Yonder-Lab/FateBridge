@@ -1,0 +1,6 @@
+interface:
+  display_name: "风水 · 空间布局"
+  short_description: "核对空间与行动约束，按有来源的风水规则完成布局审查和调整"
+  default_prompt: "使用 $onda-fengshui 审查我的空间布局，说明规则来源，并给出符合现场约束的具体调整。"
+policy:
+  allow_implicit_invocation: true

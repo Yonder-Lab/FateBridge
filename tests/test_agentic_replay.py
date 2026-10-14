@@ -8,6 +8,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import timezone
+from pathlib import Path
 from threading import Barrier
 
 import pytest
@@ -89,7 +90,12 @@ def business(payload):
 def test_generated_scenarios_are_current_and_join_live_catalog():
     assert definitions() == build_manifest()
     full = discover_scenarios(CATALOG)
-    assert len(full["scenarios"]) == 9
+    interfaces = list(
+        (Path(__file__).resolve().parents[1] / "skills").glob(
+            "onda-*/agents/interface.yaml"
+        )
+    )
+    assert len(full["scenarios"]) == len(interfaces) + 1
     keys = {spec.key for spec in CATALOG}
     for record in full["scenarios"]:
         assert record["availability"]["complete"]
@@ -105,13 +111,14 @@ def test_generated_scenarios_are_current_and_join_live_catalog():
 
 
 @pytest.mark.parametrize("detail", ["summary", "full"])
-def test_scenario_manifest_parity_across_three_interfaces(rest, detail):
-    params = {"scenario": "onda-shiyun", "surface": "mcp", "detail": detail}
+@pytest.mark.parametrize("scenario", ["onda-shiyun", "onda-fengshui"])
+def test_scenario_manifest_parity_across_three_interfaces(rest, detail, scenario):
+    params = {"scenario": scenario, "surface": "mcp", "detail": detail}
     http = rest.get("/api/scenarios", params=params)
     code, output = cli(
         "scenarios",
         {},
-        flags=["--scenario", "onda-shiyun", "--surface", "mcp", "--detail", detail],
+        flags=["--scenario", scenario, "--surface", "mcp", "--detail", detail],
     )
 
     async def read():
@@ -119,7 +126,7 @@ def test_scenario_manifest_parity_across_three_interfaces(rest, detail):
             uri = (
                 "fatebridge://scenarios"
                 if detail == "summary"
-                else "fatebridge://scenarios/onda-shiyun"
+                else f"fatebridge://scenarios/{scenario}"
             )
             return json.loads((await client.read_resource(uri))[0].text)
 
@@ -129,9 +136,7 @@ def test_scenario_manifest_parity_across_three_interfaces(rest, detail):
             **protocol,
             "matched_count": 1,
             "scenarios": [
-                record
-                for record in protocol["scenarios"]
-                if record["id"] == "onda-shiyun"
+                record for record in protocol["scenarios"] if record["id"] == scenario
             ],
         }
     assert http.status_code == 200 and code == 0
@@ -187,11 +192,12 @@ def test_mcp_scenario_profiles_and_family_intersection_do_not_invent_routes():
         mcp.create_mcp_app(scenarios="typo")
 
 
-def test_actual_process_uses_mcp_scenario_configuration():
+@pytest.mark.parametrize("scenario", ["onda-jiankang", "onda-fengshui"])
+def test_actual_process_uses_mcp_scenario_configuration(scenario):
     env = {
         **os.environ,
         "FATEBRIDGE_MCP_FAMILIES": "",
-        "FATEBRIDGE_MCP_SCENARIOS": "onda-jiankang",
+        "FATEBRIDGE_MCP_SCENARIOS": scenario,
     }
     code = "import asyncio,json; from fatebridge.mcp_server import app; print(json.dumps([t.name for t in asyncio.run(app.list_tools(run_middleware=False))]))"
     result = subprocess.run(
@@ -205,7 +211,7 @@ def test_actual_process_uses_mcp_scenario_configuration():
     expected = {
         spec.tool_name
         for spec in CATALOG
-        if spec.mcp_name and spec.key in scenario_keys(CATALOG, "onda-jiankang")
+        if spec.mcp_name and spec.key in scenario_keys(CATALOG, scenario)
     }
     assert set(json.loads(result.stdout)) == expected
 

@@ -144,13 +144,17 @@ def summarize_spec(spec: ToolSpec) -> Dict[str, Any]:
 
 def mcp_description(spec: ToolSpec) -> str:
     """Make a published tool callable without another discovery round trip."""
-    from fatebridge.application.examples import suggested_fields
+    from fatebridge.application.examples import call_guidance, suggested_fields
 
     fields = suggested_fields(spec)
+    guidance = call_guidance(spec)
+    summary = spec.summary + (
+        " 调用参考系：" + json.dumps(guidance, ensure_ascii=False) if guidance else ""
+    )
     if not fields:
-        return spec.summary
+        return summary
     return (
-        spec.summary
+        summary
         + " 首轮可直接调用；建议 fields="
         + json.dumps(fields, ensure_ascii=False)
         + "; strict_fields=true, include_snapshot_text=false。"
@@ -165,11 +169,14 @@ def describe_input_spec(spec: ToolSpec) -> Dict[str, Any]:
         list(spec.output_model.model_fields) if spec.output_model else []
     )
     record["output_contract_uri"] = f"fatebridge://tools/{spec.tool_name}"
-    from fatebridge.application.examples import suggested_fields
+    from fatebridge.application.examples import call_guidance, suggested_fields
 
     fields = suggested_fields(spec)
     if fields is not None:
         record["suggested_fields"] = fields
+    guidance = call_guidance(spec)
+    if guidance is not None:
+        record["call_guidance"] = guidance
     record["projection_note"] = (
         "suggested_fields 是首轮参考，可按问题增减；否则按 output_fields 选业务分支。"
         "run_metadata 自动保留。"

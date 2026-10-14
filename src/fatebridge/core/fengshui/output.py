@@ -162,6 +162,7 @@ class FengshuiOutput(ProjectedOutput):
 
 
 class LayoutAnalysis(PartialOutput):
+    surface_analysis: Optional[Object] = None
     status: Optional[Literal["complete", "partial"]] = None
     calculation_scope: Optional[str] = None
     placement_findings: Optional[List[Object]] = None

@@ -7,7 +7,7 @@ import pytest
 from fastmcp import Client
 from jsonschema import ValidationError, validate
 
-from fatebridge.application.examples import example_input
+from fatebridge.application.examples import example_input, suggested_fields
 from fatebridge.mcp_server import create_mcp_app
 from fatebridge.services.tool_catalog import CATALOG
 
@@ -21,9 +21,9 @@ _spec.loader.exec_module(builder)
 
 @pytest.mark.asyncio
 async def test_normally_loaded_contracts_match_current_public_interface():
-    guide = (ROOT / "AGENTS.md").read_text()
-    block = guide.split(builder.BEGIN, 1)[1].split(builder.END, 1)[0]
-    assert builder.BEGIN + block + builder.END == await builder.render_block()
+    for path in (ROOT / "AGENTS.md", ROOT / "consultation/AGENTS.md"):
+        block = path.read_text().split(builder.BEGIN, 1)[1].split(builder.END, 1)[0]
+        assert builder.BEGIN + block + builder.END == await builder.render_block()
 
 
 @pytest.mark.asyncio
@@ -93,9 +93,43 @@ async def test_only_preloaded_inputs_and_views_are_enough_for_real_mcp_calls():
             elif record["tool"] == "two_person_compatibility":
                 assert payload["summary"]["overall_score"] == 54.5
                 assert "score_basis" in payload["traditional_compatibility"]
-            else:
+            elif record["tool"] == "timing_analysis":
                 assert "analysis_calendar" in payload
                 assert "time_adjustment" in payload["personal_info"]
+            else:
+                assert "layout_analysis" in payload
+                assert "calculation_scope" in payload["layout_analysis"]
+
+
+@pytest.mark.asyncio
+async def test_fengshui_first_views_deliver_resolvable_rule_sources():
+    """A successful calculation must also leave enough evidence to cite it."""
+    async with Client(create_mcp_app(scenarios="onda-fengshui")) as client:
+        for spec in CATALOG:
+            if spec.family != "fengshui" or not spec.mcp_name:
+                continue
+            result = await client.call_tool(
+                spec.tool_name,
+                {
+                    **example_input(spec),
+                    "fields": suggested_fields(spec),
+                    "strict_fields": True,
+                    "include_snapshot_text": False,
+                },
+            )
+            assert not result.is_error
+            payload = result.structured_content
+            assert payload["rulesets"] and payload["rule_trace"]
+            sources = {}
+            for ruleset in payload["rulesets"]:
+                assert ruleset["version"]
+                records = {s["source_id"]: s for s in ruleset["sources"]}
+                assert set(ruleset["source_ids"]) <= records.keys()
+                for source in records.values():
+                    assert source["title"] and source["url"]
+                sources.update(records)
+            for trace in payload["rule_trace"]:
+                assert set(trace["source_ids"]) <= sources.keys()
 
 
 def test_schema_annotations_do_not_remove_similarly_named_input_properties():

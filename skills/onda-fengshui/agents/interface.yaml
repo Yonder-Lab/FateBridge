@@ -1,0 +1,40 @@
+# Machine-readable scenario contract; checked against SKILL.md and the catalog.
+name: onda-fengshui
+version: 0.1.0
+scenario: 风水 · 空间布局
+summary: 用 FateBridge 核对空间、使用人和约束，按有来源的风水规则给出可执行布局建议
+triggers:
+  - 风水布局
+  - 住宅风水
+  - 办公室风水
+  - 工位风水
+  - 桌面物件风水摆法
+  - 命卦方位
+  - 宅向
+  - 九宫年星
+  - 玄空宅盘
+  - 室内形态
+engine_tools:
+  - fengshui_assess
+  - fengshui_minggua
+  - fengshui_bazhai
+  - fengshui_directions
+  - fengshui_jinsuo
+  - fengshui_annual_stars
+  - fengshui_xuankong_natal
+# No universal birth/house requirement; actual tool/method schema is authoritative.
+required_inputs: []
+reads:
+  - ../references/consultation.md
+  - ../../_shared/onda-counsel.md
+  - ../../_shared/fatebridge-engine.md
+  - ../../../docs/fengshui.md
+  - ../../../docs/fengshui-layout-rules-2026-10-14.md
+  - ../../../docs/fengshui-surface-rules.md
+  - ../../../docs/fengshui-xuankong.md
+output:
+  kind: interpretation
+  grounding: engine_fields
+  voice: onda-counsel
+boundary: 选定传统及作者规则的文化参考；缺失观察保留不确定，不承诺财富、事业或健康结果。
+license: Apache-2.0

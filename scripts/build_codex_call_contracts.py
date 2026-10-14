@@ -12,14 +12,19 @@ from pathlib import Path
 
 from fastmcp import Client
 
-from fatebridge.application.examples import suggested_fields
+from fatebridge.application.examples import call_guidance, suggested_fields
 from fatebridge.mcp_server import create_mcp_app
 from fatebridge.services.tool_catalog import CATALOG
 
 ROOT = Path(__file__).resolve().parents[1]
 BEGIN = "<!-- codex-call-contracts:begin -->"
 END = "<!-- codex-call-contracts:end -->"
-TOOLS = ("bazi_career", "two_person_compatibility", "timing_analysis")
+TOOLS = (
+    "bazi_career",
+    "two_person_compatibility",
+    "timing_analysis",
+    "fengshui_assess",
+)
 
 
 def without_annotations(schema):
@@ -53,6 +58,11 @@ async def call_contracts():
                 "strict_fields": True,
                 "include_snapshot_text": False,
             },
+            **(
+                {"call_guidance": call_guidance(specs[name])}
+                if call_guidance(specs[name])
+                else {}
+            ),
         }
         for name in TOOLS
     ]
@@ -67,7 +77,7 @@ async def render_block():
         "此段由 `scripts/build_codex_call_contracts.py` 从实际 MCP inputSchema 与共享首轮字段生成，"
         "只删标题和说明，保留全部参数、默认值、必填项与约束。更新接口后重新生成，检查模式用 `--check`。",
         "",
-        "下面三项工具已具备调用所需定义。当前公历资料齐全且工具在连接中公开时，"
+        "下面四项工具已具备调用所需定义。对应计算的资料齐全且工具在连接中公开时，"
         "直接调用 `tools.mcp__fatebridge__<tool>(参数)`，无需先检索或打印 ALL_TOOLS。"
         "如需确认公开范围，可在同一次 exec 中检查 ALL_TOOLS 的名称并调用，不另起发现往返。"
         "合同未覆盖的工具或参数疑问再读取实际工具定义，不猜测。",
@@ -109,22 +119,25 @@ async def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    path = ROOT / "AGENTS.md"
-    old = path.read_text()
     block = await render_block()
-    if BEGIN in old:
-        before, rest = old.split(BEGIN, 1)
-        _, after = rest.split(END, 1)
-        updated = before + block + after
-    else:
-        updated = old.rstrip() + "\n\n" + block + "\n"
-    if args.check:
-        if updated != old:
-            raise SystemExit("Codex call contracts are stale; regenerate AGENTS.md")
-        print("Codex call contracts match live MCP schemas")
-    else:
-        path.write_text(updated)
-        print("Updated generated call contracts in AGENTS.md")
+    for path in (ROOT / "AGENTS.md", ROOT / "consultation/AGENTS.md"):
+        old = path.read_text()
+        if BEGIN in old:
+            before, rest = old.split(BEGIN, 1)
+            _, after = rest.split(END, 1)
+            updated = before + block + after
+        else:
+            updated = old.rstrip() + "\n\n" + block + "\n"
+        if args.check:
+            if updated != old:
+                raise SystemExit(f"Codex call contracts are stale: {path}")
+        else:
+            path.write_text(updated)
+    print(
+        "Codex call contracts match live MCP schemas"
+        if args.check
+        else "Updated generated call contracts in both consultation entrypoints"
+    )
 
 
 if __name__ == "__main__":
