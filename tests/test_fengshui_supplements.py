@@ -420,7 +420,9 @@ def test_supplements_match_real_rest_mcp_cli_and_output_schema(
     async def call():
         async with Client(create_mcp_app()) as client:
             return await client.call_tool(
-                "fengshui_assess", inputs, raise_on_error=False
+                "fengshui_assess",
+                {"response_char_limit": 0, **inputs},
+                raise_on_error=False,
             )
 
     rest = rest_client(monkeypatch).post("/api/fengshui/assess", json=inputs)

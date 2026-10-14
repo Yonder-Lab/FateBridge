@@ -5,7 +5,11 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 
 # 缘分 · 感情合婚（Onda）
 
-陪人看感情这件事。来问的人多半带着点慌或者执念，先接住，再看盘。
+把感情里的倾向讲成自然、具体的相处参考。用户表达情绪时再回应，已有明确问题时直接处理。
+
+## 引用路径
+
+发现入口可能是软链接。优先进入入口目录后用 shell 内建 `pwd -P` 取得真实目录，再按它读取下面的相对引用；不要为解析路径调用未经核实的系统 `python3`。不能先裁剪 `.agents/skills/onda-*` 入口的字符串父目录，否则会误指到 `.agents/skills/_shared` 或 `.agents/docs`。读取已知引用无需搜索仓库。
 
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
@@ -40,20 +44,20 @@ description: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘�
 > 粒度：`romance_timing` 只到流年级，要「几月」才升级 `liuyue_analysis`（见 场景路由「全局调用纪律」第 3 条）。
 > 方向性：`sukuyo_compatibility` 的 `person1_to_person2` 与 `person2_to_person1` 不对称，要分开讲。
 
-## 怎么收信息（缺什么问什么，一次一项）
+## 怎么收信息
 - 单人看运：出生 年月日时 + 性别 + 出生城市。小时是引擎必填项，未知时先确认信息；不能省略或擅自填 0 当作“无时盘”。
 - 合婚：双方各一套上面的信息。
-- 别一次甩一张表问完，像聊天一样一项一项来。
+- 使用已确认资料，一次简短核对所选计算的缺项、历法和各自出生时区；不重复逐字段采集。只有出生时段时不能猜精确小时。关系类型未说明用 `general`，不能从名字或示例猜恋爱／婚姻。
 
 ## 工作流
-1. 接住他为什么来问（一两句）。
+1. 已有明确问题直接处理，表达了情绪再回应，不默认套共情开场。
 2. 收齐信息 → 调引擎（合婚用 `two_person_compatibility`，单人用 `bazi_marriage`/`bazi_romance`）。
-3. 读 `snapshot_text` / JSON：挑跟他问题最相关的 2–3 个信号，凶象翻译过（见 onda-counsel「凶象怎么翻译」）。
+3. 按首轮精简字段读结构化结果：挑跟问题最相关的 2–3 个依据，说明规则作用域与精度限制。合婚的综合分、传统规则分各自解释，不能换算成成功率；个人内部刑冲不能直接说成双方冲突，空建议列表不能编成引擎建议。
 4. 落到今年能动的一件小事。
-5. 收尾每次不一样，带一句边界声明。
+5. 按 [Onda 解读层](../_shared/onda-counsel.md) 自然收尾；必要边界简洁说明，不强造安慰或重复相处建议。
 
 ## 组合用法（避免两个坑）
-- **要月份级时机**：`bazi_romance` 的 `romance_timing` 只给到流年级（如「今年逢桃花」），想答「几月」就再配 `liunian_analysis`/`liuyue_analysis`（见「人生时运·择时」），别硬把流年说成某月。
+- **要月份级时机**：`bazi_romance` 的 `romance_timing` 只给到流年级（如「今年逢桃花」），想答「几月」再配 `liuyue_analysis`（见「人生时运·择时」）；`liunian_analysis` 只在需要额外流年细节时调用，不能当月级依据。
 - **单人同时跑 romance + marriage 时**：红鸾/咸池等神煞会在两边各出现一次，且口径可能略不同（romance 把咸池/桃花当机会，marriage 提醒咸池防烂桃花）。解读时**合并去重**，按场景取一个说法，不要把同一颗神煞当两件事讲两遍。
 
 ## 红线
@@ -68,5 +72,7 @@ python3 -m fatebridge.cli --no-metadata bazi_romance \
 
 python3 -m fatebridge.cli --no-metadata two_person_compatibility \
   --person1-name 我 --person1-gender 女 --person1-birth-year 1995 --person1-birth-month 4 --person1-birth-day 12 --person1-birth-hour 20 \
-  --person2-name TA --person2-gender 男 --person2-birth-year 1993 --person2-birth-month 11 --person2-birth-day 3 --person2-birth-hour 7
+  --person2-name TA --person2-gender 男 --person2-birth-year 1993 --person2-birth-month 11 --person2-birth-day 3 --person2-birth-hour 7 \
+  --relationship-type general --strict-fields --no-include-snapshot-text \
+  --fields summary strengths challenges traditional_compatibility detailed_analysis recommendations person_info element_relationship
 ```

@@ -9,6 +9,7 @@ from pydantic import ValidationError
 
 from fatebridge.application.execution import execute_tool, result_is_error
 from fatebridge.application.projection import project_fields
+from fatebridge.application.result_delivery import bound_response
 from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.core.execution_context import (
     ExecutionOptions,
@@ -16,6 +17,7 @@ from fatebridge.core.execution_context import (
     safe_correlation,
 )
 from fatebridge.transports.flags import FIELDS_FLAG_DESC as _FIELDS_FLAG_DESC
+from fatebridge.transports.flags import RESPONSE_LIMIT_DESC
 from fatebridge.transports.flags import SNAPSHOT_FLAG_DESC as _SNAPSHOT_FLAG_DESC
 from fatebridge.transports.flags import STRICT_FIELDS_DESC as _STRICT_FIELDS_DESC
 from fatebridge.utils.errors import (
@@ -29,6 +31,7 @@ _REST_RESERVED_FIELDS = {
     "include_snapshot_text",
     "fields",
     "strict_fields",
+    "response_char_limit",
     *ExecutionOptions.model_fields,
 }
 
@@ -98,6 +101,7 @@ def make_rest_handler(
     snapshot_t = Annotated[bool, Query(description=_SNAPSHOT_FLAG_DESC)]
     fields_t = Annotated[Optional[List[str]], Query(description=_FIELDS_FLAG_DESC)]
     strict_t = Annotated[bool, Query(description=_STRICT_FIELDS_DESC)]
+    limit_t = Annotated[int, Query(ge=0, le=65536, description=RESPONSE_LIMIT_DESC)]
     execution_annotations = {
         name: Annotated[Optional[str], Query(description=definition.description)]
         for name, definition in ExecutionOptions.model_fields.items()
@@ -114,6 +118,7 @@ def make_rest_handler(
         include_snapshot_text: bool = spec.include_snapshot_text,
         fields: Optional[List[str]] = None,
         strict_fields: bool = False,
+        response_char_limit: int = 0,
         as_of: Optional[str] = None,
         trace_id: Optional[str] = None,
         parent_run_id: Optional[str] = None,
@@ -143,7 +148,7 @@ def make_rest_handler(
                 result = project_fields(result, fields, strict_fields=strict_fields)
             if not include_snapshot_text and "snapshot_text" in result:
                 result = {k: v for k, v in result.items() if k != "snapshot_text"}
-            return result
+            return bound_response(result, response_char_limit)
         except ValidationError as exc:
             raise http_exception(status_code=422, detail=validation_error_result(exc))
         except ParameterError as exc:
@@ -190,6 +195,12 @@ def make_rest_handler(
                     annotation=strict_t,
                     default=False,
                 ),
+                inspect.Parameter(
+                    "response_char_limit",
+                    inspect.Parameter.KEYWORD_ONLY,
+                    annotation=limit_t,
+                    default=0,
+                ),
                 *[
                     inspect.Parameter(
                         name,
@@ -207,6 +218,7 @@ def make_rest_handler(
         "include_snapshot_text": snapshot_t,
         "fields": fields_t,
         "strict_fields": strict_t,
+        "response_char_limit": limit_t,
         **execution_annotations,
         "return": dict,
     }

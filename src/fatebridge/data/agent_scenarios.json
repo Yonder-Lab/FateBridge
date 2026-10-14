@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sources_sha256": {
-    "docs/scenario-routing.md": "7fc8fe800f6a0d2f642c7aa9d921443d327100747a5d25cb7d4810f2fe5a9d1b",
+    "docs/scenario-routing.md": "c16563b5a8d6de831f6b8fabdaeec2457fc16912523aea616087725b3055494a",
     "skills/onda-fengshui/agents/interface.yaml": "167737de9b6b6733fa1e4a552de287d94503a93f6585c2f79b18f438b852ac8a",
     "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
     "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",

@@ -9,7 +9,7 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 
 ## 使用资料
 
-相对链接以本 `SKILL.md` 所在目录为基准解析；从 Codex 发现入口读取时，先解析其真实目录，勿按当前工作目录拼接引用。
+相对链接以本 `SKILL.md` 的真实目录为基准解析。优先进入入口目录后用 shell 内建 `pwd -P` 取得真实目录，再拼接引用；不要为解析路径调用未经核实的系统 `python3`。不能对 `.agents/skills/onda-*` 入口先做字符串父目录裁剪，那会把共享资料误指到 `.agents/skills/_shared` 或 `.agents/docs`。
 
 - 首先读[风水咨询闭环](references/consultation.md)，按问题选资料和结果字段。
 - 解读沿用[Onda 解读层](../_shared/onda-counsel.md)，用户已有明确问题时直接回应，不套情绪或命盘模板。

@@ -6,7 +6,7 @@
 
 工具发现仍以机读为准（`/api/tools`、MCP `tools/list`、`fatebridge list`），本文不替代发现过程，只提供场景到工具的取舍建议。文中单元格优先级标记的含义是：
 
-- 主：得出结论必须调用
+- 主：所选问题分支的首选依据；多个入口依问题与体系选择，不默认全部调用
 - 旁：只加强或修正主证，不单独下判断
 - 深：用户追问或专家模式才调用
 
@@ -17,8 +17,8 @@
 1. 命盘复用。要综合命理画像时调一次 `analyze_destiny`（已包含命盘、喜用、格局），不要再调 `bazi_birth`；只有明确需要四柱/十神原始命盘时才单独用 `bazi_birth`。同一出生信息在八字、紫微、西占之间应复用，不要重复向用户采集。
 2. 聚合优先。要时运全景用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不要连发多个单技法工具；反过来，只需要某一项技法时才用对应单工具（如只看太阳返照就用 `solarreturn`）。
 3. 粒度匹配。年级工具（如 `bazi_romance` 的 `romance_timing`）只给到流年级，不能往下说成「几月」；要月级才升级到 `liuyue_analysis`，要日级才用 `liuri_analysis`。
-4. 默认裁剪输出。聚焦问题时应使用 `fields`/`--fields`（支持点号子路径，如 `bazi_birth.day_master`）或 `selected_sections` 裁剪，不要为一个小问题裸吐整张 `snapshot_text`。已附带的 `run_metadata` 投影后保留，CLI 可单独关闭。`selected_sections` 只裁剪导出文本，不会删除原始快照；REST 使用查询参数投影。
-5. 一次收一项信息。缺字段时像聊天一样一项项问，别一次性甩一张表。记不清某工具参数先 `describe <tool>`，报错先读 `error_code` 再改，不要盲目重试同一条。
+4. 默认裁剪输出。聚焦问题时使用已验证 `fields`/`--fields`，设 `strict_fields=true`、`include_snapshot_text=false`，从结构化结果读取依据。仅文本结果保留必要文本；完整快照或全年时间线按追问展开。已附带的 `run_metadata` 投影后保留，CLI 可单独关闭。`selected_sections` 只裁剪导出文本，不会删除原始快照；REST 使用查询参数投影。
+5. 一次核对必要资料。使用当前聊天已确认信息，缺项或日期无效时简短核对所选计算需要的资料，不逐字段重复采集。已加载完整调用合同就直接调用；其余 MCP 工具按名称一次取得实际定义，本地 CLI 才用 `describe <tool>`。报错读 `error_code` 后修正，不盲目重试。
 
 ## 交叉印证与去重
 
@@ -55,7 +55,7 @@
 | 孩子的命 | 旁 | | | | 主 | | 旁 | 深 | | | |
 | 想要一份完整命盘 | | 主 | | | | | 主 | 深 | 深 | 深 | 旁 |
 
-`analyze_destiny` 已含命盘、喜用、格局，调过后不要再调 `bazi_birth`；仅当用户明确要原始四柱/十神数据时才单独调 `bazi_birth`。性格/天赋类由紫微（性格底色）和八字（十神格局）双主，西占只作心理底色旁证。`ziwei_rules`、`canping`、`heluo` 属于专家查表，普通场景不默认调用。
+`analyze_destiny` 已含命盘、喜用、格局，调过后不要再调 `bazi_birth`；仅当用户明确要原始四柱/十神数据时才单独调 `bazi_birth`。性格／天赋按具体问题选八字或紫微为主；用户要求完整双体系画像时再对照，西占按需作旁证。`ziwei_rules`、`canping`、`heluo` 属于专家查表，普通场景不默认调用。
 
 ### 事业 · 财运（onda-shiye）
 
@@ -92,7 +92,7 @@
 | 容易累睡不好情绪内耗 | 主 | | | 旁 |
 | 五行养生调理方向 | 主 | | | 旁 |
 
-健康场景以 `bazi_health` 为唯一主证，时运类（`timing_analysis`、`liunian_analysis`）只提示今年身心影响，不单独下健康判断。`analyze_destiny` 含五行偏枯信息，调过后不重复拆讲五行，只补充未覆盖的具体健康方向。西占推运不在此域默认出现，健康追问到季节/月份才升级 `liunian_analysis` 或 `liuyue_analysis`。
+传统健康文化解读以 `bazi_health` 为唯一主证，时运只作文化节奏旁证，不能用于确认疾病或解释症状。已有专项不重复拆讲五行，西占推运不在此域默认出现；月份追问才补 `liuyue_analysis`，`liunian_analysis` 只提供年级依据。具体不适优先回应现实求助。
 
 ### 时运 · 择时（onda-shiyun）
 

@@ -71,7 +71,9 @@ def call_cli(spec, payload, tmp_path, capsys, flags=()):
 async def native(spec, payload, **flags):
     async with Client(mcp.app) as client:
         return await client.call_tool(
-            spec.tool_name, {**payload, "as_of": AS_OF, **flags}, raise_on_error=False
+            spec.tool_name,
+            {**payload, "as_of": AS_OF, "response_char_limit": 0, **flags},
+            raise_on_error=False,
         )
 
 

@@ -7,6 +7,10 @@ description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希�
 
 占星跟八字是两套语言，讲同一个人。来问星盘的人，往往已经懂点星座，要的是更深一层的自我照见。Onda 在这里讲行星，但不把人锁进十二宫格子里。
 
+## 引用路径
+
+发现入口可能是软链接。优先进入入口目录后用 shell 内建 `pwd -P` 取得真实目录，再按它读取下面的相对引用；不要为解析路径调用未经核实的系统 `python3`。不能先裁剪 `.agents/skills/onda-*` 入口的字符串父目录，否则会误指到 `.agents/skills/_shared` 或 `.agents/docs`。读取已知引用无需搜索仓库。
+
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
 - 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
@@ -46,6 +50,8 @@ description: 用 FateBridge 引擎排西方占星出生盘与关系盘（含希�
 --zodiacal 0        # 0=回归，1=恒星
 ```
 出生时间不准要说明，会影响上升与宫位。
+
+使用已确认资料，一次核对缺项、出生时区和所需坐标；不能由示例值补小时或经纬度。首轮按工具提供的精简字段读结构化结果，保留 `chart_profile` 和回执的实际星历模型／精度；地点近似与星历近似分别说明。
 
 ## 工作流
 1. 问清要哪种盘（默认 `astro_chart` 标准盘），收齐含经纬度的出生数据。

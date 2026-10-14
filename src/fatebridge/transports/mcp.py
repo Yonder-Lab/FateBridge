@@ -15,6 +15,7 @@ from fatebridge.application.execution import (
     invalid_input_result,
     result_is_error,
 )
+from fatebridge.application.result_delivery import DEFAULT_MCP_RESPONSE_CHARS
 from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.core.execution_context import (
     ExecutionOptions,
@@ -24,6 +25,7 @@ from fatebridge.core.execution_context import (
 from fatebridge.core.schema_cache import model_schema
 from fatebridge.transports.flags import COMPACT_FLAG_DESC as _COMPACT_FLAG_DESC
 from fatebridge.transports.flags import FIELDS_FLAG_DESC as _FIELDS_FLAG_DESC
+from fatebridge.transports.flags import RESPONSE_LIMIT_DESC
 from fatebridge.transports.flags import SNAPSHOT_FLAG_DESC as _SNAPSHOT_FLAG_DESC
 from fatebridge.transports.flags import STRICT_FIELDS_DESC as _STRICT_FIELDS_DESC
 from fatebridge.utils.errors import (
@@ -152,6 +154,7 @@ def _make_mcp_fn(
         "include_snapshot_text",
         "fields",
         "strict_fields",
+        "response_char_limit",
         *ExecutionOptions.model_fields,
     }
     _clash = _reserved & set(model.model_fields)
@@ -168,6 +171,7 @@ def _make_mcp_fn(
     snapshot_t = Annotated[bool, Field(description=_SNAPSHOT_FLAG_DESC)]
     fields_t = Annotated[Optional[List[str]], Field(description=_FIELDS_FLAG_DESC)]
     strict_t = Annotated[bool, Field(description=_STRICT_FIELDS_DESC)]
+    limit_t = Annotated[int, Field(ge=0, le=65536, description=RESPONSE_LIMIT_DESC)]
     params.append(
         inspect.Parameter(
             "compact",
@@ -198,6 +202,7 @@ def _make_mcp_fn(
         "include_snapshot_text": snapshot_t,
         "fields": fields_t,
         "strict_fields": strict_t,
+        "response_char_limit": limit_t,
     }
     params.append(
         inspect.Parameter(
@@ -205,6 +210,14 @@ def _make_mcp_fn(
             inspect.Parameter.KEYWORD_ONLY,
             annotation=strict_t,
             default=False,
+        )
+    )
+    params.append(
+        inspect.Parameter(
+            "response_char_limit",
+            inspect.Parameter.KEYWORD_ONLY,
+            annotation=limit_t,
+            default=DEFAULT_MCP_RESPONSE_CHARS,
         )
     )
     for name, definition in ExecutionOptions.model_fields.items():
@@ -226,6 +239,9 @@ def _make_mcp_fn(
         )
         fields = kwargs.pop("fields", None)
         strict_fields = kwargs.pop("strict_fields", False)
+        response_char_limit = kwargs.pop(
+            "response_char_limit", DEFAULT_MCP_RESPONSE_CHARS
+        )
         controls = {
             name: kwargs.pop(name, None) for name in ExecutionOptions.model_fields
         }
@@ -266,6 +282,7 @@ def _make_mcp_fn(
                 fields=fields,
                 strict_fields=strict_fields,
                 tool_name=spec.run_metadata_name,
+                response_char_limit=response_char_limit,
             )
         except ParameterError as exc:
             return render_error(

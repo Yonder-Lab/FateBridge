@@ -32,7 +32,13 @@ from fatebridge.services.tool_catalog import CATALOG
 _SKILLS_ROOT = Path(__file__).resolve().parents[1] / "skills"
 
 # Global argparse flags the CLI adds on top of each tool's request model.
-_GLOBAL_CLI_FLAGS = {"--no-metadata", "--fields", "--selected-sections"}
+_GLOBAL_CLI_FLAGS = {
+    "--no-metadata",
+    "--fields",
+    "--selected-sections",
+    "--strict-fields",
+    "--no-include-snapshot-text",
+}
 
 # Tokens that mark an example as a non-runnable template, not a real command.
 _PLACEHOLDER_RE = re.compile(r"[<>\[\]]|\.\.\.")

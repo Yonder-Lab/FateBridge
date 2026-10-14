@@ -138,6 +138,7 @@ REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央�
 | 严格投影 | `?strict_fields=true` | `strict_fields=true` | `--strict-fields` 或 `--strict-fields true` |
 | 省略顶层快照文本 | `?include_snapshot_text=false` | `include_snapshot_text=false` | `--no-include-snapshot-text` |
 | 紧凑 JSON | HTTP 默认紧凑输出 | `compact=true`（默认） | `--compact` |
+| 响应字符预算 | `?response_char_limit=8192`（默认0） | `response_char_limit=8192`（默认8192） | `--response-char-limit 8192`（默认0） |
 
 路径从响应根开始，按本次实际响应对象校验，支持扩展对象键。空选择不投影；数组、标量及 null 应选择整个字段，不支持继续点路径遍历。已附带的 `run_metadata` 完整保留，错误不投影。省略 `snapshot_text` 不会删除 `snapshot_export.export_text`；要进一步控制体积，可仅投影业务字段。
 
@@ -146,6 +147,12 @@ REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央�
 默认 `strict_fields=false` 保留历史投影的数据形状及成功状态，但无效路径明确附加 `projection_warnings`，不会继续静默忽略。例如拼错 `bazi_birth.day_mastr` 会出现 `{"path":"bazi_birth.day_mastr","code":"unknown_projection_path"}`。另外两种代码为 `invalid_projection_path`（空段/空白段）和 `non_object_projection_path`（继续遍历数组/标量）。诊断不受 `fields` 裁剪，也不回显字段值；重复路径只提示一次。
 
 `strict_fields=true` 遇到任何无效路径会整体失败：REST 422、MCP `isError=true`、CLI 退出 1，共享 `validation_error` / `retryable=false` / `issues`，其中 `path` 表示请求的输出路径。计算领域错误优先返回，不会被投影错误覆盖。校验发生在计算后，投影控制返回体积，不减少计算工作。
+
+超出字符预算的成功结果不会切断 JSON。响应保留完整 `run_metadata` 和预算内业务字段，新增 `result_delivery` 明示原结果的 SHA-256、大小、待读取字段、引用及过期时间。MCP 默认8192以适应聊天宿主；REST/CLI 默认0保留历史完整交付。0或4096–65536为合法预算，程序客户端可设0保存全文；聊天不应通过取消预算重新制造大响应。
+
+完整结果是同一 run 的不可变交付物，不是按出生输入命中的计算缓存。MCP 读取 `manifest_uri` 后按 `fatebridge://results/{result_id}/fields/{path}/{offset}` 取得所需点路径；字段读取另支持数组数字索引。完整文档为 `first_page_uri`，每页 `text` 至多2048字符，按 `next_offset` 拼接并核对 `sha256`。每页包装本身是完整 JSON，但文档片段不能单独当全文解析。读取不重新计算、不改变原 run／trace 和原回执。
+
+REST 对应 `GET /api/results/{result_id}` 和 `GET /api/results/{result_id}/pages?path=analysis_context.analysis_datetime&offset=0`，沿用 API 鉴权。CLI 也可据 `file_path` 读取本机交付物，按 `file_payload_path`（当前为 `payload`）取出完整原结果，以 `ensure_ascii=false` 和紧凑分隔符序列化后核对响应的 SHA-256；外层记录的文件散列并非该散列。临时目录仅当前系统用户可读，引用约一小时过期，清理按读取／新交付触发，容量最多约64MiB并可回收旧结果；引用失效有明确错误，不以新结果冒充旧 run。MCP 配置隐藏的工具，其结果也不可通过资源读取。
 
 ### 2.6 精度与依赖
 
@@ -410,6 +417,19 @@ CLI profile 沿用批量入口，子工具共用 as_of / trace，parent_run_id �
 | `POST` | `/api/astro/timing/firdaria` | 法达 |
 | `POST` | `/api/astro/timing/decennials` | 十年星限 |
 
+聚合推运与上述 11 个单项工具共用目标时间合同：`analysis_year`、
+`analysis_month`、`analysis_day` 指定日期，`analysis_hour`（0–23）与
+`analysis_minute`（0–59）指定小时和分钟，按 `birth_timezone` 解释。
+显式传入 `0` 会生效。为保持日期级调用兼容，省略小时或分钟时分别沿用
+`birth_hour` 或 `birth_minute`；省略的日期分量仍由当前时间（可用 `as_of` 冻结）
+补齐。`as_of` 不替代显式分析时刻，`return_timezone` 只将同一时刻转换到返照／
+行运地点，不重解释输入钟时。出生参数始终用于本命盘。
+
+REST 在 JSON 请求体传入这五项，MCP 使用同名参数，CLI 使用
+`--analysis-year/month/day/hour/minute` 对应的独立开关。实际采用时刻见
+`analysis_context.analysis_datetime`，行运地点的时刻见聚合结果的
+`transits.current_transit.analysis_datetime` 或独立工具的 `transit.analysis_datetime`。
+
 ### 4.8 事件占星（事件盘）
 
 求解天文时刻后起盘的一组事件类工具。
@@ -525,6 +545,8 @@ curl -X POST http://localhost:8010/api/astro/timing/solarreturn \
     "analysis_year": 2028,
     "analysis_month": 4,
     "analysis_day": 6,
+    "analysis_hour": 12,
+    "analysis_minute": 0,
     "selected_sections": ["起盘信息", "星盘信息"]
   }'
 ```

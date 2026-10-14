@@ -32,7 +32,11 @@ def rest_client(monkeypatch):
 
 async def mcp_call(name, inputs):
     async with Client(mcp.app) as client:
-        return await client.call_tool("fengshui_" + name, inputs, raise_on_error=False)
+        return await client.call_tool(
+            "fengshui_" + name,
+            {"response_char_limit": 0, **inputs},
+            raise_on_error=False,
+        )
 
 
 def without_transport(result):

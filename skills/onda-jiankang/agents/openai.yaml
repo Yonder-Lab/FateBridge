@@ -1,0 +1,4 @@
+interface:
+  display_name: "健康 · 身心文化参考"
+  short_description: "解释传统五行健康文化与作息参考，保留边界并优先回应现实不适"
+  default_prompt: "使用 $onda-jiankang 解释我关心的传统健康文化倾向，区分计算规则与生活建议。"

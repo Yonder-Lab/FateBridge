@@ -444,6 +444,11 @@ def _add_output_flags(parser: argparse.ArgumentParser) -> None:
         default=False,
         help="紧凑 JSON 输出（无缩进），便于脚本管道；默认美化缩进。",
     )
+    from fatebridge.transports.flags import RESPONSE_LIMIT_DESC
+
+    parser.add_argument(
+        "--response-char-limit", type=int, default=0, help=RESPONSE_LIMIT_DESC
+    )
     parser.add_argument(
         "--include-snapshot-text",
         dest="include_snapshot_text",
@@ -844,6 +849,12 @@ def _run_profile(
     if args.include_snapshot_text is False:
         for leg in output.get("profile", {}).values():
             leg.pop("snapshot_text", None)
+    from fatebridge.application.result_delivery import bound_response
+
+    try:
+        output = bound_response(output, args.response_char_limit, compact=args.compact)
+    except ParameterError as exc:
+        return _emit_error(exc.as_result(), 1)
     print(format_json_response(output, compact=args.compact))
     return 1 if any_error else 0
 
@@ -1071,6 +1082,21 @@ def run(argv: Optional[List[str]] = None) -> int:
     include_snapshot_text = getattr(args, "include_snapshot_text", None)
     if include_snapshot_text is None:
         include_snapshot_text = spec.include_snapshot_text
+    from fatebridge.application.result_delivery import bound_response
+    from fatebridge.utils.formatting import _prepare_json_response_payload
+
+    result = _prepare_json_response_payload(
+        result, include_snapshot_text=include_snapshot_text
+    )
+    if not is_error:
+        try:
+            result = bound_response(
+                result,
+                getattr(args, "response_char_limit", 0),
+                compact=getattr(args, "compact", False),
+            )
+        except ParameterError as exc:
+            return _emit_error(correlate_error(exc.as_result(), options), 1)
     print(
         format_json_response(
             result,

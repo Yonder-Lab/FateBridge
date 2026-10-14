@@ -18,7 +18,11 @@ async def mcp_text_async(name, /, **arguments):
     from fatebridge.mcp_server import app
 
     async with Client(app) as client:
-        result = await client.call_tool(name, arguments, raise_on_error=False)
+        # This helper verifies full-payload parity. Chat delivery defaults and
+        # lossless paging are exercised separately in test_result_delivery.
+        result = await client.call_tool(
+            name, {"response_char_limit": 0, **arguments}, raise_on_error=False
+        )
         text = result.content[0].text
         assert json.loads(text) == result.structured_content
         return text

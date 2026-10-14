@@ -233,7 +233,9 @@ def test_form_only_calls_need_no_compass_placeholder_and_invalid_layout_stays_re
                 ],
                 "include_snapshot_text": False,
             }
-            valid = await client.call_tool("fengshui_assess", forms)
+            valid = await client.call_tool(
+                "fengshui_assess", {**forms, "response_char_limit": 0}
+            )
             assert (
                 valid.structured_content["layout_analysis"]["form_analysis"]["status"]
                 == "complete"

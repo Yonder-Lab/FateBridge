@@ -1,0 +1,4 @@
+interface:
+  display_name: "人生时运 · 择时"
+  short_description: "按分析时点和节气边界读取时运，保留实际粒度并避免重复计算"
+  default_prompt: "使用 $onda-shiyun 分析我关心时段的时运，说明时间边界与实际返回依据。"

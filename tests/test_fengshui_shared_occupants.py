@@ -176,7 +176,10 @@ def test_shared_subset_has_the_same_scope_on_rest_mcp_cli(
 
     async def call():
         async with Client(create_mcp_app()) as client:
-            return await client.call_tool("fengshui_" + name, {**inputs, **controls})
+            return await client.call_tool(
+                "fengshui_" + name,
+                {**inputs, "response_char_limit": 0, **controls},
+            )
 
     rest = rest_client(monkeypatch).post(
         "/api/fengshui/" + name, params=controls, json=inputs

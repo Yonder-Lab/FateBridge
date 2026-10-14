@@ -19,6 +19,24 @@ class WesternTimingRequest(AstroBirthRequest):
     analysis_day: Optional[int] = Field(
         default=None, ge=1, le=31, description="Analysis day (1-31)"
     )
+    analysis_hour: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=23,
+        description=(
+            "Analysis hour (0-23), in birth_timezone. "
+            "If omitted, keeps the birth hour for date-only compatibility."
+        ),
+    )
+    analysis_minute: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=59,
+        description=(
+            "Analysis minute (0-59), in birth_timezone. "
+            "If omitted, keeps the birth minute for date-only compatibility."
+        ),
+    )
     return_longitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description="Return chart longitude"
     )

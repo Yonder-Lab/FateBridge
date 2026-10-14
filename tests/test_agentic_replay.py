@@ -75,7 +75,9 @@ def native(tool, inputs, controls=None):
     async def call():
         async with Client(mcp.app) as client:
             result = await client.call_tool(
-                tool, {**inputs, **(controls or {})}, raise_on_error=False
+                tool,
+                {**inputs, "response_char_limit": 0, **(controls or {})},
+                raise_on_error=False,
             )
             assert json.loads(result.content[0].text) == result.structured_content
             return result

@@ -50,7 +50,9 @@ def cli(tool, inputs, flags=()):
 
 async def mcp_call(name, payload):
     async with Client(mcp.app) as client:
-        return await client.call_tool(name, payload, raise_on_error=False)
+        return await client.call_tool(
+            name, {"response_char_limit": 0, **payload}, raise_on_error=False
+        )
 
 
 def rest_client(monkeypatch):
@@ -309,7 +311,10 @@ def test_all_cli_catalog_commands_accept_profiles_and_match_schemas(
             outputs = {}
             for spec in CATALOG:
                 if spec_is_cli_safe(spec) and spec.mcp_name:
-                    result = await protocol.call_tool(spec.tool_name, inputs_for(spec))
+                    result = await protocol.call_tool(
+                        spec.tool_name,
+                        {**inputs_for(spec), "response_char_limit": 0},
+                    )
                     assert not result.is_error
                     outputs[spec.key] = result.structured_content
             return outputs

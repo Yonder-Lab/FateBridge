@@ -27,8 +27,26 @@ from fatebridge.utils.errors import ValidationIssue
 Object = Dict[str, JsonValue]
 
 
+class ResultDelivery(PartialOutput):
+    mode: Optional[str] = None
+    result_id: Optional[str] = None
+    sha256: Optional[str] = None
+    total_chars: Optional[int] = None
+    total_bytes: Optional[int] = None
+    expires_at: Optional[float] = None
+    page_chars: Optional[int] = None
+    manifest_uri: Optional[str] = None
+    first_page_uri: Optional[str] = None
+    rest_manifest_path: Optional[str] = None
+    file_path: Optional[str] = None
+    file_payload_path: Optional[str] = None
+    available_fields: Optional[List[str]] = None
+    deferred_fields: Optional[List[str]] = None
+
+
 class ProjectedOutput(PartialOutput):
     projection_warnings: Optional[List[ValidationIssue]] = None
+    result_delivery: Optional[ResultDelivery] = None
 
 
 class EffectiveTime(PartialOutput):

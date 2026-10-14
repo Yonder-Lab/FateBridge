@@ -61,7 +61,9 @@ skills/
 
 这两份描述都被 `tests/test_skills_interface_contract.py` 锁到引擎 catalog 和 SKILL.md 上。任一方对不上，CI 就挂。
 
-`onda-fengshui` 另有 Codex 原生 `agents/openai.yaml`，允许自动选择，也可显式输入 `$onda-fengshui`。仓库 `.agents/skills/onda-fengshui` 是指向本目录的发现入口；引用依赖随仓库保留，不只复制单个 SKILL.md。新 Codex 会话扫描项目技能，已有会话可能需要重新加载。MCP 可按 `FATEBRIDGE_MCP_SCENARIOS=onda-fengshui` 暴露该场景；这与技能发现是两个入口。
+九个场景都有 Codex 原生 `agents/openai.yaml`，允许自动选择，也可显式输入 `$onda-shiye`、`$onda-yuanfen` 等技能名。仓库 `.agents/skills/onda-*` 是指向本目录各技能的发现入口，维护源仍为 `skills/`；引用依赖随仓库保留，不只复制单个 SKILL.md。新 Codex 会话扫描项目技能，已有会话可能需要重新加载。MCP 可按 `FATEBRIDGE_MCP_SCENARIOS=onda-fengshui` 等场景名限制公开工具；这与技能发现是两个入口。
+
+咨询按当前聊天已确认资料核对所选计算的缺项，首轮使用已验证字段、严格投影并关闭快照，通常先给要点、2–3 条依据及一项现实建议。详细分析与完整审查按请求展开，分数、传统规则和现实建议分别说明。
 
 ---
 

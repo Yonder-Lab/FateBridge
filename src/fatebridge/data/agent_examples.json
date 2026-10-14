@@ -274,6 +274,24 @@
       ],
       "effective_year": 2026,
       "analyze_layout": true
+    },
+    "western_timing_analysis": {
+      "name": "演示甲",
+      "gender": "男",
+      "birth_year": 1990,
+      "birth_month": 5,
+      "birth_day": 15,
+      "birth_hour": 10,
+      "birth_minute": 30,
+      "birth_timezone": "Asia/Shanghai",
+      "birth_place": "北京",
+      "birth_longitude": 116.4074,
+      "birth_latitude": 39.9042,
+      "analysis_year": 2026,
+      "analysis_month": 10,
+      "analysis_day": 14,
+      "analysis_hour": 12,
+      "analysis_minute": 0
     }
   },
   "suggested_fields": {
@@ -419,6 +437,21 @@
       "conflicts",
       "rule_trace",
       "rulesets"
+    ],
+    "western_timing_analysis": [
+      "analysis_context",
+      "summary",
+      "time_lords.annual_profection",
+      "time_lords.firdaria.current_sub",
+      "returns.solar_return.return_datetime",
+      "returns.lunar_return.return_datetime",
+      "directions.primary_directions.method",
+      "directions.primary_directions.coordinate_backend",
+      "directions.primary_directions.coordinate_precision",
+      "directions.primary_directions.current_arc_degrees",
+      "directions.solar_arc.arc_degrees",
+      "transits.current_transit.analysis_datetime",
+      "transits.current_transit.sun"
     ]
   },
   "call_guidance": {
@@ -438,6 +471,11 @@
       "item_fields": "object_id,label,representation,observation_basis,evidence必填；zone与zone_observation_basis成对可选，属性确认与位置确认分别保存；只确认左右不能补近远，照片位置为image_observed",
       "feasibility": "feasible_zones只含用户逐区明确确认能容纳对象并保持视野的区域，不从照片空白、物件属性确认或允许移动扩展；其余省略",
       "birth_choice": "birth_date、birth_at、effective_birth_year最多传一个，不能同时传日期和时刻"
+    },
+    "western_timing_analysis": {
+      "target_clock": "analysis_hour/minute 是目标钟时，按 birth_timezone；显式0有效。省略分别沿用出生小时/分钟，仅兼容日期级调用。return_timezone转换同一时刻。",
+      "delivery": "MCP默认8192字符，完整结果超限返回result_delivery。用其manifest_uri按所需字段或分页读取同一run；完整JSON重组核对sha256，不重新计算，不解析截断片段。",
+      "complete_export": "用户要求完整JSON、全部时间线或完整文件时，首次fields=null，保留默认响应预算，再读取result_delivery；first_view仅用于摘要咨询，不能先投影摘要再补算全文。"
     }
   }
 }

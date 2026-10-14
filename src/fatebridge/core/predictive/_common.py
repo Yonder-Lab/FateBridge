@@ -209,7 +209,15 @@ def build_analysis_datetime(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
 ) -> datetime:
+    """Resolve the target clock independently of the natal clock.
+
+    Date-only callers retain the natal hour/minute. Each explicit clock part
+    overrides that fallback, including zero; dates still use the call clock
+    for missing components. The wall clock is interpreted in birth_timezone.
+    """
     timezone_name = birth_info.timezone
     tzinfo = parse_timezone_name(timezone_name)
     now = current_datetime(tzinfo, timezone_name, now_provider=datetime.now)
@@ -226,8 +234,12 @@ def build_analysis_datetime(
         year,
         month,
         day,
-        birth_info.local_datetime.hour,
-        birth_info.local_datetime.minute,
+        birth_info.local_datetime.hour if analysis_hour is None else analysis_hour,
+        (
+            birth_info.local_datetime.minute
+            if analysis_minute is None
+            else analysis_minute
+        ),
         tzinfo=tzinfo,
     )
 

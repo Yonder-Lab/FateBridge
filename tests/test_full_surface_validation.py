@@ -43,7 +43,13 @@ def test_rest_case_map_covers_all_business_routes():
         and not route.path.startswith("/docs")
         and not route.path.startswith("/redoc")
     }
-    expected_paths = set(REST_GET_CASES) | set(REST_POST_CASES)
+    # Result readers take opaque IDs from a prior calculation, so their live
+    # success/auth/error cases are in test_result_delivery, not static GETs.
+    result_reader_paths = {
+        "/api/results/{result_id}",
+        "/api/results/{result_id}/pages",
+    }
+    expected_paths = set(REST_GET_CASES) | set(REST_POST_CASES) | result_reader_paths
 
     assert expected_paths == actual_paths
 

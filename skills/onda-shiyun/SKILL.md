@@ -5,7 +5,13 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 
 # 人生时运 · 择时（Onda）
 
+用户明确要求完整结构、全部时间线或保存完整文件时，第一次调用必须设 `fields=null`（CLI 省略 `--fields`），保留默认响应预算；本技能的精简首轮字段只适用于普通摘要咨询。随后用 `result_delivery` 读取同一 run，不能先裁成摘要再补算全文。
+
 来问时运的人，要的是「我现在在哪一段、接下来大概什么节奏」。盘给的是节奏感，不是日历上的判决。
+
+## 引用路径
+
+发现入口可能是软链接。优先进入入口目录后用 shell 内建 `pwd -P` 取得真实目录，再按它读取下面的相对引用；不要为解析路径调用未经核实的系统 `python3`。不能先裁剪 `.agents/skills/onda-*` 入口的字符串父目录，否则会误指到 `.agents/skills/_shared` 或 `.agents/docs`。读取已知引用无需搜索仓库。
 
 ## 先读这两份（必读）
 - 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
@@ -100,12 +106,16 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 ## 怎么收信息
 出生 年月日时 + 性别 + 城市（西占要经纬度 `--birth-latitude/longitude`）。问清想看哪一年/哪一段（`--target-year` / `--analysis-year` / `--analysis-age`）。
 
+一次核对缺项、历法及出生时区，出生与分析时间分开。综合首轮保留实际 `analysis_datetime`、时间校正及分析日历中的时区、当前／下一节气、八字换月边界。未给具体分析时点才使用当前值，复现用带时区 `as_of`；不能沿用示例日期冒充今天。
+
+西占聚合与单项推运都支持 `analysis_hour`、`analysis_minute`，明确时点时同时传入，零点／零分不可遗漏；它们按 `birth_timezone` 解释，换到行运地点只转换同一时刻。不能用 `as_of` 替代明确钟时，也不能让出生10:30覆盖分析12:00。首轮采用西占工具公布的精简字段，保留 `analysis_context.analysis_datetime` 和行运实际时点；大时间线需要时从 `result_delivery` 按字段分页读取原 run，不重复排盘。
+
 ## 工作流
 1. 问清他是「整年看个大概」还是「卡在某件事想择时」。
-2. 调引擎：整年＝`liunian_analysis`/`timing_analysis`；大运段＝`dayun_analysis --analysis-age N`（虚岁必填）；西占年运＝`solarreturn`+`profection`。
-3. 读结构化时运信号，按实际返回的年/月/日粒度表述；仅有流年不能推断上半年或下半年。需要更细节奏时再调用月级工具。
+2. 调引擎：综合运势主用 `timing_analysis`，只问流年细节才用 `liunian_analysis`；大运段用 `dayun_analysis --analysis-age N`（虚岁必填）。西占整体推运主用 `western_timing_analysis`，用户点名太阳返照或小限才分别调 `solarreturn` / `profection`，不默认连发单技法。
+3. 读首轮结构化时运信号，按实际返回的年/月/日粒度和节气边界表述；仅有流年不能推断上半年或下半年。更细节奏只补尚未返回的层，不重算聚合已有内容；全年时间线在明确要求时展开。
 4. 给节奏建议，不给死期。
-5. 收尾落到一件近期能安排的小事，每次不一样。
+5. 按 [Onda 解读层](../_shared/onda-counsel.md) 自然收尾；建议已在正文讲清就停，不重复排程或强造一句结尾。
 
 ## 红线
 - 不报「灾年」「劫数」吓人；不下「某月必出事」的死期。
@@ -114,6 +124,13 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 
 ## 样例
 ```bash
+# 综合首轮：保留实际分析时间、时区及节气换月边界
+python3 -m fatebridge.cli --no-metadata timing_analysis \
+  --gender 男 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-place 北京 \
+  --analysis-year 2026 --analysis-month 10 --analysis-day 14 \
+  --strict-fields --no-include-snapshot-text \
+  --fields dayun_analysis liunian_analysis liuyue_analysis comprehensive_summary personal_info.analysis_datetime personal_info.time_adjustment analysis_calendar.analysis_date_context.timezone analysis_calendar.analysis_date_context.current_solar_term analysis_calendar.analysis_date_context.next_solar_term analysis_calendar.analysis_date_context.bazi_month_boundary
+
 python3 -m fatebridge.cli --no-metadata liunian_analysis \
   --gender 男 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-place 北京 --target-year 2026
 
