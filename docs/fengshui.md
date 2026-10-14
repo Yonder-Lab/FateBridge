@@ -7,7 +7,7 @@
 | REST POST | MCP / CLI | 输入 | 输出层 |
 | --- | --- | --- | --- |
 | `/api/fengshui/directions` | `fengshui_directions` | 可选 `bearing_degrees` 和 `north_reference` | 固定八方、宫数；角度对应的八方与24山索引 |
-| `/api/fengshui/minggua` | `fengshui_minggua` | `effective_birth_year` 或含时区的 `birth_at`；`gender_convention` | 命卦、原始数、寄宫、东西组、个人八方关系 |
+| `/api/fengshui/minggua` | `fengshui_minggua` | 公历 `birth_date`、`effective_birth_year` 或含时区的 `birth_at` 三选一；`gender_convention` | 命卦、原始数、寄宫、东西组、个人八方关系 |
 | `/api/fengshui/bazhai` | `fengshui_bazhai` | `house`、`occupants`；可选 `placements` | 坐山宅盘、逐人命盘、位置与朝向的用途判断 |
 | `/api/fengshui/jinsuo` | `fengshui_jinsuo` | `features` | 八宫砂水偏好、逐个观察判定 |
 | `/api/fengshui/annual_stars` | `fengshui_annual_stars` | `effective_year` 或含时区的 `query_at` | 当年入中星、九宫年星、立春有效期、当前元运 |
@@ -109,9 +109,56 @@ asyncio.run(main())
 
 时间输入必须含 UTC 偏移或Z，`timezone_name` 默认为 `Asia/Shanghai`，可用 IANA 名称或偏移。每个出生／查询时刻与对应有效年字段二选一。显式有效生年表示调用方已确认换年，无需出生小时或真太阳时。未知 `gender_convention` 应省略或传 null，返回男女候选并标记 `partial`，不会默认男性。支持有效年1800–2199、带时区输入1801–2199；区间结束可延伸下一年。
 
+命卦另接受公历 `birth_date`，与有效生年、出生时刻三选一。按所选时区计算立春所在日期；之前取上一有效生年，之后取本年，立春当日保留 `partial` 并要求出生时刻。选择 `january_1` 时日期即可确定生年。该路径不构造虚假的出生小时，也不使用真太阳时。
+
 年盘有效期是 `[立春, 下次立春)`，不硬编码2月4日午夜，也不按春节。节气沿用现有 `almanac`：优先 Swiss，可能回退线性近似；输出 `timing` 说明供应函数、Swiss可用性、可能回退及独立核验范围。本次外部证据确认2026立春日期和分钟，不认证现有引擎的秒级精度。
 
 布局对象分别提供 `location_direction` 与可选 `facing_direction`。后者必须配套用途语义：门 `door_facing`、床头 `headboard`、书桌 `desk_facing`、灶 `fire_mouth`。灶座按凶方约定、已确认火门按吉方约定；现代燃气旋钮不是自动等同古火门。床头与书桌朝向是本版本明确的应用约定。住宅宅盘与每位住户命盘分别输出；`subject_id` 只筛选布局关联住户，不修改宅卦。未知住户引用、重复住户／布局 ID 被拒绝。
+
+位置和朝向至少提供一项。只知道朝向时仍计算该朝向的宅／人关系，位置缺失明确返回 `partial`；朝向不会填进位置，也不会用来推测住宅坐向。
+
+## 布局对象的通用计算
+
+在现有 `fengshui_assess` 请求中设置 `analyze_layout=true`，输出 `layout_analysis`；不增加工位或其他场景专用接口。它对门、床、桌、灶复用同一套盘和用途规则：
+
+- `placement_findings`：对象的位置分别关联年星和玄空宅盘；玄空候选盘、运／山／向三角色保留。八宅位置和朝向分别返回。
+- `adjustment_options`：从当前判定使用的同一规则反算匹配方位。按宅及各住户分列，只有已确认作用域参与交集；没有共同匹配方向时保留差异，不择一覆盖。灶座与火门采用相反的用途偏好。
+- `environment_adjustments`：已确认砂水特征的保留／调整分类；未知分类不生成目标分类。水壶、镜子或小摆件不能自动替代已确认环境砂水。
+- `element_relationships`：分别计算每个已关联星五行的生、同、泄、克与被克关系。复用共享五行图；例如火由木生、泄到土、被水克。星五行不是住户喜用神，这些关系不证明具体物件、颜色或材质有化煞效果。
+- `layout_analysis.status`：本次布局关联计算的完成状态；独立于顶层原始盘 `status`。年盘已算完而对象位置未知时，原始盘可以 `complete`，布局关联保持 `partial`。
+
+示例：只知道某人的桌朝西，尚不知道房屋坐向及桌子所在宫位：
+
+```json
+{
+  "methods": ["bazhai"],
+  "analyze_layout": true,
+  "occupants": [{"subject_id": "a", "birth_date": "2000-12-10", "gender_convention": "male"}],
+  "placements": [{"object_id": "table", "purpose": "desk", "subject_id": "a", "facing_direction": "W", "facing_role": "desk_facing"}]
+}
+```
+
+该请求直接给出离命西向五鬼及个人匹配方向 N/E/SE/S，保留宅向和位置缺失，不强制补出生分钟。若加入年盘或宅盘，必须补对象的位置才能关联相应落宫；面朝西不能证明对象位于西宫。
+
+室内入口视野、入口直线与实体背靠另按明确作者版本计算；有条件的元素代表物和2026年度候选规则见下节。完整峦头、距离吉凶阈值、搬动几何可行性和具体物件效果大小仍列在 `unsupported_queries`，不会以生活常识或虚构阈值填补。
+
+## 室内形态与有条件物件规则
+
+同一 `fengshui_assess` 接受三个可选输入，提供这些输入即启用布局计算，不必另外开启新工具：
+
+| 输入 | 输出 | 限定范围 |
+| --- | --- | --- |
+| `form_observations` | `layout_analysis.form_analysis` | 现代作者室内控制位置：入口可见、避开入口直线；床/桌加实体背靠。独立分析可 `methods=[]`，无需生辰或宅向 |
+| `element_adjustments` | `layout_analysis.element_remedies` | 绑定已计算对象、方法与明确生/泄目标，再按 AFSI 作者版本给代表物/颜色；不由命卦推断喜用神 |
+| `annual_remedy_ruleset_id=pang_2026_annual_v1` | `layout_analysis.annual_remedies` | 显式选取作者2026年盘南5/西北2的金元素候选及避火；只按对象所在宫位，不按朝向或其他年份 |
+
+形态的 `observation_basis` 为 `measured`、`user_confirmed` 或 `image_observed`。照片仅为候选，不能提供米数；实际距离须测量/用户确认。未知视野、直线和背靠省略，不转成 false。右后门仅说明在使用者后半空间，不能证明直线冲，也不能投影成住宅某宫。1.5米等距离只记录，来源没有统一吉凶阈值。镜面只作为确认能补入口视野的条件选项，不作为通用化煞物。
+
+元素目标的 `target_method` 必须已选中，且 `object_id` 必须引用已提供布局对象。八宅还须指定 `subject_id`、`aspect`；玄空须指定运/山/向 `star_role`。候选命卦/候选宅盘只给候选方案，不能输出确认处方。灶座的凶方特殊用途不能套用普通凶星削弱。本版本优先列实际元素代表物，再列色彩替代，不要求购买、数量、重量或效果概率。
+
+方案同时返回 `cross_scope_effects`，显示加入的元素对同一对象其他已算层的生/泄/克关系；这些关系不合成一个“全宅有利”结论。`supplemental_rulesets` 和顶层 `rulesets`/`rule_trace` 保留作者、版本、原文位置和检索 SHA-256；`supplement_statuses` 区分未请求、完成、部分及年份不支持。不同作者对物件路线的分歧在 `method_disagreements` 明示。
+
+可运行示例见 [形态输入](examples/fengshui-forms.json)、[元素目标](examples/fengshui-elements.json) 和 [年度作者候选](examples/fengshui-annual-remedy.json)。来源核对、采用与排除的规则见 [2026-10-14规则证据](fengshui-layout-rules-2026-10-14.md)。
 
 环境特征要求方位、`classification=sand|water|mixed|unknown`、`classification_basis=measured|user_confirmed` 与非空 `evidence`。标签不参与分类；道路、镜子、高楼、缺水都不能自动推导砂水。`mixed`／`unknown` 返回 `undetermined` 和缺失项，不给吉凶。
 

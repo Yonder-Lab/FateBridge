@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sources_sha256": {
-    "docs/scenario-routing.md": "6f5a9d54fd3e92bd1e83a563cd12e5d033fda95f0aa37bb5f29d50c522d054ad",
+    "docs/scenario-routing.md": "a5d7ba2414aa23656319073420e5112b1184d9c5817e8f54de1812ba6fd4b8d4",
     "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
     "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",
     "skills/onda-shiye/agents/interface.yaml": "f76ba11182a38f90a0b8315dd3a126463456dc1649caaad9b13b03abc9305be9",
@@ -1612,6 +1612,8 @@
       "triggers": [
         "方位／固定宫数",
         "命卦／个人八方",
+        "布局是否要改／如何调整／元素关系",
+        "室内形态／背门／背靠／条件式物件方案",
         "宅卦与各住户布局",
         "金锁基础砂水",
         "某年九宫年星",
@@ -1621,11 +1623,11 @@
       "engine_tools": [
         "fengshui_directions",
         "fengshui_minggua",
+        "fengshui_assess",
         "fengshui_bazhai",
         "fengshui_jinsuo",
         "fengshui_annual_stars",
-        "fengshui_xuankong_natal",
-        "fengshui_assess"
+        "fengshui_xuankong_natal"
       ],
       "required_inputs": [],
       "output": {
@@ -1654,7 +1656,31 @@
               "alternatives": [
                 "fengshui_minggua"
               ],
-              "condition": "确认有效生年或含时区出生时刻、男女起算法；未知算法保留候选"
+              "condition": "公历生日、有效生年或出生时刻三选一；非立春当日不强制出生小时；未知起算法保留候选"
+            }
+          ]
+        },
+        {
+          "intent": "布局是否要改／如何调整／元素关系",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "analyze_layout=true；门床桌灶统一计算，位置/朝向可分别提供；落宫关联年盘/宅盘，候选方向与具体摆件效力分开"
+            }
+          ]
+        },
+        {
+          "intent": "室内形态／背门／背靠／条件式物件方案",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "form_observations 可 methods=[] 独立算；物件目标绑定已算作用域，年度作者规则限2026；照片待确认，不造距离阈值，不合并流派"
             }
           ]
         },

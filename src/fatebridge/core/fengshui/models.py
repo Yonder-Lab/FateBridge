@@ -1,12 +1,14 @@
 """Residential inputs: location, facing and observed form stay distinct."""
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Literal, Optional
 
 from pydantic import Field, field_validator, model_validator
 
 from fatebridge.core.requests.base import _DeferredModel
 from fatebridge.utils.timezones import parse_timezone_name
+
+from .layout_inputs import ElementAdjustment, FormObservation
 
 Direction = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 Trigram = Literal["坎", "艮", "震", "巽", "离", "坤", "兑", "乾"]
@@ -31,6 +33,10 @@ class TimeInput(_DeferredModel):
 
 
 class MingguaRequest(TimeInput):
+    birth_date: Optional[date] = Field(
+        default=None,
+        description="公历出生日期；非立春当日无需出生时刻，与有效生年/出生时刻三选一",
+    )
     effective_birth_year: Optional[Year] = Field(
         default=None,
         ge=1800,
@@ -50,8 +56,16 @@ class MingguaRequest(TimeInput):
 
     @model_validator(mode="after")
     def validate_birth(self) -> "MingguaRequest":
-        if self.effective_birth_year is not None and self.birth_at is not None:
-            raise ValueError("effective_birth_year 与 birth_at 不能同时提供")
+        if (
+            sum(
+                v is not None
+                for v in (self.effective_birth_year, self.birth_at, self.birth_date)
+            )
+            > 1
+        ):
+            raise ValueError("effective_birth_year、birth_at、birth_date 只能提供一项")
+        if self.birth_date is not None and not 1801 <= self.birth_date.year <= 2199:
+            raise ValueError("birth_date 支持 1801–2199 年")
         if self.birth_at is not None:
             if self.birth_at.tzinfo is None or self.birth_at.utcoffset() is None:
                 raise ValueError("birth_at 必须包含时区")
@@ -99,7 +113,7 @@ class House(_DeferredModel):
 class Placement(_DeferredModel):
     object_id: str = Field(min_length=1, max_length=100)
     purpose: Literal["door", "bed", "desk", "stove"]
-    location_direction: Direction
+    location_direction: Optional[Direction] = None
     facing_direction: Optional[Direction] = Field(
         default=None, description="门朝向、床头、书桌朝向或已确认的灶火门，独立于位置"
     )
@@ -111,6 +125,8 @@ class Placement(_DeferredModel):
 
     @model_validator(mode="after")
     def facing_semantics(self) -> "Placement":
+        if self.location_direction is None and self.facing_direction is None:
+            raise ValueError("布局对象至少提供位置或朝向，不猜测缺失位置")
         roles = {
             "door": "door_facing",
             "bed": "headboard",
@@ -264,12 +280,30 @@ class XuankongRequest(_DeferredModel):
 
 
 class AssessRequest(BazhaiRequest):
+    form_observations: List[FormObservation] = Field(
+        default_factory=list, max_length=200
+    )
+    form_ruleset_id: Literal["indoor_command_authored_v1"] = (
+        "indoor_command_authored_v1"
+    )
+    element_adjustments: List[ElementAdjustment] = Field(
+        default_factory=list, max_length=100
+    )
+    element_ruleset_id: Literal["afsi_element_balance_v1"] = "afsi_element_balance_v1"
+    annual_remedy_ruleset_id: Optional[Literal["pang_2026_annual_v1"]] = Field(
+        default=None,
+        description="显式选择作者2026年盘的有限调节规则；不外推年份或全宅结论",
+    )
+    analyze_layout: bool = Field(
+        default=False,
+        description="对布局对象计算跨层落宫、位置/朝向调整方位及五行关系；通用于门床桌灶。原始盘与本分析的完成状态分别保留。",
+    )
     features: List[EnvironmentFeature] = Field(default_factory=list, max_length=500)
     effective_year: Optional[Year] = Field(default=None, ge=1800, le=2199)
     query_at: Optional[datetime] = None
     timezone_name: str = "Asia/Shanghai"
     methods: List[Literal["bazhai", "jinsuo", "annual_stars", "xuankong_natal"]] = (
-        Field(default=["bazhai", "jinsuo", "annual_stars"], min_length=1)
+        Field(default=["bazhai", "jinsuo", "annual_stars"], min_length=0)
     )
     jinsuo_ruleset_id: JinsuoRuleset = "jinsuo_basic_fixed_v1"
     annual_ruleset_id: AnnualRuleset = "annual_zibai_lichun_v1"
@@ -280,6 +314,32 @@ class AssessRequest(BazhaiRequest):
 
     @model_validator(mode="after")
     def validate_layers(self) -> "AssessRequest":
+        if not self.methods and not self.form_observations:
+            raise ValueError(
+                "至少选择一层计算；独立形态计算可用 methods=[] 并提供 form_observations"
+            )
+        if any(a.target_method not in self.methods for a in self.element_adjustments):
+            raise ValueError("元素目标须属于本次选中的计算方法")
+        forms = {o.object_id: o for o in self.form_observations}
+        if len(forms) != len(self.form_observations):
+            raise ValueError("同一对象形态观察不能重复或互相覆盖")
+        for placement in self.placements:
+            if (
+                placement.object_id in forms
+                and placement.purpose != forms[placement.object_id].purpose
+            ):
+                raise ValueError("同一对象的形态用途与布局用途不一致")
+        request_ids = [a.request_id for a in self.element_adjustments]
+        if len(request_ids) != len(set(request_ids)):
+            raise ValueError("元素调节请求 ID 必须唯一")
+        objects = {p.object_id for p in self.placements}
+        if any(a.object_id not in objects for a in self.element_adjustments):
+            raise ValueError("元素调节须引用已提供的布局对象")
+        if (
+            self.annual_remedy_ruleset_id is not None
+            and "annual_stars" not in self.methods
+        ):
+            raise ValueError("作者年度调节规则须显式选择 annual_stars")
         if len(set(self.methods)) != len(self.methods):
             raise ValueError("methods 不得重复")
         AnnualRequest(

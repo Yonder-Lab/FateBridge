@@ -316,4 +316,8 @@ fatebridge profile --systems bazi,ziwei,astro \
 
 七个 `fengshui_*` 工具由同一目录发布 REST、MCP 和 CLI。独立命卦／年盘可用简单字段，组合住宅请求使用 JSON；CLI 提供 `--request-file`，文件里的未知字段也会校验。`layers` 保留八宅宅盘／逐人命盘、砂水观察和年度盘；每层带版本与来源，`coverage` 区分缺失、未请求和未实现层。`partial` 是可用的部分结果，不能按计算失败重试；也不能把候选命卦或三层叠加改写成一个总分。复制调用示例见 [家居风水](fengshui.md)。
 
+问布局是否要改时使用通用 `fengshui_assess` 并设 `analyze_layout=true`，将已确认对象位置／朝向放入 `placements`。只知道朝向可省略位置并取部分计算；不得把朝向替代落宫。`layout_analysis` 返回跨层位置关联、按作用域反算的匹配方位、砂水调整分类与五行关系；其状态与原始盘分开。命卦可传 `birth_date`，非立春当日不强制出生时刻。所有风水工具描述均提供首轮字段，按工具名检索一次后直接调用。
+
+室内入口可见性、直线、实体背靠使用 `form_observations`，可 `methods=[]` 独立算，不先索取生辰/宅向。照片仅作待确认假设，1.5米等数字不套吉凶阈值。问物件时用 `element_adjustments` 绑定实际计算目标与作用域；作者代表物只作为有条件选项，不推缺五行或要求购物。年度方案显式选 `pang_2026_annual_v1`，只覆盖2026年南5/西北2，不外推年份。物件方案还应解释 `cross_scope_effects` 和作者分歧，不能宣称一件物品对所有层都有利。完整峦头、距离阈值、物件效果大小保持未实现。
+
 玄空宅盘须显式调用 `fengshui_xuankong_natal` 或合参选择 `xuankong_natal`。宅盘按历史资料定运并记录事件依据、版本及来源，年度 `current_period` 不能当作宅运。兼向按本版本中州派规则，角度分界候选保持 `partial`，不自行裁成唯一盘。输入例子与独立验证见 [玄空宅盘](fengshui-xuankong.md)。

@@ -30,7 +30,7 @@ for _name, _service, _model, _summary in (
         "minggua",
         "calculate_minggua",
         MingguaRequest,
-        "住户命卦及个人八方关系（独立于宅卦）",
+        "住户命卦及个人八方关系（独立于宅卦）：支持公历 birth_date，非立春当日不需要出生小时；布局问题优先 fengshui_assess 的 analyze_layout。",
     ),
     ("bazhai", "calculate_bazhai", BazhaiRequest, "八宅宅盘、逐人命盘与用途判定"),
     (
@@ -55,7 +55,7 @@ for _name, _service, _model, _summary in (
         "assess",
         "assess",
         AssessRequest,
-        "家居分层合参、可选玄空宅盘、逐人差异、缺失输入与规则来源",
+        "通用家居风水与布局合参：位置/朝向放 placements，设 analyze_layout=true；形态关系放 form_observations（入口可见、直线、实体背靠分别确认），独立形态可 methods=[]，无需生辰/宅向。element_adjustments 须绑定已计算对象、方法、作用域和调节目标；物件/颜色取所选作者的有条件候选，不推喜用神。年度候选须显式 annual_remedy_ruleset_id=pang_2026_annual_v1，仅2026南5/西北2，不外推。距离无通用吉凶阈值，照片只作待确认观察；各层及作者分歧分列。",
     ),
 ):
     SPECS.append(

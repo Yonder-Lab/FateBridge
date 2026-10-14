@@ -723,7 +723,7 @@ python -m fatebridge.mcp_server
 | `/api/fengshui/jinsuo` | `fengshui_jinsuo` | 已确认观察的八宫砂水偏好；未知与混合不推断 |
 | `/api/fengshui/annual_stars` | `fengshui_annual_stars` | 立春换年的九宫年星、有效区间、独立列示当前元运 |
 | `/api/fengshui/xuankong_natal` | `fengshui_xuankong_natal` | 中州派运山向宅盘、历史定运、兼向替星及边界候选；独立于年星 |
-| `/api/fengshui/assess` | `fengshui_assess` | 基础三层及显式选择的玄空宅盘、规则版本／来源、逐人差异和缺失项 |
+| `/api/fengshui/assess` | `fengshui_assess` | 原始盘与布局关联、室内形态观察、按目标的元素候选、限定年度作者规则、来源与分歧 |
 
 输入不继承完整八字生辰要求；有效生年与出生时刻二选一，年度同理。角度须声明参考北。组合结果在 `layers.bazhai`、`layers.jinsuo`、`layers.annual_stars` 中分别返回，合法缺失资料用 `status=partial`，不是协议错误。月飞星和金锁进阶规则不在此版；没有三法总分。每层带规则版本、来源和范围，快照记录同一组分层计算事实。
 

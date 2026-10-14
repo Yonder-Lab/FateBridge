@@ -96,6 +96,35 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
                 lines,
             )
         )
+    if "layout_analysis" in result:
+        layout = result["layout_analysis"]
+        lines = [
+            f"布局计算状态：{layout['status']}；范围：{layout['calculation_scope']}"
+        ]
+        for option in layout["adjustment_options"]:
+            lines.append(
+                f"对象{option['object_id']} {option['aspect']} 当前{option['current_direction']}；已确认作用域共同匹配方位：{'、'.join(option['agreed_matching_directions']) or '无'}"
+            )
+            for scope in option["scopes"]:
+                lines.append(
+                    f"{scope['subject_kind']}:{scope['subject_id']} 候选：{scope['candidate_only']}；匹配方位：{'、'.join(scope['matching_directions'])}"
+                )
+        for finding in layout.get("form_analysis", {}).get("findings", []):
+            lines.append(
+                f"对象{finding['object_id']} 形态判定：{finding['finding']}；依据：{finding['evidence']}"
+            )
+            lines.extend(
+                f"{check['criterion']}：{check['finding']}；规则：{check['rule_id']}"
+                for check in finding["checks"]
+            )
+        for finding in layout.get("element_remedies", []) + layout.get(
+            "annual_remedies", {}
+        ).get("findings", []):
+            lines.append(
+                f"对象{finding['object_id']} 元素方案：{finding['status']}；元素：{finding.get('introduced_element', '未生成')}；范围：{finding.get('application_scope', '条件不足或不适用')}"
+            )
+        lines.extend(layout["limitations"])
+        output.append(("布局计算", lines))
     output.append(
         (
             "冲突清单",

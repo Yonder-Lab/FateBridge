@@ -7,6 +7,7 @@ from fatebridge.core.fengshui.annual import annual_stars
 from fatebridge.core.fengshui.bazhai import bazhai, minggua
 from fatebridge.core.fengshui.directions import bearing_context, provenance, rule_data
 from fatebridge.core.fengshui.jinsuo import jinsuo
+from fatebridge.core.fengshui.layout import analyze_layout
 from fatebridge.core.fengshui.models import (
     AnnualRequest,
     AssessRequest,
@@ -28,7 +29,11 @@ def _layer(result: Dict[str, Any], ruleset_id: str) -> Dict[str, Any]:
     return {**result, "ruleset": provenance(ruleset_id)}
 
 
-def _compose(layers: Dict[str, Any], conflicts: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _compose(
+    layers: Dict[str, Any],
+    conflicts: List[Dict[str, Any]],
+    layout: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
     missing = [m for layer in layers.values() for m in layer["missing_inputs"]]
     status = "partial" if missing else "complete"
     summary = "；".join(f"{name}: {layer['status']}" for name, layer in layers.items())
@@ -68,6 +73,28 @@ def _compose(layers: Dict[str, Any], conflicts: List[Dict[str, Any]]) -> Dict[st
         ],
         "summary": summary,
     }
+    if layout is not None:
+        result["layout_analysis"] = layout
+        extra_rules = layout["supplemental_rulesets"]
+        if extra_rules:
+            result["rulesets"].extend(extra_rules)
+            result["coverage"]["supplemental_rulesets"] = [
+                r["ruleset_id"] for r in extra_rules
+            ]
+            result["rule_trace"].extend(
+                {
+                    "method": r["method"],
+                    "ruleset_id": r["ruleset_id"],
+                    "version": r["version"],
+                    "source_ids": r["source_ids"],
+                    "scope": r["scope"],
+                }
+                for r in extra_rules
+            )
+        if not layers:
+            result["status"] = layout["status"]
+            result["summary"] = f"layout: {layout['status']}"
+            result["coverage"]["missing_inputs"] = layout["missing_inputs"]
     snapshot_sections = sections(result)
     result["snapshot_text"] = render_snapshot_lines(snapshot_sections)
     result["snapshot_export"] = build_snapshot_export(
@@ -228,4 +255,15 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
             {**natal.model_dump(), "house": natal.house or req.house}
         )
         layers["xuankong_natal"] = _natal_layer(natal)
-    return _compose(layers, _differences(layers))
+    return _compose(
+        layers,
+        _differences(layers),
+        (
+            analyze_layout(req, layers)
+            if req.analyze_layout
+            or req.form_observations
+            or req.element_adjustments
+            or req.annual_remedy_ruleset_id is not None
+            else None
+        ),
+    )

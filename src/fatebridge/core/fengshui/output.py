@@ -139,6 +139,7 @@ class Coverage(PartialOutput):
     missing_inputs: Optional[List[str]] = None
     unavailable_layers: Optional[List[str]] = None
     not_requested_layers: Optional[List[str]] = None
+    supplemental_rulesets: Optional[List[str]] = None
 
 
 class FengshuiOutput(ProjectedOutput):
@@ -154,3 +155,22 @@ class FengshuiOutput(ProjectedOutput):
     snapshot_text: Optional[str] = None
     snapshot_export: Optional[SnapshotExport] = None
     run_metadata: Optional[RunMetadata] = None
+    layout_analysis: Optional["LayoutAnalysis"] = None
+
+
+class LayoutAnalysis(PartialOutput):
+    status: Optional[Literal["complete", "partial"]] = None
+    calculation_scope: Optional[str] = None
+    placement_findings: Optional[List[Object]] = None
+    adjustment_options: Optional[List[Object]] = None
+    environment_adjustments: Optional[List[Object]] = None
+    element_relationships: Optional[List[Object]] = None
+    missing_inputs: Optional[List[str]] = None
+    unsupported_queries: Optional[List[str]] = None
+    limitations: Optional[List[str]] = None
+    form_analysis: Optional[Object] = None
+    element_remedies: Optional[List[Object]] = None
+    annual_remedies: Optional[Object] = None
+    supplemental_rulesets: Optional[List[Ruleset]] = None
+    supplement_statuses: Optional[Object] = None
+    method_disagreements: Optional[List[Object]] = None

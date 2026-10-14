@@ -195,7 +195,7 @@
 | `fengshui_jinsuo` | 八宫固定砂水偏好、已确认特征逐项判定 | Implemented（传本来源限制明确登记） |
 | `fengshui_annual_stars` | 年度紫白九宫、立春区间、当前元运 | Implemented（交节时刻依赖现有节气引擎，可能近似回退） |
 | `fengshui_xuankong_natal` | 中州派历史定运、24山／三元龙、五黄、下卦与兼向替星 | Implemented（xuankong_zhongzhou_v1） |
-| `fengshui_assess` | 三层及可选宅盘编排、差异、缺失项和版本来源 | Implemented |
+| `fengshui_assess` | 多层布局关联、匹配方位、现代作者室内形态、条件式元素/年度方案、分歧与版本 | Implemented（限已登记规则版本） |
 
 所有工具三端可调用；复杂 CLI 请求用 `--request-file`。固定宫数、年度星数、八宅星和紫白星分开；三法没有统一分数。24山方向索引不代表已经支持24山风水论断。月飞星、金锁形态距离／元运与自动户型几何均 Excluded，输出明确列入 `unavailable_layers`。
 

@@ -145,6 +145,135 @@
       "outer_birth_longitude": 116.4074,
       "outer_birth_latitude": 39.9042,
       "outer_use_true_solar_time": false
+    },
+    "fengshui_minggua": {
+      "effective_birth_year": 1990,
+      "gender_convention": "female"
+    },
+    "fengshui_bazhai": {
+      "house": {
+        "object_id": "home",
+        "facing_degrees": 180,
+        "north_reference": "magnetic"
+      },
+      "occupants": [
+        {
+          "subject_id": "a",
+          "effective_birth_year": 1990,
+          "gender_convention": "male"
+        },
+        {
+          "subject_id": "b",
+          "effective_birth_year": 1990,
+          "gender_convention": "female"
+        }
+      ],
+      "placements": [
+        {
+          "object_id": "stove",
+          "purpose": "stove",
+          "location_direction": "NE",
+          "facing_direction": "S",
+          "facing_role": "fire_mouth",
+          "subject_id": "a"
+        },
+        {
+          "object_id": "bed",
+          "purpose": "bed",
+          "location_direction": "N",
+          "facing_direction": "E",
+          "facing_role": "headboard",
+          "subject_id": "a"
+        }
+      ]
+    },
+    "fengshui_jinsuo": {
+      "features": [
+        {
+          "object_id": "pond",
+          "direction": "S",
+          "classification": "water",
+          "classification_basis": "user_confirmed",
+          "evidence": "确认南方水体"
+        },
+        {
+          "object_id": "hill",
+          "direction": "N",
+          "classification": "sand",
+          "classification_basis": "measured",
+          "evidence": "北方高于宅基的实体，已测量确认"
+        }
+      ]
+    },
+    "fengshui_annual_stars": {
+      "effective_year": 2026
+    },
+    "fengshui_xuankong_natal": {
+      "house": {
+        "object_id": "home",
+        "facing_degrees": 255,
+        "north_reference": "magnetic"
+      },
+      "period": {
+        "basis": "construction_completion",
+        "effective_event_year": 2004,
+        "evidence": "示例：立春后竣工，按竣工事件定运"
+      }
+    },
+    "fengshui_assess": {
+      "house": {
+        "object_id": "home",
+        "facing_degrees": 180,
+        "north_reference": "magnetic"
+      },
+      "occupants": [
+        {
+          "subject_id": "a",
+          "effective_birth_year": 1990,
+          "gender_convention": "male"
+        },
+        {
+          "subject_id": "b",
+          "effective_birth_year": 1990,
+          "gender_convention": "female"
+        }
+      ],
+      "placements": [
+        {
+          "object_id": "stove",
+          "purpose": "stove",
+          "location_direction": "NE",
+          "facing_direction": "S",
+          "facing_role": "fire_mouth",
+          "subject_id": "a"
+        },
+        {
+          "object_id": "bed",
+          "purpose": "bed",
+          "location_direction": "N",
+          "facing_direction": "E",
+          "facing_role": "headboard",
+          "subject_id": "a"
+        }
+      ],
+      "features": [
+        {
+          "object_id": "pond",
+          "direction": "S",
+          "classification": "water",
+          "classification_basis": "user_confirmed",
+          "evidence": "确认南方水体"
+        },
+        {
+          "object_id": "hill",
+          "direction": "N",
+          "classification": "sand",
+          "classification_basis": "measured",
+          "evidence": "北方高于宅基的实体，已测量确认"
+        }
+      ],
+      "effective_year": 2026,
+      "analyze_layout": true
     }
   },
   "suggested_fields": {
@@ -215,8 +344,7 @@
     "fengshui_directions": [
       "status",
       "layers.directions",
-      "coverage",
-      "rulesets"
+      "coverage"
     ],
     "knowledge_read": [
       "title",
@@ -232,6 +360,40 @@
       "compatibility",
       "relationship_profile",
       "synastry_aspects"
+    ],
+    "fengshui_minggua": [
+      "status",
+      "layers.minggua.candidates",
+      "layers.minggua.time_context",
+      "layers.minggua.missing_inputs",
+      "coverage"
+    ],
+    "fengshui_bazhai": [
+      "status",
+      "layers.bazhai",
+      "coverage"
+    ],
+    "fengshui_jinsuo": [
+      "status",
+      "layers.jinsuo",
+      "coverage"
+    ],
+    "fengshui_annual_stars": [
+      "status",
+      "layers.annual_stars",
+      "coverage"
+    ],
+    "fengshui_xuankong_natal": [
+      "status",
+      "layers.xuankong_natal",
+      "coverage"
+    ],
+    "fengshui_assess": [
+      "status",
+      "layout_analysis",
+      "coverage",
+      "conflicts",
+      "rule_trace"
     ]
   }
 }

@@ -102,7 +102,8 @@ def build_manifest():
         key = re.search(r"`(fengshui_[a-z_]+)`", cells[1]).group(1)
         if key not in known:
             raise ValueError(f"Unknown home tool: {key}")
-        keys.append(key)
+        if key not in keys:
+            keys.append(key)
         rows.append(
             {
                 "intent": cells[0],

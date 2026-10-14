@@ -1,12 +1,20 @@
 """Sitting-trigram house chart and separately scoped personal charts."""
 
+from datetime import date
 from typing import Any, Dict, List
 
 from fatebridge.core.divination import BAGUA_BY_NAME
 
-from .calendar import year_context
+from .calendar import lichun_resolution, year_context
 from .directions import rule_data, sitting_from_facing, wrap9
 from .models import BazhaiRequest, MingguaRequest
+
+
+def placement_polarity(purpose: str, aspect: str) -> str:
+    """One rule for current findings and inverse direction calculations."""
+    return (
+        "inauspicious" if purpose == "stove" and aspect == "location" else "auspicious"
+    )
 
 
 def sectors(base: str, subject_id: str, basis: str) -> Dict[str, Any]:
@@ -41,8 +49,47 @@ def minggua(req: MingguaRequest, subject_id: str = "occupant") -> Dict[str, Any]
     )
     year = time["effective_year"]
     missing = []
+    if req.birth_date is not None:
+        day = req.birth_date
+        resolution = (
+            lichun_resolution(day.year, req.timezone_name)
+            if req.year_boundary == "lichun"
+            else None
+        )
+        boundary_day = (
+            date.fromisoformat(resolution["moment"][:10]) if resolution else None
+        )
+        # Do not certify a boundary date from the linear fallback. The adjacent
+        # days are conservatively held for a confirmed effective birth year.
+        uncertain_boundary = bool(
+            resolution
+            and resolution["approximate"]
+            and boundary_day is not None
+            and abs((day - boundary_day).days) <= 1
+        )
+        year = (
+            None
+            if day == boundary_day or uncertain_boundary
+            else day.year - int(boundary_day is not None and day < boundary_day)
+        )
+        time = {
+            "effective_year": year,
+            "year_boundary": req.year_boundary,
+            "timezone_name": req.timezone_name,
+            "input_basis": "civil_date_no_fabricated_birth_hour",
+            "birth_date": day.isoformat(),
+        }
+        if resolution is not None:
+            time["boundary_resolution"] = resolution
+        if year is None:
+            missing.append(
+                f"occupants.{subject_id}.confirmed_effective_birth_year_due_to_boundary_precision"
+                if uncertain_boundary
+                else f"occupants.{subject_id}.birth_at_on_year_boundary"
+            )
     if year is None:
-        missing.append(f"occupants.{subject_id}.birth_at_or_effective_birth_year")
+        if not missing:
+            missing.append(f"occupants.{subject_id}.birth_at_or_effective_birth_year")
     if req.gender_convention is None:
         missing.append(f"occupants.{subject_id}.gender_convention")
     candidates: List[Dict[str, Any]] = []
@@ -116,6 +163,8 @@ def bazhai(req: BazhaiRequest) -> Dict[str, Any]:
         missing.append("occupants")
     findings = []
     for placement in req.placements:
+        if placement.location_direction is None:
+            missing.append(f"placements.{placement.object_id}.location_direction")
         bases = []
         if house is not None:
             bases.append((house["object_id"], "house", house["sectors"], None))
@@ -137,11 +186,7 @@ def bazhai(req: BazhaiRequest) -> Dict[str, Any]:
             ]:
                 if direction is None:
                     continue
-                expects = (
-                    "inauspicious"
-                    if placement.purpose == "stove" and aspect == "location"
-                    else "auspicious"
-                )
+                expects = placement_polarity(placement.purpose, aspect)
                 entry = chart[direction]
                 findings.append(
                     {

@@ -1,0 +1,249 @@
+{
+  "bundle_version": "1.0.0",
+  "sources": {
+    "F1": {
+      "url": "https://www.ifsguild.org/the-feng-shui-command-position/",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "84a6dc87fcb912e508aa6a3c912080936ca2ed6b0e799b7613480ba90c67103f",
+      "retrieved_bytes": 200605,
+      "retrieved_format": "raw_html",
+      "title": "Tori McBrien: The Feng Shui Command Position, IFSG",
+      "kind": "authored_teaching",
+      "source_version": "2025-04-02; Black Sect author, not all-school classical consensus",
+      "scope": "门床桌灶的使用者可见入口、避开入口直线；镜面为有条件补视野方案，不采纳心理或运势效力断语"
+    },
+    "F2": {
+      "url": "https://www.clearspaceliving.com/blog/feng-shui-command-position/",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "c93b1466a3b04a79071894f368b7a36b73f80a0f46355d740d06bd356e2cbd80",
+      "retrieved_bytes": 357671,
+      "retrieved_format": "raw_html",
+      "title": "Karen Kingston: The feng shui command position",
+      "kind": "authored_teaching",
+      "source_version": "2025-04-09 authored article",
+      "scope": "床与桌的实体背靠、入口视野；没有给出背靠距离的通用数值阈值"
+    },
+    "E1": {
+      "url": "https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "6ab5135060df281fd6a6e376e0516e660c185dd2af2f146a5f850df64cc3b024",
+      "retrieved_bytes": 4418704,
+      "retrieved_format": "raw_pdf",
+      "title": "Larry Sang / American Feng Shui Institute: The Principles of Feng Shui",
+      "kind": "author_published_book",
+      "source_version": "publisher PDF, Chapter 3, printed pp.19-28; PDF pages 35-44",
+      "scope": "五行生/克/泄、代表物与色彩；木代表物用活植物，处理木家具不作为该版本木调节物；实际元素优先于颜色"
+    },
+    "E2": {
+      "url": "https://adelinapang.com/wp-content/uploads/2025/09/@2026-Horoscope-Forecast-Fengshui-Guide-by-Adelina-Pang-1.pdf",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "4eabc8ef89f396ab271471682030c3c6ca54296279e662df7bf6fe6681d15b64",
+      "retrieved_bytes": 3604323,
+      "retrieved_format": "raw_pdf",
+      "title": "Adelina Pang: 2026 Horoscope Forecast & Fengshui Guide",
+      "kind": "author_published_annual_guide",
+      "source_version": "2026 edition, PDF pages 35,37",
+      "scope": "仅2026年南宫5和西北宫2的金元素候选与避火；不采纳其他星、健康断语或盐水配方；第39页南/西南错位不纳入"
+    },
+    "E3": {
+      "url": "https://www.masterseanchan.com/blog/what-feng-shui-cure-really-is/",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "b883213b45004a92cd0f82242c250021d152497ecd3182227449a4dc3f41e5d3",
+      "retrieved_bytes": 98815,
+      "retrieved_format": "raw_html",
+      "title": "Sean Chan: What A Feng Shui Cure Really Is",
+      "kind": "author_published_position",
+      "source_version": "2017 article, updated 2026-08-28",
+      "scope": "作者反对以摆件作为化解，与E1/E2的物件路线存在方法立场差异；保留分歧，不强行统一"
+    }
+  },
+  "rulesets": {
+    "indoor_command_authored_v1": {
+      "version": "1.0.0",
+      "method": "indoor_forms",
+      "source_ids": [
+        "F1",
+        "F2"
+      ],
+      "scope": "现代作者室内控制位置规则，门床桌灶通用适用条件；不等于完整峦头、金锁或玄空形法",
+      "conventions": [
+        "使用者坐姿/使用方向为参考；入口相对位置不等于全宅落宫",
+        "直线冲与可见性必须分别确认；右后入口不自动认定门冲",
+        "照片观察仅为候选，测量/用户确认方可作确认结论",
+        "没有距离吉凶阈值；实体背靠判定适用于床和桌，不强加给灶"
+      ]
+    },
+    "afsi_element_balance_v1": {
+      "version": "1.0.0",
+      "method": "element_adjustment",
+      "source_ids": [
+        "E1",
+        "E3"
+      ],
+      "scope": "明确目标下的生/泄元素与代表物；目标从选定计算事实绑定，不由命卦推导喜用神或缺元素",
+      "conventions": [
+        "实际元素与色彩替代分别列示；不规定数量、重量、距离或效果概率",
+        "目标方法、宅/人、位置/朝向、玄空角色各自绑定；候选盘不形成确认处方",
+        "不以灶座凶方用途推导削弱游年星；未有对应来源时标明不支持",
+        "E3反对摆件化解，与E1的教学路线分列，不宣称全门派一致"
+      ]
+    },
+    "pang_2026_annual_v1": {
+      "version": "1.0.0",
+      "method": "annual_element_remedy",
+      "source_ids": [
+        "E1",
+        "E2",
+        "E3"
+      ],
+      "scope": "作者2026年盘南5/西北2的有限年度调节候选；仅对象所在宫位，不依面朝方向，也不替代完整宅盘",
+      "conventions": [
+        "显式选择本版本；其他年份不外推，其他星不生成本版本处方",
+        "排除原文健康/灾害预测，盐水配方、数量/重量及发声强度规则未实现",
+        "保留反对物件路线的作者立场；方法不同不合成统一风水结论"
+      ]
+    }
+  },
+  "form_rules": [
+    {
+      "criterion": "entrance_visible",
+      "expected": true,
+      "purposes": [
+        "bed",
+        "desk",
+        "stove"
+      ],
+      "rule_id": "indoor_command_authored_v1.entrance_view",
+      "source_ids": [
+        "F1"
+      ],
+      "adjustment": "调整使用位置或朝向以看见入口；无法搬动时仅在实际补足视野且不直冲的条件下考虑镜面"
+    },
+    {
+      "criterion": "entrance_direct_line",
+      "expected": false,
+      "purposes": [
+        "bed",
+        "desk",
+        "stove"
+      ],
+      "rule_id": "indoor_command_authored_v1.off_entry_line",
+      "source_ids": [
+        "F1"
+      ],
+      "adjustment": "偏移使用位置，避开已确认的入口直线；保留可见入口的关系"
+    },
+    {
+      "criterion": "solid_backing",
+      "expected": true,
+      "purposes": [
+        "bed",
+        "desk"
+      ],
+      "rule_id": "indoor_command_authored_v1.solid_backing",
+      "source_ids": [
+        "F2"
+      ],
+      "adjustment": "优先比较有实体背靠的位置；床可核对稳固床头支撑，不能以帘布等同实体背靠"
+    }
+  ],
+  "representations": {
+    "木": {
+      "objects": [
+        "健康的活植物"
+      ],
+      "colours": [
+        "绿色"
+      ],
+      "excluded_objects": [
+        "处理过的木家具"
+      ],
+      "note": "本版本的木调节物取活植物，木桌不自动计作木调节物"
+    },
+    "火": {
+      "objects": [
+        "红色灯罩或红色布艺"
+      ],
+      "colours": [
+        "红色"
+      ],
+      "excluded_objects": [],
+      "note": "实现仅列无需明火的代表物，不给出开灯时长"
+    },
+    "土": {
+      "objects": [
+        "陶土器物",
+        "石质器物"
+      ],
+      "colours": [
+        "棕褐色",
+        "米色",
+        "黄色"
+      ],
+      "excluded_objects": [],
+      "note": "不指定器物数量、重量或效力"
+    },
+    "金": {
+      "objects": [
+        "金属装饰物或雕塑"
+      ],
+      "colours": [
+        "白色",
+        "金色"
+      ],
+      "excluded_objects": [],
+      "note": "不要求发声、运转、品牌或固定数量"
+    },
+    "水": {
+      "objects": [
+        "清洁水体"
+      ],
+      "colours": [
+        "蓝色",
+        "黑色"
+      ],
+      "excluded_objects": [],
+      "note": "水体不是水壶或镜子的自动砂水分类，也不表示任意位置可加水"
+    }
+  },
+  "annual_remedies": {
+    "effective_year": 2026,
+    "entries": [
+      {
+        "direction": "S",
+        "annual_star_number": 5,
+        "introduced_element": "金",
+        "avoid_elements": [
+          "火"
+        ],
+        "source_ids": [
+          "E2"
+        ],
+        "rule_id": "pang_2026_annual_v1.south_five"
+      },
+      {
+        "direction": "NW",
+        "annual_star_number": 2,
+        "introduced_element": "金",
+        "avoid_elements": [
+          "火"
+        ],
+        "source_ids": [
+          "E2"
+        ],
+        "rule_id": "pang_2026_annual_v1.northwest_two"
+      }
+    ]
+  },
+  "method_disagreements": [
+    {
+      "kind": "object_remedy_school_difference",
+      "source_ids": [
+        "E1",
+        "E2",
+        "E3"
+      ],
+      "resolution": "keep_selected_author_policy_and_dissent_no_universal_claim"
+    }
+  ]
+}
