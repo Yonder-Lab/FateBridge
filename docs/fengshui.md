@@ -224,10 +224,8 @@ fatebridge fengshui_assess --request-file home.json \
 
 ```bash
 pytest -q tests/test_fengshui.py tests/test_fengshui_surfaces.py
-# 可选联网比对，不是生产运行依赖；下载后先校验固定 SHA-256。
-python scripts/audit_fengshui_independent.py
 ```
 
-离线测试用固定提交／SHA-256登记的参考事实核对1900–2099男女命卦400项、独立八宅字典64项，并测试纪元／世纪／五数寄宫、立春前后与时区等价、方位边界、坐向反转、门床灶用途、不同住户、未知／混合砂水、来源版本、三端真实调用／校验／投影／请求文件。2026九宫另用作者出版年盘核对。代表性输入加入现有全端与 golden 覆盖，新增快照不重写旧工具数值基线。
+离线测试用[固定参考事实](../tests/fixtures/fengshui-reference.json)登记的提交／SHA-256核对1900–2099男女命卦400项、独立八宅字典64项，并测试纪元／世纪／五数寄宫、立春前后与时区等价、方位边界、坐向反转、门床灶用途、不同住户、未知／混合砂水、来源版本、三端真实调用／校验／投影／请求文件。2026九宫另用作者出版年盘核对。代表性输入加入现有全端与 golden 覆盖，新增快照不重写旧工具数值基线。
 
 外部参考 [JackieL233/fengshui-master 固定提交](https://github.com/JackieL233/fengshui-master/blob/2666304c5cb4ac13091c8c1fcdd4e40c218b275a/fengshui-master/scripts/minggua.py) 仅核对有效生年和八宅关系，不覆盖精确出生时间、年飞星、金锁玉关或完整玄空。本次未取得金锁玉关独立引擎；其验收依据为明确登记的八宫传本规则与输入语义检查。
