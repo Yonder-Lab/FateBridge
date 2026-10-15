@@ -162,7 +162,11 @@ def test_real_result_delivery_matches_all_transports(store, capsys, monkeypatch)
     spec = next(s for s in CATALOG if s.key == "western_timing_analysis")
     demo = next(s for s in CATALOG if s.key == "astro_chart")
     payload = {
-        **example_input(demo),
+        **{
+            key: value
+            for key, value in example_input(demo).items()
+            if key in spec.request_model.model_fields
+        },
         "analysis_year": 2026,
         "analysis_month": 10,
         "analysis_day": 14,
