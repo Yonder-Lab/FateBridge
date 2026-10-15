@@ -2,6 +2,8 @@
 
 from typing import Dict, List, Literal, Optional
 
+from pydantic import Field
+
 from fatebridge.core.response_models import (
     Object,
     PartialOutput,
@@ -134,7 +136,89 @@ class Layers(PartialOutput):
     xuankong_natal: Optional[NatalLayer] = None
 
 
+class PendingConfirmation(PartialOutput):
+    path: Optional[str] = None
+    reason: Optional[str] = None
+    object_id: Optional[str] = None
+    item_id: Optional[str] = None
+    action_id: Optional[str] = None
+    required_for: Optional[Literal["assessment", "action", "optional_action"]] = None
+
+
+class RuleCoverageCounts(PartialOutput):
+    supported: Optional[int] = Field(default=None, ge=0)
+    confirmed_unsupported: Optional[int] = Field(default=None, ge=0)
+    unknown: Optional[int] = Field(default=None, ge=0)
+
+
+class ActionCounts(PartialOutput):
+    ready: Optional[int] = Field(default=None, ge=0)
+    conditional: Optional[int] = Field(default=None, ge=0)
+    candidate: Optional[int] = Field(default=None, ge=0)
+    blocked: Optional[int] = Field(default=None, ge=0)
+
+
+class AnalysisProgress(PartialOutput):
+    calculation_status: Optional[Literal["complete", "partial"]] = None
+    rule_coverage_status: Optional[
+        Literal["reviewed", "needs_confirmation", "limited"]
+    ] = None
+    assessment_complete: Optional[bool] = None
+    rule_coverage_count_unit: Optional[
+        Literal["surface_items", "surface_items_and_layout_checks"]
+    ] = None
+    rule_coverage_counts: Optional[RuleCoverageCounts] = None
+    action_readiness: Optional[
+        Literal[
+            "no_action_needed",
+            "not_evaluated",
+            "ready",
+            "needs_confirmation",
+            "blocked",
+            "mixed",
+        ]
+    ] = None
+    action_count_unit: Optional[Literal["candidate_actions"]] = None
+    action_counts: Optional[ActionCounts] = None
+    optional_action_count: Optional[int] = Field(default=None, ge=0)
+    pending_confirmations: Optional[List[PendingConfirmation]] = None
+
+
+class SurfaceItemFinding(PartialOutput):
+    object_id: Optional[str] = None
+    status: Optional[str] = None
+    rule_coverage_status: Optional[
+        Literal["reviewed_supported", "reviewed_unsupported", "needs_confirmation"]
+    ] = None
+
+
+class SurfaceAction(PartialOutput):
+    action_id: Optional[str] = None
+    item_id: Optional[str] = None
+    optional: Optional[bool] = None
+    action: Optional[str] = None
+    status: Optional[
+        Literal["ready", "conditional_option", "candidate_only", "blocked"]
+    ] = None
+    pending_confirmations: Optional[List[PendingConfirmation]] = None
+
+
+class SurfaceFinding(PartialOutput):
+    object_id: Optional[str] = None
+    item_findings: Optional[List[SurfaceItemFinding]] = None
+    action_options: Optional[List[SurfaceAction]] = None
+
+
+class SurfaceAnalysis(PartialOutput):
+    status: Optional[Literal["complete", "partial"]] = None
+    analysis_progress: Optional[AnalysisProgress] = None
+    findings: Optional[List[SurfaceFinding]] = None
+    missing_inputs: Optional[List[str]] = None
+    uncovered_item_ids: Optional[List[str]] = None
+
+
 class Coverage(PartialOutput):
+    analysis_progress: Optional[AnalysisProgress] = None
     implemented_layers: Optional[List[str]] = None
     missing_inputs: Optional[List[str]] = None
     unavailable_layers: Optional[List[str]] = None
@@ -162,7 +246,8 @@ class FengshuiOutput(ProjectedOutput):
 
 
 class LayoutAnalysis(PartialOutput):
-    surface_analysis: Optional[Object] = None
+    surface_analysis: Optional[SurfaceAnalysis] = None
+    analysis_progress: Optional[AnalysisProgress] = None
     status: Optional[Literal["complete", "partial"]] = None
     calculation_scope: Optional[str] = None
     placement_findings: Optional[List[Object]] = None

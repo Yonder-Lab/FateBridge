@@ -201,7 +201,9 @@ def test_published_mcp_schema_rejects_missing_role_for_every_supported_purpose()
                 }
                 assert validator.is_valid(complete_pair)
                 valid = await client.call_tool(
-                    "fengshui_assess", complete_pair, raise_on_error=False
+                    "fengshui_assess",
+                    {**complete_pair, "response_char_limit": 0},
+                    raise_on_error=False,
                 )
                 assert not valid.is_error
                 assert (
@@ -233,7 +235,9 @@ def test_form_only_calls_need_no_compass_placeholder_and_invalid_layout_stays_re
                 ],
                 "include_snapshot_text": False,
             }
-            valid = await client.call_tool("fengshui_assess", forms)
+            valid = await client.call_tool(
+                "fengshui_assess", {**forms, "response_char_limit": 0}
+            )
             assert (
                 valid.structured_content["layout_analysis"]["form_analysis"]["status"]
                 == "complete"

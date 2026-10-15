@@ -5,7 +5,7 @@ import json
 from copy import deepcopy
 from functools import lru_cache
 from threading import RLock
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, Tuple, Type
 
 from pydantic import BaseModel
 
@@ -55,15 +55,18 @@ def _fingerprint(
     request_revision: _SchemaRevision,
     output_model: Optional[Type[BaseModel]],
     output_revision: Optional[_SchemaRevision],
+    required_output_fields: Tuple[str, ...],
 ) -> str:
     output_schema = None
     if output_model is not None:
         assert output_revision is not None
         output_schema = _schema(output_model, output_revision)
-    contract = {
+    contract: Dict[str, Any] = {
         "input": _schema(request_model, request_revision),
         "output": output_schema,
     }
+    if required_output_fields:
+        contract["full_result_required_fields"] = list(required_output_fields)
     encoded = json.dumps(
         contract,
         ensure_ascii=False,
@@ -75,15 +78,18 @@ def _fingerprint(
 
 
 def contract_fingerprint(
-    request_model: Type[BaseModel], output_model: Optional[Type[BaseModel]]
+    request_model: Type[BaseModel],
+    output_model: Optional[Type[BaseModel]],
+    required_output_fields: Tuple[str, ...] = (),
 ) -> str:
-    """Hash the same public contract as before, keyed by model identity/revision."""
+    """Hash model contracts and any complete-result requirements independently."""
     with _LOCK:
         return _fingerprint(
             request_model,
             _revision(request_model),
             output_model,
             _revision(output_model) if output_model else None,
+            required_output_fields,
         )
 
 

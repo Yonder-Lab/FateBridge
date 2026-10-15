@@ -33,7 +33,7 @@
 
 首轮投影使用工具已公布字段，并为所有风水解读追加 `rulesets` 与 `rule_trace`，以取得本次作者版本和可引用来源；单独命卦也适用。按请求加读这些分支，而不是一次铺满全量：
 
-- 总体状态／覆盖：`status`、`coverage`、`layout_analysis.calculation_scope`、`layout_analysis.missing_inputs`、`layout_analysis.unsupported_queries`、`layout_analysis.limitations`。
+- 总体状态／覆盖：`status`、`coverage`（含 `analysis_progress`）、`layout_analysis.calculation_scope`、`layout_analysis.missing_inputs`、`layout_analysis.unsupported_queries`、`layout_analysis.limitations`。
 - 方向行动：`layout_analysis.placement_findings`、`layout_analysis.adjustment_options`、`layout_analysis.environment_adjustments`；个人关系需要时加 `layers.bazhai.occupants`。
 - 形态／元素／年度：`layout_analysis.form_analysis`、`layout_analysis.element_remedies`、`layout_analysis.annual_remedies`、`layout_analysis.supplement_statuses`。
 - 桌面物件：`layout_analysis.surface_analysis`，逐对象看覆盖与行动状态。
@@ -46,6 +46,10 @@
 建议按对象说明：当前事实及依据、方法／作者版本、规则来源、改到哪里／保留什么、条件与允许动作。方向候选不是可执行动作；先筛搬转限制、共用方向与实际空间。没有共同方向或没有可行方案时解释权衡，不以摆件替代方向结论。
 
 桌面返回 `ready` 才有已确认物件／边界、许可与可行区；`conditional_option` 写明需确认的条件，`candidate_only` 待核对照片事实，`blocked` 保留约束，`no_independent_placement_rule` 说明无独立摆放规则。无规则也属于完整覆盖的一种结果，但不能称为“算出吉位”。
+
+`analysis_progress` 的 `calculation_status`、`rule_coverage_status` 和 `action_readiness` 各自读取：已确认不属于作者代表物的物件可为 `reviewed_unsupported`，属性 unknown 或照片候选则为 `needs_confirmation`。`assessment_complete` 只表示已提交事实及所选范围的审查可以结束，不证明现场调整已经实施。原 `status=partial` 在无独立规则物件上仍保留兼容语义，不据此要求用户继续补资料。
+
+每个动作的 `pending_confirmations` 只列现有合同尚未确认的门槛，`required_for=optional_action` 不阻止本次事实审查结束；blocked 动作没有执行追问。全局事实确认与动作确认分别处理，例如物件属性未知仍有审查问题，但不追问已禁止移动的目标区。`path` 是确认事项的输入或结果锚点，不能把结果路径当新接口参数传入。方向与形态改变的实际可行性尚无输入合同，相关方案保留条件式状态；ready 仍限已实现的桌面确认门槛，作者的现场维护条件继续复核。
 
 来源分层：八宅／金锁／年度与历史玄空引用[基础合同](../../../docs/fengshui.md)和[玄空合同](../../../docs/fengshui-xuankong.md)的原典／作者版本；室内形态、元素及年度处方引用[证据审查](../../../docs/fengshui-layout-rules-2026-10-14.md)；桌面现代 BTB 引用[作者规则](../../../docs/fengshui-surface-rules.md)的 Anjie Cho、Tori McBrien。每条行动采用实际返回的来源，不把另一流派文章当这条规则的证明。规则数据含检索记录及散列；来源可追溯不等于现实效力已验证。
 

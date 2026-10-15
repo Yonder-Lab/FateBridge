@@ -107,9 +107,39 @@ def evaluate_forms(req: AssessRequest) -> Dict[str, Any]:
         )
         mirrors = []
         if obs.entrance_visible is False:
+            action_id = f"mirror:{obs.object_id}"
+            pending = [
+                {
+                    "path": f"form_observations.{obs.object_id}.view_via_mirror",
+                    "reason": "confirm_mirror_entrance_view",
+                    "object_id": obs.object_id,
+                    "action_id": action_id,
+                    "required_for": "optional_action",
+                },
+                {
+                    "path": f"layout_analysis.form_analysis.{obs.object_id}.object_options",
+                    "reason": "verify_position_adjustment_unavailable",
+                    "object_id": obs.object_id,
+                    "action_id": action_id,
+                    "required_for": "optional_action",
+                },
+            ]
+            if obs.entrance_direct_line is not False:
+                pending.append(
+                    {
+                        "path": f"form_observations.{obs.object_id}.entrance_direct_line",
+                        "reason": "verify_avoid_entrance_direct_line",
+                        "object_id": obs.object_id,
+                        "action_id": action_id,
+                        "required_for": "optional_action",
+                    }
+                )
             mirrors.append(
                 {
                     "object": "镜面",
+                    "action_id": action_id,
+                    "optional": True,
+                    "pending_confirmations": pending,
                     "status": "conditional_option",
                     "conditions": [
                         "无法以位置/朝向调整补足入口视野",

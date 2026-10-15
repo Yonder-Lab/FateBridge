@@ -139,7 +139,11 @@ def _tool_response_payload(
 
 
 def _render_protocol_response(data: Dict[str, Any], **flags: Any) -> ToolResult:
+    from fatebridge.application.result_delivery import bound_response
+
+    limit = flags.pop("response_char_limit", 8192)
     payload = _tool_response_payload(data, **flags)
+    payload = bound_response(payload, limit, compact=flags.get("compact", True))
     return protocol_result(
         payload,
         failed=False,

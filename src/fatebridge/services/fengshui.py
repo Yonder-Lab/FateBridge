@@ -78,6 +78,7 @@ def _compose(
         # Top-level status retains the raw-chart contract. Requested layout
         # readiness is separate and must survive a coverage-only projection.
         result["coverage"].update(
+            analysis_progress=layout["analysis_progress"],
             layout_status=layout["status"],
             layout_missing_inputs=layout["missing_inputs"],
             requested_analysis_status=(

@@ -13,6 +13,7 @@ from .bazhai import placement_polarity
 from .directions import rule_data
 from .layout_supplements import analyze_supplements
 from .models import AssessRequest
+from .surface import summarize_analysis_progress
 
 
 def element_relationships(element: str) -> Dict[str, str]:
@@ -28,6 +29,212 @@ def element_relationships(element: str) -> Dict[str, str]:
         ),
         "controlled_element": ELEMENT_CONTROLS[element],
     }
+
+
+def _summarize_layout_progress(
+    missing: List[str],
+    options: List[Dict[str, Any]],
+    findings: List[Dict[str, Any]],
+    environment: List[Dict[str, Any]],
+    supplements: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Summarize reviewed records separately from optional physical actions."""
+    progress_counts = dict(supported=0, confirmed_unsupported=0, unknown=0)
+    progress_actions: List[Dict[str, Any]] = []
+    progress_pending: List[Dict[str, Any]] = []
+    surface = supplements.get("surface_analysis")
+    if surface is not None:
+        surface_progress = surface["analysis_progress"]
+        progress_counts.update(surface_progress["rule_coverage_counts"])
+        progress_pending.extend(surface_progress["pending_confirmations"])
+        progress_actions.extend(
+            action
+            for finding in surface["findings"]
+            for action in finding["action_options"]
+        )
+    for option in options:
+        # Direction relations have no relocation/rotation feasibility contract;
+        # a matching direction never certifies a physically executable move.
+        action_status = (
+            "no_action_needed"
+            if option["current_result"] == "matches_selected_conventions"
+            else (
+                "candidate_only"
+                if option["resolution"] == "no_confirmed_scope"
+                else "conditional_option"
+            )
+        )
+        action_id = f"direction:{option['object_id']}:{option['aspect']}"
+        action_pending = (
+            []
+            if action_status == "no_action_needed"
+            else [
+                {
+                    "path": f"layout_analysis.adjustment_options.{option['object_id']}.{option['aspect']}",
+                    "reason": "relocation_feasibility_not_in_current_contract",
+                    "object_id": option["object_id"],
+                    "action_id": action_id,
+                    "required_for": "optional_action",
+                }
+            ]
+        )
+        option.update(
+            action_id=action_id,
+            action_status=action_status,
+            optional=True,
+            pending_confirmations=action_pending,
+        )
+        progress_actions.append({"status": action_status, "optional": True})
+        progress_pending.extend(action_pending)
+        for scope in option["scopes"]:
+            progress_counts["unknown" if scope["candidate_only"] else "supported"] += 1
+    for finding in supplements["form_analysis"]["findings"]:
+        for check in finding["checks"]:
+            progress_counts[
+                (
+                    "unknown"
+                    if check["candidate_only"] or check["finding"] == "undetermined"
+                    else "supported"
+                )
+            ] += 1
+            if check["adjustment"] is not None:
+                action_id = f"form:{finding['object_id']}:{check['criterion']}"
+                action_pending = [
+                    {
+                        "path": f"layout_analysis.form_analysis.{finding['object_id']}.{check['criterion']}",
+                        "reason": "verify_form_adjustment_feasibility",
+                        "object_id": finding["object_id"],
+                        "action_id": action_id,
+                        "required_for": "optional_action",
+                    }
+                ]
+                action_status = (
+                    "candidate_only"
+                    if check["candidate_only"]
+                    else "conditional_option"
+                )
+                check.update(
+                    action_id=action_id,
+                    action_status=action_status,
+                    optional=True,
+                    pending_confirmations=action_pending,
+                )
+                progress_actions.append({"status": action_status, "optional": True})
+                progress_pending.extend(action_pending)
+        progress_actions.extend(finding["object_options"])
+        progress_pending.extend(
+            p
+            for action in finding["object_options"]
+            for p in action["pending_confirmations"]
+        )
+    for finding in findings:
+        if finding.get("method") in {"annual_stars", "xuankong_natal"}:
+            progress_counts[
+                "unknown" if finding.get("candidate_only") else "supported"
+            ] += 1
+    for adjustment in environment:
+        state = adjustment["adjustment"]
+        progress_counts[
+            "unknown" if state == "needs_confirmed_classification" else "supported"
+        ] += 1
+        if state != "retain_classification":
+            action_status = (
+                "candidate_only"
+                if state == "needs_confirmed_classification"
+                else "conditional_option"
+            )
+            action_id = f"environment:{adjustment['object_id']}"
+            action_pending = [
+                {
+                    "path": f"features.{adjustment['object_id']}.classification",
+                    "reason": (
+                        "confirm_environment_classification"
+                        if state == "needs_confirmed_classification"
+                        else "verify_environment_adjustment_feasibility"
+                    ),
+                    "object_id": adjustment["object_id"],
+                    "action_id": action_id,
+                    "required_for": (
+                        "assessment"
+                        if state == "needs_confirmed_classification"
+                        else "optional_action"
+                    ),
+                }
+            ]
+            adjustment.update(
+                action_id=action_id,
+                action_status=action_status,
+                optional=True,
+                pending_confirmations=action_pending,
+            )
+            progress_actions.append({"status": action_status, "optional": True})
+            progress_pending.extend(action_pending)
+    limited = supplements["annual_remedies"]["status"] == "unsupported_year"
+    remedies = [
+        ("layout_analysis.element_remedies", remedy)
+        for remedy in supplements["element_remedies"]
+    ] + [
+        ("layout_analysis.annual_remedies.findings", remedy)
+        for remedy in supplements["annual_remedies"]["findings"]
+    ]
+    for branch, remedy in remedies:
+        state = remedy["status"]
+        if state in {"unsupported_application", "no_registered_prescription"}:
+            progress_counts["confirmed_unsupported"] += 1
+            limited = True
+        elif state in {"needs_computed_target", "needs_location", "candidate_only"}:
+            progress_counts["unknown"] += 1
+        else:
+            progress_counts["supported"] += 1
+        if state in {
+            "conditional_options",
+            "conditional_author_rule",
+            "candidate_only",
+        }:
+            target_id = remedy.get("request_id", remedy["object_id"])
+            action_id = f"{branch}:{target_id}"
+            action_pending = [
+                {
+                    "path": f"{branch}.{target_id}",
+                    "reason": "verify_authored_representation_conditions",
+                    "object_id": remedy["object_id"],
+                    "action_id": action_id,
+                    "required_for": "optional_action",
+                }
+            ]
+            remedy.update(
+                action_id=action_id, optional=True, pending_confirmations=action_pending
+            )
+            progress_actions.append(
+                {
+                    "status": (
+                        "candidate_only"
+                        if state == "candidate_only"
+                        else "conditional_option"
+                    ),
+                    "optional": True,
+                }
+            )
+            progress_pending.extend(action_pending)
+    surface_missing = set(surface["missing_inputs"]) if surface is not None else set()
+    pending_paths = {p["path"] for p in progress_pending}
+    for path in dict.fromkeys(missing):
+        if path not in surface_missing and path not in pending_paths:
+            progress_pending.append(
+                {
+                    "path": path,
+                    "reason": "missing_calculation_input",
+                    "required_for": "assessment",
+                }
+            )
+    return summarize_analysis_progress(
+        missing,
+        progress_counts,
+        progress_actions,
+        progress_pending,
+        count_unit="surface_items_and_layout_checks",
+        limited=limited,
+    )
 
 
 def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]:
@@ -247,6 +454,9 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         missing.extend(layer["missing_inputs"])
     supplements = analyze_supplements(req, layers, elements)
     missing.extend(supplements["missing_inputs"])
+    progress = _summarize_layout_progress(
+        missing, options, findings, environment, supplements
+    )
     return {
         "status": (
             "partial"
@@ -254,6 +464,7 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
             else "complete"
         ),
         "calculation_scope": "selected_methods_and_authored_rules_on_supplied_objects",
+        "analysis_progress": progress,
         **(
             {"surface_analysis": supplements["surface_analysis"]}
             if "surface_analysis" in supplements

@@ -52,6 +52,10 @@ class ToolSpec:
     rest_error_label: Optional[str] = None
     metadata_name: Optional[str] = None
     output_model: Optional[Type[BaseModel]] = None
+    # Complete service results are validated before projection. Public output
+    # schemas allow omissions for fields selections, but a service must still
+    # produce its declared non-null business roots.
+    required_output_fields: Tuple[str, ...] = ()
     cli_request_file: bool = False
     execution_hints: ExecutionHints = field(default_factory=ExecutionHints)
     reproducibility: ReproducibilityPolicy = field(

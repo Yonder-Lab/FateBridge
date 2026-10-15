@@ -1,0 +1,31 @@
+{
+  "reference_environment": "Linux-x86_64",
+  "python": "3.12.3",
+  "updated_snapshot": "tests/golden/snapshots/api_cn_bazi_career.json",
+  "changed_paths": [
+    "career_analysis.career_structure.scope",
+    "career_analysis.career_structure.score_basis",
+    "career_analysis.career_structure.score_kind",
+    "career_analysis.career_timing.timing_signals[0]",
+    "career_analysis.career_timing.timing_signals[1]",
+    "career_analysis.entrepreneurship.notes[0]",
+    "career_analysis.entrepreneurship.notes[1]",
+    "career_analysis.entrepreneurship.scope",
+    "career_analysis.entrepreneurship.score_basis",
+    "career_analysis.entrepreneurship.score_kind",
+    "career_analysis.interpretation_scope",
+    "career_analysis.suggestions[2]",
+    "snapshot_export.export_text",
+    "snapshot_export.sections[0].content",
+    "snapshot_export.sections[3].content",
+    "snapshot_export.sections[4].content",
+    "snapshot_export.sections[5].content",
+    "snapshot_export.sections[7].content",
+    "snapshot_text"
+  ],
+  "numeric_leaves_equal": true,
+  "numeric_leaf_count": 20,
+  "other_snapshots_matched": 86,
+  "old_sha256": "d61b354d6123893f5dfa2d5e4869f109333bee94806488893c737b471c26e446",
+  "new_sha256": "c04e4069e09882a4ad5f5f5eb8789f59f8adf10eb22d67ffaa9e82910e96214a"
+}

@@ -196,7 +196,7 @@ def test_api_md_documents_every_live_rest_route() -> None:
         r.path for r in app.routes if getattr(r, "path", "").startswith("/api")
     }
     api_md = (REPO_ROOT / "docs/api-reference.md").read_text(encoding="utf-8")
-    documented = set(re.findall(r"/api/[A-Za-z0-9_/]+", api_md))
+    documented = set(re.findall(r"/api/[A-Za-z0-9_/{}-]+", api_md))
     missing = sorted(p for p in live_routes if p not in documented)
     assert (
         not missing

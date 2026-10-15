@@ -238,6 +238,10 @@ class CareerAnalysis:
         )
 
         return {
+            "interpretation_scope": (
+                "个人命盘的传统事业规则分析；不测量实际能力、收入或创业成功概率，"
+                "不能据此决定辞职、投资或创业。"
+            ),
             "dominant_ten_gods": dominant_god_analysis,
             "industry_analysis": industry_analysis,
             "career_structure": career_structure,
@@ -369,12 +373,12 @@ class CareerAnalysis:
 
         if has_food_hurt and has_wealth:
             score += 10
-            notes.append("食伤生财，适合经商或技术致富")
+            notes.append("食伤生财，传统规则关联经商与技术表达，不据此预测收入")
 
         # 3. 财官双美
         if has_officer and has_wealth:
             score += 8
-            notes.append("财官双美，名利双收之象")
+            notes.append("财官双美，为事业格局的传统加分项，不代表现实名利结果")
 
         # 4. 日主强弱影响
         from ..core.elements import ElementAnalysis
@@ -383,10 +387,10 @@ class CareerAnalysis:
         strength = dm_analysis["strength_level"]
         if strength == "强":
             score += 5
-            notes.append("日主强旺，有能力承担事业压力")
+            notes.append("日主强旺，按本规则提高事业格局评分，不等于实际承压能力")
         elif strength == "弱":
             score -= 5
-            notes.append("日主偏弱，事业中需借力他人")
+            notes.append("日主偏弱，按本规则降低事业格局评分，不据此判断个人能力")
 
         score = max(30, min(95, score))
 
@@ -401,6 +405,12 @@ class CareerAnalysis:
 
         return {
             "score": score,
+            "score_kind": "traditional_rule_index",
+            "scope": "individual_natal_career_structure",
+            "score_basis": (
+                "以60为基准，按官印、食伤与财、财官及日主强弱规则加减，"
+                "限制在30–95；不是事业成就或收入概率。"
+            ),
             "level": level,
             "notes": notes,
         }
@@ -444,19 +454,19 @@ class CareerAnalysis:
 
         if partial_stars > normal_stars:
             entrepreneur_score += 15
-            notes.append("偏星为主，性格独立，适合创业")
+            notes.append("偏星为主，传统规则提高自主经营倾向评分")
         elif normal_stars > partial_stars:
             entrepreneur_score -= 10
-            notes.append("正星为主，性格稳重，适合稳定工作")
+            notes.append("正星为主，传统规则偏向稳定工作倾向")
 
         # 七杀有制 → 领导型创业者
         if god_counts.get(TenGod.SEVEN_KILLER.value, 0) > 0:
             if god_counts.get(TenGod.FOOD_GOD.value, 0) > 0:
                 entrepreneur_score += 10
-                notes.append("食神制杀，有魄力有谋略，创业成功率高")
+                notes.append("食神制杀，按本规则提高创业倾向评分，不代表创业成功概率")
             elif god_counts.get(TenGod.POSITIVE_SEAL.value, 0) > 0:
                 entrepreneur_score += 8
-                notes.append("杀印相生，有领导力，适合管理型创业")
+                notes.append("杀印相生，传统规则关联管理型自主经营倾向")
 
         entrepreneur_score = max(20, min(90, entrepreneur_score))
 
@@ -469,6 +479,12 @@ class CareerAnalysis:
 
         return {
             "score": entrepreneur_score,
+            "score_kind": "traditional_rule_index",
+            "scope": "individual_natal_entrepreneurship_tendency",
+            "score_basis": (
+                "以50为基准，按正偏十神权重、食神制杀或杀印相生规则加减，"
+                "限制在20–90；只表示本规则的创业倾向，不是成功率或行动建议。"
+            ),
             "tendency": tendency,
             "notes": notes,
         }
@@ -488,22 +504,32 @@ class CareerAnalysis:
             d_god = get_ten_god(day_stem, d_stem)
             if d_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
                 signals.append(
-                    f"大运{d_stem}{d_branch}见官杀，事业运旺盛，有升职或权力增长机会"
+                    f"大运{d_stem}{d_branch}见官杀，传统规则关联事业与管理责任议题"
                 )
             elif d_god in (TenGod.POSITIVE_SEAL, TenGod.PARTIAL_SEAL):
-                signals.append(f"大运{d_stem}{d_branch}见印星，贵人运佳，利于学习晋升")
+                signals.append(
+                    f"大运{d_stem}{d_branch}见印星，传统规则关联学习与支持议题"
+                )
             elif d_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                signals.append(f"大运{d_stem}{d_branch}见财星，财运亨通，利于投资经营")
+                signals.append(
+                    f"大运{d_stem}{d_branch}见财星，传统规则关联经营与资源议题，不预测投资收益"
+                )
             elif d_god in (TenGod.FOOD_GOD, TenGod.HURT_OFFICER):
-                signals.append(f"大运{d_stem}{d_branch}见食伤，创意表达力强，利于创新")
+                signals.append(
+                    f"大运{d_stem}{d_branch}见食伤，传统规则关联创意与表达议题"
+                )
 
         if liunian_pillar:
             l_stem, l_branch = liunian_pillar
             l_god = get_ten_god(day_stem, l_stem)
             if l_god in (TenGod.POSITIVE_OFFICER, TenGod.SEVEN_KILLER):
-                signals.append(f"流年{l_stem}{l_branch}见官杀，当年事业有变动或机遇")
+                signals.append(
+                    f"流年{l_stem}{l_branch}见官杀，传统规则关联当年的事业与责任议题"
+                )
             elif l_god in (TenGod.POSITIVE_WEALTH, TenGod.PARTIAL_WEALTH):
-                signals.append(f"流年{l_stem}{l_branch}见财星，当年财运佳")
+                signals.append(
+                    f"流年{l_stem}{l_branch}见财星，传统规则关联经营与收入议题，不预测收益"
+                )
 
         return {
             "timing_signals": signals,
@@ -563,9 +589,13 @@ class CareerAnalysis:
         # 基于创业倾向
         tendency = entrepreneurship.get("tendency", "")
         if "创业" in tendency:
-            suggestions.append("命局适合创业，但需做好充分准备，不宜盲目冒进")
+            suggestions.append(
+                "本规则呈现创业相关倾向；是否创业需验证需求、现金流与执行能力，不能据此决定辞职"
+            )
         elif "稳定" in tendency:
-            suggestions.append("更适合在稳定环境中发展，可考虑体制内或大企业")
+            suggestions.append(
+                "本规则较偏向稳定工作；职业选择仍需结合能力、工作条件和实际机会"
+            )
 
         # 基于行业
         rec = industry.get("recommended_industries", [])

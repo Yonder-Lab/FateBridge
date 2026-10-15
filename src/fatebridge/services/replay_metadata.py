@@ -185,7 +185,9 @@ def execution_receipt(
     return {
         "metadata_schema_version": METADATA_SCHEMA_VERSION,
         "package_version": __version__,
-        "contract_sha256": contract_fingerprint(spec.request_model, spec.output_model),
+        "contract_sha256": contract_fingerprint(
+            spec.request_model, spec.output_model, spec.required_output_fields
+        ),
         "input_sha256": input_digest,
         "business_output_sha256": digest(body),
         "duration_ms": round(elapsed_ms, 3),

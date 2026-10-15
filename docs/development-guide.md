@@ -224,6 +224,8 @@ git diff --check
 
 `test_skills_engine_contract.py` 会实际执行具体 CLI 示例，通过 `shlex` 拆分参数并绑定测试进程的 `sys.executable`，确保使用已安装本仓库的解释器。手工运行文档命令仍须激活对应环境。修改 Markdown 后还要检查本地链接、章节锚点、代码围栏和示例 JSON；上述测试不覆盖所有 prose 或所有链接。
 
+新增工具还须在 `core/response_models.py` 声明完整结果的必需业务根，目录装配缺声明会失败；不要为了让错误的 service 输出通过而放宽要求。公共投影模型允许字段缺失与合法 null，完整执行的必需根则不可缺失或为 null。相关回归包括 `tests/test_complete_output_contracts.py`、`tests/test_fengshui_analysis_progress.py`、`tests/test_relationship_and_career_semantics.py`、`tests/test_result_delivery_storage.py` 和 `tests/test_response_budget_contract.py`；验证跨端成功／失败、合法投影、状态转移、字符无损读取及多进程容量，而非只冻结一个用户答案。
+
 ### 最低同步面
 
 如果你改了接口或能力范围，至少同步更新：

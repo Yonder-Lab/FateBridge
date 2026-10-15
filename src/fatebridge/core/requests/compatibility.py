@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import Field
 
@@ -72,7 +72,9 @@ class TwoPersonCompatibilityRequest(_DeferredModel):
         default=True,
         description="Enable true solar time for second person (八字 default on)",
     )
-    relationship_type: str = Field(
+    relationship_type: Literal[
+        "general", "marriage", "friendship", "business", "family"
+    ] = Field(
         default="general",
         description=(
             "关系类型：general / marriage / friendship / business / family。"

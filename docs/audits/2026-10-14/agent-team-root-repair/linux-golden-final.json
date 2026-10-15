@@ -1,0 +1,21 @@
+{
+  "environment": "Linux-x86_64",
+  "python": "3.12.3",
+  "image": "sha256:78e70cc82ced587f39e7cd2dfb27a41cbcb5d458871acbc25e10029755a2931e",
+  "dependencies": {
+    "pyswisseph": "2.10.3.2",
+    "kerykeion": "5.12.10",
+    "fastmcp": "4.1.0",
+    "mcp": "2.3.0",
+    "lunardate": "0.3.0",
+    "pydantic": "2.14.0",
+    "pytest": "9.1.1"
+  },
+  "golden_diff_active": true,
+  "cases": 87,
+  "matched": 87,
+  "differences": {},
+  "missing_snapshots": [],
+  "stale_snapshots": [],
+  "baseline_mutated": false
+}

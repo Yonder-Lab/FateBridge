@@ -1,0 +1,47 @@
+{
+  "environment": "Linux-x86_64",
+  "python": "3.12.3",
+  "image": null,
+  "dependencies": {
+    "pyswisseph": "2.10.3.2",
+    "kerykeion": "5.12.10",
+    "fastmcp": "4.1.0",
+    "mcp": "2.3.0",
+    "lunardate": "0.3.0",
+    "pydantic": "2.14.0",
+    "pytest": "9.1.1"
+  },
+  "golden_diff_active": true,
+  "cases": 87,
+  "matched": 86,
+  "differences": {
+    "api_cn_bazi_career": {
+      "changed_paths": [
+        "career_analysis.career_structure.scope",
+        "career_analysis.career_structure.score_basis",
+        "career_analysis.career_structure.score_kind",
+        "career_analysis.career_timing.timing_signals[0]",
+        "career_analysis.career_timing.timing_signals[1]",
+        "career_analysis.entrepreneurship.notes[0]",
+        "career_analysis.entrepreneurship.notes[1]",
+        "career_analysis.entrepreneurship.scope",
+        "career_analysis.entrepreneurship.score_basis",
+        "career_analysis.entrepreneurship.score_kind",
+        "career_analysis.interpretation_scope",
+        "career_analysis.suggestions[2]",
+        "snapshot_export.export_text",
+        "snapshot_export.sections[0].content",
+        "snapshot_export.sections[3].content",
+        "snapshot_export.sections[4].content",
+        "snapshot_export.sections[5].content",
+        "snapshot_export.sections[7].content",
+        "snapshot_text"
+      ],
+      "expected_sha256": "d1b7911046650f5157e8adc703de5d9e888d0212ad2c176ad30d28c2dd8cbacb",
+      "actual_sha256": "76ada99359385e1d27ebbc5f89cc942b9428fde484b0ae38dbd73b059b35071b"
+    }
+  },
+  "missing_snapshots": [],
+  "stale_snapshots": [],
+  "baseline_mutated": false
+}
