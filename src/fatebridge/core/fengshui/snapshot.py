@@ -5,6 +5,22 @@ from typing import Any, Dict, List, Tuple
 
 def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
     output = [("起盘信息", [result["summary"], f"覆盖状态：{result['status']}"])]
+    if "method_policy" in result:
+        policy = result["method_policy"]
+        output.append(
+            (
+                "方法选择",
+                [
+                    "主法参考：九宫飞星、金锁玉关、八宅；局部按此前两法优先，实际计算仅含已选层。",
+                    "本次计算顺序：" + "、".join(policy["selected_method_order"]),
+                    "八字、紫微及周围人的个人喜忌不代入客观环境；八宅个人命卦独立。",
+                    "优先级表示审查顺序，不产生综合评分或抵消。",
+                    f"现状优先方法审查：{policy['priority_review_status']}；"
+                    f"未覆盖优先法：{'、'.join(policy['priority_missing_methods']) or '无'}；"
+                    "与已选计算完成状态分别读取，显式排除不追资料。",
+                ],
+            )
+        )
     for name, layer in result["layers"].items():
         lines = [
             f"规则：{layer['ruleset']['ruleset_id']}@{layer['ruleset']['version']}"
@@ -169,6 +185,33 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
             lines.append(
                 f"对象{proposal['object_id']} 候选{proposal['candidate_id']}：{proposal['status']}；计算{proposal['calculation_status']}；新位置形态独立核对，未沿用旧观察"
             )
+        context = layout.get("environmental_context")
+        if context is not None:
+            orientation = context["orientation_review"]
+            lines.append(
+                f"环境上下文：{context['status']}；实际分宫确认："
+                f"{orientation['physical_sector_binding_allowed']}；人物象征对应不代替环境方位。"
+            )
+            for member in context["household_correspondences"]:
+                for association in member["associations"]:
+                    lines.append(
+                        f"家庭成员{member['subject_id']}：主宫{association['primary_palace']}，"
+                        f"对宫{association['opposite_palace']}为次级关注；"
+                        f"实际落宫{association['physical_sector_binding']}；"
+                        f"作用域{association['scope']}，非八宅个人命卦，不据此推断事件。"
+                    )
+            for influence in context["floor_review"]["influences"]:
+                for scope in influence["subject_scope"]:
+                    lines.append(
+                        f"楼层影响{influence['influence_id']} 对{scope['subject_id']}："
+                        f"{scope['status']}；共同因素不取消。"
+                    )
+            for finding in context["environment_findings"]:
+                lines.append(
+                    f"环境对象{finding['object_id']} {finding['feature']}："
+                    f"{finding['finding']}；无独立规则不编绝对禁忌。"
+                )
+            lines.extend(context["limitations"])
         lines.extend(layout["limitations"])
         output.append(("布局计算", lines))
     output.append(

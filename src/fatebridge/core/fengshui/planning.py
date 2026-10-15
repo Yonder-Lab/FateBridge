@@ -8,8 +8,9 @@ from typing import Any, Dict, List
 
 from .actions import permission_state
 from .bazhai import bazhai
+from .jinsuo import jinsuo
 from .layout import analyze_layout
-from .models import AssessRequest
+from .models import AssessRequest, JinsuoRequest
 
 
 def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]:
@@ -19,8 +20,17 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
     findings: List[Dict[str, Any]] = []
     for candidate in req.layout_alternatives:
         # Never transfer old entrance/backing observations after a move or turn.
+        proposal_features = [
+            feature
+            for feature in req.features
+            if feature.object_id != candidate.object_id
+        ] + list(candidate.features)
         proposed = req.model_copy(
             update={
+                # A proposal keeps the request's chosen rule scope even when
+                # removing a target feature makes automatic input selection
+                # differ. Preserve None only on the original public request.
+                "methods": req.selected_methods,
                 "placements": [candidate.placement] if candidate.placement else [],
                 "form_observations": (
                     [candidate.form_observation] if candidate.form_observation else []
@@ -35,6 +45,8 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 ],
                 "element_adjustments": [],
                 "annual_remedy_ruleset_id": None,
+                "environmental_context": candidate.environmental_context,
+                "features": proposal_features,
             }
         )
         candidate_layers = dict(layers)
@@ -43,8 +55,85 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 **bazhai(proposed),
                 "ruleset": layers["bazhai"]["ruleset"],
             }
+        if "jinsuo" in layers:
+            candidate_layers["jinsuo"] = {
+                **jinsuo(
+                    JinsuoRequest(
+                        features=proposal_features, ruleset_id=req.jinsuo_ruleset_id
+                    )
+                ),
+                "ruleset": layers["jinsuo"]["ruleset"],
+            }
         layout = analyze_layout(proposed, candidate_layers)
+        if req.environmental_context is not None:
+            static_floors = {
+                object_id: floor
+                for floor in req.environmental_context.floors
+                for object_id in floor.object_ids
+                if object_id != candidate.object_id
+            }
+            for entry in layout["environment_adjustments"]:
+                floor = static_floors.get(entry["object_id"])
+                if floor is not None:
+                    entry.update(
+                        floor_id=floor.floor_id,
+                        floor_level=(
+                            1 if floor.space_kind == "courtyard" else floor.level
+                        ),
+                        location_reference="independently_confirmed_floor_center_shared_orientation",
+                        chart_scope="declared_house_and_annual_layers_no_automatic_floor_period",
+                    )
         missing = list(layout["missing_inputs"])
+        if (
+            "jinsuo" in layers
+            and not candidate.features
+            and any(
+                feature.object_id == candidate.object_id for feature in req.features
+            )
+        ):
+            missing.append(f"layout_alternatives.{candidate.candidate_id}.features")
+        if req.environmental_context is not None:
+            context = req.environmental_context
+            fresh = candidate.environmental_context
+            branch = (
+                f"layout_alternatives.{candidate.candidate_id}.environmental_context"
+            )
+            old_floors = {
+                f.floor_id
+                for f in context.floors
+                if candidate.object_id in f.object_ids
+            }
+            old_observations = [
+                o for o in context.observations if o.object_id == candidate.object_id
+            ]
+            if fresh is None:
+                if old_floors or old_observations:
+                    missing.append(branch)
+            else:
+                if old_floors and not any(
+                    candidate.object_id in f.object_ids for f in fresh.floors
+                ):
+                    missing.append(f"{branch}.floors")
+                for observation in old_observations:
+                    if not any(
+                        o.object_id == candidate.object_id
+                        and o.category == observation.category
+                        and o.feature == observation.feature
+                        for o in fresh.observations
+                    ):
+                        missing.append(
+                            f"{branch}.observations.{observation.category}.{observation.feature}"
+                        )
+                old_influences = {
+                    i.influence_id
+                    for i in context.floor_influences
+                    if i.source_floor_id in old_floors
+                    or set(i.shared_floor_ids) & old_floors
+                }
+                for influence_id in old_influences - {
+                    i.influence_id for i in fresh.floor_influences
+                }:
+                    missing.append(f"{branch}.floor_influences.{influence_id}")
         if candidate.object_id in current_forms and candidate.form_observation is None:
             missing.append(
                 f"layout_alternatives.{candidate.candidate_id}.form_observation"
@@ -154,10 +243,24 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                         )
                     }
                 )
+            elif finding["method"] in {"annual_stars", "xuankong_natal"}:
+                comparisons.append(
+                    {
+                        **finding,
+                        "comparison_scope": "computed_star_reference_not_combination_fortune_judgment",
+                    }
+                )
         for form in layout["form_analysis"]["findings"]:
             comparisons.extend(
                 {"method": "indoor_forms", **check} for check in form["checks"]
             )
+        for environment in layout["environment_adjustments"]:
+            environment["feature_observation_scope"] = (
+                "independent_candidate_confirmation"
+                if environment["object_id"] == candidate.object_id
+                else "unchanged_environment_feature"
+            )
+            comparisons.append({"method": "jinsuo", **environment})
         findings.append(
             {
                 "candidate_id": candidate.candidate_id,
@@ -169,11 +272,25 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 "permission_status": permission,
                 "physically_feasible": candidate.physically_feasible,
                 "calculation_status": "partial" if partial else "complete",
+                "layer_statuses": {
+                    name: {
+                        "status": layer["status"],
+                        "missing_inputs": layer["missing_inputs"],
+                    }
+                    for name, layer in candidate_layers.items()
+                },
                 "missing_inputs": list(dict.fromkeys(missing)),
                 "pending_confirmations": pending,
                 "rule_comparisons": comparisons,
                 "placement_findings": layout["placement_findings"],
                 "form_analysis": layout["form_analysis"],
+                "environment_adjustments": layout["environment_adjustments"],
+                "old_target_feature_reused": False,
+                **(
+                    {"environmental_context": layout["environmental_context"]}
+                    if "environmental_context" in layout
+                    else {}
+                ),
                 **(
                     {"natal_interpretation": layout["natal_interpretation"]}
                     if "natal_interpretation" in layout
@@ -182,6 +299,12 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 "supplemental_rulesets": layout["supplemental_rulesets"],
                 "decision_scope": "executable_proposal_not_universal_recommendation_or_effect_guarantee",
                 "old_form_observations_reused": False,
+                **(
+                    {"old_environmental_context_reused": False}
+                    if req.environmental_context is not None
+                    or candidate.environmental_context is not None
+                    else {}
+                ),
             }
         )
     return {

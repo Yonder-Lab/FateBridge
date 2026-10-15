@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "sources_sha256": {
     "docs/scenario-routing.md": "59a86b097425793df75934e2bacdad6c62e4ea05eae87509092ed39a851d9680",
-    "skills/onda-fengshui/agents/interface.yaml": "d206cad31b013d2138142b75745081fac5148a9a863c2df84a75b81e7dd09b37",
+    "skills/onda-fengshui/agents/interface.yaml": "84226e733f667bba61fed02030f913529c1d305446ce349dfe66ebc362eec85b",
     "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
     "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",
     "skills/onda-shiye/agents/interface.yaml": "f76ba11182a38f90a0b8315dd3a126463456dc1649caaad9b13b03abc9305be9",
@@ -16,8 +16,8 @@
     {
       "id": "onda-fengshui",
       "name": "风水 · 空间布局",
-      "version": "0.2.0",
-      "summary": "用 FateBridge 核对空间、使用人和约束，按有来源的风水规则给出可执行布局建议",
+      "version": "0.4.0",
+      "summary": "以九宫飞星、金锁玉关、八宅核对空间、家庭与楼层，保留来源、方位及行动边界",
       "triggers": [
         "风水布局",
         "住宅风水",
@@ -30,7 +30,11 @@
         "玄空宅盘",
         "室内形态",
         "多方案布局比较",
-        "家具搬转限制"
+        "家具搬转限制",
+        "合租局部风水",
+        "多层住宅与院落",
+        "家庭人物宫位对应",
+        "家庭卦象与对宫说明"
       ],
       "engine_tools": [
         "fengshui_assess",

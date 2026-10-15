@@ -232,6 +232,9 @@ class SurfaceAnalysis(PartialOutput):
 
 
 class Coverage(PartialOutput):
+    method_priority_review: Optional[Object] = None
+    environmental_context_status: Optional[Literal["complete", "partial"]] = None
+    environmental_context_missing_inputs: Optional[List[str]] = None
     natal_interpretation_status: Optional[Literal["complete", "partial"]] = None
     natal_interpretation_missing_inputs: Optional[List[str]] = None
     scene_scope: Optional[Object] = None
@@ -247,6 +250,8 @@ class Coverage(PartialOutput):
 
 
 class FengshuiOutput(ProjectedOutput):
+    method_policy: Optional[Object] = None
+    method_details: Optional[Object] = None
     analysis_type: Optional[str] = None
     engine: Optional[str] = None
     status: Optional[Literal["complete", "partial"]] = None
@@ -263,6 +268,7 @@ class FengshuiOutput(ProjectedOutput):
 
 
 class LayoutAnalysis(PartialOutput):
+    environmental_context: Optional[Object] = None
     natal_interpretation: Optional[NatalInterpretation] = None
     alternatives_analysis: Optional[Object] = None
     surface_analysis: Optional[SurfaceAnalysis] = None

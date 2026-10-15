@@ -1,17 +1,21 @@
 # 风水咨询闭环
 
-本参考只组织现有工具；参数以连接中的定义为准，规则以返回的版本、作用域和来源为准。无需用户先提供全套住宅与出生资料。
+本参考组织工具与咨询边界；参数以连接中的定义为准，规则以返回的版本、作用域和来源为准。主要方法为九宫飞星、金锁玉关和八宅，执行[2026-10-15 用户专家访谈政策](../../../docs/fengshui-expert-policy.md) `user_expert_policy_v1`。无需用户先提供全套住宅与出生资料。
 
 ## 按请求核对资料
 
 | 请求层 | 必要事实及如何处理缺失 |
 | --- | --- |
+| 户型方位门槛 | 空间范围、图纸旋转／偏移、参考北、已确认立极与分宫；宫位未知不由命盘或屏幕上下补齐。通用年盘可排，具体房间落宫仍待确认 |
 | 对象方向／个人匹配 | 对象用途、已确认位置或朝向、适用使用人；住户按命卦的三选一生年路径。缺宅向仍可保留个人关系；对象未知方位省略，禁止占位臆造 |
 | 室内形态 | 具体对象及入口／通道／背靠等已确认观察与依据；可独立 `methods=[]`。只保留用户确认的粒度，未知布尔项省略 |
-| 桌面作者法 | 矩形、坐者使用的近侧桌沿、用户的事业／丰盛目标、物件代表属性及依据；其他形状／目标没有对应处方，不能硬改事实 |
+| 桌面作者法 | 用户明确另选现代 BTB 后，核对矩形、坐者近沿、事业／丰盛目标、物件代表属性及依据；桌面请求或目标本身不构成选用 BTB，不能代替无方位的飞星／金锁 |
 | 金锁基础层 | 环境特征的方位、砂／水／混合／未知分类及依据；照片或物品名称不证明分类 |
 | 年盘 | 有效年或含时区查询时刻；采用立春边界，不把公历年自动当有效年。年度物件作者规则须显式选择且限支持年份 |
 | 玄空 | 磁北宅向及测量不确定度、历史定运事件和依据、明确版本；资料不足就保留候选／缺失，不用当前年份补齐。请求有限解释时另核当前运及证据、全宅分宫外部山水观察，按[有限解释合同](../../../docs/fengshui-xuankong-interpretation.md)读取；不以金锁砂水、室内靠背或照片推断外局已确认 |
+| 家庭人物 | 已确认同住范围、辈分、父母／子女关系、本人与丈夫排行（妻随夫须显式）、实际使用空间；生肖独立确认。仅解释象意用 `household_scope=symbolic_reference`，不追罗盘；关联实际环境用默认 `environmental_binding` |
+| 多层／院落 | 各层范围及用途、显式共用方向、逐层图纸对齐及中心确认、实际住／用人；院落及绿化归一层，并复核共享外局、门路、跨层互动。异层是否适宜和局部影响是否限层须有独立依据 |
+| 无方位形态审查 | 当前四类关系（厨卫相邻、卫生间门对厨房／卧室、厨房与卧室相邻）及枚举材质器形可记录，但尚无逐项禁忌判据；其他关系保留原话／未支持，不能换错误枚举。原有入口直线等形态另依署名规则审查，现代设计低优先提醒 |
 
 行动约束与观察分别保存：能否搬位、转向、移动物件、新增，预算，共用范围，固定对象／不可用区域。限制不意味着任何入口、镜面、横梁或尖角存在／不存在。
 
@@ -31,9 +35,25 @@
 
 ## 选择和读取结果
 
-工位用 `scene=workstation`，家居用 `scene=home`；未传methods时按现有事实选法，显式列表优先。按问题显式 `methods`；只做形态／桌面可用空列表。`form_observations` 可以独立存在，不构造无方位的 `placements`。位置和朝向各自观察，给布局计算时 `analyze_layout=true`。元素方案 `element_adjustments` 必须绑定已算对象、方法、作用域和 `drain/support` 目标，不能按“缺五行”开处方。
+工位用 `scene=workstation`，合租局部用 `scene=shared_rental`，家居用 `scene=home`。局部先考虑九宫飞星、次金锁，八宅按明确的人宅问题独立选择；实际能算哪些层仍取决于确认事实。未传 methods 时按现有事实选法，显式列表优先；优先顺序不补缺失输入、不产生合成分。只做形态可用空列表；桌面作者法须用户明确另选。`form_observations` 可以独立存在，不构造无方位的 `placements`。位置和朝向各自观察，给布局计算时 `analyze_layout=true`。元素方案 `element_adjustments` 必须绑定已算对象、方法、作用域和 `drain/support` 目标，不能按个人“缺五行”、八字喜用或相关人命盘开处方。
 
-首轮投影使用工具已公布字段，并为所有风水解读追加 `rulesets` 与 `rule_trace`，以取得本次作者版本和可引用来源；单独命卦也适用。按请求加读这些分支，而不是一次铺满全量：
+`method_policy.priority_review_status` 与每法 `not_selected_reason` 用于分清已选层完成、自动缺输入的优先层、用户显式排除。已选计算 complete 不能写成优先方法全部审完；明确排除的方法不要求补资料。用户当前问题仅需某层时，可以结束该层说明，同时保留其他层没有实际审查的范围。
+
+优先范围状态只针对局部前两法的可用性：非局部或显式空列表可为 `not_requested`，缺计算证据为 `not_assessed`，仍有相关优先方法缺层为 `partial`；`complete` 也不表示实际落宫、全部分支或动作已完整核验。每法 `available_engine_layers` 只列真实已算 complete 的层；`input_ready_engine_layers` 仅表示必要字段存在，不代表已经解算、排除交节候选或确认物理绑定。`priority_missing_inputs` 是可选优先复核提示，不自动升级成用户必须补交的资料。
+
+有候选时，顶层优先状态和 `available_engine_layers` 仍只指现状；另读 `priority_review_by_scope.candidates`、`available_candidate_engine_layers` 及各层 `candidate_calculations`。候选 complete 不升级现状，现状 complete 也不证明候选算完；候选没有真实计算证据时保留 `not_assessed`。
+
+`environmental_context` 承载户型方位、家庭、多层及形态事实时，逐项沿用原始证据；按连接中完整 schema 构造，不把此参考中的自然语言概念猜成字段。厨房、卫生间、庭院绿化及普通器物使用其 `objects`，不伪造成门床桌灶占位。方向明确尚未确认时，不同时提交已定宫的 `placements.location_direction`、金锁 `features` 或玄空 `external_forms`；原始宅盘／年盘、命卦和独立形态仍可计算。结果位于 `layout_analysis.environmental_context`，其咨询政策／人物关注与 `layers.bazhai.occupants` 的个人命卦关系分开。家庭主宫、独立确认生肖宫和次级对宫分别解释，双重身份保留多宫；不能将对宫当成本宫同等结论。多层结果也不得自动归成全宅统一吉凶。
+
+每个 `floors` 空间独立保存 `floorplan_alignment_confirmed`、`center_confirmed`；只有显式 `uses_shared_orientation=true` 才共用全宅已确认方向。全宅方向／中心不能补这些逐层门槛，院落作为独立空间也要核对。缺门槛的楼层关联对象不提交实际落宫事实；各层位置是在各自确认中心下关联本次已声明宅盘／年盘，不自动生成楼层宅运或几何分宫。候选环境也须独立重核这三个逐层状态。
+
+`floors[].subject_ids` 只确认谁使用，不确认未列者不使用；默认空列表仍是未知。需要作“局部影响不归给异层人”或“在共享范围外”的负向排除时，有关作用空间须 `usage_confirmed=true` 与 `usage_evidence` 成对，覆盖相同作用层的室内／院落；缺失保持使用范围待确认。已知正向使用或未进行排除，不把完整名单作为额外必填项。
+
+完整楼层使用名单必须包含该层对象 `placement.subject_id/subject_ids` 明确关联的使用者；省略 selector 的旧兼容语义不当作真实使用声明，也不据此扩充名单。候选仍使用原已确认使用人，不能换人让排除成立。
+
+`household_scope=symbolic_reference` 仅输出家庭卦／对宫符号，即使全宅已有方向也不绑定实际方区；没有楼层分析时不为这类纯象意追罗盘。默认 `environmental_binding` 才核对环境方位。`household_correspondences` 及 `associations` 的 `scope`、`applicable_methods`、`selected_applicable_methods` 明示这些是飞星／金锁环境象征索引，不是八宅命卦；所选仅八宅时不能将它们解释成八宅人宅判定。
+
+首轮投影使用工具已公布字段，并为所有风水解读追加 `rulesets` 与 `rule_trace`，以取得本次作者版本和可引用来源；单独命卦也适用。有 `scene` 或环境上下文时首轮追加 `method_policy`，有 `environmental_context` 才追加 `layout_analysis.environmental_context`；旧请求中这些路径可以不存在，不在严格投影里无条件追加。按请求加读这些分支，而不是一次铺满全量：
 
 - 总体状态／覆盖：`status`、`coverage`（含 `analysis_progress`）、`layout_analysis.calculation_scope`、`layout_analysis.missing_inputs`、`layout_analysis.unsupported_queries`、`layout_analysis.limitations`。
 - 具体候选：`layout_analysis.alternatives_analysis`；当前审查与候选待确认分开，不自动评分或选赢家。
@@ -41,6 +61,8 @@
 - 形态／元素／年度：`layout_analysis.form_analysis`、`layout_analysis.element_remedies`、`layout_analysis.annual_remedies`、`layout_analysis.supplement_statuses`。
 - 桌面物件：`layout_analysis.surface_analysis`，逐对象看覆盖与行动状态。
 - 来源／分歧：`rulesets`、`rule_trace`、`conflicts`、`layout_analysis.method_disagreements`；不能把不同流派关系平均为总分。
+- 选法：有场景／环境上下文才读 `method_policy`，核对推荐顺序、实际所选层、`priority_review_status` 与 `not_selected_reason`。方法五行、职业／器物象意或砂水细节请求再读 `method_details`；它是 `reference_only`，不是新的吉凶判定。
+- 环境上下文：`layout_analysis.environmental_context` 下的 `orientation_review`、`household_correspondences`、`floor_review`、`environment_findings`、`separation_policy`、`missing_inputs`；保留方向门槛、家庭／生肖及对宫主次、局部／共享层级、专家版本与未覆盖形态。
 
 字段裁剪缺了关键理由或来源时，再针对缺的分支读取，不能凭常识补成计算结论。结果 partial 是合法缺失，不能当成功完成所有请求，也不以相同输入重复尝试。
 
@@ -54,6 +76,10 @@
 
 每个动作的 `pending_confirmations` 只列现有合同尚未确认的门槛，`required_for=optional_action` 不阻止本次事实审查结束；blocked 动作没有执行追问。全局事实确认与动作确认分别处理，例如物件属性未知仍有审查问题，但不追问已禁止移动的目标区。`path` 是确认事项的输入或结果锚点，不能把结果路径当新接口参数传入。家具约束用 `layout_constraints`，具体方案用 `layout_alternatives`；方向列表仍不是可执行布局。候选的许可、`physically_feasible` 和新位置独立观察各自核对，禁止借用旧形态；ready只说明所选门槛满足，逐规则匹配与现实效果另外说明。作者的现场维护条件继续复核。
 
-来源分层：八宅／金锁／年度与历史玄空引用[基础合同](../../../docs/fengshui.md)和[玄空合同](../../../docs/fengshui-xuankong.md)的原典／作者版本；室内形态、元素及年度处方引用[证据审查](../../../docs/fengshui-layout-rules-2026-10-14.md)；桌面现代 BTB 引用[作者规则](../../../docs/fengshui-surface-rules.md)的 Anjie Cho、Tori McBrien。每条行动采用实际返回的来源，不把另一流派文章当这条规则的证明。规则数据含检索记录及散列；来源可追溯不等于现实效力已验证。
+候选的环境上下文使用 `layout_alternatives[].environmental_context`，该字段是新方案的独立事实，顶层现状的家庭／楼层／观察不自动继承。现状对象涉及楼层或环境观察时，新方案须独立重核原有维度；缺上下文、空上下文或只重核一部分都不得让该维度跳过门槛而 ready。候选结果读取 `layout_analysis.alternatives_analysis.findings[].environmental_context` 及其缺失项，确认 `old_environmental_context_reused=false`；旧层适宜性与影响范围不能搬到新位置当作确认依据。
+
+其他固定金锁特征不能随目标候选改楼层／坐标；候选上下文省略它们时，`environment_adjustments` 仍保留原楼层元数据。逐规则比较同时看八宅、形态、金锁和已算年星／历史宅盘参考；后两者的 `comparison_scope` 限星数／角色／落宫参考，不扩成完整组合判断。`layer_statuses` 供区分现状与各候选真实计算完成状态，未算的层不能因输入字段齐备就称可用。
+
+来源分层：九条专家口径引用[用户提供专家访谈政策](../../../docs/fengshui-expert-policy.md) `user_expert_policy_v1`（2026-10-15，未提供专家署名／原始访谈稿，不冒充经典共识）；八宅／金锁／年度与历史玄空引用[基础合同](../../../docs/fengshui.md)和[玄空合同](../../../docs/fengshui-xuankong.md)的原典／作者版本；室内形态、元素及年度处方引用[证据审查](../../../docs/fengshui-layout-rules-2026-10-14.md)；用户明确另选的桌面现代 BTB 引用[作者规则](../../../docs/fengshui-surface-rules.md)的 Anjie Cho、Tori McBrien。卦象解释可引用《周易·说卦》，生肖索引引用已登记二十四山表及生肖对应来源；这些索引不证明人物必然受影响。每条行动采用实际返回的来源，不把另一流派文章当这条规则的证明。既有署名作者证据包保存了相应检索记录与散列；新专家政策／象意参考按其实际来源字段、规则版本交付，不声称尚未保存的内容散列或检索记录。来源可追溯不等于现实效力已验证。
 
 交付后保留未解决项目、缺失事实和复核点。后续更正更新输入，维护同一 trace 与父 run；只解释不重算。物理调整是否落实、能否看见入口、是否有遮挡等可以核验，事业或财富改善不能由布局引擎确认。

@@ -1,0 +1,164 @@
+{
+  "date": "2026-10-15",
+  "status": "passed_final_source_full_suites_golden_and_packaged_transports",
+  "baseline_head": "0b111a34670f1270eae93f3ddf6bf2d49f048955",
+  "initial_workspace": "clean",
+  "source_snapshot": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/source-accepted",
+  "source_files": 742,
+  "symlink_entries": 9,
+  "source_manifest_sha256": "5b2082d887ea98080ce9327daa745be2ba382980e001f6da26467ebd1bd7db77",
+  "source_drift": {
+    "workspace": [],
+    "snapshot": []
+  },
+  "macos": {
+    "python": "3.13.5",
+    "platform": "Darwin-arm64",
+    "tests": 2917,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 88,
+    "passed": 2829,
+    "seconds": 221.447
+  },
+  "linux": {
+    "python": "3.12.3",
+    "platform": "Linux-x86_64",
+    "image": "fatebridge-ci:py312",
+    "image_id": "78e70cc82ced",
+    "source_mount_readonly": true,
+    "tests": 2917,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 2917,
+    "seconds": 403.635
+  },
+  "linux_golden": {
+    "cases": 87,
+    "matched": 87,
+    "diff_active": true,
+    "baseline_mutated": false,
+    "evidence": "included in the same Linux full-suite JUnit report"
+  },
+  "new_expert_policy_tests": 137,
+  "static_checks": {
+    "black": {
+      "passed": true,
+      "log": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/black-final.log"
+    },
+    "isort": {
+      "passed": true,
+      "log": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/isort-final.log"
+    },
+    "mypy": {
+      "passed": true,
+      "log": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/mypy-final.log"
+    },
+    "generated_call_contracts": {
+      "passed": true,
+      "log": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/contracts-final.log"
+    },
+    "scenario_manifest": {
+      "passed": true,
+      "log": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/scenarios-final.log"
+    }
+  },
+  "wheel": {
+    "package_origin": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/wheel-accepted/fatebridge/__init__.py",
+    "wheel_sha256": "f0f4dd4e5e0c48eabcf5fe2cea9d70fa65a31f38708bde2366f7ab83a878f5a8",
+    "cases": [
+      {
+        "case": "candidate_automatic",
+        "three_transports_equal": true,
+        "output_schema_valid": true,
+        "methods": [
+          "annual_stars",
+          "jinsuo",
+          "bazhai"
+        ]
+      },
+      {
+        "case": "family_no_compass",
+        "three_transports_equal": true,
+        "output_schema_valid": true,
+        "methods": []
+      },
+      {
+        "case": "three_methods",
+        "three_transports_equal": true,
+        "output_schema_valid": true,
+        "methods": [
+          "annual_stars",
+          "jinsuo",
+          "bazhai"
+        ]
+      },
+      {
+        "case": "candidate_jinsuo",
+        "three_transports_equal": true,
+        "output_schema_valid": true,
+        "methods": [
+          "annual_stars",
+          "jinsuo"
+        ]
+      },
+      {
+        "case": "form_no_compass",
+        "three_transports_equal": true,
+        "output_schema_valid": true,
+        "methods": []
+      },
+      {
+        "case": "floor_coordinates",
+        "three_transports_equal": true,
+        "output_schema_valid": true,
+        "methods": [
+          "annual_stars"
+        ]
+      }
+    ],
+    "invalid_floor_reference_rejected_on_all_transports": true,
+    "new_rule_data_packaged": true
+  },
+  "source_references": [
+    "user_expert_policy_v1",
+    "expert_fengshui_methods_v1@1.0.0",
+    "expert_environment_2026_10_v1@1.0.0"
+  ],
+  "resolved_integration_findings": [
+    "explicit unknown orientation cannot be cleared by unrelated candidate context",
+    "floor centre and alignment cannot be inherited from whole-house confirmation",
+    "candidate observations preserve each prior criterion; another shape does not prove a prior shape absent",
+    "moving or rotating a feature object requires independent candidate sand-water observations and a new Jinsuo comparison",
+    "non-directional fact and form reviews can finish while orientation remains explicitly unknown"
+  ],
+  "limits": [
+    "No new Desktop real-model consultation or existing MCP process restart was performed.",
+    "No hosted CI or physical-layout and real-world fortune-effect acceptance was performed.",
+    "Kitchen-bathroom, material and shape facts without a specific sourced rule are recorded as unsupported rather than invented taboos.",
+    "Floor suitability and local-only influence are evidence-backed supplied conditions, not engine-inferred fortune or safety.",
+    "Career and furniture references are bounded symbolic and observation references, not predictions or placement prescriptions."
+  ],
+  "git": {
+    "head_unchanged": true,
+    "index_unchanged": true,
+    "committed": false,
+    "pushed": false
+  },
+  "temporary_environment": {
+    "profile": "fatebridge-ci-linux",
+    "initial_state": "Stopped",
+    "final_state": "Stopped",
+    "docker_context": "default"
+  },
+  "logs": {
+    "macos": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/macos-final.log",
+    "linux": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/linux-final.log",
+    "wheel": "/Users/thomas/.cache/fatebridge-expert-policy-20261015/wheel-check.log"
+  },
+  "superseded_runs": {
+    "before_typed_fix": "Superseded after full regression detected that MCP prevalidates alternatives into model objects; dictionary and typed nested inputs are now handled uniformly.",
+    "source_v2": "Superseded before candidate-feature repair; its copy omitted directory symlinks and therefore cannot serve as final skill-discovery acceptance. Final snapshot includes all nine original symlink entries."
+  }
+}

@@ -15,6 +15,7 @@ from pydantic import (
 from fatebridge.core.requests.base import _DeferredModel
 from fatebridge.utils.timezones import parse_timezone_name
 
+from .context_inputs import EnvironmentalContext
 from .layout_inputs import ElementAdjustment, FormObservation
 from .surface_inputs import SurfaceConstraints, SurfaceLayout
 
@@ -202,7 +203,7 @@ class Placement(_DeferredModel):
     purpose: Literal["door", "bed", "desk", "stove"]
     location_direction: Optional[Direction] = Field(
         default=None,
-        description="已确认对象相对全宅中心的落宫；未知则省略，不能由朝向推断",
+        description="已确认落宫，默认相对全宅中心；显式关联楼层时使用该层独立确认的中心与图纸方向，统一宅/年盘不代表自动定各层宅运。未知省略，不由朝向推断",
     )
     facing_direction: Optional[Direction] = Field(
         default=None,
@@ -262,6 +263,10 @@ class BazhaiRequest(_DeferredModel):
     @model_validator(mode="after")
     def unique_ids(self) -> "BazhaiRequest":
         ids = [o.subject_id for o in self.occupants]
+        context = getattr(self, "environmental_context", None)
+        known_subjects = set(ids) | (
+            {m.subject_id for m in context.household_members} if context else set()
+        )
         objects = [p.object_id for p in self.placements]
         if len(set(ids)) != len(ids) or len(set(objects)) != len(objects):
             raise ValueError("住户及布局对象 ID 必须分别唯一")
@@ -270,7 +275,7 @@ class BazhaiRequest(_DeferredModel):
         if self.house is not None and self.house.object_id in objects:
             raise ValueError("布局对象 ID 不得与住宅 ID 重复")
         if any(
-            referenced not in ids
+            referenced not in known_subjects
             for p in self.placements
             for referenced in (
                 p.subject_ids
@@ -284,7 +289,9 @@ class BazhaiRequest(_DeferredModel):
 
 class EnvironmentFeature(_DeferredModel):
     object_id: str = Field(min_length=1, max_length=100)
-    direction: Direction
+    direction: Direction = Field(
+        description="已确认特征落宫，默认以全宅中心为准；若environmental_context.floors将对象关联楼层，则必须相对该层独立确认中心及对齐后的方位，不由全宅中心自动投射。"
+    )
     classification: Literal["sand", "water", "mixed", "unknown"]
     classification_basis: Basis
     evidence: str = Field(
@@ -531,6 +538,15 @@ class LayoutAlternative(_DeferredModel):
     )
     placement: Optional[Placement] = None
     form_observation: Optional[FormObservation] = None
+    features: List[EnvironmentFeature] = Field(
+        default_factory=list,
+        max_length=1,
+        description="候选对象在新位置/朝向下独立确认的砂水特征；仅限本候选object_id，不继承搬转前分类与落宫，须选择jinsuo",
+    )
+    environmental_context: Optional[EnvironmentalContext] = Field(
+        default=None,
+        description="候选位置独立确认的楼层/环境事实；搬转后不继承现状楼层归属及环境观察，人物身份不得改变",
+    )
     physically_feasible: Optional[StrictBool] = Field(
         default=None,
         description="逐方案确认能容纳家具、保持操作空间与通行；允许移动不等于此项为真",
@@ -547,13 +563,110 @@ class LayoutAlternative(_DeferredModel):
             raise ValueError("候选需独立位置或形态观察，且 object_id 必须一致")
         if len({o.purpose for o in supplied}) != 1:
             raise ValueError("候选位置与形态用途必须一致")
+        JinsuoRequest(features=self.features)
+        if any(feature.object_id != self.object_id for feature in self.features):
+            raise ValueError("候选砂水只能引用本候选 object_id")
+        if self.placement is not None and self.placement.location_direction is not None:
+            if any(
+                feature.direction != self.placement.location_direction
+                for feature in self.features
+            ):
+                raise ValueError("同一候选对象的砂水方向与已确认位置必须一致")
         return self
 
 
+def _validate_floor_sector_assignments(
+    context: EnvironmentalContext, location_object_ids: set[str]
+) -> None:
+    for floor in context.floors:
+        if not set(floor.object_ids) & location_object_ids:
+            continue
+        if (
+            context.orientation is None
+            or not context.orientation.ready_for_sectors()
+            or floor.uses_shared_orientation is not True
+            or floor.center_confirmed is not True
+            or floor.floorplan_alignment_confirmed is not True
+        ):
+            raise ValueError(
+                f"楼层 {floor.floor_id} 的共用方向、独立中心及户型偏移未确认，不能提交该层实际落宫"
+            )
+
+
+def _validate_floor_user_assignments(
+    context: EnvironmentalContext, placements: List[Placement]
+) -> None:
+    for floor in context.floors:
+        if not floor.usage_confirmed:
+            continue
+        for placement in placements:
+            if placement.object_id not in floor.object_ids:
+                continue
+            explicit_users = placement.subject_ids or (
+                [placement.subject_id] if placement.subject_id is not None else []
+            )
+            if set(explicit_users) - set(floor.subject_ids):
+                raise ValueError(
+                    f"楼层 {floor.floor_id} 的完整使用名单与对象 {placement.object_id} 明确使用人矛盾"
+                )
+
+
+def _validate_static_floor_frames(
+    current: Optional[EnvironmentalContext],
+    proposed: EnvironmentalContext,
+    target_id: str,
+    static_feature_ids: set[str],
+) -> None:
+    if (
+        current is not None
+        and current.orientation is not None
+        and proposed.orientation is not None
+        and current.orientation.north_reference is not None
+        and proposed.orientation.north_reference is not None
+        and current.orientation.north_reference != proposed.orientation.north_reference
+    ):
+        raise ValueError("家具候选不得改变已确认的全局 north_reference")
+    original_floors = {f.floor_id: f for f in current.floors} if current else {}
+    original_objects = {
+        object_id: floor
+        for floor in original_floors.values()
+        for object_id in floor.object_ids
+    }
+    frame_fields = (
+        "floor_id",
+        "level",
+        "space_kind",
+        "uses_shared_orientation",
+        "center_confirmed",
+        "floorplan_alignment_confirmed",
+    )
+    for floor in proposed.floors:
+        previous = original_floors.get(floor.floor_id)
+        if previous is not None and any(
+            getattr(previous, field) != getattr(floor, field) for field in frame_fields
+        ):
+            raise ValueError("家具候选不得改写已有楼层的身份或坐标参考系")
+        for object_id in set(floor.object_ids) - {target_id}:
+            before = original_objects.get(object_id)
+            if before is None:
+                if object_id in static_feature_ids:
+                    raise ValueError("候选不得将未移动的既有砂水特征改为新的楼层坐标")
+                continue
+            if any(
+                getattr(before, field) != getattr(floor, field)
+                for field in frame_fields
+            ):
+                raise ValueError("候选不得改变未移动对象的楼层或坐标参考系")
+
+
 class AssessRequest(BazhaiRequest):
-    scene: Optional[Literal["workstation", "home"]] = Field(
+    scene: Optional[Literal["workstation", "shared_rental", "home"]] = Field(
         default=None,
-        description="显式场景；未指定 methods 时按已有事实选层。未指定场景保留旧默认；独立形态/桌面默认不引入罗盘层。",
+        description="工位/合租/家居场景；局部按九宫飞星、金锁优先审查，八宅命卦独立。未指定 methods 时按已有事实选层，显式列表优先。",
+    )
+    environmental_context: Optional[EnvironmentalContext] = Field(
+        default=None,
+        description="专家口径的方向与户型确认、家庭辈分/排行、多楼层/院落、无方位环境事实；独立于八字紫微与八宅命卦，不按身份或命盘补方向。",
     )
     layout_constraints: List[LayoutConstraint] = Field(
         default_factory=list, max_length=200
@@ -598,33 +711,17 @@ class AssessRequest(BazhaiRequest):
         description="显式启用宅盘时的历史定运和宅向；可继承顶层 house，年星不继承宅运",
     )
 
-    @model_validator(mode="before")
-    @classmethod
-    def select_relevant_methods(cls, value: Any) -> Any:
-        if not isinstance(value, dict) or value.get("methods") is not None:
-            return value
-        authored = bool(value.get("form_observations") or value.get("surface_layouts"))
-        if value.get("scene") is None and not authored:
-            return {**value, "methods": ["bazhai", "jinsuo", "annual_stars"]}
-        selected = []
-        if (value.get("placements") or value.get("scene") == "home") and (
-            value.get("house") or value.get("occupants")
-        ):
-            selected.append("bazhai")
-        if value.get("features"):
-            selected.append("jinsuo")
-        if value.get("effective_year") is not None or value.get("query_at") is not None:
-            selected.append("annual_stars")
-        if value.get("xuankong") is not None:
-            selected.append("xuankong_natal")
-        return {**value, "methods": selected}
-
     @property
     def selected_methods(self) -> List[Method]:
-        # The before-validator normalizes null on every transport, including
-        # MCP hosts which materialize schema defaults before invocation.
-        assert self.methods is not None
-        return self.methods
+        # Keep null in the public input model so validation/dump/binding does
+        # not turn automatic selection into an explicit caller choice.
+        if self.methods is not None:
+            return self.methods
+        from typing import cast
+
+        from .method_policy import select_methods
+
+        return cast(List[Method], select_methods(self.model_dump()))
 
     @model_validator(mode="after")
     def validate_layers(self) -> "AssessRequest":
@@ -632,6 +729,7 @@ class AssessRequest(BazhaiRequest):
             not self.selected_methods
             and not self.form_observations
             and not self.surface_layouts
+            and self.environmental_context is None
             and self.scene is None
         ):
             raise ValueError(
@@ -671,11 +769,86 @@ class AssessRequest(BazhaiRequest):
                 and placement.purpose != forms[placement.object_id].purpose
             ):
                 raise ValueError("同一对象的形态用途与布局用途不一致")
+            if placement.location_direction is not None and any(
+                feature.object_id == placement.object_id
+                and feature.direction != placement.location_direction
+                for feature in self.features
+            ):
+                raise ValueError("同一对象的砂水方向与已确认位置必须一致")
         request_ids = [a.request_id for a in self.element_adjustments]
         if len(request_ids) != len(set(request_ids)):
             raise ValueError("元素调节请求 ID 必须唯一")
         objects = {p.object_id for p in self.placements}
         known = objects | set(forms)
+        if self.environmental_context is not None:
+            self.environmental_context.validate_references(
+                known | set(surfaces) | {f.object_id for f in self.features},
+                [o.subject_id for o in self.occupants],
+                {p.object_id: p.purpose for p in self.placements}
+                | {o.object_id: o.purpose for o in self.form_observations}
+                | {s.object_id: "desk" for s in self.surface_layouts},
+            )
+            _validate_floor_user_assignments(
+                self.environmental_context, self.placements
+            )
+            _validate_floor_sector_assignments(
+                self.environmental_context,
+                {
+                    p.object_id
+                    for p in self.placements
+                    if p.location_direction is not None
+                }
+                | {f.object_id for f in self.features}
+                | {
+                    f.object_id
+                    for c in self.layout_alternatives
+                    if c.environmental_context is None
+                    for f in c.features
+                },
+            )
+            orientation = self.environmental_context.orientation
+            if orientation is not None:
+                proposals = [
+                    c.placement
+                    for c in self.layout_alternatives
+                    if c.placement and c.environmental_context is None
+                ]
+                placements = [*self.placements, *proposals]
+                proposal_features = [
+                    feature
+                    for candidate in self.layout_alternatives
+                    if candidate.environmental_context is None
+                    for feature in candidate.features
+                ]
+                external_forms = bool(
+                    self.xuankong
+                    and self.xuankong.interpretation
+                    and self.xuankong.interpretation.external_forms
+                )
+                if not orientation.ready_for_sectors() and (
+                    any(p.location_direction is not None for p in placements)
+                    or self.features
+                    or proposal_features
+                    or external_forms
+                ):
+                    raise ValueError(
+                        "户型方位、偏移及中心未确认，不能同时提交实际落宫、砂水分宫或外局分宫；原始盘与独立形态仍可计算"
+                    )
+                if not orientation.direction_confirmed and any(
+                    p.facing_direction is not None for p in placements
+                ):
+                    raise ValueError("方位未确认，不能同时提交已确认家具朝向")
+                for house in (
+                    self.house,
+                    self.xuankong.house if self.xuankong else None,
+                ):
+                    if (
+                        house is not None
+                        and house.north_reference is not None
+                        and orientation.north_reference is not None
+                        and house.north_reference != orientation.north_reference
+                    ):
+                        raise ValueError("环境方位与宅向的 north_reference 不一致")
         constraint_ids = [c.object_id for c in self.layout_constraints]
         if (
             len(set(constraint_ids)) != len(constraint_ids)
@@ -697,6 +870,8 @@ class AssessRequest(BazhaiRequest):
             raise ValueError("布局候选 candidate_id 必须唯一")
         current = {p.object_id: p for p in self.placements}
         for candidate in self.layout_alternatives:
+            if candidate.features and "jinsuo" not in self.selected_methods:
+                raise ValueError("候选砂水特征须在 methods 中选择 jinsuo")
             if candidate.object_id not in objects | set(forms):
                 raise ValueError("布局候选须引用已有位置或形态对象")
             base = current.get(candidate.object_id) or forms[candidate.object_id]
@@ -704,16 +879,107 @@ class AssessRequest(BazhaiRequest):
                 if obs is not None and obs.purpose != base.purpose:
                     raise ValueError("候选不得改变对象用途")
             proposal = candidate.placement
-            if proposal is not None:
-                BazhaiRequest(
-                    house=self.house, occupants=self.occupants, placements=[proposal]
+            candidate_context = candidate.environmental_context
+            if candidate_context is not None:
+                current_members = (
+                    {
+                        m.subject_id: m
+                        for m in self.environmental_context.household_members
+                    }
+                    if self.environmental_context
+                    else {}
                 )
+                for member in candidate_context.household_members:
+                    if (
+                        member.subject_id not in current_members
+                        or member.model_dump()
+                        != current_members[member.subject_id].model_dump()
+                    ):
+                        raise ValueError("候选不得新增或更换家庭人物身份")
+                candidate_context.validate_references(
+                    known
+                    | set(surfaces)
+                    | {f.object_id for f in self.features}
+                    | {f.object_id for f in candidate.features},
+                    {o.subject_id for o in self.occupants} | set(current_members),
+                    {p.object_id: p.purpose for p in self.placements}
+                    | {o.object_id: o.purpose for o in self.form_observations},
+                )
+                _validate_static_floor_frames(
+                    self.environmental_context,
+                    candidate_context,
+                    candidate.object_id,
+                    {
+                        f.object_id
+                        for f in self.features
+                        if f.object_id != candidate.object_id
+                    },
+                )
+                _validate_floor_user_assignments(
+                    candidate_context, [proposal] if proposal is not None else []
+                )
+                _validate_floor_sector_assignments(
+                    candidate_context,
+                    (
+                        {proposal.object_id}
+                        if proposal is not None
+                        and proposal.location_direction is not None
+                        else set()
+                    )
+                    | {feature.object_id for feature in candidate.features},
+                )
+                orientation = candidate_context.orientation
+                if (
+                    orientation is None
+                    and self.environmental_context is not None
+                    and self.environmental_context.orientation is not None
+                ):
+                    # A proposal cannot erase an explicitly known uncertainty.
+                    orientation = self.environmental_context.orientation
+                if orientation is not None:
+                    if (
+                        (
+                            bool(candidate.features)
+                            or (
+                                proposal is not None
+                                and proposal.location_direction is not None
+                            )
+                        )
+                        and not orientation.ready_for_sectors()
+                    ) or (
+                        proposal is not None
+                        and proposal.facing_direction is not None
+                        and not orientation.direction_confirmed
+                    ):
+                        raise ValueError("候选环境方位未确认，不能提交已确认位置或朝向")
+                    for house in (
+                        self.house,
+                        self.xuankong.house if self.xuankong else None,
+                    ):
+                        if (
+                            house is not None
+                            and house.north_reference is not None
+                            and orientation.north_reference is not None
+                            and house.north_reference != orientation.north_reference
+                        ):
+                            raise ValueError("候选环境与宅向的 north_reference 不一致")
+            if proposal is not None:
+                known_subjects = {o.subject_id for o in self.occupants} | (
+                    {m.subject_id for m in self.environmental_context.household_members}
+                    if self.environmental_context
+                    else set()
+                )
+                referenced = proposal.subject_ids or (
+                    [proposal.subject_id] if proposal.subject_id else []
+                )
+                if set(referenced) - known_subjects:
+                    raise ValueError("候选引用了未提供的住户")
                 before = current.get(candidate.object_id)
                 if before is not None:
                     if any(
-                        before.applies_to_occupant(o.subject_id)
-                        != proposal.applies_to_occupant(o.subject_id)
-                        for o in self.occupants
+                        before.applies_to_occupant(subject_id)
+                        != proposal.applies_to_occupant(subject_id)
+                        for subject_id in known_subjects
                     ):
                         raise ValueError("候选不得更换对象使用人范围")
                     for aspect in ("location", "facing"):

@@ -8,6 +8,8 @@ from fatebridge.core.fengshui.bazhai import bazhai, minggua
 from fatebridge.core.fengshui.directions import bearing_context, provenance, rule_data
 from fatebridge.core.fengshui.jinsuo import jinsuo
 from fatebridge.core.fengshui.layout import analyze_layout
+from fatebridge.core.fengshui.method_details import method_details
+from fatebridge.core.fengshui.method_policy import method_policy
 from fatebridge.core.fengshui.models import (
     AnnualRequest,
     AssessRequest,
@@ -41,6 +43,8 @@ def _compose(
     conflicts: List[Dict[str, Any]],
     layout: Dict[str, Any] | None = None,
     scene_scope: Dict[str, Any] | None = None,
+    method_selection: Dict[str, Any] | None = None,
+    method_reference: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     missing = [m for layer in layers.values() for m in layer["missing_inputs"]]
     status = "partial" if missing else "complete"
@@ -143,6 +147,31 @@ def _compose(
         )
     if scene_scope is not None:
         result["coverage"]["scene_scope"] = scene_scope
+    if method_selection is not None and method_reference is not None:
+        result["method_policy"] = method_selection
+        result["method_details"] = method_reference
+        result["coverage"]["method_priority_review"] = {
+            key: method_selection[key]
+            for key in (
+                "priority_review_status",
+                "priority_missing_methods",
+                "priority_missing_inputs",
+            )
+        }
+        reference = method_reference["ruleset"]
+        result["rulesets"].append(reference)
+        result["rule_trace"].append(
+            {
+                key: reference[key]
+                for key in ("method", "ruleset_id", "version", "source_ids", "scope")
+            }
+        )
+    context = (layout or {}).get("environmental_context")
+    if context is not None:
+        result["coverage"].update(
+            environmental_context_status=context["status"],
+            environmental_context_missing_inputs=context["missing_inputs"],
+        )
     snapshot_sections = sections(result)
     result["snapshot_text"] = render_snapshot_lines(snapshot_sections)
     result["snapshot_export"] = build_snapshot_export(
@@ -310,6 +339,7 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
             {**natal.model_dump(), "house": natal.house or req.house}
         )
         layers["xuankong_natal"] = _natal_layer(natal, req.placements)
+    layers = {name: layers[name] for name in req.selected_methods}
     layout = (
         analyze_layout(req, layers)
         if req.analyze_layout
@@ -317,6 +347,7 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
         or req.layout_constraints
         or req.layout_alternatives
         or req.form_observations
+        or req.environmental_context is not None
         or req.surface_layouts
         or req.element_adjustments
         or req.annual_remedy_ruleset_id is not None
@@ -399,4 +430,23 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
             ],
             "effectiveness": "not_established_by_software_validation",
         }
-    return _compose(layers, _differences(layers), layout, scene_scope)
+    policy_selected = req.scene is not None or req.environmental_context is not None
+    return _compose(
+        layers,
+        _differences(layers),
+        layout,
+        scene_scope,
+        (
+            method_policy(
+                req,
+                explicit_methods=kwargs.get("methods") is not None,
+                layer_results=layers,
+                candidate_results=(layout or {})
+                .get("alternatives_analysis", {})
+                .get("findings", []),
+            )
+            if policy_selected
+            else None
+        ),
+        method_details(req.selected_methods) if policy_selected else None,
+    )

@@ -11,6 +11,7 @@ from fatebridge.core.divination import ELEMENT_CONTROLS, ELEMENT_GENERATES
 
 from .actions import FORM_ACTION_ROUTES, apply_permission
 from .bazhai import placement_polarity
+from .context import analyze_environmental_context
 from .directions import rule_data
 from .layout_supplements import analyze_supplements
 from .models import AssessRequest
@@ -41,6 +42,7 @@ def _summarize_layout_progress(
     environment: List[Dict[str, Any]],
     supplements: Dict[str, Any],
     natal_interpretation: Dict[str, Any] | None = None,
+    environmental_context: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     """Summarize reviewed records separately from optional physical actions."""
     progress_counts = dict(supported=0, confirmed_unsupported=0, unknown=0)
@@ -221,6 +223,12 @@ def _summarize_layout_progress(
             progress_actions.append({"status": action_status, "optional": True})
             progress_pending.extend(action_pending)
     limited = supplements["annual_remedies"]["status"] == "unsupported_year"
+    if environmental_context is not None:
+        for state, count in environmental_context["rule_coverage_counts"].items():
+            progress_counts[state] += count
+        limited = limited or bool(
+            environmental_context["rule_coverage_counts"]["confirmed_unsupported"]
+        )
     if natal_interpretation is not None:
         limited = limited or natal_interpretation["rule_coverage_status"] == "limited"
         # Count interpretation checks separately from merely looking up the
@@ -319,7 +327,12 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
     options: List[Dict[str, Any]] = []
     elements: List[Dict[str, Any]] = []
     missing: List[str] = []
-    if not layers and not req.form_observations and not req.surface_layouts:
+    if (
+        not layers
+        and not req.form_observations
+        and not req.surface_layouts
+        and req.environmental_context is None
+    ):
         missing.append("form_observations_or_surface_layouts_or_selected_methods")
     if not req.placements and any(
         m in req.selected_methods for m in ("bazhai", "annual_stars", "xuankong_natal")
@@ -541,8 +554,45 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         missing.extend(layer["missing_inputs"])
     supplements = analyze_supplements(req, layers, elements)
     missing.extend(supplements["missing_inputs"])
+    context = (
+        analyze_environmental_context(
+            req.environmental_context,
+            req.selected_methods,
+            non_directional_scope=bool(req.form_observations or req.surface_layouts),
+        )
+        if req.environmental_context is not None
+        else None
+    )
+    if context is not None:
+        missing.extend(context["missing_inputs"])
+        supplements["supplemental_rulesets"].append(context["ruleset"])
+        floor_by_object = {
+            object_id: floor
+            for floor in context["floor_review"]["floors"]
+            for object_id in floor["object_ids"]
+        }
+        for entry in [*findings, *options, *elements, *environment]:
+            floor = floor_by_object.get(entry.get("object_id"))
+            if floor is not None:
+                entry.update(
+                    floor_id=floor["floor_id"],
+                    floor_level=floor["analysis_level"],
+                    location_reference=(
+                        "confirmed_compass_facing_independent_of_floor_center"
+                        if entry.get("aspect") == "facing"
+                        else "independently_confirmed_floor_center_shared_orientation"
+                    ),
+                    chart_scope="declared_house_and_annual_layers_no_automatic_floor_period",
+                )
     progress = _summarize_layout_progress(
-        req, missing, options, findings, environment, supplements, natal_interpretation
+        req,
+        missing,
+        options,
+        findings,
+        environment,
+        supplements,
+        natal_interpretation,
+        context,
     )
     return {
         "status": (
@@ -552,6 +602,7 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         ),
         "calculation_scope": "selected_methods_and_authored_rules_on_supplied_objects",
         "analysis_progress": progress,
+        **({"environmental_context": context} if context is not None else {}),
         **(
             {"natal_interpretation": natal_interpretation}
             if natal_interpretation is not None

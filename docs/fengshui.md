@@ -2,6 +2,8 @@
 
 第一阶段提供六个基础工具：公共方位、个人命卦、八宅、金锁玉关基础砂水、年度紫白飞星和三法合参。三端来自同一目录，核心规则离线计算，不依赖外部风水服务。结果表示选定传统规则中的关系；规则来源、计算一致性和现实预测效力是不同事项。
 
+2026-10-15 的[专家访谈迭代政策](fengshui-expert-policy.md)以九宫飞星、金锁玉关和八宅为主要方法；局部工位／合租先考虑飞星、次金锁，八宅命卦独立处理。政策是用户提供的专家口径，来源、方法细节及环境上下文各自有版本；不将本人或周围人的八字／紫微喜忌代入房屋五行。现代 BTB 仅用户明确另选时作为作者辅助，不作默认替代。
+
 ## 入口与最小输入
 
 | REST POST | MCP / CLI | 输入 | 输出层 |
@@ -103,11 +105,21 @@ asyncio.run(main())
 
 ## 输入语义和边界
 
-工位/家居可传 `scene=workstation|home`；未显式传方法时按已有事实选层，独立形态/桌面不再自动引入无关三法。家具动作许可与独立候选方案分别用 `layout_constraints` / `layout_alternatives`，详见[场景选法与候选布局合同](fengshui-scene-planning.md)。候选重算现有规则、不继承旧形态、不平均评分；完整古典形势、独立阳宅三要结构、三合/大卦及完整玄空组合解释仍明确未覆盖。
+工位／合租／家居可传 `scene=workstation|shared_rental|home`；未显式传方法时按已有事实选层，独立形态/桌面不再自动引入无关三法。局部优先顺序只组织核对和说明，不补历史定运、年份或方位。家具动作许可与独立候选方案分别用 `layout_constraints` / `layout_alternatives`，详见[场景选法与候选布局合同](fengshui-scene-planning.md)。候选重算现有规则、不继承旧形态、不平均评分；完整古典形势、独立阳宅三要结构、三合/大卦及完整玄空组合解释仍明确未覆盖。
+
+`method_policy.priority_review_status` 与每法 `not_selected_reason` 单独报告优先审查范围，区分自动缺输入和显式排除；不改变已选方法的计算完成状态，也不把未选方法算成已审。局部所需飞星／金锁缺资料时保留范围，不为了 complete 补事实；用户排除或仅问其他已选范围时不强追资料。
 
 角度范围0–360，360归零；八方中心间隔45°，半宽22.5°；24山中心间隔15°，半宽7.5°。正好22.5°归东北／丑山。宅向推导坐山时加180°；同时提供 `sitting_trigram` 必须一致。基础方位／八宅角度必须声明 `north_reference=magnetic|true`（玄空当前版本要求 magnetic），不自动校正磁偏角。只有已确认宅卦时可直接提供 `sitting_trigram`。
 
 `house.division_method` 只接受 `confirmed_angular_sectors`。八方角区、九等分网格和示意九宫图不是同一个几何计算；第一阶段不识别户型图片、不自动定中心、也不推断不规则户型分宫。
+
+`environmental_context` 可独立保存方位／图纸对齐与中心确认、同住家庭辈分／排行、独立确认生肖、各楼层／院落与明确形态观察；不要求为这些事实提交生辰。输出位于 `layout_analysis.environmental_context`，其中上下文宫位绑定须经过方向、户型对齐与立极三个门槛。该模块不计算飞星，也不把家庭象征索引当成现实人物受影响结论。院落归第一层但共享整体关系仍需复核；局限本层且异层适宜有依据时，不自动将该局部不利归给异层住户。厨卫、材质和器形事实不自动变成禁忌，未有具体判据的项目保留未覆盖。具体字段与示例见[专家政策](fengshui-expert-policy.md)。
+
+仅解释家庭卦名／对宫用 `household_scope=symbolic_reference`，不绑定真实方向或为此追罗盘；默认 `environmental_binding` 才关联环境方区。家庭及生肖输出的 `scope`／适用方法限定为飞星、金锁的环境象征索引，不作为八宅命卦；实际个人匹配看八宅层。当前结构化厨卫关系只支持四类，具体禁忌仍未实现，其他关系不能换错误枚举套入。
+
+多层及独立院落还须各自确认 `floors[].floorplan_alignment_confirmed`、`center_confirmed`，并以 `uses_shared_orientation=true` 采用全宅已确认方向；全宅中心不自动成为每层中心。逐层门槛不足时不能提交关联对象的物理落宫事实。当前各层复用本次已明确声明的宅／年盘，位置按各自确认中心提供；不会自动建立每层宅运或自动立极。
+
+`floors[].subject_ids` 是正向使用名单，省略不等于无人或某人不使用。仅在需要作负向排除时，相关作用空间完整使用范围须以 `usage_confirmed=true` 与成对 `usage_evidence` 明确确认；否则保持待确认，不能据其他适宜层的住户名单自动豁免本层／共享影响。
 
 时间输入必须含 UTC 偏移或Z，`timezone_name` 默认为 `Asia/Shanghai`，可用 IANA 名称或偏移。每个出生／查询时刻与对应有效年字段二选一。显式有效生年表示调用方已确认换年，无需出生小时或真太阳时。未知 `gender_convention` 应省略或传 null，返回男女候选并标记 `partial`，不会默认男性。支持有效年1800–2199、带时区输入1801–2199；区间结束可延伸下一年。
 
@@ -176,6 +188,8 @@ status: complete | partial
 layers.bazhai: house.sectors / occupants[].candidates[].sectors / placement_findings
 layers.jinsuo: preferences / feature_findings
 layers.annual_stars: palaces / effective_year / time_context / current_period
+method_policy / method_details: 选法口径、实际层次、固定宫与星五行及带来源象意参考
+layout_analysis.environmental_context: 方位门槛、家庭/生肖关注、多层范围、现代设计及未覆盖观察
 rulesets / rule_trace: 各层规则版本、来源及范围
 coverage: implemented_layers / missing_inputs / unavailable_layers / not_requested_layers
 conflicts: 逐人方向差异、宅与人作用域差异、三层叠加清单
@@ -188,6 +202,8 @@ run_metadata: 三端通用运行元数据
 `complete` 仅表示请求的基础层已有所需输入，不代表全流派、完整环境勘测或进阶宅盘完成。八宅缺住户时宅盘仍可计算，但个人层缺失使状态为 `partial`；金锁玉关只覆盖提供的特征，不保证全宅环境已勘测。空请求返回各层缺失项，HTTP200／MCP成功／CLI退出0。非法输入返回校验错误，HTTP422／MCP `isError=true`／CLI退出1。`methods` 可以只选择需要的层，未请求的层不计算。
 
 八宅游年星与年度紫白星有不同名称空间，例如八宅生气贪狼属木、一白贪狼属水。`palace_number` 始终是固定宫数，`annual_star_number` 才是当年临宫星数；`current_period` 是当前日历元运，不是住宅建造元运。
+
+`method_details.status=reference_only` 表示方法与象意参考：固定宫五行、临宫星五行、《说卦》的家庭／器物和少量古代职业角色分开。现代职业／家具及高楼、道路、水体、绿化等砂水观察例不构成自动分类、摆放处方或职业预测；未知分类仍不判断。访谈口径与经典取象分别标注来源，精确范围见[专家政策细节](fengshui-expert-policy.md#方法细节如何讲清楚)。
 
 本版明确未实现：月飞星、金锁24山及形态／距离／元运组合、自动户型几何。24山角度索引可用不表示这些24山论断可用。没有三法总分，也不生成疾病、死亡或财富断语。
 
