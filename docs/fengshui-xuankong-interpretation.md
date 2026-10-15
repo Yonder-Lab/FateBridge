@@ -73,7 +73,7 @@
 
 ```bash
 fatebridge fengshui_assess --request-file docs/examples/fengshui-xuankong-interpretation.json
-curl -X POST http://localhost:8000/api/fengshui/assess \
+curl -X POST http://localhost:8010/api/fengshui/assess \
   -H 'Content-Type: application/json' \
   --data-binary @docs/examples/fengshui-xuankong-interpretation.json
 ```

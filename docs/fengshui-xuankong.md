@@ -58,7 +58,7 @@ X2网页有明显笔误：“阳阳互兼用替”与随后同阳不替的例子
 ```
 
 ```bash
-curl -X POST http://localhost:8000/api/fengshui/xuankong_natal \
+curl -X POST http://localhost:8010/api/fengshui/xuankong_natal \
   -H 'Content-Type: application/json' \
   --data-binary @docs/examples/fengshui-xuankong.json
 

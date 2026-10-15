@@ -71,6 +71,8 @@ Codex 应按以下流程调用：
 5. 先检查 `isError`，再读取 `structuredContent`。保存原输入与 `run_metadata`；后续调用沿用前次 `trace_id`，用前次 `run_id` 作为 `parent_run_id`。不要把同一出生资料的多次计算当成独立证据。
 6. 先回答问题，再说明字段依据，区分可复算计算、传统规则和现实建议；用户要求深入时再扩展。日期、时区、地点、太阳时及精度以实际返回为准。
 
+上述精简字段用于摘要咨询。用户要求完整 JSON、全部时间线或完整文件时，首次调用改用 `fields=null`，保留默认响应预算及所需快照，超限后从 `result_delivery` 读取同一 run。不能先裁出摘要再重新计算来补全文。资源分页、文件提取与 SHA-256 校验见 [完整结果交付](agent-guide.md#完整结果交付与同次导出)。西占推运须显式传目标 `analysis_hour` / `analysis_minute`，并核对返回的 `analysis_context.analysis_datetime`；`as_of` 不替代目标钟时。
+
 双人关系中，`summary.overall_score` 是 0–100 的规则加权分，`traditional_compatibility.score` 是加减净分，`detailed_analysis.traditional_analysis.score` 是独立摩擦维度；三处的 `score_basis` 说明口径。不能平均、视为成功概率或用一个子项等级替代整体评价。首轮建议字段保留完整依据、人物和建议，避免为了补解释再计算一遍。
 
 根目录 `AGENTS.md` 已随正常项目指引加载事业、双人相处、综合时运和风水布局的实际输入合同与首轮字段。当前公历资料齐全、工具公开时可以直接调用，省去一次工具检索和模型往返。合同由 `scripts/build_codex_call_contracts.py` 从当前 MCP 生成，接口更新后的测试会检查是否同步，参数约束与完整服务端 Schema 保留。

@@ -197,6 +197,8 @@
 | `fengshui_xuankong_natal` | 中州派历史定运、24山／三元龙、五黄、下卦与兼向替星 | Implemented（xuankong_zhongzhou_v1） |
 | `fengshui_assess` | 多层布局关联、匹配方位、现代作者室内形态、条件式元素/年度方案、分歧与版本 | Implemented（限已登记规则版本） |
 
+布局入口设 `analyze_layout=true`。扩展覆盖包括场景选法与优先审查状态、家庭人物及楼层上下文、12 类明确室内关系、独立材质／器形事实、家具候选比较，以及显式启用的玄空有限解释；只按已确认事实与登记版本计算。照片候选、缺失资料、未覆盖规则和动作可行性分别保留，`complete` 不等于所有方法均已审查或可立即执行。输入与来源详见 [风水专题导航](README.md#风水专题)。
+
 所有工具三端可调用；复杂 CLI 请求用 `--request-file`。固定宫数、年度星数、八宅星和紫白星分开；三法没有统一分数。24山方向索引不代表已经支持24山风水论断。月飞星、金锁形态距离／元运与自动户型几何均 Excluded，输出明确列入 `unavailable_layers`。
 
 验证包括固定第三方命卦400项／关系64项、独立2026年星盘和跨端合同，不代表现实预测有效性。来源、算法和输入合同见 [家居风水](fengshui.md)。
@@ -249,7 +251,7 @@
 
 | 形态 | 工具范围 | 读取方式 |
 | --- | --- | --- |
-| `snapshot_text` + `snapshot_export` | 八字独立盘/专项/综合分析、双人配合、全部时运与历法、卦义查询、三式合参、中国术数独立盘、knowledge、核心/关系星盘（中点盘除外）、独立西占推运 | 业务数据为准，快照辅助阅读；支持选择的模型才裁剪导出 |
+| `snapshot_text` + `snapshot_export` | 八字独立盘/专项/综合分析、双人配合、全部时运与历法、卦义查询、三式合参、中国术数独立盘、knowledge、核心/关系星盘（中点盘除外）、独立西占推运、七个风水工具 | 业务数据为准，快照辅助阅读；支持选择的模型才裁剪导出 |
 | `snapshot_text`，无 `snapshot_export` | `tongshefa`、`sixyao`、`canping`、`heluo`、`suzhan`、`otherbu`、西占事件与生命周期工具 | 读取文本与结构化业务数据；需要 section 解析时另调用 `export_parse` |
 | 结构化数据，无双层快照 | `meihua_analysis`、`astro_germany_chart`、`western_timing_analysis`、`export_registry`、`export_parse` | 读取各自的业务字段；`export_parse` 直接返回解析结果，不再嵌套 `snapshot_export` |
 
@@ -268,6 +270,6 @@
 
 - 不是所有能力都保证“天文级精度”（见 §3）
 - 不是所有实现都意味着“无需本地依赖”（`western_*` 需要 backend）
-- 不是所有 legacy mode 都代表推荐用法（见 §3.2）
+- 关系盘模式有明确语义，迁移时须核对 `relative_mode`（见 §3.2）
 
 如果你准备修改接口或新增能力，请同步更新本页，确保“文档状态”仍然是从代码反推出来的结果，而不是愿景描述。

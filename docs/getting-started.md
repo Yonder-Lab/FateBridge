@@ -159,4 +159,4 @@ fatebridge bazi_birth --birth-year 1990 --birth-month 5 --birth-day 15 \
   --birth-timezone Asia/Shanghai --fields bazi_birth.day_master
 ```
 
-三端投影、错误和快照规则查 [API 参考](api-reference.md)。出错时查看 [故障排除](troubleshooting.md)。
+MCP 默认响应预算为 8192 字符，超限时返回 `result_delivery`；需要全文时读取同一次结果。完整 JSON 首次调用不做字段筛选，文件导出方法见 [完整结果交付](agent-guide.md#完整结果交付与同次导出)。三端投影、错误和快照规则查 [API 参考](api-reference.md)。出错时查看 [故障排除](troubleshooting.md)。

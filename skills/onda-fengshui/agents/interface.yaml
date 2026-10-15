@@ -41,7 +41,6 @@ reads:
   - ../../../docs/fengshui-surface-rules.md
   - ../../../docs/fengshui-xuankong.md
   - ../../../docs/fengshui-scene-planning.md
-  - ../../../docs/fengshui-expert-policy.md
   - ../../../docs/fengshui-sourced-interior-rules.md
 output:
   kind: interpretation

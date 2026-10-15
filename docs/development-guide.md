@@ -26,10 +26,10 @@ python -m pip install -e ".[dev]"
 环境变量可以按需复制一份：
 
 ```bash
-cp .env.example .env
+cp -n .env.example .env
 ```
 
-环境变量、加载顺序、REST 鉴权与星历配置统一见 [快速入门](getting-started.md#配置环境变量)，避免另维护一份默认值。
+已有 `.env` 时直接编辑，避免覆盖。环境变量、加载顺序、REST 鉴权与星历配置统一见 [快速入门](getting-started.md#配置环境变量)，避免另维护一份默认值。
 
 ## 项目结构概览
 
@@ -218,11 +218,16 @@ mypy src/fatebridge/
 
 ```bash
 python -m pytest -q tests/test_doc_tool_counts.py tests/test_scenario_routing_coverage.py \
-  tests/test_skills_interface_contract.py tests/test_skills_engine_contract.py
+  tests/test_skills_interface_contract.py tests/test_skills_engine_contract.py \
+  tests/test_codex_call_contracts.py
+python scripts/build_scenario_manifest.py --check
+python scripts/build_codex_call_contracts.py --check
 git diff --check
 ```
 
 `test_skills_engine_contract.py` 会实际执行具体 CLI 示例，通过 `shlex` 拆分参数并绑定测试进程的 `sys.executable`，确保使用已安装本仓库的解释器。手工运行文档命令仍须激活对应环境。修改 Markdown 后还要检查本地链接、章节锚点、代码围栏和示例 JSON；上述测试不覆盖所有 prose 或所有链接。
+
+`AGENTS.md` 的 `codex-call-contracts` 区块由 `scripts/build_codex_call_contracts.py` 从实际 MCP 输入 Schema 和共享首轮字段生成，不能手改生成区。接口或首轮字段变化后先运行生成器，再用 `--check` 核对。场景矩阵或技能接口变化后同样重新生成 `data/agent_scenarios.json`，其中包含源文件散列，纯文案变更也可能需要同步生成物。
 
 新增工具还须在 `core/response_models.py` 声明完整结果的必需业务根，目录装配缺声明会失败；不要为了让错误的 service 输出通过而放宽要求。公共投影模型允许字段缺失与合法 null，完整执行的必需根则不可缺失或为 null。相关回归包括 `tests/test_complete_output_contracts.py`、`tests/test_fengshui_analysis_progress.py`、`tests/test_relationship_and_career_semantics.py`、`tests/test_result_delivery_storage.py` 和 `tests/test_response_budget_contract.py`；验证跨端成功／失败、合法投影、状态转移、字符无损读取及多进程容量，而非只冻结一个用户答案。
 

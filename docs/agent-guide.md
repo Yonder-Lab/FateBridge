@@ -167,6 +167,53 @@ fatebridge bazi_birth --birth-year 1990 --birth-month 6 --birth-day 15 \
 
 ---
 
+## 完整结果交付与同次导出
+
+MCP 默认 `response_char_limit=8192`，REST / CLI 默认 `0`（不限制）。成功结果超出非零预算时，响应包含 `result_delivery`，保留完整回执及预算内的业务字段；剩余字段从同一 run 的交付物读取，不重新计算。允许的预算为 `0` 或 `4096–65536`，错误响应不按业务字段裁剪。
+
+需要完整 JSON、全部时间线或完整文件时，**首次调用 `fields=null`**；REST / CLI 不传字段筛选。需要完整快照时保留默认 `include_snapshot_text=true`，也不要用 `selected_sections` 缩小导出文本。保留默认预算即可。交付物保存的是投影和快照选项处理后的结果，摘要调用的文件无法恢复未选字段。
+
+MCP 读取顺序：
+
+1. 读取 `result_delivery.manifest_uri`，确认结果范围、大小、SHA-256 和有效期。
+2. 全量读取从 `first_page_uri` 开始；每页资源内容是 JSON 包装，解析后提取其 `text`，依次跟随 `next_uri`（或 `next_offset`），直到下一页为 null。单页 `text` 至多 2048 字符，可能从 JSON 字符串中间截开，不能逐页当成完整业务 JSON 解析。
+3. 将全部 `text` 按序直接拼接，以 UTF-8 编码核对 `result_delivery.sha256`，通过后再解析全文或保存。只需解释某一字段时可使用 `fatebridge://results/{result_id}/fields/{path}/{offset}`；该读取支持数组数字索引，与计算时的 `fields` 投影规则不同。
+
+同机程序可直接读取返回的 `file_path`，取 `file_payload_path`（当前为 `payload`）指向的业务对象。例如先保存一次使用虚构资料的 CLI 响应：
+
+```bash
+fatebridge bazi_career --birth-year 1990 --birth-month 5 --birth-day 15 \
+  --birth-hour 10 --birth-minute 30 --gender 男 --birth-place 北京 \
+  --birth-longitude 116.4074 --birth-timezone Asia/Shanghai \
+  --as-of '2026-10-15T12:00:00+08:00' --response-char-limit 8192 --compact > reply.json
+```
+
+下面将 `reply.json` 导出为 `full-result.json`，同时处理未超限的普通响应：
+
+```python
+import hashlib
+import json
+from pathlib import Path
+
+reply = json.loads(Path("reply.json").read_text(encoding="utf-8"))
+if "error" in reply:
+    raise RuntimeError(reply)
+delivery = reply.get("result_delivery")
+if delivery:
+    record = json.loads(Path(delivery["file_path"]).read_text(encoding="utf-8"))
+    payload = record[delivery["file_payload_path"]]
+else:
+    payload = reply
+raw = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+if delivery and hashlib.sha256(raw).hexdigest() != delivery["sha256"]:
+    raise ValueError("完整结果 SHA-256 不匹配")
+Path("full-result.json").write_bytes(raw)
+```
+
+散列对象是保留的完整响应，包括其中的 `run_metadata`，不是外层临时记录文件或缩略响应。HTTP 客户端使用 `GET /api/results/{result_id}` 和 `/api/results/{result_id}/pages?offset=0`；选择字段时另加 `path` 查询参数，鉴权与业务接口一致。
+
+引用约一小时过期，也可能因容量回收提前失效；长期留存须及时保存完整结果及原输入。`file_path` 指向运行 FateBridge 的机器，远程客户端应读取资源或 HTTP 分页。引用失效或字段未被首轮保留时，应说明本次交付范围，不能把新一次计算冒充旧结果。`parent_run_id` 仅关联调用，不自动继承输入事实。
+
 ## 出生信息：一次说清
 
 绝大多数命理 / 占星工具共享出生信息字段（详见 [api-reference.md](api-reference.md) §3）。最少需要 `birth_year/month/day/hour`，其余可选：

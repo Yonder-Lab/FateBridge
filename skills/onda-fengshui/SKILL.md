@@ -5,14 +5,13 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 
 # 风水 · 空间布局（Onda）
 
-把用户问的空间和物件逐项审查：哪些已有计算依据，哪些可以调整，哪些仍需确认，哪些没有规则。主要方法为九宫飞星、金锁玉关和八宅法，采用[用户专家访谈政策](../../docs/fengshui-expert-policy.md) `user_expert_policy_v1`（2026-10-15）；这是本项目选用的咨询口径，不冒充所有门派共同结论。所有计算交给 FateBridge，不自行排命卦、飞星或编物件吉侧。
+把用户问的空间和物件逐项审查：哪些已有计算依据，哪些可以调整，哪些仍需确认，哪些没有规则。主要方法为九宫飞星、金锁玉关和八宅法，采用用户提供的专家访谈口径 `user_expert_policy_v1`（2026-10-15）；这是本项目选用的咨询口径，不冒充所有门派共同结论。所有计算交给 FateBridge，不自行排命卦、飞星或编物件吉侧。
 
 ## 使用资料
 
 相对链接以本 `SKILL.md` 的真实目录为基准解析。优先进入入口目录后用 shell 内建 `pwd -P` 取得真实目录，再拼接引用；不要为解析路径调用未经核实的系统 `python3`。不能对 `.agents/skills/onda-*` 入口先做字符串父目录裁剪，那会把共享资料误指到 `.agents/skills/_shared` 或 `.agents/docs`。
 
 - 首先读[风水咨询闭环](references/consultation.md)，按问题选资料和结果字段。
-- 按[专家口径、人物与多层空间](../../docs/fengshui-expert-policy.md)处理选法、方位门槛、家庭角色、逐层范围、现代设计与象意细节。
 - 厨卫、镜面、尖角关系与材质器形，读取[有来源的室内关系与属性规则](../../docs/fengshui-sourced-interior-rules.md)，区分具体规则、作者异议及参考说明。
 - 工位/家居选法、家具动作与多方案比较见[场景与候选布局合同](../../docs/fengshui-scene-planning.md)。
 - 解读沿用[Onda 解读层](../_shared/onda-counsel.md)，用户已有明确问题时直接回应，不套情绪或命盘模板。

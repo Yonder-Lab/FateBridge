@@ -129,6 +129,16 @@ CLI 不自动读取 `.env`，`SE_EPHE_PATH` 应在启动前设进程环境。GUI
 
 `selected_sections` 只作用于导出层，完整 payload 与 `snapshot_text` 仍保留。若要控制整体体积，用三端 `fields` 投影和 `include_snapshot_text=false`。保留 `snapshot_export` 时，其中的 `export_text` 也可能很大。
 
+### 只返回部分字段或出现 `result_delivery`
+
+先检查首次调用的 `fields`、`include_snapshot_text` 与 `selected_sections`，再检查响应预算。MCP 默认 8192 字符，超限时通过交付引用提供同一 run 的保留结果，响应仍是合法 JSON。读取 `manifest_uri`，从 `first_page_uri` 跟随 `next_uri` 拼接每页 `text`，核对 SHA-256 后解析全文。资源返回的外层 JSON 与其中的正文片段需要分别解析，不能直接解析单页片段。
+
+交付发生在投影之后：首轮只选了摘要，文件也只有所选范围。完整导出首次使用 `fields=null`，需要快照时保留相应选项。引用过期或被容量回收后无法继续读取；不要通过重复计算声称恢复了原 run。完整操作见 [同次导出](agent-guide.md#完整结果交付与同次导出)。
+
+### 西占推运采用了出生钟时
+
+推运省略 `analysis_hour` 或 `analysis_minute` 时，分别沿用出生小时或分钟。只传分析日期或 `as_of` 不代表指定了目标钟时；需要某日某时的结果，应显式传这两项，零点传 `0`。输入按 `birth_timezone` 解释，`return_timezone` 只转换同一时刻。核对聚合结果的 `analysis_context.analysis_datetime`，以及行运分支实际采用的时刻。
+
 ## 最小复现材料
 
 报告问题时提供以下脱敏证据：版本/提交、解释器与依赖版本、端口及鉴权是否开启（不含值）、原始请求、状态/退出码、错误码、输入时区和坐标、太阳时策略、分析日期、星历模型、运行 ID（若有）。不要只提供解读文本。

@@ -46,6 +46,7 @@ FateBridge 不是占卜 App，也不是命理 frontend，而是一个**后端能
 | 占卜与本地技法 | 梅花易数、六爻、统摄法、参评数、河洛理数、宿占、占星骰子、三式合参 |
 | 西方占星 | 标准盘、13 扇区盘、希腊盘、果老盘、印度盘、中点盘、关系盘 |
 | 西占推运 | 太阳/月返照、行运、太阳弧、小限、主限、黄道释放、法达、十年星限等 |
+| 风水空间 | 命卦、八宅、金锁砂水、年星与玄空宅盘；布局、室内关系、材质及候选方案按已确认事实分层审查 |
 
 更详细的算法矩阵与精度说明，请见 [`docs/algorithm-coverage.md`](docs/algorithm-coverage.md)。
 
@@ -142,6 +143,8 @@ FateBridge 被设计成 Agent 友好的：
 - MCP 返回结构化 JSON、兼容 text JSON 与原生 `isError`；三端发现接口共享输出 schema；专业嵌套事实覆盖主限、递归时主、星盘、中国术数、八字专题、宿曜关系及知识/导出，支持投影与扩展，详见 [API 参考](docs/api-reference.md)；
 - 成功响应默认包含 `run_metadata`，便于追踪；CLI 可用 `--no-metadata` 关闭。
 
+MCP 默认响应预算为 8192 字符，超限时通过 `result_delivery` 读取同一 run 的保留结果。需要完整 JSON 或全部时间线时，首次调用设置 `fields=null`；摘要投影后保留的文件只包含所选字段。读取和校验示例见 [完整结果交付](docs/agent-guide.md#完整结果交付与同次导出)。
+
 接入示例、字段投影、快照导出等细节，请见 [`docs/agent-guide.md`](docs/agent-guide.md)。
 
 ---
@@ -155,11 +158,12 @@ FateBridge 被设计成 Agent 友好的：
 | [`docs/api-reference.md`](docs/api-reference.md) | 集成方 | REST 路由、FastMCP 工具、请求族、响应字段 |
 | [`docs/algorithm-coverage.md`](docs/algorithm-coverage.md) | 维护者、评审者 | 13 family / 87 工具算法矩阵 + 精度/依赖说明 |
 | [`docs/scenario-routing.md`](docs/scenario-routing.md) | Agent / 技能作者 | 按用户场景选主证/旁证工具的路由矩阵 |
+| [`docs/fengshui.md`](docs/fengshui.md) | 空间咨询 / 集成方 | 七个风水工具、输入边界、分层规则与专题导航 |
 | [`docs/architecture.md`](docs/architecture.md) | 开发者、架构师 | 代码分层、数据流、设计决策 |
 | [`docs/development-guide.md`](docs/development-guide.md) | 贡献者 | 开发命令、测试策略、扩展路径 |
 | [`docs/troubleshooting.md`](docs/troubleshooting.md) | 所有人 | 安装/依赖/端口/CORS/快照导出问题 |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | 贡献者 | 分支、PR 流程、提交规范 |
-| [`skills/README.md`](skills/README.md) | Onda / 场景技能开发者 | 8 个泛心理陪伴场景 Skill，对工具的场景化再包装 |
+| [`skills/README.md`](skills/README.md) | Onda / 场景技能开发者 | 9 个 Onda 场景技能，含独立风水咨询 |
 
 文档总入口：[docs/README.md](docs/README.md)。
 

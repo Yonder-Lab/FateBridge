@@ -1,6 +1,6 @@
 # FateBridge 文档中心
 
-这份文档主要面向三类人：集成方想了解 REST / MCP 能力和调用方式；开发者想理解仓库结构、扩展方式和测试约束；维护者想快速确认各项能力的实现状态，区分已实现、近似实现还是占位兼容。
+这份文档主要面向三类人：集成方想了解 REST / MCP / CLI 能力和调用方式；开发者想理解仓库结构、扩展方式和测试约束；维护者想确认实现范围、精度、规则来源与未覆盖项目。
 
 下面按常见目标列出入口，你可以直接跳到对应文档。
 
@@ -10,6 +10,7 @@
 - 想用 Codex 直接体验：看 [codex-guide.md](codex-guide.md)
 - 想看完整接口清单：看 [api-reference.md](api-reference.md)
 - 想把 FateBridge 接进应用或 Agent：看 [agent-guide.md](agent-guide.md)
+- 想保存完整 JSON 或读取超预算结果：看 [完整结果交付与同次导出](agent-guide.md#完整结果交付与同次导出)
 - 想理解系统结构：看 [architecture.md](architecture.md)
 - 想确认算法覆盖范围和已知限制：看 [algorithm-coverage.md](algorithm-coverage.md)
 - 想知道某个用户场景该调哪几个工具：看 [scenario-routing.md](scenario-routing.md)
@@ -24,11 +25,28 @@
 - [agent-guide.md](agent-guide.md)：三端接入、自助发现、错误/投影/快照处理、host 配置，以及 Python / JS 示例。
 - [api-reference.md](api-reference.md)：REST 路由、FastMCP 工具、请求族、快照协议。
 - [architecture.md](architecture.md)：代码分层、数据流、设计决策和扩展路径。
-- [algorithm-coverage.md](algorithm-coverage.md)：已实现、近似、占位、排除范围矩阵。
+- [algorithm-coverage.md](algorithm-coverage.md)：逐工具实现范围、精度、依赖与排除范围矩阵。
 - [scenario-routing.md](scenario-routing.md)：按用户场景选择主证 / 旁证工具的路由矩阵。
 - [development-guide.md](development-guide.md)：项目结构、开发命令、测试策略、提交流程。
 - [troubleshooting.md](troubleshooting.md)：安装失败、依赖缺失、端口冲突、CORS、快照导出问题。
-- [../skills/README.md](../skills/README.md)：把工具按用户场景重组为 8 个 Onda 技能。
+- [../skills/README.md](../skills/README.md)：9 个 Onda 技能；机器场景清单另含独立的 `fengshui` 基础计算路由，共 10 项。
+
+## 风水专题
+
+从 [fengshui.md](fengshui.md) 的七个工具和最小输入开始，再按问题选择：
+
+| 问题 | 文档 |
+| --- | --- |
+| 方法优先级、家庭人物、楼层与环境事实 | [场景与候选布局](fengshui-scene-planning.md)、[风水咨询闭环](../skills/onda-fengshui/references/consultation.md) |
+| 基础算法、来源层次、定宫与方位边界 | [规则与来源](fengshui-rule-sources.md) |
+| 床、桌、灶的形态观察和动作状态 | [布局规则](fengshui-layout-rules.md) |
+| 工位／合租选法、家具搬转与候选比较 | [场景与规划](fengshui-scene-planning.md) |
+| 厨卫、镜面、梁管、尖角、材质与器形 | [有来源的室内关系规则](fengshui-sourced-interior-rules.md) |
+| 玄空历史定运、24山与兼向替星 | [玄空宅盘](fengshui-xuankong.md) |
+| 显式启用的山水条件与当令有限解释 | [玄空有限解释](fengshui-xuankong-interpretation.md) |
+| 用户明确另选的 BTB 桌面规则 | [桌面作者规则](fengshui-surface-rules.md) |
+
+咨询资料核对与后续更正流程见 [风水技能咨询闭环](../skills/onda-fengshui/references/consultation.md)。规则和事实审查的完成状态不代表现实效力已验证。
 
 ## 推荐阅读顺序
 
@@ -46,18 +64,19 @@
 
 ## 当前仓库边界
 
-为了避免和旧文档产生歧义，这里明确三点：
+当前公共边界：
 
 - 当前仓库只有 backend，不含内置前端应用。
 - 默认 REST 端口是 `8010`。
-- 大量工具会同时返回 `snapshot_text` 和 `snapshot_export`，这已经属于公共约定的一部分。
+- 中央目录含 88 条记录，REST / MCP / CLI 分别公开 86 / 87 / 87 项；名称和输入差异见 [三端能力边界](api-reference.md#24-三端能力边界)。
+- 快照并非每个工具都支持，读取前核对 [快照覆盖](algorithm-coverage.md#4-快照协议覆盖)。MCP 超预算结果由 `result_delivery` 交付，字段投影会影响保留范围。
 
 ## 维护文档时注意
 
 更新文档时建议顺手检查：
 
 - README、docs 索引、API 文档里的端口和能力名是否一致。
-- 工具是否已在 `services/tool_catalog.py` 声明正确 surface，请求模型、代表 payload 与场景清单是否同步；常规新增不需要手写 transport 入口。
+- 工具是否已在 `services/catalog/` 的领域声明中配置正确 surface，并由 `services/tool_catalog.py` 装配；请求模型、代表 payload 与场景清单是否同步。常规新增不需要手写 transport 入口。
 - `selected_sections`、`snapshot_export`、精度 / 依赖 caveat 是否写清楚。
 - 任何“已实现 / 近似 / 占位”的说法是否能在代码里找到依据。
 - 本地链接、章节锚点、示例命令与实际必填字段是否有效。完整验证流程见 [development-guide.md](development-guide.md#文档维护与验证)。

@@ -33,6 +33,8 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 
 个人命理工具按 8 个场景组织，独立风水咨询通过第 9 个 `onda-fengshui` 场景调用 `fengshui_*` 工具；住宅输入与分层合同见 [家居风水](../docs/fengshui.md)。当前 REST 公开 86 个工具，MCP 公开 87 个工具，各端绑定差异见 [API 参考](../docs/api-reference.md#24-三端能力边界)，完整工具地图见 [`_shared/fatebridge-engine.md`](./_shared/fatebridge-engine.md)。
 
+机器场景清单另包含 `fengshui` 基础计算路由，共 10 项。`onda-fengshui` 是咨询技能入口，`fengshui` 是工具发现中的计算路由；两者均可用于场景筛选，具体内容以 `fatebridge scenarios --detail full` 为准。
+
 ---
 
 ## 目录结构

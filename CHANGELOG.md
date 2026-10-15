@@ -15,7 +15,7 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
 - 补齐九类八字专题、宿曜双向关系、知识目录/来源/查询及导出模板/动态设置/分段的嵌套输出合同，并复用到各工具 snapshot_export；严格校验保持可空事实、扩展字段、部分投影及既有整数/浮点数原样输出。
 
 - 专业输出补齐主限坐标与命中、递归时主、寿限、古典/关系盘及中国术数的嵌套合同；三端共用校验和发现 schema，保留动态键、扩展字段、可空事实、部分投影及既有数值。嵌套类型违规在投影前按内部失败处理。
-- 场景 manifest 从既有 8 个技能 YAML 与住宅路由生成，REST `/api/scenarios`、CLI `scenarios`、MCP resources 共用；工具发现支持 scenario 筛选，可选 MCP scenario profile 与 family 取交集。
+- 场景 manifest 从 9 个技能 YAML 与住宅路由生成，共 10 个发现入口，REST `/api/scenarios`、CLI `scenarios`、MCP resources 共用；工具发现支持 scenario 筛选，可选 MCP scenario profile 与 family 取交集。
 - 共享调用上下文支持 as_of / trace_id / parent_run_id；固定默认时间，保留显式日期、时区和手动起卦优先级，随机六爻记录本次 seed。
 - 成功元数据增加格式/包版本、输入/合同/业务输出摘要、环境及数据指纹、耗时、口径和 replay 参数。新增字段可选，旧基础字段和 CLI --no-metadata 保留；有效标识传播到领域与校验失败，CLI profile 建立根/子关联。
 
@@ -59,6 +59,10 @@ by a published GitHub Release through `.github/workflows/publish.yml`.
   REST/MCP/CLI. CLI command syntax errors retain exit 2 / usage_error.
 
 ### Changed
+- Synchronize maintained guides with nine Onda skills and ten discovery scenarios;
+  complete Feng Shui topic navigation and the seven-tool entry table, and correct
+  Xuan Kong examples to port 8010. Document same-run full export, post-projection
+  retention, SHA-256 verification and explicit Western analysis clock inputs.
 - Build compact call contracts without materializing full output schemas; copy
   timing-cache containers directly while preserving caller isolation. Benchmark
   reports separate initial calls, warm samples and the execution environment.

@@ -1,8 +1,8 @@
 # 家居风水基础计算
 
-第一阶段提供六个基础工具：公共方位、个人命卦、八宅、金锁玉关基础砂水、年度紫白飞星和三法合参。三端来自同一目录，核心规则离线计算，不依赖外部风水服务。结果表示选定传统规则中的关系；规则来源、计算一致性和现实预测效力是不同事项。
+当前提供七个工具：公共方位、个人命卦、八宅、金锁玉关基础砂水、年度紫白飞星、玄空历史宅盘和分层合参。三端来自同一目录，核心规则离线计算，不依赖外部风水服务。布局、室内关系、材质及候选方案通过 `fengshui_assess` 的独立分支审查。结果表示选定传统规则中的关系；规则来源、计算一致性和现实预测效力是不同事项。
 
-2026-10-15 的[专家访谈迭代政策](fengshui-expert-policy.md)以九宫飞星、金锁玉关和八宅为主要方法；局部工位／合租先考虑飞星、次金锁，八宅命卦独立处理。政策是用户提供的专家口径，来源、方法细节及环境上下文各自有版本；不将本人或周围人的八字／紫微喜忌代入房屋五行。现代 BTB 仅用户明确另选时作为作者辅助，不作默认替代。
+本项目采用的专家访谈口径以九宫飞星、金锁玉关和八宅为主要方法；局部工位／合租先考虑飞星、次金锁，八宅命卦独立处理。政策是用户提供的专家口径，来源、方法细节及环境上下文各自有版本；不将本人或周围人的八字／紫微喜忌代入房屋五行。现代 BTB 仅用户明确另选时作为作者辅助，不作默认替代。
 
 ## 入口与最小输入
 
@@ -13,11 +13,14 @@
 | `/api/fengshui/bazhai` | `fengshui_bazhai` | `house`、`occupants`；可选 `placements` | 坐山宅盘、逐人命盘、位置与朝向的用途判断 |
 | `/api/fengshui/jinsuo` | `fengshui_jinsuo` | `features` | 八宫砂水偏好、逐个观察判定 |
 | `/api/fengshui/annual_stars` | `fengshui_annual_stars` | `effective_year` 或含时区的 `query_at` | 当年入中星、九宫年星、立春有效期、当前元运 |
-| `/api/fengshui/assess` | `fengshui_assess` | 上述住宅、住户、环境和年度输入；可选 `methods` | `bazhai` / `jinsuo` / `annual_stars` 独立分层与差异清单 |
+| `/api/fengshui/xuankong_natal` | `fengshui_xuankong_natal` | `house`、历史 `period`，按需提供测量误差及 `interpretation` | 运／山／向盘、下卦／替星与分界候选；有限解释须显式启用 |
+| `/api/fengshui/assess` | `fengshui_assess` | 已确认的住宅、住户、环境、年度或历史宅运输入；可选 `methods`、`scene`，布局时 `analyze_layout=true` | `bazhai` / `jinsuo` / `annual_stars` / `xuankong_natal` 独立分层；布局及所请求补充审查 |
 
 完整约束见 `/openapi.json`、MCP `tools/list` 和 `fatebridge describe fengshui_assess`。新 family 是 `fengshui`；不加入个人 `analyze_destiny` 或 `profile` 默认系统。
 
 `fengshui_xuankong_natal` 提供中州派完整运／山／向数字盘与兼向替星；聚合时显式选择 `xuankong_natal`，与年度飞星独立。定运资料、分界候选、规则版本及独立盘例见 [玄空宅盘](fengshui-xuankong.md)。
+
+按问题展开的资料入口：基础[规则来源](fengshui-rule-sources.md)、[布局形态](fengshui-layout-rules.md)、[场景与候选比较](fengshui-scene-planning.md)、[室内关系及材质器形](fengshui-sourced-interior-rules.md)、[玄空有限解释](fengshui-xuankong-interpretation.md)。[BTB 桌面作者规则](fengshui-surface-rules.md)仅在用户明确另选时使用，不作为无方位的默认替代。
 
 ## 三端例子
 
@@ -111,9 +114,9 @@ asyncio.run(main())
 
 角度范围0–360，360归零；八方中心间隔45°，半宽22.5°；24山中心间隔15°，半宽7.5°。正好22.5°归东北／丑山。宅向推导坐山时加180°；同时提供 `sitting_trigram` 必须一致。基础方位／八宅角度必须声明 `north_reference=magnetic|true`（玄空当前版本要求 magnetic），不自动校正磁偏角。只有已确认宅卦时可直接提供 `sitting_trigram`。
 
-`house.division_method` 只接受 `confirmed_angular_sectors`。八方角区、九等分网格和示意九宫图不是同一个几何计算；第一阶段不识别户型图片、不自动定中心、也不推断不规则户型分宫。
+`house.division_method` 只接受 `confirmed_angular_sectors`。八方角区、九等分网格和示意九宫图不是同一个几何计算；当前不自动识别户型图片、不自动定中心，也不推断不规则户型分宫。
 
-`environmental_context` 可独立保存方位／图纸对齐与中心确认、同住家庭辈分／排行、独立确认生肖、各楼层／院落与明确形态观察；不要求为这些事实提交生辰。输出位于 `layout_analysis.environmental_context`，其中上下文宫位绑定须经过方向、户型对齐与立极三个门槛。该模块不计算飞星，也不把家庭象征索引当成现实人物受影响结论。院落归第一层但共享整体关系仍需复核；局限本层且异层适宜有依据时，不自动将该局部不利归给异层住户。厨卫、材质和器形事实不自动变成禁忌，未有具体判据的项目保留未覆盖。具体字段与示例见[专家政策](fengshui-expert-policy.md)。
+`environmental_context` 可独立保存方位／图纸对齐与中心确认、同住家庭辈分／排行、独立确认生肖、各楼层／院落与明确形态观察；不要求为这些事实提交生辰。输出位于 `layout_analysis.environmental_context`，其中上下文宫位绑定须经过方向、户型对齐与立极三个门槛。该模块不计算飞星，也不把家庭象征索引当成现实人物受影响结论。院落归第一层但共享整体关系仍需复核；局限本层且异层适宜有依据时，不自动将该局部不利归给异层住户。厨卫、材质和器形事实不自动变成禁忌，未有具体判据的项目保留未覆盖。具体字段以当前输入 Schema 为准，核对流程见[风水咨询闭环](../skills/onda-fengshui/references/consultation.md)。
 
 仅解释家庭卦名／对宫用 `household_scope=symbolic_reference`，不绑定真实方向或为此追罗盘；默认 `environmental_binding` 才关联环境方区。家庭及生肖输出的 `scope`／适用方法限定为飞星、金锁的环境象征索引，不作为八宅命卦；实际个人匹配看八宅层。
 
@@ -207,7 +210,7 @@ run_metadata: 三端通用运行元数据
 
 八宅游年星与年度紫白星有不同名称空间，例如八宅生气贪狼属木、一白贪狼属水。`palace_number` 始终是固定宫数，`annual_star_number` 才是当年临宫星数；`current_period` 是当前日历元运，不是住宅建造元运。
 
-`method_details.status=reference_only` 表示方法与象意参考。按 `mapping_boundaries` 区分固定宫 `palaces`、实际临宫星数 `flying_star_references`、八宅游年星名 `bazhai_you_nian_references`，不能因同名混用五行。跨文本本卦人物／器物、Joey Yap 一至九星主题与有限职业例分别保留来源及条件；未覆盖职业不补造。`object_observation_references`、各法 `application_references`、砂水 `form_condition_references` 和 `material_shape_reference` 补观察与用途说明，不构成自动分类、摆放处方或职业预测。精确字段、来源及剩余边界见[专家政策细节](fengshui-expert-policy.md#方法细节如何讲清楚)和[本轮补充清单](fengshui-sourced-interior-rules.md#与方法细节的区别)。
+`method_details.status=reference_only` 表示方法与象意参考。按 `mapping_boundaries` 区分固定宫 `palaces`、实际临宫星数 `flying_star_references`、八宅游年星名 `bazhai_you_nian_references`，不能因同名混用五行。跨文本本卦人物／器物、Joey Yap 一至九星主题与有限职业例分别保留来源及条件；未覆盖职业不补造。`object_observation_references`、各法 `application_references`、砂水 `form_condition_references` 和 `material_shape_reference` 补观察与用途说明，不构成自动分类、摆放处方或职业预测。精确字段以实际返回的 `method_details` 为准，来源及剩余边界见[方法补充说明](fengshui-sourced-interior-rules.md#与方法细节的区别)。
 
 本版明确未实现：月飞星、金锁24山及形态／距离／元运组合、自动户型几何。24山角度索引可用不表示这些24山论断可用。没有三法总分，也不生成疾病、死亡或财富断语。
 

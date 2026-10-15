@@ -1,6 +1,6 @@
 # FateBridge 场景路由矩阵
 
-机器入口为 `/api/scenarios`、CLI `scenarios` 与 MCP `fatebridge://scenarios`；支持摘要、单场景和入口筛选。打包清单由本文矩阵及 8 个 `skills/onda-*/agents/interface.yaml` 生成，并实时关联中央目录的可调用名称和要求。修改路由或 YAML 后运行 `.venv/bin/python scripts/build_scenario_manifest.py`；测试会拒绝过期生成物。主/旁/深角色和条件保留，缺失能力明确标记；它是发现指引，不是自动执行计划。
+机器入口为 `/api/scenarios`、CLI `scenarios` 与 MCP `fatebridge://scenarios`；支持摘要、单场景和入口筛选。打包清单由本文矩阵及 9 个 `skills/onda-*/agents/interface.yaml` 生成，共 10 个场景：9 个 Onda 咨询场景及独立的 `fengshui` 基础计算路由，并实时关联中央目录的可调用名称和要求。修改路由或 YAML 后运行 `.venv/bin/python scripts/build_scenario_manifest.py`；测试会拒绝过期生成物。主/旁/深角色和条件保留，缺失能力明确标记；它是发现指引，不是自动执行计划。
 
 这份文档给 Agent 和解读技能做路由参考。引擎负责计算与规则生成的分析摘要，场景技能负责面向用户的解释；这里回答的是：面对某类问题，该调哪些工具、谁是主证谁是旁证、怎么省 token、怎么避免不同体系给出矛盾结论。
 
