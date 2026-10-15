@@ -124,6 +124,8 @@ def _compose(
             result["status"] = layout["status"]
             result["summary"] = f"layout: {layout['status']}"
             result["coverage"]["missing_inputs"] = layout["missing_inputs"]
+        for branch in ("interior_analysis", "material_analysis"):
+            result["rule_trace"].extend(layout.get(branch, {}).get("rule_trace", []))
     interpretation = layers.get("xuankong_natal", {}).get("interpretation")
     if interpretation is not None:
         provenance_record = interpretation_provenance()

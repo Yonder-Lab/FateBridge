@@ -5,11 +5,18 @@ They describe the environment and the people using it, independently of Ba Zhai
 birth inputs and independently of an actual flying-star calculation.
 """
 
-from typing import Iterable, List, Literal, Mapping, Optional, Set
+from typing import Any, Iterable, List, Literal, Mapping, Optional, Set
 
 from pydantic import Field, StrictBool, StrictInt, field_validator, model_validator
 
 from fatebridge.core.requests.base import _DeferredModel
+
+from .interior_inputs import (
+    InteriorRelation,
+    InteriorRole,
+    validate_relation_references,
+)
+from .material_inputs import MaterialShapeFact
 
 ContextBasis = Literal["measured", "user_confirmed"]
 FamilyRole = Literal["parent", "eldest_child", "middle_child", "youngest_child"]
@@ -245,6 +252,10 @@ class EnvironmentalObject(ContextFact):
     label: str = Field(min_length=1, max_length=100)
     kind: Literal["room", "furniture", "garden_feature", "material_object", "opening"]
     purpose: Optional[Literal["door", "bed", "desk", "stove"]] = None
+    role: Optional[InteriorRole] = Field(
+        default=None,
+        description="明确功能/部件身份；pillar_corner仅实体柱角，toilet_wall仅便器所在侧的墙，不从名称或普通相邻推定",
+    )
 
     @model_validator(mode="after")
     def kind_and_purpose(self) -> "EnvironmentalObject":
@@ -254,6 +265,22 @@ class EnvironmentalObject(ContextFact):
             raise ValueError("门对象的 kind 须为 opening")
         if self.purpose in {"bed", "desk", "stove"} and self.kind != "furniture":
             raise ValueError("门床桌灶用途须与环境对象 kind 一致")
+        if self.role in {"main_entry_door", "bathroom_door"} and self.kind != "opening":
+            raise ValueError("主门/厕门角色必须为opening")
+        if self.role in {"bed", "desk", "stove"} and self.kind != "furniture":
+            raise ValueError("床桌灶角色必须为furniture")
+        if self.role in {"bed", "desk", "stove"} and self.purpose not in (
+            None,
+            self.role,
+        ):
+            raise ValueError("明确角色与purpose不得矛盾")
+        if (
+            self.role in {"exposed_beam", "pipe", "toilet_wall", "pillar_corner"}
+            and self.kind != "material_object"
+        ):
+            raise ValueError("梁、管、厕墙部件须以material_object明确记录")
+        if self.role in {"mirror", "sharp_corner"} and self.kind == "room":
+            raise ValueError("镜面/尖角源必须记录实际物件，不能把整个房间当部件")
         return self
 
 
@@ -279,6 +306,12 @@ class EnvironmentalContext(_DeferredModel):
     observations: List[EnvironmentalObservation] = Field(
         default_factory=list, max_length=500
     )
+    interior_relations: List[InteriorRelation] = Field(
+        default_factory=list, max_length=500
+    )
+    material_facts: List[MaterialShapeFact] = Field(
+        default_factory=list, max_length=500
+    )
 
     @model_validator(mode="after")
     def coherent_references(self) -> "EnvironmentalContext":
@@ -287,6 +320,8 @@ class EnvironmentalContext(_DeferredModel):
             or self.household_members
             or self.floors
             or self.observations
+            or self.interior_relations
+            or self.material_facts
         ):
             raise ValueError(
                 "环境上下文至少提供方向核对、家庭成员、楼层或具体观察；对象定义本身不是完成审查"
@@ -297,10 +332,29 @@ class EnvironmentalContext(_DeferredModel):
             (self.floor_influences, "influence_id"),
             (self.observations, "observation_id"),
             (self.objects, "object_id"),
+            (self.interior_relations, "relation_id"),
+            (self.material_facts, "fact_id"),
         ):
             ids = [getattr(item, attr) for item in values]
             if len(ids) != len(set(ids)):
                 raise ValueError(f"{attr} 不可重复")
+        attributes = set()
+        for fact in self.material_facts:
+            for name in ("material", "shape", "colour"):
+                if getattr(fact, name) is None:
+                    continue
+                key = (fact.object_id, name)
+                if key in attributes:
+                    raise ValueError(
+                        "同一物件属性须独立且只确认一次，不能重复或相互覆盖"
+                    )
+                attributes.add(key)
+        uses: dict[str, str] = {}
+        for fact in self.material_facts:
+            if fact.element_use is not None:
+                if fact.object_id in uses and uses[fact.object_id] != fact.element_use:
+                    raise ValueError("同一物件本次代表物用途问题不得相互矛盾")
+                uses[fact.object_id] = fact.element_use
         members = {m.subject_id: m for m in self.household_members}
         floors = {f.floor_id: f for f in self.floors}
         spouse_references = [
@@ -351,6 +405,8 @@ class EnvironmentalContext(_DeferredModel):
         known_object_ids: Iterable[str],
         known_subject_ids: Iterable[str],
         known_object_purposes: Optional[Mapping[str, str]] = None,
+        known_object_roles: Optional[Mapping[str, Set[str]]] = None,
+        known_object_floors: Optional[Mapping[str, Any]] = None,
     ) -> None:
         """Validate enclosing-request references without requiring birth charts.
 
@@ -373,6 +429,12 @@ class EnvironmentalContext(_DeferredModel):
                 and existing_purpose != obj.purpose
             ):
                 raise ValueError(f"环境对象与已有用途不一致: {obj.object_id}")
+            if (
+                existing_purpose is not None
+                and obj.role in {"bed", "desk", "stove"}
+                and obj.role != existing_purpose
+            ):
+                raise ValueError(f"环境角色与已有用途不一致: {obj.object_id}")
         for floor in self.floors:
             for subject_id in floor.subject_ids:
                 if subject_id not in subjects:
@@ -383,3 +445,27 @@ class EnvironmentalContext(_DeferredModel):
         for observation in self.observations:
             if observation.object_id not in objects:
                 raise ValueError(f"未知环境观察对象 object_id: {observation.object_id}")
+        roles = {key: set(values) for key, values in (known_object_roles or {}).items()}
+        for object_id, purpose in (known_object_purposes or {}).items():
+            roles.setdefault(object_id, set()).add(purpose)
+        for obj in self.objects:
+            roles.setdefault(obj.object_id, set()).update(
+                value for value in (obj.role, obj.purpose) if value is not None
+            )
+            if obj.role == "pillar_corner":
+                roles[obj.object_id].add("sharp_corner")
+        validate_relation_references(
+            self.interior_relations,
+            roles,
+            {
+                **(known_object_floors or {}),
+                **{
+                    object_id: floor
+                    for floor in self.floors
+                    for object_id in floor.object_ids
+                },
+            },
+        )
+        for fact in self.material_facts:
+            if fact.object_id not in objects:
+                raise ValueError(f"未知材质器形对象 object_id: {fact.object_id}")

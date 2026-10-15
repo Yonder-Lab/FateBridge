@@ -38,11 +38,7 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 "surface_layouts": [],
                 "surface_constraints": [],
                 "layout_alternatives": [],
-                "layout_constraints": [
-                    c
-                    for c in req.layout_constraints
-                    if c.object_id == candidate.object_id
-                ],
+                "layout_constraints": list(req.layout_constraints),
                 "element_adjustments": [],
                 "annual_remedy_ruleset_id": None,
                 "environmental_context": candidate.environmental_context,
@@ -106,10 +102,50 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
             old_observations = [
                 o for o in context.observations if o.object_id == candidate.object_id
             ]
+            old_relations = [
+                relation
+                for relation in context.interior_relations
+                if candidate.object_id
+                in (relation.source_object_id, relation.target_object_id)
+            ]
+            old_materials = [
+                fact
+                for fact in context.material_facts
+                if fact.object_id == candidate.object_id
+            ]
             if fresh is None:
-                if old_floors or old_observations:
+                if old_floors or old_observations or old_relations or old_materials:
                     missing.append(branch)
             else:
+                fresh_relations = {
+                    (r.kind, r.source_object_id, r.target_object_id)
+                    for r in fresh.interior_relations
+                }
+                for relation in old_relations:
+                    if (
+                        relation.kind,
+                        relation.source_object_id,
+                        relation.target_object_id,
+                    ) not in fresh_relations:
+                        missing.append(
+                            f"{branch}.interior_relations.{relation.relation_id}"
+                        )
+                for fact in old_materials:
+                    for attribute in (
+                        "material",
+                        "shape",
+                        "colour",
+                        "element_use",
+                        "plant_alive",
+                    ):
+                        if getattr(fact, attribute) is not None and not any(
+                            f.object_id == candidate.object_id
+                            and getattr(f, attribute) is not None
+                            for f in fresh.material_facts
+                        ):
+                            missing.append(
+                                f"{branch}.material_facts.{fact.fact_id}.{attribute}"
+                            )
                 if old_floors and not any(
                     candidate.object_id in f.object_ids for f in fresh.floors
                 ):
@@ -254,6 +290,23 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
             comparisons.extend(
                 {"method": "indoor_forms", **check} for check in form["checks"]
             )
+        for branch in ("interior_analysis", "material_analysis"):
+            comparisons.extend(
+                {
+                    **finding,
+                    "method": (
+                        "indoor_authored_relations"
+                        if branch == "interior_analysis"
+                        else "material_and_shape_reference"
+                    ),
+                    "comparison_scope": (
+                        "independent_relation_predicate_not_compass_or_effect_prediction"
+                        if branch == "interior_analysis"
+                        else "source_scoped_representation_eligibility_not_placement_fortune"
+                    ),
+                }
+                for finding in layout.get(branch, {}).get("findings", [])
+            )
         for environment in layout["environment_adjustments"]:
             environment["feature_observation_scope"] = (
                 "independent_candidate_confirmation"
@@ -285,6 +338,11 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 "placement_findings": layout["placement_findings"],
                 "form_analysis": layout["form_analysis"],
                 "environment_adjustments": layout["environment_adjustments"],
+                **{
+                    name: layout[name]
+                    for name in ("interior_analysis", "material_analysis")
+                    if name in layout
+                },
                 "old_target_feature_reused": False,
                 **(
                     {"environmental_context": layout["environmental_context"]}

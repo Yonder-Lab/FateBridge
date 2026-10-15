@@ -9,11 +9,18 @@ from typing import Any, Dict, List
 
 from fatebridge.core.divination import ELEMENT_CONTROLS, ELEMENT_GENERATES
 
-from .actions import FORM_ACTION_ROUTES, apply_permission
+from .actions import (
+    FORM_ACTION_ROUTES,
+    apply_permission,
+    permission_state,
+    sharp_corner_target_actions,
+)
 from .bazhai import placement_polarity
 from .context import analyze_environmental_context
 from .directions import rule_data
+from .interior_rules import analyze_interior_relations
 from .layout_supplements import analyze_supplements
+from .materials import analyze_material_facts
 from .models import AssessRequest
 from .natal_interpretation import analyze_natal_interpretation
 from .surface import summarize_analysis_progress
@@ -43,6 +50,7 @@ def _summarize_layout_progress(
     supplements: Dict[str, Any],
     natal_interpretation: Dict[str, Any] | None = None,
     environmental_context: Dict[str, Any] | None = None,
+    extra_reviews: List[Dict[str, Any]] | None = None,
 ) -> Dict[str, Any]:
     """Summarize reviewed records separately from optional physical actions."""
     progress_counts = dict(supported=0, confirmed_unsupported=0, unknown=0)
@@ -137,6 +145,48 @@ def _summarize_layout_progress(
                 )
             ] += 1
             if check["adjustment"] is not None:
+                if check["criterion"] == "sharp_corner_points_at_user":
+                    constraint = constraints.get(finding["object_id"])
+                    actions = sharp_corner_target_actions(
+                        finding["object_id"],
+                        constraint,
+                        candidate_only=check["candidate_only"],
+                        rule_id=check["rule_id"],
+                        source_ids=check["source_ids"],
+                    )
+                    statuses = {a["action_status"] for a in actions}
+                    check.update(
+                        adjustment=(
+                            "比较不受已确认尖角指向的座位；仅在实际可容纳且不挡入口视野时考虑新增叶状屏障。"
+                            "本观察未标识尖角来源对象，不生成移动或转动该来源物件的动作。"
+                        ),
+                        action_id=f"form:{finding['object_id']}:{check['criterion']}",
+                        action_status=(
+                            "blocked"
+                            if statuses == {"blocked"}
+                            else (
+                                "candidate_only"
+                                if "candidate_only" in statuses
+                                else "conditional_option"
+                            )
+                        ),
+                        permission_status=permission_state(
+                            constraint, [["location"], ["add_items"]]
+                        ),
+                        optional=True,
+                        action_options=actions,
+                        pending_confirmations=[
+                            p for a in actions for p in a["pending_confirmations"]
+                        ],
+                    )
+                    # Count concrete routes once; the check status is only the
+                    # backwards-compatible aggregate, not a third action.
+                    progress_actions.extend(
+                        {"status": a["action_status"], "optional": True}
+                        for a in actions
+                    )
+                    progress_pending.extend(check["pending_confirmations"])
+                    continue
                 action_id = f"form:{finding['object_id']}:{check['criterion']}"
                 action_pending = [
                     {
@@ -229,6 +279,19 @@ def _summarize_layout_progress(
         limited = limited or bool(
             environmental_context["rule_coverage_counts"]["confirmed_unsupported"]
         )
+    for review in extra_reviews or []:
+        for action in review["action_options"]:
+            progress_actions.append({"status": action["status"], "optional": True})
+            progress_pending.extend(
+                {
+                    "path": path,
+                    "reason": "verify_independent_interior_action_conditions",
+                    "object_id": action["object_id"],
+                    "action_id": action["action_id"],
+                    "required_for": "optional_action",
+                }
+                for path in action["pending_confirmations"]
+            )
     if natal_interpretation is not None:
         limited = limited or natal_interpretation["rule_coverage_status"] == "limited"
         # Count interpretation checks separately from merely looking up the
@@ -563,7 +626,33 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         if req.environmental_context is not None
         else None
     )
+    extra_reviews = {}
+    if req.environmental_context is not None:
+        if req.environmental_context.interior_relations:
+            extra_reviews["interior_analysis"] = analyze_interior_relations(
+                req.environmental_context, req.layout_constraints
+            )
+        if req.environmental_context.material_facts:
+            extra_reviews["material_analysis"] = analyze_material_facts(
+                req.environmental_context.material_facts
+            )
     if context is not None:
+        context["additional_fact_reviews"] = {}
+        for name, review in extra_reviews.items():
+            context["additional_fact_reviews"][name] = review["status"]
+            context["missing_inputs"].extend(review["missing_inputs"])
+            for key, count in review["rule_coverage_counts"].items():
+                context["rule_coverage_counts"][key] += count
+            context["rule_trace"].extend(review["rule_trace"])
+            supplements["supplemental_rulesets"].extend(review["rulesets"])
+            supplements["method_disagreements"].extend(
+                disagreement
+                for finding in review["findings"]
+                for disagreement in finding.get("method_disagreements", [])
+            )
+        if context["missing_inputs"]:
+            context["status"] = "partial"
+            context["rule_coverage_status"] = "needs_confirmation"
         missing.extend(context["missing_inputs"])
         supplements["supplemental_rulesets"].append(context["ruleset"])
         floor_by_object = {
@@ -593,6 +682,7 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         supplements,
         natal_interpretation,
         context,
+        list(extra_reviews.values()),
     )
     return {
         "status": (
@@ -603,6 +693,7 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         "calculation_scope": "selected_methods_and_authored_rules_on_supplied_objects",
         "analysis_progress": progress,
         **({"environmental_context": context} if context is not None else {}),
+        **extra_reviews,
         **(
             {"natal_interpretation": natal_interpretation}
             if natal_interpretation is not None

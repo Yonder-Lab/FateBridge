@@ -1,0 +1,143 @@
+{
+  "date": "2026-10-15",
+  "status": "passed_frozen_source_full_suites_golden_and_packaged_transports",
+  "baseline_head": "965635c125f1e83c1525d35642740bbf0e0985fe",
+  "initial_workspace": "clean master; task changes only",
+  "source_snapshot": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/source-final",
+  "source_files": 761,
+  "symlink_entries": 9,
+  "source_manifest_sha256": "68118052e73488d89df6ab818b4b09ba88fcfa10875752ae9557b52b11781b5f",
+  "evidence_only_paths_excluded_from_source_manifest": [
+    "docs/fengshui-sourced-expansion-validation-2026-10-15.md",
+    "docs/audits/2026-10-15/fengshui-sourced-expansion-validation.json"
+  ],
+  "source_drift": {
+    "workspace": [],
+    "snapshot": []
+  },
+  "macos": {
+    "python": "3.13.5",
+    "platform": "Darwin-arm64",
+    "tests": 3112,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 88,
+    "passed": 3024,
+    "seconds": 280.811
+  },
+  "linux": {
+    "python": "3.12.3",
+    "platform": "Linux-x86_64",
+    "image": "fatebridge-ci:py312",
+    "image_id": "78e70cc82ced587f39e7cd2dfb27a41cbcb5d458871acbc25e10029755a2931e",
+    "source_mount_readonly": true,
+    "tests": 3112,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 3112,
+    "seconds": 497.917
+  },
+  "linux_golden": {
+    "cases": 87,
+    "matched": 87,
+    "diff_active": true,
+    "baseline_mutated": false,
+    "evidence": "same final Linux full-suite JUnit"
+  },
+  "new_regression_tests": 145,
+  "static_checks": {
+    "black": {
+      "exit_code": 0,
+      "log": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/black-final.log"
+    },
+    "isort": {
+      "exit_code": 0,
+      "log": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/isort-final.log"
+    },
+    "mypy": {
+      "exit_code": 0,
+      "log": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/mypy-final.log"
+    },
+    "contracts": {
+      "exit_code": 0,
+      "log": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/contracts-final.log"
+    },
+    "scenarios": {
+      "exit_code": 0,
+      "log": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/scenarios-final.log"
+    }
+  },
+  "wheel": {
+    "package_origin": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/wheel-final/fatebridge/__init__.py",
+    "loaded_fatebridge_modules": 111,
+    "all_loaded_package_modules_from_wheel": true,
+    "wheel_sha256": "9ab34e6184424e27e18afce16bd0dd64734a61ec8887ad399503734d466354f9",
+    "new_rule_data_packaged": [
+      "interior-relations-v1.json",
+      "material-representations-v1.json",
+      "method-reference-supplement-v1.json",
+      "expert-methods-v1.json"
+    ],
+    "test_files": [
+      "test_fengshui_interior_relations.py",
+      "test_fengshui_material_facts.py",
+      "test_fengshui_method_details_expansion.py",
+      "test_fengshui_candidate_scope_expansion.py",
+      "test_fengshui_sharp_action_constraints.py",
+      "test_fengshui_sourced_contracts.py",
+      "test_fengshui_systematic_contracts.py"
+    ],
+    "real_transports": [
+      "REST TestClient",
+      "FastMCP Client",
+      "CLI run"
+    ],
+    "source_manifest": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/source-manifest-final.json",
+    "suite": {
+      "tests": 160,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 160,
+      "seconds": 11.759
+    }
+  },
+  "rule_versions": {
+    "interior-relations-v1.json": {},
+    "material-representations-v1.json": {},
+    "method-reference-supplement-v1.json": {},
+    "expert-methods-v1.json": {}
+  },
+  "coverage_boundaries": {
+    "requirement_5": "12 sourced two-object interior predicates; confirmed/false/unknown/photo states; author-scoped material and colour representation eligibility and separate shape references; no fabricated compass sectors or universal taboos",
+    "requirement_9": "separate fixed-palace, arriving flying-star, Bazhai You-Nian, cross-text trigram and material mappings; sourced nine-star themes, conditional occupation examples, furniture and sand-water observation details; no full modern profession table or invented placement prescriptions"
+  },
+  "limits": [
+    "No new Desktop real-model consultation, current MCP process reconnect, physical layout acceptance or real-world fortune-effect validation was performed.",
+    "Practitioner and classical references establish attributable cultural rules, not empirical efficacy; dissent and conditional examples remain distinct.",
+    "The AFSI PDF refresh returned HTTP 403; previously checked source version and hash were preserved, not represented as newly downloaded.",
+    "Hosted CI and final Git remote state are post-push checks; see the final delivery receipt rather than infer them from local test success."
+  ],
+  "git_delivery": {
+    "branch": "master",
+    "requested_actions": [
+      "commit",
+      "push",
+      "verify_remote_sha",
+      "verify_workspace_status"
+    ],
+    "receipt_path": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/git-delivery.json"
+  },
+  "temporary_environment": {
+    "profile": "fatebridge-ci-linux",
+    "initial_state": "Stopped",
+    "expected_restored_state": "Stopped",
+    "docker_context": "default"
+  },
+  "logs": {
+    "macos": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/macos-final.log",
+    "linux": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/linux-final.log",
+    "wheel": "/Users/thomas/.cache/fatebridge-sourced-expansion-20261015/wheel-final.log"
+  }
+}

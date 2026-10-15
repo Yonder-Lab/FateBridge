@@ -186,6 +186,18 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
                 f"对象{proposal['object_id']} 候选{proposal['candidate_id']}：{proposal['status']}；计算{proposal['calculation_status']}；新位置形态独立核对，未沿用旧观察"
             )
         context = layout.get("environmental_context")
+        for finding in layout.get("interior_analysis", {}).get("findings", []):
+            lines.append(
+                f"室内关系{finding['source_object_id']} → {finding['target_object_id']}："
+                f"{finding['kind']}，{finding['status']}；规则{finding['rule_id']}；"
+                f"动作{finding['action_status']}，按各对象独立核对。"
+            )
+        for finding in layout.get("material_analysis", {}).get("findings", []):
+            lines.append(
+                f"材质器形{finding['object_id']}：{finding['finding']}；"
+                f"材料资格{finding['material_eligibility']}，颜色资格{finding['colour_eligibility']}；"
+                "器形参考不等于实际尖角关系，代表物资格不认证摆位。"
+            )
         if context is not None:
             orientation = context["orientation_review"]
             lines.append(

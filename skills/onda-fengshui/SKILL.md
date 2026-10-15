@@ -13,6 +13,7 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 
 - 首先读[风水咨询闭环](references/consultation.md)，按问题选资料和结果字段。
 - 按[专家口径、人物与多层空间](../../docs/fengshui-expert-policy.md)处理选法、方位门槛、家庭角色、逐层范围、现代设计与象意细节。
+- 厨卫、镜面、尖角关系与材质器形，读取[有来源的室内关系与属性规则](../../docs/fengshui-sourced-interior-rules-2026-10-15.md)，区分具体规则、作者异议及参考说明。
 - 工位/家居选法、家具动作与多方案比较见[场景与候选布局合同](../../docs/fengshui-scene-planning.md)。
 - 解读沿用[Onda 解读层](../_shared/onda-counsel.md)，用户已有明确问题时直接回应，不套情绪或命盘模板。
 - 需要具体参数时，以已连接 MCP 的实际 inputSchema／工具描述为准；尚未取得定义时一次获取所选工具的完整定义。离线 CLI 用[共享引擎参考](../_shared/fatebridge-engine.md#怎么调引擎)的调用与错误合同。
@@ -26,6 +27,8 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 | --- | --- | --- |
 | 布局审查、改位置／朝向、多人权衡 | `fengshui_assess` | 主入口，`analyze_layout=true`；只选所需方法，保留缺失层 |
 | 入口、背靠、走道、窗户等形态 | `fengshui_assess` | `form_observations`；可 `methods=[]`，无需出生或宅向 |
+| 厨卫、镜面、尖角等明确对象关系 | `fengshui_assess` | `environmental_context.interior_relations`；保留两端对象、关系是否成立及各自证据，可无罗盘独立审查 |
+| 材质／器形／颜色及代表物资格 | `fengshui_assess` | `environmental_context.material_facts`；实际属性与明确 `element_use` 问题分开，不据此推个人喜用或该宫所需元素 |
 | 桌面逐物件摆法 | `fengshui_assess` | 先按局部空间核对飞星、金锁可用事实；仅用户明确另选现代 BTB 时用 `surface_layouts`，独立于八宅／罗盘 |
 | 只问个人命卦八方 | `fengshui_minggua` | 公历日期、带时区出生时刻或有效生年三选一 |
 | 只问宅卦／个人方向关系 | `fengshui_bazhai` | 宅坐山与住户独立；布局行动仍优先聚合入口 |
@@ -75,21 +78,27 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 
 完整使用名单须与该层对象明确的 `placement.subject_id/subject_ids` 一致：已知使用这张床／桌的人不能被完整名单排除。对象省略 selector 的兼容计算语义不证明真实使用，不能反过来补全楼层名单。
 
-无方位时可记录当前四类厨卫关系：厨卫相邻、卫生间门对厨房、卫生间门对卧室、厨房与卧室相邻。其他明确描述（如卫生间门直接对灶）保留用户原话并说明结构化关系尚未支持，不能换成不准确的 `feature` 套入；材质、器形也只传实际枚举。记录事实不等于判断禁忌，本版尚无上述厨卫关系或材质器形的逐项禁忌判据；不得称已完成这部分禁忌分析或凑“绝对吉凶”。有来源的入口直线等室内形态仍按原范围审查。拱门、开放式厨房按专家版本低优先简短提醒，不单凭样式建议拆改、购买物件或压过已确认的重要问题；若另有真实通风、卫生、消防问题，单列现实建议。
+无方位时按[本轮有来源细则](../../docs/fengshui-sourced-interior-rules-2026-10-15.md)检查明确的厨卫、床灶、梁管、镜面和尖角两端关系，并独立读取材质器形结果。旧 `observations` 的四类宽泛厨卫关系仍只记录原粒度，不自动触发更强的正对／上下／靠墙规则。每项结论限本次作者、对象与关系，保留镜照床等作者异议，不凑普遍“绝对禁忌”。未列入的关系仍保留原话与未覆盖范围，不换错误类型套入。拱门、开放式厨房继续低优先简短提醒；真实通风、卫生、消防问题单列现实建议。
 
-按问题解释九宫固定五行、飞星五行、人物、职业／器物象意及砂水观察时，读取 `method_details` 及来源；固定宫五行与临宫星五行各自说明。《说卦》的家庭与物象、少量古代职业角色只作传统符号解释；现代职业／家具类比须明示为讲解，不预测职业成败，也不把象意自动变成摆放规则。砂水先保存高低、实空、静动、形态与范围，再按已确认分类计算；水槽、道路、高楼、绿植等名称不自动等于砂或水。
+按问题解释五行、人物、职业／器物及砂水时读取 `method_details`：固定宫看 `palaces`，按实际年／运／山／向星数查 `flying_star_references`，八宅游年按实际星名查 `bazhai_you_nian_references`；先读 `mapping_boundaries`，同名星不跨表套五行。九星署名主题、跨文本本卦人物／器物、有限职业例分别标注来源；四绿的学术／研究／写作例与三碧的特定组合职业例保留作者条件，其余现代职业未覆盖，不凑名单或预测职业。家具观察看 `object_observation_references`，砂水细节看 `sand_water_reference.form_condition_references`；这些是待确认观察及 `reference_only` 说明，不自动变成分类或摆放规则。水槽、道路、高楼、绿植等名称不自动等于砂或水。
 
-已连接 MCP 直接调用，不为咨询先搜代码或运行命令。按实际工具描述采用首轮 `fields`、`strict_fields=true`、`include_snapshot_text=false`。所有风水解读都保留 `rulesets` 与 `rule_trace`，包括单独命卦和无可做动作的形态审查；有 `scene` 或环境上下文时追加 `method_policy`，有 `environmental_context` 才追加 `layout_analysis.environmental_context`，逐物件请求再追加 `layout_analysis.surface_analysis`。`method_details` 是较大的参考分支，按细节请求另读；没有对应场景／上下文的旧请求不追加可缺路径，避免严格投影报错。旧连接没有所需参数时如实说明并请求重连，不能伪装已经计算；只有可用的本地 CLI 才作为后备，用 JSON `--request-file`，不改安装或用户配置。
+关系事实和属性事实分开：`interior_relations` 明确源／目标对象及各自角色，不把“厨厕相邻”改写成门对灶，不把普通门自动当主门／厕门；床位柱角规则只接受 `pillar_corner`，普通家具尖角不升级为柱角。床头／灶背共墙规则须确认墙另一侧实际便器，不以任意卫生间隔墙替代。`present=null` 是未知，确认 false 仅说明该条关系不成立，照片中的 true 或 false 都保留 `candidate_only`。`material_facts` 的材质、器形、颜色、活植物状态各按已确认粒度保存，不同属性可分事实并带同一明确 `element_use`，不重复属性或声明矛盾用途，也不自动拼接；未知不由另一个属性补齐。`element_use` 仅表示用户明确询问能否充当某元素代表物，资格成立不证明当前宫位需要它、摆位可行或可以 ready。
+
+已连接 MCP 直接调用，不为咨询先搜代码或运行命令。按实际工具描述采用首轮 `fields`、`strict_fields=true`、`include_snapshot_text=false`。所有风水解读都保留 `rulesets` 与 `rule_trace`，包括单独命卦和无可做动作的形态审查；有 `scene` 或环境上下文时追加 `method_policy`，有 `environmental_context` 才追加 `layout_analysis.environmental_context`。本次实际提供 `interior_relations` 才加 `layout_analysis.interior_analysis`，提供 `material_facts` 才加 `layout_analysis.material_analysis`，逐桌面物件请求再加 `layout_analysis.surface_analysis`。`method_details` 是较大的参考分支，按细节请求另读；没有对应输入的旧请求不追加可缺路径，避免严格投影报错。旧连接没有所需参数时如实说明并请求重连，不能伪装已经计算；只有可用的本地 CLI 才作为后备，用 JSON `--request-file`，不改安装或用户配置。
 
 ## 实际候选布局
 
-用户提出可比较位置时用 `layout_alternatives`，不是凭方向表编造可放家具的地点。每项给 `candidate_id/object_id/changes/evidence`，`changes` 明确 `location/facing`；新位置的 `placement` 与 `form_observation` 各自提供。搬位或转向后，旧入口、背靠、窗和直线关系一律不能继承；候选缺少原先使用的观察时保留待确认。对象用途和已确认使用人集合不能在候选中偷换。
+用户提出可比较位置时用 `layout_alternatives`，不是凭方向表编造可放家具的地点。每项给 `candidate_id/object_id/changes/evidence`，`changes` 明确 `location/facing`；涉及位置或形态计算时各自提供新 `placement`／`form_observation`。仅比较镜面、尖角源等两端关系时可只给独立 `environmental_context`，但其中须有涉及该候选对象的新 `interior_relations`，不伪造床桌灶占位。搬位或转向后，旧入口、背靠、窗和直线关系一律不能继承；候选缺少原先使用的观察时保留待确认。对象用途和已确认使用人集合不能在候选中偷换。
 
 新方案的家庭／楼层／环境关系放该项 `environmental_context`，不继承顶层现状上下文。现状对象曾关联楼层或厨卫／材质／器形等环境观察时，候选要独立重核相同维度并提供新证据；只传空上下文、许可或 `physically_feasible=true` 不算完成。缺失保留 `candidate_only`，不自动沿用旧层适宜性、旧观察或角色绑定后输出 ready；对象用途和实际使用人也不得偷换。
 
+双对象关系任一端是搬转对象，都要在候选中重核同一 `kind` 与源／目标；不能因为另一端固定就继承旧关系。确认 false 可说明该候选关系未成立，null、照片或省略不能代替确认。关联属性也按原事实粒度独立重核，不把器形、颜色或资格问题改成别的属性让旧问题消失。新关系模块的条件动作本身不返回 ready。
+
+固定关系端已知楼层即使省略也保留用于候选校验；目标换楼层／空间作用域须声明 `changes` 含 `location` 并核对搬位许可，不能只报转向。搬转不更换已确认材质、器形、颜色或 `plant_alive` 状态；照片／未知可进一步确认，真正事实更正先替换现状。关系动作读取实际 `action_basis`：只有 IR2／5／12 明确采用作者搬移说明，其余已登记动作为条件工程候选，不能归为作者明示处方。
+
 若候选家具本身也在现状金锁 `features` 中，新方案以该项 `features` 独立确认新位置的砂水事实；每项只关联同一 `candidate.object_id`，`direction` 与候选 `placement.location_direction` 一致，并保留分类依据与证据。不能把搬动前的砂水方位沿用到新位置；其他未搬动特征可保留。旧对象原有金锁特征而候选未提供新 `features` 时维持待确认，许可及空间确认不能使其 ready。候选读取 `environment_adjustments` 及 `rule_comparisons` 的金锁项，再与其他方法逐条比较。
 
-候选只改变目标家具，不能把其他固定砂水特征移入新的楼层／坐标；未在新上下文重列的固定特征仍保留原楼层元数据。`rule_comparisons` 的年星／历史宅盘项是已算星数、角色与落宫的参考比较，读取 `comparison_scope`，不解释为完整组合吉凶。`layer_statuses` 记录各候选真实计算状态，方法可用性不能用现状完成替代候选完成。
+候选只改变目标家具，不能把其他固定砂水特征移入新的楼层／坐标；未在新上下文重列的固定特征仍保留原楼层元数据。`rule_comparisons` 的年星／历史宅盘项限已算星数、角色与落宫参考，室内关系／材料项限明确判据／代表物资格；读取各自 `comparison_scope`，不解释为完整组合吉凶。`layer_statuses` 记录各候选真实计算状态，方法可用性不能用现状完成替代候选完成。
 
 `physically_feasible` 只来自逐方案确认的容纳、通行和操作空间，不能由许可或照片空白推得。读取 `layout_analysis.alternatives_analysis`；`ready` 只表示所选计算和动作门槛满足，并不等于各规则都匹配。逐项比较 `rule_comparisons`，保留门派、宅/人、位置/朝向与新观察的权衡，不平均成总分，也不自动推荐所有ready候选。blocked方案不追问动作许可；候选待确认不阻止结束当前现状的事实审查。
 

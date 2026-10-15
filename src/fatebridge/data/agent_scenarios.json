@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "sources_sha256": {
     "docs/scenario-routing.md": "59a86b097425793df75934e2bacdad6c62e4ea05eae87509092ed39a851d9680",
-    "skills/onda-fengshui/agents/interface.yaml": "84226e733f667bba61fed02030f913529c1d305446ce349dfe66ebc362eec85b",
+    "skills/onda-fengshui/agents/interface.yaml": "d120f0748de9b186f01e6aa2f1060a50333185b08f8254509dbd70646d86983d",
     "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
     "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",
     "skills/onda-shiye/agents/interface.yaml": "f76ba11182a38f90a0b8315dd3a126463456dc1649caaad9b13b03abc9305be9",
@@ -16,7 +16,7 @@
     {
       "id": "onda-fengshui",
       "name": "风水 · 空间布局",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "summary": "以九宫飞星、金锁玉关、八宅核对空间、家庭与楼层，保留来源、方位及行动边界",
       "triggers": [
         "风水布局",
@@ -34,7 +34,9 @@
         "合租局部风水",
         "多层住宅与院落",
         "家庭人物宫位对应",
-        "家庭卦象与对宫说明"
+        "家庭卦象与对宫说明",
+        "厨卫与镜面关系风水",
+        "尖角与材质器形风水"
       ],
       "engine_tools": [
         "fengshui_assess",

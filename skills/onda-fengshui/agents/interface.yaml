@@ -1,6 +1,6 @@
 # Machine-readable scenario contract; checked against SKILL.md and the catalog.
 name: onda-fengshui
-version: 0.4.0
+version: 0.5.0
 scenario: 风水 · 空间布局
 summary: 以九宫飞星、金锁玉关、八宅核对空间、家庭与楼层，保留来源、方位及行动边界
 triggers:
@@ -20,6 +20,8 @@ triggers:
   - 多层住宅与院落
   - 家庭人物宫位对应
   - 家庭卦象与对宫说明
+  - 厨卫与镜面关系风水
+  - 尖角与材质器形风水
 engine_tools:
   - fengshui_assess
   - fengshui_minggua
@@ -40,6 +42,7 @@ reads:
   - ../../../docs/fengshui-xuankong.md
   - ../../../docs/fengshui-scene-planning.md
   - ../../../docs/fengshui-expert-policy.md
+  - ../../../docs/fengshui-sourced-interior-rules-2026-10-15.md
 output:
   kind: interpretation
   grounding: engine_fields

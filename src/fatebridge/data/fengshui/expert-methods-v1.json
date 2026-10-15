@@ -1,55 +1,76 @@
 {
-  "bundle_version": "1.0.0",
+  "bundle_version": "1.1.0",
   "sources": {
     "EXPERT_20261015": {
       "title": "用户提供的专家交流要求（2026-10-15，九项）",
       "url": "",
       "kind": "user_supplied_expert_requirements",
-      "scope": "本项目选法顺序、环境与个人命盘边界、人物和楼层口径；未提供专家姓名或原始论著，不冒充历史原典或全门派共识"
+      "scope": "本项目选法顺序、环境与个人命盘边界、人物和楼层口径；未提供专家姓名或原始论著，不冒充历史原典或全门派共识",
+      "source_version": "2026-10-15当前聊天用户九项要求",
+      "locator": "用户本轮编号1至9；非公开专家论文",
+      "retrieved_at": "2026-10-15"
     },
     "SHUOGUA_PRIMARY": {
       "title": "《周易·说卦传》古典文本转录",
       "url": "https://www.eee-learning.com/book/eee67",
       "kind": "primary_text_transcription",
-      "scope": "后天方位、八卦家庭角色、古典物象；不是现代职业预测表或家具摆位处方"
+      "scope": "后天方位、八卦家庭角色、古典物象；不是现代职业预测表或家具摆位处方",
+      "source_version": "易学网2011-05-22文本；2026-10-15核对，印本未校勘",
+      "locator": "后天方位段；乾天称父至兑三索得女段；乾为天至兑为泽八卦物象段",
+      "retrieved_at": "2026-10-15"
     },
     "ZHOUYI_ZHENGYI_PRIMARY": {
       "title": "《周易正义》说卦卷九之十一转录",
       "url": "https://zh.wikisource.org/zh/周易正義/09.11",
       "kind": "primary_text_transcription",
-      "scope": "古典物象与古代角色的注疏；不证明具体环境影响，也不扩成疾病或职业断语"
+      "scope": "古典物象与古代角色的注疏；不证明具体环境影响，也不扩成疾病或职业断语",
+      "source_version": "Wikisource公开转录；2026-10-15核对，印本未认证",
+      "locator": "卷九之十一：乾为天至兑为泽八卦取象注疏",
+      "retrieved_at": "2026-10-15"
     },
     "FOUNDATION_S4": {
       "title": "沈氏玄空学卷四转录（既有基础规则来源 S4）",
       "url": "https://www.diancangwang.cn/xuanxuewushu/f6f37803664b/90b563d9cb41.html",
       "kind": "existing_registered_primary_transcription",
-      "scope": "沿用已登记的洛书固定宫数、宫五行和飞布基础；固定宫不等于临宫飞星"
+      "scope": "沿用已登记的洛书固定宫数、宫五行和飞布基础；固定宫不等于临宫飞星",
+      "source_version": "既有基础规则S4；2026-10-15复核转录，印本未认证",
+      "locator": "卷四：九宫挨星掌诀及洛书飞布参考",
+      "retrieved_at": "2026-10-15"
     },
     "FOUNDATION_S5": {
       "title": "署名陈益峰《九砂九水》注解所引传本（既有来源 S5）",
       "url": "https://k.sina.cn/article_6492742263_182ff627700100c8vw.html",
       "kind": "existing_registered_attributed_commentary_repost",
-      "scope": "沿用基础规则 1234 砂、6789 水及砂阳水阴口径；未获得完整底本影印，不确认历史归属或新增细断"
+      "scope": "沿用基础规则 1234 砂、6789 水及砂阳水阴口径；未获得完整底本影印，不确认历史归属或新增细断",
+      "source_version": "既有基础规则S5转载；2026-10-15复核，未获得历史底本",
+      "locator": "九砂九水注解：基础八宫砂水取用；不扩展转载的细断",
+      "retrieved_at": "2026-10-15"
     },
     "FOUNDATION_S3": {
       "title": "八宅明镜卷下转录（既有来源 S3）",
       "url": "https://xm.yi958.com/gsqm/4089",
       "kind": "existing_registered_primary_transcription",
-      "scope": "沿用坐山起伏位、大游年和灶座/火门作用域；个人命卦与环境卦位分别计算"
+      "scope": "沿用坐山起伏位、大游年和灶座/火门作用域；个人命卦与环境卦位分别计算",
+      "source_version": "易德轩2016-03-17转录；2026-10-15核对，未做全本校勘",
+      "locator": "卷下：修造论；生气贪狼、文曲六煞及灶座灶口分论",
+      "retrieved_at": "2026-10-15"
     },
     "FATEBRIDGE_OBSERVATION_REFERENCE": {
       "title": "FateBridge 环境观察参考说明 v1",
       "url": "",
       "kind": "authored_observation_reference",
-      "scope": "把古典物象转成可询问的实际用途、材质、器形和高低动静观察项；不是古文原句、自动砂水分类或吉凶规则"
+      "scope": "把古典物象转成可询问的实际用途、材质、器形和高低动静观察项；不是古文原句、自动砂水分类或吉凶规则",
+      "source_version": "FateBridge authored observation reference v1.1，2026-10-15",
+      "locator": "direction_references、sand_water_reference及method-reference-supplement-v1现代观察提示",
+      "retrieved_at": "2026-10-15"
     }
   },
   "ruleset": {
     "ruleset_id": "expert_fengshui_methods_v1",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "method": "fengshui_method_reference",
     "source_ids": ["EXPERT_20261015", "SHUOGUA_PRIMARY", "ZHOUYI_ZHENGYI_PRIMARY", "FOUNDATION_S4", "FOUNDATION_S5", "FOUNDATION_S3", "FATEBRIDGE_OBSERVATION_REFERENCE"],
-    "scope": "三法选法与作用域、九宫固定五行和有限古典象意、环境观察参考；不增加未注册的职业预测、自动物件分类或处方",
+    "scope": "三法选法与作用域、固定宫与临星的独立参考、来源分层的古典人物器物与有限现代教学例；不增加职业预测、自动分类或处方",
     "conventions": [
       "局部空间先展开九宫飞星，再展开金锁玉关；八宅个人命卦单独处理",
       "优先级是审查与说明顺序，不表示三法可以抵消，也不产生综合评分",
@@ -79,7 +100,7 @@
       "required_facts": ["物件或房间相对所选空间中心的已确认方位", "年盘的评价日期或有效年", "历史宅盘的定运依据、磁北宅向及误差"],
       "element_scope": "fixed_palace_element_and_each_star_role_element_remain_distinct",
       "person_scope": "先确定环境宫位，再在已确认家庭关系范围内关联人物；不导入个人八字/紫微喜忌",
-      "not_covered": ["完整81星组合断法", "由职业推断某宫吉凶", "由家具名称直接定五行或给出固定摆法"],
+      "not_covered": ["完整81星组合断法", "完整现代职业与九星一一对应表", "由象意或教学主题预测职业成败", "家具摆位、数量及病灾财运处方"],
       "source_ids": ["EXPERT_20261015", "FOUNDATION_S4"]
     },
     "jinsuo": {
@@ -89,7 +110,7 @@
       "sand_water_convention": {"sand": "yang", "water": "yin", "classification": "requires_independent_observation_and_confirmation"},
       "required_facts": ["相对所选空间中心的已确认方向", "对象实际形态、高低、动静、用途及砂水分类依据"],
       "person_scope": "按房屋宫位所对应角色另行关联，不以生肖或八字制造物理方向",
-      "not_covered": ["24山砂水细断", "形态距离组合细断", "由缺水反推有砂", "疾病死亡财富必然断语"],
+      "not_covered": ["24山砂水计算细断（所引形态例不代表启用）", "形态距离组合自动断吉凶（仅提供观察条件参考）", "由缺水反推有砂", "疾病死亡财富必然断语"],
       "source_ids": ["EXPERT_20261015", "FOUNDATION_S5"]
     },
     "bazhai": {

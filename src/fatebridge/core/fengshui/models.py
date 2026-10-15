@@ -526,7 +526,7 @@ class LayoutAlternative(_DeferredModel):
         json_schema_extra={
             "anyOf": [
                 {"required": [field], "properties": {field: {"type": "object"}}}
-                for field in ("placement", "form_observation")
+                for field in ("placement", "form_observation", "environmental_context")
             ]
         }
     )
@@ -559,9 +559,15 @@ class LayoutAlternative(_DeferredModel):
             raise ValueError("候选依据不得空白，changes 不得重复")
         observations = [self.placement, self.form_observation]
         supplied = [o for o in observations if o is not None]
-        if not supplied or any(o.object_id != self.object_id for o in supplied):
+        related = self.environmental_context is not None and any(
+            self.object_id in (r.source_object_id, r.target_object_id)
+            for r in self.environmental_context.interior_relations
+        )
+        if (not supplied and not related) or any(
+            o.object_id != self.object_id for o in supplied
+        ):
             raise ValueError("候选需独立位置或形态观察，且 object_id 必须一致")
-        if len({o.purpose for o in supplied}) != 1:
+        if supplied and len({o.purpose for o in supplied}) != 1:
             raise ValueError("候选位置与形态用途必须一致")
         JinsuoRequest(features=self.features)
         if any(feature.object_id != self.object_id for feature in self.features):
@@ -616,6 +622,7 @@ def _validate_static_floor_frames(
     proposed: EnvironmentalContext,
     target_id: str,
     static_feature_ids: set[str],
+    changes: set[str],
 ) -> None:
     if (
         current is not None
@@ -640,6 +647,20 @@ def _validate_static_floor_frames(
         "center_confirmed",
         "floorplan_alignment_confirmed",
     )
+    old_target = original_objects.get(target_id)
+    new_target = next(
+        (floor for floor in proposed.floors if target_id in floor.object_ids), None
+    )
+    if (
+        old_target is not None
+        and new_target is not None
+        and "location" not in changes
+        and any(
+            getattr(old_target, field) != getattr(new_target, field)
+            for field in ("floor_id", "level", "space_kind")
+        )
+    ):
+        raise ValueError("候选楼层或空间归属变化必须声明location搬位并核对搬位许可")
     for floor in proposed.floors:
         previous = original_floors.get(floor.floor_id)
         if previous is not None and any(
@@ -657,6 +678,20 @@ def _validate_static_floor_frames(
                 for field in frame_fields
             ):
                 raise ValueError("候选不得改变未移动对象的楼层或坐标参考系")
+
+
+def _context_roles(context: Optional[EnvironmentalContext]) -> Dict[str, set[str]]:
+    return (
+        {
+            obj.object_id: {
+                value for value in (obj.role, obj.purpose) if value is not None
+            }
+            | ({"sharp_corner"} if obj.role == "pillar_corner" else set())
+            for obj in context.objects
+        }
+        if context is not None
+        else {}
+    )
 
 
 class AssessRequest(BazhaiRequest):
@@ -788,6 +823,7 @@ class AssessRequest(BazhaiRequest):
                 | {o.object_id: o.purpose for o in self.form_observations}
                 | {s.object_id: "desk" for s in self.surface_layouts},
             )
+            known.update(obj.object_id for obj in self.environmental_context.objects)
             _validate_floor_user_assignments(
                 self.environmental_context, self.placements
             )
@@ -872,15 +908,77 @@ class AssessRequest(BazhaiRequest):
         for candidate in self.layout_alternatives:
             if candidate.features and "jinsuo" not in self.selected_methods:
                 raise ValueError("候选砂水特征须在 methods 中选择 jinsuo")
-            if candidate.object_id not in objects | set(forms):
+            if candidate.object_id not in known:
                 raise ValueError("布局候选须引用已有位置或形态对象")
-            base = current.get(candidate.object_id) or forms[candidate.object_id]
+            base = current.get(candidate.object_id) or forms.get(candidate.object_id)
+            base_purpose = (
+                base.purpose
+                if base is not None
+                else next(
+                    (
+                        role
+                        for role in _context_roles(self.environmental_context).get(
+                            candidate.object_id, set()
+                        )
+                        if role in {"bed", "desk", "stove", "door"}
+                    ),
+                    None,
+                )
+            )
             for obs in (candidate.placement, candidate.form_observation):
-                if obs is not None and obs.purpose != base.purpose:
+                if obs is not None and obs.purpose != base_purpose:
                     raise ValueError("候选不得改变对象用途")
             proposal = candidate.placement
             candidate_context = candidate.environmental_context
             if candidate_context is not None:
+                current_definitions = (
+                    {obj.object_id: obj for obj in self.environmental_context.objects}
+                    if self.environmental_context is not None
+                    else {}
+                )
+                for obj in candidate_context.objects:
+                    prior = current_definitions.get(obj.object_id)
+                    if prior is not None and any(
+                        getattr(prior, field) != getattr(obj, field)
+                        for field in ("kind", "purpose", "role")
+                    ):
+                        raise ValueError("候选不得更换已确认物件的类型或角色")
+                prior_uses = (
+                    {
+                        fact.object_id: fact.element_use
+                        for fact in self.environmental_context.material_facts
+                        if fact.element_use is not None
+                    }
+                    if self.environmental_context is not None
+                    else {}
+                )
+                for fact in candidate_context.material_facts:
+                    if fact.object_id in prior_uses and fact.element_use not in (
+                        None,
+                        prior_uses[fact.object_id],
+                    ):
+                        raise ValueError("搬转候选不得更换已明确的元素代表物用途问题")
+                    for old_fact in (
+                        self.environmental_context.material_facts
+                        if self.environmental_context is not None
+                        else []
+                    ):
+                        if (
+                            old_fact.object_id != fact.object_id
+                            or old_fact.observation_basis == "image_observed"
+                        ):
+                            continue
+                        for attribute in ("material", "shape", "colour", "plant_alive"):
+                            previous_value, new_value = getattr(
+                                old_fact, attribute
+                            ), getattr(fact, attribute)
+                            if previous_value not in (
+                                None,
+                                "unknown",
+                            ) and new_value not in (None, "unknown", previous_value):
+                                raise ValueError(
+                                    "搬位/转向候选不得改写同一物件已确认的材质、器形、颜色或存活状态"
+                                )
                 current_members = (
                     {
                         m.subject_id: m
@@ -904,6 +1002,17 @@ class AssessRequest(BazhaiRequest):
                     {o.subject_id for o in self.occupants} | set(current_members),
                     {p.object_id: p.purpose for p in self.placements}
                     | {o.object_id: o.purpose for o in self.form_observations},
+                    _context_roles(self.environmental_context),
+                    {
+                        object_id: floor
+                        for floor in (
+                            self.environmental_context.floors
+                            if self.environmental_context is not None
+                            else []
+                        )
+                        for object_id in floor.object_ids
+                        if object_id != candidate.object_id
+                    },
                 )
                 _validate_static_floor_frames(
                     self.environmental_context,
@@ -914,6 +1023,7 @@ class AssessRequest(BazhaiRequest):
                         for f in self.features
                         if f.object_id != candidate.object_id
                     },
+                    set(candidate.changes),
                 )
                 _validate_floor_user_assignments(
                     candidate_context, [proposal] if proposal is not None else []

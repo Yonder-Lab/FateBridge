@@ -115,7 +115,9 @@ asyncio.run(main())
 
 `environmental_context` 可独立保存方位／图纸对齐与中心确认、同住家庭辈分／排行、独立确认生肖、各楼层／院落与明确形态观察；不要求为这些事实提交生辰。输出位于 `layout_analysis.environmental_context`，其中上下文宫位绑定须经过方向、户型对齐与立极三个门槛。该模块不计算飞星，也不把家庭象征索引当成现实人物受影响结论。院落归第一层但共享整体关系仍需复核；局限本层且异层适宜有依据时，不自动将该局部不利归给异层住户。厨卫、材质和器形事实不自动变成禁忌，未有具体判据的项目保留未覆盖。具体字段与示例见[专家政策](fengshui-expert-policy.md)。
 
-仅解释家庭卦名／对宫用 `household_scope=symbolic_reference`，不绑定真实方向或为此追罗盘；默认 `environmental_binding` 才关联环境方区。家庭及生肖输出的 `scope`／适用方法限定为飞星、金锁的环境象征索引，不作为八宅命卦；实际个人匹配看八宅层。当前结构化厨卫关系只支持四类，具体禁忌仍未实现，其他关系不能换错误枚举套入。
+仅解释家庭卦名／对宫用 `household_scope=symbolic_reference`，不绑定真实方向或为此追罗盘；默认 `environmental_binding` 才关联环境方区。家庭及生肖输出的 `scope`／适用方法限定为飞星、金锁的环境象征索引，不作为八宅命卦；实际个人匹配看八宅层。
+
+无方位具体关系新增 `environmental_context.interior_relations`：以源／目标对象及明确角色检查本次有来源的厨卫、床灶、镜面、梁管和尖角关系；床位尖角规则限实体柱角，床头／灶背共墙须确认墙另一侧实际便器，旧四类粗粒度 `observations` 不自动触发更强规则。`material_facts` 另存材质、器形、颜色与明确代表物资格问题。实际提供对应输入才返回 `layout_analysis.interior_analysis/material_analysis`；关系 null 和照片均待确认，确认 false 只说明本条不成立。资格不确认摆位或 ready，作者来源、条件工程动作和镜面方法异议分列，详见[本轮有来源规则](fengshui-sourced-interior-rules-2026-10-15.md)。
 
 多层及独立院落还须各自确认 `floors[].floorplan_alignment_confirmed`、`center_confirmed`，并以 `uses_shared_orientation=true` 采用全宅已确认方向；全宅中心不自动成为每层中心。逐层门槛不足时不能提交关联对象的物理落宫事实。当前各层复用本次已明确声明的宅／年盘，位置按各自确认中心提供；不会自动建立每层宅运或自动立极。
 
@@ -190,6 +192,8 @@ layers.jinsuo: preferences / feature_findings
 layers.annual_stars: palaces / effective_year / time_context / current_period
 method_policy / method_details: 选法口径、实际层次、固定宫与星五行及带来源象意参考
 layout_analysis.environmental_context: 方位门槛、家庭/生肖关注、多层范围、现代设计及未覆盖观察
+layout_analysis.interior_analysis: 实际提供双对象关系后的有限作者判据、异议及条件动作
+layout_analysis.material_analysis: 实际属性、器形参考与明确代表物用途的有限资格
 rulesets / rule_trace: 各层规则版本、来源及范围
 coverage: implemented_layers / missing_inputs / unavailable_layers / not_requested_layers
 conflicts: 逐人方向差异、宅与人作用域差异、三层叠加清单
@@ -203,7 +207,7 @@ run_metadata: 三端通用运行元数据
 
 八宅游年星与年度紫白星有不同名称空间，例如八宅生气贪狼属木、一白贪狼属水。`palace_number` 始终是固定宫数，`annual_star_number` 才是当年临宫星数；`current_period` 是当前日历元运，不是住宅建造元运。
 
-`method_details.status=reference_only` 表示方法与象意参考：固定宫五行、临宫星五行、《说卦》的家庭／器物和少量古代职业角色分开。现代职业／家具及高楼、道路、水体、绿化等砂水观察例不构成自动分类、摆放处方或职业预测；未知分类仍不判断。访谈口径与经典取象分别标注来源，精确范围见[专家政策细节](fengshui-expert-policy.md#方法细节如何讲清楚)。
+`method_details.status=reference_only` 表示方法与象意参考。按 `mapping_boundaries` 区分固定宫 `palaces`、实际临宫星数 `flying_star_references`、八宅游年星名 `bazhai_you_nian_references`，不能因同名混用五行。跨文本本卦人物／器物、Joey Yap 一至九星主题与有限职业例分别保留来源及条件；未覆盖职业不补造。`object_observation_references`、各法 `application_references`、砂水 `form_condition_references` 和 `material_shape_reference` 补观察与用途说明，不构成自动分类、摆放处方或职业预测。精确字段、来源及剩余边界见[专家政策细节](fengshui-expert-policy.md#方法细节如何讲清楚)和[本轮补充清单](fengshui-sourced-interior-rules-2026-10-15.md#与方法细节的区别)。
 
 本版明确未实现：月飞星、金锁24山及形态／距离／元运组合、自动户型几何。24山角度索引可用不表示这些24山论断可用。没有三法总分，也不生成疾病、死亡或财富断语。
 

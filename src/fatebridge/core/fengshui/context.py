@@ -126,6 +126,8 @@ def analyze_environmental_context(
             context.orientation is not None
             and not context.household_members
             and not context.observations
+            and not context.interior_relations
+            and not context.material_facts
             and not non_directional_scope
         )
     )

@@ -269,6 +269,8 @@ class FengshuiOutput(ProjectedOutput):
 
 class LayoutAnalysis(PartialOutput):
     environmental_context: Optional[Object] = None
+    interior_analysis: Optional[Object] = None
+    material_analysis: Optional[Object] = None
     natal_interpretation: Optional[NatalInterpretation] = None
     alternatives_analysis: Optional[Object] = None
     surface_analysis: Optional[SurfaceAnalysis] = None
