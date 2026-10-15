@@ -1,6 +1,6 @@
 # 玄空运山向宅盘：版本、输入和验证
 
-第二阶段增加 `fengshui_xuankong_natal`，REST 为 `POST /api/fengshui/xuankong_natal`，MCP 与 CLI 同名。选定版本 `xuankong_zhongzhou_v1@1.0.1` 完整计算九宫运星、山星、向星，支持下卦和中州派兼向替星。与 `layers.annual_stars` 独立；查询年份变化不改变历史宅盘。基础三法合同仍见 [家居风水](fengshui.md)。
+`fengshui_xuankong_natal` 的 REST 入口为 `POST /api/fengshui/xuankong_natal`，MCP 与 CLI 同名。选定版本 `xuankong_zhongzhou_v1@1.0.1` 完整计算九宫运星、山星、向星，支持下卦和中州派兼向替星。与 `layers.annual_stars` 独立；查询年份变化不改变历史宅盘。基础三法合同见[家居风水](fengshui.md)。
 
 ## 规则核实和版本选择
 
@@ -108,36 +108,20 @@ MCP `fengshui_xuankong_natal` 的参数就是上面 JSON 对象。认证设置�
 - X2的3套下卦：七运午子、八运甲庚、七运卯酉；4套替卦：八运甲庚兼寅申、七运午子兼丙壬、七运乾巽兼戌辰、七运卯酉兼甲庚。七套全部九宫27个数字吻合，包含五黄不替与替后仍按原阴阳飞布。
 - Apache-2.0 [YuanZHAO321/FengShuiCalculators固定提交](https://github.com/YuanZHAO321/FengShuiCalculators/blob/2eacd85b9878452469c6669e7fff05d2c6226c97/docs/js/flyingstars.js) 独立生成9运×24山＝216套下卦，保存提交ID和两个文件SHA-256。168套无五黄的盘全部一致；含向五黄的24套也一致；192套吻合、24套山五黄不同。参考实现向五黄直接借物理向山阴阳，未采用本版本的借宅运追踪；这些盘的向山与宅运本宫恰互为相对山，元龙和阴阳相同，所以数值吻合不能证明其借法表述一致。
 - 独立抄录X1同元龙山和阴阳表，以X2五黄规则、X3所载二／六／七运阴阳模式交叉核对，再展开48项固定五黄顺逆数字断言（24山盘、24向盘）；这些是独立阴阳表的规则验证，不冒称48幅出版盘图。未调用生产阴阳表或飞布函数生成预期值。
-- 外部山五黄分支直接用 `!facing.yang`，相对本版本借宅运同元龙阴阳发生取反。保持原外部结果，逐盘差异及元龙、借山、阴阳与完整逆向数列见 [本轮独立验证报告](audits/2026-10-12/fengshui/xuankong-systematic-independent.json)，不修改参考引擎强求216套一致，也不称其支持替星。
+- 外部山五黄分支直接用 `!facing.yang`，相对本版本借宅运同元龙阴阳发生取反。保持原外部结果；`scripts/audit_xuankong_independent.py --report /tmp/fengshui-xuankong-comparison.json` 可根据固定夹具重新列出逐盘差异、元龙、借山、阴阳及逆向数列，不修改参考引擎强求216套一致，也不称其支持替星。
 
 ```bash
 PATH="$PWD/.venv/bin:$PATH" .venv/bin/pytest -q tests/test_xuankong.py tests/test_fengshui_surfaces.py
 .venv/bin/python scripts/audit_xuankong_independent.py
 # 可选联网复现，需Node；先核对已审阅代码的散列，普通测试和生产均无需联网或Node。
 .venv/bin/python scripts/audit_xuankong_independent.py --refresh-external \
-  --report docs/audits/2026-10-12/fengshui/xuankong-independent.json
+  --report /tmp/fengshui-xuankong-comparison.json
 ```
 
 另覆盖9运24山正向及左右兼向共648组合、立春前后／跨时区、定运来源、五运、磁北要求、精确山界与角度误差、缺失输入、聚合层不互相覆盖及REST／实际MCP协议／CLI一致性。规则计算一致与现实预测有效性是不同验证范围。
 
-2026-10-12本地全仓回归1123项通过、89项按既有条件跳过，Black／isort／mypy及diff检查通过。wheel包含新规则JSON，并在仓库外从解包产物实际验证REST、MCP和CLI的替卦案例。详见 [本阶段验收记录](audits/2026-10-12/fengshui/xuankong-validation.json) 和 [公开合同](audits/2026-10-12/fengshui/xuankong-contract.json)。89项跳过含88项限定Linux x86_64／Python3.12环境的golden字节比较；本地通过不代替该环境或线上发布验收。原六工具快照仅同步覆盖／导出元数据，已断言其数值层与规则来源均未改变；详见 [快照变更范围](audits/2026-10-12/fengshui/xuankong-golden-changes.json)。
+领域回归、跨传输合同、Linux golden 与真实模型咨询分别验证。可在对应环境运行 `scripts/audit_linux_golden.py`；环境不匹配时不得伪造平台或跳过差异来声称通过。规则计算一致不证明现实效果。
 
-## 本轮Linux golden审查
-
-在实际Linux x86_64、Python 3.12.3的隔离源码快照中验证，未伪造平台或设置 `FATEBRIDGE_SKIP_GOLDEN_DIFF`。共享执行层使用的UTC调用时钟转换为既有上海2026-01-01中午夹具时刻；golden仅在 `run_metadata` 下移除另有合同／重放测试的运行回执字段，业务规则来源、版本、警告和九宫数字仍逐字节比较。
-
-```bash
-# 在已安装项目及dev依赖的Linux x86_64 / Python3.12环境执行。
-python -m scripts.audit_linux_golden --report /tmp/golden.json \
-  --actual-dir /tmp/golden-actual
-python -m pytest -q tests/test_golden_master.py tests/golden \
-  tests/test_fengshui.py tests/test_xuankong.py tests/test_fengshui_surfaces.py
-```
-
-脚本只比较并保存差异，不写入基线，环境不匹配直接失败。审查只更新年度星、聚合与宅盘3份风水快照；原85份既有工具快照无需覆盖。年度／聚合变动是Linux固定Moshier口径的一秒历史区间差异，九宫数值不变。宅盘更新修复版本、实际求解器与来源归属。本轮Linux专项396项通过、0项跳过，随后Linux全仓1403项通过、0项跳过，88套golden逐字节吻合；macOS全仓1313项通过、89项golden相关测试按环境跳过，最终SDK兼容修复另有55项复验通过。解包wheel中的边界两侧、压线和节气回退4例均通过REST／实际MCP协议／CLI一致性验证。最终环境、散列、命令及结果见 [本轮审查记录](audits/2026-10-12/fengshui/xuankong-systematic-validation.json)；初次实现验收记录保留原日期和平台范围。
-
-Linux缓存环境为MCP SDK 2.3.0、lunardate 0.3.0；测试兼容异常类大小写、协议字段别名和年表常量命名，保留旧依赖上的验证，生产数值逻辑不因这些兼容修复而变化。Black检查238个Python文件、isort、mypy检查123个源文件及diff检查均通过。本轮为本地真实Linux／macOS与解包wheel验证，未执行线上发布或托管服务验收。
-
-## 2026-10-15：显式启用有限解释
+## 显式启用有限解释
 
 在 `xuankong.interpretation`（聚合）或 `interpretation`（独立宅盘）传入独立评价运与证据，可启用 `xuankong_conditioned_v1@1.0.0`：有序山向星五行关系、当令星外部山水存在条件及床/门用途角色。默认不启用，既有宅盘数字和规则版本保持原合同。外局分宫独立确认，未确认、照片及边界候选保持缺失和候选状态；完整81组合断语与全宅勘察仍未覆盖。来源、字段与示例见[有限解释合同](fengshui-xuankong-interpretation.md)。

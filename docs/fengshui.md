@@ -17,7 +17,7 @@
 
 完整约束见 `/openapi.json`、MCP `tools/list` 和 `fatebridge describe fengshui_assess`。新 family 是 `fengshui`；不加入个人 `analyze_destiny` 或 `profile` 默认系统。
 
-第二阶段增加 `fengshui_xuankong_natal`，实现中州派完整运／山／向盘与兼向替星；聚合时显式选择 `xuankong_natal`，与年度飞星独立。定运资料、分界候选、规则版本及独立盘例见 [玄空宅盘](fengshui-xuankong.md)。
+`fengshui_xuankong_natal` 提供中州派完整运／山／向数字盘与兼向替星；聚合时显式选择 `xuankong_natal`，与年度飞星独立。定运资料、分界候选、规则版本及独立盘例见 [玄空宅盘](fengshui-xuankong.md)。
 
 ## 三端例子
 
@@ -95,7 +95,7 @@ asyncio.run(main())
 | `jinsuo_basic_fixed_v1` | 一二三四砂、六七八九水；逐个确认观察 | 署名陈益峰《九砂九水》注解所引传本；转载及底本归属限制明确登记 |
 | `annual_zibai_lichun_v1` | 年度紫白入中、顺飞九宫、立春区间、当前20年元运 | 《沈氏玄空学》转录、Joey Yap 2026年盘、作者立春约定与香港天文台年历 |
 
-详见 [调研与原典范围](fengshui-research-2026-10-12.md)。未知规则 ID 拒绝；改变纪元、换年、坐山起法或砂水规则时，应新增规则版本与独立样本，不能静默替换原版本。`january_1` 是命卦中显式可选的现代计算约定，不宣称所有《八宅明镜》古本都按立春换年。
+详见[基础规则与来源](fengshui-rule-sources.md)。未知规则 ID 拒绝；改变纪元、换年、坐山起法或砂水规则时，应新增规则版本与独立样本，不能静默替换原版本。`january_1` 是命卦中显式可选的现代计算约定，不宣称所有《八宅明镜》古本都按立春换年。
 
 定义 `wrap9(n) = (n - 1) % 9 + 1`，有效年为 Y：
 
@@ -117,7 +117,7 @@ asyncio.run(main())
 
 仅解释家庭卦名／对宫用 `household_scope=symbolic_reference`，不绑定真实方向或为此追罗盘；默认 `environmental_binding` 才关联环境方区。家庭及生肖输出的 `scope`／适用方法限定为飞星、金锁的环境象征索引，不作为八宅命卦；实际个人匹配看八宅层。
 
-无方位具体关系新增 `environmental_context.interior_relations`：以源／目标对象及明确角色检查本次有来源的厨卫、床灶、镜面、梁管和尖角关系；床位尖角规则限实体柱角，床头／灶背共墙须确认墙另一侧实际便器，旧四类粗粒度 `observations` 不自动触发更强规则。`material_facts` 另存材质、器形、颜色与明确代表物资格问题。实际提供对应输入才返回 `layout_analysis.interior_analysis/material_analysis`；关系 null 和照片均待确认，确认 false 只说明本条不成立。资格不确认摆位或 ready，作者来源、条件工程动作和镜面方法异议分列，详见[本轮有来源规则](fengshui-sourced-interior-rules-2026-10-15.md)。
+无方位具体关系新增 `environmental_context.interior_relations`：以源／目标对象及明确角色检查本次有来源的厨卫、床灶、镜面、梁管和尖角关系；床位尖角规则限实体柱角，床头／灶背共墙须确认墙另一侧实际便器，旧四类粗粒度 `observations` 不自动触发更强规则。`material_facts` 另存材质、器形、颜色与明确代表物资格问题。实际提供对应输入才返回 `layout_analysis.interior_analysis/material_analysis`；关系 null 和照片均待确认，确认 false 只说明本条不成立。资格不确认摆位或 ready，作者来源、条件工程动作和镜面方法异议分列，详见[本轮有来源规则](fengshui-sourced-interior-rules.md)。
 
 多层及独立院落还须各自确认 `floors[].floorplan_alignment_confirmed`、`center_confirmed`，并以 `uses_shared_orientation=true` 采用全宅已确认方向；全宅中心不自动成为每层中心。逐层门槛不足时不能提交关联对象的物理落宫事实。当前各层复用本次已明确声明的宅／年盘，位置按各自确认中心提供；不会自动建立每层宅运或自动立极。
 
@@ -177,7 +177,7 @@ asyncio.run(main())
 
 方案同时返回 `cross_scope_effects`，显示加入的元素对同一对象其他已算层的生/泄/克关系；这些关系不合成一个“全宅有利”结论。`supplemental_rulesets` 和顶层 `rulesets`/`rule_trace` 保留作者、版本、原文位置和检索 SHA-256；`supplement_statuses` 区分未请求、完成、部分及年份不支持。不同作者对物件路线的分歧在 `method_disagreements` 明示。
 
-可运行示例见 [形态输入](examples/fengshui-forms.json)、[元素目标](examples/fengshui-elements.json) 和 [年度作者候选](examples/fengshui-annual-remedy.json)。来源核对、采用与排除的规则见 [2026-10-14规则证据](fengshui-layout-rules-2026-10-14.md)。
+可运行示例见 [形态输入](examples/fengshui-forms.json)、[元素目标](examples/fengshui-elements.json) 和 [年度作者候选](examples/fengshui-annual-remedy.json)。来源核对、采用与排除的规则见[形态与元素规则证据](fengshui-layout-rules.md)。
 
 环境特征要求方位、`classification=sand|water|mixed|unknown`、`classification_basis=measured|user_confirmed` 与非空 `evidence`。标签不参与分类；道路、镜子、高楼、缺水都不能自动推导砂水。`mixed`／`unknown` 返回 `undetermined` 和缺失项，不给吉凶。
 
@@ -207,7 +207,7 @@ run_metadata: 三端通用运行元数据
 
 八宅游年星与年度紫白星有不同名称空间，例如八宅生气贪狼属木、一白贪狼属水。`palace_number` 始终是固定宫数，`annual_star_number` 才是当年临宫星数；`current_period` 是当前日历元运，不是住宅建造元运。
 
-`method_details.status=reference_only` 表示方法与象意参考。按 `mapping_boundaries` 区分固定宫 `palaces`、实际临宫星数 `flying_star_references`、八宅游年星名 `bazhai_you_nian_references`，不能因同名混用五行。跨文本本卦人物／器物、Joey Yap 一至九星主题与有限职业例分别保留来源及条件；未覆盖职业不补造。`object_observation_references`、各法 `application_references`、砂水 `form_condition_references` 和 `material_shape_reference` 补观察与用途说明，不构成自动分类、摆放处方或职业预测。精确字段、来源及剩余边界见[专家政策细节](fengshui-expert-policy.md#方法细节如何讲清楚)和[本轮补充清单](fengshui-sourced-interior-rules-2026-10-15.md#与方法细节的区别)。
+`method_details.status=reference_only` 表示方法与象意参考。按 `mapping_boundaries` 区分固定宫 `palaces`、实际临宫星数 `flying_star_references`、八宅游年星名 `bazhai_you_nian_references`，不能因同名混用五行。跨文本本卦人物／器物、Joey Yap 一至九星主题与有限职业例分别保留来源及条件；未覆盖职业不补造。`object_observation_references`、各法 `application_references`、砂水 `form_condition_references` 和 `material_shape_reference` 补观察与用途说明，不构成自动分类、摆放处方或职业预测。精确字段、来源及剩余边界见[专家政策细节](fengshui-expert-policy.md#方法细节如何讲清楚)和[本轮补充清单](fengshui-sourced-interior-rules.md#与方法细节的区别)。
 
 本版明确未实现：月飞星、金锁24山及形态／距离／元运组合、自动户型几何。24山角度索引可用不表示这些24山论断可用。没有三法总分，也不生成疾病、死亡或财富断语。
 
@@ -231,5 +231,3 @@ python scripts/audit_fengshui_independent.py
 离线测试用固定提交／SHA-256登记的参考事实核对1900–2099男女命卦400项、独立八宅字典64项，并测试纪元／世纪／五数寄宫、立春前后与时区等价、方位边界、坐向反转、门床灶用途、不同住户、未知／混合砂水、来源版本、三端真实调用／校验／投影／请求文件。2026九宫另用作者出版年盘核对。代表性输入加入现有全端与 golden 覆盖，新增快照不重写旧工具数值基线。
 
 外部参考 [JackieL233/fengshui-master 固定提交](https://github.com/JackieL233/fengshui-master/blob/2666304c5cb4ac13091c8c1fcdd4e40c218b275a/fengshui-master/scripts/minggua.py) 仅核对有效生年和八宅关系，不覆盖精确出生时间、年飞星、金锁玉关或完整玄空。本次未取得金锁玉关独立引擎；其验收依据为明确登记的八宫传本规则与输入语义检查。
-
-2026-10-12 本地验收：全仓1024项通过、88项按既有配置跳过，Black／isort／mypy／diff检查通过；wheel含规则JSON，并在仓库外从解包产物验证服务、目录及CLI。记录见 [验收证据](audits/2026-10-12/fengshui/implementation-validation.json) 和 [六工具公开合同](audits/2026-10-12/fengshui/implementation-contracts.json)。本地 macOS／Python3.13 的通过不代替 Linux／Python3.12 golden 字节基线或发布部署验收；新增六份风水快照，现有导出注册表基线只更新风水章节元数据。

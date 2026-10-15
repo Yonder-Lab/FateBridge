@@ -4,5 +4,3 @@ docs/audits/** linguist-generated=true
 
 # Preserve pytest-rendered whitespace in the two raw failure records.
 # Source, tests, JSON receipts and all other files keep normal checks.
-docs/audits/2026-10-14/fengshui-linux-full.log -whitespace
-docs/audits/2026-10-14/fengshui-macos-parallel-initial.xml -whitespace

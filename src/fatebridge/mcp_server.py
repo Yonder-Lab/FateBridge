@@ -82,6 +82,8 @@ _MCP_INSTRUCTIONS = (
     "缺方向不推实际卦位；厨卫/材质器形只按已注册规则，未覆盖保留；拱门开放厨房只轻提醒，院落归第一层，跨层按实际使用与共同因素复核。"
     "楼层subject_ids仅正向使用事实；负向排除需有关楼层及院落usage_confirmed与usage_evidence，名单须覆盖对象显式使用人。"
     "场景首轮fields可追加method_policy；有environmental_context时追加layout_analysis.environmental_context，细节解释按需读method_details。"
+    "纯方法参考可用scene=home作查询标签、analyze_layout=false并按需投影method_details；无实际事实省略environmental_context，不造房屋或摆位。"
+    "household_scope=symbolic_reference仅实际家庭资料的象意范围，不是通用reference_only开关。"
     "method_policy的优先方法审查与已选计算状态分开；available_engine_layers仅现状，候选单列，显式排除不反复追资料。"
     "有来源的厨卫/镜面/梁管/柱角等双对象关系用environmental_context.interior_relations，明确源/目标角色及必传可null的present；照片true/false均候选，相邻不补直接相对。"
     "材质器形用material_facts，属性独立确认；element_use仅代表物资格问题，不是个人喜用或环境所需元素，AFSI材料/颜色与FSI器形参考分开。"

@@ -1,6 +1,6 @@
 # 通用风水布局补充规则的证据与边界
 
-本次只扩充 `fengshui_assess` 的通用输入、规则计算及输出，没有新增工位专用工具。源文件为 `src/fatebridge/data/fengshui/layout-supplements-v1.json`，记录2026-10-14检索的原始文件 SHA-256、作者与版本；运行时离线使用规则，不访问这些网站。
+`fengshui_assess` 的室内形态、元素目标及年度作者规则使用通用输入，不另设工位专用工具。规则数据位于 `src/fatebridge/data/fengshui/layout-supplements-v1.json`，记录原始文件 SHA-256、作者、检索日期与版本；运行时离线使用规则，不访问这些网站。
 
 ## 室内形态
 
@@ -8,7 +8,7 @@
 
 [Karen Kingston的作者文章](https://www.clearspaceliving.com/blog/feng-shui-command-position/)支持床/桌的实体背靠与入口视野。两篇来源均未给出以米为单位的统一吉凶阈值，因此距离仅存为证据；观察缺失与照片候选保持不确定性。
 
-版本 `indoor_command_authored_v1@1.0.0` 分别检查可见性、直线与背靠，不从“右后门”推出门冲。实体背靠条件不强加给灶。所有结论仅覆盖已提供对象和所选作者条件。
+版本 `indoor_command_authored_v1@1.1.0` 分别检查可见性、直线与背靠，不从“右后门”推出门冲。实体背靠条件不强加给灶。所有结论仅覆盖已提供对象和所选作者条件。
 
 ## 五行目标与代表物
 

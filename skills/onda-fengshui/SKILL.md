@@ -13,11 +13,11 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 
 - 首先读[风水咨询闭环](references/consultation.md)，按问题选资料和结果字段。
 - 按[专家口径、人物与多层空间](../../docs/fengshui-expert-policy.md)处理选法、方位门槛、家庭角色、逐层范围、现代设计与象意细节。
-- 厨卫、镜面、尖角关系与材质器形，读取[有来源的室内关系与属性规则](../../docs/fengshui-sourced-interior-rules-2026-10-15.md)，区分具体规则、作者异议及参考说明。
+- 厨卫、镜面、尖角关系与材质器形，读取[有来源的室内关系与属性规则](../../docs/fengshui-sourced-interior-rules.md)，区分具体规则、作者异议及参考说明。
 - 工位/家居选法、家具动作与多方案比较见[场景与候选布局合同](../../docs/fengshui-scene-planning.md)。
 - 解读沿用[Onda 解读层](../_shared/onda-counsel.md)，用户已有明确问题时直接回应，不套情绪或命盘模板。
 - 需要具体参数时，以已连接 MCP 的实际 inputSchema／工具描述为准；尚未取得定义时一次获取所选工具的完整定义。离线 CLI 用[共享引擎参考](../_shared/fatebridge-engine.md#怎么调引擎)的调用与错误合同。
-- 规则范围查[风水基础合同与来源](../../docs/fengshui.md)、[形态及元素证据](../../docs/fengshui-layout-rules-2026-10-14.md)；桌面物件才读[桌面作者规则](../../docs/fengshui-surface-rules.md)，玄空才读[历史宅盘合同](../../docs/fengshui-xuankong.md)。无需首轮读全仓库或安装诊断。
+- 规则范围查[风水基础合同与来源](../../docs/fengshui.md)、[形态及元素证据](../../docs/fengshui-layout-rules.md)；桌面物件才读[桌面作者规则](../../docs/fengshui-surface-rules.md)，玄空才读[历史宅盘合同](../../docs/fengshui-xuankong.md)。无需首轮读全仓库或安装诊断。
 
 ## 通用触发与路由
 
@@ -29,6 +29,7 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 | 入口、背靠、走道、窗户等形态 | `fengshui_assess` | `form_observations`；可 `methods=[]`，无需出生或宅向 |
 | 厨卫、镜面、尖角等明确对象关系 | `fengshui_assess` | `environmental_context.interior_relations`；保留两端对象、关系是否成立及各自证据，可无罗盘独立审查 |
 | 材质／器形／颜色及代表物资格 | `fengshui_assess` | `environmental_context.material_facts`；实际属性与明确 `element_use` 问题分开，不据此推个人喜用或该宫所需元素 |
+| 方法五行、职业／家具及砂水参考 | `fengshui_assess` | 按问题的场景请求投影 `method_details`；没有实际环境事实时省略 `environmental_context`，不为读取参考构造空上下文 |
 | 桌面逐物件摆法 | `fengshui_assess` | 先按局部空间核对飞星、金锁可用事实；仅用户明确另选现代 BTB 时用 `surface_layouts`，独立于八宅／罗盘 |
 | 只问个人命卦八方 | `fengshui_minggua` | 公历日期、带时区出生时刻或有效生年三选一 |
 | 只问宅卦／个人方向关系 | `fengshui_bazhai` | 宅坐山与住户独立；布局行动仍优先聚合入口 |
@@ -61,12 +62,12 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 - 一件家具只关联已确认使用人。个人用 `subject_id`，共用用 `subject_ids`；同住不代表共用。不明使用范围时先核对，不替其他人选方向。
 - 入口位置、正常坐着可见、是否直冲、实体背靠分别记录。经过通道不等于实际入口；许可、目标、预算不能证明某个物理观察。
 - 朝向／落宫支持门、床、书桌、灶；形态支持床、桌、灶。其他家具不能改名套规则。桌面作者法只支持明确的矩形和坐者近沿，事业／丰盛目标；不适用时保留缺失或无规则。
-- `surface_constraints` 只约束已提交的 `surface_layouts`，不能用于单独形态请求。`can_move_items/can_add_items` 是布尔许可，固定物件放 `locked_item_ids`，不能把物件 ID 列表填进布尔字段。门床桌灶的搬转/新增许可用 `layout_constraints` 独立保存：`can_relocate/can_rotate/can_add_items`；仅关联已提交位置或形态的家具，不造占位桌面。许可不证明新位置物理可行。
+- `surface_constraints` 只约束已提交的 `surface_layouts`，不能用于单独形态请求。`can_move_items/can_add_items` 是布尔许可，固定物件放 `locked_item_ids`，不能把物件 ID 列表填进布尔字段。对象的搬转/新增许可用 `layout_constraints` 独立保存：`can_relocate/can_rotate/can_add_items`；可关联已提交 `placements`、`form_observations` 或 `environmental_context.objects` 中登记的真实对象，不造占位桌面。登记对象与许可不新增该对象的方向或形态规则支持，许可也不证明新位置物理可行。
 - 命卦不需要完整八字生辰，非立春当日公历日期即可；立春当日再核对时刻／时区。男女起算法未知留候选，不猜。八字仅在用户另有该问题时计算。
 
 ## 家庭、多层和现代设计
 
-家庭人物对应按本版本已确认的同住家庭关系和辈分，不按出钱、决策或产权归属。父母同住时，乾坤先对应该家老父老母；夫妻自己的长中少身份另核对。本版本妻随夫排行须显式确认：丈夫为中男、妻子在原生家为长女时，本家庭妻子按中女观察；不将此字段扩成任意配偶相互随序，也不能由婚姻称谓自动猜排行。一个人兼有父／母和长中少身份时保留多个宫位，不强制唯一。生肖须独立确认，不由个人喜用或命盘补出；本宫为主要关注，对宫只作次级牵引，不递归扩散为全家同等受影响。继亲、不同家庭范围、排行不清等不强套。
+家庭人物对应先按已确认的同住辈分决定乾坤，不按出钱、决策或产权归属。有同住父母长辈时，乾坤归最高辈老父老母；年轻一辈虽保留 `parent` 家庭事实，其 `withheld_roles.reason=senior_co_resident_generation_takes_parent_palace` 是依规则不分配父母宫，不是缺资料或计算缺口，不能自行补宫。只有实际 `associations` 同时返回父母与排行身份时才保留双宫，家庭变更后重算对应。本版本妻随夫排行须显式确认，不扩成任意配偶相互随序，不由婚姻称谓猜排行。生肖独立确认；本宫主、对宫次，不递归扩散。继亲、不同家庭范围、排行不清等不强套。
 
 只问家庭象征宫名／对宫时，用 `environmental_context.household_scope=symbolic_reference`：仅给卦名与主次，不绑定实际方向，也不为此追罗盘、户型中心。需要结合真实空间时用默认 `environmental_binding`，再核对方向门槛；若同时有楼层物理分析，楼层要求仍独立。家庭／生肖索引的 `scope`、`applicable_methods` 与 `selected_applicable_methods` 只适用于九宫飞星／金锁的环境象征参考，不能当八宅个人命卦结果；只有八宅被选中时按 `layers.bazhai.occupants` 解读个人关系。
 
@@ -78,9 +79,11 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 
 完整使用名单须与该层对象明确的 `placement.subject_id/subject_ids` 一致：已知使用这张床／桌的人不能被完整名单排除。对象省略 selector 的兼容计算语义不证明真实使用，不能反过来补全楼层名单。
 
-无方位时按[本轮有来源细则](../../docs/fengshui-sourced-interior-rules-2026-10-15.md)检查明确的厨卫、床灶、梁管、镜面和尖角两端关系，并独立读取材质器形结果。旧 `observations` 的四类宽泛厨卫关系仍只记录原粒度，不自动触发更强的正对／上下／靠墙规则。每项结论限本次作者、对象与关系，保留镜照床等作者异议，不凑普遍“绝对禁忌”。未列入的关系仍保留原话与未覆盖范围，不换错误类型套入。拱门、开放式厨房继续低优先简短提醒；真实通风、卫生、消防问题单列现实建议。
+无方位时按[本轮有来源细则](../../docs/fengshui-sourced-interior-rules.md)检查明确的厨卫、床灶、梁管、镜面和尖角两端关系，并独立读取材质器形结果。旧 `observations` 的四类宽泛厨卫关系仍只记录原粒度，不自动触发更强的正对／上下／靠墙规则。每项结论限本次作者、对象与关系，保留镜照床等作者异议，不凑普遍“绝对禁忌”。未列入的关系仍保留原话与未覆盖范围，不换错误类型套入。拱门、开放式厨房继续低优先简短提醒；真实通风、卫生、消防问题单列现实建议。
 
 按问题解释五行、人物、职业／器物及砂水时读取 `method_details`：固定宫看 `palaces`，按实际年／运／山／向星数查 `flying_star_references`，八宅游年按实际星名查 `bazhai_you_nian_references`；先读 `mapping_boundaries`，同名星不跨表套五行。九星署名主题、跨文本本卦人物／器物、有限职业例分别标注来源；四绿的学术／研究／写作例与三碧的特定组合职业例保留作者条件，其余现代职业未覆盖，不凑名单或预测职业。家具观察看 `object_observation_references`，砂水细节看 `sand_water_reference.form_condition_references`；这些是待确认观察及 `reference_only` 说明，不自动变成分类或摆放规则。水槽、道路、高楼、绿植等名称不自动等于砂或水。
+
+纯方法／职业家具参考用 `scene=home` 作为通用家居风水参考的路由标签，设 `analyze_layout=false`，按实际计算范围显式选 `methods` 并投影 `method_details`；只读公共静态表可用 `methods=[]`。`bazhai_you_nian_references` 等公共映射不依赖同名计算层，不能为查表开启八宅人宅匹配或追生辰。年度对照只增加年星层及其真实有效年／查询时刻。无实际环境事实则省略 `environmental_context`；场景标签不产生房屋、观察或摆位结论。`reference_only` 是结果用途边界；家庭 `symbolic_reference` 仅用于实际已提供 `household_members` 的说明。
 
 关系事实和属性事实分开：`interior_relations` 明确源／目标对象及各自角色，不把“厨厕相邻”改写成门对灶，不把普通门自动当主门／厕门；床位柱角规则只接受 `pillar_corner`，普通家具尖角不升级为柱角。床头／灶背共墙规则须确认墙另一侧实际便器，不以任意卫生间隔墙替代。`present=null` 是未知，确认 false 仅说明该条关系不成立，照片中的 true 或 false 都保留 `candidate_only`。`material_facts` 的材质、器形、颜色、活植物状态各按已确认粒度保存，不同属性可分事实并带同一明确 `element_use`，不重复属性或声明矛盾用途，也不自动拼接；未知不由另一个属性补齐。`element_use` 仅表示用户明确询问能否充当某元素代表物，资格成立不证明当前宫位需要它、摆位可行或可以 ready。
 

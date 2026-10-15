@@ -7,7 +7,14 @@ birth inputs and independently of an actual flying-star calculation.
 
 from typing import Any, Iterable, List, Literal, Mapping, Optional, Set
 
-from pydantic import Field, StrictBool, StrictInt, field_validator, model_validator
+from pydantic import (
+    ConfigDict,
+    Field,
+    StrictBool,
+    StrictInt,
+    field_validator,
+    model_validator,
+)
 
 from fatebridge.core.requests.base import _DeferredModel
 
@@ -21,6 +28,32 @@ from .material_inputs import MaterialShapeFact
 ContextBasis = Literal["measured", "user_confirmed"]
 FamilyRole = Literal["parent", "eldest_child", "middle_child", "youngest_child"]
 Zodiac = Literal["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"]
+
+# Query scope and object identities alone are not environmental observations.
+# Share this list with the validator so schema publication cannot omit the
+# aggregate fact gate or accidentally count a metadata-only context as facts.
+_CONTEXT_FACT_LIST_FIELDS = (
+    "household_members",
+    "floors",
+    "observations",
+    "interior_relations",
+    "material_facts",
+)
+_CONTEXT_FACT_SCHEMA: dict[str, Any] = {
+    "anyOf": [
+        {
+            "required": ["orientation"],
+            "properties": {"orientation": {"type": "object"}},
+        },
+        *[
+            {
+                "required": [field],
+                "properties": {field: {"type": "array", "minItems": 1}},
+            }
+            for field in _CONTEXT_FACT_LIST_FIELDS
+        ],
+    ]
+}
 
 
 class ContextFact(_DeferredModel):
@@ -285,6 +318,8 @@ class EnvironmentalObject(ContextFact):
 
 
 class EnvironmentalContext(_DeferredModel):
+    model_config = ConfigDict(json_schema_extra=_CONTEXT_FACT_SCHEMA)
+
     ruleset_id: Literal["expert_environment_2026_10_v1"] = (
         "expert_environment_2026_10_v1"
     )
@@ -315,13 +350,8 @@ class EnvironmentalContext(_DeferredModel):
 
     @model_validator(mode="after")
     def coherent_references(self) -> "EnvironmentalContext":
-        if not (
-            self.orientation is not None
-            or self.household_members
-            or self.floors
-            or self.observations
-            or self.interior_relations
-            or self.material_facts
+        if self.orientation is None and not any(
+            getattr(self, field) for field in _CONTEXT_FACT_LIST_FIELDS
         ):
             raise ValueError(
                 "环境上下文至少提供方向核对、家庭成员、楼层或具体观察；对象定义本身不是完成审查"

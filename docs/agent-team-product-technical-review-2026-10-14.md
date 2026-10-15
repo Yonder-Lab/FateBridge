@@ -186,7 +186,7 @@ ResultStore 的清理、预留检查及写入／rename 没有共享锁。同主�
 
 验收维度包括事实保真、规则来源、约束遵守、撤回能力、未解决项目、首次有用答复和阅读负担。不把建议数量、购买／搬植物或“用户喜欢答案”作为唯一目标。对无规则对象如实交付范围属于有效结果。
 
-证据：[本地回放明确无 LLM](/Users/thomas/Desktop/FateBridge/scripts/experience_codex.py:1)、[现有真实模型观察及快照边界](/Users/thomas/Desktop/FateBridge/docs/fengshui-skill-validation-2026-10-14.md:25)。
+证据：[本地回放明确无 LLM](/Users/thomas/Desktop/FateBridge/scripts/experience_codex.py:1)、[计算与现实效力边界](fengshui.md#验证与维护)。
 
 ## 建议实施顺序
 
