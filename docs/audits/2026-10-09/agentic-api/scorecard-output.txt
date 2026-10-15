@@ -1,1 +1,0 @@
-Scorecard written to docs/audits/2026-10-09/agentic-api/scorecard.json
