@@ -1,0 +1,4 @@
+interface:
+  display_name: "抉择 · 问事"
+  short_description: "围绕一个明确问题选择起卦方式，读取实际卦象并保留决定权与限制"
+  default_prompt: "使用 $onda-zhanbu 围绕我当前的一个具体问题起卦，说明卦象依据与现实考虑。"

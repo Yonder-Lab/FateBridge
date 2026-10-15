@@ -11,9 +11,11 @@
 | 桌面作者法 | 矩形、坐者使用的近侧桌沿、用户的事业／丰盛目标、物件代表属性及依据；其他形状／目标没有对应处方，不能硬改事实 |
 | 金锁基础层 | 环境特征的方位、砂／水／混合／未知分类及依据；照片或物品名称不证明分类 |
 | 年盘 | 有效年或含时区查询时刻；采用立春边界，不把公历年自动当有效年。年度物件作者规则须显式选择且限支持年份 |
-| 玄空 | 磁北宅向及测量不确定度、历史定运事件和依据、明确版本；资料不足就保留候选／缺失，不用当前年份补齐 |
+| 玄空 | 磁北宅向及测量不确定度、历史定运事件和依据、明确版本；资料不足就保留候选／缺失，不用当前年份补齐。请求有限解释时另核当前运及证据、全宅分宫外部山水观察，按[有限解释合同](../../../docs/fengshui-xuankong-interpretation.md)读取；不以金锁砂水、室内靠背或照片推断外局已确认 |
 
 行动约束与观察分别保存：能否搬位、转向、移动物件、新增，预算，共用范围，固定对象／不可用区域。限制不意味着任何入口、镜面、横梁或尖角存在／不存在。
+
+节气求解回退且查询/出生时刻接近立春时，年星及命卦会保留有效年候选并要求确认有效年；不能把近似交节当精确归年。明确有效生年/有效分析年仍可使用；不以当前元运补历史宅运。
 
 `entrance_position`、`passage_position`、`window_position` 使用 `front/front_left/front_right/left/right/back/back_left/back_right` 这八种相对位置，未知省略；中文“左侧”不能自行拼成 `left_side_of_bed` 等值。定义仍以当前 schema 为准，校验失败按 issues 的路径和允许值修正一次，不重复失败输入。
 
@@ -29,11 +31,12 @@
 
 ## 选择和读取结果
 
-按问题显式 `methods`；只做形态／桌面可用空列表。`form_observations` 可以独立存在，不构造无方位的 `placements`。位置和朝向各自观察，给布局计算时 `analyze_layout=true`。元素方案 `element_adjustments` 必须绑定已算对象、方法、作用域和 `drain/support` 目标，不能按“缺五行”开处方。
+工位用 `scene=workstation`，家居用 `scene=home`；未传methods时按现有事实选法，显式列表优先。按问题显式 `methods`；只做形态／桌面可用空列表。`form_observations` 可以独立存在，不构造无方位的 `placements`。位置和朝向各自观察，给布局计算时 `analyze_layout=true`。元素方案 `element_adjustments` 必须绑定已算对象、方法、作用域和 `drain/support` 目标，不能按“缺五行”开处方。
 
 首轮投影使用工具已公布字段，并为所有风水解读追加 `rulesets` 与 `rule_trace`，以取得本次作者版本和可引用来源；单独命卦也适用。按请求加读这些分支，而不是一次铺满全量：
 
 - 总体状态／覆盖：`status`、`coverage`（含 `analysis_progress`）、`layout_analysis.calculation_scope`、`layout_analysis.missing_inputs`、`layout_analysis.unsupported_queries`、`layout_analysis.limitations`。
+- 具体候选：`layout_analysis.alternatives_analysis`；当前审查与候选待确认分开，不自动评分或选赢家。
 - 方向行动：`layout_analysis.placement_findings`、`layout_analysis.adjustment_options`、`layout_analysis.environment_adjustments`；个人关系需要时加 `layers.bazhai.occupants`。
 - 形态／元素／年度：`layout_analysis.form_analysis`、`layout_analysis.element_remedies`、`layout_analysis.annual_remedies`、`layout_analysis.supplement_statuses`。
 - 桌面物件：`layout_analysis.surface_analysis`，逐对象看覆盖与行动状态。
@@ -49,7 +52,7 @@
 
 `analysis_progress` 的 `calculation_status`、`rule_coverage_status` 和 `action_readiness` 各自读取：已确认不属于作者代表物的物件可为 `reviewed_unsupported`，属性 unknown 或照片候选则为 `needs_confirmation`。`assessment_complete` 只表示已提交事实及所选范围的审查可以结束，不证明现场调整已经实施。原 `status=partial` 在无独立规则物件上仍保留兼容语义，不据此要求用户继续补资料。
 
-每个动作的 `pending_confirmations` 只列现有合同尚未确认的门槛，`required_for=optional_action` 不阻止本次事实审查结束；blocked 动作没有执行追问。全局事实确认与动作确认分别处理，例如物件属性未知仍有审查问题，但不追问已禁止移动的目标区。`path` 是确认事项的输入或结果锚点，不能把结果路径当新接口参数传入。方向与形态改变的实际可行性尚无输入合同，相关方案保留条件式状态；ready 仍限已实现的桌面确认门槛，作者的现场维护条件继续复核。
+每个动作的 `pending_confirmations` 只列现有合同尚未确认的门槛，`required_for=optional_action` 不阻止本次事实审查结束；blocked 动作没有执行追问。全局事实确认与动作确认分别处理，例如物件属性未知仍有审查问题，但不追问已禁止移动的目标区。`path` 是确认事项的输入或结果锚点，不能把结果路径当新接口参数传入。家具约束用 `layout_constraints`，具体方案用 `layout_alternatives`；方向列表仍不是可执行布局。候选的许可、`physically_feasible` 和新位置独立观察各自核对，禁止借用旧形态；ready只说明所选门槛满足，逐规则匹配与现实效果另外说明。作者的现场维护条件继续复核。
 
 来源分层：八宅／金锁／年度与历史玄空引用[基础合同](../../../docs/fengshui.md)和[玄空合同](../../../docs/fengshui-xuankong.md)的原典／作者版本；室内形态、元素及年度处方引用[证据审查](../../../docs/fengshui-layout-rules-2026-10-14.md)；桌面现代 BTB 引用[作者规则](../../../docs/fengshui-surface-rules.md)的 Anjie Cho、Tori McBrien。每条行动采用实际返回的来源，不把另一流派文章当这条规则的证明。规则数据含检索记录及散列；来源可追溯不等于现实效力已验证。
 

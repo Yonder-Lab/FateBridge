@@ -34,6 +34,8 @@ def calculate_western_timing_analysis(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     return_longitude: Optional[float] = None,
     return_latitude: Optional[float] = None,
     return_timezone: Optional[str] = None,
@@ -67,6 +69,8 @@ def calculate_western_timing_analysis(
         analysis_year=analysis_year,
         analysis_month=analysis_month,
         analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
     )
     return build_western_timing_payload(
         birth_info,
@@ -101,6 +105,8 @@ def calculate_western_timing_module_analysis(
     analysis_year: Optional[int] = None,
     analysis_month: Optional[int] = None,
     analysis_day: Optional[int] = None,
+    analysis_hour: Optional[int] = None,
+    analysis_minute: Optional[int] = None,
     return_longitude: Optional[float] = None,
     return_latitude: Optional[float] = None,
     return_timezone: Optional[str] = None,
@@ -131,6 +137,8 @@ def calculate_western_timing_module_analysis(
         analysis_year=analysis_year,
         analysis_month=analysis_month,
         analysis_day=analysis_day,
+        analysis_hour=analysis_hour,
+        analysis_minute=analysis_minute,
     )
     return build_western_timing_module_payload(
         birth_info,

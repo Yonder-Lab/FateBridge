@@ -1,0 +1,4 @@
+interface:
+  display_name: "全面自我画像"
+  short_description: "按可用资料对照八字紫微西占，补充所需维度并说明分歧和缺失层"
+  default_prompt: "使用 $onda-zige 做一份全面自我画像，保留各体系来源、分歧及未覆盖部分。"

@@ -29,7 +29,7 @@
 
 合同和原始记录分离，不把预期参数、星名或答案喂给模型；修复前失败不覆盖。可选入口方位没有参与所选规则时不强制传入，修正过严合同的理由与原审计保留。所提供自动证据检查主要是回归审计，不能作为未经独立取样的整体产品成功率。
 
-详见[产品审查](fengshui-product-review.md)、[真实探针与合同](../consultation/fengshui-product-probes.json)以及 `consultation/fengshui-codex-*` 原始记录。
+详见[产品审查](fengshui-product-review.md)、[真实探针与合同](audits/2026-10-14/fengshui-codex-history/fengshui-product-probes.json)以及 `docs/audits/2026-10-14/fengshui-codex-history/fengshui-codex-*` 原始记录。
 
 ## 性能与作用域
 

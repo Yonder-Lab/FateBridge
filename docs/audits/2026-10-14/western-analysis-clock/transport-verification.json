@@ -1,0 +1,196 @@
+{
+  "actual_transports": [
+    "new MCP stdio subprocess",
+    "CLI subprocess",
+    "HTTP loopback server"
+  ],
+  "analysis_datetime": "2026-10-14T12:00:00+08:00",
+  "equal_projected_business_payload": true,
+  "equal_full_business_hashes": true,
+  "business_output_sha256": "59e149a2fc1ff2b094b0701353152e00c581af440227c296f604d7315b836afc",
+  "receipts": {
+    "mcp": {
+      "run_id": "38554d0bd89744f5a9b4b72fa2def16a",
+      "trace_id": "2e4a3ddb93df4675b878f0a73b5b7064",
+      "tool_name": "western_timing_analysis",
+      "generated_at": "2026-10-14T12:32:58.942520Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "132cb61c4b8dec2be0eaac5fd80381fac76688ebcdf7826201c297d9cdadbedf",
+      "input_sha256": "83cb435fb93be5a8349391d6b6ce3af29c93505cd151be137e1a45e440c48c23",
+      "business_output_sha256": "59e149a2fc1ff2b094b0701353152e00c581af440227c296f604d7315b836afc",
+      "duration_ms": 136.468,
+      "effective_time": {
+        "as_of": "2026-10-14T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "e928ccd01f278c7e12d1a805e0ae89b7cebb8220b655b17ff56e8e12b4e1d736",
+        "bundled_data_sha256": "1ba9f7878f0ac04e6e22328cf29deac205543510b7330813f90b2a8c1c23bf0e",
+        "environment_sha256": "b762e826790a5633a74306308a61181ef944d34f714f92be72fa5cf6f34a19ac",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-14T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": [],
+      "parent_run_id": "60e9464858ec461b9027bd33c8a8639e"
+    },
+    "cli": {
+      "run_id": "9b68b370ab1d4d5fb9f0ba58283b7834",
+      "trace_id": "2e4a3ddb93df4675b878f0a73b5b7064",
+      "tool_name": "western_timing_analysis",
+      "generated_at": "2026-10-14T12:32:59.942309Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "132cb61c4b8dec2be0eaac5fd80381fac76688ebcdf7826201c297d9cdadbedf",
+      "input_sha256": "83cb435fb93be5a8349391d6b6ce3af29c93505cd151be137e1a45e440c48c23",
+      "business_output_sha256": "59e149a2fc1ff2b094b0701353152e00c581af440227c296f604d7315b836afc",
+      "duration_ms": 183.608,
+      "effective_time": {
+        "as_of": "2026-10-14T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "e928ccd01f278c7e12d1a805e0ae89b7cebb8220b655b17ff56e8e12b4e1d736",
+        "bundled_data_sha256": "1ba9f7878f0ac04e6e22328cf29deac205543510b7330813f90b2a8c1c23bf0e",
+        "environment_sha256": "b762e826790a5633a74306308a61181ef944d34f714f92be72fa5cf6f34a19ac",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-14T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": [],
+      "parent_run_id": "60e9464858ec461b9027bd33c8a8639e"
+    },
+    "rest": {
+      "run_id": "c0e5fdd222a74419949349f6d85e12c3",
+      "trace_id": "2e4a3ddb93df4675b878f0a73b5b7064",
+      "tool_name": "western_timing_analysis",
+      "generated_at": "2026-10-14T12:33:01.329997Z",
+      "engine": "fatebridge-offline",
+      "engine_is_approximate": false,
+      "metadata_schema_version": "1.0",
+      "package_version": "0.2.0",
+      "contract_sha256": "132cb61c4b8dec2be0eaac5fd80381fac76688ebcdf7826201c297d9cdadbedf",
+      "input_sha256": "83cb435fb93be5a8349391d6b6ce3af29c93505cd151be137e1a45e440c48c23",
+      "business_output_sha256": "59e149a2fc1ff2b094b0701353152e00c581af440227c296f604d7315b836afc",
+      "duration_ms": 61.715,
+      "effective_time": {
+        "as_of": "2026-10-14T04:00:00Z",
+        "clock_timezones": [
+          "Asia/Shanghai"
+        ]
+      },
+      "determinism": {
+        "uses_current_time": false,
+        "current_time_fields_defaulted": [],
+        "randomness_used": false,
+        "seed_generated": false,
+        "replayable_with_receipt": true,
+        "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+      },
+      "runtime": {
+        "package_version": "0.2.0",
+        "python": "3.13.5",
+        "platform": "Darwin-arm64",
+        "dependencies": {
+          "pydantic": "2.13.4",
+          "kerykeion": "5.12.9",
+          "pyswisseph": "2.10.3.2",
+          "lunardate": "0.2.2",
+          "python-dateutil": "2.9.0.post0",
+          "pytz": "2026.2"
+        },
+        "implementation_sha256": "e928ccd01f278c7e12d1a805e0ae89b7cebb8220b655b17ff56e8e12b4e1d736",
+        "bundled_data_sha256": "1ba9f7878f0ac04e6e22328cf29deac205543510b7330813f90b2a8c1c23bf0e",
+        "environment_sha256": "b762e826790a5633a74306308a61181ef944d34f714f92be72fa5cf6f34a19ac",
+        "ephemeris": {
+          "scope": "configured_se1_inventory; actual model is reported separately",
+          "files": {
+            "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+            "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+            "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+          },
+          "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+        }
+      },
+      "provenance": {},
+      "replay": {
+        "as_of": "2026-10-14T04:00:00Z",
+        "overrides": {},
+        "requires_original_input": true
+      },
+      "warnings": [],
+      "parent_run_id": "60e9464858ec461b9027bd33c8a8639e"
+    }
+  }
+}

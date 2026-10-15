@@ -32,7 +32,7 @@ layout_analysis.surface_analysis逐件说明覆盖；每个动作返回rule/sour
 
 各桌面动作增加`action_id`、`optional`、`pending_confirmations`。确认项的`required_for`为`assessment/action/optional_action`，`path`为输入或输出确认锚点，不是新增请求参数。此元数据不扩展物理建模：ready仍是已有边界/属性、许可和区级可行性的确认，规则文本中的植物状态、操作维护条件仍需执行时复核；不同物件的尺寸/容量和非桌面搬转可行性没有新增输入。
 
-物件属性的observation_basis与位置的zone_observation_basis各自保存；zone与位置依据成对。确认活植物不等于确认其九格位置，照片位置不能作为确定的retain依据。近沿near是靠身体，远沿far是离身体；near_right对应右前、far_left对应左后，完整legend进入MCP描述、input资源与两咨询入口生成合同。
+物件属性的observation_basis与位置的zone_observation_basis各自保存；zone与位置依据成对。确认活植物不等于确认其九格位置，照片位置不能作为确定的retain依据。近沿near是靠身体，远沿far是离身体；near_right对应右前、far_left对应左后，完整legend进入MCP描述、input资源与根目录生成合同。
 
 ## 咨询闭环
 

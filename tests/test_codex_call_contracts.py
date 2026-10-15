@@ -114,6 +114,15 @@ async def test_only_preloaded_inputs_and_views_are_enough_for_real_mcp_calls():
             elif record["tool"] == "fengshui_assess":
                 assert "layout_analysis" in payload
                 assert "calculation_scope" in payload["layout_analysis"]
+            elif record["tool"] == "western_timing_analysis":
+                assert (
+                    payload["analysis_context"]["analysis_datetime"]
+                    == "2026-10-14T12:00:00+08:00"
+                )
+                assert (
+                    payload["transits"]["current_transit"]["analysis_datetime"]
+                    == "2026-10-14T12:00:00+08:00"
+                )
 
 
 @pytest.mark.asyncio

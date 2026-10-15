@@ -1,0 +1,120 @@
+{
+  "bundle_version": "1.0.0",
+  "ruleset": {
+    "ruleset_id": "xuankong_conditioned_v1",
+    "version": "1.0.0",
+    "method": "conditioned_natal_interpretation",
+    "title": "FateBridge 有限玄空山向关系与形势条件",
+    "source_ids": ["N1", "N2", "N3", "N4", "E1"],
+    "scope": "有序山星向星的五行关系、显式当运星的山水存在条件、已确认落宫的床取山星与门取向星；不产生全宅或81组合吉凶结论",
+    "conventions": [
+      "这是基于登记来源的有限解释版本，不宣称所有玄空门派一致，也不把交叉作者来源称为中州派原典",
+      "current_period_number 由调用方与证据显式提供；只判相等星为当令，其余仅记 not_current，不推定皆凶或细分旺生退死煞",
+      "历史宅盘与评价时运独立；本解释层不换运、不改原盘、不混入年星",
+      "山水存在观察不等于形势质量、距离、逼压、有情或纳气已经合格；图片观察保持候选",
+      "中宫不具有本规则八方外局对应；位置与朝向独立，朝向不能代替对象落宫",
+      "桌灶、81对专属断语、合十、特殊组合、疾病、求子和实际效力不在本版本覆盖范围"
+    ]
+  },
+  "sources": {
+    "N1": {
+      "title": "玄霖易学：第二篇 玄空理气入门3",
+      "url": "https://xuanlinyi.com/article_detail?id=301281",
+      "author": "玄霖易学网页",
+      "kind": "web_transcription",
+      "source_version": "2026-10-15核对的公开网页；未认证中州派印刷原典",
+      "retrieved_at": "2026-10-15",
+      "scope": "山盘旺星配山、向盘旺星配水，安床以山盘、开门路线以向盘；需形理和二星配合，不能独立合成全宅吉凶"
+    },
+    "N2": {
+      "title": "Excerpt from the Mountain Dragons and Water Dragons Case Study",
+      "url": "https://fengshuisolutions.net/excerpt-from-the-mountain-dragons-and-water-dragons-case-study-by-kartar-diamond/",
+      "author": "Kartar Diamond",
+      "kind": "author_published_article",
+      "source_version": "2025-04-26",
+      "retrieved_at": "2026-10-15",
+      "scope": "区分山向盘角色与星自身五行，先考虑时令再外形与用途；作者明确不同学校方法存在差别，不作为中州原典认证"
+    },
+    "N3": {
+      "title": "Feng Shui Interpretation of Yin Rooms and Yang Rooms",
+      "url": "https://fengshuisolutions.net/feng-shui-interpretation-of-yin-rooms-and-yang-rooms-by-kartar-diamond/",
+      "author": "Kartar Diamond",
+      "kind": "author_published_article",
+      "source_version": "2024-05-05",
+      "retrieved_at": "2026-10-15",
+      "scope": "当运山星与睡眠、向星与入口的用途交叉核对；不采用文内2044日期表述，也不外推桌灶用途或全宅吉凶"
+    },
+    "N4": {
+      "title": "AFSI FS351 — Day Selection, Class 2",
+      "url": "https://www.amfengshui.com/wp-content/uploads/2014/09/fs351.pdf",
+      "author": "Larry Sang授课；Lorraine Wilcox撰写；Hermann Urkauf编辑",
+      "kind": "publisher_teaching_pdf",
+      "source_version": "2006，印刷第56页，PDF第56页",
+      "retrieved_at": "2026-10-15",
+      "scope": "仅核对九星五行表：一水、二五八土、三四木、六七金、九火；不采用同页求子、疾病或吉凶断语"
+    },
+    "E1": {
+      "title": "Larry Sang / American Feng Shui Institute: The Principles of Feng Shui",
+      "url": "https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf",
+      "kind": "author_published_book",
+      "source_version": "publisher PDF, Chapter 3, printed pp.19-28; PDF pages 35-44",
+      "retrieved_at": "2026-10-14",
+      "retrieved_sha256": "6ab5135060df281fd6a6e376e0516e660c185dd2af2f146a5f850df64cc3b024",
+      "retrieved_bytes": 4418704,
+      "retrieved_format": "raw_pdf",
+      "verification_note": "沿用现有 layout-supplements-v1.json 已核实来源记录；本轮未重新认证该PDF",
+      "scope": "本规则仅采用五行生克有向关系，不由相生直接推导吉，也不生成摆件、颜色或数量建议"
+    }
+  },
+  "star_elements": {
+    "1": "水",
+    "2": "土",
+    "3": "木",
+    "4": "木",
+    "5": "土",
+    "6": "金",
+    "7": "金",
+    "8": "土",
+    "9": "火"
+  },
+  "rules": {
+    "star_elements": {
+      "rule_id": "xuankong_conditioned_v1.star_elements",
+      "source_ids": ["N4"],
+      "conditions": ["星数来自当前候选宅盘对应角色，不用固定宫数替代星数"],
+      "scope": "九星五行对应，五行不等于星的综合吉凶"
+    },
+    "ordered_pair": {
+      "rule_id": "xuankong_conditioned_v1.ordered_pair",
+      "source_ids": ["N4", "E1"],
+      "conditions": ["同一候选、同一宫，保持山星在前、向星在后的角色顺序"],
+      "scope": "九乘九有序组合的机械五行关系，不是81组合专属断语或吉凶表"
+    },
+    "current_period": {
+      "rule_id": "xuankong_conditioned_v1.current_period",
+      "source_ids": ["N1", "N2", "N3"],
+      "conditions": ["评价时运及依据由调用方显式确认", "本版本工程范围只判星数与评价运数相等为当令"],
+      "scope": "仅当令识别，其余未细分也不视为皆凶；不重置历史宅运"
+    },
+    "current_star_external_forms": {
+      "rule_id": "xuankong_conditioned_v1.current_star_external_forms",
+      "source_ids": ["N1", "N2"],
+      "conditions": ["仅八方外宫且该角色星当令", "山星检查已确认的山形存在，向星检查已确认的水形存在", "图片仅候选，未知不可当不存在", "存在/不存在只评价本条条件，不证明形势质量和综合吉凶"],
+      "scope": "当令山星配山、当令向星配水的存在条件；中心及非当令星形势未覆盖"
+    },
+    "placement_role": {
+      "rule_id": "xuankong_conditioned_v1.placement_role",
+      "source_ids": ["N1", "N3"],
+      "conditions": ["对象有已确认的全宅中心落宫，朝向不可替代位置", "床取山星、门取向星；同时保留同宫另一角色及五行关系", "用途条件须结合当令与外局，不独立产生吉凶"],
+      "scope": "床与门的有限角色取用；桌灶未覆盖，不自动提出移动或朝向建议"
+    }
+  },
+  "limitations": [
+    "本层不提供81对专属断语、合十、特殊星组合、城门、七星打劫或全宅综合吉凶。",
+    "山形、水形存在不证明其形态、距离、规模、逼压或纳气合格，仍需实际勘察。",
+    "当令识别不等于现实预测有效性；not_current 不表示皆凶。",
+    "本规则不支持桌与灶的用途断法，不把门床用途规则外推。",
+    "年盘、个人匹配与历史宅盘分别保留；不同方法不相加或抵消。",
+    "候选宅盘和图片观察保留不确定性，不生成可立即执行的搬动或增购物件方案。"
+  ]
+}

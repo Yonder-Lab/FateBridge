@@ -2,13 +2,27 @@
 
 这是所有 FateBridge 场景 Skill 共用的计算层。
 
+用户要求完整 JSON、全部时间线或完整文件导出时，第一次调用设 `fields=null`（CLI 省略 `--fields`），保留默认响应预算；下文精简首轮字段仅用于普通摘要咨询。输出投影先于交付保存，分页不会恢复投影已排除的字段，所以不能先裁成摘要再补算全文。
+
 一条铁律：所有排盘、干支、十神、大运流年、神煞、合婚分、安星、起局、星盘，全部交给 FateBridge 引擎算，AI 永远不要手算。统一使用可复核的计算结果，避免临时拼出另一套历法或时区规则。AI 负责读取算法输出、标注来源和限制，再用人话说明；可复现的计算不等于已证实的现实预测。
 
 ---
 
 ## 怎么调引擎
 
-已连接 FateBridge MCP 时，按所选工具的实际定义直接调用，不为用户咨询先运行安装诊断。以下 CLI 是无连接时的本地后备及可复核示例；不需要起 REST 服务。两种 CLI 写法等价：
+已连接 FateBridge MCP 时，按所选工具的实际定义直接调用，不为用户咨询先运行安装诊断、搜索仓库或项目历史。当前聊天已确认的资料足够时直接计算；只有用户要求沿用历史资料才核对历史。以下 CLI 是无连接时的本地后备及可复核示例；不需要起 REST 服务。两种 CLI 写法等价：
+
+已加载的调用合同包含完整参数且工具公开时，不重复发现；其他工具按名称一次取得实际 inputSchema 与描述，再调用。工具描述的首轮 `fields` 来自共享字段配置；首轮设 `strict_fields=true`、`include_snapshot_text=false`，详细追问才展开更多字段。没有首轮预设时，依据实际输出合同选字段，不猜路径。下面的出生数据都是示例，不能当作用户资料。
+
+接收调用或资源结果时，先核对实际返回形状：可能是 JSON 字符串、文本 `content` 或 `structuredContent`，不能固定假设存在 `contents[0]` 或 `structuredContent.run_metadata`。有截断标记的 JSON 片段不能解析成完整合同；改读所选工具的实际定义或更小的资源，勿反复解析同一片段。字段选择先用已核对的顶层业务字段，需要细节再展开，不为首轮遍历整个 `$defs`。
+
+MCP 默认响应字符预算为8192；超限返回 `result_delivery`，原结果没有被截断，仍由同一 run 保留。先读其 `manifest_uri`，按所需字段的资源取值；点路径支持对象和数组数字索引，资源模板为 `fatebridge://results/{result_id}/fields/{path}/{offset}`，首 offset 为0。每页是完整 JSON 包装，其中 `text` 是文档片段；需要完整字段时按 `next_offset` 拼接并核对 `sha256`，不把单页当全文解析，不重新计算。先取窄字段，不一次打印重组后的大对象。引用约一小时过期，也可能因容量回收失效；失效须如实说明。
+
+REST/CLI 默认继续完整交付，可显式设置 `response_char_limit` / `--response-char-limit` 获得同一限量合同。MCP 的 `response_char_limit=0` 仅供可保存完整 JSON 的程序客户端；聊天咨询不要用它规避分页，否则宿主仍可能截断。
+
+用户要求保存本机完整文件时，可读取 `file_path` 指向的私有临时记录，按 `file_payload_path`（当前为 `payload`）取出原结果，以 `ensure_ascii=False,separators=(",", ":")` 序列化后核对 `sha256` 并保存。外层记录还含过期时间，其文件散列不等于原结果散列；不把外层记录交付为完整计算结果。保存后的用户文件独立于临时引用保留。
+
+在本仓库使用本地后备时，优先已存在且已安装 FateBridge 的 `.venv/bin/python`，例如 `.venv/bin/python -m fatebridge.cli describe <tool>`。下方 `python3` 是已安装环境的通用写法，不表示系统默认解释器可导入本包；咨询不因解释器缺包而安装依赖、接受系统许可或修改用户配置。解析软链接用 shell 内建 `pwd -P` 即可，不依赖 Python 或 Xcode。
 
 ```bash
 # 先在虚拟环境安装本仓库：python -m pip install -e .
@@ -35,14 +49,14 @@ fatebridge <tool> [参数...]
 
 常见 `error_code`：
 
-- CLI 调用层：`usage_error`（缺必填或 flag 写错）、`cli_unsupported`（含嵌套结构，`error` 会指向可用的扁平变体命令）、`unknown_tool`。
+- CLI 调用层：`usage_error`（缺必填或 flag 写错）、`cli_unsupported`（未公开 CLI 请求合同，按错误提示选择其他入口）、`unknown_tool`。已启用 JSON 请求合同的嵌套工具可用 `--request-file`，不能仅因输入嵌套就判定不可调用。
 - 引擎层（与 REST/MCP 一致）：`validation_error`、`dependency_missing`、`timeout`、`internal_error`。
 
 `retryable=true` 才值得重试。
 
 ---
 
-## 两种输出形态
+## 输出形态与首轮读取
 
 工具输出有双层快照、仅文本快照、仅结构化数据三种形态，不要假设字段始终存在。八字、时运、中国术数、knowledge、多数核心盘和独立推运常有双层快照；六爻/统摄法/参评/河洛/宿占/星骰、事件与生命周期只有文本快照。梅花、中点盘、西占推运总览和 export helper 主要返回结构化数据。完整表见 [快照覆盖](../../docs/algorithm-coverage.md#4-快照协议覆盖)。
 
@@ -52,18 +66,18 @@ fatebridge <tool> [参数...]
 
 已实测核对：`bazi_birth`、`analyze_destiny`、时运全系、紫微、奇门、六壬、太乙、金口、`astro_chart` 等命盘/起局/起卦类。
 
-读法：先读存在的 `snapshot_text`，它记录算法生成的中文摘要，包括四柱、十神、格局、神煞、大运流年。
+读法：首轮读与问题对应的结构化字段。用户要求完整命盘或导出时，再读取存在的 `snapshot_text`；它记录算法生成的中文摘要，包括四柱、十神、格局、神煞、大运流年。
 
 **`snapshot_text` 是摘要，细节看结构化字段的工具**
 
 主要是八字 9 大专项：`bazi_marriage`、`bazi_romance`、`bazi_career`、`bazi_wealth`、`bazi_health`、`bazi_children`、`bazi_education`、`bazi_personality`、`bazi_relatives`，以及 `two_person_compatibility`、`sukuyo_compatibility`、`astro_relative_chart`。
 
-读法：快速看 `snapshot_text` 抓要点；要精确字段（分数、落点、相位）再读下面的业务字段。`astro_relative_chart` 的 `snapshot_text` 只摘要关系画像、互动相位、配合度，完整盘在结构化字段里。
+读法：先读下面的业务字段，用实际返回值说明分数、落点与相位；快照只在需要文本摘要时展开。`astro_relative_chart` 的 `snapshot_text` 只摘要关系画像、互动相位、配合度，完整盘在结构化字段里。
 
 **结构化字段怎么读（需要精确时）：**
 
 - 八字 9 专项 → `{"analysis_type": "...", "<dim>_analysis": {...}}`。解读读 `<dim>_analysis`，里面是该维度的子项。例如 `bazi_romance` → `romance_analysis.{peach_blossom, hongluan_tianxi, opposite_sex_star, peach_quality, romance_timing, timing_context}`；`bazi_wealth` → `wealth_analysis.{...}`。`timing_context` 段是引擎自动推算的当前大运/流年，看时机就看它。
-- `two_person_compatibility` → `summary`（`overall_score` / `compatibility_level`）、`detailed_analysis`（`element_balance` / `favorable_synergy`）、`strengths`、`challenges`、`recommendations`。
+- `two_person_compatibility` → `summary`（`overall_score` / `compatibility_level`）、`traditional_compatibility`、`detailed_analysis`（`element_balance` / `favorable_synergy`）、`strengths`、`challenges`、`recommendations`。不同规则段的分数保留各自名称与作用域，不合成成功概率；`person_info` 中的个人内部结构不能直接解释为双方互动。建议列表为空时如实说明，现实沟通建议另作标记。
 - `sukuyo_compatibility` → 27 宿相性，**有方向**：`person1_to_person2` 与 `person2_to_person1` 各一套关系判定，别只读一边；另有 `pair`（双向综合）、`su27_basis`（各自本命宿）、`summary`。
 - `astro_relative_chart` → `relationship_profile`、`inner_chart`、`outer_chart`、`synastry_aspects`、`chart`、`compatibility`。
 
@@ -92,17 +106,17 @@ python3 -m fatebridge.cli --no-metadata bazi_romance <出生参数> \
   --fields romance_analysis.romance_timing
 ```
 
-路径写法跟上面「结构化字段怎么读」一致：命盘类带 `bazi_birth.` 前缀，八字 9 专项带 `<dim>_analysis.` 前缀。路径不存在不会报错，会返回空对象——指不到字段就别说，别编。
+路径写法跟上面「结构化字段怎么读」一致：命盘类带 `bazi_birth.` 前缀，八字 9 专项带 `<dim>_analysis.` 前缀。首轮使用 `--strict-fields`：路径不存在会返回校验错误，应核对合同后修正。默认宽松模式可能返回空对象及 `projection_warnings`，指不到字段就别说，别编。
 
-**关掉快照文本省 token（`--no-include-snapshot-text`）。** 只要结构化字段、不要那段几十 KB 的 `snapshot_text` 中文摊平时，加 `--no-include-snapshot-text`（或 `--include-snapshot-text false`）。脚本管道里想要单行紧凑 JSON 再加 `--compact`。两者默认都不改变现状（默认仍带快照、仍美化缩进），所以只在你确实要省 token 时才开。
+**首轮关掉快照文本（`--no-include-snapshot-text`）。** 读取结构化字段时，加 `--no-include-snapshot-text`（或 `--include-snapshot-text false`）。脚本管道里想要单行紧凑 JSON 再加 `--compact`。CLI 默认美化缩进；是否包含快照随工具合同而定，不应假设所有工具都有文本。
 
 ```bash
 # 只取结构化字段 + 关掉快照 + 紧凑：最省 token 的取数姿势
 python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
-  --no-include-snapshot-text --compact --fields bazi_birth.four_pillars
+  --no-include-snapshot-text --compact --strict-fields --fields bazi_birth.four_pillars
 ```
 
-**三端等价。** 这套输出精炼在 REST / MCP / CLI 上语义一致。REST 用查询参数：`POST /api/cn/bazi/birth?include_snapshot_text=false&fields=bazi_birth.day_master&fields=...`（`fields` 可重复，等价于 CLI 的空格分隔）；MCP 工具用同名 keyword 参数 `fields` / `include_snapshot_text` / `compact`。无论哪端，已附带的 `run_metadata` 会保留；`--no-metadata` 会关闭附加。
+**三端等价。** 这套输出精炼在 REST / MCP / CLI 上语义一致。REST 用查询参数：`POST /api/cn/bazi/birth?include_snapshot_text=false&strict_fields=true&fields=bazi_birth.day_master&fields=...`（`fields` 可重复，等价于 CLI 的空格分隔）；MCP 工具用同名 keyword 参数 `fields` / `strict_fields` / `include_snapshot_text` / `compact`。无论哪端，已附带的 `run_metadata` 会保留；`--no-metadata` 会关闭附加。咨询后续需保留回执，用户更正资料时重建受影响输入，沿用 `trace_id`、`parent_run_id`；只解释未改变的结果不重算。
 
 ---
 
@@ -121,10 +135,11 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 ```
 
 - 性别影响大运顺逆，具体必填性按工具模型；`dayun_analysis` 要求 `gender` 与 `analysis_age`。
-- 小时必填：未知时先确认，不能省略或擅自填 0 当作无时盘。用户授权的假设时刻必须标明。
-- 出生地只为算经度/真太阳时，给到市即可。
+- 小时必填：未知时先确认，不能省略或擅自填 0 当作无时盘。只有「上午」等时段不能复用某个精确时刻的命盘；用户授权的假设时刻必须标明，保留时段内不稳定结论。
+- 公历与农历先核对，这些 `birth_*` 接口使用公历。出生时区按出生地确认，不能把当前聊天时区当作出生时区。真太阳时默认开启，仅按用户明确要求关闭；未知经度可省略，以返回精度限制说明，不能猜经度。
+- 出生地用于地点与太阳时解析，给到城市并保留返回精度；中式工具不能套入西占 `birth_latitude` 参数。
 
-**分析时点（专项/时运/占卜，默认今天）**
+**分析时点（按所选工具核对）**
 
 ```
 --analysis-year 2026 --analysis-month 6 --analysis-day 18   # 想看哪天的运
@@ -133,6 +148,8 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 ```
 
 八字九维专项工具（marriage/career/...）会自动推算当前大运、流年，用户不用懂大运。`--dayun-pillar`/`--liunian-pillar` 只是手动覆盖，正常别传。
+
+出生时点使用 `birth_*`，分析时点使用该工具的 `analysis_*` 或 `target_*`。未指定的当前时间才由引擎取当前值；需要复现时传带时区 ISO `as_of`，它不能替代明确的分析年月日，也不补出生时刻。起卦等要求显式时间的工具仍须按实际必填项传入。
 
 **西占工具（astro_* / 推运）用的是另一套：**
 
@@ -143,7 +160,15 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 --zodiacal 0        # 核心/关系盘：0=回归，1=恒星
 # 西占推运改用 --house-system P --zodiac-type Tropic
 # 目标时间分别传 --analysis-year、--analysis-month、--analysis-day
+# 精确目标钟时另传 --analysis-hour 12 --analysis-minute 0（按出生时区）
+# 西占推运精确时刻另传 --analysis-hour 12 --analysis-minute 0
 ```
+
+西占聚合推运及 11 个单项技法的 `analysis_hour` / `analysis_minute` 按
+`birth_timezone` 解释，显式零值有效；省略时分别沿用出生小时／分钟以兼容日期级
+调用。需要精确分析时刻时两项都传，并核对 `analysis_context.analysis_datetime`。
+`as_of` 只冻结缺省日期的当前时钟；`return_timezone` 转换同一时刻到分析地点，
+不替代输入时区。REST 请求体、MCP 参数与 CLI 开关语义一致。
 
 核心星盘优先使用 `swisseph`；缺包时可回退内置轨道近似，显式复杂宫制除外。西占推运/事件/生命周期缺 backend 时直接报错，不能按近似结果解读。`swisseph` 可导入仍可能使用 Moshier 模型，检查 `chart_profile.ephemeris_model` 与 `run_metadata.engine_is_approximate`。`pyswisseph` / `kerykeion` 是常规依赖，星历数据另行获取，见 [快速入门](../../docs/getting-started.md#星历数据与精度)。
 
@@ -204,7 +229,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 - `astro_guolao_chart`：果老星宗。
 - `astro_india_chart`：印度盘。
 - `astro_germany_chart`：德国盘。
-- `astro_relative_chart`：关系盘（`astro_relative` 同义但 CLI 因嵌套不支持，用 `_chart` 版本）。两人用 `--inner-birth-*` 和 `--outer-birth-*`（各需 year/month/day/hour/longitude/latitude，name/place/minute/timezone 可选），返回 JSON（见上）。
+- `astro_relative_chart`：MCP / CLI 扁平关系盘；`astro_relative` 是 REST 的嵌套请求入口，尚未启用 CLI JSON 请求合同，不把两端名称当作任意互换的别名。扁平入口两人用 `--inner-birth-*` 和 `--outer-birth-*`（各需 year/month/day/hour/longitude/latitude，name/place/minute/timezone 可选），返回 JSON（见上）。
 
 ### 西占 · 推运（需要 backend，缺失时报错）
 
@@ -297,8 +322,8 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 - **命盘复用**：综合命理画像调一次 `analyze_destiny`（已含命盘 + 喜用 + 格局），不要再调 `bazi_birth`；只要原始四柱才单用 `bazi_birth`。同一出生信息跨八字/紫微/西占复用，不重复采集。
 - **聚合优先**：时运全景用 `timing_analysis` / `western_timing_analysis`，不连发多个单技法；只要一项才用单工具。
 - **粒度匹配**：年级信号（如 `romance_timing`）不许说成「几月」，要月级才升级 `liuyue_analysis`，日级才 `liuri_analysis`。
-- **token 收口**：聚焦问题默认 `--fields` / `selected-sections` 裁剪，不裸吐整张 `snapshot_text`。
-- **一次一项收信息**，记不清参数先 `describe`，报错先读 `error_code` 再改，不盲重试。
+- **首轮收口**：按已验证 `fields` 取结构化字段，开严格投影、关快照；`selected_sections` 只裁剪导出文本，不代替字段投影。仅文本结果按实际合同读取，不能通过关闭文本删掉唯一依据。
+- **一次核对必要资料**：使用已确认信息，缺失或日期无效时简短问齐会改变所选计算的资料，不重复采集、不串行问每一字段。合同已齐全不重复发现，报错先读 `error_code` 再改，不盲重试。
 
 ---
 
@@ -313,7 +338,7 @@ python3 -m fatebridge.cli --no-metadata astro_chart \
 | 工具 | 应读取的层 | 输入要点 |
 | --- | --- | --- |
 | `fengshui_directions` | `layers.directions` | 固定后天方位；角度须明确参考北 |
-| `fengshui_minggua` | `layers.minggua` | 有效生年或含时区出生时刻；男女起算法未知则保留候选 |
+| `fengshui_minggua` | `layers.minggua` | 公历 `birth_date`、含时区 `birth_at`、有效生年三选一；非立春当日无需小时，男女起算法未知则保留候选 |
 | `fengshui_bazhai` | `layers.bazhai` | 坐山宅盘与逐人命盘独立；门床桌灶位置／朝向分开 |
 | `fengshui_jinsuo` | `layers.jinsuo` | 明确砂／水／混合／未知分类及依据，不由物品名称推断 |
 | `fengshui_annual_stars` | `layers.annual_stars` | 立春换年；固定宫数与临宫年星分开 |

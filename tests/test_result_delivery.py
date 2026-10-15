@@ -102,6 +102,122 @@ def test_pages_reject_missing_paths_and_invalid_offsets(store):
             store.page(ref["result_id"], **kwargs)
 
 
+def _cli_args(payload):
+    args = ["western_timing_analysis"]
+    for key, value in payload.items():
+        args += ["--" + key.replace("_", "-"), str(value)]
+    return args + [
+        "--no-include-snapshot-text",
+        "--compact",
+        "--response-char-limit",
+        "8192",
+    ]
+
+
+def test_real_western_exact_time_and_delivery_match_all_transports(
+    store, capsys, monkeypatch
+):
+    spec = next(s for s in CATALOG if s.key == "western_timing_analysis")
+    payload = example_input(spec)
+    payload.update(analysis_hour=12, analysis_minute=7)
+    api._reset_runtime_state_for_tests()
+    monkeypatch.setattr(
+        api,
+        "API_KEY_AUTHENTICATOR",
+        api.ApiKeyAuthenticator(header_name="X-API-Key", api_keys={}),
+    )
+    rest = TestClient(api.app)
+    response = rest.post(
+        spec.rest_path,
+        json=payload,
+        params={
+            "response_char_limit": 8192,
+            "include_snapshot_text": "false",
+            "as_of": "2026-10-14T12:07:00+08:00",
+        },
+    )
+    assert response.status_code == 200
+
+    async def native():
+        async with Client(create_mcp_app()) as client:
+            result = await client.call_tool(
+                spec.tool_name,
+                {
+                    **payload,
+                    "include_snapshot_text": False,
+                    "as_of": "2026-10-14T12:07:00+08:00",
+                },
+            )
+            assert not result.is_error
+            assert json.loads(result.content[0].text) == result.structured_content
+            ref = result.structured_content["result_delivery"]
+            manifest = json.loads(
+                (await client.read_resource(ref["manifest_uri"]))[0].text
+            )
+            assert (
+                manifest["run_metadata"]["run_id"]
+                == result.structured_content["run_metadata"]["run_id"]
+            )
+            uri = f"fatebridge://results/{ref['result_id']}/fields/analysis_context.analysis_datetime/0"
+            page = json.loads((await client.read_resource(uri))[0].text)
+            assert json.loads(page["text"]) == "2026-10-14T12:07:00+08:00"
+            return result.structured_content
+
+    protocol = asyncio.run(native())
+    capsys.readouterr()
+    assert run(_cli_args(payload) + ["--as-of", "2026-10-14T12:07:00+08:00"]) == 0
+    cli = json.loads(capsys.readouterr().out)
+    full = []
+    for shaped in [response.json(), protocol, cli]:
+        ref = shaped["result_delivery"]
+        original = reconstruct(store, ref["result_id"])
+        assert (
+            original["analysis_context"]["analysis_datetime"]
+            == "2026-10-14T12:07:00+08:00"
+        )
+        assert (
+            original["transits"]["current_transit"]["analysis_datetime"]
+            == "2026-10-14T12:07:00+08:00"
+        )
+        assert (
+            original["analysis_context"]["birth_datetime"]
+            == "1990-05-15T10:30:00+09:00"
+        )
+        assert original["run_metadata"] == shaped["run_metadata"]
+        full.append({k: v for k, v in original.items() if k != "run_metadata"})
+        page = rest.get(
+            f"/api/results/{ref['result_id']}/pages",
+            params={"path": "analysis_context.analysis_datetime"},
+        ).json()
+        assert json.loads(page["text"]) == "2026-10-14T12:07:00+08:00"
+    assert full[0] == full[1] == full[2]
+
+
+def test_recommended_western_first_view_fits_default_budget(store):
+    spec = next(s for s in CATALOG if s.key == "western_timing_analysis")
+
+    async def invoke():
+        async with Client(create_mcp_app()) as client:
+            return await client.call_tool(
+                spec.tool_name,
+                {
+                    **example_input(spec),
+                    "fields": suggested_fields(spec),
+                    "strict_fields": True,
+                    "include_snapshot_text": False,
+                },
+            )
+
+    result = asyncio.run(invoke())
+    assert not result.is_error
+    assert "result_delivery" not in result.structured_content
+    assert (
+        result.structured_content["transits"]["current_transit"]["analysis_datetime"]
+        == "2026-10-14T12:00:00+08:00"
+    )
+    assert len(result.content[0].text) <= delivery.DEFAULT_MCP_RESPONSE_CHARS
+
+
 def test_result_reader_respects_mcp_tool_profiles(store):
     ref = store.put(large_payload())
 
@@ -144,101 +260,3 @@ def test_rest_result_readers_require_api_key_and_report_bad_references(
         ).status_code
         == 404
     )
-
-
-def _cli_args(payload):
-    args = ["western_timing_analysis"]
-    for key, value in payload.items():
-        args += ["--" + key.replace("_", "-"), str(value)]
-    return args + [
-        "--no-include-snapshot-text",
-        "--compact",
-        "--response-char-limit",
-        "8192",
-    ]
-
-
-def test_real_result_delivery_matches_all_transports(store, capsys, monkeypatch):
-    spec = next(s for s in CATALOG if s.key == "western_timing_analysis")
-    demo = next(s for s in CATALOG if s.key == "astro_chart")
-    payload = {
-        **{
-            key: value
-            for key, value in example_input(demo).items()
-            if key in spec.request_model.model_fields
-        },
-        "analysis_year": 2026,
-        "analysis_month": 10,
-        "analysis_day": 14,
-    }
-    api._reset_runtime_state_for_tests()
-    monkeypatch.setattr(
-        api,
-        "API_KEY_AUTHENTICATOR",
-        api.ApiKeyAuthenticator(header_name="X-API-Key", api_keys={}),
-    )
-    rest = TestClient(api.app)
-    response = rest.post(
-        spec.rest_path,
-        json=payload,
-        params={
-            "response_char_limit": 8192,
-            "include_snapshot_text": "false",
-            "as_of": "2026-10-14T10:30:00+08:00",
-        },
-    )
-    assert response.status_code == 200
-
-    async def native():
-        async with Client(create_mcp_app()) as client:
-            result = await client.call_tool(
-                spec.tool_name,
-                {
-                    **payload,
-                    "include_snapshot_text": False,
-                    "as_of": "2026-10-14T10:30:00+08:00",
-                },
-            )
-            assert not result.is_error
-            assert json.loads(result.content[0].text) == result.structured_content
-            ref = result.structured_content["result_delivery"]
-            manifest = json.loads(
-                (await client.read_resource(ref["manifest_uri"]))[0].text
-            )
-            assert (
-                manifest["run_metadata"]["run_id"]
-                == result.structured_content["run_metadata"]["run_id"]
-            )
-            uri = f"fatebridge://results/{ref['result_id']}/fields/analysis_context.analysis_datetime/0"
-            page = json.loads((await client.read_resource(uri))[0].text)
-            assert json.loads(page["text"]) == "2026-10-14T10:30:00+08:00"
-            return result.structured_content
-
-    protocol = asyncio.run(native())
-    capsys.readouterr()
-    assert run(_cli_args(payload) + ["--as-of", "2026-10-14T10:30:00+08:00"]) == 0
-    cli = json.loads(capsys.readouterr().out)
-    full = []
-    for shaped in [response.json(), protocol, cli]:
-        ref = shaped["result_delivery"]
-        original = reconstruct(store, ref["result_id"])
-        assert (
-            original["analysis_context"]["analysis_datetime"]
-            == "2026-10-14T10:30:00+08:00"
-        )
-        assert (
-            original["transits"]["current_transit"]["analysis_datetime"]
-            == "2026-10-14T10:30:00+08:00"
-        )
-        assert (
-            original["analysis_context"]["birth_datetime"]
-            == "1990-05-15T10:30:00+09:00"
-        )
-        assert original["run_metadata"] == shaped["run_metadata"]
-        full.append({k: v for k, v in original.items() if k != "run_metadata"})
-        page = rest.get(
-            f"/api/results/{ref['result_id']}/pages",
-            params={"path": "analysis_context.analysis_datetime"},
-        ).json()
-        assert json.loads(page["text"]) == "2026-10-14T10:30:00+08:00"
-    assert full[0] == full[1] == full[2]

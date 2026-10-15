@@ -137,3 +137,7 @@ python -m pytest -q tests/test_golden_master.py tests/golden \
 脚本只比较并保存差异，不写入基线，环境不匹配直接失败。审查只更新年度星、聚合与宅盘3份风水快照；原85份既有工具快照无需覆盖。年度／聚合变动是Linux固定Moshier口径的一秒历史区间差异，九宫数值不变。宅盘更新修复版本、实际求解器与来源归属。本轮Linux专项396项通过、0项跳过，随后Linux全仓1403项通过、0项跳过，88套golden逐字节吻合；macOS全仓1313项通过、89项golden相关测试按环境跳过，最终SDK兼容修复另有55项复验通过。解包wheel中的边界两侧、压线和节气回退4例均通过REST／实际MCP协议／CLI一致性验证。最终环境、散列、命令及结果见 [本轮审查记录](audits/2026-10-12/fengshui/xuankong-systematic-validation.json)；初次实现验收记录保留原日期和平台范围。
 
 Linux缓存环境为MCP SDK 2.3.0、lunardate 0.3.0；测试兼容异常类大小写、协议字段别名和年表常量命名，保留旧依赖上的验证，生产数值逻辑不因这些兼容修复而变化。Black检查238个Python文件、isort、mypy检查123个源文件及diff检查均通过。本轮为本地真实Linux／macOS与解包wheel验证，未执行线上发布或托管服务验收。
+
+## 2026-10-15：显式启用有限解释
+
+在 `xuankong.interpretation`（聚合）或 `interpretation`（独立宅盘）传入独立评价运与证据，可启用 `xuankong_conditioned_v1@1.0.0`：有序山向星五行关系、当令星外部山水存在条件及床/门用途角色。默认不启用，既有宅盘数字和规则版本保持原合同。外局分宫独立确认，未确认、照片及边界候选保持缺失和候选状态；完整81组合断语与全宅勘察仍未覆盖。来源、字段与示例见[有限解释合同](fengshui-xuankong-interpretation.md)。

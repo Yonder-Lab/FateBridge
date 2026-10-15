@@ -140,7 +140,11 @@ def evaluate_forms(req: AssessRequest) -> Dict[str, Any]:
                     "action_id": action_id,
                     "optional": True,
                     "pending_confirmations": pending,
-                    "status": "conditional_option",
+                    "status": (
+                        "candidate_only"
+                        if obs.observation_basis == "image_observed"
+                        else "conditional_option"
+                    ),
                     "conditions": [
                         "无法以位置/朝向调整补足入口视野",
                         "实际确认镜面能看见入口",

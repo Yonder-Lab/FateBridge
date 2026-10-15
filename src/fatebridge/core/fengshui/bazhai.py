@@ -49,6 +49,12 @@ def minggua(req: MingguaRequest, subject_id: str = "occupant") -> Dict[str, Any]
     )
     year = time["effective_year"]
     missing = []
+    if time.get("effective_year_status") == "requires_confirmation":
+        time = {**time, "effective_year": None, "provisional_effective_year": year}
+        year = None
+        missing.append(
+            f"occupants.{subject_id}.confirmed_effective_birth_year_due_to_boundary_precision"
+        )
     if req.birth_date is not None:
         day = req.birth_date
         resolution = (

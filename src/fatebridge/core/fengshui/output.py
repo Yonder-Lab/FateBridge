@@ -115,6 +115,7 @@ class NatalCandidate(PartialOutput):
 
 
 class NatalLayer(PartialOutput):
+    interpretation: Optional["NatalInterpretation"] = None
     status: Optional[Literal["complete", "partial"]] = None
     subject_id: Optional[str] = None
     ruleset: Optional[Ruleset] = None
@@ -134,6 +135,19 @@ class Layers(PartialOutput):
     jinsuo: Optional[Layer] = None
     annual_stars: Optional[Layer] = None
     xuankong_natal: Optional[NatalLayer] = None
+
+
+class NatalInterpretation(PartialOutput):
+    status: Optional[Literal["complete", "partial"]] = None
+    ruleset_id: Optional[str] = None
+    current_period_context: Optional[Object] = None
+    candidates: Optional[List[Object]] = None
+    missing_inputs: Optional[List[str]] = None
+    unsupported_queries: Optional[List[Object]] = None
+    rule_coverage_status: Optional[str] = None
+    overall_auspiciousness: Optional[str] = None
+    rule_trace: Optional[List[Object]] = None
+    limitations: Optional[List[str]] = None
 
 
 class PendingConfirmation(PartialOutput):
@@ -218,6 +232,9 @@ class SurfaceAnalysis(PartialOutput):
 
 
 class Coverage(PartialOutput):
+    natal_interpretation_status: Optional[Literal["complete", "partial"]] = None
+    natal_interpretation_missing_inputs: Optional[List[str]] = None
+    scene_scope: Optional[Object] = None
     analysis_progress: Optional[AnalysisProgress] = None
     implemented_layers: Optional[List[str]] = None
     missing_inputs: Optional[List[str]] = None
@@ -246,6 +263,8 @@ class FengshuiOutput(ProjectedOutput):
 
 
 class LayoutAnalysis(PartialOutput):
+    natal_interpretation: Optional[NatalInterpretation] = None
+    alternatives_analysis: Optional[Object] = None
     surface_analysis: Optional[SurfaceAnalysis] = None
     analysis_progress: Optional[AnalysisProgress] = None
     status: Optional[Literal["complete", "partial"]] = None

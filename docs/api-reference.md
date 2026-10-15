@@ -423,6 +423,19 @@ CLI profile 沿用批量入口，子工具共用 as_of / trace，parent_run_id �
 | `POST` | `/api/astro/timing/firdaria` | 法达 |
 | `POST` | `/api/astro/timing/decennials` | 十年星限 |
 
+聚合推运与上述 11 个单项工具共用目标时间合同：`analysis_year`、
+`analysis_month`、`analysis_day` 指定日期，`analysis_hour`（0–23）与
+`analysis_minute`（0–59）指定小时和分钟，按 `birth_timezone` 解释。
+显式传入 `0` 会生效。为保持日期级调用兼容，省略小时或分钟时分别沿用
+`birth_hour` 或 `birth_minute`；省略的日期分量仍由当前时间（可用 `as_of` 冻结）
+补齐。`as_of` 不替代显式分析时刻，`return_timezone` 只将同一时刻转换到返照／
+行运地点，不重解释输入钟时。出生参数始终用于本命盘。
+
+REST 在 JSON 请求体传入这五项，MCP 使用同名参数，CLI 使用
+`--analysis-year/month/day/hour/minute` 对应的独立开关。实际采用时刻见
+`analysis_context.analysis_datetime`，行运地点的时刻见聚合结果的
+`transits.current_transit.analysis_datetime` 或独立工具的 `transit.analysis_datetime`。
+
 ### 4.8 事件占星（事件盘）
 
 求解天文时刻后起盘的一组事件类工具。
@@ -538,6 +551,8 @@ curl -X POST http://localhost:8010/api/astro/timing/solarreturn \
     "analysis_year": 2028,
     "analysis_month": 4,
     "analysis_day": 6,
+    "analysis_hour": 12,
+    "analysis_minute": 0,
     "selected_sections": ["起盘信息", "星盘信息"]
   }'
 ```

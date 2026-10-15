@@ -161,17 +161,21 @@ def test_interface_reads_and_version_present():
     assert not problems, "interface reads/version issues:\n" + "\n".join(problems)
 
 
-def test_codex_project_fengshui_entry_resolves_and_allows_discovery():
+def test_codex_project_skill_entries_resolve_and_allow_discovery():
     """Project discovery must load the maintained package, including its refs."""
-    entry = _REPO_ROOT / ".agents" / "skills" / "onda-fengshui"
-    assert entry.resolve() == _SKILLS_ROOT / "onda-fengshui"
-    skill = entry / "SKILL.md"
-    assert _frontmatter_name(skill) == entry.name
-    metadata = yaml.safe_load((entry / "agents" / "openai.yaml").read_text())
-    assert metadata.get("policy", {}).get("allow_implicit_invocation", True)
-    assert f"${entry.name}" in metadata["interface"]["default_prompt"]
-    # References resolve from the actual discoverable path, not only the
-    # source path. Catch copied/relocated packages with broken dependencies.
-    for rel in re.findall(r"\]\(([^)#]+)(?:#[^)]*)?\)", skill.read_text()):
-        if "://" not in rel:
-            assert (entry / rel).exists(), (entry.name, rel)
+    for source in _skill_dirs():
+        entry = _REPO_ROOT / ".agents" / "skills" / source.name
+        assert entry.resolve() == source
+        skill = entry / "SKILL.md"
+        assert _frontmatter_name(skill) == entry.name
+        metadata = yaml.safe_load((entry / "agents" / "openai.yaml").read_text())
+        assert metadata.get("policy", {}).get("allow_implicit_invocation", True)
+        interface = metadata["interface"]
+        assert interface["display_name"]
+        assert 25 <= len(interface["short_description"]) <= 64
+        assert f"${entry.name}" in interface["default_prompt"]
+        # References resolve from the actual discoverable path, not only the
+        # source path. Catch copied/relocated packages with broken dependencies.
+        for rel in re.findall(r"\]\(([^)#]+)(?:#[^)]*)?\)", skill.read_text()):
+            if "://" not in rel:
+                assert (entry / rel).exists(), (entry.name, rel)

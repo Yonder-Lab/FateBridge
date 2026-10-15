@@ -15,9 +15,16 @@ from fatebridge.core.fengshui.models import (
     DirectionsRequest,
     JinsuoRequest,
     MingguaRequest,
+    Placement,
     XuankongRequest,
 )
+from fatebridge.core.fengshui.natal_interpretation import (
+    analyze_natal_interpretation,
+    interpretation_provenance,
+)
+from fatebridge.core.fengshui.planning import evaluate_alternatives
 from fatebridge.core.fengshui.snapshot import sections
+from fatebridge.core.fengshui.surface import summarize_analysis_progress
 from fatebridge.core.fengshui.xuankong import natal_provenance, xuankong_natal
 from fatebridge.services.snapshot_builders import (
     build_snapshot_export,
@@ -33,6 +40,7 @@ def _compose(
     layers: Dict[str, Any],
     conflicts: List[Dict[str, Any]],
     layout: Dict[str, Any] | None = None,
+    scene_scope: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     missing = [m for layer in layers.values() for m in layer["missing_inputs"]]
     status = "partial" if missing else "complete"
@@ -112,6 +120,29 @@ def _compose(
             result["status"] = layout["status"]
             result["summary"] = f"layout: {layout['status']}"
             result["coverage"]["missing_inputs"] = layout["missing_inputs"]
+    interpretation = layers.get("xuankong_natal", {}).get("interpretation")
+    if interpretation is not None:
+        provenance_record = interpretation_provenance()
+        result["rulesets"].append(provenance_record)
+        result["rule_trace"].append(
+            {
+                key: provenance_record[key]
+                for key in ("method", "ruleset_id", "version", "source_ids", "scope")
+            }
+        )
+        result["coverage"].update(
+            natal_interpretation_status=interpretation["status"],
+            natal_interpretation_missing_inputs=interpretation["missing_inputs"],
+            requested_analysis_status=(
+                "partial"
+                if interpretation["status"] == "partial"
+                or result["coverage"].get("requested_analysis_status", status)
+                == "partial"
+                else "complete"
+            ),
+        )
+    if scene_scope is not None:
+        result["coverage"]["scene_scope"] = scene_scope
     snapshot_sections = sections(result)
     result["snapshot_text"] = render_snapshot_lines(snapshot_sections)
     result["snapshot_export"] = build_snapshot_export(
@@ -159,8 +190,15 @@ def calculate_annual_stars(**kwargs: Any) -> Dict[str, Any]:
     return _compose({"annual_stars": _layer(annual_stars(req), req.ruleset_id)}, [])
 
 
-def _natal_layer(req: XuankongRequest) -> Dict[str, Any]:
-    return {**xuankong_natal(req), "ruleset": natal_provenance()}
+def _natal_layer(
+    req: XuankongRequest, placements: List[Placement] | None = None
+) -> Dict[str, Any]:
+    layer = {**xuankong_natal(req), "ruleset": natal_provenance()}
+    if req.interpretation is not None:
+        layer["interpretation"] = analyze_natal_interpretation(
+            req.interpretation, layer, placements or []
+        )
+    return layer
 
 
 def calculate_xuankong_natal(**kwargs: Any) -> Dict[str, Any]:
@@ -245,16 +283,16 @@ def _differences(layers: Dict[str, Any]) -> List[Dict[str, Any]]:
 def assess(**kwargs: Any) -> Dict[str, Any]:
     req = AssessRequest.model_validate(kwargs)
     layers = {}
-    if "bazhai" in req.methods:
+    if "bazhai" in req.selected_methods:
         layers["bazhai"] = _layer(bazhai(req), req.ruleset_id)
-    if "jinsuo" in req.methods:
+    if "jinsuo" in req.selected_methods:
         layers["jinsuo"] = _layer(
             jinsuo(
                 JinsuoRequest(features=req.features, ruleset_id=req.jinsuo_ruleset_id)
             ),
             req.jinsuo_ruleset_id,
         )
-    if "annual_stars" in req.methods:
+    if "annual_stars" in req.selected_methods:
         layers["annual_stars"] = _layer(
             annual_stars(
                 AnnualRequest(
@@ -266,22 +304,99 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
             ),
             req.annual_ruleset_id,
         )
-    if "xuankong_natal" in req.methods:
+    if "xuankong_natal" in req.selected_methods:
         natal = req.xuankong or XuankongRequest()
         natal = XuankongRequest.model_validate(
             {**natal.model_dump(), "house": natal.house or req.house}
         )
-        layers["xuankong_natal"] = _natal_layer(natal)
-    return _compose(
-        layers,
-        _differences(layers),
-        (
-            analyze_layout(req, layers)
-            if req.analyze_layout
-            or req.form_observations
-            or req.surface_layouts
-            or req.element_adjustments
-            or req.annual_remedy_ruleset_id is not None
-            else None
-        ),
+        layers["xuankong_natal"] = _natal_layer(natal, req.placements)
+    layout = (
+        analyze_layout(req, layers)
+        if req.analyze_layout
+        or req.scene
+        or req.layout_constraints
+        or req.layout_alternatives
+        or req.form_observations
+        or req.surface_layouts
+        or req.element_adjustments
+        or req.annual_remedy_ruleset_id is not None
+        else None
     )
+    if layout is not None and req.layout_alternatives:
+        alternatives = evaluate_alternatives(req, layers)
+        layout["alternatives_analysis"] = alternatives
+        registered = {r["ruleset_id"] for r in layout["supplemental_rulesets"]}
+        for proposal in alternatives["findings"]:
+            for ruleset in proposal["supplemental_rulesets"]:
+                if ruleset["ruleset_id"] not in registered:
+                    layout["supplemental_rulesets"].append(ruleset)
+                    registered.add(ruleset["ruleset_id"])
+        previous = layout["analysis_progress"]
+        states = {
+            "ready": "ready",
+            "conditional": "conditional_option",
+            "candidate": "candidate_only",
+            "blocked": "blocked",
+        }
+        existing_actions = [
+            {"status": states[key], "optional": False}
+            for key, count in previous["action_counts"].items()
+            for _ in range(count)
+        ]
+        progress = summarize_analysis_progress(
+            layout["missing_inputs"],
+            previous["rule_coverage_counts"],
+            [*existing_actions, *alternatives["findings"]],
+            [
+                *previous["pending_confirmations"],
+                *(
+                    p
+                    for f in alternatives["findings"]
+                    for p in f["pending_confirmations"]
+                ),
+            ],
+            count_unit=previous["rule_coverage_count_unit"],
+            limited=previous["rule_coverage_status"] == "limited",
+        )
+        # Optional proposals cannot reopen or close the review of current facts.
+        for key in (
+            "calculation_status",
+            "rule_coverage_status",
+            "assessment_complete",
+        ):
+            progress[key] = previous[key]
+        progress["optional_action_count"] = previous["optional_action_count"] + len(
+            alternatives["findings"]
+        )
+        layout["analysis_progress"] = progress
+    scene_scope = None
+    if req.scene is not None:
+        scene_scope = {
+            "scene": req.scene,
+            "selected_methods": req.selected_methods,
+            "selection_policy": "explicit_methods_override_input_driven_default",
+            "scope": "supplied_objects_and_selected_rules_not_whole_property_certification",
+            "indoor_forms": (
+                "selected_modern_authored_rules"
+                if req.form_observations
+                else "not_provided"
+            ),
+            "geometry": "user_confirmed_house_sectors_no_automatic_floorplan_geometry",
+            "natal_interpretation": (
+                "conditioned_element_pairs_current_star_external_forms_and_bed_door_roles"
+                if layers.get("xuankong_natal", {}).get("interpretation") is not None
+                else (
+                    "three_star_roles_without_complete_combination_or_external_form_judgment"
+                    if "xuankong_natal" in layers
+                    else "not_selected"
+                )
+            ),
+            "unsupported_methods": [
+                "yangzhai_sanyao_structural_rules",
+                "sanhe_water_formulas",
+                "xuankong_dagua",
+                "complete_classical_landforms",
+            ],
+            "effectiveness": "not_established_by_software_validation",
+        }
+    return _compose(layers, _differences(layers), layout, scene_scope)

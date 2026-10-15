@@ -10,6 +10,19 @@ from .models import AnnualRequest
 def annual_stars(req: AnnualRequest) -> Dict[str, Any]:
     time = year_context(req.effective_year, req.query_at, req.timezone_name)
     year = time["effective_year"]
+    if time.get("effective_year_status") == "requires_confirmation":
+        return {
+            "status": "partial",
+            "time_context": {
+                **time,
+                "effective_year": None,
+                "provisional_effective_year": year,
+            },
+            "palaces": {},
+            "missing_inputs": [
+                "annual_stars.confirmed_effective_year_due_to_boundary_precision"
+            ],
+        }
     if year is None:
         return {
             "status": "partial",

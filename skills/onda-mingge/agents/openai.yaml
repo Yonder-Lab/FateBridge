@@ -1,0 +1,4 @@
+interface:
+  display_name: "认识自己 · 性格天赋"
+  short_description: "按具体问题选择命盘或专项，说明性格天赋六亲的传统参考与限制"
+  default_prompt: "使用 $onda-mingge 分析我关心的性格、天赋或家人问题，依据实际字段解释。"

@@ -47,12 +47,23 @@ def year_context(
             "timezone_name": timezone_name,
         }
     year = effective_year
+    uncertain_boundary = None
     if year is None and local is not None:
         year = (
             almanac.get_bazi_year(local, timezone_name)
             if boundary == "lichun"
             else local.year
         )
+        if boundary == "lichun":
+            resolution = lichun_resolution(local.year, timezone_name)
+            boundary_date = datetime.fromisoformat(resolution["moment"]).date()
+            # Same conservative adjacent-civil-date policy as date-only
+            # Minggua; this is solver uncertainty, not a Feng Shui rule.
+            if (
+                resolution["approximate"]
+                and abs((local.date() - boundary_date).days) <= 1
+            ):
+                uncertain_boundary = resolution
     assert year is not None
     if not resolve_interval:
         return {
@@ -80,7 +91,7 @@ def year_context(
             year + 1, 1, 1, tzinfo=tz
         )
         timing = {"provider": "civil_calendar", "convention": "explicit_january_1"}
-    return {
+    result = {
         "effective_year": year,
         "year_boundary": boundary,
         "input_basis": (
@@ -95,3 +106,11 @@ def year_context(
         "interval_policy": "start_inclusive_end_exclusive",
         "timing": timing,
     }
+    if uncertain_boundary is not None:
+        assert local is not None
+        result.update(
+            effective_year_status="requires_confirmation",
+            candidate_effective_years=[local.year - 1, local.year],
+            boundary_resolution=uncertain_boundary,
+        )
+    return result

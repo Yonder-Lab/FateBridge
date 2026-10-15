@@ -38,6 +38,24 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
                     lines.append(
                         f"{role} 原星{trace['seed_star_number']} 同元龙{trace['mapped_mountain']} {trace['polarity']} {trace['flight']} 入中{trace['center_star_number']}；五黄借法：{trace['five_yellow_policy']}"
                     )
+            interpretation = layer.get("interpretation")
+            if interpretation is not None:
+                lines.append(
+                    f"有限解释：{interpretation['ruleset_id']}；状态{interpretation['status']}；"
+                    f"当前评价运{interpretation['current_period_context']['number']}，不重置历史宅运"
+                )
+                for candidate in interpretation["candidates"]:
+                    lines.append(f"解释候选：{candidate['candidate_id']}")
+                    for direction, palace in candidate["palaces"].items():
+                        pair = palace["ordered_pair"]
+                        forms = palace["external_form_analysis"]
+                        lines.append(
+                            f"{direction} 山星/向星五行：{pair['relationship']}；"
+                            f"山形条件{forms['mountain']['status']}；水形条件{forms['water']['status']}"
+                        )
+                    for use in candidate["placement_findings"]:
+                        lines.append(f"用途对象{use['object_id']}：{use['status']}")
+                lines.extend(interpretation["limitations"])
         elif name == "annual_stars":
             if layer.get("effective_year") is not None:
                 lines.append(
@@ -111,6 +129,10 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
             lines.append(
                 f"对象{option['object_id']} {option['aspect']} 当前{option['current_direction']}；已确认作用域共同匹配方位：{agreement}"
             )
+            if option.get("action_status") == "blocked":
+                lines.append(
+                    f"对象{option['object_id']} {option['aspect']}调整受限：用户明确禁止相应动作"
+                )
             for scope in option["scopes"]:
                 lines.append(
                     f"{scope['subject_kind']}:{scope['subject_id']} 候选：{scope['candidate_only']}；匹配方位：{'、'.join(scope['matching_directions'])}"
@@ -143,6 +165,10 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
                     lines.append(
                         f"物件{item['object_id']}：没有独立摆放规则，不按名称推断五行或吉侧"
                     )
+        for proposal in layout.get("alternatives_analysis", {}).get("findings", []):
+            lines.append(
+                f"对象{proposal['object_id']} 候选{proposal['candidate_id']}：{proposal['status']}；计算{proposal['calculation_status']}；新位置形态独立核对，未沿用旧观察"
+            )
         lines.extend(layout["limitations"])
         output.append(("布局计算", lines))
     output.append(
@@ -171,6 +197,20 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
                     else []
                 ),
                 "未实现层：" + "、".join(result["coverage"]["unavailable_layers"]),
+                *(
+                    [
+                        (
+                            "场景范围：仅已提交对象与所选规则，不代表全宅审查；本次玄空只含有限五行、当令外局与床门条件，完整形势、门主灶结构及81组合断法尚未覆盖"
+                            if result.get("layers", {})
+                            .get("xuankong_natal", {})
+                            .get("interpretation")
+                            is not None
+                            else "场景范围：仅已提交对象与所选规则，不代表全宅审查；完整形势、门主灶结构及宅盘组合解释尚未覆盖"
+                        )
+                    ]
+                    if "scene_scope" in result["coverage"]
+                    else []
+                ),
             ],
         )
     )

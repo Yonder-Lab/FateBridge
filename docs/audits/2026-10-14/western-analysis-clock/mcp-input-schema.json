@@ -1,0 +1,323 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "birth_year": {
+      "description": "Birth year, e.g., 1990",
+      "type": "integer"
+    },
+    "birth_month": {
+      "description": "Birth month (1-12)",
+      "maximum": 12,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "birth_day": {
+      "description": "Birth day (1-31)",
+      "maximum": 31,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "birth_hour": {
+      "description": "Birth hour (0-23)",
+      "maximum": 23,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "birth_longitude": {
+      "description": "Birth longitude",
+      "maximum": 180,
+      "minimum": -180,
+      "type": "number"
+    },
+    "birth_latitude": {
+      "description": "Birth latitude",
+      "maximum": 90,
+      "minimum": -90,
+      "type": "number"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "未提供",
+      "description": "Name (optional)"
+    },
+    "birth_minute": {
+      "default": 0,
+      "description": "Birth minute (0-59)",
+      "maximum": 59,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "birth_timezone": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Birth timezone (IANA name or UTC offset). Optional: when omitted, FateBridge infers it from birth_place (same as the BaZi/ZiWei engines) and only falls back to UTC if no place is recognized. The default is None — never 'UTC' — because a truthy 'UTC' default silently treats an eastern wall-clock time as UTC and rotates the whole chart; every subclass (chart / relative / timing / lifespan) therefore inherits the safe place-inference behavior automatically."
+    },
+    "birth_place": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "未提供",
+      "description": "Birth place"
+    },
+    "analysis_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Analysis year"
+    },
+    "analysis_month": {
+      "anyOf": [
+        {
+          "maximum": 12,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Analysis month (1-12)"
+    },
+    "analysis_day": {
+      "anyOf": [
+        {
+          "maximum": 31,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Analysis day (1-31)"
+    },
+    "analysis_hour": {
+      "anyOf": [
+        {
+          "maximum": 23,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Analysis hour (0-23), in birth_timezone. If omitted, keeps the birth hour for date-only compatibility."
+    },
+    "analysis_minute": {
+      "anyOf": [
+        {
+          "maximum": 59,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Analysis minute (0-59), in birth_timezone. If omitted, keeps the birth minute for date-only compatibility."
+    },
+    "return_longitude": {
+      "anyOf": [
+        {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Return chart longitude"
+    },
+    "return_latitude": {
+      "anyOf": [
+        {
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Return chart latitude"
+    },
+    "return_timezone": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Return chart timezone (IANA name or UTC offset)"
+    },
+    "house_system": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "P",
+      "description": "House system, any convention: SE letter ('P'=Placidus, 'R'=Regiomontanus, 'W'=whole sign, 'D'=equal_mc), key ('placidus', 'equal_mc'), or integer code 0..8 (3=Placidus, 8=equal_mc)."
+    },
+    "zodiac_type": {
+      "default": "Tropic",
+      "description": "Zodiac type, e.g. Tropic or Sidereal",
+      "type": "string"
+    },
+    "pd_method": {
+      "default": "astroapp_alchabitius",
+      "description": "Primary direction method identifier, e.g. astroapp_alchabitius, equatorial, or fatebridge_mundane_semiarc",
+      "enum": [
+        "astroapp_alchabitius",
+        "equatorial",
+        "fatebridge_mundane_semiarc"
+      ],
+      "type": "string"
+    },
+    "pd_time_key": {
+      "default": "Ptolemy",
+      "description": "Primary direction time key, e.g. Ptolemy or Naibod",
+      "type": "string"
+    },
+    "pd_type": {
+      "default": 0,
+      "description": "Primary direction mode: 0 for direct, 1 for converse",
+      "maximum": 1,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pd_aspects": {
+      "default": [
+        0,
+        60,
+        90,
+        120,
+        180
+      ],
+      "description": "Primary direction aspects in degrees",
+      "items": {
+        "type": "integer"
+      },
+      "type": "array"
+    },
+    "show_pd_bounds": {
+      "default": true,
+      "description": "Whether to expose the bounds overlay preference for the primary direction chart",
+      "type": "boolean"
+    },
+    "compact": {
+      "default": true,
+      "description": "紧凑 JSON 输出（无缩进）；设为 false 则美化缩进。默认 true。",
+      "type": "boolean"
+    },
+    "include_snapshot_text": {
+      "default": true,
+      "description": "是否包含人类可读的 snapshot_text 文本段（默认随工具而定）；设为 false 可显著减少返回的 token 数。",
+      "type": "boolean"
+    },
+    "fields": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "仅返回选定字段以节省 token：接受顶层键（如 'snapshot_text'）或点路径子字段（如 'bazi_birth.day_master'）。run_metadata 始终保留；留空返回全部字段。无效路径默认附 projection_warnings；strict_fields=true 时拒绝。"
+    },
+    "strict_fields": {
+      "default": false,
+      "description": "是否拒绝无效 fields 路径；默认 false，使用宽松投影并返回警告。",
+      "type": "boolean"
+    },
+    "as_of": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Freeze implicit current time: ISO 8601 datetime with timezone"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Caller trace ID"
+    },
+    "parent_run_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Parent call's run_id; correlation only, no stored execution lookup"
+    }
+  },
+  "required": [
+    "birth_year",
+    "birth_month",
+    "birth_day",
+    "birth_hour",
+    "birth_longitude",
+    "birth_latitude"
+  ],
+  "type": "object"
+}

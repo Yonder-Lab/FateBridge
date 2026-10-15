@@ -21,7 +21,9 @@
 
 ## 真实模型体验与保留的失败
 
-使用 `scripts/experience_codex_host.py`，用户配置模型 `gpt-6.1-sol`，咨询目录正常加载中等推理配置，没有指定模型或 effort。每类任务是独立临时会话、同一运行内共享 host；MCP 范围在子进程内限定为风水，未改用户全局配置。公开回复、调用参数和回执保存在 `consultation/fengshui-codex-experience/` 与 `consultation/fengshui-codex-transfer/`。这些是受控真实模型体验，不等于已有桌面连接的部署验收。
+历史证据已迁入[审计归档](audits/2026-10-14/fengshui-codex-history/README.md)，原始内容与散列保持不变，旧路径通过迁移索引定位。
+
+使用 `scripts/experience_codex_host.py`，用户配置模型 `gpt-6.1-sol`，当时的独立咨询工作目录加载中等推理配置，没有指定模型或 effort；该入口现已移除，统一使用仓库根目录。每类任务是独立临时会话、同一运行内共享 host；MCP 范围在子进程内限定为风水，未改用户全局配置。公开回复、调用参数和回执保存在 `docs/audits/2026-10-14/fengshui-codex-history/fengshui-codex-experience/` 与 `docs/audits/2026-10-14/fengshui-codex-history/fengshui-codex-transfer/`。这些是受控真实模型体验，不等于已有桌面连接的部署验收。
 
 | 场景 | 人工结论 | 可核对依据与限制 |
 | --- | --- | --- |
@@ -44,15 +46,15 @@
 
 第四批新 host 在 Placement 的机器可见 `allOf`/`anyOf` 交叉条件修复后启动，采用此前未运行的床头自然语言场景。独立 required/forbidden 合同在查看模型输出前加入，不预设星值；参数审计两轮通过，人工核对规则输出、固定床位、撤回旧方向和未知项保留。该观测补充了角色从 desk 迁移到 headboard 的证据，未删除早期 desk 失败，也不证明模型以后永不漏参。四批合计10会话19轮，首次校验失败仍为3次。
 
-自动证据审计结果保存在 `consultation/fengshui-journey-audits/`，它会暴露所有首次失败而非只看恢复后的末答。矛盾描述的更正轮初版合同要求可选 `entrance_position=front_left`，产生假失败：该轮已把前左事实保存于 evidence，三项被请求规则只需要可见/直线/背靠。已移除冗余必传约束，理由及原审计报告保留在 probes `contract_revisions` 和 `.reviewed-contract.json`；这是纠正把“多传字段”当能力的评价错误，未移除任何影响所请求判断的事实、禁止项或真实调用失败。
+自动证据审计结果保存在 `docs/audits/2026-10-14/fengshui-codex-history/fengshui-journey-audits/`，它会暴露所有首次失败而非只看恢复后的末答。矛盾描述的更正轮初版合同要求可选 `entrance_position=front_left`，产生假失败：该轮已把前左事实保存于 evidence，三项被请求规则只需要可见/直线/背靠。已移除冗余必传约束，理由及原审计报告保留在 probes `contract_revisions` 和 `.reviewed-contract.json`；这是纠正把“多传字段”当能力的评价错误，未移除任何影响所请求判断的事实、禁止项或真实调用失败。
 
 ## 已落地的产品修复
 
-1. 根目录与咨询目录 `AGENTS.md`、包内 MCP instructions、`docs/codex-guide.md` 同步目的、不可移动/转向/预算/多人约束、最新确认替换旧事实及 receipt 链。已有事实允许部分计算，不强制先询问所有约束。
+1. 根目录 `AGENTS.md`、包内 MCP instructions、`docs/codex-guide.md` 同步目的、不可移动/转向/预算/多人约束、最新确认替换旧事实及 receipt 链。已有事实允许部分计算，不强制先询问所有约束。
 2. 共享 `fengshui_assess` summary 与咨询指引明确支持对象；未支持家具不换成已支持用途。新增书柜/餐桌迁移检验，保留原沙发遗漏。
 3. 独立形态不创建无方向 placement，观察只保留确认粒度；换座位后未确认的旧相对位置不沿用。
 4. 体验脚本新增朝向更正、形态多轮/不可移动、多人冲突、年度边界、互相矛盾、未支持对象和灶台迁移。提示只有用户资料与意图，不包含评估器所期待的工具字段。
-5. `consultation/fengshui-product-probes.json` 将独立 turn expectations 与8项连接MCP直调结果分层保存。expectations 只提供给证据审计，不进入模型提示。
+5. `docs/audits/2026-10-14/fengshui-codex-history/fengshui-product-probes.json` 将独立 turn expectations 与8项连接MCP直调结果分层保存。expectations 只提供给证据审计，不进入模型提示。
 
 不把预算/可搬性塞进风水效力算法，是为了保持规则与现实决策的来源边界：现有规则能够输出方向关系，咨询层才能结合用户意图筛候选。若未来实现几何布局，应另建可验证的几何输入和碰撞/通行约束，不以方向列表冒充可移动性。
 

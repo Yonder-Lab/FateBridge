@@ -9,10 +9,12 @@ from typing import Any, Dict, List
 
 from fatebridge.core.divination import ELEMENT_CONTROLS, ELEMENT_GENERATES
 
+from .actions import FORM_ACTION_ROUTES, apply_permission
 from .bazhai import placement_polarity
 from .directions import rule_data
 from .layout_supplements import analyze_supplements
 from .models import AssessRequest
+from .natal_interpretation import analyze_natal_interpretation
 from .surface import summarize_analysis_progress
 
 
@@ -32,18 +34,49 @@ def element_relationships(element: str) -> Dict[str, str]:
 
 
 def _summarize_layout_progress(
+    req: AssessRequest,
     missing: List[str],
     options: List[Dict[str, Any]],
     findings: List[Dict[str, Any]],
     environment: List[Dict[str, Any]],
     supplements: Dict[str, Any],
+    natal_interpretation: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     """Summarize reviewed records separately from optional physical actions."""
     progress_counts = dict(supported=0, confirmed_unsupported=0, unknown=0)
     progress_actions: List[Dict[str, Any]] = []
     progress_pending: List[Dict[str, Any]] = []
+    constraints = {c.object_id: c for c in req.layout_constraints}
     surface = supplements.get("surface_analysis")
     if surface is not None:
+        # A desk-wide prohibition also covers optional desktop additions.
+        for finding in surface["findings"]:
+            for action in finding["action_options"]:
+                if action["action"] == "consider_representation":
+                    apply_permission(
+                        action,
+                        constraints.get(finding["object_id"]),
+                        [["add_items"]],
+                        status_key="status",
+                    )
+        if req.layout_constraints:
+            surface["analysis_progress"] = summarize_analysis_progress(
+                surface["missing_inputs"],
+                surface["analysis_progress"]["rule_coverage_counts"],
+                [a for f in surface["findings"] for a in f["action_options"]],
+                [
+                    p
+                    for f in surface["findings"]
+                    for a in f["action_options"]
+                    for p in a["pending_confirmations"]
+                ]
+                + [
+                    p
+                    for p in surface["analysis_progress"]["pending_confirmations"]
+                    if p["required_for"] == "assessment"
+                ],
+                count_unit="surface_items",
+            )
         surface_progress = surface["analysis_progress"]
         progress_counts.update(surface_progress["rule_coverage_counts"])
         progress_pending.extend(surface_progress["pending_confirmations"])
@@ -84,8 +117,12 @@ def _summarize_layout_progress(
             optional=True,
             pending_confirmations=action_pending,
         )
-        progress_actions.append({"status": action_status, "optional": True})
-        progress_pending.extend(action_pending)
+        if action_status != "no_action_needed":
+            apply_permission(
+                option, constraints.get(option["object_id"]), [[option["aspect"]]]
+            )
+        progress_actions.append({"status": option["action_status"], "optional": True})
+        progress_pending.extend(option["pending_confirmations"])
         for scope in option["scopes"]:
             progress_counts["unknown" if scope["candidate_only"] else "supported"] += 1
     for finding in supplements["form_analysis"]["findings"]:
@@ -119,8 +156,22 @@ def _summarize_layout_progress(
                     optional=True,
                     pending_confirmations=action_pending,
                 )
-                progress_actions.append({"status": action_status, "optional": True})
-                progress_pending.extend(action_pending)
+                routes = FORM_ACTION_ROUTES.get(check["criterion"])
+                if routes:
+                    apply_permission(
+                        check, constraints.get(finding["object_id"]), routes
+                    )
+                progress_actions.append(
+                    {"status": check["action_status"], "optional": True}
+                )
+                progress_pending.extend(check["pending_confirmations"])
+        for action in finding["object_options"]:
+            apply_permission(
+                action,
+                constraints.get(finding["object_id"]),
+                [["add_items"]],
+                status_key="status",
+            )
         progress_actions.extend(finding["object_options"])
         progress_pending.extend(
             p
@@ -170,6 +221,30 @@ def _summarize_layout_progress(
             progress_actions.append({"status": action_status, "optional": True})
             progress_pending.extend(action_pending)
     limited = supplements["annual_remedies"]["status"] == "unsupported_year"
+    if natal_interpretation is not None:
+        limited = limited or natal_interpretation["rule_coverage_status"] == "limited"
+        # Count interpretation checks separately from merely looking up the
+        # natal numbers. Uncovered uses cannot become supported by that lookup.
+        for candidate in natal_interpretation["candidates"]:
+            for finding in candidate["placement_findings"]:
+                state = finding["status"]
+                progress_counts[
+                    (
+                        "confirmed_unsupported"
+                        if state in {"unsupported", "rule_not_covered_not_inauspicious"}
+                        else (
+                            "unknown"
+                            if state
+                            in {
+                                "needs_location",
+                                "needs_current_period",
+                                "needs_confirmation",
+                                "candidate_only",
+                            }
+                            else "supported"
+                        )
+                    )
+                ] += 1
     remedies = [
         ("layout_analysis.element_remedies", remedy)
         for remedy in supplements["element_remedies"]
@@ -205,17 +280,19 @@ def _summarize_layout_progress(
             remedy.update(
                 action_id=action_id, optional=True, pending_confirmations=action_pending
             )
+            remedy["action_status"] = (
+                "candidate_only" if state == "candidate_only" else "conditional_option"
+            )
+            apply_permission(
+                remedy, constraints.get(remedy["object_id"]), [["add_items"]]
+            )
             progress_actions.append(
                 {
-                    "status": (
-                        "candidate_only"
-                        if state == "candidate_only"
-                        else "conditional_option"
-                    ),
+                    "status": remedy["action_status"],
                     "optional": True,
                 }
             )
-            progress_pending.extend(action_pending)
+            progress_pending.extend(remedy["pending_confirmations"])
     surface_missing = set(surface["missing_inputs"]) if surface is not None else set()
     pending_paths = {p["path"] for p in progress_pending}
     for path in dict.fromkeys(missing):
@@ -242,12 +319,22 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
     options: List[Dict[str, Any]] = []
     elements: List[Dict[str, Any]] = []
     missing: List[str] = []
+    if not layers and not req.form_observations and not req.surface_layouts:
+        missing.append("form_observations_or_surface_layouts_or_selected_methods")
     if not req.placements and any(
-        m in req.methods for m in ("bazhai", "annual_stars", "xuankong_natal")
+        m in req.selected_methods for m in ("bazhai", "annual_stars", "xuankong_natal")
     ):
         missing.append("placements")
     annual = layers.get("annual_stars", {})
     natal = layers.get("xuankong_natal", {})
+    natal_interpretation = None
+    if natal and req.xuankong is not None and req.xuankong.interpretation is not None:
+        # Re-evaluate uses at the proposal's actual location. External forms are
+        # house-centred sectors and stay fixed when a piece of furniture moves.
+        natal_interpretation = analyze_natal_interpretation(
+            req.xuankong.interpretation, natal, req.placements
+        )
+        missing.extend(natal_interpretation["missing_inputs"])
     bazhai = layers.get("bazhai", {})
     findings_by_object: Dict[str, List[Dict[str, Any]]] = {}
     for finding in bazhai.get("placement_findings", []):
@@ -455,7 +542,7 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
     supplements = analyze_supplements(req, layers, elements)
     missing.extend(supplements["missing_inputs"])
     progress = _summarize_layout_progress(
-        missing, options, findings, environment, supplements
+        req, missing, options, findings, environment, supplements, natal_interpretation
     )
     return {
         "status": (
@@ -465,6 +552,11 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         ),
         "calculation_scope": "selected_methods_and_authored_rules_on_supplied_objects",
         "analysis_progress": progress,
+        **(
+            {"natal_interpretation": natal_interpretation}
+            if natal_interpretation is not None
+            else {}
+        ),
         **(
             {"surface_analysis": supplements["surface_analysis"]}
             if "surface_analysis" in supplements
@@ -485,7 +577,11 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
             "quantitative_form_distance_cutoffs",
             "complete_classical_landform_and_sha_rules",
             "specific_object_effect_magnitude_or_guarantee",
-            "candidate_relocation_feasibility",
+            "automatic_candidate_relocation_feasibility",
+            "automatic_floorplan_geometry_and_external_landform_analysis",
+            "yangzhai_sanyao_structural_rules",
+            "sanhe_water_formulas_and_xuankong_dagua",
+            "complete_natal_combination_interpretation_and_external_activation",
         ],
         "limitations": [
             "位置与朝向独立；没有位置就不把朝向当作落宫。",

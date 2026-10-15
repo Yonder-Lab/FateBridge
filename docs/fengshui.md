@@ -103,6 +103,8 @@ asyncio.run(main())
 
 ## 输入语义和边界
 
+工位/家居可传 `scene=workstation|home`；未显式传方法时按已有事实选层，独立形态/桌面不再自动引入无关三法。家具动作许可与独立候选方案分别用 `layout_constraints` / `layout_alternatives`，详见[场景选法与候选布局合同](fengshui-scene-planning.md)。候选重算现有规则、不继承旧形态、不平均评分；完整古典形势、独立阳宅三要结构、三合/大卦及完整玄空组合解释仍明确未覆盖。
+
 角度范围0–360，360归零；八方中心间隔45°，半宽22.5°；24山中心间隔15°，半宽7.5°。正好22.5°归东北／丑山。宅向推导坐山时加180°；同时提供 `sitting_trigram` 必须一致。基础方位／八宅角度必须声明 `north_reference=magnetic|true`（玄空当前版本要求 magnetic），不自动校正磁偏角。只有已确认宅卦时可直接提供 `sitting_trigram`。
 
 `house.division_method` 只接受 `confirmed_angular_sectors`。八方角区、九等分网格和示意九宫图不是同一个几何计算；第一阶段不识别户型图片、不自动定中心、也不推断不规则户型分宫。

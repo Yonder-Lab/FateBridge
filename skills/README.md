@@ -5,7 +5,6 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 我们的设计很简单：**计算交给 FateBridge 引擎，解读交给 Onda 河狸。** 引擎离线跑排盘，Onda 负责把结果讲得像个人。
 
 - 所有计算都由 FateBridge 完成。已连接时优先 MCP，本地后备用 `python3 -m fatebridge.cli`；干支、排盘、合婚分数不交给 AI 手算。计算可复核、一致，不等于现实预测已验证。
-- 解读遵循 [人味儿写作](https://github.com/orange2ai/renwei-writing)：白描优先，不写金句，保留语气词，不排比、不用「不是 X 而是 Y」、不来万能展望式结尾。凶象也要翻译成能过的日子。
 
 ---
 
@@ -61,7 +60,9 @@ skills/
 
 这两份描述都被 `tests/test_skills_interface_contract.py` 锁到引擎 catalog 和 SKILL.md 上。任一方对不上，CI 就挂。
 
-`onda-fengshui` 另有 Codex 原生 `agents/openai.yaml`，允许自动选择，也可显式输入 `$onda-fengshui`。仓库 `.agents/skills/onda-fengshui` 是指向本目录的发现入口；引用依赖随仓库保留，不只复制单个 SKILL.md。新 Codex 会话扫描项目技能，已有会话可能需要重新加载。MCP 可按 `FATEBRIDGE_MCP_SCENARIOS=onda-fengshui` 暴露该场景；这与技能发现是两个入口。
+九个场景都有 Codex 原生 `agents/openai.yaml`，允许自动选择，也可显式输入 `$onda-shiye`、`$onda-yuanfen` 等技能名。仓库 `.agents/skills/onda-*` 是指向本目录各技能的发现入口，维护源仍为 `skills/`；引用依赖随仓库保留，不只复制单个 SKILL.md。新 Codex 会话扫描项目技能，已有会话可能需要重新加载。MCP 可按 `FATEBRIDGE_MCP_SCENARIOS=onda-fengshui` 等场景名限制公开工具；这与技能发现是两个入口。
+
+咨询按当前聊天已确认资料核对所选计算的缺项，首轮使用已验证字段、严格投影并关闭快照，通常先给要点、2–3 条依据及一项现实建议。详细分析与完整审查按请求展开，分数、传统规则和现实建议分别说明。
 
 ---
 

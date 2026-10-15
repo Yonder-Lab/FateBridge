@@ -24,6 +24,7 @@ TOOLS = (
     "two_person_compatibility",
     "timing_analysis",
     "fengshui_assess",
+    "western_timing_analysis",
 )
 
 
@@ -77,7 +78,7 @@ async def render_block():
         "此段由 `scripts/build_codex_call_contracts.py` 从实际 MCP inputSchema 与共享首轮字段生成，"
         "只删标题和说明，保留全部参数、默认值、必填项与约束。更新接口后重新生成，检查模式用 `--check`。",
         "",
-        "下面四项工具已具备调用所需定义。对应计算的资料齐全且工具在连接中公开时，"
+        "下面五项工具已具备调用所需定义。对应计算的资料齐全且工具在连接中公开时，"
         "直接调用 `tools.mcp__fatebridge__<tool>(参数)`，无需先检索或打印 ALL_TOOLS。"
         "如需确认公开范围，可在同一次 exec 中检查 ALL_TOOLS 的名称并调用，不另起发现往返。"
         "合同未覆盖的工具或参数疑问再读取实际工具定义，不猜测。",
@@ -88,7 +89,8 @@ async def render_block():
         "分析日期使用 analysis_*；as_of 是带时区的 ISO 时间，仅冻结未显式指定的当前时间。"
         "性别接受男/女等已确认写法；出生时区是 IANA 名称或 UTC 偏移。"
         "太阳时默认开启；仅按用户明确要求关闭。未知经度可省略，以返回精度说明限制，不能猜经度。"
-        "birth_latitude 不在这些工具的参数中。未指明双人关系类型用 general，"
+        "中式出生工具不传 birth_latitude；西占推运需要经纬度，并以 analysis_hour/minute 指定目标钟时。"
+        "未指明双人关系类型用 general，"
         "不要自行传入大运/流年柱覆盖自动计算。结果仍按实际返回字段、精度和回执解读。",
         "",
     ]
@@ -120,23 +122,23 @@ async def main():
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     block = await render_block()
-    for path in (ROOT / "AGENTS.md", ROOT / "consultation/AGENTS.md"):
-        old = path.read_text()
-        if BEGIN in old:
-            before, rest = old.split(BEGIN, 1)
-            _, after = rest.split(END, 1)
-            updated = before + block + after
-        else:
-            updated = old.rstrip() + "\n\n" + block + "\n"
-        if args.check:
-            if updated != old:
-                raise SystemExit(f"Codex call contracts are stale: {path}")
-        else:
-            path.write_text(updated)
+    path = ROOT / "AGENTS.md"
+    old = path.read_text()
+    if BEGIN in old:
+        before, rest = old.split(BEGIN, 1)
+        _, after = rest.split(END, 1)
+        updated = before + block + after
+    else:
+        updated = old.rstrip() + "\n\n" + block + "\n"
+    if args.check:
+        if updated != old:
+            raise SystemExit(f"Codex call contracts are stale: {path}")
+    else:
+        path.write_text(updated)
     print(
         "Codex call contracts match live MCP schemas"
         if args.check
-        else "Updated generated call contracts in both consultation entrypoints"
+        else "Updated generated call contracts in root AGENTS.md"
     )
 
 
