@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, cast
 
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.tools import ToolResult
-from pydantic import ConfigDict, ValidationError
+from pydantic import ConfigDict, Field, ValidationError
 
 from fatebridge.application.description import describe_input_spec, resolve_spec
 from fatebridge.application.discovery import discover_specs
@@ -15,6 +15,7 @@ from fatebridge.core.execution_context import (
     correlate_error,
     safe_correlation,
 )
+from fatebridge.transports.flags import ResponseCharLimit
 from fatebridge.utils.errors import validation_error_result
 
 
@@ -84,6 +85,39 @@ def register_discovery_resources(
             ensure_ascii=False,
         )
 
+    from fatebridge.application.result_delivery import RESULT_STORE
+
+    allowed_receipts = {spec.run_metadata_name for spec in exposed}
+
+    @app.resource("fatebridge://results/{result_id}", mime_type="application/json")
+    def result_manifest(result_id: str) -> str:
+        """Fields and paging references for one retained, unchanged result."""
+        return json.dumps(
+            RESULT_STORE.manifest(result_id, allowed_tools=allowed_receipts),
+            ensure_ascii=False,
+        )
+
+    @app.resource(
+        "fatebridge://results/{result_id}/pages/{offset}", mime_type="application/json"
+    )
+    def result_page(result_id: str, offset: int) -> str:
+        """A complete JSON page envelope; join text fragments only when needed."""
+        return json.dumps(
+            RESULT_STORE.page(result_id, offset, allowed_tools=allowed_receipts),
+            ensure_ascii=False,
+        )
+
+    @app.resource(
+        "fatebridge://results/{result_id}/fields/{path}/{offset}",
+        mime_type="application/json",
+    )
+    def result_field_page(result_id: str, path: str, offset: int) -> str:
+        """Read a dotted field, including array numeric indices, from the same run."""
+        return json.dumps(
+            RESULT_STORE.page(result_id, offset, path, allowed_tools=allowed_receipts),
+            ensure_ascii=False,
+        )
+
 
 def protocol_result(
     payload: Dict[str, Any], *, failed: bool, text: Optional[str] = None
@@ -101,6 +135,7 @@ class OutputFlags(ExecutionOptions):
     include_snapshot_text: bool = True
     fields: Optional[List[str]] = None
     strict_fields: bool = False
+    response_char_limit: ResponseCharLimit = Field(default=8192)
 
 
 class InputValidationMiddleware(Middleware):

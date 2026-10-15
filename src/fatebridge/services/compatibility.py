@@ -12,7 +12,7 @@ from fatebridge.services.birth_payload import build_destiny_payload
 from fatebridge.services.structured_snapshot import render_structured_snapshot_text
 from fatebridge.utils.birth_input import PersonInfo
 from fatebridge.utils.elements import get_element_relationship
-from fatebridge.utils.errors import calculation_guard
+from fatebridge.utils.errors import ParameterError, calculation_guard
 
 
 @calculation_guard("配合度分析")
@@ -30,20 +30,26 @@ def calculate_compatibility_analysis(
     Returns:
         dict: 配合度分析结果
     """
+    rel_type_map = {kind.value: kind for kind in RelationshipType}
+    if not isinstance(relationship_type, str) or relationship_type not in rel_type_map:
+        return ParameterError(
+            "relationship_type 必须为 general、marriage、friendship、business 或 family",
+            [
+                {
+                    "path": "relationship_type",
+                    "code": "literal_error",
+                    "constraints": {
+                        "expected": "'general', 'marriage', 'friendship', 'business' or 'family'"
+                    },
+                }
+            ],
+        ).as_result()
+    rel_type = rel_type_map[relationship_type]
+
     context1 = build_birth_computation_context(person1)
     context2 = build_birth_computation_context(person2)
     analysis1 = build_destiny_payload(context1)
     analysis2 = build_destiny_payload(context2)
-
-    # 转换关系类型
-    rel_type_map = {
-        "marriage": RelationshipType.MARRIAGE,
-        "friendship": RelationshipType.FRIENDSHIP,
-        "business": RelationshipType.BUSINESS,
-        "family": RelationshipType.FAMILY,
-        "general": RelationshipType.GENERAL,
-    }
-    rel_type = rel_type_map.get(relationship_type, RelationshipType.GENERAL)
 
     # 使用高级合盘分析
     advanced_analysis = AdvancedCompatibility.analyze_comprehensive_compatibility(

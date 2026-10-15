@@ -1,0 +1,21 @@
+{
+  "backup": "/Users/thomas/Documents/FateBridge-backups/agent-team-root-repair-20261014-223617",
+  "previous_worktree_paths": 174,
+  "changed_existing_paths": [
+    "AGENTS.md",
+    "docs/api-reference.md",
+    "docs/fengshui-surface-rules.md",
+    "skills/onda-fengshui/SKILL.md",
+    "src/fatebridge/application/result_delivery.py",
+    "src/fatebridge/core/response_models.py",
+    "src/fatebridge/data/agent_examples.json",
+    "src/fatebridge/mcp_transport.py",
+    "src/fatebridge/transports/flags.py",
+    "src/fatebridge/transports/mcp.py",
+    "src/fatebridge/transports/rest.py",
+    "tests/test_mcp_input_contracts.py"
+  ],
+  "unexpected_changes": [],
+  "previous_deletions_revived": [],
+  "index_unchanged": true
+}

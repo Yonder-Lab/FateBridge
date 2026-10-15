@@ -149,7 +149,10 @@ def test_mcp_fn_exposes_fields_param_and_threads_it():
 
 
 def test_execute_spec_preserves_domain_result_and_error():
-    for payload in ({"a": 1}, {"error": "boom"}):
+    for payload in (
+        {"a": 1},
+        {"error": "boom", "error_code": "validation_error", "retryable": False},
+    ):
         assert execute_spec(_spec(lambda: payload), _Empty()) == payload
 
 

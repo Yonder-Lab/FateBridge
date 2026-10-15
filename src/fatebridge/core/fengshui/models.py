@@ -452,6 +452,11 @@ class AssessRequest(BazhaiRequest):
         forms = {o.object_id: o for o in self.form_observations}
         if len(forms) != len(self.form_observations):
             raise ValueError("同一对象形态观察不能重复或互相覆盖")
+        for object_id in set(forms) & set(surfaces):
+            if forms[object_id].purpose != "desk":
+                raise ValueError(
+                    "同一对象的桌面与形态用途不一致；桌面作者规则只能用于书桌"
+                )
         for placement in self.placements:
             if (
                 placement.object_id in forms

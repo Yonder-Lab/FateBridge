@@ -403,6 +403,7 @@
     "fengshui_assess": [
       "status",
       "layout_analysis.status",
+      "layout_analysis.analysis_progress",
       "layout_analysis.calculation_scope",
       "layout_analysis.placement_findings",
       "layout_analysis.adjustment_options",

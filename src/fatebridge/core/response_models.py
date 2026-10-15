@@ -27,8 +27,26 @@ from fatebridge.utils.errors import ValidationIssue
 Object = Dict[str, JsonValue]
 
 
+class ResultDelivery(PartialOutput):
+    mode: Optional[str] = None
+    result_id: Optional[str] = None
+    sha256: Optional[str] = None
+    total_chars: Optional[int] = None
+    total_bytes: Optional[int] = None
+    expires_at: Optional[float] = None
+    page_chars: Optional[int] = None
+    manifest_uri: Optional[str] = None
+    first_page_uri: Optional[str] = None
+    rest_manifest_path: Optional[str] = None
+    file_path: Optional[str] = None
+    file_payload_path: Optional[str] = None
+    available_fields: Optional[List[str]] = None
+    deferred_fields: Optional[List[str]] = None
+
+
 class ProjectedOutput(PartialOutput):
     projection_warnings: Optional[List[ValidationIssue]] = None
+    result_delivery: Optional[ResultDelivery] = None
 
 
 class EffectiveTime(PartialOutput):
@@ -138,6 +156,16 @@ def output_model_for(key: str) -> Any:
         fields[field] = (Optional[annotation], None)
     name = "".join(part.title() for part in key.split("_")) + "Output"
     return create_model(name, __base__=ProjectedOutput, **fields)
+
+
+def required_output_fields_for(key: str) -> tuple[str, ...]:
+    """Non-null roots required before any transport projects the full result.
+
+    This separate contract preserves projection-compatible public models. A
+    missing declaration fails catalog assembly instead of leaving new tools
+    silently unprotected. Empty collections remain legitimate domain results.
+    """
+    return tuple(_REQUIRED_OUTPUT_FIELDS[key].split())
 
 
 # Public root fields; specialized nested contracts are defined above.
@@ -314,4 +342,98 @@ _TOOL_FIELDS = {
     "astro_extrareturns": "analysis_context analysis_type engine extrareturns summary",
     "astro_horary": "analysis_context analysis_type engine horary summary",
     "astro_election": "analysis_context analysis_type election engine summary",
+}
+
+
+# These are semantic business roots, not metadata or optional explanations.
+# Conditional chart variants declare their invariant roots only.
+_REQUIRED_OUTPUT_FIELDS = {
+    "analyze_destiny": "four_pillars day_master",
+    "bazi_birth": "bazi_birth",
+    "bazi_marriage": "marriage_analysis",
+    "bazi_career": "career_analysis",
+    "bazi_wealth": "wealth_analysis",
+    "bazi_health": "health_analysis",
+    "bazi_children": "children_analysis",
+    "bazi_education": "education_analysis",
+    "bazi_personality": "personality_analysis",
+    "bazi_relatives": "relatives_analysis",
+    "bazi_romance": "romance_analysis",
+    "two_person_compatibility": "summary detailed_analysis traditional_compatibility",
+    "timing_analysis": "birth_pillars comprehensive_summary",
+    "dayun_analysis": "dayun_info",
+    "liunian_analysis": "liunian_info",
+    "liuyue_analysis": "liuyue_info",
+    "liuri_analysis": "liuri_info",
+    "liushi_analysis": "liushi_info",
+    "jieqi_timeline_analysis": "jieqi_timeline",
+    "jieqi_year": "jieqi_year",
+    "nongli_time": "nongli four_pillars",
+    "gua_lookup": "result",
+    "gua_meiyi": "results",
+    "meihua_analysis": "meihua",
+    "tongshefa": "tongshefa",
+    "sixyao": "cast current_code current_hexagram",
+    "canping": "benming",
+    "heluo": "chart",
+    "suzhan": "chart",
+    "sukuyo_compatibility": "person1 person2 person1_to_person2 person2_to_person1",
+    "otherbu": "planet sign house",
+    "sanshiunited": "subresults",
+    "ziwei_birth": "ziwei_birth",
+    "ziwei_horoscope": "ziwei_horoscope",
+    "ziwei_rules": "rule_catalogue",
+    "liureng_gods": "liureng",
+    "liureng_runyear": "liureng runyear",
+    "qimen": "qimen",
+    "taiyi": "taiyi",
+    "jinkou": "jinkou",
+    "export_registry": "techniques",
+    "export_parse": "export_text sections",
+    "knowledge_registry": "domains provenance",
+    "knowledge_read": "lines provenance",
+    "astro_chart": "planets chart_profile",
+    "astro_chart13": "planets chart_profile thirteen_sectors",
+    "astro_hellen": "planets chart_profile hellenistic",
+    "astro_guolao": "planets chart_profile guolao",
+    "astro_india": "planets chart_profile india",
+    "astro_germany": "base_chart midpoints chart_profile",
+    "astro_relative": "relationship_profile",
+    "astro_relative_chart": "relationship_profile",
+    "western_timing_analysis": "directions returns time_lords transits",
+    "solarreturn": "solarreturn",
+    "lunarreturn": "lunarreturn",
+    "transit": "transit",
+    "solararc": "solararc",
+    "givenyear": "givenyear",
+    "profection": "profection",
+    "pd": "pd",
+    "pdchart": "pdchart",
+    "zr": "zr",
+    "firdaria": "firdaria",
+    "decennials": "decennials",
+    "astro_harmonic": "harmonic_chart",
+    "astro_planetary_ages": "planetary_ages",
+    "astro_triplicity_rulers": "triplicity_rulers",
+    "astro_lunation_phase": "lunation_phase",
+    "astro_distributions": "distributions",
+    "astro_balbillus": "balbillus",
+    "astro_keypoints": "keypoints",
+    "astro_yearsystem129": "yearsystem129",
+    "astro_planetaryarc": "planetary_arc",
+    "astro_persiandirected": "persian_directed",
+    "astro_agepoint": "age_point",
+    "astro_vedicprog": "vedic_progression",
+    "astro_jaynesprog": "jaynes_declination",
+    "astro_mundane": "mundane",
+    "astro_extrareturns": "extrareturns",
+    "astro_horary": "horary",
+    "astro_election": "election",
+    "fengshui_directions": "status layers rulesets coverage rule_trace",
+    "fengshui_minggua": "status layers rulesets coverage rule_trace",
+    "fengshui_bazhai": "status layers rulesets coverage rule_trace",
+    "fengshui_jinsuo": "status layers rulesets coverage rule_trace",
+    "fengshui_annual_stars": "status layers rulesets coverage rule_trace",
+    "fengshui_xuankong_natal": "status layers rulesets coverage rule_trace",
+    "fengshui_assess": "status layers rulesets coverage rule_trace",
 }

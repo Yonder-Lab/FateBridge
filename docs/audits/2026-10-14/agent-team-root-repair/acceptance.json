@@ -1,0 +1,103 @@
+{
+  "scope": "repository repair and software acceptance; no new Desktop LLM or physical-layout validation",
+  "source_head": "60dcdf7968770280a623dd2d97bd4dc58d118fe7",
+  "source_snapshot": "/Users/thomas/.cache/fatebridge-agent-team-repair-20261014/source-final",
+  "source_files": 704,
+  "source_manifest_sha256": "bdec556cd499794cec231ee4f2475270550da673115db022a59a382f1194e8b5",
+  "workspace_source_drift": [],
+  "macos": {
+    "tests": 2619,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 88,
+    "seconds": 202.106,
+    "path": "/Users/thomas/.cache/fatebridge-agent-team-repair-20261014/evidence/macos-final.xml",
+    "sha256": "59bdc632f74f3d26d4262bfff279d0cf3a5f3bea6c6200a5977b69a49a062532"
+  },
+  "linux": {
+    "tests": 2619,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 371.07,
+    "path": "/Users/thomas/.cache/fatebridge-agent-team-repair-20261014/evidence/linux-final.xml",
+    "sha256": "8443ee5f1109d6fdb0f80cf8532a4c9ce2bc6c608c1f847b3207446953c6b391"
+  },
+  "golden": {
+    "environment": "Linux-x86_64",
+    "python": "3.12.3",
+    "image": "sha256:78e70cc82ced587f39e7cd2dfb27a41cbcb5d458871acbc25e10029755a2931e",
+    "dependencies": {
+      "pyswisseph": "2.10.3.2",
+      "kerykeion": "5.12.10",
+      "fastmcp": "4.1.0",
+      "mcp": "2.3.0",
+      "lunardate": "0.3.0",
+      "pydantic": "2.14.0",
+      "pytest": "9.1.1"
+    },
+    "golden_diff_active": true,
+    "cases": 87,
+    "matched": 87,
+    "differences": {},
+    "missing_snapshots": [],
+    "stale_snapshots": [],
+    "baseline_mutated": false
+  },
+  "reviewed_baseline_updates": [
+    "tests/golden/snapshots/api_cn_bazi_career.json"
+  ],
+  "all_updated_snapshot_numeric_leaves_equal": true,
+  "checks": {
+    "black": "343 files pass",
+    "isort": "pass",
+    "mypy": "198 source files pass",
+    "scenario_manifest_check": "pass",
+    "codex_call_contracts_check": "pass",
+    "git_diff_check": "pass"
+  },
+  "wheel": {
+    "package_origin": "/Users/thomas/.cache/fatebridge-agent-team-repair-20261014/wheel-unpacked/fatebridge/__init__.py",
+    "wheel_sha256": "6d4e2aa302228f8e61596751becf494e21838931f7dfdbb722d9b1a8847efcba",
+    "invalid_relationship_rest_cli": true,
+    "progress_confirmed_unsupported_count": 60,
+    "stdio": {
+      "process": "independent fresh stdio from unpacked wheel",
+      "tool_count": 9,
+      "field_pages": 13,
+      "same_run": true,
+      "field_sha256_verified": true
+    }
+  },
+  "preservation": {
+    "backup": "/Users/thomas/Documents/FateBridge-backups/agent-team-root-repair-20261014-223617",
+    "previous_worktree_paths": 174,
+    "changed_existing_paths": [
+      "AGENTS.md",
+      "docs/api-reference.md",
+      "docs/fengshui-surface-rules.md",
+      "skills/onda-fengshui/SKILL.md",
+      "src/fatebridge/application/result_delivery.py",
+      "src/fatebridge/core/response_models.py",
+      "src/fatebridge/data/agent_examples.json",
+      "src/fatebridge/mcp_transport.py",
+      "src/fatebridge/transports/flags.py",
+      "src/fatebridge/transports/mcp.py",
+      "src/fatebridge/transports/rest.py",
+      "tests/test_mcp_input_contracts.py"
+    ],
+    "unexpected_changes": [],
+    "previous_deletions_revived": [],
+    "index_unchanged": true
+  },
+  "raw_evidence_directory": "/Users/thomas/.cache/fatebridge-agent-team-repair-20261014/evidence",
+  "new_desktop_llm_validation": false,
+  "hosted_ci_validation": false,
+  "committed": false,
+  "pushed": false,
+  "environment_cleanup": {
+    "colima_profile": "fatebridge-ci-linux",
+    "restored_stopped_state": true,
+    "docker_default_context": "default"
+  }
+}

@@ -7,7 +7,7 @@ from typing import List
 
 from fatebridge.application.tool_spec import ToolSpec
 from fatebridge.core.reproducibility import ReproducibilityPolicy, policy_for
-from fatebridge.core.response_models import output_model_for
+from fatebridge.core.response_models import output_model_for, required_output_fields_for
 from fatebridge.services.catalog.astrology import SPECS as ASTROLOGY_SPECS
 from fatebridge.services.catalog.bazi import SPECS as BAZI_SPECS
 from fatebridge.services.catalog.compatibility import SPECS as COMPATIBILITY_SPECS
@@ -35,7 +35,12 @@ CATALOG: List[ToolSpec] = [
 ]
 
 CATALOG = [
-    replace(spec, output_model=spec.output_model or output_model_for(spec.key))
+    replace(
+        spec,
+        output_model=spec.output_model or output_model_for(spec.key),
+        required_output_fields=spec.required_output_fields
+        or required_output_fields_for(spec.key),
+    )
     for spec in CATALOG
 ]
 

@@ -102,6 +102,7 @@ def _describe_contract(
         "family": spec.family,
         "annotations": spec.execution_hints.as_annotations(),
         "reproducibility": spec.reproducibility.as_manifest(),
+        "full_result_required_fields": list(spec.required_output_fields),
         "surfaces": {
             "cli": spec_is_cli_safe(spec),
             "cli_name": spec.tool_name if spec_is_cli_safe(spec) else None,

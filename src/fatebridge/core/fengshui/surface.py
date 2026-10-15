@@ -3,6 +3,7 @@
 import json
 from copy import deepcopy
 from functools import lru_cache
+from hashlib import sha256
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
@@ -29,11 +30,80 @@ def surface_provenance() -> Dict[str, Any]:
     return rule
 
 
+def summarize_analysis_progress(
+    missing: List[str],
+    counts: Dict[str, int],
+    actions: List[Dict[str, Any]],
+    pending: List[Dict[str, Any]],
+    *,
+    count_unit: str,
+    limited: bool = False,
+) -> Dict[str, Any]:
+    """Separate review completeness from whether a candidate can be executed.
+
+    Counts describe supplied items/checks and candidate actions, never the number
+    of traditional rules. Optional and blocked actions do not prevent finishing
+    the review of known facts; their status remains visible separately.
+    """
+    action_counts = dict(ready=0, conditional=0, candidate=0, blocked=0)
+    status_keys = {
+        "ready": "ready",
+        "conditional_option": "conditional",
+        "candidate_only": "candidate",
+        "blocked": "blocked",
+    }
+    for action in actions:
+        key = status_keys.get(action.get("status", ""))
+        if key:
+            action_counts[key] += 1
+    readiness = set()
+    if action_counts["ready"]:
+        readiness.add("ready")
+    if action_counts["conditional"] or action_counts["candidate"]:
+        readiness.add("needs_confirmation")
+    if action_counts["blocked"]:
+        readiness.add("blocked")
+    calculation_complete = not missing and not counts["unknown"]
+    return {
+        "calculation_status": "complete" if calculation_complete else "partial",
+        "rule_coverage_status": (
+            "needs_confirmation"
+            if missing or counts["unknown"]
+            else "limited" if limited else "reviewed"
+        ),
+        "assessment_complete": calculation_complete,
+        "rule_coverage_count_unit": count_unit,
+        "rule_coverage_counts": counts,
+        "action_readiness": (
+            (
+                "no_action_needed"
+                if calculation_complete and not limited
+                else "not_evaluated"
+            )
+            if not readiness
+            else next(iter(readiness)) if len(readiness) == 1 else "mixed"
+        ),
+        "action_count_unit": "candidate_actions",
+        "action_counts": action_counts,
+        "optional_action_count": sum(
+            bool(a.get("optional")) for a in actions if a.get("status") in status_keys
+        ),
+        "pending_confirmations": list(
+            {
+                json.dumps(p, sort_keys=True, ensure_ascii=False): p for p in pending
+            }.values()
+        ),
+    }
+
+
 def evaluate_surfaces(req: "AssessRequest") -> Dict[str, Any]:
     findings: List[Dict[str, Any]] = []
     missing: List[str] = []
     constraints = {c.object_id: c for c in req.surface_constraints}
     uncovered: List[str] = []
+    counts = dict(supported=0, confirmed_unsupported=0, unknown=0)
+    all_actions: List[Dict[str, Any]] = []
+    pending: List[Dict[str, Any]] = []
     for surface in req.surface_layouts:
         constraint = constraints.get(surface.object_id)
         options: List[Dict[str, Any]] = []
@@ -43,12 +113,46 @@ def evaluate_surfaces(req: "AssessRequest") -> Dict[str, Any]:
             missing.append(
                 f"surface_layouts.{surface.object_id}.confirmed_boundary_and_anchor"
             )
+            pending.append(
+                {
+                    "path": f"surface_layouts.{surface.object_id}.observation_basis",
+                    "reason": "confirm_surface_boundary_and_anchor",
+                    "object_id": surface.object_id,
+                    "required_for": "assessment",
+                }
+            )
         for observed_item in surface.items:
             matches = [
                 e
                 for e in selected
                 if observed_item.representation in e["representations"]
             ]
+            unconfirmed = (
+                observed_item.representation == "unknown"
+                or observed_item.observation_basis == "image_observed"
+            )
+            coverage_status = (
+                "needs_confirmation"
+                if unconfirmed
+                else "reviewed_supported" if matches else "reviewed_unsupported"
+            )
+            counts[
+                (
+                    "unknown"
+                    if unconfirmed
+                    else "supported" if matches else "confirmed_unsupported"
+                )
+            ] += 1
+            if unconfirmed:
+                pending.append(
+                    {
+                        "path": f"surface_layouts.{surface.object_id}.items.{observed_item.object_id}.representation",
+                        "reason": "confirm_item_representation",
+                        "object_id": surface.object_id,
+                        "item_id": observed_item.object_id,
+                        "required_for": "assessment",
+                    }
+                )
             item_findings.append(
                 {
                     "object_id": observed_item.object_id,
@@ -63,6 +167,7 @@ def evaluate_surfaces(req: "AssessRequest") -> Dict[str, Any]:
                         if matches
                         else "no_independent_placement_rule"
                     ),
+                    "rule_coverage_status": coverage_status,
                     "rule_ids": [e["rule_id"] for e in matches],
                     "inference_policy": "name_does_not_establish_element_or_lucky_side",
                 }
@@ -124,9 +229,62 @@ def evaluate_surfaces(req: "AssessRequest") -> Dict[str, Any]:
                         )
                     )
                 )
+                action_id = (
+                    "surface-"
+                    + sha256(
+                        json.dumps(
+                            [
+                                surface.object_id,
+                                entry["rule_id"],
+                                item.object_id if item else None,
+                            ],
+                            ensure_ascii=False,
+                        ).encode("utf-8")
+                    ).hexdigest()[:16]
+                )
+                action_pending: List[Dict[str, Any]] = []
+
+                def need(path: str, reason: str) -> None:
+                    action_pending.append(
+                        {
+                            "path": path,
+                            "reason": reason,
+                            "object_id": surface.object_id,
+                            **({"item_id": item.object_id} if item else {}),
+                            "action_id": action_id,
+                            "required_for": "action" if item else "optional_action",
+                        }
+                    )
+
+                if status != "blocked":
+                    if surface.observation_basis == "image_observed":
+                        need(
+                            f"surface_layouts.{surface.object_id}.observation_basis",
+                            "confirm_surface_boundary_and_anchor",
+                        )
+                    if item is not None and item.observation_basis == "image_observed":
+                        need(
+                            f"surface_layouts.{surface.object_id}.items.{item.object_id}.representation",
+                            "confirm_item_representation",
+                        )
+                    if not permission and not retain:
+                        need(
+                            f"surface_constraints.{surface.object_id}."
+                            + ("can_add_items" if item is None else "can_move_items"),
+                            "confirm_action_permission",
+                        )
+                    if not feasible:
+                        need(
+                            f"surface_constraints.{surface.object_id}.feasible_zones",
+                            "confirm_target_zone_feasibility",
+                        )
+                pending.extend(action_pending)
                 options.append(
                     {
                         "surface_id": surface.object_id,
+                        "action_id": action_id,
+                        "optional": item is None,
+                        "pending_confirmations": action_pending,
                         "item_id": item.object_id if item else None,
                         "action": (
                             "retain_item"
@@ -153,6 +311,7 @@ def evaluate_surfaces(req: "AssessRequest") -> Dict[str, Any]:
                         "changes_compass_result": False,
                     }
                 )
+        all_actions.extend(options)
         findings.append(
             {
                 "object_id": surface.object_id,
@@ -172,6 +331,13 @@ def evaluate_surfaces(req: "AssessRequest") -> Dict[str, Any]:
         "findings": findings,
         "missing_inputs": missing,
         "uncovered_item_ids": uncovered,
+        "analysis_progress": summarize_analysis_progress(
+            missing,
+            counts,
+            all_actions,
+            pending,
+            count_unit="surface_items",
+        ),
         "coverage_scope": "selected_goal_and_explicit_representations_not_every_object",
         "method_separation": "desktop_zones_never_substitute_for_house_palaces_or_minggua",
     }

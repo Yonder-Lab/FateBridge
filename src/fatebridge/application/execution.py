@@ -10,7 +10,11 @@ from fatebridge.core.execution_context import (
     call_clock,
     correlate_error,
 )
-from fatebridge.utils.errors import VALIDATION_ERROR_CODE, handle_calculation_error
+from fatebridge.utils.errors import (
+    VALIDATION_ERROR_CODE,
+    ErrorEnvelope,
+    handle_calculation_error,
+)
 
 
 def execute_spec(spec: ToolSpec, request: BaseModel) -> ServiceResult:
@@ -104,7 +108,20 @@ class OutputContractError(RuntimeError):
 
 
 def validate_output(spec: ToolSpec, result: ServiceResult) -> None:
-    if spec.output_model is not None and not result_is_error(spec, result):
+    if result_is_error(spec, result):
+        try:
+            ErrorEnvelope.model_validate(result, strict=True)
+        except ValidationError as exc:
+            raise OutputContractError("工具错误输出不符合公开契约") from exc
+        if result["error"] is None or not result["error_code"].strip():
+            raise OutputContractError("工具错误输出缺少错误事实")
+        return
+    if any(
+        field not in result or result[field] is None
+        for field in spec.required_output_fields
+    ):
+        raise OutputContractError("完整工具输出缺少必需业务字段")
+    if spec.output_model is not None:
         try:
             spec.output_model.model_validate(result)
         except ValidationError as exc:

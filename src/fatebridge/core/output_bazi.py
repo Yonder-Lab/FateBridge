@@ -133,12 +133,18 @@ class IndustryAnalysis(PartialOutput):
 
 
 class CareerStructure(PartialOutput):
+    score_kind: Optional[str] = None
+    scope: Optional[str] = None
+    score_basis: Optional[str] = None
     score: Optional[int] = None
     level: Optional[str] = None
     notes: Optional[List[str]] = None
 
 
 class Entrepreneurship(PartialOutput):
+    score_kind: Optional[str] = None
+    scope: Optional[str] = None
+    score_basis: Optional[str] = None
     score: Optional[int] = None
     tendency: Optional[str] = None
     notes: Optional[List[str]] = None
@@ -155,6 +161,7 @@ class NobleDirection(PartialOutput):
 
 
 class CareerAnalysis(DimensionOutput):
+    interpretation_scope: Optional[str] = None
     dominant_ten_gods: Optional[CareerDominant] = None
     industry_analysis: Optional[IndustryAnalysis] = None
     career_structure: Optional[CareerStructure] = None

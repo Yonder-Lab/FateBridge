@@ -55,11 +55,17 @@
 
 `retryable` 是响应的实际重试提示，不能只由状态码推断。框架的未知路由 / 方法错误（404 / 405）不属于业务错误合同。CLI 工具调用成功退出 0，计算失败退出 1，用法错误/不支持退出 2；`list` 和 `--help` 输出文本。
 
-模型校验错误带有 `issues`，每项包含字段 `path`、稳定错误 `code` 和可选 `constraints`，不回显输入值。未知字段会被拒绝；显式非法的 `astro_election.topic_id` 或 `astro_horary.category` 不再回退为其他主题。省略可选字段仍使用声明的默认值。CLI 的未知 flag 或 argparse 类型错误属于用法错误（退出 2），进入请求模型后的校验失败属于计算失败（退出 1）。
+模型校验错误带有 `issues`，每项包含字段 `path`、稳定错误 `code` 和可选 `constraints`，不回显输入值。未知字段会被拒绝；显式非法的 `astro_election.topic_id`、`astro_horary.category` 或 `two_person_compatibility.relationship_type` 不回退为其他主题或 `general`。关系类型只接受 `general/marriage/friendship/business/family`，省略时为 `general`。省略其他可选字段仍使用声明的默认值。CLI 的未知 flag 或 argparse 类型错误属于用法错误（退出 2），进入请求模型后的校验失败属于计算失败（退出 1）。
 
 REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央目录的输入与输出 Schema。成功结果在字段投影前校验，输出违规属于 `internal_error`，不归责于请求参数。合同覆盖根字段，以及主限命中与坐标、时主递归子限、寿限时间线、古典与关系盘、紫微星曜、六壬四课三传、奇门宫位、太乙核心盘和地方术数条目，以及九类八字专题、宿曜双向关系、知识覆盖/查询与导出模板/分段/动态设置等稳定嵌套事实。动态星体、卦码和规则键保持开放，但已声明的字典值与列表条目会校验；解释文本和未声明扩展继续允许。业务字段可选且允许 null，以兼容 `fields` 投影、既有可空事实与 CLI 全局 `--no-metadata`；Schema 不保证完整结果的每个字段必定存在。校验不重序列化响应，因此不补默认值、不删除扩展字段、不改写原数值。OpenAPI 使用稳定 `operationId`，并在启用 REST 密钥时声明实际鉴权要求。合同回归见 [专业嵌套合同测试](../tests/test_agentic_nested_outputs.py) 和 [八字专题、宿曜及知识/导出合同测试](../tests/test_agentic_domain_outputs.py)。
 
 ### 2.2 快照协议
+
+完整计算另有中央目录声明的 `required_output_fields`，通过发现记录的 `full_result_required_fields` 公开，并参与 `contract_sha256`。这些必需业务根缺失或为 null 时，共享执行返回 `internal_error`，不会只生成 metadata 冒充成功；字段投影在这项验证之后执行，仍可合法省略业务根。此保护不宣称所有嵌套可选事实都必须存在。领域返回的错误包络也须符合 `ErrorEnvelope`，缺错误事实或错误码／retryable 的异常结果归为内部错误，保留有效 trace／parent。
+
+事业结构与创业倾向评分的 `score_kind=traditional_rule_index`、`scope`、`score_basis` 明确所选规则的范围和基准／加减／限制；分数及十神信号不测量实际能力、收入或创业成功率。
+
+布局请求的 `coverage.analysis_progress` 与 `layout_analysis.analysis_progress` 分别呈现 `calculation_status`、`rule_coverage_status`、`assessment_complete`、`action_readiness` 和逐动作 `pending_confirmations`。原 `status` 保持既有含义；不能据 `complete` 自动执行动作，也不能因确认物件无独立规则就继续索取资料。具体状态及计数单位见[风水合同](fengshui.md)。
 
 很多工具返回下面两层快照字段：
 
@@ -138,6 +144,7 @@ REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央�
 | 严格投影 | `?strict_fields=true` | `strict_fields=true` | `--strict-fields` 或 `--strict-fields true` |
 | 省略顶层快照文本 | `?include_snapshot_text=false` | `include_snapshot_text=false` | `--no-include-snapshot-text` |
 | 紧凑 JSON | HTTP 默认紧凑输出 | `compact=true`（默认） | `--compact` |
+| 响应字符预算 | `?response_char_limit=8192`（默认0） | `response_char_limit=8192`（默认8192） | `--response-char-limit 8192`（默认0） |
 
 路径从响应根开始，按本次实际响应对象校验，支持扩展对象键。空选择不投影；数组、标量及 null 应选择整个字段，不支持继续点路径遍历。已附带的 `run_metadata` 完整保留，错误不投影。省略 `snapshot_text` 不会删除 `snapshot_export.export_text`；要进一步控制体积，可仅投影业务字段。
 
@@ -146,6 +153,12 @@ REST OpenAPI、MCP `tools/list`、`/api/tools` 和 CLI `describe` 发布中央�
 默认 `strict_fields=false` 保留历史投影的数据形状及成功状态，但无效路径明确附加 `projection_warnings`，不会继续静默忽略。例如拼错 `bazi_birth.day_mastr` 会出现 `{"path":"bazi_birth.day_mastr","code":"unknown_projection_path"}`。另外两种代码为 `invalid_projection_path`（空段/空白段）和 `non_object_projection_path`（继续遍历数组/标量）。诊断不受 `fields` 裁剪，也不回显字段值；重复路径只提示一次。
 
 `strict_fields=true` 遇到任何无效路径会整体失败：REST 422、MCP `isError=true`、CLI 退出 1，共享 `validation_error` / `retryable=false` / `issues`，其中 `path` 表示请求的输出路径。计算领域错误优先返回，不会被投影错误覆盖。校验发生在计算后，投影控制返回体积，不减少计算工作。
+
+超出字符预算的成功结果不会切断 JSON。响应保留完整 `run_metadata` 和预算内业务字段，新增 `result_delivery` 明示原结果的 SHA-256、大小、待读取字段、引用及过期时间。MCP 默认8192以适应聊天宿主；REST/CLI 默认0保留历史完整交付。0或4096–65536为合法预算，程序客户端可设0保存全文；聊天不应通过取消预算重新制造大响应。
+
+完整结果是同一 run 的不可变交付物，不是按出生输入命中的计算缓存。MCP 读取 `manifest_uri` 后按 `fatebridge://results/{result_id}/fields/{path}/{offset}` 取得所需点路径；字段读取另支持数组数字索引。完整文档为 `first_page_uri`，每页 `text` 至多2048字符，按 `next_offset` 拼接并核对 `sha256`。每页包装本身是完整 JSON，但文档片段不能单独当全文解析。读取不重新计算、不改变原 run／trace 和原回执。
+
+REST 对应 `GET /api/results/{result_id}` 和 `GET /api/results/{result_id}/pages?path=analysis_context.analysis_datetime&offset=0`，沿用 API 鉴权。CLI 也可据 `file_path` 读取本机交付物，按 `file_payload_path`（当前为 `payload`）取出完整原结果，以 `ensure_ascii=false` 和紧凑分隔符序列化后核对响应的 SHA-256；外层记录的文件散列并非该散列。临时目录仅当前系统用户可读，引用约一小时过期，清理按读取／新交付触发，容量最多约64MiB并可回收旧结果；引用失效有明确错误，不以新结果冒充旧 run。MCP 配置隐藏的工具，其结果也不可通过资源读取。
 
 ### 2.6 精度与依赖
 

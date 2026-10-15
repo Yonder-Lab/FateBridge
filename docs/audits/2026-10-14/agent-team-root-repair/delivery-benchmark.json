@@ -1,0 +1,59 @@
+{
+  "scope": "direct store.page full export, excludes put/IPC/host/model, synthetic payloads",
+  "before_source_sha256": "27a3473ff39d497d7608598ff696ecbfa91fc8d2059227f7bd2321ff7dfd11cb",
+  "after_source_sha256": "dc8a464b483924ede9605ab0aa5f352abe2cddc86fbfc1c2023d21503152ac2a",
+  "records": [
+    {
+      "chars": 200011,
+      "bytes": 360011,
+      "samples": {
+        "before": {
+          "warmups": 1,
+          "raw_ms": [
+            98.182,
+            100.901,
+            99.356
+          ],
+          "median_ms": 99.356,
+          "pages": 98
+        },
+        "after": {
+          "warmups": 1,
+          "raw_ms": [
+            14.954,
+            12.972,
+            13.288
+          ],
+          "median_ms": 13.288,
+          "pages": 98
+        }
+      }
+    },
+    {
+      "chars": 800011,
+      "bytes": 1440011,
+      "samples": {
+        "before": {
+          "warmups": 1,
+          "raw_ms": [
+            1691.587,
+            1704.192,
+            1733.616
+          ],
+          "median_ms": 1704.192,
+          "pages": 391
+        },
+        "after": {
+          "warmups": 1,
+          "raw_ms": [
+            51.74,
+            50.258,
+            53.175
+          ],
+          "median_ms": 51.74,
+          "pages": 391
+        }
+      }
+    }
+  ]
+}

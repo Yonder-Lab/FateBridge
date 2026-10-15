@@ -16,7 +16,7 @@ from threading import Lock
 from typing import Any, Callable, Dict, Literal, Optional, Tuple
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
@@ -41,6 +41,7 @@ load_runtime_env()
 
 from fatebridge import __version__ as APP_VERSION
 from fatebridge.application.discovery import discover_specs
+from fatebridge.application.result_delivery import RESULT_STORE
 from fatebridge.application.scenarios import discover_scenarios
 from fatebridge.core.astro import runtime as astrology_core
 from fatebridge.core.execution_context import correlate_error, safe_correlation
@@ -594,6 +595,28 @@ def _contract_openapi() -> Dict[str, Any]:
 
 
 app.openapi = _contract_openapi  # type: ignore[method-assign]
+
+
+@app.get("/api/results/{result_id}")
+async def result_manifest(result_id: str) -> Dict[str, Any]:
+    """Read the manifest of a retained result under normal API authentication."""
+    try:
+        return RESULT_STORE.manifest(result_id)
+    except ParameterError as exc:
+        raise HTTPException(status_code=404, detail=exc.as_result()) from None
+
+
+@app.get("/api/results/{result_id}/pages")
+async def result_page(
+    result_id: str,
+    offset: int = Query(default=0, ge=0),
+    path: Optional[str] = Query(default=None, max_length=1000),
+) -> Dict[str, Any]:
+    """Retrieve a bounded page or field from the original run, without recalculation."""
+    try:
+        return RESULT_STORE.page(result_id, offset, path)
+    except ParameterError as exc:
+        raise HTTPException(status_code=404, detail=exc.as_result()) from None
 
 
 @app.get("/api/tools")
