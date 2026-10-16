@@ -1,9 +1,0 @@
-[
-  {
-    "path": "/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/de76e3a352081a1f5d6553173b9f957ec457706f0e08f882.json",
-    "fields": [
-      "detailed_analysis"
-    ],
-    "command": "/Users/thomas/Desktop/FateBridge/.venv/bin/python - <<'PY'\nimport json\nfrom pathlib import Path\np = Path(\"/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/de76e3a352081a1f5d6553173b9f957ec457706f0e08f882.json\")\nd = json.loads(p.read_text())\nprint(json.dumps(d['payload']['detailed_analysis'], ensure_ascii=False, indent=2))\nPY"
-  }
-]

@@ -1,9 +1,0 @@
-{
-  "checks": [
-    "9 native UI descriptions and default prompts",
-    "All local skills Markdown links",
-    "11 retained evidence file hashes",
-    "Showcase HTML: 9 panels, 18 original answers"
-  ],
-  "browser_rendering": "not completed"
-}

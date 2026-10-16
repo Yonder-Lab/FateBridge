@@ -76,3 +76,6 @@ yarn-error.log*
 # superpowers 规划文档与 docs/plans — 本地工作草稿，不入库
 docs/superpowers/
 docs/plans/
+
+# One-off review transcripts, snapshots, and collection scripts
+docs/reviews/
