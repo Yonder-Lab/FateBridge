@@ -1,5 +1,7 @@
 # 工位风水 P0／P1／P2 实现与复审记录
 
+> 本文保留2026-10-15工作区实现阶段的历史记录；后续Linux验证与独立提交见[2026-10-16记录](fengshui-workstation-linux-release-2026-10-16.md)。
+
 日期：2026-10-15（Asia/Shanghai）。基线提交：e606e6d。本轮为当前工作区实现与本地验证，未提交、推送或部署。
 
 用户授权：按[系统调研](fengshui-workstation-gap-research-2026-10-15.md)落实 P0、P1、P2；P3 仅作者参考；保留原有改动，补来源／文档／测试，核对 REST／MCP／CLI，并完成复审。来源清单的历史研究结论保持原记录，生产采用范围另见[工位作者规则](../../skills/onda-fengshui/references/workstation-authored.md)。
