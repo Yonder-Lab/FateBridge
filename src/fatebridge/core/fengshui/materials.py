@@ -4,9 +4,11 @@ import json
 from copy import deepcopy
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, cast
+from typing import Any, Dict, Iterable, List, Optional, cast
 
+from .material_application import analyze_application
 from .material_inputs import MaterialShapeFact
+from .workstation_sources import disagreement, provenance
 
 
 @lru_cache(maxsize=1)
@@ -33,13 +35,16 @@ def material_reference() -> Dict[str, Any]:
     }
 
 
-def analyze_material_facts(facts: Iterable[MaterialShapeFact]) -> Dict[str, Any]:
+def analyze_material_facts(
+    facts: Iterable[MaterialShapeFact], targets: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     data = _bundle()
     reference = material_reference()
     findings = []
     missing = []
     counts = dict(supported=0, confirmed_unsupported=0, unknown=0)
-    trace = []
+    trace: List[Dict[str, Any]] = []
+    extra_rules = {}
     for fact in facts:
         path = f"environmental_context.material_facts.{fact.fact_id}"
         pending = []
@@ -162,14 +167,72 @@ def analyze_material_facts(facts: Iterable[MaterialShapeFact]) -> Dict[str, Any]
             "source_ids": sources,
             "scope": "representation_eligibility_only_not_global_taboo_or_placement",
             "missing_inputs": pending,
+            "coverage_reason": (
+                "facts_need_confirmation"
+                if unknown
+                else (
+                    "attribute_reference_only"
+                    if target is None
+                    else (
+                        "excluded_by_selected_author"
+                        if material_status == "excluded_by_selected_author"
+                        else (
+                            "preliminary_representation_match"
+                            if finding
+                            in {
+                                "conditional_material_representation",
+                                "colour_substitute_only",
+                            }
+                            else (
+                                "does_not_match_requested_element"
+                                if material_status
+                                == "not_registered_for_requested_element"
+                                else "no_registered_application_rule"
+                            )
+                        )
+                    )
+                )
+            ),
         }
+        if target is not None:
+            finding_record["method_disagreements"] = [disagreement("objects")]
+            extra_rules["workstation_source_boundaries_v1"] = provenance(
+                "workstation_source_boundaries_v1"
+            )
+        if fact.application is not None:
+            application = analyze_application(fact, targets or [], material_status)
+            finding_record["application_analysis"] = {
+                k: v for k, v in application.items() if k != "provenance"
+            }
+            finding_record["method_disagreements"].extend(
+                application["source_disagreements"]
+            )
+            extra_rules[fact.application.ruleset_id] = application["provenance"]
+            missing.extend(application["missing_inputs"])
+            trace.append(
+                dict(
+                    rule_id=application["rule_id"],
+                    source_ids=application["source_ids"],
+                    fact_id=fact.fact_id,
+                    status=application["status"],
+                )
+            )
+            trace.extend(
+                dict(
+                    rule_id=c["rule_id"],
+                    source_ids=c["source_ids"],
+                    fact_id=fact.fact_id,
+                )
+                for c in application["application_conditions"]
+            )
         findings.append(finding_record)
         missing.extend(pending)
         trace.append(dict(rule_id=rule_id, source_ids=sources, fact_id=fact.fact_id))
     return {
         "status": "partial" if missing else "complete",
         "findings": findings,
-        "rulesets": [reference["ruleset"]] if findings else [],
+        "rulesets": ([reference["ruleset"]] if findings else [])
+        + list(extra_rules.values()),
         "rule_trace": trace,
         "missing_inputs": list(dict.fromkeys(missing)),
         "rule_coverage_counts": counts,

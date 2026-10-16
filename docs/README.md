@@ -80,3 +80,5 @@
 - `selected_sections`、`snapshot_export`、精度 / 依赖 caveat 是否写清楚。
 - 任何“已实现 / 近似 / 占位”的说法是否能在代码里找到依据。
 - 本地链接、章节锚点、示例命令与实际必填字段是否有效。完整验证流程见 [development-guide.md](development-guide.md#文档维护与验证)。
+
+工位书桌用途、入口隔挡与材料施用条件的 P0–P2 扩展见[工位作者规则](../skills/onda-fengshui/references/workstation-authored.md)，P3 仍仅作者参考。

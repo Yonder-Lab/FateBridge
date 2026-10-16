@@ -98,3 +98,7 @@
 来源分层：九条专家口径标注为用户提供的 `user_expert_policy_v1`（2026-10-15，未提供专家署名／原始访谈稿，不冒充经典共识）；八宅／金锁／年度与历史玄空引用[基础合同](../../../docs/fengshui.md)和[玄空合同](../../../docs/fengshui-xuankong.md)的原典／作者版本；旧室内形态、元素及年度处方引用[证据审查](../../../docs/fengshui-layout-rules.md)；本轮具体室内关系引用[Joey Yap／Ci Yuan／WOFS 及镜面 Cho 异议](../../../docs/fengshui-sourced-interior-rules.md#室内规则的来源与分歧)，材料／颜色与器形分别引用 AFSI／FSI。用户明确另选的桌面现代 BTB 引用[作者规则](../../../docs/fengshui-surface-rules.md)的 Anjie Cho、Tori McBrien。卦象及九星教学引用实际返回的古文转录／作者教材，生肖索引引用已登记二十四山表及生肖对应来源；这些索引不证明人物必然受影响。每条行动采用实际返回的来源，不把另一流派文章当这条规则的证明。来源记录只按实际保存的版本、定位、检索与散列字段交付，不为未保存的项目声称内容散列；AFSI 本轮刷新 403 沿用既有已核证据。来源可追溯不等于现实效力已验证。
 
 交付后保留未解决项目、缺失事实和复核点。后续更正更新输入，维护同一 trace 与父 run；只解释不重算。物理调整是否落实、能否看见入口、是否有遮挡等可以核验，事业或财富改善不能由布局引擎确认。
+
+## 工位作者扩展 P0–P2
+
+工作／学习的玄空用途、明确入口隔挡、材料施用条件见[工位作者规则](workstation-authored.md)。`workstation_review` 逐项显式选作者版本，读取 `layout_analysis.workstation_analysis`；材料 application 仍读 material_analysis。未知事实保留候选；动作未 ready 不阻塞已有依据的解释。P3 仅作者参考，不启用固定摆放规则。

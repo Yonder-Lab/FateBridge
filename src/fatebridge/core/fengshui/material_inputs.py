@@ -6,6 +6,8 @@ from pydantic import Field, StrictBool, field_validator, model_validator
 
 from fatebridge.core.requests.base import _DeferredModel
 
+from .workstation_inputs import MaterialApplication
+
 Material = Literal[
     "wood",
     "processed_wood",
@@ -58,6 +60,10 @@ class MaterialShapeFact(_DeferredModel):
         default=None,
         description="仅living_plant的存活状态；不得由绿色/照片外观补为确认存活",
     )
+    application: Optional[MaterialApplication] = Field(
+        default=None,
+        description="显式选AFSI附加条件；属性资格与尺度/运行/目标绑定分开，不认证摆位或效力",
+    )
 
     @field_validator("fact_id", "object_id", "evidence")
     @classmethod
@@ -74,4 +80,33 @@ class MaterialShapeFact(_DeferredModel):
             )
         if self.plant_alive is not None and self.material != "living_plant":
             raise ValueError("plant_alive只用于明确的living_plant")
+        if self.application is not None:
+            if self.element_use is None:
+                raise ValueError("材料施用条件须有明确 element_use 问题")
+            allowed = {
+                "water_clean": "water",
+                "water_moving": "water",
+                "metal_exposed": "metal",
+                "plant_healthy": "living_plant",
+            }
+            for field, material in allowed.items():
+                if (
+                    getattr(self.application, field) is not None
+                    and self.material != material
+                ):
+                    raise ValueError("施用观察须与独立确认的实际材质一致")
+            if (
+                self.application.proportionate_to_space is not None
+                and self.material not in {"metal", "water"}
+            ):
+                raise ValueError("本版尺度条件仅用于金属/水体")
+            healthy = self.application.plant_healthy
+            if (
+                healthy
+                and healthy.value is True
+                and healthy.observation_basis != "image_observed"
+                and self.plant_alive is False
+                and self.observation_basis != "image_observed"
+            ):
+                raise ValueError("已确认死亡植物不能同时确认健康存活")
         return self

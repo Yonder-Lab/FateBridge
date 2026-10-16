@@ -42,6 +42,7 @@ reads:
   - ../../../docs/fengshui-xuankong.md
   - ../../../docs/fengshui-scene-planning.md
   - ../../../docs/fengshui-sourced-interior-rules.md
+  - ../references/workstation-authored.md
 output:
   kind: interpretation
   grounding: engine_fields

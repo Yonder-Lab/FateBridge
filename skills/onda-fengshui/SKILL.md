@@ -13,6 +13,7 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 
 - 首先读[风水咨询闭环](references/consultation.md)，按问题选资料和结果字段。
 - 厨卫、镜面、尖角关系与材质器形，读取[有来源的室内关系与属性规则](../../docs/fengshui-sourced-interior-rules.md)，区分具体规则、作者异议及参考说明。
+- 书桌工作／学习用途、入口隔挡和材料施用条件见[工位作者规则](references/workstation-authored.md)。新分支显式选作者版本；WOFS 非 BTB 桌面摆法仍仅参考。
 - 工位/家居选法、家具动作与多方案比较见[场景与候选布局合同](../../docs/fengshui-scene-planning.md)。
 - 解读沿用[Onda 解读层](../_shared/onda-counsel.md)，用户已有明确问题时直接回应，不套情绪或命盘模板。
 - 需要具体参数时，以已连接 MCP 的实际 inputSchema／工具描述为准；尚未取得定义时一次获取所选工具的完整定义。离线 CLI 用[共享引擎参考](../_shared/fatebridge-engine.md#怎么调引擎)的调用与错误合同。
@@ -28,6 +29,7 @@ description: 用 FateBridge 审查住宅、办公室、工位及门床桌灶的�
 | 入口、背靠、走道、窗户等形态 | `fengshui_assess` | `form_observations`；可 `methods=[]`，无需出生或宅向 |
 | 厨卫、镜面、尖角等明确对象关系 | `fengshui_assess` | `environmental_context.interior_relations`；保留两端对象、关系是否成立及各自证据，可无罗盘独立审查 |
 | 材质／器形／颜色及代表物资格 | `fengshui_assess` | `environmental_context.material_facts`；实际属性与明确 `element_use` 问题分开，不据此推个人喜用或该宫所需元素 |
+| 书桌活动用途与明确入口隔挡 | `fengshui_assess` | `environmental_context.workstation_review` 显式作者版本；读取 `layout_analysis.workstation_analysis`，活动角色与真实水体需求分开 |
 | 方法五行、职业／家具及砂水参考 | `fengshui_assess` | 按问题的场景请求投影 `method_details`；没有实际环境事实时省略 `environmental_context`，不为读取参考构造空上下文 |
 | 桌面逐物件摆法 | `fengshui_assess` | 先按局部空间核对飞星、金锁可用事实；仅用户明确另选现代 BTB 时用 `surface_layouts`，独立于八宅／罗盘 |
 | 只问个人命卦八方 | `fengshui_minggua` | 公历日期、带时区出生时刻或有效生年三选一 |

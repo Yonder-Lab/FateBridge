@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "sources_sha256": {
-    "docs/scenario-routing.md": "540361549efd0c99a1ecb2fc08c44e26a76de4d71eebf2927d5120645b10e986",
-    "skills/onda-fengshui/agents/interface.yaml": "ed600bd69f640b7e09f20cac81347d19d04ffeca715fdd09842e72f01b1227c8",
+    "docs/scenario-routing.md": "bbecd81722a8b3b250f253bf8261d015c4c42f3cb4ddae31ca6105952b01c6d4",
+    "skills/onda-fengshui/agents/interface.yaml": "c438ad5d42495f6d7c4340cfa9abd008f6a542994841075db94a57e4d77303ba",
     "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
     "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",
     "skills/onda-shiye/agents/interface.yaml": "f76ba11182a38f90a0b8315dd3a126463456dc1649caaad9b13b03abc9305be9",
@@ -93,6 +93,18 @@
           ]
         },
         {
+          "intent": "书桌工作／学习玄空用途、入口隔挡、材料施用条件",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "显式工位作者版本；按落宫取向星，物件资格不推摆位"
+            }
+          ]
+        },
+        {
           "intent": "桌面物件风水摆法",
           "evidence": [
             {
@@ -100,7 +112,7 @@
               "alternatives": [
                 "fengshui_assess"
               ],
-              "condition": "显式桌面作者版本及边界，独立于罗盘"
+              "condition": "BTB 须明确另选；非 BTB 摆放仅作者参考"
             }
           ]
         },

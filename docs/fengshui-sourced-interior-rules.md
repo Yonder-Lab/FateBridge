@@ -56,7 +56,7 @@ IR1 不将“从门口能看见卫生间”当直接对齐；作者强调的不�
 
 ## 器形参考与代表物资格
 
-器形的五行对应属于署名教学参考；它不自动证明该物件能作某元素的调节物。材料／颜色资格使用 `sourced_material_representation_v1@1.0.0` 并保留条件和异议。例如 [Larry Sang／AFSI《The Principles of Feng Shui》](https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf)第三章印刷第 19–28 页／PDF 第 35–44 页的既有规则以健康活植物作木代表物，处理木家具不作为该版本的木调节物；不能因木椅呈柱形或涂绿色就消除这一材料限制。本轮直接刷新该 PDF 返回 HTTP 403，来源记录沿用 2026-10-14 已核实的原始 PDF 及散列，不声称重新取得了内容。
+器形的五行对应属于署名教学参考；它不自动证明该物件能作某元素的调节物。材料／颜色资格使用 `sourced_material_representation_v1@1.0.0` 并保留条件和异议。例如 [Larry Sang／AFSI《The Principles of Feng Shui》](https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf)第三章印刷第 19–28 页／PDF 第 36–45 页的既有规则以健康活植物作木代表物，处理木家具不作为该版本的木调节物；不能因木椅呈柱形或涂绿色就消除这一材料限制。本轮已取得同散列原 PDF，材料重点定位为印刷23、25／PDF40、42页。
 
 [Feng Shui Institute《The Five Elements – Wu Xing》](https://www.feng-shui-institute.org/Feng_Shui/fiveelements.html)的 Water／Wood／Fire／Earth／Metal Energy 段落提供本版器形参考：
 
@@ -122,3 +122,5 @@ IR1 不将“从门口能看见卫生间”当直接对齐；作者强调的不�
 署名九星主题及有限职业例子不是现代职业适配测试。引用某星组合中的作者例子必须保留该组合与用途，不能抽成单星永久吉凶或职业预测；没有登记的职业不补造。古代角色与现代作者职业例分别归属，也不能将跨文本词类当作三法共同规则。
 
 金锁砂水、玄空外部山水、普通材质器形和室内背靠各自确认，不能彼此代填。具体关系规则、代表物资格、方法象意和现实建议分别交付，避免把参考说明当成新算出的摆放处方。
+
+工位尖角的 WOFS／Joey Yap 异议、AFSI 施用条件及柜内金属的作者分歧见[工位作者规则](../skills/onda-fengshui/references/workstation-authored.md)。AFSI 材料重点印刷23、25／PDF40、42页；本轮取得同散列原文件，不新增全派禁忌或数值剂量。

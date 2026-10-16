@@ -24,6 +24,7 @@ from .interior_inputs import (
     validate_relation_references,
 )
 from .material_inputs import MaterialShapeFact
+from .workstation_inputs import WorkstationReview
 
 ContextBasis = Literal["measured", "user_confirmed"]
 FamilyRole = Literal["parent", "eldest_child", "middle_child", "youngest_child"]
@@ -41,6 +42,10 @@ _CONTEXT_FACT_LIST_FIELDS = (
 )
 _CONTEXT_FACT_SCHEMA: dict[str, Any] = {
     "anyOf": [
+        {
+            "required": ["workstation_review"],
+            "properties": {"workstation_review": {"type": "object"}},
+        },
         {
             "required": ["orientation"],
             "properties": {"orientation": {"type": "object"}},
@@ -347,11 +352,17 @@ class EnvironmentalContext(_DeferredModel):
     material_facts: List[MaterialShapeFact] = Field(
         default_factory=list, max_length=500
     )
+    workstation_review: Optional[WorkstationReview] = Field(
+        default=None,
+        description="显式作者工位活动/入口隔挡；不启用BTB或WOFS桌面摆位，事实与执行条件分开",
+    )
 
     @model_validator(mode="after")
     def coherent_references(self) -> "EnvironmentalContext":
-        if self.orientation is None and not any(
-            getattr(self, field) for field in _CONTEXT_FACT_LIST_FIELDS
+        if (
+            self.orientation is None
+            and self.workstation_review is None
+            and not any(getattr(self, field) for field in _CONTEXT_FACT_LIST_FIELDS)
         ):
             raise ValueError(
                 "环境上下文至少提供方向核对、家庭成员、楼层或具体观察；对象定义本身不是完成审查"
@@ -370,7 +381,7 @@ class EnvironmentalContext(_DeferredModel):
                 raise ValueError(f"{attr} 不可重复")
         attributes = set()
         for fact in self.material_facts:
-            for name in ("material", "shape", "colour"):
+            for name in ("material", "shape", "colour", "application"):
                 if getattr(fact, name) is None:
                     continue
                 key = (fact.object_id, name)

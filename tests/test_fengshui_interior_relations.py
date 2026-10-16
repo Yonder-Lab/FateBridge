@@ -104,6 +104,40 @@ def test_explicit_unknown_needs_relation_confirmation_without_requiring_directio
     assert result["rule_coverage_status"] == "needs_confirmation"
 
 
+@pytest.mark.parametrize("kind", KINDS)
+def test_photo_caution_can_be_explained_conditionally_without_certifying_an_action(
+    kind,
+):
+    result = analyze([relation(kind, basis="image_observed")])
+    finding = result["findings"][0]
+    conditional = finding["conditional_interpretation"]
+    assert conditional["interpretation"]
+    assert conditional["rule_id"] == finding["rule_id"]
+    assert conditional["source_ids"] == finding["source_ids"]
+    assert finding["interpretation"] is None
+    assert finding["status"] == "candidate_only"
+    assert finding["action_options"] == result["action_options"] == []
+    assert result["status"] == "partial" and result["missing_inputs"]
+
+
+@pytest.mark.parametrize("present", [False, None])
+def test_photo_absence_or_unknown_does_not_create_a_conditional_caution(present):
+    finding = analyze([relation(present=present, basis="image_observed")])["findings"][
+        0
+    ]
+    assert finding["conditional_interpretation"] is None
+
+
+def test_photo_conditional_suggestions_respect_both_endpoints_action_constraints():
+    constraints = [
+        SimpleNamespace(object_id=object_id, can_relocate=False, can_rotate=False)
+        for object_id in ["source", "target"]
+    ]
+    finding = analyze([relation(basis="image_observed")], constraints)["findings"][0]
+    assert finding["conditional_interpretation"]["interpretation"]
+    assert finding["conditional_interpretation"]["suggestions"] == []
+
+
 @pytest.mark.parametrize("present", [1, 0, "true", "false", "yes"])
 def test_relation_does_not_coerce_truth(present):
     with pytest.raises(ValidationError):
