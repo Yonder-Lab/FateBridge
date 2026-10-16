@@ -251,3 +251,50 @@ def test_form_only_calls_need_no_compass_placeholder_and_invalid_layout_stays_re
             assert invalid.structured_content["error_code"] == "validation_error"
 
     asyncio.run(call())
+
+
+def test_city_only_career_call_remains_callable_without_explicit_solar_flag():
+    async def call():
+        async with Client(create_mcp_app()) as client:
+            result = await client.call_tool(
+                "bazi_career",
+                {
+                    "birth_year": 1990,
+                    "birth_month": 5,
+                    "birth_day": 15,
+                    "birth_hour": 10,
+                    "gender": "男",
+                    "birth_place": "上海",
+                    "as_of": "2026-10-16T12:00:00+08:00",
+                    "fields": ["career_analysis.dominant_ten_gods.primary_career_type"],
+                    "strict_fields": True,
+                    "include_snapshot_text": False,
+                },
+            )
+            assert not result.is_error
+            assert result.structured_content["career_analysis"]["dominant_ten_gods"][
+                "primary_career_type"
+            ]
+
+    asyncio.run(call())
+
+
+@pytest.mark.parametrize("hour_input", [{}, {"birth_hour": None}])
+def test_unknown_birth_hour_is_rejected_instead_of_fabricated(hour_input):
+    async def call():
+        async with Client(create_mcp_app()) as client:
+            result = await client.call_tool(
+                "bazi_career",
+                {
+                    "birth_year": 1990,
+                    "birth_month": 5,
+                    "birth_day": 15,
+                    "birth_place": "上海",
+                    **hour_input,
+                },
+                raise_on_error=False,
+            )
+            assert result.is_error
+            assert "career_analysis" not in (result.structured_content or {})
+
+    asyncio.run(call())

@@ -1,6 +1,6 @@
 # 工位作者规则：活动、隔挡与材料施用条件
 
-本扩展落实[调研报告](../../../docs/research/fengshui-workstation-gap-research-2026-10-15.md)的 P0/P1/P2。沿用 fengshui_assess，REST/MCP/CLI 共用模型和计算；不改变旧版玄空床／门解释。WOFS 非 BTB 桌面摆法只保留作者参考，不注册证据不足的摆放规则。
+工位活动、入口隔挡与材料施用条件通过 fengshui_assess 计算，REST/MCP/CLI 共用模型和计算；玄空床／门解释保持独立。WOFS 非 BTB 桌面摆法只保留作者参考，不注册证据不足的摆放规则。
 
 ## 版本与来源
 
@@ -11,7 +11,7 @@
 | afsi_application_conditions_v1 | 水体、金属和植物的附加条件；目标绑定独立 | [Janice Sugita／AFSI FS227](https://www.amfengshui.com/wp-content/uploads/2014/09/fs227.pdf)，2006，印刷28–29/PDF32–33页；[Larry Sang／AFSI](https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf)，印刷23、25/PDF40、42页 |
 | workstation_source_boundaries_v1 | 尖角、物件路线等作者分歧与范围说明 | [Joey Yap 2014尖角说明](https://masteryacademy.com/Academy/media/columncontent.asp?iframe=academic_colum&nid=1967)、2005装饰象征文章；WOFS及Sean Chan署名立场 |
 
-完整来源、定位及本轮实际取得的原始内容散列见 src/fatebridge/data/fengshui/workstation-authored-v1.json。作者用途规则不冒充中州派校勘原典；不同作者文章不作多份独立效果验证。起盘仍来自当前明确的历史宅盘版本。
+完整来源、定位及已登记的原始内容散列见 src/fatebridge/data/fengshui/workstation-authored-v1.json。作者用途规则不冒充中州派校勘原典；不同作者文章不作多份独立效果验证。起盘仍来自当前明确的历史宅盘版本。
 
 ## 请求和读取分支
 
@@ -69,8 +69,8 @@ target_request_id 可选引用同轮 element_adjustments.request_id。只有真�
 
 使用原 layout_constraints/layout_alternatives。活动和入口隔挡事实放候选 environmental_context.workstation_review。候选可以仅含涉及移动对象的明确工位关系，无需伪造门／桌方向；任一关系端移动，都要重核原入口／坐者／隔挡三端，换关系不能跳过旧项。本次明确评价运是查询条件，可以沿用；活动几何与入口关系仍需新证据。已确认活动、隔挡种类、材料属性和绑定目标不能借搬转改写；缺原施用条件保留待确认。
 
-旧版不提供这些输入时，不增加 workstation_analysis 或材料 application_analysis。P0 会在现有工位尖角／明确桌角关系以及材料代表物问题中增加作者分歧元数据，原 WOFS 判据不被覆盖。无来源处方、作者排除、已知不匹配、规则未实现和未知事实分别说明。
+未提供这些输入时，不增加 workstation_analysis 或材料 application_analysis。工位尖角／明确桌角关系以及材料代表物问题分别保留作者分歧元数据，原 WOFS 判据不被覆盖。无来源处方、作者排除、已知不匹配、规则未实现和未知事实分别说明。
 
-WOFS桌面内容仅在 workstation_analysis.non_btb_desktop_reference 中作为带来源参考，placement_rules_enabled=false；不注册其方位摆放、龙虎高低、手机方向或水晶球规则。BTB 仍需明确另选；当前新增规则不自动触发 BTB。
+WOFS桌面内容仅在 workstation_analysis.non_btb_desktop_reference 中作为带来源参考，placement_rules_enabled=false；不注册其方位摆放、龙虎高低、手机方向或水晶球规则。BTB 仍需明确另选；这些规则不自动触发 BTB。
 
 三个入口均可读取示例 JSON：REST POST /api/fengshui/assess；MCP fengshui_assess；CLI fatebridge fengshui_assess --request-file。严格字段投影按本次实际存在的分支选择。

@@ -349,7 +349,9 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
     layout = (
         analyze_layout(req, layers)
         if req.analyze_layout
-        or req.scene
+        # A scene also labels method-reference queries. It does not by itself
+        # request a site assessment or create missing physical observations.
+        or (req.scene and (req.selected_methods or req.placements or req.features))
         or req.layout_constraints
         or req.layout_alternatives
         or req.form_observations
