@@ -3,16 +3,17 @@
   "sources": {
     "M_AFSI": {
       "url": "https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf",
-      "retrieved_at": "2026-10-14",
+      "retrieved_at": "2026-10-15",
       "retrieved_sha256": "6ab5135060df281fd6a6e376e0516e660c185dd2af2f146a5f850df64cc3b024",
       "retrieved_bytes": 4418704,
       "retrieved_format": "raw_pdf",
       "title": "Larry Sang / American Feng Shui Institute: The Principles of Feng Shui",
       "kind": "author_published_book",
-      "source_version": "publisher PDF, Chapter 3, printed pp.19-28; PDF pages 35-44",
+      "source_version": "publisher PDF, Chapter 3, printed pp.19-28; PDF pp.36-45 (one-based)",
       "scope": "五行生/克/泄、代表物与色彩；木代表物用活植物，处理木家具不作为该版本木调节物；实际元素优先于颜色",
-      "locator": "Chapter 3, printed pp.19–28 (PDF pp.35–44); existing checked evidence bundle",
-      "refresh_note": "2026-10-15 direct refresh returned HTTP 403; prior checked source record retained without fabricating a new retrieval hash"
+      "locator": "Printed pp.23,25 / PDF pp.40,42 (one-based), directly verified page images",
+      "refresh_note": "2026-10-15 direct HTTP refresh succeeded after earlier 403; original bytes and hash match",
+      "verification_note": "2026-10-15 direct HTTP retrieved 4418704 bytes; SHA-256 unchanged; page locators verified"
     },
     "M_FSI": {
       "url": "https://www.feng-shui-institute.org/Feng_Shui/fiveelements.html",

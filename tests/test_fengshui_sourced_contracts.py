@@ -103,13 +103,23 @@ def case_input(case):
             "absent": False,
             "unknown": None,
             "photo_false": False,
+            "photo_true": True,
         }[case],
-        basis="image_observed" if case == "photo_false" else "user_confirmed",
+        basis="image_observed" if case.startswith("photo_") else "user_confirmed",
     )
 
 
 @pytest.mark.parametrize(
-    "case", ["confirmed", "absent", "unknown", "photo_false", "material", "candidate"]
+    "case",
+    [
+        "confirmed",
+        "absent",
+        "unknown",
+        "photo_false",
+        "photo_true",
+        "material",
+        "candidate",
+    ],
 )
 def test_sourced_cases_agree_across_actual_rest_mcp_cli(
     monkeypatch, tmp_path, capsys, case
@@ -154,6 +164,7 @@ def test_sourced_cases_agree_across_actual_rest_mcp_cli(
                 "absent": "not_present",
                 "unknown": "needs_confirmation",
                 "photo_false": "candidate_only",
+                "photo_true": "candidate_only",
             }[case]
             assert finding["status"] == expected
             assert body["coverage"]["analysis_progress"]["assessment_complete"] is (

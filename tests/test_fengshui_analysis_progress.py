@@ -102,6 +102,11 @@ def test_calculation_can_finish_before_action_permission_and_space_are_known():
         "confirm_target_zone_feasibility",
     }
     assert all(p["required_for"] == "action" for p in review["pending_confirmations"])
+    assert review["interpretation_status"] == "available"
+    assert review["follow_up"]["conclusion_candidates"] == []
+    assert review["follow_up"]["execution_only"] == list(
+        dict.fromkeys(p["path"] for p in review["pending_confirmations"])
+    )
 
 
 def test_confirmed_no_rule_item_finishes_review_without_changing_legacy_partial():
@@ -124,6 +129,112 @@ def test_confirmed_no_rule_item_finishes_review_without_changing_legacy_partial(
         "item_findings"
     ][0]
     assert item["rule_coverage_status"] == "reviewed_unsupported"
+    assert review["interpretation_status"] == "scope_only"
+    assert review["follow_up"]["conclusion_candidates"] == []
+    assert review["follow_up"]["execution_only"] == []
+
+
+@pytest.mark.parametrize("basis", ["user_confirmed", "image_observed"])
+def test_one_known_form_fact_can_be_explained_before_other_checks_and_actions(basis):
+    inputs = form_inputs()
+    inputs["form_observations"] = [
+        {
+            "object_id": "desk",
+            "purpose": "desk",
+            "entrance_visible": False,
+            "observation_basis": basis,
+            "evidence": "本次只观察入口视野，未判断其余条件",
+        }
+    ]
+    result, review = progress(inputs)
+    assert not review["assessment_complete"]
+    assert review["interpretation_status"] == (
+        "conditional" if basis == "image_observed" else "available"
+    )
+    follow_up = review["follow_up"]
+    assert follow_up["conclusion_candidates"]
+    assert follow_up["execution_only"]
+    assessment_paths = {
+        p["path"]
+        for p in review["pending_confirmations"]
+        if p["required_for"] == "assessment"
+    }
+    assert set(follow_up["conclusion_candidates"]) == assessment_paths
+    assert not assessment_paths.intersection(follow_up["execution_only"])
+    assert follow_up["selection_policy"] == "ask_only_if_changes_requested_conclusion"
+    check = result["layout_analysis"]["form_analysis"]["findings"][0]["checks"][0]
+    assert check["finding"] == "opposes_rule"
+    assert check["adjustment"]
+    assert check["action_status"] != "ready"
+
+
+def test_unknown_checks_without_an_observed_predicate_do_not_create_a_judgment():
+    inputs = form_inputs()
+    inputs["form_observations"] = [
+        {
+            "object_id": "desk",
+            "purpose": "desk",
+            "entrance_position": "left",
+            "observation_basis": "image_observed",
+            "evidence": "只看到入口在左侧，视野、直冲和靠背均未知",
+        }
+    ]
+    _, review = progress(inputs)
+    assert review["interpretation_status"] == "insufficient_evidence"
+    assert not review["assessment_complete"]
+
+
+def test_optional_candidate_geometry_does_not_reopen_current_explanation():
+    from tests.test_fengshui_sourced_contracts import relation_candidate
+
+    inputs = relation_candidate()
+    del inputs["layout_alternatives"][0]["physically_feasible"]
+    _, review = progress(inputs)
+    assert review["interpretation_status"] == "available"
+    assert review["follow_up"]["conclusion_candidates"] == []
+    assert any(
+        "physically_feasible" in path for path in review["follow_up"]["execution_only"]
+    )
+
+
+def test_complete_annual_reference_can_be_explained_without_object_sectors():
+    result, review = progress(
+        {"methods": ["annual_stars"], "effective_year": 2026, "analyze_layout": True}
+    )
+    assert review["interpretation_status"] == "available"
+    assert not review["assessment_complete"]
+    assert result["layout_analysis"]["placement_findings"] == []
+    assert result["layers"]["annual_stars"]["palaces"]
+
+
+def test_limited_implementation_without_chart_facts_still_needs_evidence():
+    _, review = progress(
+        {
+            "methods": ["xuankong_natal"],
+            "analyze_layout": True,
+            "xuankong": {"interpretation": {}},
+        }
+    )
+    assert review["interpretation_status"] == "insufficient_evidence"
+    assert review["follow_up"]["conclusion_candidates"]
+
+
+def test_known_material_reference_survives_an_unrelated_unknown_attribute():
+    from tests.test_fengshui_material_facts import material_request
+
+    inputs = material_request(shape="round")
+    inputs["environmental_context"]["material_facts"].append(
+        {
+            "fact_id": "unknown-colour",
+            "object_id": "item",
+            "colour": "unknown",
+            "observation_basis": "user_confirmed",
+            "evidence": "颜色未知，不影响已确认器形参考",
+        }
+    )
+    _, review = progress(inputs)
+    assert review["interpretation_status"] == "available"
+    assert not review["assessment_complete"]
 
 
 @pytest.mark.parametrize("representation", ["unknown", "other", "living_plant"])
@@ -303,7 +414,9 @@ def test_unsupported_authored_year_closes_known_scope_without_an_action_verdict(
     assert review["pending_confirmations"] == []
 
 
-@pytest.mark.parametrize("state", ["ready", "conditional", "blocked", "unsupported"])
+@pytest.mark.parametrize(
+    "state", ["ready", "conditional", "blocked", "unsupported", "photo", "unknown"]
+)
 def test_coverage_projection_preserves_review_and_action_states_on_all_transports(
     monkeypatch, tmp_path, capsys, state
 ):
@@ -314,11 +427,34 @@ def test_coverage_projection_preserves_review_and_action_states_on_all_transport
         inputs["surface_constraints"][0]["can_move_items"] = False
     elif state == "unsupported":
         inputs["surface_layouts"][0]["items"][0]["representation"] = "other"
+    elif state == "photo":
+        inputs["surface_layouts"][0]["items"][0]["observation_basis"] = "image_observed"
+        # Rebuilding progress for layout constraints must preserve conditional evidence.
+        inputs["form_observations"] = [
+            {
+                "object_id": "work-surface",
+                "purpose": "desk",
+                "entrance_position": "left",
+                "observation_basis": "image_observed",
+                "evidence": "只观察到入口相对位置，其他形态未知",
+            }
+        ]
+        inputs["layout_constraints"] = [
+            {"object_id": "work-surface", "can_add_items": False, "evidence": "不新增"}
+        ]
+    elif state == "unknown":
+        inputs["surface_layouts"][0]["items"][0]["representation"] = "unknown"
     expected = assess(**deepcopy(inputs))["coverage"]["analysis_progress"]
+    assert expected["interpretation_status"] == {
+        "unsupported": "scope_only",
+        "photo": "conditional",
+        "unknown": "insufficient_evidence",
+    }.get(state, "available")
     controls = {
         "fields": ["coverage.analysis_progress", "rulesets", "rule_trace"],
         "strict_fields": True,
         "include_snapshot_text": False,
+        "response_char_limit": 0,
     }
 
     async def call():
@@ -343,6 +479,8 @@ def test_coverage_projection_preserves_review_and_action_states_on_all_transport
                 *controls["fields"],
                 "--strict-fields",
                 "--no-include-snapshot-text",
+                "--response-char-limit",
+                "0",
             ]
         )
         == 0

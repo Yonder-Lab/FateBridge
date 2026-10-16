@@ -38,6 +38,8 @@ def summarize_analysis_progress(
     *,
     count_unit: str,
     limited: bool = False,
+    conditional_basis_count: int = 0,
+    reference_basis_count: int = 0,
 ) -> Dict[str, Any]:
     """Separate review completeness from whether a candidate can be executed.
 
@@ -64,7 +66,47 @@ def summarize_analysis_progress(
     if action_counts["blocked"]:
         readiness.add("blocked")
     calculation_complete = not missing and not counts["unknown"]
+    # A partial calculation can still support an explanation. Unknown values
+    # alone are not a conditional basis: callers count actual observed facts.
+    interpretation_status = (
+        "available"
+        if counts["supported"] or reference_basis_count
+        else (
+            "conditional"
+            if conditional_basis_count
+            else (
+                "scope_only"
+                if counts["confirmed_unsupported"]
+                or (limited and not missing and not counts["unknown"])
+                else "insufficient_evidence"
+            )
+        )
+    )
+    unique_pending = list(
+        {json.dumps(p, sort_keys=True, ensure_ascii=False): p for p in pending}.values()
+    )
+    conclusion_paths = list(
+        dict.fromkeys(
+            p["path"] for p in unique_pending if p["required_for"] == "assessment"
+        )
+    )
     return {
+        "interpretation_status": interpretation_status,
+        "follow_up": {
+            # Reference existing confirmation records, rather than duplicate
+            # their full payload in the default response budget.
+            "conclusion_candidates": conclusion_paths,
+            "execution_only": list(
+                dict.fromkeys(
+                    p["path"]
+                    for p in unique_pending
+                    if p["required_for"] != "assessment"
+                    and p["path"] not in conclusion_paths
+                )
+            ),
+            "selection_policy": "ask_only_if_changes_requested_conclusion",
+            "unsupported_policy": "explain_limit_without_requesting_more_input",
+        },
         "calculation_status": "complete" if calculation_complete else "partial",
         "rule_coverage_status": (
             "needs_confirmation"
@@ -88,11 +130,7 @@ def summarize_analysis_progress(
         "optional_action_count": sum(
             bool(a.get("optional")) for a in actions if a.get("status") in status_keys
         ),
-        "pending_confirmations": list(
-            {
-                json.dumps(p, sort_keys=True, ensure_ascii=False): p for p in pending
-            }.values()
-        ),
+        "pending_confirmations": unique_pending,
     }
 
 
@@ -337,6 +375,12 @@ def evaluate_surfaces(req: "AssessRequest") -> Dict[str, Any]:
             all_actions,
             pending,
             count_unit="surface_items",
+            conditional_basis_count=sum(
+                item["rule_coverage_status"] == "needs_confirmation"
+                and bool(item["rule_ids"])
+                for finding in findings
+                for item in finding["item_findings"]
+            ),
         ),
         "coverage_scope": "selected_goal_and_explicit_representations_not_every_object",
         "method_separation": "desktop_zones_never_substitute_for_house_palaces_or_minggua",

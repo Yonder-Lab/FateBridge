@@ -5,7 +5,13 @@
     "version": "1.0.0",
     "method": "conditioned_natal_interpretation",
     "title": "FateBridge 有限玄空山向关系与形势条件",
-    "source_ids": ["N1", "N2", "N3", "N4", "E1"],
+    "source_ids": [
+      "N1",
+      "N2",
+      "N3",
+      "N4",
+      "E1"
+    ],
     "scope": "有序山星向星的五行关系、显式当运星的山水存在条件、已确认落宫的床取山星与门取向星；不产生全宅或81组合吉凶结论",
     "conventions": [
       "这是基于登记来源的有限解释版本，不宣称所有玄空门派一致，也不把交叉作者来源称为中州派原典",
@@ -57,13 +63,14 @@
       "title": "Larry Sang / American Feng Shui Institute: The Principles of Feng Shui",
       "url": "https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf",
       "kind": "author_published_book",
-      "source_version": "publisher PDF, Chapter 3, printed pp.19-28; PDF pages 35-44",
-      "retrieved_at": "2026-10-14",
+      "source_version": "publisher PDF, Chapter 3, printed pp.19-28; PDF pp.36-45 (one-based)",
+      "retrieved_at": "2026-10-15",
       "retrieved_sha256": "6ab5135060df281fd6a6e376e0516e660c185dd2af2f146a5f850df64cc3b024",
       "retrieved_bytes": 4418704,
       "retrieved_format": "raw_pdf",
-      "verification_note": "沿用现有 layout-supplements-v1.json 已核实来源记录；本轮未重新认证该PDF",
-      "scope": "本规则仅采用五行生克有向关系，不由相生直接推导吉，也不生成摆件、颜色或数量建议"
+      "verification_note": "2026-10-15 direct HTTP retrieved 4418704 bytes; SHA-256 unchanged; page locators verified",
+      "scope": "本规则仅采用五行生克有向关系，不由相生直接推导吉，也不生成摆件、颜色或数量建议",
+      "locator": "Printed pp.23,25 / PDF pp.40,42 (one-based), directly verified page images"
     }
   },
   "star_elements": {
@@ -80,32 +87,63 @@
   "rules": {
     "star_elements": {
       "rule_id": "xuankong_conditioned_v1.star_elements",
-      "source_ids": ["N4"],
-      "conditions": ["星数来自当前候选宅盘对应角色，不用固定宫数替代星数"],
+      "source_ids": [
+        "N4"
+      ],
+      "conditions": [
+        "星数来自当前候选宅盘对应角色，不用固定宫数替代星数"
+      ],
       "scope": "九星五行对应，五行不等于星的综合吉凶"
     },
     "ordered_pair": {
       "rule_id": "xuankong_conditioned_v1.ordered_pair",
-      "source_ids": ["N4", "E1"],
-      "conditions": ["同一候选、同一宫，保持山星在前、向星在后的角色顺序"],
+      "source_ids": [
+        "N4",
+        "E1"
+      ],
+      "conditions": [
+        "同一候选、同一宫，保持山星在前、向星在后的角色顺序"
+      ],
       "scope": "九乘九有序组合的机械五行关系，不是81组合专属断语或吉凶表"
     },
     "current_period": {
       "rule_id": "xuankong_conditioned_v1.current_period",
-      "source_ids": ["N1", "N2", "N3"],
-      "conditions": ["评价时运及依据由调用方显式确认", "本版本工程范围只判星数与评价运数相等为当令"],
+      "source_ids": [
+        "N1",
+        "N2",
+        "N3"
+      ],
+      "conditions": [
+        "评价时运及依据由调用方显式确认",
+        "本版本工程范围只判星数与评价运数相等为当令"
+      ],
       "scope": "仅当令识别，其余未细分也不视为皆凶；不重置历史宅运"
     },
     "current_star_external_forms": {
       "rule_id": "xuankong_conditioned_v1.current_star_external_forms",
-      "source_ids": ["N1", "N2"],
-      "conditions": ["仅八方外宫且该角色星当令", "山星检查已确认的山形存在，向星检查已确认的水形存在", "图片仅候选，未知不可当不存在", "存在/不存在只评价本条条件，不证明形势质量和综合吉凶"],
+      "source_ids": [
+        "N1",
+        "N2"
+      ],
+      "conditions": [
+        "仅八方外宫且该角色星当令",
+        "山星检查已确认的山形存在，向星检查已确认的水形存在",
+        "图片仅候选，未知不可当不存在",
+        "存在/不存在只评价本条条件，不证明形势质量和综合吉凶"
+      ],
       "scope": "当令山星配山、当令向星配水的存在条件；中心及非当令星形势未覆盖"
     },
     "placement_role": {
       "rule_id": "xuankong_conditioned_v1.placement_role",
-      "source_ids": ["N1", "N3"],
-      "conditions": ["对象有已确认的全宅中心落宫，朝向不可替代位置", "床取山星、门取向星；同时保留同宫另一角色及五行关系", "用途条件须结合当令与外局，不独立产生吉凶"],
+      "source_ids": [
+        "N1",
+        "N3"
+      ],
+      "conditions": [
+        "对象有已确认的全宅中心落宫，朝向不可替代位置",
+        "床取山星、门取向星；同时保留同宫另一角色及五行关系",
+        "用途条件须结合当令与外局，不独立产生吉凶"
+      ],
       "scope": "床与门的有限角色取用；桌灶未覆盖，不自动提出移动或朝向建议"
     }
   },

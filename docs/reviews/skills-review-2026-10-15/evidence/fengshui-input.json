@@ -1,0 +1,73 @@
+{
+  "scene": "shared_rental",
+  "methods": [
+    "annual_stars"
+  ],
+  "environmental_context": {
+    "orientation": {
+      "direction_confirmed": false,
+      "evidence": "未测方位，只核明确物理关系"
+    },
+    "objects": [
+      {
+        "object_id": "mirror",
+        "kind": "material_object",
+        "role": "mirror",
+        "label": "镜",
+        "evidence": "明确确认镜面"
+      },
+      {
+        "object_id": "bed",
+        "kind": "furniture",
+        "purpose": "bed",
+        "label": "床",
+        "evidence": "明确确认用途"
+      }
+    ],
+    "interior_relations": [
+      {
+        "relation_id": "reflection",
+        "source_object_id": "mirror",
+        "target_object_id": "bed",
+        "kind": "mirror_faces_bed",
+        "present": true,
+        "observation_basis": "user_confirmed",
+        "evidence": "虚构资料：使用者独立确认床上能在镜里见到自己；本轮只审现状，未提搬动候选。"
+      }
+    ]
+  },
+  "analyze_layout": true,
+  "surface_layouts": [
+    {
+      "object_id": "work-surface",
+      "ruleset_id": "desktop_bagua_btb_v1",
+      "shape": "rectangular",
+      "anchor": "seated_near_edge",
+      "goal": "career",
+      "observation_basis": "user_confirmed",
+      "evidence": "虚构用户明确另选现代 BTB，已确认矩形边界、坐者近沿与事业象征目标；仅问普通手机有无独立摆法。",
+      "items": [
+        {
+          "object_id": "phone",
+          "label": "普通手机",
+          "representation": "other",
+          "observation_basis": "user_confirmed",
+          "evidence": "虚构用户明确确认普通手机，未声明作者代表物属性。"
+        }
+      ]
+    }
+  ],
+  "form_observations": [
+    {
+      "object_id": "work-surface",
+      "purpose": "desk",
+      "entrance_visible": true,
+      "entrance_direct_line": false,
+      "solid_backing": true,
+      "observation_basis": "user_confirmed",
+      "evidence": "虚构资料：使用者确认正常坐姿可见入口、不在入口直线上、背后有实墙；其他形态未观察。"
+    }
+  ],
+  "include_snapshot_text": false,
+  "fields": null
+}

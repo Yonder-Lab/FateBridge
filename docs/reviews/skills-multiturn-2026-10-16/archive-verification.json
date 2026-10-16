@@ -1,0 +1,9 @@
+{
+  "raw_records_canonical_hash_verified": 38,
+  "deferred_snapshots_sha256_verified": 10,
+  "all_four_skill_snapshots_byte_preserved": true,
+  "final_source_skills_match_revised_3": true,
+  "transcripts": 14,
+  "all_saved_replies": 53,
+  "errors_preserved": 2
+}

@@ -2,43 +2,11 @@
 
 `fengshui_xuankong_natal` 的 REST 入口为 `POST /api/fengshui/xuankong_natal`，MCP 与 CLI 同名。选定版本 `xuankong_zhongzhou_v1@1.0.1` 完整计算九宫运星、山星、向星，支持下卦和中州派兼向替星。与 `layers.annual_stars` 独立；查询年份变化不改变历史宅盘。基础三法合同见[家居风水](fengshui.md)。
 
-## 规则核实和版本选择
+## 规则数据与版本维护
 
-本实现锁定一套明确的中州派网页传法，不能把结果称为所有玄空门派统一结论，也不是《沈氏玄空学》原版的逐页复刻。生产规则为离线 [xuankong-v1.json](../src/fatebridge/data/fengshui/xuankong-v1.json)，原有第一阶段规则文件和版本保持不变。规则语义变化须另建版本及独立样本；1.0.1修复既定角区的浮点实现与不确定输入处理，五黄和替星表未改。
+规则来源、选版差异、二十四山和替星表统一维护在 [skill 的历史宅盘参考](../skills/onda-fengshui/references/xuankong.md)。
 
-| 事项 | 本版本约定 | 核实来源与版本限制 |
-| --- | --- | --- |
-| 三元九运 | 1864一运锚点，20年一运，180年循环 | X1《沈氏玄空学》卷四网络转录“玄空浅说”；不是认证印刷版 |
-| 住宅定运 | 调用方选择历史竣工、首次入住、已确认换运的大修或专家确认宅运，并提供证据 | X2涉及搬迁／装修；X4陈癸龙讨论现代大厦换天心与普通装修不能直接换运；存在门派和建筑条件分歧，不自动选择最新事件 |
-| 日期定运 | 带时区事件时刻按立春换年；明确有效年表示已确认交节归属 | 本实现的显式工程约定，不能以年度换年证据声称住宅事件选择也无争议；逐项暴露实际节气求解器；跨运年份事件时刻遇近似回退须确认有效年或宅运；X6只核对2024日期和分钟 |
-| 二十四山 | 每山15°，子0°，顺时针；坐山＝向首＋180° | X1及X2对应表，使用磁北，不自动将真北转磁北 |
-| 三元龙阴阳 | 先查运星本宫中与物理山向同一元龙的山，阳顺阴逆 | X1/X2；不能直接按星数奇偶或物理山的阴阳起所有山向盘 |
-| 五黄入中 | 借宅运所属卦的同元龙阴阳，仍以5入中，不替星 | X2公开七运卯酉盘；X3 AFSI 2005教材印刷页8–9交叉核对。其PDF经网页工具核实，直接下载403，未登记虚构文件散列 |
-| 五运 | 五入中顺飞为元旦盘；外宫山向原星不会是5 | X1及洛书固定数；这里不需要五运前后十年寄宫，不混用分金寄卦规则 |
-| 下卦／替卦 | 正中9°，两边各3°；同宫同阴阳仍用下卦，异阴阳或跨宫兼向用替 | X2所载中州派；不是“所有偏离中心超过4.5°一律替星”的版本 |
-| 替星 | 在原星所属卦的同元龙找到替星，以原元龙阴阳飞布 | X2替星口诀及完整公开盘例；替后的星不能重新决定阴阳 |
-| 分界 | 恰在山界或下／替分界取两侧候选；误差区间内全部角区枚举 | FateBridge明确的保守应用约定，古籍没有现代浮点端点合同 |
-
-来源均在响应 `rulesets[].sources` 返回名称、URL、作用范围和版本；X1/X2/X4/X5登记2026-10-12获取网页的 SHA-256，便于发现网页更新。网页散列用于追溯，不声称具有古籍校勘权威。
-
-- [X1：沈氏玄空学卷四](https://www.diancangwang.cn/xuanxuewushu/f6f37803664b/90b563d9cb41.html)
-- [X2：玄霖易学《第一篇 玄空基础2》](https://xuanlinyi.com/article_detail?id=301282)
-- [X3：AFSI 2005教材，印刷页8–9](https://www.amfengshui.com/wp-content/uploads/2014/06/fs340.pdf)
-- [X4：陈癸龙《大厦元运及换天心》](https://www.xuankongguan.com/guide-detail/%E5%A4%A7%E5%BB%88%E5%85%83%E9%81%8B%E5%8F%8A%E6%8F%9B%E5%A4%A9%E5%BF%83)
-- [X5：沈氏玄空学卷二，五黄寄宫多种说法](https://www.diancangwang.cn/xuanxuewushu/f6f37803664b/34f0e0aa12ff.html)
-- [X6：香港天文学会2024-02-04立春当日公告](https://hkas.org.hk/2024/02/04/%E7%AB%8B%E6%98%A5-9/)：仅核对当日16:27，不能认证秒精度或住宅定运事件。登记Firecrawl提取Markdown的SHA-256和格式，未冒称原HTML散列。
-
-X2网页有明显笔误：“阳阳互兼用替”与随后同阳不替的例子冲突；所谓十一山清单重复列入13项口诀中的山、数量也不一致。本版本采用紧接其后的明确文字和图例，以13项口诀的24山补集界定其余11山，未照抄错误清单。X5也明确讨论不同寄法；不把这些寄卦概念直接混进外宫五黄入中。规则核实后的选版与校订范围均登记在 `conventions`。
-
-三元龙表：
-
-| 元龙 | 阳 | 阴 |
-| --- | --- | --- |
-| 地元 | 壬甲丙庚 | 辰戌丑未 |
-| 天元 | 乾巽艮坤 | 子午卯酉 |
-| 人元 | 寅申巳亥 | 乙辛丁癸 |
-
-替星表：甲申→1，壬卯乙→2，丑艮丙→7，辰巽巳→6，庚寅→9；其他11山保持原入中星。查的是**运星所属卦的同元龙**，不是看到物理“庚向”就一概用9入中。
+生产规则为离线 [xuankong-v1.json](../src/fatebridge/data/fengshui/xuankong-v1.json)，原有第一阶段规则文件和版本保持不变。规则语义变化须另建版本及独立样本；1.0.1 修复既定角区的浮点实现与不确定输入处理，五黄和替星表未改。
 
 ## 三端调用
 
@@ -71,25 +39,11 @@ MCP `fengshui_xuankong_natal` 的参数就是上面 JSON 对象。认证设置�
 
 聚合需显式选择 `methods` 中的 `xuankong_natal`，并传 `xuankong` 请求；默认仍是基础三法。内层未提供 `house` 时继承顶层住宅；同时提供时必须一致。年星继续用顶层 `effective_year` 或 `query_at`；宅盘只用 `xuankong.period`，两者不互相补默认值。
 
-## 定运输入和不确定性
+## 定运校验与角区实现
 
-`period` 必须含 `basis`、非空白 `evidence`，并且三选一：
-
-- `period_number`：已确认1–9运；不根据今天补造年代、周期或交节日期。
-- `effective_event_year`：1800–2199，已确认交节后的有效事件年。不能把“2024某月不详”伪装成已确认的立春后年份。
-- `event_at`：1801–2199，含时区的ISO时刻；`timezone_name` 默认 `Asia/Shanghai`。显示事件时刻所属的历史20年区间，区间不是宅盘到期日。
-
-`basis` 为 `construction_completion`、`first_occupancy`、`confirmed_major_renovation` 或 `expert_confirmed`。专家确认要求显式 `period_number`。大修另须 `qualifies_for_period_reset=true`；这表示调用方已经确认条件，算法本身不鉴定重建资格。粉刷、搬家或当前年换运不会自动更新历史盘。
-
-`period_context.timing` 记录历史区间首尾和事件年交节的实际 `provider`／`approximate`。`swisseph` 表示组件求解，不认证所用星历文件或秒精度；`linear_1900_fallback` 表示近似回退。若带时区时刻处于1864加20的整数倍这一跨运公历年，且该年立春求解回退，返回 `resolution_status=requires_confirmation`、`number=null`、两个 `candidate_period_numbers`、空宅盘及明确缺失项。调用方确认 `effective_event_year` 或 `period_number` 后可继续；非跨运年近似换年前后的宅运相同。
-
-缺少宅向或定运资料返回 `partial` 和逐项 `missing_inputs`；仅有坐山卦不能推出确定的二十四山。角度要求磁北，真北输入须在调用前完成用户确认的转换；未知规则ID、越界数值、无时区时刻、冲突事件选择、未知字段均为校验错误。
-
-`bearing_uncertainty_degrees` 是测量误差半径0–7.5°，默认0表示调用方确认精确角度。范围跨多个角区时计算所有候选，不只取两端；恰在边界也保留单侧极限候选。候选由山向和下／替模式去重；只有一个选择时 `chart` 有值、状态 `complete`，多个选择时 `chart=null`、状态 `partial`，候选盘不代表多栋住宅。
+定运事件、有效年、宅运三选一的输入语义，磁北、测量误差及边界候选的解释，见 [历史宅盘资料核对](../skills/onda-fengshui/references/xuankong.md#定运输入和不确定性)。请求字段及取值以共享 Schema 为准；三端使用同一校验路径。
 
 1.0.1改为闭角区与测量闭区间的直接相交判断，不扩张浮点容差。所有24山的±4.5°、±7.5°均验证分界及两侧最近可表示浮点数；区间端点碰线也保留双侧候选。给定 `house.sitting_trigram` 时，用已确认坐卦约束候选宫位，避免跨宫误差盘与八宅已确认坐卦冲突；同宫内两山或下／替模式的歧义仍保留。
-
-例如子向354°是子兼壬，采用替卦；子向6°是同宫同阴阳的子兼癸，仍下卦。7.5°在子／癸山界，返回两种山向候选；355.5°在子兼壬的下／替分界，返回两种起法。4.5°双侧都仍下卦，可得到唯一选择。
 
 ## 输出分层与计算过程
 
@@ -120,4 +74,40 @@ PATH="$PWD/.venv/bin:$PATH" .venv/bin/pytest -q tests/test_xuankong.py tests/tes
 
 ## 显式启用有限解释
 
-在 `xuankong.interpretation`（聚合）或 `interpretation`（独立宅盘）传入独立评价运与证据，可启用 `xuankong_conditioned_v1@1.0.0`：有序山向星五行关系、当令星外部山水存在条件及床/门用途角色。默认不启用，既有宅盘数字和规则版本保持原合同。外局分宫独立确认，未确认、照片及边界候选保持缺失和候选状态；完整81组合断语与全宅勘察仍未覆盖。来源、字段与示例见[有限解释合同](fengshui-xuankong-interpretation.md)。
+在 `xuankong.interpretation`（聚合）或 `interpretation`（独立宅盘）传入独立评价运与证据，可启用 `xuankong_conditioned_v1@1.0.0`：有序山向星五行关系、当令星外部山水存在条件及床/门用途角色。默认不启用，既有宅盘数字和规则版本保持原合同。外局分宫独立确认，未确认、照片及边界候选保持缺失和候选状态；完整81组合断语与全宅勘察仍未覆盖。来源、读取字段和解释边界见[有限解释参考](../skills/onda-fengshui/references/xuankong-interpretation.md)，可复现示例见下节。
+
+## 有限解释调用与复现
+
+聚合布局入口仍为 `fengshui_assess`，选择 `xuankong_natal` 方法并启用 `analyze_layout`。在原宅盘请求的 `xuankong` 对象中追加：
+
+```json
+{
+  "interpretation": {
+    "ruleset_id": "xuankong_conditioned_v1",
+    "current_period_number": 9,
+    "period_evidence": "本次明确按九运评价，历史宅运另按原已确认事件保留",
+    "external_forms": [
+      {
+        "direction": "N",
+        "mountain_present": true,
+        "water_present": false,
+        "observation_basis": "user_confirmed",
+        "evidence": "已确认全宅中心北宫外有山形、未见水形；距离与形态质量未鉴定"
+      }
+    ]
+  }
+}
+```
+
+示例只展示新增片段；完整请求仍需保留原先 `house`、历史 `period`、物件 `placements` 及用户证据。示例文字不能当作真实用户资料。磁北测量误差导致多个宅盘时，每个候选单独解读，不选择其中最有利的盘，也不合成确认结论。
+
+完整虚构请求见[示例文件](examples/fengshui-xuankong-interpretation.json)，其中八运甲山庚向盘在九运评价时，西南当令山星的山形存在条件满足，东南当令向星的水形条件不满足；这两项条件不合成整体吉凶。可通过三个入口复现：
+
+```bash
+fatebridge fengshui_assess --request-file docs/examples/fengshui-xuankong-interpretation.json
+curl -X POST http://localhost:8010/api/fengshui/assess \
+  -H 'Content-Type: application/json' \
+  --data-binary @docs/examples/fengshui-xuankong-interpretation.json
+```
+
+MCP 使用同一文件中的 JSON 调用 `fengshui_assess`。读取字段、状态语义和解释边界见 [skill 的有限解释参考](../skills/onda-fengshui/references/xuankong-interpretation.md#启用与读取)。

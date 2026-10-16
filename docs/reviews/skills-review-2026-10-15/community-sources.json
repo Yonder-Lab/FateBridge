@@ -1,0 +1,91 @@
+[
+  {
+    "repo": "aryaminus/astro",
+    "stars_observed": 11,
+    "commit": "82df4c1c285cb470625373a716bab86c343e4b6e",
+    "path": "skills/astrology/SKILL.md",
+    "source": "https://github.com/aryaminus/astro/blob/82df4c1c285cb470625373a716bab86c343e4b6e/skills/astrology/SKILL.md",
+    "license": {
+      "key": "other",
+      "name": "Other",
+      "spdx_id": "NOASSERTION",
+      "url": null,
+      "node_id": "MDc6TGljZW5zZTA="
+    },
+    "pushed_at": "2026-06-08T02:54:58Z"
+  },
+  {
+    "repo": "obra/superpowers",
+    "stars_observed": 299606,
+    "commit": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
+    "path": "skills/writing-skills/SKILL.md",
+    "source": "https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/writing-skills/SKILL.md",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "pushed_at": "2026-10-10T03:03:30Z"
+  },
+  {
+    "repo": "jinchenma94/bazi-skill",
+    "stars_observed": 3486,
+    "commit": "112a5d84cd1a001a0038cafca3be68d93e4c0cc9",
+    "path": "SKILL.md",
+    "source": "https://github.com/jinchenma94/bazi-skill/blob/112a5d84cd1a001a0038cafca3be68d93e4c0cc9/SKILL.md",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "pushed_at": "2026-08-17T17:53:04Z"
+  },
+  {
+    "file": "anthropics__skills-meta.json",
+    "observed": {
+      "repo": "anthropics/skills",
+      "stars": 181305,
+      "forks": 21466,
+      "pushed_at": "2026-10-09T18:45:52Z",
+      "branch": "main",
+      "license": null
+    }
+  },
+  {
+    "file": "Fyrgo8__meihua-divination-skill-meta.json",
+    "observed": {
+      "repo": "Fyrgo8/meihua-divination-skill",
+      "stars": 7,
+      "forks": 0,
+      "pushed_at": "2026-09-23T16:33:50Z",
+      "branch": "main",
+      "license": null
+    }
+  },
+  {
+    "file": "wvanderen__astrology-skill-meta.json",
+    "observed": {
+      "repo": "wvanderen/astrology-skill",
+      "stars": 0,
+      "forks": 0,
+      "pushed_at": "2026-09-22T03:17:16Z",
+      "branch": "main",
+      "license": "MIT"
+    }
+  },
+  {
+    "file": "Johnson-Jia__liuyao-divination-meta.json",
+    "observed": {
+      "repo": "Johnson-Jia/liuyao-divination",
+      "stars": 6,
+      "forks": 1,
+      "pushed_at": "2026-07-17T10:34:02Z",
+      "branch": "main",
+      "license": "MIT"
+    }
+  }
+]

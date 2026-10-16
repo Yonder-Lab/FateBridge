@@ -1,0 +1,4 @@
+interface:
+  display_name: "全面自我画像"
+  short_description: "对照八字紫微西占，读懂有依据的特点、不同处和适合尝试的生活安排"
+  default_prompt: "使用 $onda-zige 按我关心的生活主题做全面画像，保留各体系依据与分歧，给出能在现实中对照的建议。"

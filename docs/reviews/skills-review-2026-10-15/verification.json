@@ -1,0 +1,42 @@
+{
+  "tests": {
+    "command": ".venv/bin/python -m pytest tests/test_skills_interface_contract.py tests/test_skills_engine_contract.py tests/test_scenario_routing_coverage.py tests/test_codex_experience.py tests/test_codex_call_contracts.py tests/test_astro_true_solar.py tests/test_divination_tools.py -q",
+    "passed": 192,
+    "warnings": 5,
+    "seconds": 25.75
+  },
+  "quick_validate": {
+    "skills": 9,
+    "passed": 9
+  },
+  "stdio_evidence": {
+    "tools": 11,
+    "retained_results": 11,
+    "new_first_views": 3
+  },
+  "dialogues": {
+    "scenes": 9,
+    "variants": 2,
+    "recalculation_calls": 0
+  },
+  "blind_comparison": {
+    "tie": 7,
+    "revised_limited_advantage": [
+      "profile"
+    ],
+    "baseline_slight_advantage": [
+      "learning"
+    ],
+    "causal_user_experience_claim": false
+  },
+  "generators": {
+    "scenario_manifest_check": "passed",
+    "codex_call_contracts_check": "passed"
+  },
+  "lint": "passed",
+  "format": "passed",
+  "diff_check": "passed",
+  "existing_connected_mcp_descriptions": "observed stale; reload needed",
+  "desktop_end_to_end": "not performed",
+  "browser_rendering": "not completed"
+}

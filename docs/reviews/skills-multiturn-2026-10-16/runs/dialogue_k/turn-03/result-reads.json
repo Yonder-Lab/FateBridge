@@ -1,0 +1,17 @@
+[
+  {
+    "path": "/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/62f847e6fb32be8adbc9703fab1a061729751476224897af.json",
+    "fields": [
+      "calendar_context"
+    ],
+    "command": "/Users/thomas/Desktop/FateBridge/.venv/bin/python - <<'PY'\nimport json\nfrom pathlib import Path\nrecord=json.loads(Path(\"/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/62f847e6fb32be8adbc9703fab1a061729751476224897af.json\").read_text())\nprint(json.dumps({'calendar_context':record['payload']['calendar_context']},ensure_ascii=False,indent=2))\nPY"
+  },
+  {
+    "path": "/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/65c7e038c7f1771e3f27ac913cc9c46940d2e60bf1be92d7.json",
+    "fields": [
+      "analysis_calendar.analysis_date_context",
+      "analysis_calendar.liuyue_timeline"
+    ],
+    "command": "/Users/thomas/Desktop/FateBridge/.venv/bin/python - <<'PY'\nimport json\nfrom pathlib import Path\npayload=json.loads(Path(\"/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/65c7e038c7f1771e3f27ac913cc9c46940d2e60bf1be92d7.json\").read_text())['payload']\ncalendar=payload['analysis_calendar']\nprint(json.dumps({'date_context':calendar['analysis_date_context'],'months':[{'window':m['gregorian_window'],'pillar':m['liuyue']['pillar'],'summary':m['summary'],'overall_effect':m['overall_effect']} for m in calendar['liuyue_timeline']]},ensure_ascii=False,indent=2))\nPY"
+  }
+]

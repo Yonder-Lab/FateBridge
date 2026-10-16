@@ -24,6 +24,7 @@ from .materials import analyze_material_facts
 from .models import AssessRequest
 from .natal_interpretation import analyze_natal_interpretation
 from .surface import summarize_analysis_progress
+from .workstation import analyze_workstation
 
 
 def element_relationships(element: str) -> Dict[str, str]:
@@ -51,6 +52,7 @@ def _summarize_layout_progress(
     natal_interpretation: Dict[str, Any] | None = None,
     environmental_context: Dict[str, Any] | None = None,
     extra_reviews: List[Dict[str, Any]] | None = None,
+    reference_basis_count: int = 0,
 ) -> Dict[str, Any]:
     """Summarize reviewed records separately from optional physical actions."""
     progress_counts = dict(supported=0, confirmed_unsupported=0, unknown=0)
@@ -70,6 +72,9 @@ def _summarize_layout_progress(
                         status_key="status",
                     )
         if req.layout_constraints:
+            interpretation_status = surface["analysis_progress"][
+                "interpretation_status"
+            ]
             surface["analysis_progress"] = summarize_analysis_progress(
                 surface["missing_inputs"],
                 surface["analysis_progress"]["rule_coverage_counts"],
@@ -87,6 +92,9 @@ def _summarize_layout_progress(
                 ],
                 count_unit="surface_items",
             )
+            surface["analysis_progress"][
+                "interpretation_status"
+            ] = interpretation_status
         surface_progress = surface["analysis_progress"]
         progress_counts.update(surface_progress["rule_coverage_counts"])
         progress_pending.extend(surface_progress["pending_confirmations"])
@@ -280,11 +288,12 @@ def _summarize_layout_progress(
             environmental_context["rule_coverage_counts"]["confirmed_unsupported"]
         )
     for review in extra_reviews or []:
+        progress_pending.extend(review.get("pending_confirmations", []))
         for action in review["action_options"]:
             progress_actions.append({"status": action["status"], "optional": True})
             progress_pending.extend(
                 {
-                    "path": path,
+                    "path": path["path"] if isinstance(path, dict) else path,
                     "reason": "verify_independent_interior_action_conditions",
                     "object_id": action["object_id"],
                     "action_id": action["action_id"],
@@ -382,6 +391,44 @@ def _summarize_layout_progress(
         progress_pending,
         count_unit="surface_items_and_layout_checks",
         limited=limited,
+        conditional_basis_count=(
+            int(
+                surface is not None
+                and surface["analysis_progress"]["interpretation_status"]
+                == "conditional"
+            )
+            + sum(
+                check["candidate_only"] and check["observed"] is not None
+                for finding in supplements["form_analysis"]["findings"]
+                for check in finding["checks"]
+            )
+            + sum(
+                scope["candidate_only"]
+                for option in options
+                for scope in option["scopes"]
+            )
+            + sum(
+                finding.get("status") == "candidate_only"
+                and (
+                    finding.get("present") is not None
+                    or finding.get("reference_finding")
+                    not in {None, "not_determined_from_supplied_attributes"}
+                )
+                for review in extra_reviews or []
+                for finding in review["findings"]
+            )
+        ),
+        reference_basis_count=(
+            reference_basis_count
+            + sum(
+                finding.get("status") == "reviewed"
+                and finding.get("reference_finding")
+                == "reference_only_no_general_taboo"
+                for review in extra_reviews or []
+                for finding in review["findings"]
+            )
+            + int(bool(natal_interpretation and natal_interpretation["candidates"]))
+        ),
     )
 
 
@@ -621,7 +668,9 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         analyze_environmental_context(
             req.environmental_context,
             req.selected_methods,
-            non_directional_scope=bool(req.form_observations or req.surface_layouts),
+            non_directional_scope=bool(
+                req.form_observations or req.surface_layouts or req.workstation_review
+            ),
         )
         if req.environmental_context is not None
         else None
@@ -634,8 +683,11 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
             )
         if req.environmental_context.material_facts:
             extra_reviews["material_analysis"] = analyze_material_facts(
-                req.environmental_context.material_facts
+                req.environmental_context.material_facts,
+                supplements["element_remedies"],
             )
+        if req.workstation_review is not None:
+            extra_reviews["workstation_analysis"] = analyze_workstation(req, layers)
     if context is not None:
         context["additional_fact_reviews"] = {}
         for name, review in extra_reviews.items():
@@ -683,6 +735,9 @@ def analyze_layout(req: AssessRequest, layers: Dict[str, Any]) -> Dict[str, Any]
         natal_interpretation,
         context,
         list(extra_reviews.values()),
+        reference_basis_count=sum(
+            layer["status"] == "complete" for layer in layers.values()
+        ),
     )
     return {
         "status": (

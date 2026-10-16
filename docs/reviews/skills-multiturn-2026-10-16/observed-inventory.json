@@ -1,0 +1,423 @@
+[
+  {
+    "agent": "dialogue_a",
+    "case": "case_01",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_a/turn-02/000001.json",
+        "tool": "mcp__fatebridge__bazi_career",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "2e69f5a0b3cafca018282547ca9488a4175ac2ecabdf03ea32f4fded59b6ba20"
+      },
+      {
+        "path": "runs/dialogue_a/turn-02/000002.json",
+        "tool": "read_mcp_resource",
+        "kind": "resource",
+        "is_error": false,
+        "sha256": "62a8211e465af4547c592f3aed156b4e4af75ba8fa9cea80c4f3513db1c3cd61"
+      },
+      {
+        "path": "runs/dialogue_a/turn-02/000003.json",
+        "tool": "mcp__fatebridge__liuyue_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "b19fa956ae8919e575edafc6aff67f1c4a3380b35b0a2b7158b93a132902210d"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_b",
+    "case": "case_02",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_b/turn-02/000001.json",
+        "tool": "mcp__fatebridge__two_person_compatibility",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "b6db08f8c3487c2ba6abff8b1213bbcb0d556b08230869f2061ee9adb43a12ee"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_c",
+    "case": "case_03",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_c/turn-02/000001.json",
+        "tool": "mcp__fatebridge__timing_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "29035eb55dbd51205ff1a3f8d4d42ea86f2c8c6f1acbabfc6426145eab4c6040"
+      },
+      {
+        "path": "runs/dialogue_c/turn-02/000002.json",
+        "tool": "mcp__fatebridge__knowledge_read",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "4363f74eb5f546cf16a348e3b577d6e7027bfa78de43ec3f01ac65cab75e01eb"
+      },
+      {
+        "path": "runs/dialogue_c/turn-03/000001.json",
+        "tool": "mcp__fatebridge__liunian_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "a271d4b83f839557891f9ca9c1d67a0b1375105e1c43260454dacd9ebca49d8b"
+      },
+      {
+        "path": "runs/dialogue_c/turn-03/000002.json",
+        "tool": "mcp__fatebridge__bazi_career",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "3517ced3a82d39b8aafa284b1bf9cf85a9ae5d7a691da78407472dd244761665"
+      },
+      {
+        "path": "runs/dialogue_c/turn-03/000003.json",
+        "tool": "mcp__fatebridge__bazi_wealth",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "45c3a1dfca4f248b8acaf314f9951593febfc2a09f95c56bf8bc1a47b9742933"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_d",
+    "case": "case_04",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_d/turn-01/000001.json",
+        "tool": "mcp__fatebridge__bazi_health",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "0d101094632d9967afda8ccb41b04669b850c2e2326b47586a35e1da12e043fa"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_e",
+    "case": "case_05",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_e/turn-02/000001.json",
+        "tool": "mcp__fatebridge__bazi_personality",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "b6402bec6d5bcde03c38605495ebb2f697a1c0ecc6ad755ac5eeaf0d6877c9e4"
+      },
+      {
+        "path": "runs/dialogue_e/turn-03/000001.json",
+        "tool": "mcp__fatebridge__bazi_education",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "b5b3720bc3a718155fd7953a2c59c337f18c29fe1e6351c531976a7e9d6f1679"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_f",
+    "case": "case_06",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_f/turn-01/000001.json",
+        "tool": "mcp__fatebridge__astro_chart",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "478ddf16daa9379271a55aa0393dcbf780c189807437da4772b28b33dd405b02"
+      },
+      {
+        "path": "runs/dialogue_f/turn-02/000001.json",
+        "tool": "mcp__fatebridge__astro_chart",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "7f5654cb2c4573c4076cb615f11121dfe505762e4cf1527b141df2a9587b2f2d"
+      },
+      {
+        "path": "runs/dialogue_f/turn-04/000001.json",
+        "tool": "mcp__fatebridge__western_timing_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "a740efd2bcb6e145b422251da64c770ef7cd2083526c3715c211e7026a88f113"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_g",
+    "case": "case_07",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_g/turn-01/000001.json",
+        "tool": "mcp__fatebridge__astro_chart",
+        "kind": "tool",
+        "is_error": true,
+        "sha256": "b177d1ccf2e72f3480e7e3ed2b4cb33164625a75de2b19edc8339de2018c477c"
+      },
+      {
+        "path": "runs/dialogue_g/turn-01/000002.json",
+        "tool": "mcp__fatebridge__ziwei_birth",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "2010c76558148416dd86ad1107aa6f65b3789e18c136032418af4744c45d0ce6"
+      },
+      {
+        "path": "runs/dialogue_g/turn-01/000003.json",
+        "tool": "mcp__fatebridge__analyze_destiny",
+        "kind": "tool",
+        "is_error": true,
+        "sha256": "ca6ee9c6cd50942e2a276cd93469c9e9179931976cd0bddb4e0290584b95ae9e"
+      },
+      {
+        "path": "runs/dialogue_g/turn-01/000004.json",
+        "tool": "read_mcp_resource",
+        "kind": "resource",
+        "is_error": false,
+        "sha256": "e832b6bac3842e9b5b2057355f22be9f34de593622ffce34f5fdea555545c9bc"
+      },
+      {
+        "path": "runs/dialogue_g/turn-01/000005.json",
+        "tool": "read_mcp_resource",
+        "kind": "resource",
+        "is_error": false,
+        "sha256": "1f12296d09006777fd8df7b17afd4e16cf76e851021100798f8e7642d52e808c"
+      },
+      {
+        "path": "runs/dialogue_g/turn-01/000006.json",
+        "tool": "mcp__fatebridge__astro_chart",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "5df0a1152eb1813a4acb7af12dd75b4d8ac9423ce88e4155f990cfd310360731"
+      },
+      {
+        "path": "runs/dialogue_g/turn-01/000007.json",
+        "tool": "mcp__fatebridge__analyze_destiny",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "d8aa21ddf35323e4fc456ed569fd54251769fa052d6cc3e4843df40f46292f97"
+      }
+    ],
+    "error_records": [
+      {
+        "path": "runs/dialogue_g/turn-01/000001.json",
+        "tool": "mcp__fatebridge__astro_chart",
+        "kind": "tool",
+        "is_error": true,
+        "sha256": "b177d1ccf2e72f3480e7e3ed2b4cb33164625a75de2b19edc8339de2018c477c"
+      },
+      {
+        "path": "runs/dialogue_g/turn-01/000003.json",
+        "tool": "mcp__fatebridge__analyze_destiny",
+        "kind": "tool",
+        "is_error": true,
+        "sha256": "ca6ee9c6cd50942e2a276cd93469c9e9179931976cd0bddb4e0290584b95ae9e"
+      }
+    ]
+  },
+  {
+    "agent": "dialogue_h",
+    "case": "case_08",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_h/turn-01/000001.json",
+        "tool": "mcp__fatebridge__meihua_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "35b6ea602d48a4ddf70f08466c3a45db90d1ef051ff6e57b1dfc210365052042"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_i",
+    "case": "case_09",
+    "phase": "baseline",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_i/turn-01/000001.json",
+        "tool": "mcp__fatebridge__fengshui_assess",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "6dabacd970ee61ddd8f227acc345d90ddb12daf08938e07273143647b155e8d9"
+      },
+      {
+        "path": "runs/dialogue_i/turn-02/000001.json",
+        "tool": "mcp__fatebridge__fengshui_assess",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "b8cee0b5f84dc2f11d0919a1dfa51806363058fd956401af2449e3220cbb22ac"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_j",
+    "case": "case_07",
+    "phase": "fresh_context_replay",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_j/turn-01/000001.json",
+        "tool": "mcp__fatebridge__astro_chart",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "476fe60b358866cdd836a13ed364b6c59b49dac9f3bbc4761ba02c17ecf73f23"
+      },
+      {
+        "path": "runs/dialogue_j/turn-01/000002.json",
+        "tool": "mcp__fatebridge__analyze_destiny",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "89cb52664a11e37b7db42edc18096d4b06840125847ac40e2d156dcc57537d02"
+      },
+      {
+        "path": "runs/dialogue_j/turn-01/000003.json",
+        "tool": "mcp__fatebridge__ziwei_birth",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "a0db26d78ffc2a81e69a09ec9798a6e02d2b643dc1cc511d8d6edd9fc1f1223e"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_k",
+    "case": "case_03",
+    "phase": "fresh_context_replay",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_k/turn-02/000001.json",
+        "tool": "mcp__fatebridge__timing_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "60dfa1e8714355704e982d1699714984b5e2d2697ba9bc565b4f1250f68bda19"
+      },
+      {
+        "path": "runs/dialogue_k/turn-03/000001.json",
+        "tool": "mcp__fatebridge__liunian_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "08c375550b25b52af4afb98b22eb9ce1e6780c199448f5ce62c412ebe563ea31"
+      },
+      {
+        "path": "runs/dialogue_k/turn-03/000002.json",
+        "tool": "mcp__fatebridge__timing_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "f26077c2df67e20bccb05fdac103d0d5f214590187097ccdbcf65e5b93c2f67e"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_l",
+    "case": "case_02",
+    "phase": "fresh_context_replay",
+    "expected_turns": 4,
+    "saved_replies": 4,
+    "records": [
+      {
+        "path": "runs/dialogue_l/turn-02/000001.json",
+        "tool": "mcp__fatebridge__two_person_compatibility",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "4c0cb812cb252c32259dfb2c98894072a85ede2e9fdc94b0a36736bc2674f8b0"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_m",
+    "case": "held_out_profile",
+    "phase": "held_out",
+    "expected_turns": 2,
+    "saved_replies": 2,
+    "records": [
+      {
+        "path": "runs/dialogue_m/turn-01/000001.json",
+        "tool": "mcp__fatebridge__astro_chart",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "7b0a51e27a2b3ee6eff25c84a718401d80bdcef16ceff298f77bd6282df9a1eb"
+      },
+      {
+        "path": "runs/dialogue_m/turn-01/000002.json",
+        "tool": "mcp__fatebridge__analyze_destiny",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "fd925ae179322a507bcabecb2366fd313a147e70472e79d6d985a67b47fa51bf"
+      },
+      {
+        "path": "runs/dialogue_m/turn-01/000003.json",
+        "tool": "mcp__fatebridge__ziwei_birth",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "38b251003f9a0350f1b6c3d39279111f7e63e9319f3d6dab711d2d1ee54678d6"
+      }
+    ],
+    "error_records": []
+  },
+  {
+    "agent": "dialogue_n",
+    "case": "held_out_timing",
+    "phase": "held_out_timing_after_efficiency_fix",
+    "expected_turns": 3,
+    "saved_replies": 3,
+    "records": [
+      {
+        "path": "runs/dialogue_n/turn-01/000001.json",
+        "tool": "mcp__fatebridge__timing_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "598a36afb6e6252d9a3dc4bca87b58a178d4bad7b3bb86f1bb25b7265f82dd36"
+      },
+      {
+        "path": "runs/dialogue_n/turn-01/000002.json",
+        "tool": "mcp__fatebridge__bazi_career",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "e6b70a54e4469b1d70beb772033007562bf73abc022cb54882a0cbb3b84008c0"
+      },
+      {
+        "path": "runs/dialogue_n/turn-02/000001.json",
+        "tool": "mcp__fatebridge__timing_analysis",
+        "kind": "tool",
+        "is_error": false,
+        "sha256": "aac0f45aa0974fc6f02d36d4ed57fbe04e6417fbd981f7f8eee119c0d4c6fed3"
+      }
+    ],
+    "error_records": []
+  }
+]

@@ -1,0 +1,148 @@
+--- a/skills/_shared/fatebridge-engine.md
++++ b/skills/_shared/fatebridge-engine.md
+@@ -76,6 +76,10 @@
+ 
+ **结构化字段怎么读（需要精确时）：**
+ 
++- `analyze_destiny` → 根字段 `four_pillars`、`day_master`、`ten_gods`、`structure_profile`、`element_distribution`、`element_distribution_basis`、`person_info`。普通画像首轮可取这七项；格局解释读 `structure_profile.decision_basis/useful_elements`，五行分布不等于喜用。
++- `bazi_birth` → `bazi_birth.four_pillars`、`bazi_birth.day_master` 等嵌套字段。它与 `analyze_destiny` 的输出根结构不同，不能共用 `bazi_birth.` 前缀。
++- `ziwei_birth` → `ziwei_birth.ming_gong/shen_gong/palaces/sihua`；核对出生处理口径时按需加 `person_info`、`analysis_context`。
++- `astro_chart` → 根字段 `angles`、`chart_profile`、`planets`、`aspects`、`interpretation`、`person_info`。普通首轮的解释子项按工具公布的字段选择；出生钟时读 `person_info`。`western_timing_analysis` 的 `analysis_context` 不能移作本命盘字段。
+ - 八字 9 专项 → `{"analysis_type": "...", "<dim>_analysis": {...}}`。解读读 `<dim>_analysis`，里面是该维度的子项。例如 `bazi_romance` → `romance_analysis.{peach_blossom, hongluan_tianxi, opposite_sex_star, peach_quality, romance_timing, timing_context}`；`bazi_wealth` → `wealth_analysis.{...}`。`timing_context` 段是引擎自动推算的当前大运/流年，看时机就看它。
+ - `two_person_compatibility` → `summary`（`overall_score` / `compatibility_level`）、`traditional_compatibility`、`detailed_analysis`（`element_balance` / `favorable_synergy`）、`strengths`、`challenges`、`recommendations`。不同规则段的分数保留各自名称与作用域，不合成成功概率；`person_info` 中的个人内部结构不能直接解释为双方互动。建议列表为空时如实说明，现实沟通建议另作标记。
+ - `sukuyo_compatibility` → 27 宿相性，**有方向**：`person1_to_person2` 与 `person2_to_person1` 各一套关系判定，别只读一边；另有 `pair`（双向综合）、`su27_basis`（各自本命宿）、`summary`。
+@@ -106,7 +110,7 @@
+   --fields romance_analysis.romance_timing
+ ```
+ 
+-路径写法跟上面「结构化字段怎么读」一致：命盘类带 `bazi_birth.` 前缀，八字 9 专项带 `<dim>_analysis.` 前缀。首轮使用 `--strict-fields`：路径不存在会返回校验错误，应核对合同后修正。默认宽松模式可能返回空对象及 `projection_warnings`，指不到字段就别说，别编。
++路径按所调用工具自己的输出根结构填写：`bazi_birth` 带 `bazi_birth.` 前缀，`analyze_destiny` 直接取根字段，八字 9 专项带 `<dim>_analysis.` 前缀。输入参数相似不代表输出路径相同。首轮使用 `--strict-fields`：路径不存在会返回校验错误，应核对合同后修正。默认宽松模式可能返回空对象及 `projection_warnings`，指不到字段就别说，别编。
+ 
+ 请求的 `fields` 目前沿对象路径投影，数组取其所属字段（例如 `planets`、`aspects`、`ziwei_birth.palaces`）；不要把交付资源支持的数组数字索引照搬成 `fields=["planets.0"]`，这会报 `non_object_projection_path`。读取后核对星体／宫位名称，再选与问题有关的项目解释，不把列表首项自动当成重点。
+ 
+--- a/skills/onda-zige/SKILL.md
++++ b/skills/onda-zige/SKILL.md
+@@ -29,6 +29,8 @@
+ ## 主证与补充
+ 
+ 明确要求三体系画像且资料齐全时，`analyze_destiny`、`ziwei_birth`、`astro_chart` 为三套主证，可并行计算。用户限定其中两系或要求沿用已有结果时照其范围执行。普通摘要用已验证的 `fields`、`strict_fields=true`、`include_snapshot_text=false`，不先把所有专项跑一遍。
++
++三套工具分别构造投影：`analyze_destiny` 取根字段，紫微宫位取 `ziwei_birth.*`，西占出生钟时取 `person_info`。首轮字段见[共享字段说明](../_shared/fatebridge-engine.md#输出形态与首轮读取)；不能把八字原始命盘的前缀或推运的时间上下文复制给另外两套主盘。
+ 
+ | 想回答什么 | 主证中的实际依据 | 何时补充 |
+ | --- | --- | --- |
+--- a/skills/onda-shiyun/SKILL.md
++++ b/skills/onda-shiyun/SKILL.md
+@@ -21,6 +21,10 @@
+ | 明确活动择时 | `astro_election` 的实际候选与条件 | 对照已计算候选和用户的现实可用时段；普通运势不能替代择日结果，吉时也不保证活动结果 |
+ 
+ 全年时间线在普通首轮字段之外：问题本来就要求全年结构或全部时间线，首次即 `fields=null`，随后读同一 run 的 `result_delivery`；首轮只做摘要时不能声称未保留的月份已交付。没有真实时间差异就直接说明，不为表格补出“更旺”的月份。准备动作如核对项目截止、预算或沟通安排，来自现实建议，不能写成计算出的事件。
++
++用户把某个月与另一年比较时，开头就说明粒度不同，再分清未变的长期背景、新目标实际返回的信号和仍不可比较的部分。月度十神与年度十神不同，不足以推出后一年的责任、收入或压力比前一年更强；只有同粒度、同口径的依据才作强弱比较。年度仍有某主题，就说“仍有”，不把不变结构包装成新利好；不为凑出升降额外跑齐所有专项。
++
++解释 `element_changes.original/new/change` 时核对参照基准：每次“增强”可能都是相对本命，不是比上一次分析继续增加。跨年比较同一元素，应比较两次对应的 `new` 值；若两年都高于本命、后一年反而降低，就分别说明，不能只重复“仍增强”。这些权重变化本身仍不证明收入、精力或事情成败变化。
+ 
+ ## 引用路径
+ 
+@@ -87,11 +91,13 @@
+ 
+ 一次核对缺项、历法及出生时区，出生与分析时间分开。综合首轮保留实际 `analysis_datetime`、时间校正及分析日历中的时区、当前／下一节气、八字换月边界。未给具体分析时点才使用当前值，复现用带时区 `as_of`；不能沿用示例日期冒充今天。
+ 
++用户只给年或月时，不把自行选择的某日某刻说成用户指定。若确需选月中等内部取数锚点，简述该日期只是计算定位，结论仍限所问粒度；大运切换或节气边界可能影响覆盖时，按实际边界保留限制，不由一个锚点声称全年各时段均已审查。
++
+ 西占聚合与单项推运都支持 `analysis_hour`、`analysis_minute`，明确时点时同时传入，零点／零分不可遗漏；它们按 `birth_timezone` 解释，换到行运地点只转换同一时刻。不能用 `as_of` 替代明确钟时，也不能让出生10:30覆盖分析12:00。首轮采用西占工具公布的精简字段，保留 `analysis_context.analysis_datetime` 和行运实际时点；大时间线需要时从 `result_delivery` 按字段分页读取原 run，不重复排盘。
+ 
+ ## 工作流
+ 1. 按用户已说的时段与目的选择运势或择时分支；只有会改变计算范围时再简短核对。
+-2. 调引擎：综合运势主用 `timing_analysis`，只问流年细节才用 `liunian_analysis`；大运段用 `dayun_analysis --analysis-age N`（虚岁必填）。西占整体推运主用 `western_timing_analysis`，用户点名太阳返照或小限才分别调 `solarreturn` / `profection`，不默认连发单技法。
++2. 调引擎：综合运势主用 `timing_analysis`，只问流年细节才用 `liunian_analysis`。用户更换目标年份，仍要大运背景或月份对照时，直接用新目标的聚合，不先取流年专项再补聚合。纯流年窄查询可用已验证的 `fields=["liunian_info","personal_info","summary","target_year_jieqi"]`，按所问进一步缩小；普通解释不因缺首轮预设就默认 `fields=null` 取全快照。大运段用 `dayun_analysis --analysis-age N`（虚岁必填）。西占整体推运主用 `western_timing_analysis`，用户点名太阳返照或小限才分别调 `solarreturn` / `profection`，不默认连发单技法。
+ 3. 读首轮结构化时运信号，按实际返回的年/月/日粒度和节气边界表述；仅有流年不能推断上半年或下半年。更细节奏只补尚未返回的层，不重算聚合已有内容；全年时间线在明确要求时展开。
+ 4. 给节奏建议，不给死期。
+ 5. 按 [Onda 解读层](../_shared/onda-counsel.md) 自然收尾；建议已在正文讲清就停，不重复排程或强造一句结尾。
+--- a/skills/onda-yuanfen/SKILL.md
++++ b/skills/onda-yuanfen/SKILL.md
+@@ -18,6 +18,8 @@
+ | 两个维度结论不同 | `summary`、`traditional_compatibility` 和各维度自己的依据 | 解释「哪一层较顺、哪一层要核对」；需要时用“维度／依据／相处中可核对什么”短表，不另造综合赢家 |
+ 
+ 维度与生活场景的对应属于传统解释，谈话内容和观察动作属于现实建议。`recommendations` 为空就不称其为引擎建议；`pattern_synergy` 的事件要核对实际 `source_scope`，个人内部事件仍只描述那个人。对方是否回应、尊重边界、履行约定，要从实际相处中确认。
++
++用户追问总分或“哪些是在比较两人”时，还须核对各维度的 `score_basis`：当前格局配合分可能把个人盘内事件计入，总分也会受该维度影响。若本次确有此项，说明这是混合了个人结构与跨盘规则的指标，不能把整个总分当作纯粹的双方互动评价。分开展示实际跨盘依据与个人依据即可；不擅自删项重算一个“净合盘分”。
+ 
+ ## 引用路径
+ 
+--- a/src/fatebridge/data/agent_examples.json
++++ b/src/fatebridge/data/agent_examples.json
+@@ -295,6 +295,15 @@
+     }
+   },
+   "suggested_fields": {
++    "analyze_destiny": [
++      "four_pillars",
++      "day_master",
++      "ten_gods",
++      "structure_profile",
++      "element_distribution",
++      "element_distribution_basis",
++      "person_info"
++    ],
+     "bazi_birth": [
+       "bazi_birth.four_pillars",
+       "bazi_birth.day_master"
+--- a/tests/test_codex_experience.py
++++ b/tests/test_codex_experience.py
+@@ -286,14 +286,16 @@
+ 
+ 
+ @pytest.mark.asyncio
+-@pytest.mark.parametrize("key", ["astro_chart", "ziwei_birth", "meihua_analysis"])
++@pytest.mark.parametrize(
++    "key", ["analyze_destiny", "astro_chart", "ziwei_birth", "meihua_analysis"]
++)
+ async def test_consultation_first_views_keep_interpretable_evidence_across_surfaces(
+     key, capsys
+ ):
+     """A successful first call must contain the facts its reading relies on.
+ 
+-    This catches views which were runnable but omitted the Sun/Moon, palace
+-    stars, or moving line. Compare public transports as projection is shared.
++    This catches views which omitted structure rules, the Sun/Moon, palace
++    stars, or moving line. Compare the transports each tool actually exposes.
+     """
+     spec = next(s for s in CATALOG if s.key == key)
+     inputs = example_input(spec)
+@@ -312,7 +314,14 @@
+         )
+     payload = result.structured_content
+     assert not result.is_error and "result_delivery" not in payload
+-    if key == "astro_chart":
++    if key == "analyze_destiny":
++        assert payload["four_pillars"]["day"]["stem"]
++        assert payload["day_master"]["element"]
++        assert payload["ten_gods"]
++        assert payload["structure_profile"]["decision_basis"]
++        assert payload["structure_profile"]["useful_elements"]
++        assert payload["person_info"]["normalized_birth_datetime"]
++    elif key == "astro_chart":
+         assert {"Sun", "Moon"} <= {p["id"] for p in payload["planets"]}
+         assert payload["aspects"] and all("orb" in a for a in payload["aspects"])
+     elif key == "ziwei_birth":
+@@ -329,12 +338,13 @@
+         ("strict_fields", "true"),
+         ("include_snapshot_text", "false"),
+     ]
+-    with TestClient(app) as rest:
+-        response = rest.post(spec.rest_path, json=inputs, params=query)
+-    assert response.status_code == 200, response.json()
+-    assert {
+-        k: v for k, v in response.json().items() if k != "run_metadata"
+-    } == mcp_business
++    if spec.rest_path is not None:
++        with TestClient(app) as rest:
++            response = rest.post(spec.rest_path, json=inputs, params=query)
++        assert response.status_code == 200, response.json()
++        assert {
++            k: v for k, v in response.json().items() if k != "run_metadata"
++        } == mcp_business
+     command = shlex.split(cli._cli_example(spec, example_input(spec)))[1:]
+     code, cli_payload, _ = invoke(
+         capsys,

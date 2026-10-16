@@ -1,0 +1,38 @@
+{
+  "career": {
+    "A": "revised",
+    "B": "baseline"
+  },
+  "relationship": {
+    "A": "baseline",
+    "B": "revised"
+  },
+  "timing": {
+    "A": "revised",
+    "B": "baseline"
+  },
+  "health": {
+    "A": "baseline",
+    "B": "revised"
+  },
+  "learning": {
+    "A": "revised",
+    "B": "baseline"
+  },
+  "natal": {
+    "A": "baseline",
+    "B": "revised"
+  },
+  "divination": {
+    "A": "revised",
+    "B": "baseline"
+  },
+  "profile": {
+    "A": "baseline",
+    "B": "revised"
+  },
+  "space": {
+    "A": "revised",
+    "B": "baseline"
+  }
+}

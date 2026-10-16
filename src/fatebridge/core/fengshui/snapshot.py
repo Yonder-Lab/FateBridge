@@ -198,6 +198,40 @@ def sections(result: Dict[str, Any]) -> List[Tuple[str, List[str]]]:
                 f"材料资格{finding['material_eligibility']}，颜色资格{finding['colour_eligibility']}；"
                 "器形参考不等于实际尖角关系，代表物资格不认证摆位。"
             )
+            application = finding.get("application_analysis")
+            if application is not None:
+                lines.append(
+                    f"材料施用条件：{application['status']}；"
+                    f"目标绑定：{application['target_binding']['status']}；"
+                    "剂量、目标位置、摆放利弊与效力仍未评估。"
+                )
+        for finding in layout.get("workstation_analysis", {}).get("findings", []):
+            if "activity" in finding:
+                lines.append(
+                    f"工位{finding['object_id']} 活动{finding['activity']}：{finding['status']}；"
+                    f"角色{finding['selected_star_role']}；规则{finding['rule_id']}。"
+                )
+                lines.extend(
+                    f"候选{c['candidate_id']} 落宫{finding['location_direction']}："
+                    f"向星{c['selected_star_number']}／{c['star_element']}；"
+                    f"山星{c['mountain_star_number']}；评价时运{c['timeliness']}；"
+                    "不是综合吉凶或真实水装置需求。"
+                    for c in finding.get("candidates", [])
+                )
+            else:
+                lines.append(
+                    f"入口隔挡{finding['entrance_id']} → {finding['desk_id']}，"
+                    f"物件{finding['barrier_id']}：{finding['status']}；"
+                    f"规则{finding['rule_id']}，不规定吉侧。"
+                )
+                lines.extend(
+                    f"隔挡动作{a['operation']}：{a['status']}；"
+                    f"受阻原因：{'、'.join(a['blocking_reasons']) or '无已确认阻碍'}；"
+                    "执行许可、视野与通行分别核对。"
+                    for a in finding["action_options"]
+                )
+        if "workstation_analysis" in layout:
+            lines.append("WOFS非BTB桌面摆放仅作者参考，未启用摆放规则。")
         if context is not None:
             orientation = context["orientation_review"]
             lines.append(

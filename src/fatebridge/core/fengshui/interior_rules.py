@@ -6,6 +6,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, cast
 
+from .workstation_sources import disagreement, provenance
+
 
 @lru_cache(maxsize=1)
 def _bundle() -> Dict[str, Any]:
@@ -111,6 +113,15 @@ def analyze_interior_relations(
     constraint_map = {_get(item, "object_id"): item for item in constraints}
     for relation in relations:
         rule = deepcopy(data["rules"][_get(relation, "kind")])
+        if _get(relation, "kind") == "sharp_corner_points_at_desk":
+            rule.setdefault("method_disagreements", []).append(disagreement("corners"))
+            if not any(
+                r["ruleset_id"] == "workstation_source_boundaries_v1"
+                for r in result["rulesets"]
+            ):
+                result["rulesets"].append(
+                    provenance("workstation_source_boundaries_v1")
+                )
         present = _get(relation, "present")
         basis = _get(relation, "observation_basis")
         relation_id = _get(relation, "relation_id")
@@ -148,6 +159,36 @@ def analyze_interior_relations(
             "exceptions": rule["exceptions"],
             "interpretation": (
                 rule["interpretation"] if status == "authored_caution" else None
+            ),
+            # Preserve the candidate state while allowing a useful explanation
+            # of a visibly suggested relation. Unknown/absent relations never
+            # receive a positive caution, even conditionally.
+            "conditional_interpretation": (
+                {
+                    "condition": "若现场确认该关系成立",
+                    "interpretation": rule["interpretation"],
+                    "suggestions": [
+                        {
+                            "description": action["description"],
+                            "action_basis": action["action_basis"],
+                            "condition": "若允许相应调整且新位置可容纳、不妨碍通行和使用",
+                        }
+                        for action in rule["actions"]
+                        if _get(
+                            constraint_map.get(
+                                _get(relation, action["endpoint"] + "_object_id")
+                            ),
+                            {"location": "can_relocate", "facing": "can_rotate"}[
+                                action["operation"]
+                            ],
+                        )
+                        is not False
+                    ],
+                    "source_ids": list(rule["source_ids"]),
+                    "rule_id": rule["rule_id"],
+                }
+                if status == "candidate_only" and present is True
+                else None
             ),
             "method_disagreements": rule.get("method_disagreements", []),
             "action_options": [],

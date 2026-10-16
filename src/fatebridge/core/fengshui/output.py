@@ -172,7 +172,31 @@ class ActionCounts(PartialOutput):
     blocked: Optional[int] = Field(default=None, ge=0)
 
 
+class ConsultationFollowUp(PartialOutput):
+    conclusion_candidates: Optional[List[str]] = Field(
+        default=None,
+        description="引用pending_confirmations.path；仅在会改变当前结论时择要追问，不是必补清单或新请求参数",
+    )
+    execution_only: Optional[List[str]] = Field(
+        default=None,
+        description="引用pending_confirmations.path；仅用于落实动作，不阻塞普通解释或条件式建议",
+    )
+    selection_policy: Optional[Literal["ask_only_if_changes_requested_conclusion"]] = (
+        None
+    )
+    unsupported_policy: Optional[
+        Literal["explain_limit_without_requesting_more_input"]
+    ] = None
+
+
 class AnalysisProgress(PartialOutput):
+    interpretation_status: Optional[
+        Literal["available", "conditional", "scope_only", "insufficient_evidence"]
+    ] = Field(
+        default=None,
+        description="已有依据可解释／仅条件式解释／仅说明未覆盖范围／尚无事实依据；独立于计算完整性和执行状态",
+    )
+    follow_up: Optional[ConsultationFollowUp] = None
     calculation_status: Optional[Literal["complete", "partial"]] = None
     rule_coverage_status: Optional[
         Literal["reviewed", "needs_confirmation", "limited"]
@@ -271,6 +295,7 @@ class LayoutAnalysis(PartialOutput):
     environmental_context: Optional[Object] = None
     interior_analysis: Optional[Object] = None
     material_analysis: Optional[Object] = None
+    workstation_analysis: Optional[Object] = None
     natal_interpretation: Optional[NatalInterpretation] = None
     alternatives_analysis: Optional[Object] = None
     surface_analysis: Optional[SurfaceAnalysis] = None

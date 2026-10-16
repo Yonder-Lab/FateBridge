@@ -1,0 +1,17 @@
+{
+  "attempt": "codex exec --ephemeral --json, read-only no-tool OK prompt with configured default",
+  "cli_version": "0.142.5",
+  "configured_model": "gpt-6.1-sol",
+  "exit_code": 1,
+  "model_output_produced": false,
+  "errors": [
+    "The gpt-6.1-sol model is not supported when using Codex with a ChatGPT account.",
+    "Exceeded skills context budget of 2%; descriptions removed and 2401 additional skills not included."
+  ],
+  "action_taken": "No global config/model changes. Used independent collaboration agents with real connected FateBridge MCP calls and actual follow-up turns.",
+  "validation_scope": "Native model-agent + connected MCP dialogue; not independent Codex CLI or human Desktop UI acceptance.",
+  "original_logs_retained_temporarily": [
+    "cli-probe.jsonl",
+    "cli-probe.stderr"
+  ]
+}

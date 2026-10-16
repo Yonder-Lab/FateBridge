@@ -124,7 +124,11 @@ def _compose(
             result["status"] = layout["status"]
             result["summary"] = f"layout: {layout['status']}"
             result["coverage"]["missing_inputs"] = layout["missing_inputs"]
-        for branch in ("interior_analysis", "material_analysis"):
+        for branch in (
+            "interior_analysis",
+            "material_analysis",
+            "workstation_analysis",
+        ):
             result["rule_trace"].extend(layout.get(branch, {}).get("rule_trace", []))
     interpretation = layers.get("xuankong_natal", {}).get("interpretation")
     if interpretation is not None:
@@ -396,6 +400,7 @@ def assess(**kwargs: Any) -> Dict[str, Any]:
             "calculation_status",
             "rule_coverage_status",
             "assessment_complete",
+            "interpretation_status",
         ):
             progress[key] = previous[key]
         progress["optional_action_count"] = previous["optional_action_count"] + len(

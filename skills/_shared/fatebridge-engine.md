@@ -58,7 +58,7 @@ fatebridge <tool> [参数...]
 
 ## 输出形态与首轮读取
 
-工具输出有双层快照、仅文本快照、仅结构化数据三种形态，不要假设字段始终存在。八字、时运、中国术数、knowledge、多数核心盘和独立推运常有双层快照；六爻/统摄法/参评/河洛/宿占/星骰、事件与生命周期只有文本快照。梅花、中点盘、西占推运总览和 export helper 主要返回结构化数据。完整表见 [快照覆盖](../../docs/algorithm-coverage.md#4-快照协议覆盖)。
+工具按实际合同返回结构化业务字段、`snapshot_text` 和部分工具的 `snapshot_export`。只有文本快照不等于没有结构化业务字段；六爻、统摄组合、星骰等仍须先检查实际业务结果，不能只因没有 `snapshot_export` 就丢弃结构化依据。确无独立业务字段时保留必要文本，不猜字段始终存在。快照形式见 [快照覆盖](../../docs/algorithm-coverage.md#4-快照协议覆盖)。
 
 一类工具的 `snapshot_text` 只是结构化字段的中文摘要，精确读取仍以业务字段为准。
 
@@ -76,6 +76,10 @@ fatebridge <tool> [参数...]
 
 **结构化字段怎么读（需要精确时）：**
 
+- `analyze_destiny` → 根字段 `four_pillars`、`day_master`、`ten_gods`、`structure_profile`、`element_distribution`、`element_distribution_basis`、`person_info`。普通画像首轮可取这七项；格局解释读 `structure_profile.decision_basis/useful_elements`，五行分布不等于喜用。
+- `bazi_birth` → `bazi_birth.four_pillars`、`bazi_birth.day_master` 等嵌套字段。它与 `analyze_destiny` 的输出根结构不同，不能共用 `bazi_birth.` 前缀。
+- `ziwei_birth` → `ziwei_birth.ming_gong/shen_gong/palaces/sihua`；核对出生处理口径时按需加 `person_info`、`analysis_context`。
+- `astro_chart` → 根字段 `angles`、`chart_profile`、`planets`、`aspects`、`interpretation`、`person_info`。普通首轮的解释子项按工具公布的字段选择；出生钟时读 `person_info`。`western_timing_analysis` 的 `analysis_context` 不能移作本命盘字段。
 - 八字 9 专项 → `{"analysis_type": "...", "<dim>_analysis": {...}}`。解读读 `<dim>_analysis`，里面是该维度的子项。例如 `bazi_romance` → `romance_analysis.{peach_blossom, hongluan_tianxi, opposite_sex_star, peach_quality, romance_timing, timing_context}`；`bazi_wealth` → `wealth_analysis.{...}`。`timing_context` 段是引擎自动推算的当前大运/流年，看时机就看它。
 - `two_person_compatibility` → `summary`（`overall_score` / `compatibility_level`）、`traditional_compatibility`、`detailed_analysis`（`element_balance` / `favorable_synergy`）、`strengths`、`challenges`、`recommendations`。不同规则段的分数保留各自名称与作用域，不合成成功概率；`person_info` 中的个人内部结构不能直接解释为双方互动。建议列表为空时如实说明，现实沟通建议另作标记。
 - `sukuyo_compatibility` → 27 宿相性，**有方向**：`person1_to_person2` 与 `person2_to_person1` 各一套关系判定，别只读一边；另有 `pair`（双向综合）、`su27_basis`（各自本命宿）、`summary`。
@@ -106,7 +110,9 @@ python3 -m fatebridge.cli --no-metadata bazi_romance <出生参数> \
   --fields romance_analysis.romance_timing
 ```
 
-路径写法跟上面「结构化字段怎么读」一致：命盘类带 `bazi_birth.` 前缀，八字 9 专项带 `<dim>_analysis.` 前缀。首轮使用 `--strict-fields`：路径不存在会返回校验错误，应核对合同后修正。默认宽松模式可能返回空对象及 `projection_warnings`，指不到字段就别说，别编。
+路径按所调用工具自己的输出根结构填写：`bazi_birth` 带 `bazi_birth.` 前缀，`analyze_destiny` 直接取根字段，八字 9 专项带 `<dim>_analysis.` 前缀。输入参数相似不代表输出路径相同。首轮使用 `--strict-fields`：路径不存在会返回校验错误，应核对合同后修正。默认宽松模式可能返回空对象及 `projection_warnings`，指不到字段就别说，别编。
+
+请求的 `fields` 目前沿对象路径投影，数组取其所属字段（例如 `planets`、`aspects`、`ziwei_birth.palaces`）；不要把交付资源支持的数组数字索引照搬成 `fields=["planets.0"]`，这会报 `non_object_projection_path`。读取后核对星体／宫位名称，再选与问题有关的项目解释，不把列表首项自动当成重点。
 
 **首轮关掉快照文本（`--no-include-snapshot-text`）。** 读取结构化字段时，加 `--no-include-snapshot-text`（或 `--include-snapshot-text false`）。脚本管道里想要单行紧凑 JSON 再加 `--compact`。CLI 默认美化缩进；是否包含快照随工具合同而定，不应假设所有工具都有文本。
 
@@ -151,17 +157,16 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 
 出生时点使用 `birth_*`，分析时点使用该工具的 `analysis_*` 或 `target_*`。未指定的当前时间才由引擎取当前值；需要复现时传带时区 ISO `as_of`，它不能替代明确的分析年月日，也不补出生时刻。起卦等要求显式时间的工具仍须按实际必填项传入。
 
-**西占工具（astro_* / 推运）用的是另一套：**
+**西占核心盘、关系盘与推运分别核对合同：** 核心盘的经纬度可由引擎从已支持的 `birth_place` 解析，不要求用户自己查坐标；核对实际解析来源、时区与精度。地点不能解析时再补必要资料，不接受默认未知地点作真实位置。关系盘与西占推运需显式经纬度。核心／关系盘默认民用钟时，`use_true_solar_time=false`；不要把中式工具默认太阳时套过来。推运按自身实际 Schema 核对。
 
 ```
---birth-latitude 39.90 --birth-longitude 116.40   # 西占要经纬度
+--birth-latitude 39.90 --birth-longitude 116.40   # 核心盘可按支持城市解析；关系/推运需明确坐标
 --birth-timezone Asia/Shanghai
 --hsys 3            # 核心/关系盘整型宫制 0..8；3 = Placidus
 --zodiacal 0        # 核心/关系盘：0=回归，1=恒星
 # 西占推运改用 --house-system P --zodiac-type Tropic
 # 目标时间分别传 --analysis-year、--analysis-month、--analysis-day
 # 精确目标钟时另传 --analysis-hour 12 --analysis-minute 0（按出生时区）
-# 西占推运精确时刻另传 --analysis-hour 12 --analysis-minute 0
 ```
 
 西占聚合推运及 11 个单项技法的 `analysis_hour` / `analysis_minute` 按
@@ -204,7 +209,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 
 - `meihua_analysis`：梅花易数，读取结构化 `meihua` / `summary` / `interpretation`，`--question`（可选）+ 起卦时间必填 `--analysis-year/month/day/hour`（要按当下起卦就传当前日期时间）。
 - `sixyao`：六爻，`--question`，CLI 手摇用 `--coins`（六掷之和，初爻到上爻，每项 6/7/8/9）或 `--gua-code`，也可按时间起。`lines` 对象列表使用 REST/MCP 传入，CLI 不解析对象字符串。
-- `tongshefa`：大衍筮法（蓍草）。
+- `tongshefa`：统摄四卦组合，读取实际 `taiyin/taiyang/shaoyang/shaoyin`；固定默认不是用户起卦，不实现蓍草十八变／大衍随机起卦。
 - `gua_lookup` / `gua_meiyi`：卦象查询 / 卦义。
 - `qimen`：奇门遁甲，起局 + 用神。
 - `taiyi`：太乙神数。
@@ -212,7 +217,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 - `liureng_gods`：大六壬起课。
 - `liureng_runyear`：六壬流年（行年）。
 - `suzhan`：宿占 / 二十八宿。
-- `otherbu`：其他卜法。
+- `otherbu`：解读用户实际提供的行星／星座／宫位骰面；不自动随机抽骰，不能把默认骰面当本次抽取。
 - `sanshiunited`：三式合参（奇门 + 太乙 + 六壬同盘）。
 
 ### 紫微斗数（snapshot_text）
@@ -273,7 +278,7 @@ python3 -m fatebridge.cli --no-metadata bazi_birth <出生参数> \
 八字、紫微、西占采用不同的传统规则，但共享出生信息、历法或星历输入。多体系一致可用于整理文化视角，不是独立统计证据，也不能证明现实预测准确。用户确实需要多体系对照时，再调用两到三套并保留来源：
 
 - 多套描述重合 → 合并说明哪些规则产生了共同描述，再与用户实际经验对照。
-- 某结论只有一套提到 → 弱信号。标出来当倾向，别当定论。
+- 某结论只有一套提到 → 标出该体系与适用范围；另两系未提到不自动表示它较弱，也不补造旁证。
 - 两套描述矛盾 → 先核对时区、坐标、太阳时策略和模型；输入一致后仍有分歧，分别呈现，不自行断言是用户的内在张力。
 
 读法：先各看各的 `snapshot_text`/结构化字段，抓出每套最突出的 2–3 个信号，再横向比对哪些重合、哪些只此一家、哪些相反。重合处合并描述，相反处保留分歧，单一来源留余地。别把三套各背一遍堆给用户。

@@ -1,23 +1,23 @@
 {
   "schema_version": "1.0",
   "sources_sha256": {
-    "docs/scenario-routing.md": "540361549efd0c99a1ecb2fc08c44e26a76de4d71eebf2927d5120645b10e986",
-    "skills/onda-fengshui/agents/interface.yaml": "ed600bd69f640b7e09f20cac81347d19d04ffeca715fdd09842e72f01b1227c8",
-    "skills/onda-jiankang/agents/interface.yaml": "91ec2d97158e9522dae701b4bb0cf59a443c0bb264ea36f90a522e256d98e1a2",
-    "skills/onda-mingge/agents/interface.yaml": "ea0175ef1849d778fdec89c9f5567fd15a2f0ab68b2c18f586d0e504f6e52e94",
-    "skills/onda-shiye/agents/interface.yaml": "f76ba11182a38f90a0b8315dd3a126463456dc1649caaad9b13b03abc9305be9",
-    "skills/onda-shiyun/agents/interface.yaml": "f50e2ecc92959cb61a193ef771e0dd2289617775401d97693557b8ac9d639620",
-    "skills/onda-xingpan/agents/interface.yaml": "5f61a49bf5ffd8ac185ebf2ca6ec5c97724de0c664578f58efe1fb7024a96915",
-    "skills/onda-yuanfen/agents/interface.yaml": "d0996a4b0d193a9d4a861748ac291517644356bccbdd20f132759a2a1484a905",
-    "skills/onda-zhanbu/agents/interface.yaml": "77154d15d97eb5226c37c27049f50ff73035143ed415f790f11265d5b40b5250",
-    "skills/onda-zige/agents/interface.yaml": "8bababf52e2f41cf65261c28dc9a1370efff82ca3f04c9abb94455792c06a32c"
+    "docs/scenario-routing.md": "59e1a328fefdfb81c2b8bc7f6b9930e63fe20d0f07d3361c62952e2e0cb1a0c6",
+    "skills/onda-fengshui/agents/interface.yaml": "72b142ef5646bb84f71d8fe67e98be71cd94380e2bd0f4fb37b2170752ae83d9",
+    "skills/onda-jiankang/agents/interface.yaml": "ab2f0dbab76ffde70c7e93bdff768471eb1dc73acd6c208e08ef09c0e0d4a747",
+    "skills/onda-mingge/agents/interface.yaml": "42ec81eb91482588ff69843e8573bf758494e8c75e662f47503e24c015104aa5",
+    "skills/onda-shiye/agents/interface.yaml": "3e317b33be6281651fd1bda4b3a3276bf243fdf40c07513126f59733e6b230d4",
+    "skills/onda-shiyun/agents/interface.yaml": "353c4ad9e97bf310c1bc8bda83c9352f6f39d477fb3f79bdbf1a9f98fd14c4ea",
+    "skills/onda-xingpan/agents/interface.yaml": "74268d79871cde6b1b6181b7c5df5383ce9a735308b5afdedc78d3f7ab7e9055",
+    "skills/onda-yuanfen/agents/interface.yaml": "8bea033a40552b0856d556697d3e4ab5b3cadea066c983cd47e015b7bf07dd45",
+    "skills/onda-zhanbu/agents/interface.yaml": "687c60b4647f34c678a3fd42fe39b698d6435bb12020676d18785417ca87fe71",
+    "skills/onda-zige/agents/interface.yaml": "18c2da8b8f945f3704b40814145de2e100321d74c605571e5c93bd2ac1d95d05"
   },
   "scenarios": [
     {
       "id": "onda-fengshui",
       "name": "风水 · 空间布局",
-      "version": "0.5.2",
-      "summary": "以九宫飞星、金锁玉关、八宅核对空间、家庭与楼层，保留来源、方位及行动边界",
+      "version": "0.6.0",
+      "summary": "逐对象解释空间事实与风水依据，对照现状和候选方案，说明可保留、可调整及未覆盖之处",
       "triggers": [
         "风水布局",
         "住宅风水",
@@ -53,7 +53,7 @@
         "grounding": "engine_fields",
         "voice": "onda-counsel"
       },
-      "boundary": "选定传统及作者规则的文化参考；缺失观察保留不确定，不承诺财富、事业或健康结果。",
+      "boundary": "选定传统及作者规则的文化参考；先解释已有依据和条件式建议，执行确认不阻塞普通解释；只追问影响当前结论的资料，未覆盖直接说明，不承诺财富、事业或健康结果。",
       "license": "Apache-2.0",
       "routing": [
         {
@@ -93,6 +93,18 @@
           ]
         },
         {
+          "intent": "书桌工作／学习玄空用途、入口隔挡、材料施用条件",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "fengshui_assess"
+              ],
+              "condition": "显式工位作者版本；用途按落宫取向星，物件资格不推摆位"
+            }
+          ]
+        },
+        {
           "intent": "桌面物件风水摆法",
           "evidence": [
             {
@@ -100,7 +112,7 @@
               "alternatives": [
                 "fengshui_assess"
               ],
-              "condition": "显式桌面作者版本及边界，独立于罗盘"
+              "condition": "BTB 须明确另选；非 BTB 桌面摆放仅作者参考"
             }
           ]
         },
@@ -182,17 +194,15 @@
     {
       "id": "onda-jiankang",
       "name": "健康 · 身心",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎看健康倾向与身心状态，Onda 河狸只谈作息与养护方向、绝不诊断",
+      "version": "0.2.0",
+      "summary": "看懂五行权重及传统藏象对应，分开文化解释与生活观察，有实际不适先回应现实需要",
       "triggers": [
         "健康运",
-        "身体哪里弱",
+        "传统健康标签是什么意思",
         "五行养生",
-        "今年要注意什么",
-        "容易累",
-        "睡不好",
-        "情绪内耗",
-        "调理方向"
+        "今年传统健康文化参考",
+        "看懂健康文化中的五行对应",
+        "五行养护文化"
       ],
       "engine_tools": [
         "analyze_destiny",
@@ -201,14 +211,7 @@
         "liuyue_analysis",
         "timing_analysis"
       ],
-      "required_inputs": [
-        "birth_year",
-        "birth_month",
-        "birth_day",
-        "birth_hour",
-        "gender",
-        "birth_place"
-      ],
+      "required_inputs": [],
       "output": {
         "kind": "interpretation",
         "grounding": "engine_fields",
@@ -218,7 +221,7 @@
       "license": "Apache-2.0",
       "routing": [
         {
-          "intent": "身体哪里弱",
+          "intent": "传统健康标签是什么意思",
           "evidence": [
             {
               "role": "primary",
@@ -263,7 +266,7 @@
           ]
         },
         {
-          "intent": "容易累睡不好情绪内耗",
+          "intent": "传统健康文化中的作息参考",
           "evidence": [
             {
               "role": "primary",
@@ -306,8 +309,8 @@
     {
       "id": "onda-mingge",
       "name": "认识自己 · 性格天赋",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎看性格、天赋、学业、原生家庭与人生底色，Onda 河狸帮人更懂自己一点",
+      "version": "0.2.0",
+      "summary": "聚焦性格、天赋、学业、亲子或六亲的一项问题，用真实经历核对传统特点并给一项小尝试",
       "triggers": [
         "我是个什么样的人",
         "我的性格",
@@ -319,8 +322,7 @@
         "兄弟的关系",
         "原生家庭",
         "我适合走什么路",
-        "紫微命盘",
-        "综合命理"
+        "紫微命盘"
       ],
       "engine_tools": [
         "analyze_destiny",
@@ -359,7 +361,7 @@
               "alternatives": [
                 "analyze_destiny"
               ],
-              "condition": ""
+              "condition": "八字默认"
             },
             {
               "role": "supporting",
@@ -373,7 +375,7 @@
               "alternatives": [
                 "ziwei_birth"
               ],
-              "condition": ""
+              "condition": "用户选择紫微"
             },
             {
               "role": "supporting",
@@ -477,7 +479,7 @@
           ]
         },
         {
-          "intent": "孩子的命",
+          "intent": "命主的子女宫／子女缘",
           "evidence": [
             {
               "role": "supporting",
@@ -504,6 +506,58 @@
               "role": "deep",
               "alternatives": [
                 "ziwei_rules"
+              ],
+              "condition": ""
+            }
+          ]
+        },
+        {
+          "intent": "孩子本人的性格",
+          "evidence": [
+            {
+              "role": "primary",
+              "alternatives": [
+                "analyze_destiny"
+              ],
+              "condition": "使用孩子资料"
+            },
+            {
+              "role": "supporting",
+              "alternatives": [
+                "bazi_personality"
+              ],
+              "condition": ""
+            },
+            {
+              "role": "supporting",
+              "alternatives": [
+                "ziwei_birth"
+              ],
+              "condition": ""
+            }
+          ]
+        },
+        {
+          "intent": "孩子本人的学习",
+          "evidence": [
+            {
+              "role": "supporting",
+              "alternatives": [
+                "analyze_destiny"
+              ],
+              "condition": ""
+            },
+            {
+              "role": "primary",
+              "alternatives": [
+                "bazi_education"
+              ],
+              "condition": "使用孩子资料"
+            },
+            {
+              "role": "supporting",
+              "alternatives": [
+                "ziwei_birth"
               ],
               "condition": ""
             }
@@ -562,8 +616,8 @@
     {
       "id": "onda-shiye",
       "name": "事业 · 财运",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎看事业、财运、求职、创业、跳槽、合伙、求财方向，Onda 河狸把盘讲成能落地的建议",
+      "version": "0.2.0",
+      "summary": "依据事业结构、创业倾向、财星与时机，说明工作方式或方案条件，给一项现实验证动作",
       "triggers": [
         "事业运",
         "财运",
@@ -812,8 +866,8 @@
     {
       "id": "onda-shiyun",
       "name": "人生时运 · 择时",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎看大运流年、今年运势、人生转折、择时择日，含西占推运全套，Onda 河狸把时间线讲成能准备的节奏",
+      "version": "0.2.0",
+      "summary": "按实际时间层级说明阶段与变化，需要时交付时间线或候选对照，并给一项现实准备",
       "triggers": [
         "今年运势",
         "明年怎么样",
@@ -867,15 +921,7 @@
         "ziwei_horoscope",
         "zr"
       ],
-      "required_inputs": [
-        "birth_year",
-        "birth_month",
-        "birth_day",
-        "birth_hour",
-        "gender",
-        "birth_place",
-        "analysis_year"
-      ],
+      "required_inputs": [],
       "output": {
         "kind": "interpretation",
         "grounding": "engine_fields",
@@ -892,7 +938,7 @@
               "alternatives": [
                 "timing_analysis"
               ],
-              "condition": ""
+              "condition": "中式默认"
             },
             {
               "role": "supporting",
@@ -906,7 +952,7 @@
               "alternatives": [
                 "western_timing_analysis"
               ],
-              "condition": ""
+              "condition": "西占视角"
             },
             {
               "role": "deep",
@@ -1137,8 +1183,8 @@
     {
       "id": "onda-xingpan",
       "name": "星盘 · 占星自观",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎排西方占星出生盘与关系盘（含希腊/果老/印度/13星座等流派），Onda 河狸把行星宫位讲成你能照见自己的话",
+      "version": "0.2.0",
+      "summary": "用日月上升、重点宫位与实际相位读懂本命和关系，交付可对照的特点与相处建议",
       "triggers": [
         "占星",
         "星盘",
@@ -1169,14 +1215,17 @@
         "birth_year",
         "birth_month",
         "birth_day",
-        "birth_hour",
-        "birth_latitude",
-        "birth_longitude"
+        "birth_hour"
       ],
       "output": {
         "kind": "interpretation",
         "grounding": "engine_fields",
-        "voice": "onda-counsel"
+        "voice": "onda-counsel",
+        "deliverables": [
+          "本命关键落点与相位",
+          "关系盘类型与真实交互",
+          "可在现实中对照的建议"
+        ]
       },
       "boundary": "传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。",
       "license": "Apache-2.0",
@@ -1295,8 +1344,8 @@
     {
       "id": "onda-yuanfen",
       "name": "缘分 · 感情合婚",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘，Onda 河狸陪你把盘讲成人话",
+      "version": "0.2.0",
+      "summary": "区分单人倾向、年级时机与双人关系维度，把配合和张力转成可观察回应的沟通问题",
       "triggers": [
         "感情运",
         "姻缘",
@@ -1444,7 +1493,7 @@
           ]
         },
         {
-          "intent": "要不要表白 / 要不要复合",
+          "intent": "明确求卦看表白／复合",
           "evidence": [
             {
               "role": "primary",
@@ -1462,12 +1511,11 @@
     {
       "id": "onda-zhanbu",
       "name": "抉择 · 问事占卜",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎起卦问事，帮人对着一个具体决定占一卦，Onda 河狸把卦象讲成此刻该怎么想",
+      "version": "0.2.0",
+      "summary": "围绕一件事呈现卦变或盘局依据，整理现实中需确认的条件与下一步",
       "triggers": [
-        "一个具体决定",
-        "要不要做某件事",
-        "问能不能成",
+        "求卦辅助一个具体决定",
+        "起卦问能不能成",
         "求一卦",
         "占卜",
         "起卦",
@@ -1477,7 +1525,7 @@
         "大六壬",
         "金口诀",
         "太乙",
-        "抽签",
+        "星骰",
         "这事吉凶"
       ],
       "engine_tools": [
@@ -1496,17 +1544,16 @@
         "taiyi",
         "tongshefa"
       ],
-      "required_inputs": [
-        "question",
-        "analysis_year",
-        "analysis_month",
-        "analysis_day",
-        "analysis_hour"
-      ],
+      "required_inputs": [],
       "output": {
         "kind": "interpretation",
         "grounding": "engine_fields",
-        "voice": "onda-counsel"
+        "voice": "onda-counsel",
+        "deliverables": [
+          "本次问题与问时",
+          "卦变或盘局的关键依据",
+          "传统提示与现实验证条件"
+        ]
       },
       "boundary": "传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。",
       "license": "Apache-2.0",
@@ -1519,7 +1566,7 @@
               "alternatives": [
                 "meihua_analysis"
               ],
-              "condition": ""
+              "condition": "用户明确求卦且未指定其他卜法"
             }
           ]
         },
@@ -1531,7 +1578,7 @@
               "alternatives": [
                 "sixyao"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1543,7 +1590,7 @@
               "alternatives": [
                 "qimen"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1555,7 +1602,7 @@
               "alternatives": [
                 "liureng_gods"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1567,7 +1614,7 @@
               "alternatives": [
                 "liureng_runyear"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1579,7 +1626,7 @@
               "alternatives": [
                 "jinkou"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1591,7 +1638,7 @@
               "alternatives": [
                 "taiyi"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1603,7 +1650,7 @@
               "alternatives": [
                 "suzhan"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1615,19 +1662,19 @@
               "alternatives": [
                 "sanshiunited"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
         {
-          "intent": "西式随机问事（星骰）",
+          "intent": "解读用户已有星骰",
           "evidence": [
             {
               "role": "primary",
               "alternatives": [
                 "otherbu"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         },
@@ -1639,7 +1686,7 @@
               "alternatives": [
                 "astro_horary"
               ],
-              "condition": ""
+              "condition": "用户明确选择本卜法"
             }
           ]
         }
@@ -1649,14 +1696,14 @@
     {
       "id": "onda-zige",
       "name": "全面自我画像",
-      "version": "0.1.0",
-      "summary": "用 FateBridge 引擎做一次全面的自我画像：八字+紫微+西占三套交叉印证，覆盖性格、事业、姻缘、健康、六亲、时运",
+      "version": "0.2.0",
+      "summary": "按生活主题对照八字紫微西占，呈现有依据的特点、分歧与可尝试的安排",
       "triggers": [
-        "我是一个什么样的人",
+        "三体系全面认识我",
         "帮我全面分析一下",
         "告诉我我的全部",
         "做一个完整的人生说明书",
-        "综合看看我",
+        "从八字紫微西占综合看看我",
         "全面自我分析",
         "完整命盘解读",
         "三套交叉印证"
@@ -1685,7 +1732,12 @@
       "output": {
         "kind": "interpretation",
         "grounding": "engine_fields",
-        "voice": "onda-counsel"
+        "voice": "onda-counsel",
+        "deliverables": [
+          "主题画像与各体系依据",
+          "分歧、缺失及精度",
+          "两三项现实观察或尝试"
+        ]
       },
       "boundary": "传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。",
       "license": "Apache-2.0",

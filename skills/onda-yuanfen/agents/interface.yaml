@@ -2,9 +2,9 @@
 # Enforced by tests/test_skills_interface_contract.py against the FateBridge
 # engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
 name: onda-yuanfen
-version: 0.1.0
+version: 0.2.0
 scenario: 缘分 · 感情合婚
-summary: 用 FateBridge 引擎算姻缘、感情、合婚、桃花、正缘，Onda 河狸陪你把盘讲成人话
+summary: 区分单人倾向、年级时机与双人关系维度，把配合和张力转成可观察回应的沟通问题
 triggers:
   - 感情运
   - 姻缘

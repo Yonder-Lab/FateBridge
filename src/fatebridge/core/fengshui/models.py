@@ -18,6 +18,7 @@ from fatebridge.utils.timezones import parse_timezone_name
 from .context_inputs import EnvironmentalContext
 from .layout_inputs import ElementAdjustment, FormObservation
 from .surface_inputs import SurfaceConstraints, SurfaceLayout
+from .workstation_inputs import validate_review
 
 Direction = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 Trigram = Literal["坎", "艮", "震", "巽", "离", "坤", "兑", "乾"]
@@ -563,6 +564,20 @@ class LayoutAlternative(_DeferredModel):
             self.object_id in (r.source_object_id, r.target_object_id)
             for r in self.environmental_context.interior_relations
         )
+        review = (
+            self.environmental_context.workstation_review
+            if self.environmental_context
+            else None
+        )
+        if review:
+            related = (
+                related
+                or any(a.object_id == self.object_id for a in review.activities)
+                or any(
+                    self.object_id in (r.entrance_id, r.desk_id, r.barrier_id)
+                    for r in review.entry_barriers
+                )
+            )
         if (not supplied and not related) or any(
             o.object_id != self.object_id for o in supplied
         ):
@@ -745,6 +760,14 @@ class AssessRequest(BazhaiRequest):
         default=None,
         description="显式启用宅盘时的历史定运和宅向；可继承顶层 house，年星不继承宅运",
     )
+
+    @property
+    def workstation_review(self) -> Any:
+        return (
+            self.environmental_context.workstation_review
+            if self.environmental_context
+            else None
+        )
 
     @property
     def selected_methods(self) -> List[Method]:
@@ -968,6 +991,14 @@ class AssessRequest(BazhaiRequest):
                             or old_fact.observation_basis == "image_observed"
                         ):
                             continue
+                        if (
+                            old_fact.application
+                            and fact.application
+                            and old_fact.application.target_request_id is not None
+                            and old_fact.application.target_request_id
+                            != fact.application.target_request_id
+                        ):
+                            raise ValueError("搬转候选不得更换已绑定的材料调节目标")
                         for attribute in ("material", "shape", "colour", "plant_alive"):
                             previous_value, new_value = getattr(
                                 old_fact, attribute
@@ -1128,6 +1159,91 @@ class AssessRequest(BazhaiRequest):
             XuankongRequest.model_validate(
                 {**natal.model_dump(), "house": natal.house or self.house}
             )
+        contexts = [(self.environmental_context, None)] + [
+            (c.environmental_context, c) for c in self.layout_alternatives
+        ]
+        target_ids = {a.request_id for a in self.element_adjustments}
+        for review_context, review_candidate in contexts:
+            if review_context is None:
+                continue
+            for fact in review_context.material_facts:
+                if (
+                    fact.application
+                    and fact.application.target_request_id is not None
+                    and fact.application.target_request_id not in target_ids
+                ):
+                    raise ValueError("材料施用引用未知 element_adjustments.request_id")
+            if review_context.workstation_review:
+                evaluation = review_context.workstation_review.evaluation_period
+                original_evaluation = (
+                    self.workstation_review.evaluation_period
+                    if self.workstation_review
+                    else None
+                )
+                natal_interpretation = (
+                    self.xuankong.interpretation if self.xuankong else None
+                )
+                if (
+                    evaluation
+                    and natal_interpretation
+                    and natal_interpretation.current_period_number is not None
+                    and evaluation.number != natal_interpretation.current_period_number
+                ):
+                    raise ValueError("同次活动与玄空解释的评价运不得矛盾")
+                if (
+                    review_candidate
+                    and evaluation
+                    and original_evaluation
+                    and evaluation.number != original_evaluation.number
+                ):
+                    raise ValueError("搬转候选不得更换本次评价运")
+                if review_candidate and self.workstation_review:
+                    old_activities = {
+                        a.object_id: a for a in self.workstation_review.activities
+                    }
+                    for activity in review_context.workstation_review.activities:
+                        previous = old_activities.get(activity.object_id)
+                        if (
+                            previous
+                            and previous.observation_basis != "image_observed"
+                            and previous.activity != "unknown"
+                            and previous.activity != activity.activity
+                        ):
+                            raise ValueError(
+                                "搬转候选不得改写已确认的实际活动；事实更正先更新现状"
+                            )
+                    old_barriers = {
+                        r.barrier_id: r for r in self.workstation_review.entry_barriers
+                    }
+                    for relation in review_context.workstation_review.entry_barriers:
+                        previous_barrier = old_barriers.get(relation.barrier_id)
+                        if (
+                            previous_barrier
+                            and previous_barrier.observation_basis != "image_observed"
+                            and previous_barrier.barrier_kind != relation.barrier_kind
+                        ):
+                            raise ValueError("搬转候选不得改写隔挡物件种类")
+                placements = [
+                    p
+                    for p in self.placements
+                    if not review_candidate or p.object_id != review_candidate.object_id
+                ]
+                review_forms = [
+                    f
+                    for f in self.form_observations
+                    if not review_candidate or f.object_id != review_candidate.object_id
+                ]
+                if review_candidate and review_candidate.placement:
+                    placements.append(review_candidate.placement)
+                if review_candidate and review_candidate.form_observation:
+                    review_forms.append(review_candidate.form_observation)
+                validate_review(
+                    review_context.workstation_review,
+                    placements,
+                    review_forms,
+                    review_context,
+                    self.environmental_context,
+                )
         return self
 
 

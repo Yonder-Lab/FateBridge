@@ -1,8 +1,8 @@
 # Machine-readable scenario contract; checked against SKILL.md and the catalog.
 name: onda-fengshui
-version: 0.5.2
+version: 0.6.0
 scenario: 风水 · 空间布局
-summary: 以九宫飞星、金锁玉关、八宅核对空间、家庭与楼层，保留来源、方位及行动边界
+summary: 逐对象解释空间事实与风水依据，对照现状和候选方案，说明可保留、可调整及未覆盖之处
 triggers:
   - 风水布局
   - 住宅风水
@@ -34,17 +34,20 @@ engine_tools:
 required_inputs: []
 reads:
   - ../references/consultation.md
+  - ../references/delivery.md
   - ../../_shared/onda-counsel.md
   - ../../_shared/fatebridge-engine.md
-  - ../../../docs/fengshui.md
-  - ../../../docs/fengshui-layout-rules.md
-  - ../../../docs/fengshui-surface-rules.md
-  - ../../../docs/fengshui-xuankong.md
-  - ../../../docs/fengshui-scene-planning.md
-  - ../../../docs/fengshui-sourced-interior-rules.md
+  - ../references/rule-sources.md
+  - ../references/layout-rules.md
+  - ../references/surface-rules.md
+  - ../references/xuankong.md
+  - ../references/xuankong-interpretation.md
+  - ../references/scene-planning.md
+  - ../references/sourced-interior-rules.md
+  - ../references/workstation-authored.md
 output:
   kind: interpretation
   grounding: engine_fields
   voice: onda-counsel
-boundary: 选定传统及作者规则的文化参考；缺失观察保留不确定，不承诺财富、事业或健康结果。
+boundary: 选定传统及作者规则的文化参考；先解释已有依据和条件式建议，执行确认不阻塞普通解释；只追问影响当前结论的资料，未覆盖直接说明，不承诺财富、事业或健康结果。
 license: Apache-2.0

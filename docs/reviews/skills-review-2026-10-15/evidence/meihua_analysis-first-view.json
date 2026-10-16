@@ -1,0 +1,199 @@
+{
+  "analysis_context": {
+    "analysis_datetime": "2026-10-15 14:20:00",
+    "timezone": "Asia/Shanghai",
+    "question": "虚构：新项目先做小范围收费试运行，有哪些条件要核对？",
+    "lunar_display": "九月初六",
+    "current_jieqi": "寒露",
+    "next_jieqi": "霜降"
+  },
+  "meihua": {
+    "base_hexagram": {
+      "name": "坎为水",
+      "upper": {
+        "name": "坎",
+        "nature": "水",
+        "element": "水",
+        "lines": [
+          0,
+          1,
+          0
+        ],
+        "symbol": "☵",
+        "keywords": "流动、隐忧、险中求通",
+        "theme": "险中求通",
+        "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+        "image": "重水有险，主试炼与通关。",
+        "favorable": "防险、复盘、留后手",
+        "caution": "反复、焦虑、陷被动"
+      },
+      "lower": {
+        "name": "坎",
+        "nature": "水",
+        "element": "水",
+        "lines": [
+          0,
+          1,
+          0
+        ],
+        "symbol": "☵",
+        "keywords": "流动、隐忧、险中求通",
+        "theme": "险中求通",
+        "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+        "image": "重水有险，主试炼与通关。",
+        "favorable": "防险、复盘、留后手",
+        "caution": "反复、焦虑、陷被动"
+      },
+      "lines": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "binary_code": "010010",
+      "symbol": "☵☵",
+      "theme": "重险连环",
+      "guidance": "风险反复，宜守流程、控节奏、以智取胜。",
+      "judgement": "难关重重，唯有守节奏、用智慧穿越。",
+      "image": "重坎重险，险中有路，贵在不乱。",
+      "favorable": "风险控制、流程化、留后手",
+      "caution": "忌恐慌、失序、反复踩坑",
+      "summary": "坎为水：重险连环。难关重重，唯有守节奏、用智慧穿越。"
+    },
+    "changed_hexagram": {
+      "name": "风水涣",
+      "upper": {
+        "name": "巽",
+        "nature": "风",
+        "element": "木",
+        "lines": [
+          0,
+          1,
+          1
+        ],
+        "symbol": "☴",
+        "keywords": "渗透、谋划、柔入",
+        "theme": "渗透筹谋",
+        "guidance": "宜柔进、布局、反复沟通，忌迟疑不决或过度委婉。",
+        "image": "风行入物，主渗透与筹划。",
+        "favorable": "铺垫、布局、柔进",
+        "caution": "犹疑、拖延、立场飘"
+      },
+      "lower": {
+        "name": "坎",
+        "nature": "水",
+        "element": "水",
+        "lines": [
+          0,
+          1,
+          0
+        ],
+        "symbol": "☵",
+        "keywords": "流动、隐忧、险中求通",
+        "theme": "险中求通",
+        "guidance": "宜防风险、走流程、留后手，在复杂局面中求活路。",
+        "image": "重水有险，主试炼与通关。",
+        "favorable": "防险、复盘、留后手",
+        "caution": "反复、焦虑、陷被动"
+      },
+      "lines": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "binary_code": "010011",
+      "symbol": "☴☵",
+      "theme": "疏散重组",
+      "guidance": "宜先化解离散，再重建连接与秩序。",
+      "judgement": "先把散掉的心气与资源收回来。",
+      "image": "风行水上，散而后聚，重在疏解重组。",
+      "favorable": "化解、重连、重新组织",
+      "caution": "忌强行捆绑、忽视离散根源",
+      "summary": "风水涣：疏散重组。先把散掉的心气与资源收回来。",
+      "moving_line": 6
+    },
+    "seed": {
+      "moving_line": 6
+    },
+    "body_trigram": {
+      "name": "坎"
+    },
+    "use_trigram": {
+      "name": "坎"
+    },
+    "body_use_relation": "体用比和"
+  },
+  "interpretation": {
+    "moving_line_phase": {
+      "line": 6,
+      "stage": "收尾与反思",
+      "meaning": "事情来到尾段或过强之处，宜收束而非再加码"
+    },
+    "action_hint": "可为之处在于风险控制、流程化、留后手，同时动爻位更利于收尾、止盈、回看结构；并顺着本卦所宜风险控制、流程化、留后手，并逐步过渡到化解、重连、重新组织。",
+    "risk_hint": "需防恐慌、失序、反复踩坑，动爻位最忌临门再加码、强撑过头；并防本卦所忌恐慌、失序、反复踩坑，并留意反面镜像里的急躁、虚张、情绪化。"
+  },
+  "summary": "若问事业/项目，重点看资源调度、节奏推进与结果落地。本卦坎为水示重险连环，变卦风水涣示疏散重组；主体与外部条件较为同频，推进阻力相对较小。当前更应把握收尾与反思这一步，在坎为水中，上爻属收束位，重点看收尾、过满与结构回看。事已近尾或势已过满，宜收束定界，过推反伤。宜风险控制、流程化、留后手，忌恐慌、失序、反复踩坑。",
+  "run_metadata": {
+    "run_id": "a5836fdbfb854d01855e38371f507d2d",
+    "trace_id": "d815d54a810c43c9a2754e85b00abf16",
+    "tool_name": "meihua_analysis",
+    "generated_at": "2026-10-15T15:30:27.822986Z",
+    "engine": "fatebridge-offline",
+    "engine_is_approximate": false,
+    "metadata_schema_version": "1.0",
+    "package_version": "0.2.0",
+    "contract_sha256": "8840b3564bcd67a2bb55591884d4864c7c75d946872c9415fa3aa2ef2e2e03b6",
+    "input_sha256": "6e0c90102bd136c935a8dca1a328edcd44d22067603dc4f872685a05e4686ac8",
+    "business_output_sha256": "d8a0f516eeadee19f0a205582a3b9c7b212a8f4dffd7682fbe8817db409a6e62",
+    "duration_ms": 0.392,
+    "effective_time": {
+      "as_of": "2026-10-15T04:00:00Z",
+      "clock_timezones": []
+    },
+    "determinism": {
+      "uses_current_time": false,
+      "current_time_fields_defaulted": [],
+      "randomness_used": false,
+      "seed_generated": false,
+      "replayable_with_receipt": true,
+      "scope": "business payload in identical implementation/data/runtime; metadata IDs and duration vary"
+    },
+    "runtime": {
+      "package_version": "0.2.0",
+      "python": "3.13.5",
+      "platform": "Darwin-arm64",
+      "dependencies": {
+        "pydantic": "2.13.4",
+        "kerykeion": "5.12.9",
+        "pyswisseph": "2.10.3.2",
+        "lunardate": "0.2.2",
+        "python-dateutil": "2.9.0.post0",
+        "pytz": "2026.2"
+      },
+      "implementation_sha256": "49383c9b729bbd21dade92c241e41bb63e03be6c030b7f3a612b34f6b9ea3d65",
+      "bundled_data_sha256": "9ce72c9ee6be126e09b7e22b4670ba397804384a0def46c60b0b800a58fc16b2",
+      "environment_sha256": "0a0cbac518c2984b59967d5e03cfde92bad91d4da5257c4d525df2b2ec12a9cf",
+      "ephemeris": {
+        "scope": "configured_se1_inventory; actual model is reported separately",
+        "files": {
+          "0/seas_18.se1": "5fd9c2aa1654e37c09a6aeb558076e795409b7dc4bd948ebc0faa7d4a7686b5b",
+          "0/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7",
+          "0/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+        },
+        "sha256": "b0459a5dff9c2f897857f59097bb1013cf9312c79d20c47e956800527b418566"
+      }
+    },
+    "provenance": {},
+    "replay": {
+      "as_of": "2026-10-15T04:00:00Z",
+      "overrides": {},
+      "requires_original_input": true
+    },
+    "warnings": []
+  }
+}

@@ -1,0 +1,49 @@
+# Machine-readable scenario interface; validated against SKILL.md and engine catalog.
+name: onda-zige
+version: 0.2.0
+scenario: 全面自我画像
+summary: 按生活主题对照八字紫微西占，呈现有依据的特点、分歧与可尝试的安排
+triggers:
+- 三体系全面认识我
+- 帮我全面分析一下
+- 告诉我我的全部
+- 做一个完整的人生说明书
+- 从八字紫微西占综合看看我
+- 全面自我分析
+- 完整命盘解读
+- 三套交叉印证
+engine_tools:
+- analyze_destiny
+- astro_chart
+- bazi_birth
+- bazi_career
+- bazi_health
+- bazi_personality
+- bazi_relatives
+- bazi_romance
+- dayun_analysis
+- timing_analysis
+- ziwei_birth
+required_inputs:
+- birth_year
+- birth_month
+- birth_day
+- birth_hour
+- gender
+- birth_place
+reads:
+- ../../_shared/fatebridge-engine.md
+- ../../_shared/onda-counsel.md
+output:
+  kind: interpretation
+  grounding: engine_fields
+  voice: onda-counsel
+  deliverables:
+  - 主题画像与各体系依据
+  - 分歧、缺失及精度
+  - 两三项现实观察或尝试
+boundary: 传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。
+license: Apache-2.0
+input_notes:
+- 按可用资料分别构造各体系输入；主证已有结果则复用
+- 健康与动态时运按用户问题补充，不默认补算所有专项

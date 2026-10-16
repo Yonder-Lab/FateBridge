@@ -33,20 +33,26 @@
 
 ## 风水专题
 
-从 [fengshui.md](fengshui.md) 的七个工具和最小输入开始，再按问题选择：
+咨询从 [风水 skill](../skills/onda-fengshui/SKILL.md) 进入。选法、事实核对、规则来源和解读资料统一随 skill 保存在 `skills/onda-fengshui/references/`，按当前问题选读：
 
-| 问题 | 文档 |
+| 咨询问题 | Skill 参考资料 |
 | --- | --- |
-| 方法优先级、家庭人物、楼层与环境事实 | [场景与候选布局](fengshui-scene-planning.md)、[风水咨询闭环](../skills/onda-fengshui/references/consultation.md) |
-| 基础算法、来源层次、定宫与方位边界 | [规则与来源](fengshui-rule-sources.md) |
-| 床、桌、灶的形态观察和动作状态 | [布局规则](fengshui-layout-rules.md) |
-| 工位／合租选法、家具搬转与候选比较 | [场景与规划](fengshui-scene-planning.md) |
-| 厨卫、镜面、梁管、尖角、材质与器形 | [有来源的室内关系规则](fengshui-sourced-interior-rules.md) |
-| 玄空历史定运、24山与兼向替星 | [玄空宅盘](fengshui-xuankong.md) |
-| 显式启用的山水条件与当令有限解释 | [玄空有限解释](fengshui-xuankong-interpretation.md) |
-| 用户明确另选的 BTB 桌面规则 | [桌面作者规则](fengshui-surface-rules.md) |
+| 方法优先级、家庭人物、楼层与环境事实 | [场景与候选布局](../skills/onda-fengshui/references/scene-planning.md)、[咨询闭环](../skills/onda-fengshui/references/consultation.md) |
+| 基础规则、来源层次、定宫与方位边界 | [规则与来源](../skills/onda-fengshui/references/rule-sources.md) |
+| 床、桌、灶的形态观察与元素参考 | [布局规则](../skills/onda-fengshui/references/layout-rules.md) |
+| 工位／合租选法、家具搬转与候选比较 | [场景与规划](../skills/onda-fengshui/references/scene-planning.md) |
+| 厨卫、镜面、梁管、尖角、材质与器形 | [有来源的室内关系规则](../skills/onda-fengshui/references/sourced-interior-rules.md) |
+| 玄空历史定运、二十四山与兼向替星 | [历史宅盘资料与来源](../skills/onda-fengshui/references/xuankong.md) |
+| 显式启用的山水条件与当令有限解释 | [玄空有限解释](../skills/onda-fengshui/references/xuankong-interpretation.md) |
+| 书桌玄空用途、入口隔挡、材料施用条件 | [工位作者规则](../skills/onda-fengshui/references/workstation-authored.md) |
+| 用户明确另选的 BTB 桌面规则 | [桌面作者规则](../skills/onda-fengshui/references/surface-rules.md) |
 
-咨询资料核对与后续更正流程见 [风水技能咨询闭环](../skills/onda-fengshui/references/consultation.md)。规则和事实审查的完成状态不代表现实效力已验证。
+工程接入、可运行请求与验证方法保留在 `docs/`：
+
+- [七个工具、接口输入输出及布局验证](fengshui.md)
+- [玄空三端调用、有限解释复现与独立验证](fengshui-xuankong.md)
+
+规则和事实审查的完成状态不代表现实效力已验证。
 
 ## 推荐阅读顺序
 

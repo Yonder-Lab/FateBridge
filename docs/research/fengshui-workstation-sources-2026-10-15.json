@@ -1,0 +1,520 @@
+{
+  "research_date": "2026-10-15",
+  "timezone": "Asia/Shanghai",
+  "baseline_commit": "e606e6d",
+  "artifact_kind": "research_not_runtime_rule_bundle",
+  "source_count": 20,
+  "grade_meaning": "Source attribution and rule traceability, not empirical efficacy",
+  "sources": [
+    {
+      "source_id": "K0",
+      "title": "The Feng Shui Approach to the Same Room, Different Function",
+      "author_or_editor": "Kartar Diamond",
+      "source_kind": "author_published_article",
+      "url": "https://fengshuisolutions.net/the-feng-shui-approach-to-the-same-room-different-function-by-kartar-diamond/",
+      "source_date": {
+        "published": "2018-07-06",
+        "modified_as_displayed": "2024-05-03"
+      },
+      "locator": "正文前两段、末段",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "candidate_for_new_explicit_authored_rule",
+      "supported_scope": "清醒工作侧重向星，睡眠侧重山星；混用需另核。",
+      "limits": "同一作者体系；不推出默认工位吉凶或微型桌面飞星。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "K1",
+      "title": "Feng Shui Interpretation of Yin Rooms and Yang Rooms",
+      "author_or_editor": "Kartar Diamond",
+      "source_kind": "author_published_article",
+      "url": "https://fengshuisolutions.net/feng-shui-interpretation-of-yin-rooms-and-yang-rooms-by-kartar-diamond/",
+      "source_date": {
+        "published": "2024-05-05"
+      },
+      "locator": "八运例：山星8睡眠、向星8工作／入口；正文功能讨论",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "same_author_corroboration",
+      "supported_scope": "与K0交叉核对活动用途。",
+      "limits": "不采用文内九运终点表述；同作者不算独立证据。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "K2",
+      "title": "Excerpt from the Mountain Dragons and Water Dragons Case Study",
+      "author_or_editor": "Kartar Diamond",
+      "source_kind": "author_published_article",
+      "url": "https://fengshuisolutions.net/excerpt-from-the-mountain-dragons-and-water-dragons-case-study-by-kartar-diamond/",
+      "source_date": {
+        "published": "2025-04-26"
+      },
+      "locator": "角色定义、时令、形态／用途段落",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "boundary_reference",
+      "supported_scope": "区分盘中角色与星五行，处理依赖时令、形态及用途。",
+      "limits": "不把水星当真实水体需求；不采用节选未定义的全套技术。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "K3",
+      "title": "Xuan Kong Flying Stars Feng Shui by Joey Yap — A Book Review",
+      "author_or_editor": "Kartar Diamond",
+      "source_kind": "author_book_review",
+      "url": "https://fengshuisolutions.net/xuan-kong-flying-stars-feng-shui-by-joey-yap/",
+      "source_date": {
+        "published": "not_independently_recorded"
+      },
+      "locator": "原书页256等的转述、卧室办公与定运分歧",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "disagreement_reference_only",
+      "supported_scope": "书评作者提出的不同意见。",
+      "limits": "对Joey Yap原书是二手证据；未读原书不注册其规则。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "K4",
+      "title": "Does the Shape of Your Remedy Matter?",
+      "author_or_editor": "Kartar Diamond",
+      "source_kind": "author_published_article",
+      "url": "https://fengshuisolutions.net/does-the-shape-of-your-remedy-matter-by-kartar-diamond/",
+      "source_date": {
+        "published_in_search": "2016-08-07"
+      },
+      "locator": "仅检索文本；本轮直接打开失败",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "search_excerpt_only",
+      "adoption_decision": "lead_only_not_adopted",
+      "supported_scope": "小尺度器形与实际材料的区别是进一步核对线索。",
+      "limits": "未完成全文刷新，不作生产触发依据。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "search_excerpt_only",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "K5",
+      "title": "Feng Shui On a Budget",
+      "author_or_editor": "Kartar Diamond",
+      "source_kind": "author_published_article",
+      "url": "https://fengshuisolutions.net/feng-shui-on-a-budget-by-kartar-diamond/",
+      "source_date": {
+        "published": "2024-05-22"
+      },
+      "locator": "金属、木、土各段",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "authored_conditions_and_disagreement_reference",
+      "supported_scope": "体量与隐藏金属的署名口径。",
+      "limits": "不采用案例重量；柜内口径不与A2混合。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "K6",
+      "title": "FAQs @ Interior Earth Remedies",
+      "author_or_editor": "Kartar Diamond / Feng Shui Solutions",
+      "source_kind": "author_published_pdf",
+      "url": "https://www.fengshuisolutions.net/pdf/FAQ_Interior-Earth-Remedies.pdf",
+      "source_date": {
+        "published": "not_displayed"
+      },
+      "locator": "PDF第1、3、4页（从1计）",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "composite_object_reference",
+      "supported_scope": "盆土／陶盆与活植物需要区分。",
+      "limits": "不采用重量例、星组合处方或人体效果；未核图片作新规则。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "J1",
+      "title": "The Pointy Issue of Internal Feng Shui",
+      "author_or_editor": "Dato Joey Yap",
+      "source_kind": "author_article_on_own_institution_site",
+      "url": "https://masteryacademy.com/Academy/media/columncontent.asp?iframe=academic_colum&nid=1967",
+      "source_date": {
+        "published": "2014-05-01"
+      },
+      "locator": "正文普通家具、小物、仙人掌及显著结构段落",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "add_disagreement_to_existing_wofs_corner_rules",
+      "supported_scope": "反对把普通小物尖角普遍认作环境煞。",
+      "limits": "署名意见；不创统一尺寸阈值，不取消另一作者结果。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 60422,
+        "sha256": "6e7bcae4274c7dbbd6f29345b877d73ea1f90e9b4754ea11a22f62a2c0ff49b6",
+        "format": "html"
+      }
+    },
+    {
+      "source_id": "J2",
+      "title": "Acute case of symbols paranoia ?",
+      "author_or_editor": "Joey Yap",
+      "source_kind": "author_published_article",
+      "url": "https://www.joeyyap.com/tutorial/tutorial-details.asp?tid=301",
+      "source_date": {
+        "published": "2005-10-23"
+      },
+      "locator": "装饰象征、植物及位置方向讨论",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "non_universality_reference",
+      "supported_scope": "装饰象征不能普遍替代环境判断。",
+      "limits": "不视为完成全部古籍考证的证据。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 67026,
+        "sha256": "fd64733cedf81a88dc27cede2161573c641c47c996f149cfeb919d38314317a8",
+        "format": "html"
+      }
+    },
+    {
+      "source_id": "J3",
+      "title": "The Five Elements",
+      "author_or_editor": "Joey Yap",
+      "source_kind": "author_published_teaching",
+      "url": "https://www.joeyyap.com/tutorial/tutorial-details.asp?tid=464",
+      "source_date": {
+        "published": "2003-03-18"
+      },
+      "locator": "五行属性表、物质代表表、生克泄说明",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "reference_only",
+      "supported_scope": "教学对应与独立目标条件。",
+      "limits": "不按产品名或用电自动分配元素和吉位。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 66476,
+        "sha256": "1acd3cc42556f0cea2847c038fc6759b2e29c01ea629e3448eb8c6fa0ce61c1a",
+        "format": "html"
+      }
+    },
+    {
+      "source_id": "J4",
+      "title": "Thriver's Guide 2018",
+      "author_or_editor": "Joey Yap",
+      "source_kind": "publisher_pdf",
+      "url": "https://www.joeyyap.com/2018/Thriver%27s_Guide_2018.pdf",
+      "source_date": {
+        "published": "2018"
+      },
+      "locator": "检索片段印刷第57页 Study Room",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "search_excerpt_only",
+      "adoption_decision": "lead_only_not_adopted",
+      "supported_scope": "房间位置和坐者朝向分别说明的线索。",
+      "limits": "整份文件过大且本轮未完成直接读取；不承担核心证明。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "search_excerpt_only",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "J5",
+      "title": "How Location and Direction Affect Energy",
+      "author_or_editor": "JJ Cheng; hosted on Joey Yap official site",
+      "source_kind": "signed_article_on_institution_site",
+      "url": "https://joeyyap.com/upcoming/media-details.asp?mid=2251",
+      "source_date": {
+        "published": "2016-08-29",
+        "publication_as_displayed": "Propquest Singapore"
+      },
+      "locator": "The Basics；Tapping and Harnessing Qi",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "location_direction_boundary_reference",
+      "supported_scope": "位置和朝向分开，书房与书桌举例。",
+      "limits": "不能署为Joey Yap本人作品；子区举例不证明桌面递归分宫。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    },
+    {
+      "source_id": "W1",
+      "title": "7 Quick Tips to Bring You Career Success",
+      "author_or_editor": "WOFS editorial byline",
+      "source_kind": "institution_editorial_authored_guidance",
+      "url": "https://www.wofs.com/7-quick-tips-career-success/",
+      "source_date": {
+        "published": "not_verified"
+      },
+      "locator": "第1、5、7节；Flowers、Plants、Crystals、Lamps、Calculators and Computers",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "reference_only_pending_frame_and_author_scope",
+      "supported_scope": "确有非BTB的桌面方位和有线电话指引。",
+      "limits": "不默认采收入／名声断语、龙虎高低、手机类推；非三法共识。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 220062,
+        "sha256": "99ac6d76a5e586015a503875fcc5dc76c3879d24986ecb10f6e74a076aa97c18",
+        "format": "html"
+      }
+    },
+    {
+      "source_id": "S1",
+      "title": "What A Feng Shui Cure Really Is",
+      "author_or_editor": "Sean Chan",
+      "source_kind": "author_published_position",
+      "url": "https://www.masterseanchan.com/blog/what-feng-shui-cure-really-is/",
+      "source_date": {
+        "published": "2017-10-20",
+        "updated": "2026-08-28"
+      },
+      "locator": "作者对物件化解的立场及说明",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "authored_disagreement_reference",
+      "supported_scope": "物件化解存在明确反对意见。",
+      "limits": "不能反向当成所有门派或所有古籍的结论。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 98815,
+        "sha256": "b883213b45004a92cd0f82242c250021d152497ecd3182227449a4dc3f41e5d3",
+        "format": "html"
+      }
+    },
+    {
+      "source_id": "A1",
+      "title": "FS305 – Feng Shui Case Study 5 Class",
+      "author_or_editor": "American Feng Shui Institute",
+      "source_kind": "publisher_teaching_pdf",
+      "url": "https://www.amfengshui.com/wp-content/uploads/2014/09/fs305-0508.pdf",
+      "source_date": {
+        "copyright": "2008"
+      },
+      "locator": "印刷／PDF第30–31页；第30页图示已查看",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "candidate_for_relational_barrier_rule",
+      "supported_scope": "入口直线经过坐者时的植物／屏风条件方案。",
+      "limits": "具体入口—坐者—隔挡关系；不是固定吉侧或改善运势承诺。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 290185,
+        "sha256": "690b5698cc098bf42a0bb5375fba7b26d16db685c4ecd0702b2e5fad08383bae",
+        "format": "pdf"
+      }
+    },
+    {
+      "source_id": "A2",
+      "title": "FS227 – Professional Skills For Feng Shui Consultants",
+      "author_or_editor": "Janice Sugita; American Feng Shui Institute",
+      "source_kind": "publisher_teaching_pdf",
+      "url": "https://www.amfengshui.com/wp-content/uploads/2014/09/fs227.pdf",
+      "source_date": {
+        "copyright": "2006"
+      },
+      "locator": "印刷12／23／28–29；PDF16／27／32–33；PDF32页面图像已查看",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "authored_application_conditions",
+      "supported_scope": "材料资格之外还有尺度、暴露、清洁和运行条件。",
+      "limits": "不采面积比例、重量示例为通用阈值；不把AFSI署为Larry Sang逐字原著。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 191387,
+        "sha256": "b4f59b1ac6aee3ecc049438df92f6a4820a6a9488546372f5f55965ae20eb44c",
+        "format": "pdf"
+      }
+    },
+    {
+      "source_id": "A3",
+      "title": "The Principles of Feng Shui",
+      "author_or_editor": "Larry Sang / American Feng Shui Institute",
+      "source_kind": "publisher_book_pdf",
+      "url": "https://www.amfengshui.com/wp-content/uploads/woocommerce_uploads/2013/12/tpofs.pdf",
+      "source_date": {
+        "edition": "not_independently_verified",
+        "pdf_metadata_creation_year": "2004_not_used_as_publication_year"
+      },
+      "locator": "印刷23、25；当前219页PDF40、42，均从1计；两个页面图像已查看",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "material_eligibility_reference",
+      "supported_scope": "实际材料／色彩、流动水和活植物条件。",
+      "limits": "散列与原记录一致但既有PDF页范围需校正；不从材料推出吉位。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 4418704,
+        "sha256": "6ab5135060df281fd6a6e376e0516e660c185dd2af2f146a5f850df64cc3b024",
+        "format": "pdf"
+      }
+    },
+    {
+      "source_id": "F1",
+      "title": "The Five Elements – Wu Xing",
+      "author_or_editor": "Feng Shui Institute International; individual author not shown",
+      "source_kind": "institution_teaching_page",
+      "url": "https://www.feng-shui-institute.org/Feng_Shui/fiveelements.html",
+      "source_date": {
+        "published": "not_verified"
+      },
+      "locator": "Water／Wood／Fire／Earth／Metal Energy sections",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "shape_reference_only",
+      "supported_scope": "署名机构的器形五行参考。",
+      "limits": "不证明AFSI调节资格，不采人格／健康／物理学断语。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 27084,
+        "sha256": "8eda96846480c9607c93bd5995e4722650e6a90e1637cfc223e8e3379a485659",
+        "format": "html"
+      }
+    },
+    {
+      "source_id": "X1",
+      "title": "第二篇 玄空理气入门3",
+      "author_or_editor": "玄霖易学网页；未认证原作者及印本",
+      "source_kind": "web_transcription",
+      "url": "https://xuanlinyi.com/article_detail?id=301281",
+      "source_date": {
+        "edition": "not_verified"
+      },
+      "locator": "既有N1网页范围",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "retain_existing_scope_only",
+      "supported_scope": "既有山向、床门及形理条件的来源边界。",
+      "limits": "同站其他文章不能继承其玄空版本或可信度。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "direct_http_bytes_saved",
+        "bytes": 132136,
+        "sha256": "02ef0b94ed9adc70d348e2e598c0ff9150a9e5f5e51e75c05176d80a86ca1087",
+        "format": "html"
+      }
+    },
+    {
+      "source_id": "X2",
+      "title": "书房风水37宜40忌",
+      "author_or_editor": "网页未核实原作者及底本",
+      "source_kind": "unverified_compilation",
+      "url": "https://xuanlinyi.com/article_detail?id=301665",
+      "source_date": {
+        "edition": "not_verified"
+      },
+      "locator": "网页第10、11项及相关条目",
+      "research_accessed_date": "2026-10-15",
+      "reading_status": "full_text_read",
+      "adoption_decision": "excluded_from_production",
+      "supported_scope": "记录为何不采固定小物、个人五行和效果断语。",
+      "limits": "不是经典校勘本，不作生产规则证明。",
+      "effectiveness_validation": "not_established_by_this_source_review",
+      "retrieval": {
+        "retrieval": "tool_managed_web_text",
+        "raw_bytes_sha256": null
+      }
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "P0",
+      "status": "research_proposal_not_implemented",
+      "scope": "作者分歧及属性／用途／位置／执行分离",
+      "source_ids": [
+        "J1",
+        "J2",
+        "S1",
+        "A2",
+        "A3"
+      ]
+    },
+    {
+      "proposal_id": "P1",
+      "status": "research_proposal_not_implemented",
+      "scope": "显式工作／学习活动的向星有限用途解释",
+      "source_ids": [
+        "K0",
+        "K1",
+        "K2",
+        "J5"
+      ]
+    },
+    {
+      "proposal_id": "P2",
+      "status": "research_proposal_not_implemented",
+      "scope": "明确入口直线的隔挡与材料附加条件",
+      "source_ids": [
+        "A1",
+        "A2",
+        "A3",
+        "K5",
+        "K6"
+      ]
+    },
+    {
+      "proposal_id": "P3",
+      "status": "reference_only_pending_evidence",
+      "scope": "WOFS桌面作者规则及坐标补证",
+      "source_ids": [
+        "W1",
+        "J1",
+        "J2",
+        "S1"
+      ]
+    }
+  ],
+  "verification": {
+    "raw_pdf_hashes_checked": [
+      "A1",
+      "A2",
+      "A3"
+    ],
+    "page_images_inspected": [
+      "A1 PDF30",
+      "A2 PDF32",
+      "A3 PDF40",
+      "A3 PDF42"
+    ],
+    "report_sha256": "d5546ce6066e774313aba321dbc67987fa417318e932a15bd918466c526f4949",
+    "runtime_code_changed_by_this_research": false,
+    "source_text_redistributed": false,
+    "original_downloads_location": "/tmp/fatebridge-desk-research-20261015",
+    "raw_download_retention": "temporary_not_part_of_deliverable"
+  }
+}

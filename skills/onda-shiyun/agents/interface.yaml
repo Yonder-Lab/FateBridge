@@ -2,9 +2,9 @@
 # Enforced by tests/test_skills_interface_contract.py against the FateBridge
 # engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
 name: onda-shiyun
-version: 0.1.0
+version: 0.2.0
 scenario: 人生时运 · 择时
-summary: 用 FateBridge 引擎看大运流年、今年运势、人生转折、择时择日，含西占推运全套，Onda 河狸把时间线讲成能准备的节奏
+summary: 按实际时间层级说明阶段与变化，需要时交付时间线或候选对照，并给一项现实准备
 triggers:
   - 今年运势
   - 明年怎么样
@@ -56,14 +56,11 @@ engine_tools:
   - western_timing_analysis
   - ziwei_horoscope
   - zr
-required_inputs:
-  - birth_year
-  - birth_month
-  - birth_day
-  - birth_hour
-  - gender
-  - birth_place
-  - analysis_year
+required_inputs: []
+input_notes:
+  - 个人运限按所选工具核对出生资料与分析时段；明确钟时按工具合同传入
+  - 活动择时 astro_election 使用候选时间和活动地点，不收出生资料
+  - 节气农历换算按对应日期输入，不强求生辰或性别
 reads:
   - ../../_shared/fatebridge-engine.md
   - ../../_shared/onda-counsel.md

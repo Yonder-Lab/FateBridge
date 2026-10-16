@@ -1,6 +1,6 @@
 ---
 name: onda-shiyun
-description: 用 FateBridge 引擎看大运流年、今年运势、人生转折、择时择日，含西占推运全套，Onda 河狸把时间线讲成能准备的节奏。Use when 用户问今年运势、明年怎么样、大运、流年、流月、人生转折点、什么时候适合做某事、择日、本命年、最近为什么不顺、运势起伏。覆盖时运全系、节气农历、西占太阳返照/行运/小限/黄道释放/法达等推运。
+description: 用 FateBridge 的八字、紫微或西占时运计算，说明当前阶段、当年与月度节奏；按实际边界交付简明时间线或候选时段对照，让用户据此安排现实准备。Use when 用户问今年明年运势、大运流年流月、人生转折、何时做事、择日、本命年或运势起伏；仅在有相应粒度结果时细化，不预言具体事件。
 ---
 
 # 人生时运 · 择时（Onda）
@@ -8,6 +8,23 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 用户明确要求完整结构、全部时间线或保存完整文件时，第一次调用必须设 `fields=null`（CLI 省略 `--fields`），保留默认响应预算；本技能的精简首轮字段只适用于普通摘要咨询。随后用 `result_delivery` 读取同一 run，不能先裁成摘要再补算全文。
 
 来问时运的人，要的是「我现在在哪一段、接下来大概什么节奏」。盘给的是节奏感，不是日历上的判决。
+
+## 用户能得到什么
+
+先回答所问时段最有参考价值的变化，挑 2–3 项实际依据，再给一项现实准备。短答不需要铺全部技法；只有时间之间确有可比较的返回，才用时间线或短表。
+
+| 本次问题 | 实际计算依据 | 合适的交付 |
+| --- | --- | --- |
+| 当前处在哪段／今年怎样 | `dayun_analysis`、`liunian_analysis` 与当前 `liuyue_analysis` | 分开讲阶段背景、当年主题和当前月，指出同向与分歧；不把当月扩写成全年每月 |
+| 全年月份／某段安排 | 明确所需范围后，选择 `analysis_calendar.liuyue_timeline` 及实际起止边界 | 以“时段／有何区别／准备什么”列出最相关的几段，完整请求保留全部；节气换月和公历月不混写 |
+| 西占推运／紫微运限 | 相应聚合的实际时间主星、时间线、运限或四化，按该体系读取 | 说明哪些层是阶段背景、哪些落在目标时点；各体系分开署明，不把多体系同向当作预测有效性的证据 |
+| 明确活动择时 | `astro_election` 的实际候选与条件 | 对照已计算候选和用户的现实可用时段；普通运势不能替代择日结果，吉时也不保证活动结果 |
+
+全年时间线在普通首轮字段之外：问题本来就要求全年结构或全部时间线，首次即 `fields=null`，随后读同一 run 的 `result_delivery`；首轮只做摘要时不能声称未保留的月份已交付。没有真实时间差异就直接说明，不为表格补出“更旺”的月份。准备动作如核对项目截止、预算或沟通安排，来自现实建议，不能写成计算出的事件。
+
+用户把某个月与另一年比较时，开头就说明粒度不同，再分清未变的长期背景、新目标实际返回的信号和仍不可比较的部分。月度十神与年度十神不同，不足以推出后一年的责任、收入或压力比前一年更强；只有同粒度、同口径的依据才作强弱比较。年度仍有某主题，就说“仍有”，不把不变结构包装成新利好；不为凑出升降额外跑齐所有专项。
+
+解释 `element_changes.original/new/change` 时核对参照基准：每次“增强”可能都是相对本命，不是比上一次分析继续增加。跨年比较同一元素，应比较两次对应的 `new` 值；若两年都高于本命、后一年反而降低，就分别说明，不能只重复“仍增强”。这些权重变化本身仍不证明收入、精力或事情成败变化。
 
 ## 引用路径
 
@@ -53,45 +70,11 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 | 某月/某天的小节奏 | `liushi_analysis` | — | 时级 |
 | 节气/农历换算、节气年表 | `jieqi_timeline_analysis` / `jieqi_year` / `nongli_time` | — | 历法支撑（场景路由「支撑与元工具」） |
 
-**西占单技法（11 种，仅追问或专家模式单独调）**
+**点名技法再展开**：入口能力索引如下，说明与适用范围按需读 [技法参考](references/techniques.md)，普通咨询不逐项调用。
 
-| 工具 | 技法说明 | 优先级 |
-|------|---------|--------|
-| `solarreturn` | 太阳返照年运盘 | 深 |
-| `lunarreturn` | 月返盘 | 深 |
-| `transit` | 行星过境行运 | 深 |
-| `solararc` | 太阳弧方向 | 深 |
-| `givenyear` | 指定年盘 | 深 |
-| `profection` | 年小限 | 深 |
-| `pd` / `pdchart` | 主限（含图） | 深 |
-| `zr` | 黄道释放 | 深 |
-| `firdaria` | 法达星限 | 深 |
-| `decennials` | 十年星限 | 深 |
-
-**西占全生命周期技法（13 种，讲「人生大段落」时才调）**
-
-| 工具 | 技法说明 | 优先级 |
-|------|---------|--------|
-| `astro_planetary_ages` | 行星年龄·七分期 | 深 |
-| `astro_triplicity_rulers` | 三分主星·人生三阶段 | 深 |
-| `astro_lunation_phase` | 月相推运 | 深 |
-| `astro_distributions` | 界推运/分配法 | 深 |
-| `astro_harmonic` | 调波盘 | 深 |
-| `astro_balbillus` | Balbillus 129年系统·主限 | 深 |
-| `astro_keypoints` | 数字相位推运·120年关键点 | 深 |
-| `astro_yearsystem129` | 129年系统·七星小年轮值 | 深 |
-| `astro_planetaryarc` | 行星弧方向 | 深 |
-| `astro_persiandirected` | 波斯向运·符号1°/年应期 | 深 |
-| `astro_agepoint` | 年龄推进点·Huber/Koch宫6年 | 深 |
-| `astro_vedicprog` | 恒星推运·恒星黄道二次推运 | 深 |
-| `astro_jaynesprog` | 赤纬推运·二次推运赤纬平行 | 深 |
-
-**世俗盘（非个人盘）**
-
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
-| `astro_mundane` | 某年春分/夏至/秋分/冬至入宫盘，问国运/年度大势 | 深 |
-| `astro_extrareturns` | 多重回归/事件多盘，含世俗星盘等专家级复合推运 | 深 |
+- 单技法：`solarreturn`、`lunarreturn`、`transit`、`solararc`、`givenyear`、`profection`、`pd`、`pdchart`、`zr`、`firdaria`、`decennials`。
+- 全生命周期：`astro_planetary_ages`、`astro_triplicity_rulers`、`astro_lunation_phase`、`astro_distributions`、`astro_harmonic`、`astro_balbillus`、`astro_keypoints`、`astro_yearsystem129`、`astro_planetaryarc`、`astro_persiandirected`、`astro_agepoint`、`astro_vedicprog`、`astro_jaynesprog`。
+- 非个人盘：`astro_mundane`、`astro_extrareturns`。
 
 > 紫微运限：`ziwei_horoscope` 是八字时运、西占推运之外的**第三套时运体系**，给大限/流年的紫微视角；按 scenario-routing 场景路由「交叉印证与去重」，与另两套一致则合并去重、分歧则显式标出，不把同一结论重复罗列三遍。
 > 聚合优先：全景时运用 `timing_analysis`（中式）或 `western_timing_analysis`（西占），不连发多个单技法。
@@ -104,15 +87,17 @@ description: 用 FateBridge 引擎看大运流年、今年运势、人生转折�
 「全生命周期技法」不挑某一年，而是把整张本命盘摊成一生的分期或共振结构——讲「人生大段落」时用它，讲「今年具体怎样」时用上面的年运工具。`astro_planetary_ages` 可传 `--analysis-year/month/day` 标出当前所处年龄段。
 
 ## 怎么收信息
-出生 年月日时 + 性别 + 城市（西占要经纬度 `--birth-latitude/longitude`）。问清想看哪一年/哪一段（`--target-year` / `--analysis-year` / `--analysis-age`）。
+个人运限核对出生年月日时、适用性别规则、城市／时区（西占推运需要经纬度 `--birth-latitude/longitude`），以及已要求的年／时段／年龄。活动择时 `astro_election` 使用候选时间与活动地点，不收出生资料；节气／农历换算也只核对所选日期，不套出生问卷。
 
 一次核对缺项、历法及出生时区，出生与分析时间分开。综合首轮保留实际 `analysis_datetime`、时间校正及分析日历中的时区、当前／下一节气、八字换月边界。未给具体分析时点才使用当前值，复现用带时区 `as_of`；不能沿用示例日期冒充今天。
+
+用户只给年或月时，不把自行选择的某日某刻说成用户指定。若确需选月中等内部取数锚点，简述该日期只是计算定位，结论仍限所问粒度；大运切换或节气边界可能影响覆盖时，按实际边界保留限制，不由一个锚点声称全年各时段均已审查。
 
 西占聚合与单项推运都支持 `analysis_hour`、`analysis_minute`，明确时点时同时传入，零点／零分不可遗漏；它们按 `birth_timezone` 解释，换到行运地点只转换同一时刻。不能用 `as_of` 替代明确钟时，也不能让出生10:30覆盖分析12:00。首轮采用西占工具公布的精简字段，保留 `analysis_context.analysis_datetime` 和行运实际时点；大时间线需要时从 `result_delivery` 按字段分页读取原 run，不重复排盘。
 
 ## 工作流
-1. 问清他是「整年看个大概」还是「卡在某件事想择时」。
-2. 调引擎：综合运势主用 `timing_analysis`，只问流年细节才用 `liunian_analysis`；大运段用 `dayun_analysis --analysis-age N`（虚岁必填）。西占整体推运主用 `western_timing_analysis`，用户点名太阳返照或小限才分别调 `solarreturn` / `profection`，不默认连发单技法。
+1. 按用户已说的时段与目的选择运势或择时分支；只有会改变计算范围时再简短核对。
+2. 调引擎：综合运势主用 `timing_analysis`，只问流年细节才用 `liunian_analysis`。用户更换目标年份，仍要大运背景或月份对照时，直接用新目标的聚合，不先取流年专项再补聚合。纯流年窄查询可用已验证的 `fields=["liunian_info","personal_info","summary","target_year_jieqi"]`，按所问进一步缩小；普通解释不因缺首轮预设就默认 `fields=null` 取全快照。大运段用 `dayun_analysis --analysis-age N`（虚岁必填）。西占整体推运主用 `western_timing_analysis`，用户点名太阳返照或小限才分别调 `solarreturn` / `profection`，不默认连发单技法。
 3. 读首轮结构化时运信号，按实际返回的年/月/日粒度和节气边界表述；仅有流年不能推断上半年或下半年。更细节奏只补尚未返回的层，不重算聚合已有内容；全年时间线在明确要求时展开。
 4. 给节奏建议，不给死期。
 5. 按 [Onda 解读层](../_shared/onda-counsel.md) 自然收尾；建议已在正文讲清就停，不重复排程或强造一句结尾。

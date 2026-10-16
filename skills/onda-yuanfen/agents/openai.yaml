@@ -1,4 +1,4 @@
 interface:
   display_name: "缘分 · 感情相处"
-  short_description: "读取单人姻缘或双人互动结果，区分规则分数、实际相处和沟通建议"
-  default_prompt: "使用 $onda-yuanfen 分析我的感情或双人相处问题，说明依据、限制与沟通建议。"
+  short_description: "分清个人倾向与双人配合，说明相处中的异同，找到一个值得谈清的问题"
+  default_prompt: "使用 $onda-yuanfen 分析我的感情问题，依据实际结果说明最相关的配合与张力，并给一项能观察真实回应的沟通建议。"

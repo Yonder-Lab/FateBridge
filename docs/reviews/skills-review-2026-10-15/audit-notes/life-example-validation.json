@@ -1,0 +1,184 @@
+[
+  {
+    "skill": "onda-jiankang",
+    "tool": "bazi_health",
+    "exit_code": 0,
+    "output_sha256": "5b3f407dfd22072cc516437e41ce26b59e673dd45b42912d551af772ff335e52",
+    "top_level_fields": [
+      "analysis_type",
+      "health_analysis",
+      "snapshot_export",
+      "snapshot_text"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata bazi_health  --gender 女 --birth-year 1990 --birth-month 7 --birth-day 22 --birth-hour 5 --birth-place 杭州"
+  },
+  {
+    "skill": "onda-mingge",
+    "tool": "bazi_personality",
+    "exit_code": 0,
+    "output_sha256": "460d96cd9d8d69a21b4790e64b167c3c9d262a4e89920cf03ebde3dfa59ae13b",
+    "top_level_fields": [
+      "analysis_type",
+      "personality_analysis",
+      "snapshot_export",
+      "snapshot_text"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata bazi_personality  --gender 女 --birth-year 1998 --birth-month 9 --birth-day 30 --birth-hour 16 --birth-place 武汉"
+  },
+  {
+    "skill": "onda-mingge",
+    "tool": "ziwei_birth",
+    "exit_code": 0,
+    "output_sha256": "30091aaba7d97dd1218b042de05a19c2c807fa15c601d1c3db6d68a63c95ab0a",
+    "top_level_fields": [
+      "analysis_context",
+      "analysis_type",
+      "calendar_context",
+      "four_pillars",
+      "person_info",
+      "snapshot_export",
+      "snapshot_text",
+      "ziwei_birth"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata ziwei_birth  --gender 女 --birth-year 1998 --birth-month 9 --birth-day 30 --birth-hour 16 --birth-place 武汉  --selected-sections 宫位总览"
+  },
+  {
+    "skill": "onda-shiye",
+    "tool": "bazi_wealth",
+    "exit_code": 0,
+    "output_sha256": "5385791390f06d8f784cee9b8339dc3f8b331761fbb405b7d394b6522590d506",
+    "top_level_fields": [
+      "analysis_type",
+      "snapshot_export",
+      "snapshot_text",
+      "wealth_analysis"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata bazi_wealth  --gender 男 --birth-year 1988 --birth-month 1 --birth-day 9 --birth-hour 11 --birth-place 广州 --analysis-year 2026"
+  },
+  {
+    "skill": "onda-shiye",
+    "tool": "bazi_career",
+    "exit_code": 0,
+    "output_sha256": "55edf69090bb16a2f98c438f2b229245c1ecfde790fae9b8d06cbb30df363807",
+    "top_level_fields": [
+      "career_analysis"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata bazi_career  --gender 男 --birth-year 1988 --birth-month 1 --birth-day 9 --birth-hour 11 --birth-place 广州  --strict-fields --no-include-snapshot-text  --fields career_analysis.dominant_ten_gods.primary_career_type career_analysis.career_timing career_analysis.timing_context career_analysis.career_structure career_analysis.entrepreneurship career_analysis.suggestions"
+  },
+  {
+    "skill": "onda-shiyun",
+    "tool": "timing_analysis",
+    "exit_code": 0,
+    "output_sha256": "e59805299eb35841f67dd180ec12a5251154887c2b107c453804fd39bdbc2f12",
+    "top_level_fields": [
+      "analysis_calendar",
+      "comprehensive_summary",
+      "dayun_analysis",
+      "liunian_analysis",
+      "liuyue_analysis",
+      "personal_info"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata timing_analysis  --gender 男 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-place 北京  --analysis-year 2026 --analysis-month 10 --analysis-day 14  --strict-fields --no-include-snapshot-text  --fields dayun_analysis liunian_analysis liuyue_analysis comprehensive_summary personal_info.analysis_datetime personal_info.time_adjustment analysis_calendar.analysis_date_context.timezone analysis_calendar.analysis_date_context.current_solar_term analysis_calendar.analysis_date_context.next_solar_term analysis_calendar.analysis_date_context.bazi_month_boundary"
+  },
+  {
+    "skill": "onda-shiyun",
+    "tool": "liunian_analysis",
+    "exit_code": 0,
+    "output_sha256": "e01ce6d4e68d958e02219c73d867772903a19c2f1c11f0517436a0a74af57e22",
+    "top_level_fields": [
+      "analysis_type",
+      "calendar_context",
+      "element_effects",
+      "liunian_info",
+      "personal_info",
+      "snapshot_export",
+      "snapshot_text",
+      "summary",
+      "target_year_jieqi"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata liunian_analysis  --gender 男 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-place 北京 --target-year 2026"
+  },
+  {
+    "skill": "onda-shiyun",
+    "tool": "profection",
+    "exit_code": 0,
+    "output_sha256": "8dfe0f6a6ad0ddcacb7b2c2f8fbbeb7aee296884263ba16526618f2ff0c111a5",
+    "top_level_fields": [
+      "analysis_context",
+      "analysis_type",
+      "engine",
+      "natal_reference",
+      "profection",
+      "snapshot_export",
+      "snapshot_text",
+      "summary"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata profection  --name 我 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-minute 30  --birth-latitude 39.90 --birth-longitude 116.40 --birth-place 北京 --analysis-year 2026"
+  },
+  {
+    "skill": "onda-shiyun",
+    "tool": "astro_planetary_ages",
+    "exit_code": 0,
+    "output_sha256": "d6b73114b1e4f2ea245c179717fa7ba94656b5c9dd0d6dcbd1c5bd3c61813fcf",
+    "top_level_fields": [
+      "summary"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata astro_planetary_ages --fields summary  --name 我 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-minute 30  --birth-latitude 39.90 --birth-longitude 116.40 --birth-place 北京 --analysis-year 2026"
+  },
+  {
+    "skill": "onda-shiyun",
+    "tool": "astro_lunation_phase",
+    "exit_code": 0,
+    "output_sha256": "628cd3c2bc51fd1f0a26cbe34b17507f4e92222a2f794c26036696c7134ec03d",
+    "top_level_fields": [
+      "analysis_context",
+      "analysis_type",
+      "engine",
+      "lunation_phase",
+      "natal_reference",
+      "snapshot_text",
+      "summary"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata astro_lunation_phase  --name 我 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14 --birth-minute 30  --birth-latitude 39.90 --birth-longitude 116.40 --birth-place 北京"
+  },
+  {
+    "skill": "onda-shiyun",
+    "tool": "ziwei_horoscope",
+    "exit_code": 0,
+    "output_sha256": "121aabdffa6ffe17b38377d1eae97b100872d3f1ef732fee2e28da61e7649499",
+    "top_level_fields": [
+      "projection_warnings"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata ziwei_horoscope  --gender 男 --birth-year 1992 --birth-month 8 --birth-day 15 --birth-hour 14  --target-year 2026 --target-month 6 --target-day 19 --target-hour 14 --fields summary"
+  },
+  {
+    "skill": "onda-yuanfen",
+    "tool": "bazi_romance",
+    "exit_code": 0,
+    "output_sha256": "5b02b3c1d96b8ac9e2e4850f74e8079c6f2fc2dfe805b2f487d5670172af4132",
+    "top_level_fields": [
+      "analysis_type",
+      "romance_analysis",
+      "snapshot_export",
+      "snapshot_text"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata bazi_romance  --gender 女 --birth-year 1995 --birth-month 4 --birth-day 12 --birth-hour 20 --birth-place 成都"
+  },
+  {
+    "skill": "onda-yuanfen",
+    "tool": "two_person_compatibility",
+    "exit_code": 0,
+    "output_sha256": "44a4e5f828900eed9f4b2841ff92b84e8844389db60c02b47daedc8fe6649382",
+    "top_level_fields": [
+      "challenges",
+      "detailed_analysis",
+      "element_relationship",
+      "person_info",
+      "recommendations",
+      "strengths",
+      "summary",
+      "traditional_compatibility"
+    ],
+    "command": "python3 -m fatebridge.cli --no-metadata two_person_compatibility  --person1-name 我 --person1-gender 女 --person1-birth-year 1995 --person1-birth-month 4 --person1-birth-day 12 --person1-birth-hour 20  --person2-name TA --person2-gender 男 --person2-birth-year 1993 --person2-birth-month 11 --person2-birth-day 3 --person2-birth-hour 7  --relationship-type general --strict-fields --no-include-snapshot-text  --fields summary strengths challenges traditional_compatibility detailed_analysis recommendations person_info element_relationship"
+  }
+]

@@ -1,10 +1,26 @@
-# FateBridge · Skills（泛心理陪伴套件）
+# FateBridge · 场景咨询 Skills
 
 FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录把它们按用户真正会问的出口重新组织成一套场景 Skill。
 
-我们的设计很简单：**计算交给 FateBridge 引擎，解读交给 Onda 河狸。** 引擎离线跑排盘，Onda 负责把结果讲得像个人。
+**计算交给 FateBridge 引擎，解读交给 Onda。** 每项 skill 围绕用户的问题组织盘面、阶段变化、双方差异或空间规则，让人看清依据和可参考的安排。工具数量不是交付目标。
 
 - 所有计算都由 FateBridge 完成。已连接时优先 MCP，本地后备用 `python3 -m fatebridge.cli`；干支、排盘、合婚分数不交给 AI 手算。计算可复核、一致，不等于现实预测已验证。
+
+## 用户能拿到什么
+
+| 入口 | 典型问题 | 有对应数据时的交付 |
+| --- | --- | --- |
+| [事业](./onda-shiye/SKILL.md) | 这两个岗位怎么比较？ | 事业特点与约束、已知职责对照、需要核实的岗位条件 |
+| [缘分](./onda-yuanfen/SKILL.md) | 我们相处时哪里合拍、哪里费力？ | 双人互补与磨合分别解释、一件可沟通的具体事情 |
+| [时运](./onda-shiyun/SKILL.md) | 这一阶段和下一阶段有什么变化？ | 实际算出的周期、时间边界和差异；粒度不足处明确保留 |
+| [健康文化](./onda-jiankang/SKILL.md) | 五行健康标签是什么意思？ | 传统对应释义、结果适用范围、独立的生活观察建议 |
+| [命格](./onda-mingge/SKILL.md) | 学习或做事方式有什么可参考？ | 特点、适用条件与可自行核对的经验，不替代能力测评 |
+| [星盘](./onda-xingpan/SKILL.md) | 我的盘里最值得理解什么？ | 关键星体／落点／相位及问题关联，盘式和精度说明 |
+| [问事](./onda-zhanbu/SKILL.md) | 这件事我该留意什么？ | 起卦信息与卦变依据、传统含义、现实选项的核对条件 |
+| [全面画像](./onda-zige/SKILL.md) | 三套体系分别怎么看我？ | 按主题对照来源、重合与分歧，显示缺失维度 |
+| [风水](./onda-fengshui/SKILL.md) | 这些物件现在怎样，候选改法有什么不同？ | 逐对象事实与规则、条件判断、候选差异及未覆盖项 |
+
+短问短答；需要比较或时间变化时再用小表。完整画像、逐物件审查和完整文件按用户请求展开。不会为展示更多工具强行增加体系、重复计算或补造经历。
 
 ---
 
@@ -17,7 +33,7 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 - **事业、财运、跳槽、创业、合伙** → [`onda-shiye`](./onda-shiye/SKILL.md)  
   调八字事业/财运、合作配合度、时运。
 - **健康倾向、身心节奏、调理方向** → [`onda-jiankang`](./onda-jiankang/SKILL.md)  
-  调八字健康、时运。只谈倾向，不诊断。
+  解释八字健康文化标签及所选时段的传统参考，不用来判断疾病或身体弱点。
 - **今年运势、大运流年、人生转折、择时** → [`onda-shiyun`](./onda-shiyun/SKILL.md)  
   调时运全系、节气农历、西占推运全套。
 - **卡在一个决定、要不要做某事、求一卦** → [`onda-zhanbu`](./onda-zhanbu/SKILL.md)  
@@ -43,9 +59,10 @@ FateBridge 引擎里有 80 多个命理、占术和占星工具。这个目录�
 skills/
 ├── _shared/
 │   ├── fatebridge-engine.md   计算层：CLI 调用、全量工具地图、字段字典、怎么读 snapshot
-│   └── onda-counsel.md        解读层：Onda 声音、人味儿规则、凶象翻译、红线、收尾自检
+│   ├── onda-counsel.md        解读层：问题、依据、现实建议及 Onda 声音
+│   └── consultation-delivery.md  按需读取的对照、时间线与解释示例
 ├── onda-yuanfen/              缘分 · 感情合婚
-│   ├── SKILL.md               给人读：问什么、调哪个工具、怎么共情
+│   ├── SKILL.md               问题路由、计算依据与用户交付
 │   └── agents/interface.yaml  给机器读：场景、工具清单、必填输入、输出契约
 ├── onda-shiye/                事业 · 财运
 ├── onda-jiankang/             健康 · 身心
@@ -58,7 +75,7 @@ skills/
                                （每个 onda-* 都含 SKILL.md + agents/interface.yaml）
 ```
 
-每个场景 Skill 有两份契约。`SKILL.md` 给人读，薄一点，讲清楚「问什么、调哪个工具、怎么共情」。`agents/interface.yaml` 给 agent 运行时读，机器能直接发现场景触发词、要调的引擎工具、必填出生字段和输出契约。计算和声音两层共用 `_shared/`。
+每个场景 Skill 有两份契约。`SKILL.md` 说明问题路由、证据读法和交付方式；`agents/interface.yaml` 给 agent 运行时读，声明场景触发词、引擎工具、输入和输出。计算和声音共用 `_shared/`，复杂场景的交付参考按需加载。
 
 这两份描述都被 `tests/test_skills_interface_contract.py` 锁到引擎 catalog 和 SKILL.md 上。任一方对不上，CI 就挂。
 

@@ -2,31 +2,26 @@
 # Enforced by tests/test_skills_interface_contract.py against the FateBridge
 # engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
 name: onda-jiankang
-version: 0.1.0
+version: 0.2.0
 scenario: 健康 · 身心
-summary: 用 FateBridge 引擎看健康倾向与身心状态，Onda 河狸只谈作息与养护方向、绝不诊断
+summary: 看懂五行权重及传统藏象对应，分开文化解释与生活观察，有实际不适先回应现实需要
 triggers:
   - 健康运
-  - 身体哪里弱
+  - 传统健康标签是什么意思
   - 五行养生
-  - 今年要注意什么
-  - 容易累
-  - 睡不好
-  - 情绪内耗
-  - 调理方向
+  - 今年传统健康文化参考
+  - 看懂健康文化中的五行对应
+  - 五行养护文化
 engine_tools:
   - analyze_destiny
   - bazi_health
   - liunian_analysis
   - liuyue_analysis
   - timing_analysis
-required_inputs:
-  - birth_year
-  - birth_month
-  - birth_day
-  - birth_hour
-  - gender
-  - birth_place
+required_inputs: []
+input_notes:
+  - 用户明确需要个人传统文化计算时，按所选工具一次核对出生资料
+  - 实际症状先回应现实求助，不为解释症状采集生辰或自动排盘
 reads:
   - ../../_shared/fatebridge-engine.md
   - ../../_shared/onda-counsel.md

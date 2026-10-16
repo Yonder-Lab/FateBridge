@@ -1,0 +1,47 @@
+[
+  {
+    "skill": "onda-fengshui",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-jiankang",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-mingge",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-shiye",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-shiyun",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-xingpan",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-yuanfen",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-zhanbu",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  },
+  {
+    "skill": "onda-zige",
+    "exit_code": 0,
+    "output": "Skill is valid!"
+  }
+]

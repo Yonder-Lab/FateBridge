@@ -1,4 +1,4 @@
 interface:
   display_name: "事业 · 财运"
-  short_description: "依据实际事业财运字段，说明传统倾向、资料精度和现实验证条件"
-  default_prompt: "使用 $onda-shiye 分析我的事业或财运问题，先给主要依据及一项现实建议。"
+  short_description: "看清事业结构、创业倾向与财务提醒，把岗位或经营选择转成可核对的条件"
+  default_prompt: "使用 $onda-shiye 围绕我的事业或财运问题，解释最相关的计算差异；有明确选项时对照其条件，并给一项现实验证动作。"

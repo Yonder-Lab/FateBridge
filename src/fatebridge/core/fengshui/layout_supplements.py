@@ -11,6 +11,7 @@ from fatebridge.core.divination import ELEMENT_CONTROLS, ELEMENT_GENERATES
 from .bazhai import placement_polarity
 from .models import AssessRequest
 from .surface import evaluate_surfaces, surface_provenance
+from .workstation_sources import disagreement, provenance
 
 
 @lru_cache(maxsize=1)
@@ -63,6 +64,8 @@ def evaluate_forms(req: AssessRequest) -> Dict[str, Any]:
                     "source_ids": list(rule["source_ids"]),
                 }
             )
+            if key == "sharp_corner_points_at_user":
+                checks[-1]["method_disagreements"] = [disagreement("corners")]
         if obs.observation_basis == "image_observed":
             missing.append(
                 f"form_observations.{obs.object_id}.user_or_measurement_confirmation"
@@ -446,12 +449,18 @@ def analyze_supplements(
     if surface is not None:
         statuses["surfaces"] = surface["status"]
         extra["surface_analysis"] = surface
+    corner_review = any(
+        c["criterion"] == "sharp_corner_points_at_user"
+        for f in forms["findings"]
+        for c in f["checks"]
+    )
     return {
         "form_analysis": forms,
         "element_remedies": targets["findings"],
         "annual_remedies": annual,
         "supplemental_rulesets": [supplement_provenance(key) for key in keys]
-        + ([surface_provenance()] if surface is not None else []),
+        + ([surface_provenance()] if surface is not None else [])
+        + ([provenance("workstation_source_boundaries_v1")] if corner_review else []),
         "supplement_statuses": statuses,
         "missing_inputs": list(
             dict.fromkeys(
@@ -464,7 +473,8 @@ def analyze_supplements(
         "incomplete_requested_supplements": any(
             s not in {"not_requested", "complete"} for s in statuses.values()
         ),
-        "method_disagreements": (
+        "method_disagreements": ([disagreement("corners")] if corner_review else [])
+        + (
             deepcopy(_bundle()["method_disagreements"])
             if req.element_adjustments or req.annual_remedy_ruleset_id is not None
             else []

@@ -2,9 +2,9 @@
 # Enforced by tests/test_skills_interface_contract.py against the FateBridge
 # engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
 name: onda-shiye
-version: 0.1.0
+version: 0.2.0
 scenario: 事业 · 财运
-summary: 用 FateBridge 引擎看事业、财运、求职、创业、跳槽、合伙、求财方向，Onda 河狸把盘讲成能落地的建议
+summary: 依据事业结构、创业倾向、财星与时机，说明工作方式或方案条件，给一项现实验证动作
 triggers:
   - 事业运
   - 财运

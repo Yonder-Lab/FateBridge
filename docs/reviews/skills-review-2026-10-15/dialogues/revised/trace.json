@@ -1,0 +1,217 @@
+{
+  "task": "retained-result interpretation",
+  "variant": "revised",
+  "task_list_file": "/tmp/fatebridge-skills-review-20261015/interpretation-tasks.json",
+  "new_calculation_calls": 0,
+  "new_tool_calculations": false,
+  "repository_history_or_memory_read": false,
+  "other_skill_versions_or_agent_outputs_read": false,
+  "skill_files_modified": false,
+  "common_objective_difficulty": "初次批量读取有输出截断，随后按指定快照和原证据文件的窄业务分支补读；未以重算恢复内容。",
+  "items": [
+    {
+      "id": "career",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-shiye/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/bazi_career.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/career.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "保留结果强调自主经营及官印线索，没有具体岗位的能力测量；岗位对照标为传统解释与现实核对。"
+      ],
+      "output_characters": 283,
+      "chinese_characters": 243
+    },
+    {
+      "id": "relationship",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-yuanfen/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/two_person_compatibility.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/relationship.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "综合分、传统净分、十神关系与格局协同计分口径不同；建议列表为空。",
+        "寅申冲条目文字提及双方，但source_scope及source_map仅为person2，按个人内部关系限定。"
+      ],
+      "output_characters": 326,
+      "chinese_characters": 272
+    },
+    {
+      "id": "timing",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-shiyun/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/timing_analysis.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/timing.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "当前月仅给戊戌与总体五行力量减弱，没有所问工作事件依据。",
+        "综合摘要同时含日时层；答复只取用户要求的大运、流年、流月，保留寒露到立冬月界。"
+      ],
+      "output_characters": 407,
+      "chinese_characters": 257
+    },
+    {
+      "id": "health",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-jiankang/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/bazi_health.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/health.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "原结果含病名、症状及心理词，均只作传统规则库对应，不当个体发现。",
+        "日主中和、元素偏颇和喜用金分属不同口径。"
+      ],
+      "output_characters": 289,
+      "chinese_characters": 238
+    },
+    {
+      "id": "learning",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-mingge/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/bazi_personality.json",
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/bazi_education.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/learning.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "学业评分与学历潜质是规则标签，未测量真实学习能力；只提出经验核对。"
+      ],
+      "output_characters": 306,
+      "chinese_characters": 261
+    },
+    {
+      "id": "natal",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-xingpan/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/astro_chart.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/natal.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "上升只返回黄经与星座，答复保留原黄经117.6971度，未补绘精确盘轮或重排。"
+      ],
+      "output_characters": 318,
+      "chinese_characters": 240
+    },
+    {
+      "id": "divination",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-zhanbu/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/meihua_analysis.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/divination.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "动六爻的收尾阶段为工具结构化象意，不能认定新项目已到现实尾声；未伪称经典原文。"
+      ],
+      "output_characters": 309,
+      "chinese_characters": 246
+    },
+    {
+      "id": "profile",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-zige/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/docs/scenario-routing.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/consultation-delivery.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/analyze_destiny.json",
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/ziwei_birth.json",
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/astro_chart.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/profile.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "三体系共享资料但中式用真太阳时、西占用历史民用夏令时，分别保留。",
+        "紫微提供星曜与四化，未提供经过验证的行为判断；星义仅作传统解释，体系分歧不强行统一。",
+        "未展开健康、财务专项、动态运限或双方适配；未借用其他案例专项结论。"
+      ],
+      "output_characters": 1892,
+      "chinese_characters": 1569
+    },
+    {
+      "id": "space",
+      "skill_file": "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-fengshui/SKILL.md",
+      "reference_files_read": [
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/onda-counsel.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/_shared/fatebridge-engine.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-fengshui/references/consultation.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-fengshui/references/delivery.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-fengshui/references/surface-rules.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-fengshui/references/layout-rules.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-fengshui/references/sourced-interior-rules.md",
+        "/tmp/fatebridge-skills-review-20261015/revised/skills/onda-fengshui/references/rule-sources.md"
+      ],
+      "evidence_files_read": [
+        "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/evidence/fengshui_assess.json"
+      ],
+      "output_file": "/Users/thomas/Desktop/FateBridge/docs/reviews/skills-review-2026-10-15/dialogues/revised/space.md",
+      "new_tool_calculations": false,
+      "new_calculation_calls": 0,
+      "objective_difficulties": [
+        "年星有效年份未确认，返回宫数为空；方位缺失，不能做房间绑定。",
+        "手机为已确认other且无独立摆法，不是待补属性；可选新增不作为任务。",
+        "WOFS镜照床提醒与Cho BTB异议分列，桌面BTB不取消其他方法。",
+        "初次较大分支输出被宿主截断，随后窄读form_analysis、interior_analysis、surface_analysis、rule_trace与method_policy后完成所用依据核对。"
+      ],
+      "output_characters": 1690,
+      "chinese_characters": 724
+    }
+  ]
+}

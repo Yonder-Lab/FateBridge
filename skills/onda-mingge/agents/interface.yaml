@@ -2,9 +2,9 @@
 # Enforced by tests/test_skills_interface_contract.py against the FateBridge
 # engine catalog and this skill's SKILL.md. Keep in sync or CI fails.
 name: onda-mingge
-version: 0.1.0
+version: 0.2.0
 scenario: 认识自己 · 性格天赋
-summary: 用 FateBridge 引擎看性格、天赋、学业、原生家庭与人生底色，Onda 河狸帮人更懂自己一点
+summary: 聚焦性格、天赋、学业、亲子或六亲的一项问题，用真实经历核对传统特点并给一项小尝试
 triggers:
   - 我是个什么样的人
   - 我的性格
@@ -17,7 +17,6 @@ triggers:
   - 原生家庭
   - 我适合走什么路
   - 紫微命盘
-  - 综合命理
 engine_tools:
   - analyze_destiny
   - astro_chart

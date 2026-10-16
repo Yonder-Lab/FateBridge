@@ -1,0 +1,105 @@
+// Paste this JavaScript into functions.exec, then call callFateBridge below.
+// JSON.stringify serializes JSON only. shQuote performs POSIX shell quoting.
+const recorderPath = "/tmp/fatebridge-natural-acceptance-20261015/record_mcp.py";
+const pythonPath = "/Users/thomas/Desktop/FateBridge/.venv/bin/python";
+function shQuote(value) {
+  return "'" + String(value).replace(/'/g, "'\\''") + "'";
+}
+function observedError(error) {
+  const result = {name: String(error?.name ?? "Error"), message: String(error?.message ?? error)};
+  if (error?.stack) result.stack = String(error.stack);
+  for (const key of Object.getOwnPropertyNames(Object(error))) {
+    const value = error[key];
+    if (value !== undefined && typeof value !== "function" && typeof value !== "symbol") {
+      try { result[key] = JSON.parse(JSON.stringify(value)); } catch { result[key] = String(value); }
+    }
+  }
+  return result;
+}
+async function saveObservation(record, directory) {
+  const recordJson = JSON.stringify(record);
+  if (typeof recordJson !== "string") throw new Error("Observation is not JSON serializable");
+  // Small records need one command. Larger records are safely staged in chunks so
+  // no shell argument exceeds platform limits. Data is never interpolated as code.
+  const base = shQuote(pythonPath) + " " + shQuote(recorderPath) + " --directory " + shQuote(directory);
+  let result;
+  if (recordJson.length <= 24000) {
+    result = await tools.exec_command({cmd: base + " --record-json " + shQuote(recordJson), max_output_tokens: 1200});
+  } else {
+    const staging = await tools.exec_command({cmd: "mktemp /tmp/fatebridge-mcp-record.XXXXXXXX", max_output_tokens: 300});
+    if (staging.exit_code !== 0 || staging.session_id) throw new Error("Could not create logging staging file: " + staging.output);
+    const stagingPath = staging.output.trim();
+    if (!/^\/tmp\/fatebridge-mcp-record\.[A-Za-z0-9]+$/.test(stagingPath)) throw new Error("Unexpected staging path");
+    for (let offset = 0; offset < recordJson.length;) {
+      let end = Math.min(offset + 12000, recordJson.length);
+      const tail = recordJson.charCodeAt(end - 1);
+      if (end < recordJson.length && tail >= 0xD800 && tail <= 0xDBFF) end -= 1;
+      const chunk = recordJson.slice(offset, end);
+      const append = await tools.exec_command({cmd: "printf '%s' " + shQuote(chunk) + " >> " + shQuote(stagingPath), max_output_tokens: 300});
+      if (append.exit_code !== 0 || append.session_id) throw new Error("Recording staging failed; retained at " + stagingPath + ": " + append.output);
+      offset = end;
+    }
+    result = await tools.exec_command({cmd: base + " < " + shQuote(stagingPath), max_output_tokens: 1200});
+    if (result.exit_code === 0 && !result.session_id) {
+      const cleanup = await tools.exec_command({cmd: "rm " + shQuote(stagingPath), max_output_tokens: 300});
+      if (cleanup.exit_code !== 0 || cleanup.session_id) text({logging_cleanup_failed: true, stagingPath, detail: cleanup.output});
+    } else {
+      text({recording_staging_retained: stagingPath});
+    }
+  }
+  if (result.exit_code !== 0 || result.session_id) throw new Error("RAW MCP RECORDING FAILED: " + result.output);
+  let receipt;
+  try { receipt = JSON.parse(result.output.trim()); } catch { throw new Error("Recorder receipt is invalid: " + result.output); }
+  text({raw_mcp_record: receipt});
+  return receipt;
+}
+async function callFateBridge(toolName, args, directory) {
+  if (!/^mcp__fatebridge__[A-Za-z0-9_]+$/.test(toolName)) throw new Error("Unexpected tool namespace");
+  if (typeof tools[toolName] !== "function") throw new Error("Tool is not available: " + toolName);
+  // Snapshot request before invocation, then invoke the actual connected MCP tool.
+  const request = JSON.parse(JSON.stringify(args));
+  let response = null, callError = null;
+  try { response = await tools[toolName](args); }
+  catch (error) { callError = error; }
+  const record = {kind: "tool", tool: toolName, arguments: request, response};
+  if (callError) record.invocation_error = observedError(callError);
+  try { await saveObservation(record, directory); }
+  catch (error) {
+    text({raw_mcp_recording_failed: true, tool: toolName, error: observedError(error), original_tool_threw: Boolean(callError)});
+    // The unchanged response is retained in this exec session's persistent store.
+    // Do not silently rerun a successful calculation to repair logging.
+    store("unrecorded_fatebridge_observation", record);
+    throw error;
+  }
+  if (callError) throw callError;
+  return response;
+}
+async function readAndRecordResource(readerName, readArgs, resourceUri, directory) {
+  if (typeof tools[readerName] !== "function") throw new Error("Resource reader is not available: " + readerName);
+  let response = null, callError = null;
+  try { response = await tools[readerName](readArgs); } catch (error) { callError = error; }
+  const record = {kind: "resource", reader: readerName, resource_uri: resourceUri, arguments: readArgs, response};
+  if (callError) record.invocation_error = observedError(callError);
+  try { await saveObservation(record, directory); }
+  catch (error) {
+    text({raw_resource_recording_failed: true, reader: readerName, error: observedError(error)});
+    store("unrecorded_fatebridge_observation", record);
+    throw error;
+  }
+  if (callError) throw callError;
+  return response;
+}
+// Usage: set the directory per test case, using only the user's confirmed inputs.
+// const response = await callFateBridge("mcp__fatebridge__TOOL", actualArgs, caseDirectory);
+// Inspect the returned response normally; do not print the whole raw response.
+// If a real MCP call returns isError=true, it is saved unchanged and returned.
+// If it throws, response=null plus invocation_error records the actual exception.
+// There is currently no mcp__fatebridge__ read-resource tool in this session.
+// For an available native read_mcp_resource, use its exact server and uri schema:
+// await readAndRecordResource("read_mcp_resource", {server: "...", uri: "..."}, uri, caseDirectory).
+// Use a server and URI actually returned by list_mcp_resources for native reads.
+// The recorder also copies accessible local temporary result_delivery.file_path
+// bytes into audit-deferred; file_payload_path is a selector, not a filename.
+// That preserves expiring evidence;
+// it does not expose missing fields to the tested agent, change the MCP response,
+// or prove a remote reference was read. Unavailable references are labeled explicitly.

@@ -101,7 +101,7 @@ SPECS: List[ToolSpec] = [
         bind=raw_invoke(calculate_meihua_analysis),
         request_model=MeihuaAnalysisRequest,
         summary=(
-            "梅花易数：当下起念、随机取数的即兴一问；"
+            "梅花易数：按用户选定的起卦年月日时分和时区取数；"
             "问具体事成败用 sixyao，问方位时机用 qimen。"
         ),
         operation_label_zh="梅花易数",
@@ -114,8 +114,8 @@ SPECS: List[ToolSpec] = [
         bind=raw_invoke(calculate_tongshefa_analysis),
         request_model=TongSheFaRequest,
         summary=(
-            "通蓍法起卦：古法蓍草起卦问一事；"
-            "即兴起念用 meihua_analysis，问成败用 sixyao。"
+            "统摄四卦组合：按实际给定的 taiyin/taiyang/shaoyang/shaoyin "
+            "组合左右卦、潜藏与亲和；不实现蓍草十八变或大衍随机起卦，固定默认不是用户起卦。"
         ),
         operation_label_zh="通蓍法",
         family="divination",
@@ -130,7 +130,7 @@ SPECS: List[ToolSpec] = [
             "六爻纳甲：问一件具体事能不能成（需明确一事一方向）；"
             "method=coin 真·摇钱起卦（系统随机六掷，可传 coins 报真实掷果或 seed 复现）；"
             "传 gua_code/lines 用已摇之卦，未传则按起卦时刻自动时间起卦；"
-            "即兴随机一问用 meihua_analysis，问方位谋略用 qimen。"
+            "按指定问时取数用 meihua_analysis，问方位谋略用 qimen。"
         ),
         operation_label_zh="六爻",
         family="divination",
@@ -169,7 +169,7 @@ SPECS: List[ToolSpec] = [
         request_model=SuZhanRequest,
         summary=(
             "宿占：以二十八宿星宿为核心的择日 / 星宿吉凶；"
-            "西式随机问事用 otherbu，中式起卦用 sixyao 或 meihua_analysis。"
+            "解读已有占星骰面用 otherbu，中式起卦用 sixyao 或 meihua_analysis。"
         ),
         operation_label_zh="宿占",
         family="divination",
@@ -191,8 +191,8 @@ SPECS: List[ToolSpec] = [
         bind=raw_invoke(calculate_otherbu_analysis),
         request_model=OtherBuRequest,
         summary=(
-            "其他卜法：基于占星骰子（星座/宫位/行星 + 所问之事）起课的西式占卜，"
-            "区别于六爻/梅花/通蓍等中式卜法。"
+            "占星骰面解读：使用用户实际提供的星座/宫位/行星与问题；"
+            "不自动随机抽骰，不支持塔罗牌阵，固定默认不是本次抽取。"
         ),
         operation_label_zh="其他卜法",
         family="divination",

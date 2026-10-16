@@ -1,0 +1,9 @@
+[
+  {
+    "path": "/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/6b73f14c3c728a64ec9f5cdbae8eed0ef15573e1f20586fe.json",
+    "fields": [
+      "analysis_calendar"
+    ],
+    "command": "/Users/thomas/Desktop/FateBridge/.venv/bin/python -c 'import json\nfrom pathlib import Path\np=Path(\"/var/folders/2r/zv6k2rrj4jq2dtw8ygth8gd80000gn/T/fatebridge-results-501/6b73f14c3c728a64ec9f5cdbae8eed0ef15573e1f20586fe.json\")\nd=json.loads(p.read_text())[\"payload\"]\nprint(json.dumps(d[\"analysis_calendar\"],ensure_ascii=False))\n'"
+  }
+]

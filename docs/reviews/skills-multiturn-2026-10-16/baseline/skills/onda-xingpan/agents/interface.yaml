@@ -1,0 +1,50 @@
+# Machine-readable scenario interface; validated against SKILL.md and engine catalog.
+name: onda-xingpan
+version: 0.2.0
+scenario: 星盘 · 占星自观
+summary: 用日月上升、重点宫位与实际相位读懂本命和关系，交付可对照的特点与相处建议
+triggers:
+- 占星
+- 星盘
+- 出生盘
+- 本命盘
+- 上升星座
+- 太阳月亮
+- 行星落宫
+- 相位
+- 合盘
+- 关系盘
+- 希腊占星
+- 古典占星
+- 印度占星
+- 果老星宗
+engine_tools:
+- astro_chart
+- astro_chart13
+- astro_germany_chart
+- astro_guolao_chart
+- astro_hellen_chart
+- astro_india_chart
+- astro_relative_chart
+- western_timing_analysis
+required_inputs:
+- birth_year
+- birth_month
+- birth_day
+- birth_hour
+reads:
+- ../../_shared/fatebridge-engine.md
+- ../../_shared/onda-counsel.md
+output:
+  kind: interpretation
+  grounding: engine_fields
+  voice: onda-counsel
+  deliverables:
+  - 本命关键落点与相位
+  - 关系盘类型与真实交互
+  - 可在现实中对照的建议
+boundary: 传统术数与占星的文化参考视角，不是决定论，不替代医疗、心理、法律、财务等专业意见。
+license: Apache-2.0
+input_notes:
+- 核心盘坐标可由受支持出生地点解析；关系盘及西占推运仍需经纬度
+- 出生时区与时间精度须核对；西占默认民用钟时

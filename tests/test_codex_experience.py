@@ -285,6 +285,81 @@ def test_career_positive_factor_does_not_claim_overall_high_grade():
     assert all("事业格局高" not in note for note in result["notes"])
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "key", ["analyze_destiny", "astro_chart", "ziwei_birth", "meihua_analysis"]
+)
+async def test_consultation_first_views_keep_interpretable_evidence_across_surfaces(
+    key, capsys
+):
+    """A successful first call must contain the facts its reading relies on.
+
+    This catches views which omitted structure rules, the Sun/Moon, palace
+    stars, or moving line. Compare the transports each tool actually exposes.
+    """
+    spec = next(s for s in CATALOG if s.key == key)
+    inputs = example_input(spec)
+    as_of = "2026-10-15T12:00:00+08:00"
+    fields = suggested_fields(spec)
+    async with Client(create_mcp_app()) as client:
+        result = await client.call_tool(
+            spec.tool_name,
+            {
+                **inputs,
+                "as_of": as_of,
+                "fields": fields,
+                "strict_fields": True,
+                "include_snapshot_text": False,
+            },
+        )
+    payload = result.structured_content
+    assert not result.is_error and "result_delivery" not in payload
+    if key == "analyze_destiny":
+        assert payload["four_pillars"]["day"]["stem"]
+        assert payload["day_master"]["element"]
+        assert payload["ten_gods"]
+        assert payload["structure_profile"]["decision_basis"]
+        assert payload["structure_profile"]["useful_elements"]
+        assert payload["person_info"]["normalized_birth_datetime"]
+    elif key == "astro_chart":
+        assert {"Sun", "Moon"} <= {p["id"] for p in payload["planets"]}
+        assert payload["aspects"] and all("orb" in a for a in payload["aspects"])
+    elif key == "ziwei_birth":
+        assert len(payload["ziwei_birth"]["palaces"]) == 12
+        assert any(p["stars"] for p in payload["ziwei_birth"]["palaces"])
+        assert payload["ziwei_birth"]["sihua"]
+    else:
+        assert 1 <= payload["meihua"]["seed"]["moving_line"] <= 6
+        assert payload["meihua"]["body_use_relation"]
+        assert payload["analysis_context"]["analysis_datetime"]
+    mcp_business = {k: v for k, v in payload.items() if k != "run_metadata"}
+    query = [("fields", field) for field in fields] + [
+        ("as_of", as_of),
+        ("strict_fields", "true"),
+        ("include_snapshot_text", "false"),
+    ]
+    if spec.rest_path is not None:
+        with TestClient(app) as rest:
+            response = rest.post(spec.rest_path, json=inputs, params=query)
+        assert response.status_code == 200, response.json()
+        assert {
+            k: v for k, v in response.json().items() if k != "run_metadata"
+        } == mcp_business
+    command = shlex.split(cli._cli_example(spec, example_input(spec)))[1:]
+    code, cli_payload, _ = invoke(
+        capsys,
+        *command,
+        "--as-of",
+        as_of,
+        "--fields",
+        *fields,
+        "--strict-fields",
+        "--no-include-snapshot-text",
+    )
+    assert code == 0
+    assert {k: v for k, v in cli_payload.items() if k != "run_metadata"} == mcp_business
+
+
 @pytest.mark.parametrize(
     "key",
     [spec.key for spec in CATALOG if suggested_fields(spec) is not None],

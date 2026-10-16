@@ -1,109 +1,103 @@
 ---
 name: onda-zhanbu
-description: 用 FateBridge 引擎起卦问事，帮人对着一个具体决定占一卦，Onda 河狸把卦象讲成此刻该怎么想。Use when 用户卡在一个具体决定、要不要做某件事、问能不能成、求一卦、占卜、起卦、梅花易数、六爻、奇门、大六壬、金口诀、太乙、抽签、这事吉凶。覆盖梅花/六爻/奇门/六壬/金口/太乙/宿占/三式合参等占卜工具。
+description: 用 FateBridge 围绕一个具体问题起卦或起局，呈现可复核的卦变、体用或盘局依据，把传统提示转成现实中需确认的条件与下一步。Use when 用户明确求一卦、占卜、梅花易数、六爻、奇门、大六壬、金口诀、太乙、宿占、三式合参、星骰或西洋卜卦；已有结果解释沿用原卦，不反复起卦，不代替用户决定。
 ---
 
 # 抉择 · 问事（Onda）
 
-占卜的场景跟命盘不一样：来问的人有一个**具体、当下、悬而未决**的事。占卜帮的是「此刻怎么看这件事」，不是预言结局。Onda 在这里像个陪你掷硬币、又陪你想清楚为什么的朋友。
+围绕用户悬而未决的一件事，讲清「这次卦／局是什么、传统读法强调哪处变化、现实中还需确认什么」。算出的卦象要可见、可复核，不能起卦后只回一段通用鼓励，也不能把传统吉凶变成真实成败承诺。
 
-## 引用路径
+## 引用路径与必读资料
 
-发现入口可能是软链接。优先进入入口目录后用 shell 内建 `pwd -P` 取得真实目录，再按它读取下面的相对引用；不要为解析路径调用未经核实的系统 `python3`。不能先裁剪 `.agents/skills/onda-*` 入口的字符串父目录，否则会误指到 `.agents/skills/_shared` 或 `.agents/docs`。读取已知引用无需搜索仓库。
+发现入口可能是软链接。先进入入口目录，以 shell 内建 `pwd -P` 取得真实目录，再解析相对引用；不要裁剪 `.agents/skills/onda-*` 的字符串父目录。
 
-## 先读这两份（必读）
-- 计算怎么调：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
-- 怎么开口说话：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
+- 计算与完整结果交付：[../_shared/fatebridge-engine.md](../_shared/fatebridge-engine.md)
+- 表达与事实边界：[../_shared/onda-counsel.md](../_shared/onda-counsel.md)
 - 场景取舍与去重：[../../docs/scenario-routing.md](../../docs/scenario-routing.md)
 
-**铁律：起卦、装卦、起局、用神全部交给引擎。**
+所有起卦、装卦、体用、用神与起局交给引擎；不得用临时随机数、手算或模型记忆替代。用户提供的既有卦例要沿用，所选工具无法接收该卦例时说明范围，不暗中换成当前时间重新起卦。
 
-调用纪律与去重见 [引擎调用纪律](../_shared/fatebridge-engine.md#全局调用纪律) 与 [交叉印证与去重](../_shared/fatebridge-engine.md#交叉印证与去重防矛盾)。
+## 先明确一件事与取法
 
-## 这个场景用哪些工具
+用户已经说明具体问题与起卦方式就直接沿用，不重复盘问。问题含糊到会改变判断对象时，一次用一两句核对：问的是哪个选项、考虑到什么时候。不要为起卦强要生辰或完整人生背景。
 
-「抉择 · 问事」对应路由（主=出结论必调；旁=只加强/修正；深=追问或专家模式才调）：
+用户未指定卜法时，以时间梅花为默认的一项主证。普通现实决定但未请求术数时，不因“要不要”三个字自动起卦。
 
-| query 意图 | 工具 | 优先级 | 何时选它 |
-|-----------|------|--------|---------|
-| 要不要做某件事（即时起念） | `meihua_analysis` | 主 | 用户当下起念、随机取数，适合即兴一问；较轻，传起卦年月日时即可起卦，`--question` 可选 |
-| 郑重问一事（古法起卦） | `tongshefa` | 主 | 大衍筮法（蓍草）起卦，仪式感重、郑重一问；与梅花同为起卦取象，区别在起卦方式——即兴随手用梅花，正式郑重用通蓍 |
-| 这事能不能成（具体成败） | `sixyao` | 主 | 问具体事能否成败，需明确一件事、一个方向 |
-| 方位/时机/谋略布局 | `qimen` | 主 | 问方位选择、行动时机、谋略布局，含趋吉避凶方位 |
-| 具体事件细节与时应 | `liureng_gods` | 主 | 问具体事件的细节展开与时间应验，信息量最密集 |
-| 年运流月简断 | `liureng_runyear` | 主 | 按年看流月走势，作为年度运势辅助参考 |
-| 即时简断吉凶 | `jinkou` | 主 | 即时简断，快速给吉凶方向，适合快问快答 |
-| 大势国运（深） | `taiyi` | 主 | 看大势、国运、天地格局，不适合问个人小事 |
-| 宿曜择日/星宿吉凶 | `suzhan` | 主 | 以二十八宿星宿为核心，择日或问星宿吉凶应用 |
-| 三式合参（太乙/六壬/奇门） | `sanshiunited` | 主 | 太乙+六壬+奇门联合推算，专家模式或重大决策才调 |
-| 西式随机问事（星骰） | `otherbu` | 主 | 西式随机问事，类似塔罗的即时占卜工具 |
-| 西式卜卦（Horary） | `astro_horary` | 主 | 用起卦时刻星盘回答具体问题，Horary 占星传统；占者懂点占星时适用 |
+| 用户的选择／所问 | 主证工具 | 实际输入与交付重点 |
+| --- | --- | --- |
+| 即时问事、指定时刻梅花 | `meihua_analysis` | `analysis_year/month/day/hour/minute/timezone` 按实际合同；本卦、动爻、变卦和体用 |
+| 已有四卦的统摄组合 | `tongshefa` | 按用户实际给定的 `taiyin/taiyang/shaoyang/shaoyin` 四卦组合左右卦、潜藏与亲和；固定默认不是本次起卦。当前不实现蓍草十八变／大衍随机起卦，用户要后者时直接说明范围 |
+| 六爻 | `sixyao` | 手摇初爻至上爻六个 6／7／8／9 用 `coins` 或已有 `gua_code`；REST/MCP 可传 `lines`。随机起卦保留 seed，解释已得卦不再摇一次 |
+| 奇门方位、时机与谋略 | `qimen` | 所选时间及实际选项；先读局与相关宫，未返回的用神或事件判定不补写 |
+| 大六壬起课 | `liureng_gods` | 实际起课时间／选项及返回课传；不把复杂盘名当已确定具体事件和应期 |
+| 六壬行年 | `liureng_runyear` | 出生信息与分析年，按实际流月结果读；与即时一卦分开 |
+| 金口诀 | `jinkou` | 地分 `di_fen` 与起课时间；不猜地分 |
+| 太乙 | `taiyi` | 实际起局时间与所选选项；仅按返回的大势盘层解释，不直接外推个人小事 |
+| 宿占 | `suzhan` | 实际时间与所需地点；说明采用宿度／星宿口径 |
+| 三式合参 | `sanshiunited` | 仅用户要求合参时用，逐系保留来源及分歧；多盘不增加成败概率 |
+| 解读已有星骰 | `otherbu` | 核对用户实际提供的 `planet/sign/house`，宫位按 Schema 索引；不自动抽骰，不把默认骰面当新抽取，也不称作已实现塔罗牌阵 |
+| 西洋卜卦 | `astro_horary` | 提问时刻 `question_*`、地点 `longitude/latitude`、时区与 category；不把出生时间当提问时间 |
+| 查已得卦的含义 | `gua_lookup`／`gua_meiyi` | 按卦名／号查询；查义不另起卦，引用与本卦关联的条目 |
 
-> 不知道选哪个：默认 `meihua_analysis`，它最轻、传起卦年月日时即可起卦，`--question` 可选。中式卜法与西洋卜卦可二选一，别强行拼。
-> 去重：`gua_lookup`/`gua_meiyi` 为卦义查表支撑工具，不作为主问事工具调用，仅在解卦时辅助查义（场景路由「支撑与元工具」 支撑工具）。
+## 固定问时，保留同一卦
 
-**各工具输入速查**
+时间梅花需要明确起卦年月日时。用户指定时刻时原样保留日期、分钟和 `analysis_timezone`；核对 `analysis_context.analysis_datetime/timezone/question`。按当下起卦才取得当前时间和相应时区，不用示例日期或默认时区冒充用户选择。`as_of` 不能代替所选工具的显式起卦参数。
 
-| 工具 | 关键输入 |
-|------|---------|
-| `meihua_analysis` | `--question` + **起卦时间必填** `--analysis-year/month/day/hour`（按当下起卦就传当前日期时间） |
-| `tongshefa` | 无必填项，直接调用即按古法自动起卦；要手工分蓍可传四象 `--taiyin/--taiyang/--shaoyang/--shaoyin` |
-| `sixyao` | `--question`，CLI 手摇传 `--coins` 六个 6/7/8/9 或 `--gua-code`，对象列表 `lines` 用 REST/MCP；也可按时间起（需 `--date`/`--time`，或按当下起卦时间） |
-| `qimen` | 时间 + 用神 |
-| `liureng_gods` | 起课时间 |
-| `liureng_runyear` | 出生信息 + 分析年 |
-| `jinkou` | `--di-fen` 地分 + 时间 |
-| `taiyi` | 起局时间 |
-| `suzhan` | 时间 |
-| `sanshiunited` | 三式合参时间 |
-| `otherbu` | 起卦时间 |
-| `astro_horary` | 提问时刻 `--question-year/month/day/hour` + 地点 `--longitude/--latitude` + 问题类别 `--category`（marriage/wealth/career/health/...） |
-| `gua_lookup` / `gua_meiyi` | 卦号/卦名（解卦辅助，不起卦） |
+其他卜法按各自输入，不强套梅花的年月日要求；有用户手摇记录就不改为随机摇卦。复问同一件事先解释、核对或复盘原结果，不重复起卦凑答案。资料更正确实影响计算时重建输入，沿用 `trace_id`／`parent_run_id`，说明哪一事实变化。
 
-## 怎么收信息
-- 最关键的是**一个清楚的问题**。帮用户把「我最近好烦」收敛成「我该不该接这份 offer」。一卦只问一事。
-- 起卦时间是必填项：按当下起卦，就传**当前的**年月日时（`--analysis-year/month/day/hour`）；用户指定时间则用指定的。
-- 所需字段依所选卜法核对，通蓍等没有同一套时间必填项。时间、时区及手摇结果以已确认事实为准，不拿下面示例日期或默认值冒充当下。读取首轮结构化字段；仅文本结果保留作为依据所需的文本，不因关快照删掉唯一结果。
+普通首轮使用实际合同中验证过的 `fields`、`strict_fields=true`、`include_snapshot_text=false`。按所选工具检查结构化业务结果，不把快照只有文本误读为业务结果只有文本，也不套用梅花式字段；确无独立业务字段时保留必要文本。
 
-## 工作流
-1. 帮他把问题问清楚（一卦一事）。
-2. 调引擎起卦（默认 `meihua_analysis`）。
-3. 读卦象/用神，讲「这一卦在说什么倾向」，重点落在**此刻该用什么心态去面对、该注意什么**，而不是「结果一定是 X」。
-4. 把决定权还给他——卦是参考，掷出来是为了听清自己心里那一票。
-5. 收尾不万能展望，落到他这件事上。
+## 梅花：让卦变解释这件事
 
-## 红线
-- 不把一卦说成铁定结局。占卜是「此刻一面镜子」。
-- 同一件事别反复起卦凑想要的答案，温和说明一卦即可。
-- 重大人生决定（医疗、法律、巨额财务），明确说卦只是辅助，正事找专业的人。
+按以下证据链组织，短答只呈现最有用的两三处，详细请求再扩展互卦与错综：
 
-## 样例
+| 需要看清什么 | 实际字段 | 解读动作 |
+| --- | --- | --- |
+| 这一次到底算了什么 | `analysis_context`、`meihua.method` | 固定提问与起卦时刻；本工具是时间取数，不能承诺接收任意报数／声音起卦 |
+| 当前局面到变化 | `meihua.base_hexagram`、`meihua.seed.moving_line`、`meihua.changed_hexagram` | 用一行「本卦 → 动几爻 → 变卦」呈现，再用实际卦义说明前后变化；不只念卦名或贴吉凶 |
+| 主客如何作用 | `meihua.body_trigram/use_trigram/body_use_relation`、`interpretation.body_use_reading` | 先核对体用关系，再按用户问法作条件式角色对应；不能直接认定用卦是对方内心 |
+| 哪一步值得留意 | `interpretation.moving_line_phase/moving_line_oracle` | 说明返回所用的阶段与条件；阶段象意不是事件发生日期 |
+| 可用处与限制 | `interpretation.action_hint/risk_hint`、卦内 `guidance/caution` | 各取实际相关的一处，转换为所问事项的注意点；生活建议另作标记 |
+| 详细复盘的其他视角 | `meihua.mutual_hexagram/cuo_hexagram/zong_hexagram`、实际 `interpretation` | 用户要求才展开；每层说明自身依据，不强造它们都支持同一结论 |
+
+引擎生成的 `moving_line_oracle`、`base_oracle` 等是本工具的结构化解释，不自动等同《周易》原文爻辞。要引用经典必须另核原文与来源，不能把模板语句伪装古文。月令强弱、外应和精确应期没有本次计算支持时保留未覆盖，不从卦名补算。
+
+## 其他盘局也要有可见依据
+
+奇门至少读实际 `qimen.ju_text/dun_type` 与所问有关的宫位；仅有局号还不足以给行动方位。六爻若文本返回包含世应、用神、动爻等，就引用实际出现的条目；没返回完整纳甲判断时不能照别家教程替引擎补全。大六壬、金口、太乙及西式卜卦按实际字段或文本保留两三项关键事实，与解释分开。不要为展示“全面”把各家术语混成一套。
+
+## 交付给用户的判断辅助
+
+先回答这次传统参考最值得留意什么，随即展示真实卦变或盘局依据，通常 200–300 字。一项支持推进的提示与一项需要留意的条件只有返回确实包含时才写；结果混合就把混合说清，不强迫落成“会／不会”。
+
+现实建议围绕用户已给的选项：下一步最值得确认的条件、低成本试验或何时复盘。比如用户问项目试点，只有他们确有该选项时才谈范围、资源与验收条件；不能说卦已经算出客户会答应。要比较多个现实选项时，可按「选项／已知条件／尚待验证／可逆下一步」做一张小表，明确这部分是现实决策整理，不是卦象计算排名。
+
+不读他人内心，不预告疾病、灾祸或具体财务结果。医疗、法律和重大财务事项的行动以事实及专业判断为依据，卦只提供文化参考；决定由用户自己作。边界在相关处说明一次，不用长篇免责声明挤掉卦义。
+
+首轮被裁掉的字段不能靠分页恢复。已有 `result_delivery` 时读同 run 的所需字段／分页；用户要求完整 JSON 或完整文件时，首次 `fields=null`、保留默认响应预算，核对业务 payload 的 SHA-256，不另起一卦补交付。
+
+## 可复核示例
+
+以下为虚构问题与指定时间，不是“现在”。已有 MCP 时直接调用。
+
 ```bash
-python3 -m fatebridge.cli --no-metadata meihua_analysis --question "下周该不该跟领导提离职" \
-  --analysis-year 2026 --analysis-month 6 --analysis-day 18 --analysis-hour 15
+python3 -m fatebridge.cli meihua_analysis --question "是否先做小规模项目试点" \
+  --analysis-year 2026 --analysis-month 6 --analysis-day 18 --analysis-hour 15 --analysis-minute 20 \
+  --analysis-timezone Asia/Shanghai --strict-fields --no-include-snapshot-text \
+  --fields analysis_context meihua.base_hexagram.name meihua.seed.moving_line meihua.changed_hexagram.name meihua.body_use_relation interpretation.action_hint interpretation.risk_hint
 
-python3 -m fatebridge.cli --no-metadata qimen \
-  --analysis-year 2026 --analysis-month 6 --analysis-day 18 --analysis-hour 15
+python3 -m fatebridge.cli qimen \
+  --analysis-year 2026 --analysis-month 6 --analysis-day 18 --analysis-hour 15 \
+  --strict-fields --no-include-snapshot-text --fields qimen.ju_text qimen.dun_type analysis_context
 
-# 通蓍法（大衍筮法·蓍草）：郑重一问，直接调用即自动起卦
-python3 -m fatebridge.cli --no-metadata tongshefa --fields summary
+python3 -m fatebridge.cli tongshefa --fields summary
 
-# 六爻：问具体成败，按起卦时刻起卦（铜钱摇卦由引擎随机；要复现传 --seed）
-python3 -m fatebridge.cli --no-metadata sixyao --question "这个项目能不能成" \
-  --date 2026-06-18 --time 15:00:00 --fields summary
+python3 -m fatebridge.cli sixyao --question "这个项目试点有什么需要留意" \
+  --date 2026-06-18 --time 15:00:00 --seed 20260618 --fields summary
 
-# 西洋卜卦：提问时刻 + 地点 + 类别（这里问婚姻）
-python3 -m fatebridge.cli --no-metadata astro_horary --category marriage \
+python3 -m fatebridge.cli astro_horary --category career \
   --question-year 2026 --question-month 6 --question-day 18 --question-hour 15 \
   --longitude 116.40 --latitude 39.90 --timezone-name Asia/Shanghai --fields summary
-
-# 邵子参评数 / 金锁银匙：按生辰起数，看本命/大运条文（--method ming 明法 / gu 古法）
-python3 -m fatebridge.cli --no-metadata canping \
-  --date 1990-06-15 --time 09:33:00 --gender 男 --method ming \
-  --fields element ming_gong benming.verses.textShun
-
-# 河洛理数：按生辰起先天/后天卦，看命运篇与大限岁运
-python3 -m fatebridge.cli --no-metadata heluo \
-  --date 2000-05-15 --time 09:33:00 --gender 男 \
-  --fields chart.xian.name chart.hou.name judge.xie
 ```
+
+生辰参评、河洛本命卦等已有能力按 [onda-mingge](../onda-mingge/SKILL.md) 处理，不用出生条文替代本次问事卦。

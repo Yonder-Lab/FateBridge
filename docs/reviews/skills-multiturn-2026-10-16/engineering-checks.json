@@ -1,0 +1,124 @@
+{
+  "pytest": {
+    "command": ".venv/bin/python -m pytest tests/test_codex_experience.py tests/test_skills_engine_contract.py tests/test_skills_interface_contract.py tests/test_scenario_routing_coverage.py tests/test_codex_call_contracts.py -q",
+    "exit_code": 0,
+    "passed": 78,
+    "warnings": 5,
+    "log": "engineering-pytest.txt",
+    "test_development_note": "Initial test expansion assumed analyze_destiny had a REST path. It is intentionally MCP/CLI-only. Fixed the test to compare only exposed transports; no route was added or restored."
+  },
+  "generation_checks": [
+    {
+      "command": ".venv/bin/python scripts/build_scenario_manifest.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python scripts/build_codex_call_contracts.py --check",
+      "exit_code": 0
+    }
+  ],
+  "lint": [
+    {
+      "command": "ruff check tests/test_codex_experience.py",
+      "exit_code": 0
+    },
+    {
+      "command": "ruff format --check tests/test_codex_experience.py",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "skill_validation": [
+    {
+      "skill": "onda-fengshui",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-jiankang",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-mingge",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-shiye",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-shiyun",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-xingpan",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-yuanfen",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-zhanbu",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    },
+    {
+      "skill": "onda-zige",
+      "exit_code": 0,
+      "output": "Skill is valid!"
+    }
+  ],
+  "baseline_skill_snapshot_unchanged_through_all_36_turns": true,
+  "new_preset_transport_scope": {
+    "analyze_destiny": [
+      "MCP",
+      "CLI"
+    ],
+    "astro_chart": [
+      "MCP",
+      "REST",
+      "CLI"
+    ],
+    "ziwei_birth": [
+      "MCP",
+      "REST",
+      "CLI"
+    ],
+    "meihua_analysis": [
+      "MCP",
+      "REST",
+      "CLI"
+    ]
+  },
+  "second_iteration": {
+    "scope": "Only onda-shiyun workflow clarification; formulas and schemas unchanged",
+    "narrow_liunian_cli": {
+      "exit_code": 0,
+      "fields": [
+        "liunian_info",
+        "personal_info",
+        "summary",
+        "target_year_jieqi"
+      ],
+      "no_snapshot_export": true,
+      "no_result_delivery": true,
+      "raw_result": "liunian-narrow-engineering.json"
+    },
+    "scenario_manifest_check_exit": 0,
+    "shiyun_format_validation_exit": 0
+  },
+  "third_iteration": {
+    "scope": "Only shiyun reference-baseline/anchor disclosure rules; no formula/schema change",
+    "shiyun_format_validation_exit": 0
+  }
+}

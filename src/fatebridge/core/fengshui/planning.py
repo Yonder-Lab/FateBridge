@@ -45,6 +45,24 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 "features": proposal_features,
             }
         )
+        if (
+            proposed.environmental_context is not None
+            and proposed.workstation_review
+            and proposed.workstation_review.evaluation_period is None
+            and req.workstation_review
+            and req.workstation_review.evaluation_period is not None
+        ):
+            # The explicitly chosen evaluation period is a query parameter,
+            # independent of the geometry that must be observed again.
+            proposed.environmental_context = proposed.environmental_context.model_copy(
+                update={
+                    "workstation_review": proposed.workstation_review.model_copy(
+                        update={
+                            "evaluation_period": req.workstation_review.evaluation_period
+                        }
+                    )
+                }
+            )
         candidate_layers = dict(layers)
         if "bazhai" in layers:
             candidate_layers["bazhai"] = {
@@ -80,6 +98,26 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                         chart_scope="declared_house_and_annual_layers_no_automatic_floor_period",
                     )
         missing = list(layout["missing_inputs"])
+        # Any moved end requires a new observation of the same relationship.
+        if req.workstation_review:
+            fresh_review = proposed.workstation_review
+            for activity in req.workstation_review.activities:
+                if activity.object_id == candidate.object_id and not any(
+                    a.object_id == activity.object_id
+                    for a in (fresh_review.activities if fresh_review else [])
+                ):
+                    missing.append(
+                        f"layout_alternatives.{candidate.candidate_id}.environmental_context.workstation_review.activities.{activity.object_id}"
+                    )
+            for relation in req.workstation_review.entry_barriers:
+                identity = (relation.entrance_id, relation.desk_id, relation.barrier_id)
+                if candidate.object_id in identity and not any(
+                    (r.entrance_id, r.desk_id, r.barrier_id) == identity
+                    for r in (fresh_review.entry_barriers if fresh_review else [])
+                ):
+                    missing.append(
+                        f"layout_alternatives.{candidate.candidate_id}.environmental_context.workstation_review.entry_barriers.{relation.relation_id}"
+                    )
         if (
             "jinsuo" in layers
             and not candidate.features
@@ -131,6 +169,22 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                             f"{branch}.interior_relations.{relation.relation_id}"
                         )
                 for fact in old_materials:
+                    if fact.application:
+                        new_app = next(
+                            (
+                                f.application
+                                for f in fresh.material_facts
+                                if f.object_id == fact.object_id and f.application
+                            ),
+                            None,
+                        )
+                        for field in type(fact.application).model_fields:
+                            if getattr(fact.application, field) is not None and (
+                                new_app is None or getattr(new_app, field) is None
+                            ):
+                                missing.append(
+                                    f"{branch}.material_facts.{fact.fact_id}.application.{field}"
+                                )
                     for attribute in (
                         "material",
                         "shape",
@@ -213,7 +267,23 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                     )
         constraint = constraints.get(candidate.object_id)
         permission = permission_state(constraint, [list(candidate.changes)])
-        blocked = permission == "blocked" or candidate.physically_feasible is False
+        workstation_actions = [
+            action
+            for action in layout.get("workstation_analysis", {}).get(
+                "action_options", []
+            )
+            if action["object_id"] == candidate.object_id
+        ]
+        blocked = (
+            permission == "blocked"
+            or candidate.physically_feasible is False
+            or any(action["status"] == "blocked" for action in workstation_actions)
+        )
+        execution_pending = [
+            item
+            for action in workstation_actions
+            for item in action["pending_confirmations"]
+        ]
         partial = bool(missing) or layout["status"] != "complete"
         status = (
             "blocked"
@@ -223,13 +293,16 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 if partial
                 else (
                     "ready"
-                    if permission == "allowed" and candidate.physically_feasible is True
+                    if permission == "allowed"
+                    and candidate.physically_feasible is True
+                    and not execution_pending
                     else "conditional_option"
                 )
             )
         )
         pending = []
         if not blocked:
+            pending.extend(execution_pending)
             for field, reason in [
                 ("layout_constraints", "confirm_action_permissions"),
                 (
@@ -290,19 +363,31 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
             comparisons.extend(
                 {"method": "indoor_forms", **check} for check in form["checks"]
             )
-        for branch in ("interior_analysis", "material_analysis"):
+        for branch in (
+            "interior_analysis",
+            "material_analysis",
+            "workstation_analysis",
+        ):
             comparisons.extend(
                 {
                     **finding,
                     "method": (
                         "indoor_authored_relations"
                         if branch == "interior_analysis"
-                        else "material_and_shape_reference"
+                        else (
+                            "workstation_authored_review"
+                            if branch == "workstation_analysis"
+                            else "material_and_shape_reference"
+                        )
                     ),
                     "comparison_scope": (
                         "independent_relation_predicate_not_compass_or_effect_prediction"
                         if branch == "interior_analysis"
-                        else "source_scoped_representation_eligibility_not_placement_fortune"
+                        else (
+                            "authored_activity_or_entry_relationship_not_placement_fortune"
+                            if branch == "workstation_analysis"
+                            else "source_scoped_representation_eligibility_not_placement_fortune"
+                        )
                     ),
                 }
                 for finding in layout.get(branch, {}).get("findings", [])
@@ -340,7 +425,11 @@ def evaluate_alternatives(req: AssessRequest, layers: Dict[str, Any]) -> Dict[st
                 "environment_adjustments": layout["environment_adjustments"],
                 **{
                     name: layout[name]
-                    for name in ("interior_analysis", "material_analysis")
+                    for name in (
+                        "interior_analysis",
+                        "material_analysis",
+                        "workstation_analysis",
+                    )
                     if name in layout
                 },
                 "old_target_feature_reused": False,
